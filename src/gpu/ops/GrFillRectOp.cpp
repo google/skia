@@ -244,7 +244,7 @@ private:
         GrQuadPerEdgeAA::ConfigureMesh(mesh, vertexSpec, 0, fQuads.count(), totalNumVertices,
                                        std::move(vertexBuffer), std::move(indexBuffer),
                                        vertexOffsetInBuffer);
-        target->recordDraw(std::move(gp), mesh, 1);
+        target->recordDraw(std::move(gp), mesh, 1, vertexSpec.primitiveType());
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

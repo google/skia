@@ -160,7 +160,7 @@ private:
                                   pipeline,
                                   primProc,
                                   nullptr,
-                                  &dynamicState, 0);
+                                  &dynamicState, 0, GrPrimitiveType::kTriangleStrip);
 
         flushState->opsRenderPass()->draw(programInfo, meshes.begin(), 4,
                                           SkRect::MakeIWH(kScreenSize, kScreenSize));

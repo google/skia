@@ -123,6 +123,8 @@ public:
     virtual void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[],
                       const GrMesh[], int meshCount, const SkRect& drawBounds) const;
 
+    virtual GrPrimitiveType primType() const = 0;
+
     // The Shader provides code to calculate each pixel's coverage in a RenderPass. It also
     // provides details about shape-specific geometry.
     class Shader {

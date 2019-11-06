@@ -146,7 +146,7 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                               pipeline,
                               *this,
                               fixedDynamicState,
-                              nullptr, 0);
+                              nullptr, 0, primitiveType);
 
     flushState->opsRenderPass()->draw(programInfo, &mesh, 1, bounds);
 }

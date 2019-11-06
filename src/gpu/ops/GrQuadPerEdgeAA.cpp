@@ -173,10 +173,11 @@ void ConfigureMesh(GrMesh* mesh, const VertexSpec& spec,
                    sk_sp<const GrBuffer> indexBuffer, int absVertBufferOffset) {
     SkASSERT(vertexBuffer);
 
+    mesh->setPrimitiveType(spec.primitiveType());
+
     if (spec.indexBufferOption() == IndexBufferOption::kTriStrips) {
         SkASSERT(!indexBuffer);
 
-        mesh->setPrimitiveType(GrPrimitiveType::kTriangleStrip);
         mesh->setNonIndexedNonInstanced(4);
         int offset = absVertBufferOffset +
                                     runningQuadCount * GrResourceProvider::NumVertsPerNonAAQuad();
@@ -207,7 +208,6 @@ void ConfigureMesh(GrMesh* mesh, const VertexSpec& spec,
         maxVertex = (runningQuadCount + quadsInDraw) * GrResourceProvider::NumVertsPerNonAAQuad();
     }
 
-    mesh->setPrimitiveType(GrPrimitiveType::kTriangles);
     mesh->setIndexed(std::move(indexBuffer), numIndicesToDraw, baseIndex, minVertex, maxVertex,
                      GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(vertexBuffer), absVertBufferOffset);

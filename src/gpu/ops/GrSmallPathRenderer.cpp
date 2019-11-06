@@ -803,8 +803,8 @@ private:
                                       flushInfo->fInstancesToFlush,
                                       GrResourceProvider::MaxNumNonAAQuads());
             mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-            target->recordDraw(
-                    flushInfo->fGeometryProcessor, mesh, 1, flushInfo->fFixedDynamicState, nullptr);
+            target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1,
+                               flushInfo->fFixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
             flushInfo->fVertexOffset += GrResourceProvider::NumVertsPerNonAAQuad() *
                                         flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;

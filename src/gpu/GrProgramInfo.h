@@ -22,14 +22,16 @@ public:
                   const GrPrimitiveProcessor& primProc,
                   const GrPipeline::FixedDynamicState* fixedDynamicState,
                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
-                  int numDynamicStateArrays)
+                  int numDynamicStateArrays,
+                  GrPrimitiveType primitiveType)
             : fNumSamples(numSamples)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
             , fFixedDynamicState(fixedDynamicState)
             , fDynamicStateArrays(dynamicStateArrays)
-            , fNumDynamicStateArrays(numDynamicStateArrays) {
+            , fNumDynamicStateArrays(numDynamicStateArrays)
+            , fPrimitiveType(primitiveType) {
         fRequestedFeatures = fPrimProc.requestedFeatures();
         for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
             fRequestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
@@ -89,6 +91,8 @@ public:
         return fFixedDynamicState->fPrimitiveProcessorTextures;
     }
 
+    GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+
 #ifdef SK_DEBUG
     void validate() const;
     void checkAllInstantiated() const;
@@ -110,6 +114,7 @@ private:
     const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
     const int                             fNumDynamicStateArrays;
     GrProcessor::CustomFeatures           fRequestedFeatures;
+    GrPrimitiveType                       fPrimitiveType;
 };
 
 #endif

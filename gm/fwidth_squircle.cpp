@@ -180,7 +180,8 @@ private:
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,
-                                  nullptr, nullptr, 0);
+                                  nullptr, nullptr, 0,
+                                  GrPrimitiveType::kTriangleStrip);
 
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);

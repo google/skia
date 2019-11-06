@@ -117,7 +117,7 @@ public:
     /** Overrides of GrMeshDrawOp::Target. */
     void recordDraw(sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
                     const GrPipeline::FixedDynamicState*,
-                    const GrPipeline::DynamicStateArrays*) final;
+                    const GrPipeline::DynamicStateArrays*, GrPrimitiveType) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, sk_sp<const GrBuffer>*, int* startIndex) final;
@@ -168,6 +168,7 @@ private:
         const GrMesh* fMeshes = nullptr;
         const GrOp* fOp = nullptr;
         int fMeshCnt = 0;
+        GrPrimitiveType fPrimitiveType;
     };
 
     // Storage for ops' pipelines, draws, and inline uploads.
