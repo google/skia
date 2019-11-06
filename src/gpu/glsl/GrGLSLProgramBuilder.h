@@ -37,7 +37,6 @@ public:
     virtual const GrCaps* caps() const = 0;
     const GrShaderCaps* shaderCaps() const { return this->caps()->shaderCaps(); }
 
-    int numSamples() const { return fProgramInfo.numSamples(); }
     GrSurfaceOrigin origin() const { return fProgramInfo.origin(); }
     const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
     const GrPrimitiveProcessor& primitiveProcessor() const { return fProgramInfo.primProc(); }

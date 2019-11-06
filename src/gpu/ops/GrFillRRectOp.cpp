@@ -752,12 +752,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                                                                      std::move(fProcessors),
                                                                      std::move(clip));
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                              flushState->drawOpArgs().origin(),
-                              *pipeline,
-                              *proc,
-                              fixedDynamicState,
-                              nullptr, 0);
+    GrProgramInfo programInfo(flushState, *pipeline, *proc, fixedDynamicState, nullptr, 0);
 
     GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
     mesh->setIndexedInstanced(

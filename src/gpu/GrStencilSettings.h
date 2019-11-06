@@ -83,10 +83,16 @@ public:
         SkASSERT(!this->isTwoSided());
         return fCWFace;
     }
+    // Returns the stencil settings for triangles that wind clockwise in "post-origin" space.
+    // (i.e., the space that results after a potential y-axis flip on device space for bottom-left
+    // origins.)
     const Face& postOriginCWFace(GrSurfaceOrigin origin) const {
         SkASSERT(this->isTwoSided());
         return (kTopLeft_GrSurfaceOrigin == origin) ? fCWFace : fCCWFace;
     }
+    // Returns the stencil settings for triangles that wind counter-clockwise in "post-origin"
+    // space. (i.e., the space that results after a potential y-axis flip on device space for
+    // bottom-left origins.)
     const Face& postOriginCCWFace(GrSurfaceOrigin origin) const {
         SkASSERT(this->isTwoSided());
         return (kTopLeft_GrSurfaceOrigin == origin) ? fCCWFace : fCWFace;

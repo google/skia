@@ -285,7 +285,7 @@ static void setup_multisample_state(const GrProgramInfo& programInfo,
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    SkAssertResult(GrSampleCountToVkSampleCount(programInfo.numSamples(),
+    SkAssertResult(GrSampleCountToVkSampleCount(programInfo.numRasterSamples(),
                                                 &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;
     multisampleInfo->minSampleShading = 0.0f;
