@@ -104,23 +104,39 @@ struct SkPackedGlyphID {
 
 private:
     static constexpr uint32_t PackIDSubXSubY(SkGlyphID glyphID, uint32_t x, uint32_t y) {
-        SkASSERT(x < 4);
-        SkASSERT(y < 4);
+        SkASSERT(x < (1u << kSubPixelPosLen));
+        SkASSERT(y < (1u << kSubPixelPosLen));
 
         return (x << kSubPixelX) | (y << kSubPixelY) | (glyphID << kGlyphID);
     }
 
     // Assumptions: pt is properly rounded. mask is set for the x or y fields.
+    //
+    // A sub-pixel field is a number on the interval [2^kSubPixel, 2^(kSubPixel + kSubPixelPosLen)).
+    // Where kSubPixel is either kSubPixelX or kSubPixelY. Given a number x on [0, 1) we can
+    // generate a sub-pixel field using:
+    //    sub-pixel-field = x * 2^(kSubPixel + kSubPixelPosLen)
+    //
+    // We can generate the integer sub-pixel field by &-ing the integer part of sub-filed with the
+    // sub-pixel field mask.
+    //    int-sub-pixel-field = int(sub-pixel-field) & (kSubPixelPosMask << kSubPixel)
+    //
+    // The last trick is to extend the range from [0, 1) to [0, 2). The extend range is
+    // necessary because the modulo 1 calculation (pt - floor(pt)) generates numbers on [-1, 1).
+    // This does not round (floor) properly when converting to integer. Adding one to the range
+    // causes truncation and floor to be the same. Coincidentally, masking to produce the field also
+    // removes the +1.
     static uint32_t PackIDSkPoint(SkGlyphID glyphID, SkPoint pt, SkIPoint mask) {
         using namespace skvx;
         using XY = Vec<2, float>;
-        // The 4.f moves 1/2 bit and 1/4 bit into the 2 and 1 bits. The shift move those two bits
-        // into the right place in the masks.
-        const XY magic = {4.f * (1u << kSubPixelX), 4.f * (1u << kSubPixelY)};
+        using SubXY = Vec<2, int>;
+        const XY magic = {1.f * (1u << (kSubPixelPosLen + kSubPixelX)),
+                          1.f * (1u << (kSubPixelPosLen + kSubPixelY))};
         XY pos{pt.x(), pt.y()};
-        Vec<2, int> sub = cast<int>(floor(pos * magic)) & Vec<2, int> {mask.x(), mask.y()};
-        SkASSERT(sub[0] / (1u << kSubPixelX) < 4);
-        SkASSERT(sub[1] / (1u << kSubPixelY) < 4);
+        XY subPos = (pos - floor(pos)) + 1.0f;
+        SubXY sub = cast<int>(subPos * magic) & SubXY{mask.x(), mask.y()};
+        SkASSERT(sub[0] / (1u << kSubPixelX) < (1u << kSubPixelPosLen));
+        SkASSERT(sub[1] / (1u << kSubPixelY) < (1u << kSubPixelPosLen));
 
         return (glyphID << kGlyphID) | sub[0] | sub[1];
     }
