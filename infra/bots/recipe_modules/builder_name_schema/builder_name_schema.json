@@ -22,21 +22,6 @@
         "extra_config"
       ]
     },
-    "Calmbench": {
-      "keys": [
-        "os",
-        "compiler",
-        "model",
-        "cpu_or_gpu",
-        "cpu_or_gpu_value",
-        "arch",
-        "configuration",
-        "test_filter"
-      ],
-      "optional_keys": [
-        "extra_config"
-      ]
-    },
     "Housekeeper": {
       "keys": [
         "frequency"
@@ -87,7 +72,6 @@
       "recurse_roles": [
         "Build",
         "BuildStats",
-        "Calmbench",
         "Perf",
         "Test"
       ]

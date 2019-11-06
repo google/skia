@@ -246,9 +246,6 @@ type Config struct {
 	// URL of the Skia Gold known hashes endpoint.
 	GoldHashesURL string `json:"gold_hashes_url"`
 
-	// GCS bucket used for Calmbench results.
-	GsBucketCalm string `json:"gs_bucket_calm"`
-
 	// GCS bucket used for GM results.
 	GsBucketGm string `json:"gs_bucket_gm"`
 
@@ -273,7 +270,6 @@ type Config struct {
 	ServiceAccountHousekeeper             string `json:"service_account_housekeeper"`
 	ServiceAccountRecreateSKPs            string `json:"service_account_recreate_skps"`
 	ServiceAccountUploadBinary            string `json:"service_account_upload_binary"`
-	ServiceAccountUploadCalmbench         string `json:"service_account_upload_calmbench"`
 	ServiceAccountUploadGM                string `json:"service_account_upload_gm"`
 	ServiceAccountUploadNano              string `json:"service_account_upload_nano"`
 
@@ -504,7 +500,7 @@ func (b *builder) dockerGceDimensions() []string {
 // deriveCompileTaskName returns the name of a compile task based on the given
 // job name.
 func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string) string {
-	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
+	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		task_os := parts["os"]
 		ec := []string{}
 		if val := parts["extra_config"]; val != "" {
@@ -632,7 +628,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
-	if parts["role"] == "Test" || parts["role"] == "Perf" || parts["role"] == "Calmbench" {
+	if parts["role"] == "Test" || parts["role"] == "Perf" {
 		if strings.Contains(parts["os"], "Android") || strings.Contains(parts["os"], "Chromecast") {
 			// For Android, the device type is a better dimension
 			// than CPU or GPU.
@@ -1022,7 +1018,6 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		strings.Contains(name, "CMake") ||
 		strings.Contains(name, "CommandBuffer") ||
 		strings.Contains(name, "Flutter") ||
-		strings.Contains(name, "ParentRevision") ||
 		strings.Contains(name, "SKQP") {
 		recipe = "sync_and_compile"
 		isolate = "swarm_recipe.isolate"
@@ -1222,43 +1217,6 @@ func (b *builder) buildstats(name string, parts map[string]string, compileTaskNa
 			extraProps[k] = v
 		}
 		uploadTask := b.kitchenTask(name, "upload_buildstats_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadNano, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
-		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
-		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
-		b.MustAddTask(uploadName, uploadTask)
-		return uploadName
-	}
-
-	return name
-}
-
-// getParentRevisionName returns the name of a compile task which builds
-// against a "parent" revision.
-func getParentRevisionName(compileTaskName string, parts map[string]string) string {
-	if parts["extra_config"] == "" {
-		return compileTaskName + "-ParentRevision"
-	} else {
-		return compileTaskName + "_ParentRevision"
-	}
-}
-
-// calmbench generates a calmbench task. Returns the name of the last task in the
-// generated chain of tasks, which the Job should add as a dependency.
-func (b *builder) calmbench(name string, parts map[string]string, compileTaskName, compileParentName string) string {
-	task := b.kitchenTask(name, "calmbench", "calmbench.isolate", "", b.swarmDimensions(parts), EXTRA_PROPS, OUTPUT_PERF)
-	b.usesGit(task, name)
-	task.Dependencies = append(task.Dependencies, compileTaskName, compileParentName, ISOLATE_SKP_NAME, ISOLATE_SVG_NAME)
-	b.MustAddTask(name, task)
-
-	// Upload results if necessary.
-	if strings.Contains(name, "Release") && b.doUpload(name) {
-		uploadName := fmt.Sprintf("%s%s%s", PREFIX_UPLOAD, b.jobNameSchema.Sep, name)
-		extraProps := map[string]string{
-			"gs_bucket": b.cfg.GsBucketCalm,
-		}
-		for k, v := range EXTRA_PROPS {
-			extraProps[k] = v
-		}
-		uploadTask := b.kitchenTask(name, "upload_calmbench_results", "swarm_recipe.isolate", b.cfg.ServiceAccountUploadCalmbench, b.linuxGceDimensions(MACHINE_TYPE_SMALL), extraProps, OUTPUT_NONE)
 		uploadTask.CipdPackages = append(uploadTask.CipdPackages, CIPD_PKGS_GSUTIL...)
 		uploadTask.Dependencies = append(uploadTask.Dependencies, name)
 		b.MustAddTask(uploadName, uploadTask)
@@ -1543,11 +1501,6 @@ func (b *builder) process(name string) {
 	if err != nil {
 		glog.Fatal(err)
 	}
-	compileParentName := getParentRevisionName(compileTaskName, compileTaskParts)
-	compileParentParts, err := b.jobNameSchema.ParseJobName(compileParentName)
-	if err != nil {
-		glog.Fatal(err)
-	}
 
 	// These bots do not need a compile task.
 	if parts["role"] != "Build" &&
@@ -1565,9 +1518,6 @@ func (b *builder) process(name string) {
 		!strings.Contains(name, "SkottieWASM") &&
 		!strings.Contains(name, "LottieWeb") {
 		b.compile(compileTaskName, compileTaskParts)
-		if parts["role"] == "Calmbench" {
-			b.compile(compileParentName, compileParentParts)
-		}
 	}
 
 	// Housekeepers.
@@ -1628,11 +1578,6 @@ func (b *builder) process(name string) {
 	// Perf bots.
 	if parts["role"] == "Perf" {
 		deps = append(deps, b.perf(name, parts, compileTaskName, pkgs))
-	}
-
-	// Calmbench bots.
-	if parts["role"] == "Calmbench" {
-		deps = append(deps, b.calmbench(name, parts, compileTaskName, compileParentName))
 	}
 
 	// Valgrind runs at a low priority so that it doesn't occupy all the bots.

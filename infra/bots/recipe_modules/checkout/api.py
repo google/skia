@@ -46,7 +46,7 @@ if 'cipd_bin_packages' not in git:
 
   def bot_update(self, checkout_root, gclient_cache=None,
                  checkout_chromium=False, checkout_flutter=False,
-                 extra_gclient_env=None, parent_rev=False,
+                 extra_gclient_env=None,
                  flutter_android=False):
     """Run the steps to obtain a checkout using bot_update.
 
@@ -59,9 +59,6 @@ if 'cipd_bin_packages' not in git:
           primary repo.
       extra_gclient_env: Map of extra environment variable names to their values
           to supply while running gclient.
-      parent_rev: If True, checks out the parent of the specified revision,
-          rather than the revision itself, ie. HEAD^ for normal jobs and HEAD
-          (no patch) for try jobs.
       flutter_android: Indicates that we're checking out flutter for Android.
     """
     self.assert_git_is_from_cipd()
@@ -135,9 +132,6 @@ if 'cipd_bin_packages' not in git:
                          entries_file)
 
     # Run bot_update.
-    if not self.m.vars.is_trybot and parent_rev:
-      main.revision = main.revision + '^'
-
     patch_refs = None
     patch_ref = self.m.properties.get('patch_ref')
     if patch_ref:
@@ -152,8 +146,8 @@ if 'cipd_bin_packages' not in git:
           # The logic in ensure_checkout for this arg is fairly naive, so if
           # patch=False, we'll see "... (without patch)" in the step names, even
           # for non-trybot runs, which is misleading and confusing. Therefore,
-          # always specify patch=True for non-trybot runs.
-          patch=not (self.m.vars.is_trybot and parent_rev),
+          # always specify patch=True.
+          patch=True,
           patch_refs=patch_refs,
       )
 
