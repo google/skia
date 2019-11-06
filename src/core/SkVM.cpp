@@ -767,6 +767,11 @@ namespace skvm {
     void Assembler::vpcmpeqd(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0x76, dst,x,y); }
     void Assembler::vpcmpgtd(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0x66, dst,x,y); }
 
+    void Assembler::vcmpps(Ymm dst, Ymm x, Ymm y, int imm) {
+        this->op(0,0x0f,0xc2, dst,x,y);
+        this->byte(imm);
+    }
+
     void Assembler::vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z) {
         int prefix = 0x66,
             map    = 0x3a0f,
