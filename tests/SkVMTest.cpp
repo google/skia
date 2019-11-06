@@ -466,7 +466,7 @@ DEF_TEST(SkVM_cmp_f32, r) {
         b.store32(b.varying<int>(), m);
     }
 
-    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
         float in[] = { 0,1,2,3,4,5,6,7,8,9 };
         int out[SK_ARRAY_COUNT(in)];
 
@@ -1047,6 +1047,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.eor16b(A::v4, A::v3, A::v1);
         a.bic16b(A::v4, A::v3, A::v1);
         a.bsl16b(A::v4, A::v3, A::v1);
+        a.not16b(A::v4, A::v3);
 
         a.add4s(A::v4, A::v3, A::v1);
         a.sub4s(A::v4, A::v3, A::v1);
@@ -1064,12 +1065,17 @@ DEF_TEST(SkVM_Assembler, r) {
         a.fdiv4s(A::v4, A::v3, A::v1);
 
         a.fmla4s(A::v4, A::v3, A::v1);
+
+        a.fcmeq4s(A::v4, A::v3, A::v1);
+        a.fcmgt4s(A::v4, A::v3, A::v1);
+        a.fcmge4s(A::v4, A::v3, A::v1);
     },{
         0x64,0x1c,0x21,0x4e,
         0x64,0x1c,0xa1,0x4e,
         0x64,0x1c,0x21,0x6e,
         0x64,0x1c,0x61,0x4e,
         0x64,0x1c,0x61,0x6e,
+        0x64,0x58,0x20,0x6e,
 
         0x64,0x84,0xa1,0x4e,
         0x64,0x84,0xa1,0x6e,
@@ -1087,6 +1093,10 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0xfc,0x21,0x6e,
 
         0x64,0xcc,0x21,0x4e,
+
+        0x64,0xe4,0x21,0x4e,
+        0x64,0xe4,0xa1,0x6e,
+        0x64,0xe4,0x21,0x6e,
     });
 
     test_asm(r, [&](A& a) {
