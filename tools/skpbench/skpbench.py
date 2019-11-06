@@ -336,7 +336,7 @@ def main():
     adb = Adb(FLAGS.device_serial, FLAGS.adb_binary,
               echo=(FLAGS.verbosity >= 5))
     model = adb.check('getprop ro.product.model').strip()
-    if model == 'Pixel C':
+    if model == 'Pixel C': # note that pixel C's are not available to bots anymore.
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
     elif model == 'Pixel':
