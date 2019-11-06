@@ -274,10 +274,10 @@ private:
     // strike totally satisfies this result. If canDrawAsMask is false, then this glyph must be
     // rejected, and handled by a later stage using a latter strike.
     struct MaskSummary {
-        static_assert(SkPackedGlyphID::kMaskAll < 1u<<20u, "SkPackedGlyphID is too big.");
-        uint32_t packedID:20;
-        bool canDrawAsMask:1;
-        bool canDrawAsSDFT:1;
+        static_assert(SkPackedGlyphID::kMaskAll < (1u << 30), "SkPackedGlyphID is too big.");
+        uint32_t packedID:30;
+        uint32_t canDrawAsMask:1;
+        uint32_t canDrawAsSDFT:1;
     };
 
     struct MaskSummaryTraits {

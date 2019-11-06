@@ -48,7 +48,10 @@ struct SkPackedGlyphID {
         kFixedPointSubPixelPosBits = kFixedPointBinaryPointPos - kSubPixelPosLen,
     };
 
-    static constexpr SkIPoint kXYFieldMask{3u << kSubPixelX, 3u << kSubPixelY};
+    static constexpr SkScalar kSubpixelRound = 1.f / (1u << (SkPackedGlyphID::kSubPixelPosLen + 1));
+
+    static constexpr SkIPoint kXYFieldMask{kSubPixelPosMask << kSubPixelX,
+                                           kSubPixelPosMask << kSubPixelY};
 
     constexpr explicit SkPackedGlyphID(SkGlyphID glyphID)
             : fID{(uint32_t)glyphID << kGlyphID} { }
@@ -161,8 +164,6 @@ struct SkGlyphPrototype;
 
 class SkGlyph {
 public:
-    static constexpr SkFixed kSubpixelRound = SK_FixedHalf >> SkPackedGlyphID::kSubPixelPosLen;
-
     // SkGlyph() is used for testing.
     constexpr SkGlyph() : fID{SkPackedGlyphID()} { }
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }

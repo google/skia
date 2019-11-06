@@ -699,14 +699,13 @@ SkVector SkGlyphPositionRoundingSpec::HalfAxisSampleFreq(bool isSubpixel, SkAxis
     if (!isSubpixel) {
         return {SK_ScalarHalf, SK_ScalarHalf};
     } else {
-        static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
         switch (axisAlignment) {
             case kX_SkAxisAlignment:
-                return {kSubpixelRounding, SK_ScalarHalf};
+                return {SkPackedGlyphID::kSubpixelRound, SK_ScalarHalf};
             case kY_SkAxisAlignment:
-                return {SK_ScalarHalf, kSubpixelRounding};
+                return {SK_ScalarHalf, SkPackedGlyphID::kSubpixelRound};
             case kNone_SkAxisAlignment:
-                return {kSubpixelRounding, kSubpixelRounding};
+                return {SkPackedGlyphID::kSubpixelRound, SkPackedGlyphID::kSubpixelRound};
         }
     }
 
