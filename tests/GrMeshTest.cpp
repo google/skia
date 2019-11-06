@@ -414,11 +414,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
 
-    GrProgramInfo programInfo(fState->drawOpArgs().numSamples(),
-                              fState->drawOpArgs().origin(),
-                              pipeline,
-                              mtp,
-                              nullptr, nullptr, 0);
+    GrProgramInfo programInfo(fState, pipeline, mtp, nullptr, nullptr, 0);
 
     fState->opsRenderPass()->draw(programInfo, &mesh, 1,
                                   SkRect::MakeIWH(kImageWidth, kImageHeight));

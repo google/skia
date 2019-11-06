@@ -48,6 +48,17 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
     SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||
              this->gpu()->caps()->conservativeRasterSupport());
 
+    if (programInfo.isMixedSampled()) {
+        SkASSERT(programInfo.numRasterSamples() > 1);  // Sanity-check the programInfo.
+        SkASSERT(this->gpu()->caps()->mixedSamplesSupport());
+        if (!programInfo.pipeline().isHWAntialiasState()) {
+            // FIXME: We ought to lift this assertion out of the mixed samples branch and make sure
+            // nobody tries to disable HWAA without support anywhere. But there are several
+            // call sites already where this happens, and those would need to be fixed first.
+            SkASSERT(this->gpu()->caps()->multisampleDisableSupport());
+        }
+    }
+
     programInfo.compatibleWithMeshes(meshes, meshCount);
     programInfo.checkAllInstantiated();
     programInfo.checkMSAAAndMIPSAreResolved();

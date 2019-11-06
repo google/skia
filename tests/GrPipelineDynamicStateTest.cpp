@@ -155,12 +155,7 @@ private:
 
         GrPipelineDynamicStateTestProcessor primProc;
 
-        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
-                                  flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
-                                  nullptr,
-                                  &dynamicState, 0);
+        GrProgramInfo programInfo(flushState, pipeline, primProc, nullptr, &dynamicState, 0);
 
         flushState->opsRenderPass()->draw(programInfo, meshes.begin(), 4,
                                           SkRect::MakeIWH(kScreenSize, kScreenSize));
