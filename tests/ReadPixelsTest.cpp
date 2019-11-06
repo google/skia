@@ -719,7 +719,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
             // conversion at allbecause GPU->CPU read may go to a lower bit depth format and then be
             // promoted back to the original type. For example, GL ES cannot read to 1010102, so we
             // go through 8888.
-            const float numer = (lumConversion || csConversion ? 3.f : 3.f);
+            const float numer = (lumConversion || csConversion) ? 3.f : 2.f;
             int rgbBits = std::min({min_rgb_channel_bits(readCT),
                                     min_rgb_channel_bits(srcCT),
                                     8});
