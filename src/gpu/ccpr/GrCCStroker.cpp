@@ -782,7 +782,7 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
                               pipeline,
                               processor,
                               nullptr,
-                              &dynamicStateArrays, 0);
+                              &dynamicStateArrays, 0, GrPrimitiveType::kTriangleStrip);
 
     flushState->opsRenderPass()->draw(programInfo,
                                       fMeshesBuffer.begin(), fMeshesBuffer.count(),
@@ -803,6 +803,7 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
     int startIdx = startIndices[(int)GrScissorTest::kDisabled]->*InstanceType;
     int endIdx = batch.fNonScissorEndInstances->*InstanceType;
     SkASSERT(endIdx >= startIdx);
+
     if (int instanceCount = endIdx - startIdx) {
         processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
                              &fMeshesBuffer);

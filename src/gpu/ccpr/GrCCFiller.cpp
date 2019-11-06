@@ -548,6 +548,7 @@ void GrCCFiller::drawPrimitives(
         int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
         proc.appendMesh(fInstanceBuffer, instanceCount, baseInstance, &fMeshesScratchBuffer);
+
         fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
                                                       drawBounds.height());
         SkDEBUGCODE(totalInstanceCount += instanceCount);
@@ -565,8 +566,10 @@ void GrCCFiller::drawPrimitives(
             continue;
         }
         SkASSERT(instanceCount > 0);
+
         proc.appendMesh(fInstanceBuffer, instanceCount, baseScissorInstance + startIndex,
                         &fMeshesScratchBuffer);
+
         fScissorRectScratchBuffer.push_back() = scissorSubBatch.fScissor;
         SkDEBUGCODE(totalInstanceCount += instanceCount);
     }

@@ -92,8 +92,6 @@ void GrSampleMaskProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
 
 void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
                                        int baseInstance, SkTArray<GrMesh>* out) const {
-    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
-
     switch (fPrimitiveType) {
         case PrimitiveType::kTriangles:
         case PrimitiveType::kWeightedTriangles: {
@@ -109,6 +107,22 @@ void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
             mesh.setInstanced(std::move(instanceBuffer), instanceCount, baseInstance, 4);
             break;
         }
+    }
+}
+
+GrPrimitiveType GrSampleMaskProcessor::primType() const {
+    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
+
+    switch (fPrimitiveType) {
+    case PrimitiveType::kTriangles:
+    case PrimitiveType::kWeightedTriangles:
+        return GrPrimitiveType::kTriangles;
+    case PrimitiveType::kQuadratics:
+    case PrimitiveType::kCubics:
+    case PrimitiveType::kConics:
+        return GrPrimitiveType::kTriangleStrip;
+    default:
+        return GrPrimitiveType::kTriangleStrip;
     }
 }
 

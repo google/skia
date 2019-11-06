@@ -521,16 +521,13 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     this->setInstanceAttributes(fInputXAndYValues, 2);
     fPerVertexData = {"vertexdata", kInt_GrVertexAttribType, kInt_GrSLType};
     this->setVertexAttributes(&fPerVertexData, 1);
-
-    if (caps.usePrimitiveRestart()) {
-        fTriangleType = GrPrimitiveType::kTriangleStrip;
-    } else {
-        fTriangleType = GrPrimitiveType::kTriangles;
-    }
 }
 
 void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
                                        int baseInstance, SkTArray<GrMesh>* out) const {
+    SkASSERT(fTriangleType == GrPrimitiveType::kTriangles ||
+             fTriangleType == GrPrimitiveType::kTriangleStrip);
+
     GrMesh& mesh = out->emplace_back(fTriangleType);
     auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
     mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),

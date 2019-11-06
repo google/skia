@@ -27,11 +27,14 @@ private:
         b->add32(((int)fPrimitiveType << 16) | (int)fSubpass);
     }
 
+    // Always GrPrimitiveType::kLines
     void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount, int baseInstance,
                     SkTArray<GrMesh>* out) const override;
 
     void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[], const GrMesh[],
               int meshCount, const SkRect& drawBounds) const override;
+
+    GrPrimitiveType primType() const final { return GrPrimitiveType::kLines; }
 
     GrGLSLPrimitiveProcessor* onCreateGLSLInstance(std::unique_ptr<Shader>) const override;
 
@@ -49,6 +52,8 @@ private:
     class TriangleHullImpl;
     class CurveHullImpl;
     class CornerImpl;
+
+    typedef GrCCCoverageProcessor INHERITED;
 };
 
 #endif
