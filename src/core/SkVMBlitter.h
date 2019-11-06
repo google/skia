@@ -15,7 +15,7 @@ namespace skvm {
     struct Color { skvm::I32 r,g,b,a; };
 
     bool BlendModeSupported(SkBlendMode);
-    Color BlendModeProgram(Builder*, SkBlendMode, const Color& src, const Color& dst);
+    Color BlendModeProgram(Builder*, SkBlendMode, Color src, Color dst);
 }
 
 #endif
