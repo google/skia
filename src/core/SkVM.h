@@ -271,8 +271,6 @@ namespace skvm {
 
          eq_f32,  eq_i32,  eq_i16x2,
         neq_f32, neq_i32, neq_i16x2,
-         lt_f32,  lt_i32,  lt_i16x2,
-        lte_f32, lte_i32, lte_i16x2,
          gt_f32,  gt_i32,  gt_i16x2,
         gte_f32, gte_i32, gte_i16x2,
 
