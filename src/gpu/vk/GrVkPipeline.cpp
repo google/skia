@@ -252,11 +252,11 @@ static void setup_depth_stencil_state(
     stencilInfo->stencilTestEnable = !stencilSettings.isDisabled();
     if (!stencilSettings.isDisabled()) {
         if (!stencilSettings.isTwoSided()) {
-            setup_stencil_op_state(&stencilInfo->front, stencilSettings.frontAndBack());
+            setup_stencil_op_state(&stencilInfo->front, stencilSettings.singleSidedFace());
             stencilInfo->back = stencilInfo->front;
         } else {
-            setup_stencil_op_state(&stencilInfo->front, stencilSettings.front(origin));
-            setup_stencil_op_state(&stencilInfo->back, stencilSettings.back(origin));
+            setup_stencil_op_state(&stencilInfo->front, stencilSettings.postOriginCCWFace(origin));
+            setup_stencil_op_state(&stencilInfo->back, stencilSettings.postOriginCWFace(origin));
         }
     }
     stencilInfo->minDepthBounds = 0.0f;
