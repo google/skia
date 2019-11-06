@@ -104,8 +104,8 @@ struct SkPackedGlyphID {
 
 private:
     static constexpr uint32_t PackIDSubXSubY(SkGlyphID glyphID, uint32_t x, uint32_t y) {
-        SkASSERT(x < 4);
-        SkASSERT(y < 4);
+        SkASSERT(x < (1u << kSubPixelPosLen));
+        SkASSERT(y < (1u << kSubPixelPosLen));
 
         return (x << kSubPixelX) | (y << kSubPixelY) | (glyphID << kGlyphID);
     }
@@ -114,13 +114,16 @@ private:
     static uint32_t PackIDSkPoint(SkGlyphID glyphID, SkPoint pt, SkIPoint mask) {
         using namespace skvx;
         using XY = Vec<2, float>;
+        using SubXY = Vec<2, int>;
         // The 4.f moves 1/2 bit and 1/4 bit into the 2 and 1 bits. The shift move those two bits
         // into the right place in the masks.
-        const XY magic = {4.f * (1u << kSubPixelX), 4.f * (1u << kSubPixelY)};
+        const XY magic = {1.f * (1u << kSubPixelPosLen) * (1u << kSubPixelX),
+                          1.f * (1u << kSubPixelPosLen) * (1u << kSubPixelY)};
         XY pos{pt.x(), pt.y()};
-        Vec<2, int> sub = cast<int>(floor(pos * magic)) & Vec<2, int> {mask.x(), mask.y()};
-        SkASSERT(sub[0] / (1u << kSubPixelX) < 4);
-        SkASSERT(sub[1] / (1u << kSubPixelY) < 4);
+        XY subPos = (pos - floor(pos)) + 1.0f;
+        SubXY sub = cast<int>(subPos * magic) & SubXY{mask.x(), mask.y()};
+        SkASSERT(sub[0] / (1u << kSubPixelX) < (1u << kSubPixelPosLen));
+        SkASSERT(sub[1] / (1u << kSubPixelY) < (1u << kSubPixelPosLen));
 
         return (glyphID << kGlyphID) | sub[0] | sub[1];
     }
