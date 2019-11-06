@@ -16,6 +16,24 @@
       "revId": "ddd9463b8200adb675bb695c3435b822f12ece03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c968c424_2d708105",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-06T17:43:28Z",
+      "side": 1,
+      "message": "For whatever reason, we only have Pixel2XL devices, not Pixel2.",
+      "parentUuid": "354b36ef_bf7d700b",
+      "revId": "ddd9463b8200adb675bb695c3435b822f12ece03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
