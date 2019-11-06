@@ -1676,7 +1676,7 @@ namespace skvm {
             switch (op) {
                 default: break;
 
-                case Op::splat: if (!splats.find(imm)) { splats.set(imm, {}); }
+                case Op::splat: if (imm/*0 -> xor*/ && !splats.find(imm)) { splats.set(imm, {}); }
                                 break;
 
                 case Op::bytes: if (!bytes_masks.find(imm)) {
@@ -1855,7 +1855,8 @@ namespace skvm {
                                 a->vpsubd(dst(), tmp(), &iota.label);
                                 break;
 
-                case Op::splat: a->vbroadcastss(dst(), &splats.find(imm)->label);
+                case Op::splat: if (imm) { a->vbroadcastss(dst(), &splats.find(imm)->label); }
+                                else     { a->vpxor(dst(), dst(), dst()); }
                                 break;
                                 // TODO: many of these instructions have variants that
                                 // can read one of their arugments from 32-byte memory
@@ -1937,7 +1938,8 @@ namespace skvm {
                                  else        { a->ldrq(dst(), arg[imm]); }
                                                break;
 
-                case Op::splat: a->ldrq(dst(), &splats.find(imm)->label);
+                case Op::splat: if (imm) { a->ldrq(dst(), &splats.find(imm)->label); }
+                                else     { a->eor16b(dst(), dst(), dst()); }
                                 break;
                                 // TODO: If we hoist these, pack 4 values in each register
                                 // and use vector/lane operations, cutting the register
