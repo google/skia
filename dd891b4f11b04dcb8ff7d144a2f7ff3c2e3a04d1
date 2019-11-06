@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bf49f050_70adcca6",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 10076
+      },
+      "writtenOn": "2019-11-06T00:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dd457e4_ca7f87c3",
+      "range": {
+        "startLine": 1048,
+        "startChar": 0,
+        "endLine": 1068,
+        "endChar": 2
+      },
+      "revId": "dd891b4f11b04dcb8ff7d144a2f7ff3c2e3a04d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0a5e9dba_c3b1b08b",
         "filename": "tests/ResourceCacheTest.cpp",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "dd891b4f11b04dcb8ff7d144a2f7ff3c2e3a04d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d09a6ad_7f275089",
+        "filename": "tests/ResourceCacheTest.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 10076
+      },
+      "writtenOn": "2019-11-06T00:42:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a5e9dba_c3b1b08b",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 4
+      },
+      "revId": "dd891b4f11b04dcb8ff7d144a2f7ff3c2e3a04d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
