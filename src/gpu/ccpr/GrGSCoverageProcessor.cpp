@@ -446,8 +446,7 @@ void GrGSCoverageProcessor::draw(
     // and does edge AA. The second pass does touch up on corner pixels.
     for (int i = 0; i < 2; ++i) {
         fSubpass = (Subpass) i;
-        this->GrCCCoverageProcessor::draw(
-                flushState, pipeline, scissorRects, meshes, meshCount, drawBounds);
+        INHERITED::draw(flushState, pipeline, scissorRects, meshes, meshCount, drawBounds);
     }
 }
 

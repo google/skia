@@ -112,6 +112,22 @@ void GrSampleMaskProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
     }
 }
 
+GrPrimitiveType GrSampleMaskProcessor::primType() const {
+    SkASSERT(PrimitiveType::kWeightedTriangles != fPrimitiveType);
+
+    switch (fPrimitiveType) {
+        case PrimitiveType::kTriangles:
+        case PrimitiveType::kWeightedTriangles:
+            return GrPrimitiveType::kTriangles;
+        case PrimitiveType::kQuadratics:
+        case PrimitiveType::kCubics:
+        case PrimitiveType::kConics:
+            return GrPrimitiveType::kTriangleStrip;
+        default:
+            return GrPrimitiveType::kTriangleStrip;
+    }
+}
+
 GrGLSLPrimitiveProcessor* GrSampleMaskProcessor::onCreateGLSLInstance(
         std::unique_ptr<Shader> shader) const {
     return new Impl(std::move(shader));
