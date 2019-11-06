@@ -62,7 +62,6 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
     }
 }
 
-#ifdef SK_GL
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)
         , fValid(true)
@@ -91,7 +90,6 @@ GrGLFormat GrBackendFormat::asGLFormat() const {
     }
     return GrGLFormat::kUnknown;
 }
-#endif
 
 GrBackendFormat GrBackendFormat::MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo) {
     SkASSERT(ycbcrInfo.isValid());
@@ -204,27 +202,24 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
 
     switch (fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
             return fGLFormat == that.fGLFormat;
-            break;
-#endif
-#ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
+#ifdef SK_VULKAN
             return fVk.fFormat == that.fVk.fFormat &&
                    fVk.fYcbcrConversionInfo == that.fVk.fYcbcrConversionInfo;
-            break;
 #endif
+            break;
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
             return fMtlFormat == that.fMtlFormat;
-            break;
 #endif
-#ifdef SK_DAWN
+            break;
         case GrBackendApi::kDawn:
+#ifdef SK_DAWN
             return fDawnFormat == that.fDawnFormat;
-            break;
 #endif
+            break;
         case GrBackendApi::kMock:
             return fMockColorType == that.fMockColorType;
         default:
@@ -352,7 +347,6 @@ GrBackendTexture::GrBackendTexture(int width,
         , fMtlInfo(mtlInfo) {}
 #endif
 
-#ifdef SK_GL
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
@@ -361,7 +355,6 @@ GrBackendTexture::GrBackendTexture(int width,
     // Make no assumptions about client's texture's parameters.
     this->glTextureParametersModified();
 }
-#endif
 
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
@@ -698,7 +691,6 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fMtlInfo(mtlInfo) {}
 #endif
 
-#ifdef SK_GL
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -712,7 +704,6 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fGLInfo(glInfo) {
     fIsValid = SkToBool(glInfo.fFormat); // the glInfo must have a valid format
 }
-#endif
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
@@ -758,16 +749,14 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     fBackend = that.fBackend;
 
     switch (that.fBackend) {
-#ifdef SK_GL
         case GrBackendApi::kOpenGL:
             fGLInfo = that.fGLInfo;
             break;
-#endif
-#ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
+#ifdef SK_VULKAN
             fVkInfo.assign(that.fVkInfo, this->isValid());
-            break;
 #endif
+            break;
 #ifdef SK_DAWN
         case GrBackendApi::kDawn:
             fDawnInfo = that.fDawnInfo;
@@ -835,7 +824,6 @@ bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
 }
 #endif
 
-#ifdef SK_GL
 bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kOpenGL == fBackend) {
         *outInfo = fGLInfo;
@@ -843,7 +831,6 @@ bool GrBackendRenderTarget::getGLFramebufferInfo(GrGLFramebufferInfo* outInfo) c
     }
     return false;
 }
-#endif
 
 GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
     if (!this->isValid()) {
