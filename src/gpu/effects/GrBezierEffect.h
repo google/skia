@@ -57,31 +57,31 @@ class GrGLConicEffect;
 
 class GrConicEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f& color,
-                                           const SkMatrix& viewMatrix,
-                                           const GrClipEdgeType edgeType,
-                                           const GrCaps& caps,
-                                           const SkMatrix& localMatrix,
-                                           bool usesLocalCoords,
-                                           uint8_t coverage = 0xff) {
+    static std::unique_ptr<GrGeometryProcessor> Make(const SkPMColor4f& color,
+                                                     const SkMatrix& viewMatrix,
+                                                     const GrClipEdgeType edgeType,
+                                                     const GrCaps& caps,
+                                                     const SkMatrix& localMatrix,
+                                                     bool usesLocalCoords,
+                                                     uint8_t coverage = 0xff) {
         switch (edgeType) {
             case GrClipEdgeType::kFillAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
-                return sk_sp<GrGeometryProcessor>(
+                return std::unique_ptr<GrGeometryProcessor>(
                     new GrConicEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillAA,
                                       localMatrix, usesLocalCoords));
             case GrClipEdgeType::kHairlineAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
-                return sk_sp<GrGeometryProcessor>(
+                return std::unique_ptr<GrGeometryProcessor>(
                     new GrConicEffect(color, viewMatrix, coverage,
                                       GrClipEdgeType::kHairlineAA, localMatrix,
                                       usesLocalCoords));
             case GrClipEdgeType::kFillBW:
-                return sk_sp<GrGeometryProcessor>(
+                return std::unique_ptr<GrGeometryProcessor>(
                     new GrConicEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillBW,
                                       localMatrix, usesLocalCoords));
             default:
@@ -141,31 +141,31 @@ class GrGLQuadEffect;
 
 class GrQuadEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f& color,
-                                           const SkMatrix& viewMatrix,
-                                           const GrClipEdgeType edgeType,
-                                           const GrCaps& caps,
-                                           const SkMatrix& localMatrix,
-                                           bool usesLocalCoords,
-                                           uint8_t coverage = 0xff) {
+    static std::unique_ptr<GrGeometryProcessor> Make(const SkPMColor4f& color,
+                                                     const SkMatrix& viewMatrix,
+                                                     const GrClipEdgeType edgeType,
+                                                     const GrCaps& caps,
+                                                     const SkMatrix& localMatrix,
+                                                     bool usesLocalCoords,
+                                                     uint8_t coverage = 0xff) {
         switch (edgeType) {
             case GrClipEdgeType::kFillAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
-                return sk_sp<GrGeometryProcessor>(
+                return std::unique_ptr<GrGeometryProcessor>(
                     new GrQuadEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillAA,
                                      localMatrix, usesLocalCoords));
             case GrClipEdgeType::kHairlineAA:
                 if (!caps.shaderCaps()->shaderDerivativeSupport()) {
                     return nullptr;
                 }
-                return sk_sp<GrGeometryProcessor>(
+                return std::unique_ptr<GrGeometryProcessor>(
                     new GrQuadEffect(color, viewMatrix, coverage,
                                      GrClipEdgeType::kHairlineAA, localMatrix,
                                      usesLocalCoords));
             case GrClipEdgeType::kFillBW:
-                return sk_sp<GrGeometryProcessor>(
+                return std::unique_ptr<GrGeometryProcessor>(
                     new GrQuadEffect(color, viewMatrix, coverage, GrClipEdgeType::kFillBW,
                                      localMatrix, usesLocalCoords));
             default:

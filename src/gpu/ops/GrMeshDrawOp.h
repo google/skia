@@ -44,8 +44,8 @@ protected:
                       int indicesPerRepetition, int repeatCount, int maxRepetitions);
 
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>) const;
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>,
+        void recordDraw(Target*, std::unique_ptr<const GrGeometryProcessor>) const;
+        void recordDraw(Target*, std::unique_ptr<const GrGeometryProcessor>,
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
@@ -104,14 +104,14 @@ public:
 
     /** Adds a draw of a mesh. */
     virtual void recordDraw(
-            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+            std::unique_ptr<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
             const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) = 0;
 
     /**
      * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
      * scissor clip.
      */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt) {
+    void recordDraw(std::unique_ptr<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt) {
         static constexpr int kZeroPrimProcTextures = 0;
         auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
         this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);

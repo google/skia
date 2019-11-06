@@ -28,12 +28,12 @@ namespace {
 
 class LatticeGP : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(GrGpu* gpu,
-                                           const GrTextureProxy* proxy,
-                                           sk_sp<GrColorSpaceXform> csxf,
-                                           GrSamplerState::Filter filter,
-                                           bool wideColor) {
-        return sk_sp<GrGeometryProcessor>(
+    static std::unique_ptr<GrGeometryProcessor> Make(GrGpu* gpu,
+                                                     const GrTextureProxy* proxy,
+                                                     sk_sp<GrColorSpaceXform> csxf,
+                                                     GrSamplerState::Filter filter,
+                                                     bool wideColor) {
+        return std::unique_ptr<GrGeometryProcessor>(
                 new LatticeGP(gpu, proxy, std::move(csxf), filter, wideColor));
     }
 

@@ -537,9 +537,10 @@ static void create_vertices(const SegmentArray& segments,
 
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const SkMatrix& localMatrix, bool usesLocalCoords,
-                                           bool wideColor) {
-        return sk_sp<GrGeometryProcessor>(
+    static std::unique_ptr<GrGeometryProcessor> Make(const SkMatrix& localMatrix,
+                                                     bool usesLocalCoords,
+                                                     bool wideColor) {
+        return std::unique_ptr<GrGeometryProcessor>(
                 new QuadEdgeEffect(localMatrix, usesLocalCoords, wideColor));
     }
 
@@ -653,7 +654,7 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrGeometryProcessor> QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {
     // Doesn't work without derivative instructions.
     return d->caps()->shaderCaps()->shaderDerivativeSupport()
                    ? QuadEdgeEffect::Make(GrTest::TestMatrix(d->fRandom), d->fRandom->nextBool(),
@@ -740,7 +741,7 @@ private:
         }
 
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> quadProcessor(
+        std::unique_ptr<GrGeometryProcessor> quadProcessor(
                 QuadEdgeEffect::Make(invert, fHelper.usesLocalCoords(), fWideColor));
         const size_t kVertexStride = quadProcessor->vertexStride();
 

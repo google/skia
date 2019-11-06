@@ -176,7 +176,7 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp;
+        std::unique_ptr<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(fColor);
@@ -304,11 +304,11 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_aa_stroke_rect_gp(const GrShaderCaps* shaderCaps,
-                                                           bool tweakAlphaForCoverage,
-                                                           const SkMatrix& viewMatrix,
-                                                           bool usesLocalCoords,
-                                                           bool wideColor) {
+static std::unique_ptr<GrGeometryProcessor> create_aa_stroke_rect_gp(const GrShaderCaps* shaderCaps,
+                                                                     bool tweakAlphaForCoverage,
+                                                                     const SkMatrix& viewMatrix,
+                                                                     bool usesLocalCoords,
+                                                                     bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType =
@@ -469,11 +469,11 @@ private:
 };
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) {
-    sk_sp<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(target->caps().shaderCaps(),
-                                                           fHelper.compatibleWithCoverageAsAlpha(),
-                                                           this->viewMatrix(),
-                                                           fHelper.usesLocalCoords(),
-                                                           fWideColor));
+    std::unique_ptr<GrGeometryProcessor> gp(create_aa_stroke_rect_gp(target->caps().shaderCaps(),
+                                                                     fHelper.compatibleWithCoverageAsAlpha(),
+                                                                     this->viewMatrix(),
+                                                                     fHelper.usesLocalCoords(),
+                                                                     fWideColor));
     if (!gp) {
         SkDebugf("Couldn't create GrGeometryProcessor\n");
         return;

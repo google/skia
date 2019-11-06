@@ -748,7 +748,7 @@ private:
             return;
         }
 
-        sk_sp<GrGeometryProcessor> gp;
+        std::unique_ptr<GrGeometryProcessor> gp;
 
         {
             const GrBackendFormat& backendFormat =

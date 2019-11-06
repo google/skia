@@ -71,8 +71,8 @@ public:
     }
 
 protected:
-    BezierTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect, const SkPMColor4f& color,
-                 int32_t classID)
+    BezierTestOp(std::unique_ptr<const GrGeometryProcessor> gp, const SkRect& rect,
+                 const SkPMColor4f& color, int32_t classID)
             : INHERITED(classID)
             , fRect(rect)
             , fColor(color)
@@ -86,7 +86,7 @@ protected:
                 this, chainBounds, std::move(fProcessorSet));
     }
 
-    sk_sp<const GrGeometryProcessor> gp() const { return fGeometryProcessor; }
+    const GrGeometryProcessor* gp() const { return fGeometryProcessor.get(); }
 
     const SkRect& rect() const { return fRect; }
     const SkPMColor4f& color() const { return fColor; }
@@ -94,7 +94,7 @@ protected:
 private:
     SkRect fRect;
     SkPMColor4f fColor;
-    sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+    std::unique_ptr<const GrGeometryProcessor> fGeometryProcessor;
     GrProcessorSet fProcessorSet;
 
     typedef GrMeshDrawOp INHERITED;
@@ -123,7 +123,7 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    BezierConicTestOp(sk_sp<const GrGeometryProcessor> gp, const SkRect& rect,
+    BezierConicTestOp(std::unique_ptr<const GrGeometryProcessor> gp, const SkRect& rect,
                       const SkPMColor4f& color, const SkMatrix& klm)
             : INHERITED(std::move(gp), rect, color, ClassID()), fKLM(klm) {}
 
@@ -408,7 +408,7 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
-                sk_sp<GrGeometryProcessor> gp;
+                std::unique_ptr<GrGeometryProcessor> gp;
                 GrClipEdgeType et = (GrClipEdgeType)edgeType;
                 gp = GrQuadEffect::Make(color, SkMatrix::I(), et, *context->priv().caps(),
                                         SkMatrix::I(), false);

@@ -57,21 +57,22 @@ public:
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
 #ifdef SK_GAMMA_APPLY_TO_A8
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
-                                           const sk_sp<GrTextureProxy>* proxies,
-                                           int numActiveProxies,
-                                           const GrSamplerState& params, float lum, uint32_t flags,
-                                           const SkMatrix& localMatrixIfUsesLocalCoords) {
-        return sk_sp<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
+    static std::unique_ptr<GrGeometryProcessor> Make(const GrShaderCaps& caps,
+                                                     const sk_sp<GrTextureProxy>* proxies,
+                                                     int numActiveProxies,
+                                                     const GrSamplerState& params,
+                                                     float lum, uint32_t flags,
+                                                     const SkMatrix& localMatrixIfUsesLocalCoords) {
+        return std::unique_ptr<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
                 caps, proxies, numActiveProxies, params, lum, flags, localMatrixIfUsesLocalCoords));
     }
 #else
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
-                                           const sk_sp<GrTextureProxy>* proxies,
-                                           int numActiveProxies,
-                                           const GrSamplerState& params, uint32_t flags,
-                                           const SkMatrix& localMatrixIfUsesLocalCoords) {
-        return sk_sp<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
+    static std::unique_ptr<GrGeometryProcessor> Make(const GrShaderCaps& caps,
+                                                     const sk_sp<GrTextureProxy>* proxies,
+                                                     int numActiveProxies,
+                                                     const GrSamplerState& params, uint32_t flags,
+                                                     const SkMatrix& localMatrixIfUsesLocalCoords) {
+        return std::unique_ptr<GrGeometryProcessor>(new GrDistanceFieldA8TextGeoProc(
                 caps, proxies, numActiveProxies, params, flags, localMatrixIfUsesLocalCoords));
     }
 #endif
@@ -135,13 +136,14 @@ public:
     static constexpr int kMaxTextures = 4;
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
-                                           const SkMatrix& matrix,
-                                           bool wideColor,
-                                           const sk_sp<GrTextureProxy>* proxies,
-                                           int numActiveProxies,
-                                           const GrSamplerState& params, uint32_t flags) {
-        return sk_sp<GrGeometryProcessor>(
+    static std::unique_ptr<GrGeometryProcessor> Make(const GrShaderCaps& caps,
+                                                     const SkMatrix& matrix,
+                                                     bool wideColor,
+                                                     const sk_sp<GrTextureProxy>* proxies,
+                                                     int numActiveProxies,
+                                                     const GrSamplerState& params,
+                                                     uint32_t flags) {
+        return std::unique_ptr<GrGeometryProcessor>(
             new GrDistanceFieldPathGeoProc(caps, matrix, wideColor, proxies, numActiveProxies,
                                            params, flags));
     }
@@ -211,14 +213,14 @@ public:
         }
     };
 
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
-                                           const sk_sp<GrTextureProxy>* proxies,
-                                           int numActiveProxies,
-                                           const GrSamplerState& params,
-                                           DistanceAdjust distanceAdjust,
-                                           uint32_t flags,
-                                           const SkMatrix& localMatrixIfUsesLocalCoords) {
-        return sk_sp<GrGeometryProcessor>(
+    static std::unique_ptr<GrGeometryProcessor> Make(const GrShaderCaps& caps,
+                                                     const sk_sp<GrTextureProxy>* proxies,
+                                                     int numActiveProxies,
+                                                     const GrSamplerState& params,
+                                                     DistanceAdjust distanceAdjust,
+                                                     uint32_t flags,
+                                                     const SkMatrix& localMatrixIfUsesLocalCoords) {
+        return std::unique_ptr<GrGeometryProcessor>(
             new GrDistanceFieldLCDTextGeoProc(caps, proxies, numActiveProxies, params,
                                               distanceAdjust, flags, localMatrixIfUsesLocalCoords));
     }

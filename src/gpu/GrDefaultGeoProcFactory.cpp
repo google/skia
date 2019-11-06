@@ -34,17 +34,18 @@ enum GPFlag {
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps* shaderCaps,
-                                           uint32_t gpTypeFlags,
-                                           const SkPMColor4f& color,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& viewMatrix,
-                                           const SkMatrix& localMatrix,
-                                           bool localCoordsWillBeRead,
-                                           uint8_t coverage) {
-        return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
-                shaderCaps, gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix, localMatrix,
-                coverage, localCoordsWillBeRead));
+    static std::unique_ptr<GrGeometryProcessor> Make(const GrShaderCaps* shaderCaps,
+                                                     uint32_t gpTypeFlags,
+                                                     const SkPMColor4f& color,
+                                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkMatrix& localMatrix,
+                                                     bool localCoordsWillBeRead,
+                                                     uint8_t coverage) {
+        return std::unique_ptr<GrGeometryProcessor>(new DefaultGeoProc(shaderCaps, gpTypeFlags, color,
+                                                                       std::move(colorSpaceXform),
+                                                                       viewMatrix, localMatrix,
+                                                                       coverage, localCoordsWillBeRead));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -275,7 +276,7 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     uint32_t flags = 0;
     if (d->fRandom->nextBool()) {
         flags |= kColorAttribute_GPFlag;
@@ -307,11 +308,11 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
 }
 #endif
 
-sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* shaderCaps,
-                                                         const Color& color,
-                                                         const Coverage& coverage,
-                                                         const LocalCoords& localCoords,
-                                                         const SkMatrix& viewMatrix) {
+std::unique_ptr<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* shaderCaps,
+                                                                   const Color& color,
+                                                                   const Coverage& coverage,
+                                                                   const LocalCoords& localCoords,
+                                                                   const SkMatrix& viewMatrix) {
     uint32_t flags = 0;
     if (Color::kPremulGrColorAttribute_Type == color.fType) {
         flags |= kColorAttribute_GPFlag;
@@ -340,7 +341,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* sha
                                 inCoverage);
 }
 
-sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
+std::unique_ptr<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
                                                                      const GrShaderCaps* shaderCaps,
                                                                      const Color& color,
                                                                      const Coverage& coverage,

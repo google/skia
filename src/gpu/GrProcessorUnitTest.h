@@ -126,7 +126,7 @@ private:
 };
 
 using GrFragmentProcessorTestFactory = GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
-using GrGeometryProcessorTestFactory = GrProcessorTestFactory<sk_sp<GrGeometryProcessor>>;
+using GrGeometryProcessorTestFactory = GrProcessorTestFactory<std::unique_ptr<GrGeometryProcessor>>;
 
 class GrXPFactoryTestFactory : private SkNoncopyable {
 public:
@@ -159,7 +159,7 @@ private:
  */
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                        \
     static GrGeometryProcessorTestFactory gTestFactory SK_UNUSED; \
-    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*);
+    static std::unique_ptr<GrGeometryProcessor> TestCreate(GrProcessorTestData*);
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                        \
     static GrFragmentProcessorTestFactory gTestFactory SK_UNUSED; \

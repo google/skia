@@ -962,7 +962,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
     // do lines first
     if (lineCount) {
-        sk_sp<GrGeometryProcessor> lineGP;
+        std::unique_ptr<GrGeometryProcessor> lineGP;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -997,21 +997,21 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
     }
 
     if (quadCount || conicCount) {
-        sk_sp<GrGeometryProcessor> quadGP(GrQuadEffect::Make(this->color(),
-                                                             *geometryProcessorViewM,
-                                                             GrClipEdgeType::kHairlineAA,
-                                                             target->caps(),
-                                                             *geometryProcessorLocalM,
-                                                             fHelper.usesLocalCoords(),
-                                                             this->coverage()));
+        std::unique_ptr<GrGeometryProcessor> quadGP(GrQuadEffect::Make(this->color(),
+                                                                       *geometryProcessorViewM,
+                                                                       GrClipEdgeType::kHairlineAA,
+                                                                       target->caps(),
+                                                                       *geometryProcessorLocalM,
+                                                                       fHelper.usesLocalCoords(),
+                                                                       this->coverage()));
 
-        sk_sp<GrGeometryProcessor> conicGP(GrConicEffect::Make(this->color(),
-                                                               *geometryProcessorViewM,
-                                                               GrClipEdgeType::kHairlineAA,
-                                                               target->caps(),
-                                                               *geometryProcessorLocalM,
-                                                               fHelper.usesLocalCoords(),
-                                                               this->coverage()));
+        std::unique_ptr<GrGeometryProcessor> conicGP(GrConicEffect::Make(this->color(),
+                                                                         *geometryProcessorViewM,
+                                                                         GrClipEdgeType::kHairlineAA,
+                                                                         target->caps(),
+                                                                         *geometryProcessorLocalM,
+                                                                         fHelper.usesLocalCoords(),
+                                                                         this->coverage()));
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
