@@ -59,6 +59,7 @@ protected:
     private:
         void* fVertices = nullptr;
         GrMesh* fMesh = nullptr;
+        GrPrimitiveType fPrimitiveType;
     };
 
     /** A specialization of InstanceHelper for quad rendering.
@@ -105,16 +106,18 @@ public:
     /** Adds a draw of a mesh. */
     virtual void recordDraw(
             sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
-            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*) = 0;
+            const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
+            GrPrimitiveType) = 0;
 
     /**
      * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
      * scissor clip.
      */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt) {
+    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
+                    GrPrimitiveType primitiveType) {
         static constexpr int kZeroPrimProcTextures = 0;
         auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
-        this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr);
+        this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr, primitiveType);
     }
 
     /**
