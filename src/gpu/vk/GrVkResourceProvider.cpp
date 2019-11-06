@@ -190,7 +190,7 @@ GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
 
 GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
                                                             VkDescriptorType type, uint32_t count) {
-    return new GrVkDescriptorPool(fGpu, type, count);
+    return GrVkDescriptorPool::Create(fGpu, type, count);
 }
 
 GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(
@@ -311,6 +311,9 @@ GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
         fAvailableCommandPools.pop_back();
     } else {
         result = GrVkCommandPool::Create(fGpu);
+        if (!result) {
+            return nullptr;
+        }
     }
     SkASSERT(result->unique());
     SkDEBUGCODE(
