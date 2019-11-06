@@ -78,18 +78,18 @@ public:
         void setDisabled();
     };
 
-    const Face& frontAndBack() const {
+    const Face& singleSidedFace() const {
         SkASSERT(!this->isDisabled());
         SkASSERT(!this->isTwoSided());
-        return fFront;
+        return fCWFace;
     }
-    const Face& front(GrSurfaceOrigin origin) const {
+    const Face& clockwiseFace() const {
         SkASSERT(this->isTwoSided());
-        return (kTopLeft_GrSurfaceOrigin == origin) ? fFront : fBack;
+        return fCWFace;
     }
-    const Face& back(GrSurfaceOrigin origin) const {
+    const Face& counterClockwiseFace() const {
         SkASSERT(this->isTwoSided());
-        return (kTopLeft_GrSurfaceOrigin == origin) ? fBack : fFront;
+        return fCCWFace;
     }
 
     /**
@@ -128,8 +128,8 @@ private:
     enum { kInvalid_PrivateFlag = (kLast_StencilFlag << 1) };
 
     uint32_t   fFlags;
-    Face       fFront;
-    Face       fBack;
+    Face       fCWFace;
+    Face       fCCWFace;
 };
 
 #endif

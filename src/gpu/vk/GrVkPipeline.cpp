@@ -252,11 +252,15 @@ static void setup_depth_stencil_state(
     stencilInfo->stencilTestEnable = !stencilSettings.isDisabled();
     if (!stencilSettings.isDisabled()) {
         if (!stencilSettings.isTwoSided()) {
-            setup_stencil_op_state(&stencilInfo->front, stencilSettings.frontAndBack());
+            setup_stencil_op_state(&stencilInfo->front, stencilSettings.singleSidedFace());
             stencilInfo->back = stencilInfo->front;
         } else {
-            setup_stencil_op_state(&stencilInfo->front, stencilSettings.front(origin));
-            setup_stencil_op_state(&stencilInfo->back, stencilSettings.back(origin));
+            auto ccwFaceInfo = &stencilInfo->front, cwFaceInfo = &stencilInfo->back;
+            if (kBottomLeft_GrSurfaceOrigin == origin) {
+                std::swap(ccwFaceInfo, cwFaceInfo);
+            }
+            setup_stencil_op_state(ccwFaceInfo, stencilSettings.counterClockwiseFace());
+            setup_stencil_op_state(cwFaceInfo, stencilSettings.clockwiseFace());
         }
     }
     stencilInfo->minDepthBounds = 0.0f;

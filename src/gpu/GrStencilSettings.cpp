@@ -20,36 +20,36 @@ constexpr const GrUserStencilSettings gUnused(
         0x0000>()
 );
 
-GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fFrontFlags[0] & gUnused.fBackFlags[0]));
+GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fCWFlags[0] & gUnused.fCCWFlags[0]));
 
 const GrUserStencilSettings& GrUserStencilSettings::kUnused = gUnused;
 
 void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencilClip,
                               int numStencilBits) {
-    uint16_t frontFlags = user.fFrontFlags[hasStencilClip];
-    if (frontFlags & kSingleSided_StencilFlag) {
-        SkASSERT(frontFlags == user.fBackFlags[hasStencilClip]);
-        fFlags = frontFlags;
+    uint16_t cwFlags = user.fCWFlags[hasStencilClip];
+    if (cwFlags & kSingleSided_StencilFlag) {
+        SkASSERT(cwFlags == user.fCCWFlags[hasStencilClip]);
+        fFlags = cwFlags;
         if (!this->isDisabled()) {
-            fFront.reset(user.fFront, hasStencilClip, numStencilBits);
+            fCWFace.reset(user.fCWFace, hasStencilClip, numStencilBits);
         }
         return;
     }
 
-    uint16_t backFlags = user.fBackFlags[hasStencilClip];
-    fFlags = frontFlags & backFlags;
+    uint16_t ccwFlags = user.fCCWFlags[hasStencilClip];
+    fFlags = cwFlags & ccwFlags;
     if (this->isDisabled()) {
         return;
     }
-    if (!(frontFlags & kDisabled_StencilFlag)) {
-        fFront.reset(user.fFront, hasStencilClip, numStencilBits);
+    if (!(cwFlags & kDisabled_StencilFlag)) {
+        fCWFace.reset(user.fCWFace, hasStencilClip, numStencilBits);
     } else {
-        fFront.setDisabled();
+        fCWFace.setDisabled();
     }
-    if (!(backFlags & kDisabled_StencilFlag)) {
-        fBack.reset(user.fBack, hasStencilClip, numStencilBits);
+    if (!(ccwFlags & kDisabled_StencilFlag)) {
+        fCCWFace.reset(user.fCCWFace, hasStencilClip, numStencilBits);
     } else {
-        fBack.setDisabled();
+        fCCWFace.setDisabled();
     }
 }
 
@@ -59,11 +59,11 @@ void GrStencilSettings::reset(const GrStencilSettings& that) {
         return;
     }
     if (!this->isTwoSided()) {
-        memcpy(&fFront, &that.fFront, sizeof(Face));
+        memcpy(&fCWFace, &that.fCWFace, sizeof(Face));
     } else {
-        memcpy(&fFront, &that.fFront, 2 * sizeof(Face));
+        memcpy(&fCWFace, &that.fCWFace, 2 * sizeof(Face));
         GR_STATIC_ASSERT(sizeof(Face) ==
-                         offsetof(GrStencilSettings, fBack) - offsetof(GrStencilSettings, fFront));
+                         offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
     }
 }
 
@@ -77,13 +77,13 @@ bool GrStencilSettings::operator==(const GrStencilSettings& that) const {
         return kDisabled_StencilFlag & (fFlags & that.fFlags);
     }
     if (kSingleSided_StencilFlag & (fFlags & that.fFlags)) {
-        return 0 == memcmp(&fFront, &that.fFront, sizeof(Face)); // Both are single sided.
+        return 0 == memcmp(&fCWFace, &that.fCWFace, sizeof(Face)); // Both are single sided.
     } else if (kSingleSided_StencilFlag & (fFlags | that.fFlags)) {
         return false;
     } else {
-        return 0 == memcmp(&fFront, &that.fFront, 2 * sizeof(Face));
+        return 0 == memcmp(&fCWFace, &that.fCWFace, 2 * sizeof(Face));
         GR_STATIC_ASSERT(sizeof(Face) ==
-                         offsetof(GrStencilSettings, fBack) - offsetof(GrStencilSettings, fFront));
+                         offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
     }
     // memcmp relies on GrStencilSettings::Face being tightly packed.
     GR_STATIC_ASSERT(0 == offsetof(Face, fRef));
@@ -478,16 +478,16 @@ void GrStencilSettings::genKey(GrProcessorKeyBuilder* b) const {
         constexpr int kCount16 = sizeof(Face) / sizeof(uint16_t);
         GR_STATIC_ASSERT(0 == sizeof(Face) % sizeof(uint16_t));
         uint16_t* key = reinterpret_cast<uint16_t*>(b->add32n((kCount16 + 1) / 2));
-        memcpy(key, &fFront, sizeof(Face));
+        memcpy(key, &fCWFace, sizeof(Face));
         key[kCount16] = 0;
         GR_STATIC_ASSERT(1 == kCount16 % 2);
     } else {
         constexpr int kCount32 = (2 * sizeof(Face)) / sizeof(uint32_t);
         GR_STATIC_ASSERT(0 == (2 * sizeof(Face)) % sizeof(uint32_t));
         uint32_t* key = b->add32n(kCount32);
-        memcpy(key, &fFront, 2 * sizeof(Face));
+        memcpy(key, &fCWFace, 2 * sizeof(Face));
         GR_STATIC_ASSERT(sizeof(Face) ==
-                         offsetof(GrStencilSettings, fBack) - offsetof(GrStencilSettings, fFront));
+                offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
     }
     // We rely on GrStencilSettings::Face being tightly packed for the key to be reliable.
     GR_STATIC_ASSERT(0 == offsetof(Face, fRef));
