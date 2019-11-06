@@ -2450,12 +2450,14 @@ void GrGLGpu::flushStencil(const GrStencilSettings& stencilSettings, GrSurfaceOr
 
             fHWStencilTestEnabled = kYes_TriState;
         }
-        if (stencilSettings.isTwoSided()) {
-            set_gl_stencil(this->glInterface(), stencilSettings.front(origin), GR_GL_FRONT);
-            set_gl_stencil(this->glInterface(), stencilSettings.back(origin), GR_GL_BACK);
+        if (!stencilSettings.isTwoSided()) {
+            set_gl_stencil(this->glInterface(), stencilSettings.singleSidedFace(),
+                           GR_GL_FRONT_AND_BACK);
         } else {
-            set_gl_stencil(
-                    this->glInterface(), stencilSettings.frontAndBack(), GR_GL_FRONT_AND_BACK);
+            set_gl_stencil(this->glInterface(), stencilSettings.postOriginCWFace(origin),
+                           GR_GL_FRONT);
+            set_gl_stencil(this->glInterface(), stencilSettings.postOriginCCWFace(origin),
+                           GR_GL_BACK);
         }
         fHWStencilSettings = stencilSettings;
         fHWStencilOrigin = origin;

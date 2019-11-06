@@ -118,12 +118,12 @@ struct GrUserStencilSettings {
     template<uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask,
              GrUserStencilOp PassOp, GrUserStencilOp FailOp, uint16_t WriteMask> struct Init {};
 
-    template<uint16_t FtRef,            uint16_t BkRef,
-             GrUserStencilTest FtTest,  GrUserStencilTest BkTest,
-             uint16_t FtTestMask,       uint16_t BkTestMask,
-             GrUserStencilOp FtPassOp,  GrUserStencilOp BkPassOp,
-             GrUserStencilOp FtFailOp,  GrUserStencilOp BkFailOp,
-             uint16_t FtWriteMask,      uint16_t BkWriteMask> struct InitSeparate {};
+    template<uint16_t CWRef,            uint16_t CCWRef,
+             GrUserStencilTest CWTest,  GrUserStencilTest CCWTest,
+             uint16_t CWTestMask,       uint16_t CCWTestMask,
+             GrUserStencilOp CWPassOp,  GrUserStencilOp CCWPassOp,
+             GrUserStencilOp CWFailOp,  GrUserStencilOp CCWFailOp,
+             uint16_t CWWriteMask,      uint16_t CCWWriteMask> struct InitSeparate {};
 
     template<uint16_t Ref, GrUserStencilTest Test, uint16_t TestMask,
              GrUserStencilOp PassOp, GrUserStencilOp FailOp, uint16_t WriteMask>
@@ -131,17 +131,17 @@ struct GrUserStencilSettings {
         return Init<Ref, Test, TestMask, PassOp, FailOp, WriteMask>();
     }
 
-    template<uint16_t FtRef,            uint16_t BkRef,
-             GrUserStencilTest FtTest,  GrUserStencilTest BkTest,
-             uint16_t FtTestMask,       uint16_t BkTestMask,
-             GrUserStencilOp FtPassOp,  GrUserStencilOp BkPassOp,
-             GrUserStencilOp FtFailOp,  GrUserStencilOp BkFailOp,
-             uint16_t FtWriteMask,      uint16_t BkWriteMask>
-    constexpr static InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask,
-                                  FtPassOp, BkPassOp, FtFailOp, BkFailOp, FtWriteMask,
-                                  BkWriteMask> StaticInitSeparate() {
-        return InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask,
-                            FtPassOp, BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>();
+    template<uint16_t CWRef,            uint16_t CCWRef,
+             GrUserStencilTest CWTest,  GrUserStencilTest CCWTest,
+             uint16_t CWTestMask,       uint16_t CCWTestMask,
+             GrUserStencilOp CWPassOp,  GrUserStencilOp CCWPassOp,
+             GrUserStencilOp CWFailOp,  GrUserStencilOp CCWFailOp,
+             uint16_t CWWriteMask,      uint16_t CCWWriteMask>
+    constexpr static InitSeparate<CWRef, CCWRef, CWTest, CCWTest, CWTestMask, CCWTestMask,
+                                  CWPassOp, CCWPassOp, CWFailOp, CCWFailOp, CWWriteMask,
+                                  CCWWriteMask> StaticInitSeparate() {
+        return InitSeparate<CWRef, CCWRef, CWTest, CCWTest, CWTestMask, CCWTestMask,
+                            CWPassOp, CCWPassOp, CWFailOp, CCWFailOp, CWWriteMask, CCWWriteMask>();
     }
 
     // We construct with template arguments in order to enforce that the struct be compile-time
@@ -151,40 +151,41 @@ struct GrUserStencilSettings {
              typename Attrs = Attrs<Test, PassOp, FailOp> >
     constexpr explicit GrUserStencilSettings(
             const Init<Ref, Test, TestMask, PassOp, FailOp, WriteMask>&)
-        : fFrontFlags{(uint16_t)(Attrs::Flags(false) | kSingleSided_StencilFlag),
+        : fCWFlags{(uint16_t)(Attrs::Flags(false) | kSingleSided_StencilFlag),
                       (uint16_t)(Attrs::Flags(true) | kSingleSided_StencilFlag)}
-        , fFront{Ref, Test, Attrs::EffectiveTestMask(TestMask), PassOp, FailOp,
+        , fCWFace{Ref, Test, Attrs::EffectiveTestMask(TestMask), PassOp, FailOp,
                  Attrs::EffectiveWriteMask(WriteMask)}
-        , fBackFlags{(uint16_t)(Attrs::Flags(false) | kSingleSided_StencilFlag),
+        , fCCWFlags{(uint16_t)(Attrs::Flags(false) | kSingleSided_StencilFlag),
                      (uint16_t)(Attrs::Flags(true) | kSingleSided_StencilFlag)}
-        , fBack{Ref, Test, Attrs::EffectiveTestMask(TestMask), PassOp, FailOp,
+        , fCCWFace{Ref, Test, Attrs::EffectiveTestMask(TestMask), PassOp, FailOp,
                 Attrs::EffectiveWriteMask(WriteMask)} {
     }
 
-    template<uint16_t FtRef,            uint16_t BkRef,
-             GrUserStencilTest FtTest,  GrUserStencilTest BkTest,
-             uint16_t FtTestMask,       uint16_t BkTestMask,
-             GrUserStencilOp FtPassOp,  GrUserStencilOp BkPassOp,
-             GrUserStencilOp FtFailOp,  GrUserStencilOp BkFailOp,
-             uint16_t FtWriteMask,      uint16_t BkWriteMask,
-             typename FtAttrs = Attrs<FtTest, FtPassOp, FtFailOp>,
-             typename BkAttrs = Attrs<BkTest, BkPassOp, BkFailOp> >
+    template<uint16_t CWRef,            uint16_t CCWRef,
+             GrUserStencilTest CWTest,  GrUserStencilTest CCWTest,
+             uint16_t CWTestMask,       uint16_t CCWTestMask,
+             GrUserStencilOp CWPassOp,  GrUserStencilOp CCWPassOp,
+             GrUserStencilOp CWFailOp,  GrUserStencilOp CCWFailOp,
+             uint16_t CWWriteMask,      uint16_t CCWWriteMask,
+             typename CWAttrs = Attrs<CWTest, CWPassOp, CWFailOp>,
+             typename CCWAttrs = Attrs<CCWTest, CCWPassOp, CCWFailOp> >
     constexpr explicit GrUserStencilSettings(
-            const InitSeparate<FtRef, BkRef, FtTest, BkTest, FtTestMask, BkTestMask,
-                               FtPassOp, BkPassOp, FtFailOp, BkFailOp, FtWriteMask, BkWriteMask>&)
-        : fFrontFlags{FtAttrs::Flags(false), FtAttrs::Flags(true)}
-        , fFront{FtRef, FtTest, FtAttrs::EffectiveTestMask(FtTestMask), FtPassOp, FtFailOp,
-                 FtAttrs::EffectiveWriteMask(FtWriteMask)}
-        , fBackFlags{BkAttrs::Flags(false), BkAttrs::Flags(true)}
-        , fBack{BkRef, BkTest, BkAttrs::EffectiveTestMask(BkTestMask), BkPassOp, BkFailOp,
-                BkAttrs::EffectiveWriteMask(BkWriteMask)} {}
+            const InitSeparate<CWRef, CCWRef, CWTest, CCWTest, CWTestMask, CCWTestMask,
+                               CWPassOp, CCWPassOp, CWFailOp, CCWFailOp, CWWriteMask,
+                               CCWWriteMask>&)
+        : fCWFlags{CWAttrs::Flags(false), CWAttrs::Flags(true)}
+        , fCWFace{CWRef, CWTest, CWAttrs::EffectiveTestMask(CWTestMask), CWPassOp, CWFailOp,
+                 CWAttrs::EffectiveWriteMask(CWWriteMask)}
+        , fCCWFlags{CCWAttrs::Flags(false), CCWAttrs::Flags(true)}
+        , fCCWFace{CCWRef, CCWTest, CCWAttrs::EffectiveTestMask(CCWTestMask), CCWPassOp, CCWFailOp,
+                CCWAttrs::EffectiveWriteMask(CCWWriteMask)} {}
 
     // This struct can only be constructed with static initializers.
     GrUserStencilSettings() = delete;
     GrUserStencilSettings(const GrUserStencilSettings&) = delete;
 
     uint16_t flags(bool hasStencilClip) const {
-        return fFrontFlags[hasStencilClip] & fBackFlags[hasStencilClip];
+        return fCWFlags[hasStencilClip] & fCCWFlags[hasStencilClip];
     }
     bool isDisabled(bool hasStencilClip) const {
         return this->flags(hasStencilClip) & kDisabled_StencilFlag;
@@ -199,10 +200,10 @@ struct GrUserStencilSettings {
         return !(this->flags(hasStencilClip) & kNoWrapOps_StencilFlag);
     }
 
-    const uint16_t   fFrontFlags[2]; // frontFlagsForDraw = fFrontFlags[hasStencilClip].
-    const Face       fFront;
-    const uint16_t   fBackFlags[2]; // backFlagsForDraw = fBackFlags[hasStencilClip].
-    const Face       fBack;
+    const uint16_t   fCWFlags[2]; // cwFlagsForDraw = fCWFlags[hasStencilClip].
+    const Face       fCWFace;
+    const uint16_t   fCCWFlags[2]; // ccwFlagsForDraw = fCCWFlags[hasStencilClip].
+    const Face       fCCWFace;
 
     static const GrUserStencilSettings& kUnused;
 

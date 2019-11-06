@@ -197,15 +197,16 @@ void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> render
     if (!fStencil.isDisabled()) {
         if (fStencil.isTwoSided()) {
             if (@available(macOS 10.11, iOS 9.0, *)) {
-                [renderCmdEncoder setStencilFrontReferenceValue:fStencil.front(origin).fRef
-                                             backReferenceValue:fStencil.back(origin).fRef];
+                [renderCmdEncoder
+                        setStencilFrontReferenceValue:fStencil.postOriginCCWFace(origin).fRef
+                        backReferenceValue:fStencil.postOriginCWFace(origin).fRef];
             } else {
                 // Two-sided stencil not supported on older versions of iOS
                 // TODO: Find a way to recover from this
                 SkASSERT(false);
             }
         } else {
-            [renderCmdEncoder setStencilReferenceValue:fStencil.frontAndBack().fRef];
+            [renderCmdEncoder setStencilReferenceValue:fStencil.singleSidedFace().fRef];
         }
     }
     [renderCmdEncoder setDepthStencilState:state->mtlDepthStencil()];
