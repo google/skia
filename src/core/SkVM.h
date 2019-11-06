@@ -74,6 +74,13 @@ namespace skvm {
                   vpackusdw, vpackuswb,
                   vpcmpeqd, vpcmpgtd;
 
+        // Floating point comparisons are all the same instruction with varying imm.
+        void vcmpps(Ymm dst, Ymm x, Ymm y, int imm);
+        void vcmpeqps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,0); }
+        void vcmpltps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,1); }
+        void vcmpleps (Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,2); }
+        void vcmpneqps(Ymm dst, Ymm x, Ymm y) { this->vcmpps(dst,x,y,4); }
+
         using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
         DstEqXOpImm vpslld, vpsrld, vpsrad,
                     vpsrlw,
