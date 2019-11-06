@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "354b36ef_bf7d700b",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-06T06:24:51Z",
+      "side": 1,
+      "message": "Adding benjaminwagner@, who just removed Pixel2XL bots. Can we add plain Pixel2 runs? That device *is* supported.",
+      "revId": "ddd9463b8200adb675bb695c3435b822f12ece03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
