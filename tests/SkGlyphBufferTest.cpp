@@ -32,6 +32,23 @@ DEF_TEST(SkPackedGlyphIDCtor, reporter) {
     }
 
     {
+        // No subpixel positioning.
+        auto roundingSpec = SkGlyphPositionRoundingSpec(false, kNone_SkAxisAlignment);
+        SkIPoint mask = roundingSpec.ignorePositionFieldMask;
+        for (int y = -32; y < 33; y++) {
+            for (int x = -32; x < 33; x++) {
+                float fx = x * step, fy = y * step;
+                SkPoint roundedPos = SkPoint{fx, fy} + roundingSpec.halfAxisSampleFreq;
+                SkPackedGlyphID packedID{3, roundedPos, mask};
+                uint32_t subX = ((x + 8) & 0b1100u) >> 4;
+                uint32_t subY = ((y + 8) & 0b1100u) >> 4;
+                SkPackedGlyphID correctID(3, subX, subY);
+                REPORTER_ASSERT(reporter, packedID == correctID);
+            }
+        }
+    }
+
+    {
         // Subpixel with no axis snapping.
         auto roundingSpec = SkGlyphPositionRoundingSpec(true, kNone_SkAxisAlignment);
         SkIPoint mask = roundingSpec.ignorePositionFieldMask;
@@ -49,16 +66,20 @@ DEF_TEST(SkPackedGlyphIDCtor, reporter) {
     }
 
     {
-        // No subpixel positioning.
-        auto roundingSpec = SkGlyphPositionRoundingSpec(false, kNone_SkAxisAlignment);
+        // Test dynamic range by transposing a large distance.
+        // Floating point numbers have 24 bits of precision. The largest distance is 24 - 2 (for
+        // sub-pixel) - 1 (for truncation to floor trick in the code). This leaves 21 bits. Large
+        // Distance is 2^21 - 2 (because the test is on the interval [-2, 2).
+        auto roundingSpec = SkGlyphPositionRoundingSpec(true, kNone_SkAxisAlignment);
         SkIPoint mask = roundingSpec.ignorePositionFieldMask;
+        const int64_t kLargeDistance = (1ull << 21) - 2;
         for (int y = -32; y < 33; y++) {
             for (int x = -32; x < 33; x++) {
-                float fx = x * step, fy = y * step;
+                float fx = x * step + kLargeDistance, fy = y * step + kLargeDistance;
                 SkPoint roundedPos = SkPoint{fx, fy} + roundingSpec.halfAxisSampleFreq;
                 SkPackedGlyphID packedID{3, roundedPos, mask};
-                uint32_t subX = ((x + 8) & 0b1100u) >> 4;
-                uint32_t subY = ((y + 8) & 0b1100u) >> 4;
+                uint32_t subX = ((x + 2) & 0b1100u) >> 2;
+                uint32_t subY = ((y + 2) & 0b1100u) >> 2;
                 SkPackedGlyphID correctID(3, subX, subY);
                 REPORTER_ASSERT(reporter, packedID == correctID);
             }
