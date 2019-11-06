@@ -721,12 +721,12 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
     }
 
     // Draw triangles.
-    proc->reset(PrimitiveType::kTriangles, flushState->resourceProvider());
+    proc->reset1(PrimitiveType::kTriangles, flushState->resourceProvider());
     this->drawConnectingGeometry<&InstanceTallies::fTriangles>(
             flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
 
     // Draw conics.
-    proc->reset(PrimitiveType::kConics, flushState->resourceProvider());
+    proc->reset1(PrimitiveType::kConics, flushState->resourceProvider());
     this->drawConnectingGeometry<&InstanceTallies::fConics>(
             flushState, pipeline, *proc, batch, startIndices, startScissorSubBatch, drawBounds);
 }
@@ -782,7 +782,7 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
                               pipeline,
                               processor,
                               nullptr,
-                              &dynamicStateArrays, 0);
+                              &dynamicStateArrays, 0, GrPrimitiveType::kTriangleStrip);
 
     flushState->opsRenderPass()->draw(programInfo,
                                       fMeshesBuffer.begin(), fMeshesBuffer.count(),
@@ -803,9 +803,20 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
     int startIdx = startIndices[(int)GrScissorTest::kDisabled]->*InstanceType;
     int endIdx = batch.fNonScissorEndInstances->*InstanceType;
     SkASSERT(endIdx >= startIdx);
+
+    bool inited = false;
+    GrPrimitiveType master = GrPrimitiveType::kTriangleStrip;
+
     if (int instanceCount = endIdx - startIdx) {
+        GrPrimitiveType tmp;
         processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
-                             &fMeshesBuffer);
+                             &fMeshesBuffer, &tmp);
+        if (!inited) {
+            inited = true;
+            master = tmp;
+        } else {
+            SkASSERT(master == tmp);
+        }
         fScissorsBuffer.push_back(drawBounds);
     }
 
@@ -817,8 +828,16 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
         endIdx = subBatch.fEndInstances->*InstanceType;
         SkASSERT(endIdx >= startIdx);
         if (int instanceCount = endIdx - startIdx) {
+            GrPrimitiveType tmp;
             processor.appendMesh(fInstanceBuffer, instanceCount, baseInstance + startIdx,
-                                 &fMeshesBuffer);
+                                 &fMeshesBuffer, &tmp);
+            if (!inited) {
+                inited = true;
+                master = tmp;
+            } else {
+                SkASSERT(master == tmp);
+            }
+
             fScissorsBuffer.push_back(subBatch.fScissor);
             startIdx = endIdx;
         }
@@ -827,8 +846,8 @@ void GrCCStroker::drawConnectingGeometry(GrOpFlushState* flushState, const GrPip
     // Flush the geometry.
     if (!fMeshesBuffer.empty()) {
         SkASSERT(fMeshesBuffer.count() == fScissorsBuffer.count());
-        processor.draw(flushState, pipeline, fScissorsBuffer.begin(), fMeshesBuffer.begin(),
-                       fMeshesBuffer.count(), SkRect::Make(drawBounds));
+        processor.draw1(flushState, pipeline, fScissorsBuffer.begin(), fMeshesBuffer.begin(),
+                       fMeshesBuffer.count(), SkRect::Make(drawBounds), master);
         // Don't call reset(), as that also resets the reserve count.
         fMeshesBuffer.pop_back_n(fMeshesBuffer.count());
         fScissorsBuffer.pop_back_n(fScissorsBuffer.count());

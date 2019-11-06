@@ -408,7 +408,7 @@ public:
     }
 };
 
-void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider*) {
+void GrGSCoverageProcessor::reset1(PrimitiveType primitiveType, GrResourceProvider*) {
     fPrimitiveType = primitiveType;  // This will affect the return values for numInputPoints, etc.
 
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
@@ -429,7 +429,8 @@ void GrGSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
 }
 
 void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
+                                       int baseInstance, SkTArray<GrMesh>* out, GrPrimitiveType* primType) const {
+    *primType = GrPrimitiveType::kLines;
     // We don't actually make instanced draw calls. Instead, we feed transposed x,y point values to
     // the GPU in a regular vertex array and draw kLines (see initGS). Then, each vertex invocation
     // receives either the shape's x or y values as inputs, which it forwards to the geometry
@@ -439,15 +440,17 @@ void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
     mesh.setVertexData(std::move(instanceBuffer), baseInstance * 2);
 }
 
-void GrGSCoverageProcessor::draw(
+void GrGSCoverageProcessor::draw1(
         GrOpFlushState* flushState, const GrPipeline& pipeline, const SkIRect scissorRects[],
-        const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
+        const GrMesh meshes[], int meshCount, const SkRect& drawBounds,
+        GrPrimitiveType primType) const {
+    SkASSERT(primType == GrPrimitiveType::kLines);
     // The geometry shader impl draws primitives in two subpasses: The first pass fills the interior
     // and does edge AA. The second pass does touch up on corner pixels.
     for (int i = 0; i < 2; ++i) {
         fSubpass = (Subpass) i;
-        this->GrCCCoverageProcessor::draw(
-                flushState, pipeline, scissorRects, meshes, meshCount, drawBounds);
+        INHERITED::draw1(flushState, pipeline, scissorRects, meshes, meshCount, drawBounds,
+                         primType);
     }
 }
 

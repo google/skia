@@ -349,6 +349,7 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
         proc->reset(fView->fPrimitiveType, rp);
         SkDEBUGCODE(proc->enableDebugBloat(kDebugBloat));
 
+        GrPrimitiveType primType;
         SkSTArray<1, GrMesh> mesh;
         if (PrimitiveType::kCubics == fView->fPrimitiveType ||
             PrimitiveType::kConics == fView->fPrimitiveType) {
@@ -357,7 +358,8 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                      GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
                                      fView->fQuadPointInstances.begin()));
             if (!fView->fQuadPointInstances.empty() && instBuff) {
-                proc->appendMesh(std::move(instBuff), fView->fQuadPointInstances.count(), 0, &mesh);
+                proc->appendMesh(std::move(instBuff), fView->fQuadPointInstances.count(), 0, &mesh,
+                                 &primType);
             }
         } else {
             sk_sp<GrGpuBuffer> instBuff(
@@ -365,13 +367,14 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state,
                                      GrGpuBufferType::kVertex, kDynamic_GrAccessPattern,
                                      fView->fTriPointInstances.begin()));
             if (!fView->fTriPointInstances.empty() && instBuff) {
-                proc->appendMesh(std::move(instBuff), fView->fTriPointInstances.count(), 0, &mesh);
+                proc->appendMesh(std::move(instBuff), fView->fTriPointInstances.count(), 0, &mesh,
+                                 &primType);
             }
         }
 
         if (!mesh.empty()) {
             SkASSERT(1 == mesh.count());
-            proc->draw(state, pipeline, nullptr, mesh.begin(), 1, this->bounds());
+            proc->draw1(state, pipeline, nullptr, mesh.begin(), 1, this->bounds(), primType);
         }
     } else if (PrimitiveType::kConics != fView->fPrimitiveType) {  // No conic stroke support yet.
         GrCCStroker stroker(0,0,0);

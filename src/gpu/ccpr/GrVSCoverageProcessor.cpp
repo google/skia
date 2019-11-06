@@ -451,7 +451,7 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     f->codeAppendf("%s = half4(1);", args.fOutputCoverage);
 }
 
-void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvider* rp) {
+void GrVSCoverageProcessor::reset1(PrimitiveType primitiveType, GrResourceProvider* rp) {
     const GrCaps& caps = *rp->caps();
 
     fPrimitiveType = primitiveType;
@@ -521,18 +521,14 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     this->setInstanceAttributes(fInputXAndYValues, 2);
     fPerVertexData = {"vertexdata", kInt_GrVertexAttribType, kInt_GrSLType};
     this->setVertexAttributes(&fPerVertexData, 1);
-
-    if (caps.usePrimitiveRestart()) {
-        fTriangleType = GrPrimitiveType::kTriangleStrip;
-    } else {
-        fTriangleType = GrPrimitiveType::kTriangles;
-    }
 }
 
 void GrVSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
-                                       int baseInstance, SkTArray<GrMesh>* out) const {
-    GrMesh& mesh = out->emplace_back(fTriangleType);
-    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType);
+                                       int baseInstance, SkTArray<GrMesh>* out, GrPrimitiveType* primType) const {
+    // This one will always be consistent
+    *primType = fTriangleType1;
+    GrMesh& mesh = out->emplace_back(fTriangleType1);
+    auto primitiveRestart = GrPrimitiveRestart(GrPrimitiveType::kTriangleStrip == fTriangleType1);
     mesh.setIndexedInstanced(fIndexBuffer, fNumIndicesPerInstance, std::move(instanceBuffer),
                              instanceCount, baseInstance, primitiveRestart);
     mesh.setVertexData(fVertexBuffer, 0);
