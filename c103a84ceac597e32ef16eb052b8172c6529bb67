@@ -22,6 +22,30 @@
       "revId": "c103a84ceac597e32ef16eb052b8172c6529bb67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9325202_c33d87aa",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-07T18:46:53Z",
+      "side": 1,
+      "message": "Done.\n\nHowever, I decided to just recompute GrSampleCountToVkSampleCount rather than asserting. Thoughts on that?",
+      "parentUuid": "550be9ac_d9345634",
+      "range": {
+        "startLine": 314,
+        "startChar": 4,
+        "endLine": 315,
+        "endChar": 77
+      },
+      "revId": "c103a84ceac597e32ef16eb052b8172c6529bb67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
