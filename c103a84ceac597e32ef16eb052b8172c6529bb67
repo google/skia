@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "550be9ac_d9345634",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-07T15:37:21Z",
+      "side": 1,
+      "message": "Seem like here we should be able to assert two things,\n1) SkASSERT(GrSampleCountToVkSampleCount(numRasterSamples, \u0026tempVkSamplesFlag) \u003d\u003d vkSampleCountFlag);\n2) SkSSERT(numRasterSamples \u003c\u003d (int)SK_ARRAY_COUNT(kCenteredSampleLocations)); // I don\u0027t think we support above 32 samples.\n\nWith those asserts we can just set sampleLocationsCount to be numRasterSamples.",
+      "range": {
+        "startLine": 314,
+        "startChar": 4,
+        "endLine": 315,
+        "endChar": 77
+      },
+      "revId": "c103a84ceac597e32ef16eb052b8172c6529bb67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
