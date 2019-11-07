@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c9eb241_afcc9726",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-07T15:01:42Z",
+      "side": 1,
+      "message": "Is this something we should be following up on?",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ef6a19_b0dba614",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-07T15:01:42Z",
+      "side": 1,
+      "message": "I was *just* confused by still needing out-of-line definitions for constexpr the other day.  Glad C++17 changes that.",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6ff65e1_46af07b3",
+        "filename": "infra/bots/recipe_modules/flavor/default.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-07T15:01:42Z",
+      "side": 1,
+      "message": "Do we need some sort of -stdlib\u003dlibc++ change for this library path change to make sense?\n\nOr was it already using _some_ libc++, now _this_ libc++?",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc407c59_e03d3c39",
+        "filename": "src/ports/SkTLS_pthread.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-07T15:01:42Z",
+      "side": 1,
+      "message": "Totally fine of course, but what\u0027s the deal?",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
