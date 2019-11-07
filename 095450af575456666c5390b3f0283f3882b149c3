@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b2b21cae_97a2d30d",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-07T14:55:59Z",
+      "side": 1,
+      "message": "So I had a side plan of seeing if I could remove storing the gpu on the render target, so in this change I was just trying to not add more uses of the internal gpu where it was easy not to. However, looking more deeply the gpu is basically required for all our caching and deleting of GrGpuResources, so its not really practical to get rid of it.\n\nAnyways I just switched everything to using the internal one since it isn\u0027t going anywhere.",
+      "parentUuid": "f885c62a_af117b3f",
+      "range": {
+        "startLine": 274,
+        "startChar": 59,
+        "endLine": 274,
+        "endChar": 71
+      },
+      "revId": "095450af575456666c5390b3f0283f3882b149c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f3d52c01_b48a6241",
         "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
         "patchSetId": 2
