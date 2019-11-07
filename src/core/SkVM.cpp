@@ -15,6 +15,17 @@
 #include "src/core/SkVM.h"
 #include <functional>  // std::hash
 #include <string.h>
+
+// JIT code isn't MSAN-instrumented, so we won't see when it uses
+// uninitialized memory, and we'll not see the writes it makes as properly
+// initializing memory.  Instead force the interpreter, which should let
+// MSAN see everything our programs do properly.
+#if defined(__has_feature)
+    #if __has_feature(memory_sanitizer)
+        #undef SKVM_JIT
+    #endif
+#endif
+
 #if defined(SKVM_JIT)
     #include <sys/mman.h>
 #endif
