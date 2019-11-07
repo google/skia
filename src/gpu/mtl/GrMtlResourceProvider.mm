@@ -39,9 +39,8 @@ GrMtlResourceProvider::GrMtlResourceProvider(GrMtlGpu* gpu)
 
 GrMtlPipelineState* GrMtlResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* renderTarget,
-        const GrProgramInfo& programInfo,
-        GrPrimitiveType primitiveType) {
-    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, primitiveType);
+        const GrProgramInfo& programInfo) {
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,8 +134,7 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
-        const GrProgramInfo& programInfo,
-        GrPrimitiveType primType) {
+        const GrProgramInfo& programInfo) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
 #endif
@@ -144,7 +142,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
     // TODO: unify GL, VK and Mtl
     // Get GrMtlProgramDesc
     GrMtlPipelineStateBuilder::Desc desc;
-    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, primType, fGpu)) {
+    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;
     }

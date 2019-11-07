@@ -18,7 +18,7 @@ namespace sk_app {
 class DawnD3D12WindowContext : public DawnWindowContext {
 public:
     DawnD3D12WindowContext(HWND hwnd, const DisplayParams& params);
-    virtual ~DawnD3D12WindowContext();
+    ~DawnD3D12WindowContext() override;
     wgpu::Device onInitializeContext() override;
     void onDestroyContext() override;
     DawnSwapChainImplementation createSwapChainImplementation(
