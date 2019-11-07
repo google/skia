@@ -160,18 +160,18 @@ const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
 }
 
 const GrVkRenderPass* GrVkResourceProvider::findRenderPass(
-                                                     const GrVkRenderTarget& target,
+                                                     GrVkRenderTarget* target,
                                                      const GrVkRenderPass::LoadStoreOps& colorOps,
                                                      const GrVkRenderPass::LoadStoreOps& stencilOps,
                                                      CompatibleRPHandle* compatibleHandle) {
     GrVkResourceProvider::CompatibleRPHandle tempRPHandle;
     GrVkResourceProvider::CompatibleRPHandle* pRPHandle = compatibleHandle ? compatibleHandle
                                                                            : &tempRPHandle;
-    *pRPHandle = target.compatibleRenderPassHandle();
+    *pRPHandle = target->compatibleRenderPassHandle();
 
     // This will get us the handle to (and possible create) the compatible set for the specific
     // GrVkRenderPass we are looking for.
-    this->findCompatibleRenderPass(target, compatibleHandle);
+    this->findCompatibleRenderPass(*target, compatibleHandle);
     return this->findRenderPass(*pRPHandle, colorOps, stencilOps);
 }
 

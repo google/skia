@@ -166,7 +166,7 @@ public:
 
     void storeVkPipelineCacheData() override;
 
-    void beginRenderPass(const GrVkRenderPass*,
+    bool beginRenderPass(const GrVkRenderPass*,
                          const VkClearValue* colorClear,
                          GrVkRenderTarget*, GrSurfaceOrigin,
                          const SkIRect& bounds, bool forSecondaryCB);

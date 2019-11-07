@@ -60,7 +60,7 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
 
 GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 
-void GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                              const SkPMColor4f& clearColor) {
 
@@ -101,13 +101,14 @@ void GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                   false);
     }
 
-    const GrVkResourceProvider::CompatibleRPHandle& rpHandle = vkRT->compatibleRenderPassHandle();
+    const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
+            vkRT->compatibleRenderPassHandle();
     if (rpHandle.isValid()) {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                      vkColorOps,
                                                                      vkStencilOps);
     } else {
-        fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+        fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(vkRT,
                                                                      vkColorOps,
                                                                      vkStencilOps);
     }
@@ -121,11 +122,19 @@ void GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
 
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
-        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(), fCurrentRenderPass);
     }
 
-    fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
-                          SkToBool(fCurrentSecondaryCommandBuffer));
+    if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
+                               SkToBool(fCurrentSecondaryCommandBuffer))) {
+        if (fCurrentSecondaryCommandBuffer) {
+            fCurrentSecondaryCommandBuffer->end(fGpu);
+        }
+        fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+        fCurrentRenderPass = nullptr;
+        return false;
+    }
+    return true;
 }
 
 void GrVkOpsRenderPass::initWrapped() {
@@ -163,6 +172,10 @@ void GrVkOpsRenderPass::submit() {
     if (!fRenderTarget) {
         return;
     }
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
 
     // We don't want to actually submit the secondary command buffer if it is wrapped.
     if (this->wrapsSecondaryCommandBuffer()) {
@@ -175,7 +188,7 @@ void GrVkOpsRenderPass::submit() {
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
 
-void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
+bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrTextureProxy*, true>& sampledProxies) {
@@ -203,10 +216,10 @@ void GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const Sk
 
     if (this->wrapsSecondaryCommandBuffer()) {
         this->initWrapped();
-        return;
+        return true;
     }
 
-    this->init(colorInfo, stencilInfo, colorInfo.fClearColor);
+    return this->init(colorInfo, stencilInfo, colorInfo.fClearColor);
 }
 
 void GrVkOpsRenderPass::reset() {
@@ -238,6 +251,11 @@ void GrVkOpsRenderPass::insertEventMarker(const char* msg) {
 }
 
 void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
+
     SkASSERT(!clip.hasWindowRectangles());
 
     GrStencilAttachment* sb = fRenderTarget->renderTargetPriv().getStencilAttachment();
@@ -289,6 +307,11 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideS
 }
 
 void GrVkOpsRenderPass::onClear(const GrFixedClip& clip, const SkPMColor4f& color) {
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
+
     // parent class should never let us get here with no RT
     SkASSERT(!clip.hasWindowRectangles());
 
@@ -353,7 +376,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
                                                                      vkColorOps,
                                                                      vkStencilOps);
     } else {
-        fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(*vkRT,
+        fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(vkRT,
                                                                      vkColorOps,
                                                                      vkStencilOps);
     }
@@ -365,16 +388,26 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
         mustUseSecondaryCommandBuffer) {
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
-        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->framebuffer(), fCurrentRenderPass);
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(), fCurrentRenderPass);
     }
 
     // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the
     // bounds in GrOpsTask for parts before and after inline uploads separately.
-    fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
-                          SkToBool(fCurrentSecondaryCommandBuffer));
+    if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
+                               SkToBool(fCurrentSecondaryCommandBuffer))) {
+        if (fCurrentSecondaryCommandBuffer) {
+            fCurrentSecondaryCommandBuffer->end(fGpu);
+        }
+        fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+        fCurrentRenderPass = nullptr;
+    }
 }
 
 void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
     if (fCurrentSecondaryCommandBuffer) {
         fCurrentSecondaryCommandBuffer->end(fGpu);
         fGpu->submitSecondaryCommandBuffer(std::move(fCurrentSecondaryCommandBuffer));
@@ -493,6 +526,10 @@ void check_sampled_texture(GrTexture* tex, GrRenderTarget* rt, GrVkGpu* gpu) {
 void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
                                const GrMesh meshes[], int meshCount,
                                const SkRect& bounds) {
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
 
     SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
 
@@ -616,6 +653,10 @@ void GrVkOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable) {
+    if (!fCurrentRenderPass) {
+        SkASSERT(fGpu->isDeviceLost());
+        return;
+    }
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
     GrVkImage* targetImage = target->msaaImage() ? target->msaaImage() : target;
@@ -627,6 +668,11 @@ void GrVkOpsRenderPass::executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandl
     if (!fCurrentSecondaryCommandBuffer) {
         fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
         this->addAdditionalRenderPass(true);
+        // We may have failed to start a new render pass
+        if (!fCurrentRenderPass) {
+            SkASSERT(fGpu->isDeviceLost());
+            return;
+        }
     }
     SkASSERT(fCurrentSecondaryCommandBuffer);
 

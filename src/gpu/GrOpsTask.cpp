@@ -543,6 +543,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             flushState->gpu(), proxy->peekRenderTarget(), fTargetView.origin(),
             fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
             fSampledProxies);
+    if (!renderPass) {
+        return false;
+    }
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 

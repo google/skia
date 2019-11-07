@@ -70,7 +70,7 @@ public:
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
     // If this is non null it will be set to a handle that can be used in the furutre to quickly
     // return a GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
-    const GrVkRenderPass* findRenderPass(const GrVkRenderTarget& target,
+    const GrVkRenderPass* findRenderPass(GrVkRenderTarget* target,
                                          const GrVkRenderPass::LoadStoreOps& colorOps,
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle = nullptr);
