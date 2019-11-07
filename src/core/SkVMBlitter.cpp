@@ -550,28 +550,94 @@ namespace {
 }  // namespace
 
 bool skvm::BlendModeSupported(SkBlendMode mode) {
-    switch (mode) {
-        default: break;
-        case SkBlendMode::kSrc:
-        case SkBlendMode::kSrcOver: return true;
-    }
-    return false;
+    return mode <= SkBlendMode::kScreen;
 }
 
-skvm::Color skvm::BlendModeProgram(skvm::Builder* p, SkBlendMode mode, const skvm::Color& src,
-                                   const skvm::Color& dst) {
+skvm::Color skvm::BlendModeProgram(skvm::Builder* p, SkBlendMode mode, skvm::Color src,
+                                   skvm::Color dst) {
+    auto mma_d255 = [p](skvm::I32 a, skvm::I32 b, skvm::I32 c, skvm::I32 d) {
+        return p->div255(p->add(p->mul(a, b), p->mul(c, d)));
+    };
+
     skvm::Color res;
     switch (mode) {
         default: SkASSERT(false);
 
-        case SkBlendMode::kSrc: res = src; break;
+        case SkBlendMode::kClear: {
+            auto zero = p->splat(0);
+            res = {zero, zero, zero, zero};
+        } break;
 
+        case SkBlendMode::kSrc:   res = src; break;
+        case SkBlendMode::kDst:   res = dst; break;
+
+        case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
         case SkBlendMode::kSrcOver: {
             auto invA = p->sub(p->splat(255), src.a);
             res.r = p->add(src.r, p->scale_unorm8(dst.r, invA));
             res.g = p->add(src.g, p->scale_unorm8(dst.g, invA));
             res.b = p->add(src.b, p->scale_unorm8(dst.b, invA));
             res.a = p->add(src.a, p->scale_unorm8(dst.a, invA));
+        } break;
+
+        case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
+        case SkBlendMode::kSrcIn: {
+            res.r = p->scale_unorm8(src.r, dst.a);
+            res.g = p->scale_unorm8(src.g, dst.a);
+            res.b = p->scale_unorm8(src.b, dst.a);
+            res.a = p->scale_unorm8(src.a, dst.a);
+        } break;
+
+        case SkBlendMode::kDstOut: std::swap(src, dst); // fall-through
+        case SkBlendMode::kSrcOut: {
+            auto invA = p->sub(p->splat(255), dst.a);
+            res.r = p->scale_unorm8(src.r, invA);
+            res.g = p->scale_unorm8(src.g, invA);
+            res.b = p->scale_unorm8(src.b, invA);
+            res.a = p->scale_unorm8(src.a, invA);
+        } break;
+
+        case SkBlendMode::kDstATop: std::swap(src, dst); // fall-through
+        case SkBlendMode::kSrcATop: {
+            auto invsa = p->sub(p->splat(255), src.a);
+            res.r = mma_d255(src.r, dst.a, dst.r, invsa);
+            res.g = mma_d255(src.g, dst.a, dst.g, invsa);
+            res.b = mma_d255(src.b, dst.a, dst.b, invsa);
+            res.a = mma_d255(src.a, dst.a, dst.a, invsa);
+        } break;
+
+        case SkBlendMode::kXor: {
+            auto invsa = p->sub(p->splat(255), src.a);
+            auto invda = p->sub(p->splat(255), dst.a);
+            res.r = mma_d255(src.r, invda, dst.r, invsa);
+            res.g = mma_d255(src.g, invda, dst.g, invsa);
+            res.b = mma_d255(src.b, invda, dst.b, invsa);
+            res.a = mma_d255(src.a, invda, dst.a, invsa);
+        } break;
+
+        case SkBlendMode::kPlus: {
+            auto max = p->splat(255);
+            res.r = p->min(p->add(src.r, dst.r), max);
+            res.g = p->min(p->add(src.g, dst.g), max);
+            res.b = p->min(p->add(src.b, dst.b), max);
+            res.a = p->min(p->add(src.a, dst.a), max);
+        } break;
+
+        case SkBlendMode::kModulate: {
+            res.r = p->scale_unorm8(src.r, dst.r);
+            res.g = p->scale_unorm8(src.g, dst.g);
+            res.b = p->scale_unorm8(src.b, dst.b);
+            res.a = p->scale_unorm8(src.a, dst.a);
+        } break;
+
+        case SkBlendMode::kScreen: {
+            auto add_sub = [p](skvm::I32 a, skvm::I32 b, skvm::I32 c) {
+                return p->sub(p->add(a, b), c);
+            };
+            res.r = add_sub(src.r, dst.r, p->scale_unorm8(src.r, dst.r));
+            res.g = add_sub(src.g, dst.g, p->scale_unorm8(src.g, dst.g));
+            res.b = add_sub(src.b, dst.b, p->scale_unorm8(src.b, dst.b));
+            res.a = add_sub(src.a, dst.a, p->scale_unorm8(src.a, dst.a));
         } break;
     }
     return res;
