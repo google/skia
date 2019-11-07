@@ -141,11 +141,8 @@ void GrDawnOpsRenderPass::setScissorState(const GrProgramInfo& programInfo) {
     fPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-void GrDawnOpsRenderPass::applyState(const GrProgramInfo& programInfo,
-                                     const GrPrimitiveType primitiveType) {
-    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget,
-                                                                   programInfo,
-                                                                   primitiveType);
+void GrDawnOpsRenderPass::applyState(const GrProgramInfo& programInfo) {
+    sk_sp<GrDawnProgram> program = fGpu->getOrCreateRenderPipeline(fRenderTarget, programInfo);
     auto bindGroup = program->setData(fGpu, fRenderTarget, programInfo);
     fPassEncoder.SetPipeline(program->fRenderPipeline);
     fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);

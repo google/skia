@@ -79,7 +79,6 @@ void GrVkResourceProvider::PipelineStateCache::release() {
 GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        GrPrimitiveType primitiveType,
         VkRenderPass compatibleRenderPass) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
     ++fTotalRequests;
@@ -96,8 +95,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
     // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
-    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, stencil,
-                                               primitiveType, fGpu)) {
+    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, stencil, fGpu)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }
@@ -108,8 +106,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, programInfo,
-                stencil, primitiveType, &desc, compatibleRenderPass));
+                fGpu, renderTarget, programInfo, stencil, &desc, compatibleRenderPass));
         if (!pipelineState) {
             return nullptr;
         }

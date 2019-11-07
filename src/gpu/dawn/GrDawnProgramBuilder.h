@@ -70,13 +70,12 @@ struct GrDawnProgram : public SkRefCnt {
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {
 public:
     static sk_sp<GrDawnProgram> Build(GrDawnGpu*,
-                                      GrRenderTarget* rt,
-                                      const GrProgramInfo& programInfo,
-                                      GrPrimitiveType primitiveType,
+                                      GrRenderTarget*,
+                                      const GrProgramInfo&,
                                       wgpu::TextureFormat colorFormat,
                                       bool hasDepthStencil,
                                       wgpu::TextureFormat depthStencilFormat,
-                                      GrProgramDesc* desc);
+                                      GrProgramDesc*);
     const GrCaps* caps() const override;
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }

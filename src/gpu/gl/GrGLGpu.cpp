@@ -1660,12 +1660,9 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
-                           const GrProgramInfo& programInfo,
-                           GrPrimitiveType primitiveType) {
+bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
 
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo,
-                                                         primitiveType));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
@@ -2201,9 +2198,7 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
 
     SkASSERT(meshCount); // guaranteed by GrOpsRenderPass::draw
 
-    GrPrimitiveType primitiveType = meshes[0].primitiveType();
-
-    if (!this->flushGLState(renderTarget, programInfo, primitiveType)) {
+    if (!this->flushGLState(renderTarget, programInfo)) {
         return;
     }
 
@@ -2211,7 +2206,7 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
     bool hasDynamicPrimProcTextures = programInfo.hasDynamicPrimProcTextures();
 
     for (int m = 0; m < meshCount; ++m) {
-        SkASSERT(meshes[m].primitiveType() == primitiveType);
+        SkASSERT(meshes[m].primitiveType() == programInfo.primitiveType());
 
         if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
                                                                       *this->caps())) {

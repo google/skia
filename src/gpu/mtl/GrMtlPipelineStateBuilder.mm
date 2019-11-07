@@ -449,9 +449,8 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                             GrRenderTarget* renderTarget,
                                             const GrProgramInfo& programInfo,
-                                            GrPrimitiveType primitiveType,
                                             GrMtlGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, primitiveType, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, gpu)) {
         return false;
     }
 
