@@ -54,17 +54,6 @@ SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
     return glyph;
 }
 
-SkGlyph* SkStrike::glyph(SkGlyphID glyphID) {
-    return this->glyph(SkPackedGlyphID{glyphID});
-}
-
-SkGlyph* SkStrike::glyph(SkGlyphID glyphID, SkPoint position) {
-    SkIPoint mask = fRoundingSpec.ignorePositionMask;
-    SkFixed subX = SkScalarToFixed(position.x()) & mask.x(),
-            subY = SkScalarToFixed(position.y()) & mask.y();
-    return this->glyph(SkPackedGlyphID{glyphID, subX, subY});
-}
-
 SkGlyph* SkStrike::glyphFromPrototype(const SkGlyphPrototype& p, void* image) {
     SkGlyph* glyph = fGlyphMap.findOrNull(p.id);
     if (glyph == nullptr) {
@@ -112,7 +101,7 @@ SkSpan<const SkGlyph*> SkStrike::internalPrepare(
         SkSpan<const SkGlyphID> glyphIDs, PathDetail pathDetail, const SkGlyph** results) {
     const SkGlyph** cursor = results;
     for (auto glyphID : glyphIDs) {
-        SkGlyph* glyphPtr = this->glyph(glyphID);
+        SkGlyph* glyphPtr = this->glyph(SkPackedGlyphID{glyphID});
         if (pathDetail == kMetricsAndPath) {
             this->preparePath(glyphPtr);
         }

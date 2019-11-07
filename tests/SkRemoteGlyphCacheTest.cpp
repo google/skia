@@ -895,7 +895,9 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     {
         SkPoint pt{SkFixedToScalar(lostGlyphID.getSubXFixed()),
                    SkFixedToScalar(lostGlyphID.getSubYFixed())};
-        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.glyphID(), pt);
+        SkPackedGlyphID packedID{
+            lostGlyphID.glyphID(), pt, testCache->roundingSpec().ignorePositionFieldMask};
+        SkGlyph* lostGlyph = testCache->glyph(packedID);
         testCache->prepareImage(lostGlyph);
 
         REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
@@ -908,7 +910,9 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     {
         SkPoint pt{SkFixedToScalar(SK_FixedQuarter),
                    SkFixedToScalar(SK_FixedQuarter)};
-        SkGlyph* lostGlyph = testCache->glyph(lostGlyphID.glyphID(), pt);
+        SkPackedGlyphID packedID{
+                lostGlyphID.glyphID(), pt, testCache->roundingSpec().ignorePositionFieldMask};
+        SkGlyph* lostGlyph = testCache->glyph(packedID);
         testCache->prepareImage(lostGlyph);
 
         REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
