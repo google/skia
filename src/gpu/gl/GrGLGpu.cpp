@@ -1664,8 +1664,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget,
                            const GrProgramInfo& programInfo,
                            GrPrimitiveType primitiveType) {
 
-    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo,
-                                                         primitiveType));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;

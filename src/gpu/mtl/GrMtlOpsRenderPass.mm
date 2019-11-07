@@ -51,14 +51,11 @@ void GrMtlOpsRenderPass::submit() {
     fGpu->submitIndirectCommandBuffer(fRenderTarget, fOrigin, &iBounds);
 }
 
-GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(const GrProgramInfo& programInfo,
-                                                         GrPrimitiveType primitiveType) {
+GrMtlPipelineState* GrMtlOpsRenderPass::prepareDrawState(const GrProgramInfo& programInfo) {
     // TODO: resolve textures and regenerate mipmaps as needed
 
     GrMtlPipelineState* pipelineState =
-        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
-                                                                     programInfo,
-                                                                     primitiveType);
+        fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget, programInfo);
     if (!pipelineState) {
         return nullptr;
     }
