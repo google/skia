@@ -1906,13 +1906,6 @@ namespace skvm {
                 case Op::lt_i32: a->vpcmpgtd(dst(), r[y], r[x]); break;
                 case Op::gt_i32: a->vpcmpgtd(dst(), r[x], r[y]); break;
 
-                case Op:: eq_f32: a->vcmpeqps (dst(), r[x], r[y]); break;
-                case Op::neq_f32: a->vcmpneqps(dst(), r[x], r[y]); break;
-                case Op:: lt_f32: a->vcmpltps (dst(), r[x], r[y]); break;
-                case Op::lte_f32: a->vcmpleps (dst(), r[x], r[y]); break;
-                case Op:: gt_f32: a->vcmpltps (dst(), r[y], r[x]); break;
-                case Op::gte_f32: a->vcmpleps (dst(), r[y], r[x]); break;
-
                 case Op::extract: if (imm == 0) { a->vpand (dst(),  r[x], r[y]); }
                                   else          { a->vpsrld(tmp(),  r[x], imm);
                                                   a->vpand (dst(), tmp(), r[y]); }
