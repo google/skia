@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "785d166e_f73e7894",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-07T16:53:44Z",
+      "side": 1,
+      "message": "Yup. I (had) thought we couldn\u0027t compare \"real\" enums, but I was wrong. Done.",
+      "parentUuid": "2dcb22d8_5003d4d9",
+      "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0b0a08fd_6a6831dc",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "34a83638_0d17486e",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-07T16:53:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b0a08fd_6a6831dc",
+      "range": {
+        "startLine": 570,
+        "startChar": 34,
+        "endLine": 570,
+        "endChar": 42
+      },
+      "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23ce86bf_2c6ac2a2",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 2
@@ -56,6 +98,24 @@
       "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d18fcf51_73be2a06",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-07T16:53:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23ce86bf_2c6ac2a2",
+      "revId": "e52e7572ac83be621250182653d83bdfc0f6dd4c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
