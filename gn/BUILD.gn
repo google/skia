@@ -64,6 +64,7 @@ config("default") {
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
+    cflags_cc += [ "/std:c++17" ]
     if (is_clang) {
       cflags += [ "-fms-compatibility-version=19" ]  # 2015
     }
@@ -103,7 +104,7 @@ config("default") {
       cflags += [ "-fPIC" ]
     }
     cflags += [ "-fstrict-aliasing" ]
-    cflags_cc += [ "-std=c++14" ]
+    cflags_cc += [ "-std=c++17" ]
 
     # The main idea is to slim the exported API, but these flags also improve link time on Mac.
     # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
@@ -177,7 +178,10 @@ config("default") {
       "-arch",
       _target,
     ]
-    cflags_cc += [ "-stdlib=libc++" ]
+    cflags_cc += [
+      "-stdlib=libc++",
+      "-fno-aligned-allocation",
+    ]
     ldflags += [
       "-isysroot",
       xcode_sysroot,
@@ -269,6 +273,9 @@ config("default") {
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
     }
+    if (sanitizers == "safe-stack") {
+      cflags_cc += [ "-fno-aligned-allocation" ]
+    }
   }
 }
 
@@ -300,6 +307,9 @@ config("warnings") {
       # These only show up in shared builds:
       "/wd4251",  # class 'type' needs to have dll-interface to be used by clients of class 'type2'
       "/wd4275",  # non dll-interface class 'base' used as base for dll-interface class 'derived'
+
+      # It'd be nice to fix these and turn this on:
+      "/wd5041",  # out-of-line definition for constexpr static data member is not needed and is deprecated in C++17
     ]
   } else {
     cflags += [
