@@ -22,6 +22,30 @@
       "revId": "dd40a821bbce8778901ddd51e2732cee720ef21d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "960db298_c676a067",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-07T19:45:39Z",
+      "side": 1,
+      "message": "Done. Limited the backend to 16 on grounds that standard sample locations are not defined for more than 16 anyway.",
+      "parentUuid": "92157ac0_2077ba93",
+      "range": {
+        "startLine": 316,
+        "startChar": 3,
+        "endLine": 316,
+        "endChar": 87
+      },
+      "revId": "dd40a821bbce8778901ddd51e2732cee720ef21d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
