@@ -7,7 +7,7 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/private/SkColorData.h"
-#include "src/core/SkCpu.h"
+#include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -34,29 +34,26 @@ static void dump(skvm::Builder& builder, SkWStream* o) {
 // TODO: I'd like this to go away and have every test in here run both JIT and interpreter.
 template <typename Fn>
 static void test_interpreter_only(skiatest::Reporter* r, skvm::Program&& program, Fn&& test) {
-#if defined(SKVM_JIT)
     REPORTER_ASSERT(r, !program.hasJIT());
-#endif
     test((const skvm::Program&) program);
 }
 
 template <typename Fn>
 static void test_jit_and_interpreter(skiatest::Reporter* r, skvm::Program&& program, Fn&& test) {
-#if defined(SKVM_JIT)
-    const bool expect_jit
-    #if defined(SK_CPU_X86)
-        = SkCpu::Supports(SkCpu::HSW);
-    #elif defined(SK_CPU_ARM64)
-        = true;
-    #else
-        = false;
-    #endif
-    if (expect_jit) {
+    static const bool can_jit = []{
+        // This is about the simplest program we can write, setting an int buffer to a constant.
+        // If this can't JIT, the platform does not support JITing.
+        skvm::Builder b;
+        b.store32(b.varying<int>(), b.splat(42));
+        skvm::Program p = b.done();
+        return p.hasJIT();
+    }();
+
+    if (can_jit) {
         REPORTER_ASSERT(r, program.hasJIT());
         test((const skvm::Program&) program);
         program.dropJIT();
     }
-#endif
     test_interpreter_only(r, std::move(program), std::move(test));
 }
 
@@ -703,6 +700,24 @@ DEF_TEST(SkVM_NewOps, r) {
             if (i < 2) { x =  0; }  // Notice i == 1 hits x == 0 exactly...
             if (i > 5) { x = 15; }  // ...and i == 6 hits x == 15 exactly
             REPORTER_ASSERT(r, buf[i] == img[x]);
+        }
+    });
+}
+
+DEF_TEST(SkVM_MSAN, r) {
+    // This little memset32() program should be able to JIT, but if we run that
+    // JIT code in an MSAN build, it won't see the writes initialize buf.  So
+    // this tests that we're using the interpreter instead.
+    skvm::Builder b;
+    b.store32(b.varying<int>(), b.splat(42));
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        constexpr int K = 17;
+        int buf[K];                 // Intentionally uninitialized.
+        program.eval(K, buf);
+        sk_msan_assert_initialized(buf, buf+K);
+        for (int x : buf) {
+            REPORTER_ASSERT(r, x == 42);
         }
     });
 }
