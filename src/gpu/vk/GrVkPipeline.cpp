@@ -500,7 +500,7 @@ GrVkPipeline* GrVkPipeline::Create(
         const GrProgramInfo& programInfo,
         const GrStencilSettings& stencil,
         VkPipelineShaderStageCreateInfo* shaderStageInfo, int shaderStageCount,
-        GrPrimitiveType primitiveType, VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
+        VkRenderPass compatibleRenderPass, VkPipelineLayout layout,
         VkPipelineCache cache) {
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     SkSTArray<2, VkVertexInputBindingDescription, true> bindingDescs;
@@ -512,7 +512,7 @@ GrVkPipeline* GrVkPipeline::Create(
     setup_vertex_input_state(programInfo.primProc(), &vertexInputInfo, &bindingDescs, pAttribs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-    setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
+    setup_input_assembly_state(programInfo.primitiveType(), &inputAssemblyInfo);
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
     setup_depth_stencil_state(stencil, programInfo.origin(), &depthStencilInfo);

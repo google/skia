@@ -29,7 +29,6 @@ public:
                                 const GrStencilSettings&,
                                 VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                 int shaderStageCount,
-                                GrPrimitiveType primitiveType,
                                 VkRenderPass compatibleRenderPass,
                                 VkPipelineLayout layout,
                                 VkPipelineCache cache);

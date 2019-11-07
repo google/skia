@@ -42,7 +42,6 @@ public:
                           GrRenderTarget*,
                           const GrProgramInfo&,
                           const GrStencilSettings&,
-                          GrPrimitiveType primitiveType,
                           GrVkGpu* gpu);
 
         size_t shaderKeyLength() const { return fShaderKeyLength; }
@@ -65,7 +64,6 @@ public:
                                                   GrRenderTarget*,
                                                   const GrProgramInfo&,
                                                   const GrStencilSettings&,
-                                                  GrPrimitiveType,
                                                   Desc*,
                                                   VkRenderPass compatibleRenderPass);
 
@@ -80,7 +78,6 @@ private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
     GrVkPipelineState* finalize(const GrStencilSettings&,
-                                GrPrimitiveType primitiveType,
                                 VkRenderPass compatibleRenderPass,
                                 Desc*);
 

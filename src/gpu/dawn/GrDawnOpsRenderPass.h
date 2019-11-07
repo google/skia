@@ -39,8 +39,7 @@ private:
     GrGpu* gpu() override;
 
     void setScissorState(const GrProgramInfo&);
-    void applyState(const GrProgramInfo& programInfo,
-                    const GrPrimitiveType primitiveType);
+    void applyState(const GrProgramInfo& programInfo);
 
     void onDraw(const GrProgramInfo& programInfo,
                 const GrMesh mesh[],

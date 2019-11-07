@@ -44,7 +44,7 @@ public:
 private:
     GrGpu* gpu() override { return fGpu; }
 
-    GrMtlPipelineState* prepareDrawState(const GrProgramInfo&, GrPrimitiveType);
+    GrMtlPipelineState* prepareDrawState(const GrProgramInfo&);
 
     void onDraw(const GrProgramInfo& programInfo,
                 const GrMesh mesh[],

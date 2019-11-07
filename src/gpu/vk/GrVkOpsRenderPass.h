@@ -70,8 +70,7 @@ private:
                       const GrGpuBuffer* vertexBuffer,
                       const GrGpuBuffer* instanceBuffer);
 
-    GrVkPipelineState* prepareDrawState(const GrProgramInfo&, GrPrimitiveType,
-                                        const SkIRect& renderPassScissorRect);
+    GrVkPipelineState* prepareDrawState(const GrProgramInfo&, const SkIRect& renderPassScissorRect);
 
     void onDraw(const GrProgramInfo&, const GrMesh[], int meshCount,
                 const SkRect& bounds) override;

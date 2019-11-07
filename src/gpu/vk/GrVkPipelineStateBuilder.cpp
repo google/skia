@@ -25,7 +25,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
         const GrStencilSettings& stencil,
-        GrPrimitiveType primitiveType,
         Desc* desc,
         VkRenderPass compatibleRenderPass) {
     // ensure that we use "." as a decimal separator when creating SkSL code
@@ -39,7 +38,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(stencil, primitiveType, compatibleRenderPass, desc);
+    return builder.finalize(stencil, compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -149,7 +148,6 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
-                                                      GrPrimitiveType primitiveType,
                                                       VkRenderPass compatibleRenderPass,
                                                       Desc* desc) {
     VkDescriptorSetLayout dsLayout[2];
@@ -294,7 +292,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
         }
     }
         GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, stencil,
-            shaderStageInfo, numShaderStages, primitiveType, compatibleRenderPass, pipelineLayout);
+            shaderStageInfo, numShaderStages, compatibleRenderPass, pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
         // However this is causing a crash in certain drivers (e.g. NVidia).
@@ -329,9 +327,8 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
                                            const GrStencilSettings& stencil,
-                                           GrPrimitiveType primitiveType,
                                            GrVkGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, primitiveType, gpu)) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, gpu)) {
         return false;
     }
 
@@ -351,7 +348,8 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
 
     b.add32(programInfo.pipeline().getBlendInfoKey());
 
-    b.add32((uint32_t)primitiveType);
+    // Vulkan requires the full primitive type as part of its key
+    b.add32((uint32_t)programInfo.primitiveType());
 
     return true;
 }

@@ -31,11 +31,9 @@ public:
      * @param desc          The built and finalized descriptor
      * @param renderTarget  The target of the draw
      * @param programInfo   Program information need to build the key
-     * @param primitiveType Controls whether the shader will output a point size.
      * @param gpu           Pointer to the GrGpu object the program will be used with.
      **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&,
-                      GrPrimitiveType, GrGpu*);
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, GrGpu*);
 
     // This is strictly an OpenGL call since the other backends have additional data in their
     // keys

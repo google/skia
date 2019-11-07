@@ -191,8 +191,7 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
-                          const GrProgramInfo& programInfo, GrPrimitiveType primitiveType,
-                          GrGpu* gpu) {
+                          const GrProgramInfo& programInfo, GrGpu* gpu) {
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
     // bindings in use or other descriptor field settings) it should be set
@@ -264,6 +263,8 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     // Ensure enough bits.
     SkASSERT(header->fProcessorFeatures == (int) programInfo.requestedFeatures());
     header->fSnapVerticesToPixelCenters = programInfo.pipeline().snapVerticesToPixelCenters();
-    header->fHasPointSize = (primitiveType == GrPrimitiveType::kPoints);
+    // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
+    // specific versions (e.g., Vulkan) require more detail
+    header->fHasPointSize = (programInfo.primitiveType() == GrPrimitiveType::kPoints);
     return true;
 }

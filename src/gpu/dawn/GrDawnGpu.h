@@ -86,9 +86,7 @@ public:
 
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
-    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*,
-                                                   const GrProgramInfo& programInfo,
-                                                   GrPrimitiveType primitiveType);
+    sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*, const GrProgramInfo&);
 
     wgpu::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
 
