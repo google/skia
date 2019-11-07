@@ -89,10 +89,6 @@ const SkDescriptor& SkStrike::getDescriptor() const {
     return *fDesc.getDesc();
 }
 
-unsigned SkStrike::getGlyphCount() const {
-    return fScalerContext->getGlyphCount();
-}
-
 int SkStrike::countCachedGlyphs() const {
     return fGlyphMap.count();
 }
