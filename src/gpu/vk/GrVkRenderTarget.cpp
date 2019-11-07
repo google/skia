@@ -259,8 +259,6 @@ const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass() {
 
     fCachedSimpleRenderPass =
         this->getVkGpu()->resourceProvider().findCompatibleRenderPass(*this, &fCompatibleRPHandle);
-    // TODO: allow for the above call to fail and handle returning null from getSimpleRenderPass
-    SkASSERT(fCachedSimpleRenderPass);
     return fCachedSimpleRenderPass;
 }
 
@@ -278,6 +276,10 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer() {
     GrVkGpu* gpu = this->getVkGpu();
     // Stencil attachment view is stored in the base RT stencil attachment
     const GrVkImageView* stencilView = this->stencilAttachmentView();
+    const GrVkRenderPass* renderPass = this->getSimpleRenderPass();
+    if (!renderPass) {
+        return nullptr;
+    }
     fCachedFramebuffer = GrVkFramebuffer::Create(gpu, this->width(), this->height(),
                                                  this->getSimpleRenderPass(),
                                                  fColorAttachmentView, stencilView);
