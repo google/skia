@@ -885,7 +885,7 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
     for (auto glyphID : glyphRun.glyphsIDs()) {
         SkPoint pos = *posCursor++;
 
-        SkGlyph* glyph = cache->glyph(glyphID);
+        SkGlyph* glyph = cache->glyph(SkPackedGlyphID{glyphID});
         xPos += prevAdvance * scale;
         prevAdvance = glyph->advanceX();
         if (cache->preparePath(glyph) != nullptr) {

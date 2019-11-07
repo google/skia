@@ -443,8 +443,9 @@ struct ImageAndOffset {
     SkIPoint fOffset;
 };
 static ImageAndOffset to_image(SkGlyphID gid, SkStrike* cache) {
-    (void)cache->prepareImage(cache->glyph(gid));
-    SkMask mask = cache->glyph(gid)->mask();
+    SkGlyph* glyph = cache->glyph(SkPackedGlyphID{gid});
+    (void)cache->prepareImage(glyph);
+    SkMask mask = glyph->mask();
     if (!mask.fImage) {
         return {nullptr, {0, 0}};
     }
@@ -586,7 +587,7 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
             characterName.set("g0");
         } else {
             characterName.printf("g%X", gID);
-            SkGlyph* glyph = cache->glyph(gID);
+            SkGlyph* glyph = cache->glyph(SkPackedGlyphID{gID});
             advance = glyph->advanceX();
             glyphBBox = glyph->iRect();
             bbox.join(glyphBBox);

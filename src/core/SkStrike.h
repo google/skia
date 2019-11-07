@@ -42,8 +42,6 @@ public:
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
     SkGlyph* glyph(SkPackedGlyphID packedID);
-    SkGlyph* glyph(SkGlyphID glyphID);
-    SkGlyph* glyph(SkGlyphID, SkPoint);
 
     // Return a glyph.  Create it if it doesn't exist, and initialize with the prototype.
     SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p, void* image = nullptr);
