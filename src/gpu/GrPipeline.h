@@ -197,7 +197,7 @@ public:
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
     // Used by Vulkan and Metal to cache their respective pipeline objects
-    uint32_t getBlendInfoKey() const;
+    void genKey(GrProcessorKeyBuilder*, const GrCaps&) const;
 
     const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 
