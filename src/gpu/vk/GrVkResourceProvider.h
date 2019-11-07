@@ -47,7 +47,6 @@ public:
                                  const GrStencilSettings& stencil,
                                  VkPipelineShaderStageCreateInfo* shaderStageInfo,
                                  int shaderStageCount,
-                                 GrPrimitiveType primitiveType,
                                  VkRenderPass compatibleRenderPass,
                                  VkPipelineLayout layout);
 
@@ -113,7 +112,6 @@ public:
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
             GrRenderTarget*,
             const GrProgramInfo&,
-            GrPrimitiveType,
             VkRenderPass compatibleRenderPass);
 
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
@@ -194,7 +192,6 @@ private:
         void release();
         GrVkPipelineState* refPipelineState(GrRenderTarget*,
                                             const GrProgramInfo&,
-                                            GrPrimitiveType,
                                             VkRenderPass compatibleRenderPass);
 
     private:

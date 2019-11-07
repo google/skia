@@ -291,7 +291,6 @@ static wgpu::BindGroupBinding make_bind_group_binding(uint32_t binding,
 sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
                                                  GrRenderTarget* renderTarget,
                                                  const GrProgramInfo& programInfo,
-                                                 GrPrimitiveType primitiveType,
                                                  wgpu::TextureFormat colorFormat,
                                                  bool hasDepthStencil,
                                                  wgpu::TextureFormat depthStencilFormat,
@@ -415,7 +414,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     rpDesc.vertexStage = vsDesc;
     rpDesc.fragmentStage = &fsDesc;
     rpDesc.vertexInput = &vertexInput;
-    rpDesc.primitiveTopology = to_dawn_primitive_topology(primitiveType);
+    rpDesc.primitiveTopology = to_dawn_primitive_topology(programInfo.primitiveType());
     if (hasDepthStencil) {
         rpDesc.depthStencilState = &depthStencilState;
     }

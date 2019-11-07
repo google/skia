@@ -88,10 +88,9 @@ public:
     static bool Build(Desc* desc,
                       GrRenderTarget* rt,
                       const GrProgramInfo& programInfo,
-                      GrPrimitiveType primitiveType,
                       bool hasDepthStencil,
                       GrGpu* gpu) {
-        if (!GrProgramDesc::Build(desc, rt, programInfo, primitiveType, gpu)) {
+        if (!GrProgramDesc::Build(desc, rt, programInfo, gpu)) {
             return false;
         }
         GrProcessorKeyBuilder b(&desc->key());
@@ -103,7 +102,7 @@ public:
         b.add32(rt->config());
         b.add32(static_cast<int32_t>(hasDepthStencil));
         b.add32(get_blend_info_key(pipeline));
-        b.add32(static_cast<uint32_t>(primitiveType));
+        b.add32(static_cast<uint32_t>(programInfo.primitiveType()));
         return true;
     }
 };
@@ -618,11 +617,10 @@ sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* text
 
 sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         GrRenderTarget* rt,
-        const GrProgramInfo& programInfo,
-        GrPrimitiveType primitiveType) {
+        const GrProgramInfo& programInfo) {
     bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
     Desc desc;
-    if (!Desc::Build(&desc, rt, programInfo, primitiveType, hasDepthStencil, this)) {
+    if (!Desc::Build(&desc, rt, programInfo, hasDepthStencil, this)) {
         return nullptr;
     }
 
@@ -635,7 +633,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     wgpu::TextureFormat stencilFormat = wgpu::TextureFormat::Depth24PlusStencil8;
 
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
-        this, rt, programInfo, primitiveType, colorFormat,
+        this, rt, programInfo, colorFormat,
         hasDepthStencil, stencilFormat, &desc);
     fRenderPipelineCache.insert(desc, program);
     return program;
