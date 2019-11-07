@@ -428,7 +428,6 @@ void GrVkOpsRenderPass::bindGeometry(const GrGpuBuffer* indexBuffer,
 
 GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
         const GrProgramInfo& programInfo,
-        GrPrimitiveType primitiveType,
         const SkIRect& renderPassScissorRect) {
     GrVkCommandBuffer* currentCB = this->currentCommandBuffer();
     SkASSERT(fCurrentRenderPass);
@@ -438,7 +437,6 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     GrVkPipelineState* pipelineState =
         fGpu->resourceProvider().findOrCreateCompatiblePipelineState(fRenderTarget,
                                                                      programInfo,
-                                                                     primitiveType,
                                                                      compatibleRenderPass);
     if (!pipelineState) {
         return pipelineState;
@@ -537,9 +535,7 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         scissorRect.roundOut(&renderPassScissorRect);
     }
 
-    GrPrimitiveType primitiveType = meshes[0].primitiveType();
-    GrVkPipelineState* pipelineState = this->prepareDrawState(programInfo, primitiveType,
-                                                              renderPassScissorRect);
+    GrVkPipelineState* pipelineState = this->prepareDrawState(programInfo, renderPassScissorRect);
     if (!pipelineState) {
         return;
     }
