@@ -218,7 +218,7 @@ private:
         // This will always construct the basic load store render pass (all attachments load and
         // store their data) so that there is at least one compatible VkRenderPass that can be used
         // with this set.
-        CompatibleRenderPassSet(GrVkGpu* gpu, const GrVkRenderTarget& target);
+        CompatibleRenderPassSet(GrVkRenderPass* renderPass);
 
         bool isCompatible(const GrVkRenderTarget& target) const;
 
