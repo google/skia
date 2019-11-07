@@ -501,7 +501,7 @@ optional("gpu") {
     deps += [ ":workaround_list" ]
   }
   if (!is_fuchsia) {
-    public_defines = [ "SK_GL", ]
+    public_defines = [ "SK_GL" ]
   } else {
     public_defines = []
   }
