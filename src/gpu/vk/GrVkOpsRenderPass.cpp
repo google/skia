@@ -112,7 +112,9 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                                                      vkColorOps,
                                                                      vkStencilOps);
     }
-    SkASSERT(fCurrentRenderPass);
+    if (!fCurrentRenderPass) {
+        return false;
+    }
 
     VkClearValue vkClearColor;
     vkClearColor.color.float32[0] = clearColor[0];
@@ -380,7 +382,9 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
                                                                      vkColorOps,
                                                                      vkStencilOps);
     }
-    SkASSERT(fCurrentRenderPass);
+    if (!fCurrentRenderPass) {
+        return;
+    }
 
     VkClearValue vkClearColor;
     memset(&vkClearColor, 0, sizeof(VkClearValue));

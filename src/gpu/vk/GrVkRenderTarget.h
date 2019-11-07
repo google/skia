@@ -64,6 +64,7 @@ public:
             SkASSERT(!fCachedSimpleRenderPass);
             this->createSimpleRenderPass();
         }
+        SkASSERT(fCompatibleRPHandle.isValid() == SkToBool(fCachedSimpleRenderPass));
         return fCompatibleRPHandle;
     }
     const GrVkRenderPass* externalRenderPass() const {
