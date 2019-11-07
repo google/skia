@@ -343,7 +343,9 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     desc->fShaderKeyLength = SkToU32(keyLength);
 
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)renderTarget;
-    vkRT->simpleRenderPass()->genKey(&b);
+    // TODO: support failure in getSimpleRenderPass
+    SkASSERT(vkRT->getSimpleRenderPass());
+    vkRT->getSimpleRenderPass()->genKey(&b);
 
     stencil.genKey(&b);
 

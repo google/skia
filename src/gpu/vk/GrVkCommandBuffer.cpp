@@ -421,15 +421,20 @@ void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu) {
     fHasWork = false;
 }
 
-void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
+bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
                                                const GrVkRenderPass* renderPass,
                                                const VkClearValue clearValues[],
-                                               const GrVkRenderTarget& target,
+                                               GrVkRenderTarget* target,
                                                const SkIRect& bounds,
                                                bool forSecondaryCB) {
     SkASSERT(fIsActive);
     SkASSERT(!fActiveRenderPass);
-    SkASSERT(renderPass->isCompatible(target));
+    SkASSERT(renderPass->isCompatible(*target));
+
+    const GrVkFramebuffer* framebuffer = target->getFramebuffer();
+    if (!framebuffer) {
+        return false;
+    }
 
     this->addingWork(gpu);
 
@@ -442,7 +447,7 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     beginInfo.pNext = nullptr;
     beginInfo.renderPass = renderPass->vkRenderPass();
-    beginInfo.framebuffer = target.framebuffer()->framebuffer();
+    beginInfo.framebuffer = framebuffer->framebuffer();
     beginInfo.renderArea = renderArea;
     beginInfo.clearValueCount = renderPass->clearValueCount();
     beginInfo.pClearValues = clearValues;
@@ -453,7 +458,8 @@ void GrVkPrimaryCommandBuffer::beginRenderPass(const GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), CmdBeginRenderPass(fCmdBuffer, &beginInfo, contents));
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);
-    target.addResources(*this);
+    target->addResources(*this);
+    return true;
 }
 
 void GrVkPrimaryCommandBuffer::endRenderPass(const GrVkGpu* gpu) {

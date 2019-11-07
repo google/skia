@@ -38,7 +38,7 @@ public:
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
-    void set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
+    bool set(GrRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrTextureProxy*, true>& sampledProxies);
@@ -51,7 +51,7 @@ public:
 #endif
 
 private:
-    void init(const GrOpsRenderPass::LoadAndStoreInfo&,
+    bool init(const GrOpsRenderPass::LoadAndStoreInfo&,
               const GrOpsRenderPass::StencilLoadAndStoreInfo&,
               const SkPMColor4f& clearColor);
 
