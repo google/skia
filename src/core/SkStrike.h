@@ -63,10 +63,6 @@ public:
     // If the path has never been set, then add a path to glyph.
     const SkPath* preparePath(SkGlyph* glyph, const SkPath* path);
 
-    /** Returns the number of glyphs for this strike.
-    */
-    unsigned getGlyphCount() const;
-
     /** Return the number of glyphs currently cached. */
     int countCachedGlyphs() const;
 
@@ -89,10 +85,6 @@ public:
     */
     const SkFontMetrics& getFontMetrics() const {
         return fFontMetrics;
-    }
-
-    SkMask::Format getMaskFormat() const {
-        return fScalerContext->getMaskFormat();
     }
 
     const SkGlyphPositionRoundingSpec& roundingSpec() const override {
