@@ -294,6 +294,29 @@ static void setup_multisample_state(const GrProgramInfo& programInfo,
     multisampleInfo->alphaToOneEnable = VK_FALSE;
 }
 
+static void setup_all_sample_locations_at_pixel_center(
+        const GrProgramInfo& programInfo,
+        VkPipelineSampleLocationsStateCreateInfoEXT* sampleLocations) {
+    constexpr static VkSampleLocationEXT kCenteredSampleLocations[16] = {
+            {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f},
+            {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}, {.5f,.5f}};
+    memset(sampleLocations, 0, sizeof(VkPipelineSampleLocationsStateCreateInfoEXT));
+    sampleLocations->sType = VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT;
+    sampleLocations->pNext = nullptr;
+    sampleLocations->sampleLocationsEnable = VK_TRUE;
+    sampleLocations->sampleLocationsInfo.sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
+    sampleLocations->sampleLocationsInfo.pNext = nullptr;
+    SkAssertResult(GrSampleCountToVkSampleCount(
+            programInfo.numSamples(),
+            &sampleLocations->sampleLocationsInfo.sampleLocationsPerPixel));
+    sampleLocations->sampleLocationsInfo.sampleLocationGridSize.width = 1;
+    sampleLocations->sampleLocationsInfo.sampleLocationGridSize.height = 1;
+    SkASSERT(programInfo.numSamples() < (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
+    sampleLocations->sampleLocationsInfo.sampleLocationsCount = std::min(
+            programInfo.numSamples(), (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
+    sampleLocations->sampleLocationsInfo.pSampleLocations = kCenteredSampleLocations;
+}
+
 static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
     static const VkBlendFactor gTable[] = {
         VK_BLEND_FACTOR_ZERO,                      // kZero_GrBlendCoeff
@@ -522,6 +545,15 @@ GrVkPipeline* GrVkPipeline::Create(
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
     setup_multisample_state(programInfo, gpu->caps(), &multisampleInfo);
+
+    VkPipelineSampleLocationsStateCreateInfoEXT sampleLocations;
+    if (gpu->caps()->multisampleDisableSupport()) {
+        if (programInfo.numSamples() > 1 && !programInfo.pipeline().isHWAntialiasState()) {
+            setup_all_sample_locations_at_pixel_center(programInfo, &sampleLocations);
+            sampleLocations.pNext = multisampleInfo.pNext;
+            multisampleInfo.pNext = &sampleLocations;
+        }
+    }
 
     // We will only have one color attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];

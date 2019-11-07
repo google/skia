@@ -96,12 +96,6 @@ bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSam
         case 16:
             *vkSamples = VK_SAMPLE_COUNT_16_BIT;
             return true;
-        case 32:
-            *vkSamples = VK_SAMPLE_COUNT_32_BIT;
-            return true;
-        case 64:
-            *vkSamples = VK_SAMPLE_COUNT_64_BIT;
-            return true;
         default:
             return false;
     }
