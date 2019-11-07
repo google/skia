@@ -78,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "c6113726_eb32ce79",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-07T15:56:26Z",
+      "side": 1,
+      "message": "Even with the change to default.py I was still getting undefined symbols related to aligned alloc, e.g.:\n\n/mnt/pd0/s/w/ir/clang_linux/bin/clang++ -rdynamic -Wl,-rpath,\\$ORIGIN -fsanitize\u003dsafe-stack -stdlib\u003dlibc++ -B/mnt/pd0/s/w/ir/clang_linux/bin -fuse-ld\u003dlld -Wl,--start-group @./image_diff_metric.rsp  -Wl,--end-group -lpthread -ldl -lGL -lfreetype -lfontconfig -o ./image_diff_metric\nld.lld: error: undefined symbol: operator new(unsigned long, std::align_val_t)\n\u003e\u003e\u003e referenced by new:230 (/mnt/pd0/s/w/ir/.cipd/pkgs/3/DYQsx2RhlGDmv212k7DcXRm9G_8dakjYu7hxg6HMnJoC/bin/../include/c++/v1/new:230)\n\u003e\u003e\u003e               libskia.SkBlitter.o:(std::__1::__libcpp_allocate(unsigned long, unsigned long)) in archive libskia.a",
+      "parentUuid": "a10c8bbe_e0a8e15b",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 278,
+        "endChar": 5
+      },
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1ef6a19_b0dba614",
         "filename": "gn/BUILD.gn",
         "patchSetId": 17
@@ -213,6 +237,24 @@
       "side": 1,
       "message": "...hard to imagine there\u0027s *no* matching call...",
       "parentUuid": "dc2d74b6_02fe0f92",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "003ab84a_2ba1835e",
+        "filename": "src/ports/SkTLS_pthread.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-07T15:56:26Z",
+      "side": 1,
+      "message": "Agreed. It looks like it for some reason chose to use SkOnce::operator() where the Fn template param has a return type of int\u0026 rather than int. No idea why.",
+      "parentUuid": "7d7f560a_5a84e028",
       "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
