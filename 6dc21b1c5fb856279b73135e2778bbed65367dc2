@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7466406c_0edfc3be",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-07T15:40:10Z",
+      "side": 1,
+      "message": "I don\u0027t think we can do anything about it until we are ready to drop iOS 10 or can remove std::function class members (and other members that have alignment requirements). This is the error:\n\n error: aligned deallocation function of type \u0027void (void *, enum std::align_val_t) noexcept\u0027 is only available on iOS 11 or newer",
+      "parentUuid": "6c9eb241_afcc9726",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1ef6a19_b0dba614",
         "filename": "gn/BUILD.gn",
         "patchSetId": 17
@@ -30,6 +48,24 @@
       "writtenOn": "2019-11-07T15:01:42Z",
       "side": 1,
       "message": "I was *just* confused by still needing out-of-line definitions for constexpr the other day.  Glad C++17 changes that.",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "958ceca5_ab1cadec",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 17
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-07T15:40:10Z",
+      "side": 1,
+      "message": "yes!",
+      "parentUuid": "e1ef6a19_b0dba614",
       "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "299c5fb2_378d6161",
+        "filename": "infra/bots/recipe_modules/flavor/default.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-07T15:40:10Z",
+      "side": 1,
+      "message": "I think the system libc++ it was using was just too old and didn\u0027t have aligned allocation support. However, I wound up having to use -fno-aligned-allocation for SafeStack even with this change. So possibly this isn\u0027t necessary. I\u0027ll try removing it.",
+      "parentUuid": "d6ff65e1_46af07b3",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bc407c59_e03d3c39",
         "filename": "src/ports/SkTLS_pthread.cpp",
         "patchSetId": 17
@@ -64,6 +118,24 @@
       "writtenOn": "2019-11-07T15:01:42Z",
       "side": 1,
       "message": "Totally fine of course, but what\u0027s the deal?",
+      "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a670944_3eacfe84",
+        "filename": "src/ports/SkTLS_pthread.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-07T15:40:10Z",
+      "side": 1,
+      "message": "Two of the more obscure GCC bots (Build-Debian9-GCC-loongson3a-Debug and Build-Debian9-GCC-mips64el-Debug) give the error below. Maybe they\u0027re on an older version?\n\nFAILED: obj/src/ports/libskia.SkTLS_pthread.o \n/mnt/pd0/s/w/ir/mips64el_toolchain_linux/bin/mips64el-linux-gnuabi64-g++-7 -MD -MF obj/src/ports/libskia.SkTLS_pthread.o.d -DSK_ENABLE_SPIRV_VALIDATION -D_GLIBCXX_DEBUG -DSK_R32_SHIFT\u003d16 -DSK_SUPPORT_GPU\u003d0 -DSK_GAMMA_APPLY_TO_A8 -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS\u003d1 -DGR_TEST_UTILS\u003d1 -DSKIA_IMPLEMENTATION\u003d1 -DSK_SUPPORT_PDF -DSK_HAS_JPEG_LIBRARY -DSK_HAS_HEIF_LIBRARY -DSK_HAS_PNG_LIBRARY -DSK_CODEC_DECODES_RAW -DSK_ENABLE_SKSL_INTERPRETER -DSK_HAS_WEBP_LIBRARY -DSK_XML -I../../../../../../skia -Werror -fstrict-aliasing -fPIC -march\u003dloongson3a -DSKCMS_PORTABLE -g -Wall -Wextra -Winit-self -Wpointer-arith -Wsign-compare -Wvla -Wno-deprecated-declarations -Wno-maybe-uninitialized -Wno-implicit-fallthrough -Wno-unused-parameter -Wno-format-truncation -Wno-uninitialized -DDUMMY_mips64el_toolchain_linux_version\u003d4 -O1 -isystem /mnt/pd0/s/w/ir/skia/third_party/externals/spirv-tools/include -isystem /mnt/pd0/s/w/ir/skia/third_party/externals/spirv-tools/source -isystem /mnt/pd0/s/w/ir/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Debug/Debug/spirv-tools -std\u003dc++17 -fno-exceptions -fno-rtti -Wnon-virtual-dtor -Wno-noexcept-type -c ../../../../../../skia/src/ports/SkTLS_pthread.cpp -o obj/src/ports/libskia.SkTLS_pthread.o\n../../../../../../skia/src/ports/SkTLS_pthread.cpp: In static member function ‘static void* SkTLS::PlatformGetSpecific(bool)’:\n../../../../../../skia/src/ports/SkTLS_pthread.cpp:19:59: error: no match for call to ‘(SkOnce) (int (\u0026)(pthread_key_t*, void (*)(void*)) noexcept, pthread_key_t*, void (\u0026)(void*))’\n     once(pthread_key_create, \u0026gSkTLSKey, SkTLS::Destructor);\n                                                           ^\nIn file included from ../../../../../../skia/src/ports/SkTLS_pthread.cpp:8:0:\n../../../../../../skia/include/private/SkOnce.h:25:10: note: candidate: void SkOnce::operator()(Fn\u0026\u0026, Args\u0026\u0026 ...) [with Fn \u003d int (\u0026)(unsigned int*, void (*)(void*)) noexcept; Args \u003d {unsigned int*, void (\u0026)(void*)}]\n     void operator()(Fn\u0026\u0026 fn, Args\u0026\u0026... args) {\n          ^~~~~~~~\n../../../../../../skia/include/private/SkOnce.h:25:10: note:   no known conversion for argument 1 from ‘int(pthread_key_t*, void (*)(void*)) noexcept {aka int(unsigned int*, void (*)(void*)) noexcept}’ to ‘int (\u0026)(unsigned int*, void (*)(void*)) noexcept’",
+      "parentUuid": "bc407c59_e03d3c39",
       "revId": "6dc21b1c5fb856279b73135e2778bbed65367dc2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
