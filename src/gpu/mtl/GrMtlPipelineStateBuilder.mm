@@ -468,7 +468,7 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
     b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
-    b.add32(programInfo.pipeline().getBlendInfoKey());
+    programInfo.pipeline().genKey(&b, *gpu->caps());
 
     b.add32((uint32_t)programInfo.primitiveType());
 
