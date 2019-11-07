@@ -164,6 +164,9 @@ struct Metadata {
     SkExecutor* fExecutor = nullptr;
 
     /** Preferred Subsetter. Only respected if both are compiled in.
+
+        The Sfntly subsetter is deprecated.
+
         Experimental.
     */
     enum Subsetter {
