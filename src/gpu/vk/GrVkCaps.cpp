@@ -461,29 +461,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 }
 
-int get_max_sample_count(VkSampleCountFlags flags) {
-    SkASSERT(flags & VK_SAMPLE_COUNT_1_BIT);
-    if (!(flags & VK_SAMPLE_COUNT_2_BIT)) {
-        return 0;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_4_BIT)) {
-        return 2;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_8_BIT)) {
-        return 4;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_16_BIT)) {
-        return 8;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_32_BIT)) {
-        return 16;
-    }
-    if (!(flags & VK_SAMPLE_COUNT_64_BIT)) {
-        return 32;
-    }
-    return 64;
-}
-
 void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
                           VkPhysicalDevice physDev,
                           const VkPhysicalDeviceProperties& properties,
@@ -496,6 +473,11 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     // we ever find that need.
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = SkTMin(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
+
+    if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
+        // We "disable" multisample by colocating all samples at pixel center.
+        fMultisampleDisableSupport = true;
+    }
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
@@ -1187,12 +1169,8 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
     if (flags & VK_SAMPLE_COUNT_16_BIT) {
         fColorSampleCounts.push_back(16);
     }
-    if (flags & VK_SAMPLE_COUNT_32_BIT) {
-        fColorSampleCounts.push_back(32);
-    }
-    if (flags & VK_SAMPLE_COUNT_64_BIT) {
-        fColorSampleCounts.push_back(64);
-    }
+    // Standard sample locations are not defined for more than 16 samples, and we don't need more
+    // than 16. Omit 32 and 64.
 }
 
 void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
