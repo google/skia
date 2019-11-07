@@ -162,7 +162,7 @@ class DefaultFlavor(object):
       # Find the MSAN-built libc++.
       ld_library_path.append(clang_linux + '/msan')
 
-    if any('SAN' in t for t in extra_tokens):
+    if any(('SAN' in t or 'SafeStack' in t) for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
       path.append(clang_linux + '/bin')
       # We find that testing sanitizer builds with libc++ uncovers more issues
