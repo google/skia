@@ -159,7 +159,8 @@ public:
                                          color, saturate, aaType, aaFlags, deviceQuad, localQuad,
                                          domain);
     }
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+
+    static std::unique_ptr<GrDrawOp> Make1(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt,
                                           GrSamplerState::Filter filter,
@@ -615,6 +616,10 @@ private:
     }
 #endif
 
+#if GR_TEST_UTILS
+    int numQuads() const final { return this->totNumQuads(); }
+#endif
+
     void characterize(PrePreparedDesc* desc) const {
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
         ColorType colorType = ColorType::kNone;
@@ -943,6 +948,65 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     }
 }
 
+class ClumpingState {
+public:
+    ClumpingState(GrRecordingContext* context,
+                  int numEntries,
+                  GrSamplerState::Filter filter,
+                  Saturate saturate,
+                  GrAAType aaType,
+                  SkCanvas::SrcRectConstraint constraint,
+                  const SkMatrix& viewMatrix,
+                  sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+            : fContext(context)
+            , fNumLeft(numEntries)
+            , fNumClumped(0)
+            , fFilter(filter)
+            , fSaturate(saturate)
+            , fAAType(aaType)
+            , fConstraint(constraint)
+            , fViewMatrix(viewMatrix)
+            , fTextureColorSpaceXform(textureColorSpaceXform) {
+    }
+
+    void createClump(const GrRenderTargetContext::TextureSetEntry set[], int clumpSize) {
+        std::unique_ptr<GrDrawOp> tmp = TextureOp::Make1(fContext, &set[fNumClumped], clumpSize,
+                                                         fFilter, fSaturate, fAAType,
+                                                         fConstraint, fViewMatrix,
+                                                         fTextureColorSpaceXform);
+        if (!fHead) {
+            fHead = std::move(tmp);
+            fTail = fHead.get();
+        } else {
+            fTail->chainConcat(std::move(tmp));
+            fTail = fTail->nextInChain();
+        }
+
+        fNumLeft -= clumpSize;
+        fNumClumped += clumpSize;
+    }
+
+    int numLeft() const { return fNumLeft;  }
+    int baseIndex() const { return fNumClumped; }
+
+    std::unique_ptr<GrDrawOp> result() { return std::move(fHead); }
+
+private:
+    GrRecordingContext*         fContext;
+    GrSamplerState::Filter      fFilter;
+    Saturate                    fSaturate;
+    GrAAType                    fAAType;
+    SkCanvas::SrcRectConstraint fConstraint;
+    const SkMatrix&             fViewMatrix;
+    sk_sp<GrColorSpaceXform>    fTextureColorSpaceXform;
+
+    int                         fNumLeft;
+    int                         fNumClumped; // also the offset for the start of the next clump
+    std::unique_ptr<GrDrawOp>   fHead;
+    GrOp*                       fTail = nullptr;
+};
+
+// Greedily clump quad draws together until the index buffer limit is exceeded.
 std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   const GrRenderTargetContext::TextureSetEntry set[],
                                   int cnt,
@@ -952,8 +1016,55 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
                                   SkCanvas::SrcRectConstraint constraint,
                                   const SkMatrix& viewMatrix,
                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-    return TextureOp::Make(context, set, cnt, filter, saturate, aaType, constraint, viewMatrix,
-                           std::move(textureColorSpaceXform));
+    ClumpingState state(context, cnt, filter, saturate, aaType, constraint, viewMatrix,
+                        std::move(textureColorSpaceXform));
+
+    // kNone and kMSAA never get altered
+    if (aaType == GrAAType::kNone || aaType == GrAAType::kMSAA) {
+        // Clump these into a chain of MaxNumNonAAQuads-sized GrTextureOps
+        while (state.numLeft() > 0) {
+            int clumpSize = SkTMin(state.numLeft(), GrResourceProvider::MaxNumNonAAQuads());
+
+            state.createClump(set, clumpSize);
+        }
+    } else {
+        // kCoverage can be downgraded to kNone. Note that the following is conservative. kCoverage
+        // can also get downgraded to kNone if all the quads are on integer coordinates and
+        // axis-aligned.
+        SkASSERT(aaType == GrAAType::kCoverage);
+
+        while (state.numLeft() > 0) {
+            GrAAType runningAA = GrAAType::kNone;
+
+            for (int i = 0; i < state.numLeft(); ++i) {
+                int absIndex = state.baseIndex() + i;
+
+                if (set[absIndex].fAAFlags != GrQuadAAFlags::kNone) {
+
+                    if (i >= GrResourceProvider::MaxNumAAQuads()) {
+                        // Here we either need to boost the AA type to kCoverage, but doing so with
+                        // all the accumulated quads would overflow, or we have a set of AA quads
+                        // that has just gotten too large. In either case, calve off the existing
+                        // quads as their own TextureOp.
+                        state.createClump(set, i);
+                        break;
+                    }
+
+                    runningAA = GrAAType::kCoverage;
+                } else if (runningAA == GrAAType::kNone) {
+
+                    if (i >= GrResourceProvider::MaxNumNonAAQuads()) {
+                        // Here we've found a consistent batch of non-AA quads that has gotten too
+                        // large. Calve it off as its own GrTextureOp.
+                        state.createClump(set, i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return state.result();
 }
 
 }  // namespace GrTextureOp
