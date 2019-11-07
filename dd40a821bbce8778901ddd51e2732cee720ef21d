@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92157ac0_2077ba93",
+        "filename": "src/gpu/vk/GrVkPipeline.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-07T19:06:15Z",
+      "side": 1,
+      "message": "Looks like I lied and our vulkan backend technically supports up to 64 samples...not sure if we want to reduce the supported values in GrVkCaps to 32 or change this back.\n\nOn a related note, this function is caps is not used anywhere, https://cs.chromium.org/chromium/src/third_party/skia/src/gpu/vk/GrVkCaps.cpp?g\u003d0\u0026l\u003d464. Mind killing it in this CL regardless of what you do above.",
+      "range": {
+        "startLine": 316,
+        "startChar": 3,
+        "endLine": 316,
+        "endChar": 87
+      },
+      "revId": "dd40a821bbce8778901ddd51e2732cee720ef21d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
