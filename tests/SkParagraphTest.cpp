@@ -13,6 +13,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include "third_party/icu/SkLoadICU.h"
+
 #define VeryLongCanvasWidth 1000000
 #define TestCanvasWidth 1000
 #define TestCanvasHeight 600
@@ -48,6 +50,10 @@ public:
         std::vector<SkString> fonts;
         SkOSFile::Iter iter(fResourceDir.c_str());
 
+        if (!SkLoadICU()) {
+            SkDebugf("ICU not loaded, skipping all the tests\n");
+            return;
+        }
         SkString path;
         while (iter.next(&path)) {
             if (path.endsWith("Roboto-Italic.ttf")) {
@@ -57,6 +63,7 @@ public:
         }
 
         if (!fFontsFound) {
+            SkDebugf("Fonts not found, skipping all the tests\n");
             return;
         }
         // Only register fonts if we have to
@@ -72,8 +79,6 @@ public:
             this->setAssetFontManager(std::move(fFontProvider));
         }
         this->disableFontFallback();
-
-        if (!fFontsFound) SkDebugf("Fonts not found, skipping all the tests\n");
     }
 
     ~ResourceFontCollection() = default;
@@ -4844,7 +4849,7 @@ DEF_TEST(SkParagraph_NewlineOnly, reporter) {
     REPORTER_ASSERT(reporter, paragraph->getHeight() == 28);
 }
 
-DEF_TEST(SkParagraph_FontResolutions, reporter) {
+DEF_TEST_DISABLED(SkParagraph_FontResolutions, reporter) {
     TestCanvas canvas("SkParagraph_FontResolutions.png");
 
     sk_sp<TestFontCollection> fontCollection =
@@ -4901,7 +4906,7 @@ DEF_TEST(SkParagraph_FontResolutions, reporter) {
     paragraph->paint(canvas.get(), 100, 100);
 }
 
-DEF_TEST(SkParagraph_FontStyle, reporter) {
+DEF_TEST_DISABLED(SkParagraph_FontStyle, reporter) {
     TestCanvas canvas("SkParagraph_FontStyle.png");
 
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
@@ -4939,12 +4944,8 @@ DEF_TEST(SkParagraph_FontStyle, reporter) {
     paragraph->paint(canvas.get(), 0, 0);
 }
 
-DEF_TEST(SkParagraph_Shaping, reporter) {
+DEF_TEST_DISABLED(SkParagraph_Shaping, reporter) {
     TestCanvas canvas("SkParagraph_Shaping.png");
-
-    //sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
-    //fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-    //fontCollection->enableFontFallback();
 
     auto dir = "/usr/local/google/home/jlavrova/Sources/flutter/engine/src/out/host_debug_unopt_x86/gen/flutter/third_party/txt/assets";
     sk_sp<TestFontCollection> fontCollection =
