@@ -13,7 +13,8 @@
 
 // packed int at the beginning of the serialized font:
 //
-//  control_bits:8 size_as_byte:8 flags:12 edging:2 hinting:2
+//  control_bits:8 size_as_byte:8 pos:2 flags:10 edging:2 hinting:2
+//
 
 enum {
     kSize_Is_Byte_Bit   = 1 << 31,
@@ -24,8 +25,10 @@ enum {
     kShift_for_Size     = 16,
     kMask_For_Size      = 0xFF,
 
+    kShift_for_Position = 14,
+    kMask_for_Position  = 0x3,
+
     kShift_For_Flags    = 4,
-    kMask_For_Flags     = 0xFFF,
 
     kShift_For_Edging   = 2,
     kMask_For_Edging    = 0x3,
@@ -41,14 +44,15 @@ static bool scalar_is_byte(SkScalar x) {
 
 void SkFontPriv::Flatten(const SkFont& font, SkWriteBuffer& buffer) {
     SkASSERT(font.fFlags <= SkFont::kAllFlags);
-    SkASSERT((font.fFlags & ~kMask_For_Flags) == 0);
+    SkASSERT((font.fFlags & ~SkFont::kAllFlags) == 0);
     SkASSERT((font.fEdging & ~kMask_For_Edging) == 0);
     SkASSERT((font.fHinting & ~kMask_For_Hinting) == 0);
 
     uint32_t packed = 0;
-    packed |= font.fFlags << kShift_For_Flags;
-    packed |= font.fEdging << kShift_For_Edging;
-    packed |= font.fHinting << kShift_For_Hinting;
+    packed |= font.fPositioning << kShift_for_Position;
+    packed |= font.fFlags       << kShift_For_Flags;
+    packed |= font.fEdging      << kShift_For_Edging;
+    packed |= font.fHinting     << kShift_For_Hinting;
 
     if (scalar_is_byte(font.fSize)) {
         packed |= kSize_Is_Byte_Bit;
@@ -80,7 +84,7 @@ void SkFontPriv::Flatten(const SkFont& font, SkWriteBuffer& buffer) {
 }
 
 bool SkFontPriv::Unflatten(SkFont* font, SkReadBuffer& buffer) {
-    const uint32_t packed = buffer.read32();
+    uint32_t packed = buffer.read32();
 
     if (packed & kSize_Is_Byte_Bit) {
         font->fSize = (packed >> kShift_for_Size) & kMask_For_Size;
@@ -97,7 +101,6 @@ bool SkFontPriv::Unflatten(SkFont* font, SkReadBuffer& buffer) {
         font->fTypeface = buffer.readTypeface();
     }
 
-    SkASSERT(SkFont::kAllFlags <= kMask_For_Flags);
     // we & with kAllFlags, to clear out any unknown flag bits
     font->fFlags = SkToU8((packed >> kShift_For_Flags) & SkFont::kAllFlags);
 
@@ -112,6 +115,20 @@ bool SkFontPriv::Unflatten(SkFont* font, SkReadBuffer& buffer) {
         hinting = 0;
     }
     font->fHinting = SkToU8(hinting);
+
+    // check for legacy packing
+    if (buffer.isVersionLT(SkPicturePriv::kFontPositioningEnum_Version)) {
+        const uint32_t kLegacy_subpixel_flag = 1 << 2;
+        font->setPositioning((packed & kLegacy_subpixel_flag) ?
+                             SkFont::Positioning::kSubpixel   :
+                             SkFont::Positioning::kIntegral);
+    } else {
+        unsigned pos = (packed >> kShift_for_Position) & kMask_for_Position;
+        if (pos > (unsigned)SkFont::Positioning::kContinuous) {
+            pos = 0;
+        }
+        font->setPositioning(SkFont::Positioning(pos));
+    }
 
     return buffer.isValid();
 }

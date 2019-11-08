@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTextBlob.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTemplates.h"
 
@@ -26,13 +27,13 @@ static int count_glyphs(const uint16_t start[]) {
     return static_cast<int>(curr - start);
 }
 
-class FontCacheBench : public Benchmark {
+class FontCacheMeasureBench : public Benchmark {
 public:
-    FontCacheBench()  {}
+    FontCacheMeasureBench()  {}
 
 protected:
     const char* onGetName() override {
-        return "fontcache";
+        return "FontCacheMeasure";
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
@@ -52,6 +53,50 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
+DEF_BENCH( return new FontCacheMeasureBench(); )
+
+class FontCachePosBench : public Benchmark {
+public:
+    FontCachePosBench(SkFont::Positioning pos) {
+        fName.printf("FontCachePositioning_%d", (unsigned)pos);
+
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setPositioning(pos);
+        font.setSize(20);
+
+        const int count = count_glyphs(gUniqueGlyphIDs);
+        SkAutoTArray<float> xpos(count);
+        sk_bzero(&xpos[0], count * sizeof(float));
+
+        fBlob = SkTextBlob::MakeFromPosTextH(gUniqueGlyphIDs, count * sizeof(uint16_t),
+                                             xpos.get(), 20, font, SkTextEncoding::kGlyphID);
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+
+        for (int i = 0; i < loops; ++i) {
+            for (float x = 0; x < 1.0f; x += 1.0f/256) {
+                canvas->drawTextBlob(fBlob, x, 20, paint);
+            }
+        }
+    }
+
+private:
+    sk_sp<SkTextBlob>   fBlob;
+    SkString            fName;
+
+    typedef Benchmark INHERITED;
+};
+DEF_BENCH( return new FontCachePosBench(SkFont::Positioning::kIntegral); )
+DEF_BENCH( return new FontCachePosBench(SkFont::Positioning::kSubpixel); )
+DEF_BENCH( return new FontCachePosBench(SkFont::Positioning::kContinuous); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -140,8 +185,6 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
-DEF_BENCH( return new FontCacheBench(); )
-
 // undefine this to run the efficiency test
 //DEF_BENCH( return new FontCacheEfficiency(); )
 
