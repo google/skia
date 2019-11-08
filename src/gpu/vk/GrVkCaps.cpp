@@ -354,6 +354,14 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
+    // We need dual source blending and the ability to disable multisample in order to support mixed
+    // samples in every corner case.
+    if (fMultisampleDisableSupport && this->shaderCaps()->dualSourceBlendingSupport()) {
+        if (extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1)) {
+            fMixedSamplesSupport = true;
+        }
+    }
+
     if (kQualcomm_VkVendor == properties.vendorID) {
         // A "clear" load for the CCPR atlas runs faster on QC than a "discard" load followed by a
         // scissored clear.
