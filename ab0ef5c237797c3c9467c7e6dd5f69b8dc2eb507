@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "886cbcca_4b462579",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-08T15:25:24Z",
+      "side": 1,
+      "message": "Does \u0027final\u0027 imply \u0027override\u0027 here?",
+      "range": {
+        "startLine": 624,
+        "startChar": 25,
+        "endLine": 624,
+        "endChar": 30
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b1fbaa_5b69794d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-08T15:25:24Z",
+      "side": 1,
+      "message": "ClumpingState doesn\u0027t jive with me; maybe something like BatchSizeLimiter?",
+      "range": {
+        "startLine": 958,
+        "startChar": 6,
+        "endLine": 958,
+        "endChar": 19
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eaabb76_d1af1569",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-08T15:25:24Z",
+      "side": 1,
+      "message": "We always pass the same set pointer in to this function in MakeSet), could it just be part of the state members too?",
+      "range": {
+        "startLine": 976,
+        "startChar": 21,
+        "endLine": 976,
+        "endChar": 71
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3525c86f_f23ab563",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-08T15:25:24Z",
+      "side": 1,
+      "message": "If \u0027cnt\u0027 \u003c min(numNonAAQuads, numAAQuads), we could just return TextureOp::Make() w/o initializing the ClumpingState. Or we could still initialize the ClumpingState, but just immediately call createClump with \u0027cnt\u0027 and assert there\u0027s non left.\n\nSince most draws will be smaller than the minimum index buffer size, we\u0027d end up hitting that path a lot I\u0027d expect. W/o it, when dealing with coverage AA, we end up iterating through the set looking for the AA split points and land in the clumped \u003d false case.",
+      "range": {
+        "startLine": 1024,
+        "startChar": 4,
+        "endLine": 1025,
+        "endChar": 59
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f26353ce_8a746eb7",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-08T15:25:24Z",
+      "side": 1,
+      "message": "Do we need to do anything special in GrRenderTargetContext to record the draw op if it\u0027s coming in already chained?",
+      "range": {
+        "startLine": 1081,
+        "startChar": 10,
+        "endLine": 1081,
+        "endChar": 24
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
