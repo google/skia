@@ -161,6 +161,9 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
         , fManagedOpsTask(managedOpsTask) {
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
+    // When we first start out, our proxy's stencil sample count should be 0 (meaning that we
+    // haven't used stencil yet).
+    SkASSERT(0 == fRenderTargetProxy->numStencilSamples());
 }
 
 #ifdef SK_DEBUG
@@ -219,7 +222,7 @@ GrOpsTask* GrRenderTargetContext::getOpsTask() {
     if (!fOpsTask || fOpsTask->isClosed()) {
         sk_sp<GrOpsTask> newOpsTask =
                 this->drawingManager()->newOpsTask(this->outputSurfaceView(), fManagedOpsTask);
-        if (fOpsTask && fNumStencilSamples > 0) {
+        if (fOpsTask && fRenderTargetProxy->numStencilSamples() > 0) {
             // Store the stencil values in memory upon completion of fOpsTask.
             fOpsTask->setMustPreserveStencil();
             // Reload the stencil buffer content at the beginning of newOpsTask.
@@ -755,13 +758,14 @@ GrOpsTask::CanDiscardPreviousOps GrRenderTargetContext::canDiscardPreviousOpsOnF
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
     // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
-    return GrOpsTask::CanDiscardPreviousOps(!fNumStencilSamples);
+    bool hasUsedStencil = fRenderTargetProxy->numStencilSamples() > 0;
+    return GrOpsTask::CanDiscardPreviousOps(!hasUsedStencil);
 }
 
 void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
-    // Don't clear stencil until after we've changed fNumStencilSamples. This ensures we don't loop
+    // Don't clear stencil until after we've changed numStencilSamples. This ensures we don't loop
     // forever in the event that there are driver bugs and we need to clear as a draw.
-    bool hasInitializedStencil = fNumStencilSamples > 0;
+    bool hasInitializedStencil = fRenderTargetProxy->numStencilSamples() > 0;
 
     int numRequiredSamples = this->numSamples();
     if (useMixedSamplesIfNotMSAA && 1 == numRequiredSamples) {
@@ -770,11 +774,7 @@ void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
                 this->asSurfaceProxy()->backendFormat());
     }
     SkASSERT(numRequiredSamples > 0);
-
-    if (numRequiredSamples > fNumStencilSamples) {
-        fNumStencilSamples = numRequiredSamples;
-        fRenderTargetProxy->setNeedsStencil(fNumStencilSamples);
-    }
+    fRenderTargetProxy->setNeedsStencil(numRequiredSamples);
 
     if (!hasInitializedStencil) {
         if (this->caps()->performStencilClearsAsDraws()) {
@@ -2303,29 +2303,28 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     GrAppliedClip appliedClip;
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
-    bool usesStencil = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
+    bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
 
-    if (usesStencil) {
+    if (usesUserStencilBits) {  // Stencil clipping will call setNeedsStencil on its own, if needed.
         this->setNeedsStencil(usesHWAA);
     }
 
-    if (!clip.apply(fContext, this, usesHWAA, usesStencil, &appliedClip, &bounds)) {
+    if (!clip.apply(fContext, this, usesHWAA, usesUserStencilBits, &appliedClip, &bounds)) {
         fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
 
-    SkASSERT((!usesStencil && !appliedClip.hasStencilClip()) || (fNumStencilSamples > 0));
+    bool willUseStencil = usesUserStencilBits || appliedClip.hasStencilClip();
+    SkASSERT(!willUseStencil || fRenderTargetProxy->numStencilSamples() > 0);
+
+    // If stencil is enabled and the framebuffer is mixed sampled, then the graphics pipeline will
+    // have mixed sampled coverage, regardless of whether HWAA is enabled. (e.g., a non-aa draw
+    // that uses a stencil test when the stencil buffer is multisampled.)
+    bool hasMixedSampledCoverage = (
+            willUseStencil && fRenderTargetProxy->numStencilSamples() > this->numSamples());
+    SkASSERT(!hasMixedSampledCoverage || fRenderTargetProxy->canUseMixedSamples(*this->caps()));
 
     GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
-    // MIXED SAMPLES TODO: If we start using mixed samples for clips we will need to check the clip
-    // here as well.
-    bool hasMixedSampledCoverage = (usesHWAA && this->numSamples() <= 1);
-#ifdef SK_DEBUG
-    if (hasMixedSampledCoverage) {
-        SkASSERT(usesStencil);
-        SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
-    }
-#endif
     GrProcessorSet::Analysis analysis = op->finalize(
             *this->caps(), &appliedClip, hasMixedSampledCoverage, clampType);
 
