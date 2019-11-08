@@ -8,13 +8,13 @@
 #ifndef SkAnimatedImage_DEFINED
 #define SkAnimatedImage_DEFINED
 
+#include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 
-class SkAndroidCodec;
 class SkPicture;
 
 /**
@@ -109,6 +109,18 @@ public:
     int getRepetitionCount() const {
         return fRepetitionCount;
     }
+
+    /**
+     *  Return the total number of frames in the animation.
+     */
+    int getFrameCount() const {
+        return fCodec->codec()->getFrameCount();
+    }
+
+    /**
+     * Return the (possibly scaled) dimensions of the image.
+     */
+    SkISize dimensions() const { return fScaledSize; }
 
 protected:
     SkRect onGetBounds() override;
