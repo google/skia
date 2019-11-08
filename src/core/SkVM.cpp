@@ -113,6 +113,8 @@ namespace skvm {
                       inst.used_in_loop ? "↑ " :
                                           "↟ ");
             switch (op) {
+                case Op::assert_true:  write(o, "assert_true" , V{x}); break;
+
                 case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
                 case Op::store16: write(o, "store16", Arg{imm}, V{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
@@ -221,6 +223,8 @@ namespace skvm {
                   z = inst.z;
             int imm = inst.imm;
             switch (op) {
+                case Op::assert_true:  write(o, "assert_true" , R{x}); break;
+
                 case Op::store8:  write(o, "store8" , Arg{imm}, R{x}); break;
                 case Op::store16: write(o, "store16", Arg{imm}, R{x}); break;
                 case Op::store32: write(o, "store32", Arg{imm}, R{x}); break;
@@ -374,7 +378,7 @@ namespace skvm {
             Builder::Instruction& inst = fProgram[id];
 
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
-            if (inst.op <= Op::gather32) {
+            if (inst.op <= Op::gather32 && inst.op != Op::assert_true) {
                 inst.can_hoist = false;
             }
 
@@ -459,6 +463,12 @@ namespace skvm {
         int ix = (int)fStrides.size();
         fStrides.push_back(stride);
         return {ix};
+    }
+
+    void Builder::assert_true(I32 val) {
+    #ifdef SK_DEBUG
+        (void)this->push(Op::assert_true, val.id,NA,NA);
+    #endif
     }
 
     void Builder::store8 (Arg ptr, I32 val) { (void)this->push(Op::store8 , val.id,NA,NA, ptr.ix); }
@@ -1359,6 +1369,8 @@ namespace skvm {
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
 
+                    CASE(Op::assert_true): SkASSERT(all(r(x).i32)); break;
+
                     CASE(Op::index): static_assert(K == 16, "");
                                      r(d).i32 = n - I32{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
                                      break;
@@ -1831,6 +1843,8 @@ namespace skvm {
                     return false;  // TODO: many new ops
 
             #if defined(__x86_64__)
+                case Op::assert_true: /*TODO vptest + int3*/ break;
+
                 case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                a->vpermq   (tmp(), tmp(), 0xd8);
@@ -1948,6 +1962,8 @@ namespace skvm {
                                 break;
 
             #elif defined(__aarch64__)
+                case Op::assert_true: /*TODO somehow?*/ break;
+
                 case Op::store8: a->xtns2h(tmp(), r[x]);
                                  a->xtnh2b(tmp(), tmp());
                    if (scalar) { a->strb  (tmp(), arg[imm]); }
