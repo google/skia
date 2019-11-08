@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a735e70_51b8e8de",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-08T20:26:08Z",
+      "side": 1,
+      "message": "no chance for asserts in our assembly ?",
+      "range": {
+        "startLine": 309,
+        "startChar": 25,
+        "endLine": 309,
+        "endChar": 31
+      },
+      "revId": "874d9904c04d56b721c59dc245f56e5d94a47c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
