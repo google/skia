@@ -147,7 +147,7 @@ describe('Core canvas behavior', function() {
         });
     });
 
-    it('can decode and draw an animated gif', function(done) {
+    fit('can decode and draw an animated gif', function(done) {
         const imgPromise = fetch('/assets/flightAnim.gif')
             .then((response) => response.arrayBuffer());
         Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
@@ -157,6 +157,9 @@ describe('Core canvas behavior', function() {
                 let aImg = CanvasKit.MakeAnimatedImageFromEncoded(gifData);
                 expect(aImg).toBeTruthy();
                 expect(aImg.getRepetitionCount()).toEqual(-1); // infinite loop
+                expect(aImg.width()).toEqual(320);
+                expect(aImg.height()).toEqual(240);
+                expect(aImg.getFrameCount()).toEqual(60);
 
                 const surface = CanvasKit.MakeCanvasSurface('test');
                 expect(surface).toBeTruthy('Could not make surface')

@@ -110,6 +110,8 @@ public:
         return fRepetitionCount;
     }
 
+    SkAndroidCodec* codec() const { return fCodec.get(); }
+
 protected:
     SkRect onGetBounds() override;
     void onDraw(SkCanvas*) override;
