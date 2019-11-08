@@ -22,6 +22,30 @@
       "revId": "874d9904c04d56b721c59dc245f56e5d94a47c5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58e7f745_ef057317",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-08T20:28:35Z",
+      "side": 1,
+      "message": "Nope.  Something I could look into, but it\u0027s doubly hard with JIT and vectors.  Might be easiest to add something that only runs in the interpreter?",
+      "parentUuid": "8a735e70_51b8e8de",
+      "range": {
+        "startLine": 309,
+        "startChar": 25,
+        "endLine": 309,
+        "endChar": 31
+      },
+      "revId": "874d9904c04d56b721c59dc245f56e5d94a47c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
