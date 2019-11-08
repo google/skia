@@ -98,6 +98,32 @@ static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size
     return y * rowBytes + (x << SkColorTypeShiftPerPixel(ct));
 }
 
+static inline bool SkColorTypeIsNormalized(SkColorType ct) {
+    switch (ct) {
+        case kUnknown_SkColorType:
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kARGB_4444_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kRGB_888x_SkColorType:
+        case kBGRA_8888_SkColorType:
+        case kRGBA_1010102_SkColorType:
+        case kRGB_101010x_SkColorType:
+        case kGray_8_SkColorType:
+        case kRGBA_F16Norm_SkColorType:
+        case kR8G8_unorm_SkColorType:
+        case kA16_unorm_SkColorType:
+        case kA16_float_SkColorType:          /*subtle... alpha is always [0,1]*/
+        case kR16G16_unorm_SkColorType:
+        case kR16G16B16A16_unorm_SkColorType: return true;
+
+        case kRGBA_F16_SkColorType:
+        case kRGBA_F32_SkColorType:
+        case kR16G16_float_SkColorType:       return false;
+    }
+    SkUNREACHABLE;
+}
+
 /**
  *  Returns true if |info| contains a valid combination of width, height, colorType, and alphaType.
  */
