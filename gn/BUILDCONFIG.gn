@@ -81,7 +81,7 @@ if (current_cpu == "") {
 is_clang = is_android || is_ios || is_mac ||
            (cc == "clang" && cxx == "clang++") || clang_win != ""
 if (!is_clang && !is_win) {
-  is_clang = exec_script("gn/is_clang.py",
+  is_clang = exec_script("//gn/is_clang.py",
                          [
                            cc,
                            cxx,
