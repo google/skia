@@ -374,7 +374,7 @@ namespace skvm {
             Builder::Instruction& inst = fProgram[id];
 
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
-            if (inst.op <= Op::gather32) {
+            if (inst.op <= Op::gather32 && inst.op != Op::assert_true) {
                 inst.can_hoist = false;
             }
 
@@ -1543,12 +1543,15 @@ namespace skvm {
             if (inst.y != inst.x                    ) { maybe_recycle_register(inst.y); }
             if (inst.z != inst.x && inst.z != inst.y) { maybe_recycle_register(inst.z); }
 
-            // Allocate a register if we have to, preferring to reuse anything available.
-            if (avail.empty()) {
-                reg[id] = fRegs++;
-            } else {
-                reg[id] = avail.back();
-                avail.pop_back();
+            // Instructions that die at themselves (stores) don't need a register.
+            if (inst.death != id) {
+                // Allocate a register if we have to, preferring to reuse anything available.
+                if (avail.empty()) {
+                    reg[id] = fRegs++;
+                } else {
+                    reg[id] = avail.back();
+                    avail.pop_back();
+                }
             }
         };
 
