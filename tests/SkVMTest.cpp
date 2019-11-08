@@ -722,6 +722,17 @@ DEF_TEST(SkVM_MSAN, r) {
     });
 }
 
+DEF_TEST(SkVM_assert, r) {
+    skvm::Builder b;
+    b.assert_true(b.lt(b.load32(b.varying<int>()),
+                       b.splat(42)));
+
+    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+        int buf[] = { 0,1,2,3,4 };
+        program.eval(SK_ARRAY_COUNT(buf), buf);
+    });
+}
+
 
 template <typename Fn>
 static void test_asm(skiatest::Reporter* r, Fn&& fn, std::initializer_list<uint8_t> expected) {
