@@ -294,7 +294,7 @@ cc_test {
 }''')
 
 # We'll run GN to get the main source lists and include directories for Skia.
-def generate_args(target_os, enable_gpu):
+def generate_args(target_os):
   d = {
     'is_official_build':                  'true',
 
@@ -319,21 +319,22 @@ def generate_args(target_os, enable_gpu):
     'skia_use_fixed_gamma_text':          'true',
     'skia_include_multiframe_procs':      'false',
   }
-  d['target_os'] = target_os
-  if target_os == '"android"':
+  d['target_os'] = '"%s"' % target_os
+  if target_os == 'android':
     d['skia_enable_tools'] = 'true'
     d['skia_use_libheif']  = 'true'
     d['skia_include_multiframe_procs'] = 'true'
   else:
     d['skia_use_libheif']  = 'false'
 
-  if enable_gpu:
+  # Only enable gpu on android.
+  if target_os == 'android':
     d['skia_use_vulkan']   = 'true'
   else:
     d['skia_use_vulkan']   = 'false'
     d['skia_enable_gpu']   = 'false'
 
-  if target_os == '"win"':
+  if target_os == 'win':
     # The Android Windows build system does not provide FontSub.h
     d['skia_use_xps'] = 'false'
 
@@ -345,68 +346,97 @@ def generate_args(target_os, enable_gpu):
     d['win_toolchain_version'] = '"dummy_version"'
   return d
 
-gn_args       = generate_args('"android"', True)
-gn_args_linux = generate_args('"linux"',   False)
-gn_args_mac   = generate_args('"mac"',     False)
-gn_args_win   = generate_args('"win"',     False)
-
-js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
-
 def strip_slashes(lst):
   return {str(p.lstrip('/')) for p in lst}
-
-android_srcs    = strip_slashes(js['targets']['//:skia']['sources'])
-cflags          = strip_slashes(js['targets']['//:skia']['cflags'])
-cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
-local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
-export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
-
-dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
-dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])
-
-nanobench_target = js['targets']['//:nanobench']
-nanobench_srcs     = strip_slashes(nanobench_target['sources'])
-nanobench_includes = strip_slashes(nanobench_target['include_dirs'])
-
-gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources', dm_srcs, 'skia')
-gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
-                                   nanobench_srcs, 'skia')
-
-# skcms is a little special, kind of a second-party library.
-local_includes.add("include/third_party/skcms")
-dm_includes   .add("include/third_party/skcms")
 
 # Android's build will choke if we list headers.
 def strip_headers(sources):
   return {s for s in sources if not s.endswith('.h')}
 
-gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, None)
-android_srcs    = strip_headers(android_srcs)
+srcs = dict()
+cflags, cflags_cc = set(), set()
+dm_includes, dm_srcs = set(), set()
+export_includes, local_includes = set(), set()
+nanobench_includes, nanobench_srcs = set(), set()
 
-js_linux        = gn_to_bp_utils.GenerateJSONFromGN(gn_args_linux)
-linux_srcs      = strip_slashes(js_linux['targets']['//:skia']['sources'])
-gn_to_bp_utils.GrabDependentValues(js_linux, '//:skia', 'sources', linux_srcs,
-                                   None)
-linux_srcs      = strip_headers(linux_srcs)
+for system in ['android', 'linux', 'mac', 'win']:
+  # pylint: disable=bad-whitespace
+  gn_args   = generate_args(system)
+  js        = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
+  os_srcs   = strip_slashes(js['targets']['//:skia']['sources'])
 
-js_mac          = gn_to_bp_utils.GenerateJSONFromGN(gn_args_mac)
-mac_srcs        = strip_slashes(js_mac['targets']['//:skia']['sources'])
-gn_to_bp_utils.GrabDependentValues(js_mac, '//:skia', 'sources', mac_srcs,
-                                   None)
-mac_srcs        = strip_headers(mac_srcs)
+  if system == 'android':
+    cflags          = strip_slashes(js['targets']['//:skia']['cflags'])
+    cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
+    local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
+    export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
 
-js_win          = gn_to_bp_utils.GenerateJSONFromGN(gn_args_win)
-win_srcs        = strip_slashes(js_win['targets']['//:skia']['sources'])
-gn_to_bp_utils.GrabDependentValues(js_win, '//:skia', 'sources', win_srcs,
-                                   None)
-win_srcs        = strip_headers(win_srcs)
+    dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
+    dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])
 
-srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
-srcs = srcs.intersection(win_srcs)
-android_srcs    = android_srcs.difference(srcs)
-linux_srcs      =   linux_srcs.difference(srcs)
-mac_srcs        =     mac_srcs.difference(srcs)
-win_srcs        =     win_srcs.difference(srcs)
+    nanobench_target = js['targets']['//:nanobench']
+    nanobench_srcs     = strip_slashes(nanobench_target['sources'])
+    nanobench_includes = strip_slashes(nanobench_target['include_dirs'])
+
+    gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources', dm_srcs, 'skia')
+    gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
+                                       nanobench_srcs, 'skia')
+
+    # skcms is a little special, kind of a second-party library.
+    local_includes.add("include/third_party/skcms")
+    dm_includes   .add("include/third_party/skcms")
+
+  gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', os_srcs, None)
+  os_srcs      = strip_headers(os_srcs)
+
+  srcs[system] = os_srcs
+
+  config_path = system + '/include/config/SkUserConfig.h'
+  defines = {str(d) for d in js['targets']['//:skia']['defines']}
+
+  directory = os.path.dirname(config_path)
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
+  platform_map = {
+    'android': 'ANDROID',
+    'ios': 'IOS',
+    'linux': 'UNIX',
+    'mac': 'MAC',
+    'win': 'WIN',
+  }
+  platform = platform_map[system]
+
+  with open(config_path, 'w') as f:
+    gn_to_bp_utils.WriteUserConfigFile(f, defines)
+    if platform == 'ANDROID':
+      print >>f, '''
+#ifndef SK_BUILD_FOR_ANDROID
+    #error "SK_BUILD_FOR_ANDROID must be defined!"
+#endif'''
+    else:
+      print >>f, '''
+// Correct SK_BUILD_FOR flags that may have been set by
+// SkPreConfig.h/Android.bp
+#ifndef SK_BUILD_FOR_%s
+    #define SK_BUILD_FOR_%s
+#endif
+#ifdef SK_BUILD_FOR_ANDROID
+    #undef SK_BUILD_FOR_ANDROID
+#endif''' % (platform, platform)
+
+    p = ' || \\\n    '.join('defined(SK_BUILD_FOR_%s)' % v
+                    for v in sorted(platform_map.values()) if v != platform)
+    print >>f, '#if', p
+    print >>f, '    #error "Only SK_BUILD_FOR_%s should be defined!"' % platform
+    print >>f, '#endif'
+
+
+all_srcs = set.intersection(*srcs.values())
+
+for system in srcs:
+  srcs[system] = srcs[system].difference(all_srcs)
+
 dm_srcs         = strip_headers(dm_srcs)
 nanobench_srcs  = strip_headers(nanobench_srcs)
 
@@ -415,66 +445,6 @@ cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
 
 here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
-
-def get_defines(json):
-  return {str(d) for d in json['targets']['//:skia']['defines']}
-android_defines = get_defines(js)
-linux_defines   = get_defines(js_linux)
-mac_defines     = get_defines(js_mac)
-win_defines     = get_defines(js_win)
-
-def mkdir_if_not_exists(path):
-  if not os.path.exists(path):
-    os.makedirs(path)
-mkdir_if_not_exists('android/include/config/')
-mkdir_if_not_exists('linux/include/config/')
-mkdir_if_not_exists('mac/include/config/')
-mkdir_if_not_exists('win/include/config/')
-
-platforms = { 'IOS', 'MAC', 'WIN', 'ANDROID', 'UNIX' }
-
-def disallow_platforms(config, desired):
-  with open(config, 'a') as f:
-    p = sorted(platforms.difference({ desired }))
-    s = '#if '
-    for i in range(len(p)):
-      s = s + 'defined(SK_BUILD_FOR_%s)' % p[i]
-      if i < len(p) - 1:
-        s += ' || '
-        if i % 2 == 1:
-          s += '\\\n    '
-    print >>f, s
-    print >>f, '    #error "Only SK_BUILD_FOR_%s should be defined!"' % desired
-    print >>f, '#endif'
-
-def append_to_file(config, s):
-  with open(config, 'a') as f:
-    print >>f, s
-
-android_config = 'android/include/config/SkUserConfig.h'
-gn_to_bp_utils.WriteUserConfig(android_config, android_defines)
-append_to_file(android_config, '''
-#ifndef SK_BUILD_FOR_ANDROID
-    #error "SK_BUILD_FOR_ANDROID must be defined!"
-#endif''')
-disallow_platforms(android_config, 'ANDROID')
-
-def write_config(config_path, defines, platform):
-  gn_to_bp_utils.WriteUserConfig(config_path, defines)
-  append_to_file(config_path, '''
-// Correct SK_BUILD_FOR flags that may have been set by
-// SkPreConfig.h/Android.bp
-#ifndef SK_BUILD_FOR_%s
-    #define SK_BUILD_FOR_%s
-#endif
-#ifdef SK_BUILD_FOR_ANDROID
-    #undef SK_BUILD_FOR_ANDROID
-#endif''' % (platform, platform))
-  disallow_platforms(config_path, platform)
-
-write_config('linux/include/config/SkUserConfig.h', linux_defines, 'UNIX')
-write_config('mac/include/config/SkUserConfig.h',   mac_defines, 'MAC')
-write_config('win/include/config/SkUserConfig.h',   win_defines, 'WIN')
 
 # Turn a list of strings into the style bpfmt outputs.
 def bpfmt(indent, lst, sort=True):
@@ -487,7 +457,7 @@ with open('Android.bp', 'w') as Android_bp:
   print >>Android_bp, bp.substitute({
     'export_includes': bpfmt(8, export_includes),
     'local_includes':  bpfmt(8, local_includes),
-    'srcs':            bpfmt(8, srcs),
+    'srcs':            bpfmt(8, all_srcs),
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
@@ -509,8 +479,8 @@ with open('Android.bp', 'w') as Android_bp:
     'nanobench_includes'    : bpfmt(8, nanobench_includes),
     'nanobench_srcs'        : bpfmt(8, nanobench_srcs),
 
-    'android_srcs':  bpfmt(10, android_srcs),
-    'linux_srcs':    bpfmt(10, linux_srcs),
-    'mac_srcs':      bpfmt(10, mac_srcs),
-    'win_srcs':      bpfmt(10, win_srcs),
+    'android_srcs':  bpfmt(10, srcs['android']),
+    'linux_srcs':    bpfmt(10, srcs['linux']),
+    'mac_srcs':      bpfmt(10, srcs['mac']),
+    'win_srcs':      bpfmt(10, srcs['win']),
   })
