@@ -45,10 +45,7 @@ public:
     }
 
     /**
-     * Returns the number of stencil samples required by this proxy.
-     * NOTE: Once instantiated, the actual render target may have more samples, but it is guaranteed
-     * to have at least this many. (After a multisample stencil buffer has been attached to a render
-     * target, we never "downgrade" it to one with fewer samples.)
+     * Returns the number of stencil samples this proxy will use, or 0 if it does not use stencil.
      */
     int numStencilSamples() const { return fNumStencilSamples; }
 
@@ -56,6 +53,10 @@ public:
      * Returns the number of samples/pixel in the color buffer (One if non-MSAA).
      */
     int numSamples() const { return fSampleCnt; }
+
+    // Returns the number of samples the rasterizer will compute when rendering to this proxy. This
+    // number may be larger than the proxy's sample count if we have mixed samples.
+    int numRasterSamples() const { return std::max(fSampleCnt, fNumStencilSamples); }
 
     int maxWindowRectangles(const GrCaps& caps) const;
 

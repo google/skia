@@ -16,7 +16,7 @@ class GrMesh;
 
 class GrProgramInfo {
 public:
-    GrProgramInfo(int numSamples,
+    GrProgramInfo(int numRasterSamples,
                   GrSurfaceOrigin origin,
                   const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
@@ -24,7 +24,7 @@ public:
                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                   int numDynamicStateArrays,
                   GrPrimitiveType primitiveType)
-            : fNumSamples(numSamples)
+            : fNumRasterSamples(numRasterSamples)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
@@ -44,7 +44,7 @@ public:
 
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
-    int numSamples() const { return fNumSamples;  }
+    int numRasterSamples() const { return fNumRasterSamples;  }
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
@@ -106,7 +106,7 @@ public:
 #endif
 
 private:
-    const int                             fNumSamples;
+    const int                             fNumRasterSamples;
     const GrSurfaceOrigin                 fOrigin;
     const GrPipeline&                     fPipeline;
     const GrPrimitiveProcessor&           fPrimProc;
