@@ -129,26 +129,8 @@ GrSurfaceProxy::~GrSurfaceProxy() {
     SkASSERT(!fLastRenderTask);
 }
 
-bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvider,
-                                               GrSurface* surface, int minStencilSampleCount) {
-    if (minStencilSampleCount) {
-        GrRenderTarget* rt = surface->asRenderTarget();
-        if (!rt) {
-            SkASSERT(0);
-            return false;
-        }
-
-        if (!resourceProvider->attachStencilAttachment(rt, minStencilSampleCount)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
                                                    int sampleCnt,
-                                                   int minStencilSampleCount,
                                                    GrRenderable renderable,
                                                    GrMipMapped mipMapped) const {
     SkASSERT(mipMapped == GrMipMapped::kNo || fFit == SkBackingFit::kExact);
@@ -168,11 +150,6 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
                                                   fBudgeted, fIsProtected);
     }
     if (!surface) {
-        return nullptr;
-    }
-
-    if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(),
-                                                   minStencilSampleCount)) {
         return nullptr;
     }
 
@@ -204,11 +181,6 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 #ifdef SK_DEBUG
     if (this->asRenderTargetProxy()) {
         SkASSERT(fTarget->asRenderTarget());
-        if (int minStencilSampleCount = this->asRenderTargetProxy()->numStencilSamples()) {
-            auto* stencil = fTarget->asRenderTarget()->renderTargetPriv().getStencilAttachment();
-            SkASSERT(stencil);
-            SkASSERT(stencil->numSamples() >= minStencilSampleCount);
-        }
     }
 
     if (kInvalidGpuMemorySize != this->getRawGpuMemorySize_debugOnly()) {
@@ -218,19 +190,18 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
 }
 
 bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt,
-                                     int minStencilSampleCount, GrRenderable renderable,
-                                     GrMipMapped mipMapped, const GrUniqueKey* uniqueKey) {
+                                     GrRenderable renderable, GrMipMapped mipMapped,
+                                     const GrUniqueKey* uniqueKey) {
     SkASSERT(!this->isLazy());
     if (fTarget) {
         if (uniqueKey && uniqueKey->isValid()) {
             SkASSERT(fTarget->getUniqueKey().isValid() && fTarget->getUniqueKey() == *uniqueKey);
         }
-        return GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, fTarget.get(),
-                                                         minStencilSampleCount);
+        return true;
     }
 
-    sk_sp<GrSurface> surface = this->createSurfaceImpl(
-            resourceProvider, sampleCnt, minStencilSampleCount, renderable, mipMapped);
+    sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, renderable,
+                                                       mipMapped);
     if (!surface) {
         return false;
     }
@@ -450,14 +421,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
     SkASSERT(fProxy->width() <= surface->width());
     SkASSERT(fProxy->height() <= surface->height());
-
-    auto rt = fProxy->asRenderTargetProxy();
-    int minStencilSampleCount = rt ? rt->numSamples() : 0;
-
-    if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
-            resourceProvider, surface.get(), minStencilSampleCount)) {
-        return false;
-    }
 
     if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
         texProxy->setTargetKeySync(syncKey);
