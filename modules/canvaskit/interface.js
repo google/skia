@@ -627,6 +627,29 @@ CanvasKit.onRuntimeInitialized = function() {
 
   }
 
+  // points is either an array of [x, y] where x and y are numbers or
+  // a typed array from Malloc where the even indices will be treated
+  // as x coordinates and the odd indicies will be treated as y coordinates.
+  CanvasKit.SkCanvas.prototype.drawPoints = function(mode, points, paint) {
+    var ptr;
+    var n;
+    // This was created with CanvasKit.Malloc, so assume the user has
+    // already been filled with data.
+    if (points['_ck']) {
+      ptr = points.byteOffset;
+      n = points.length/2;
+    } else {
+      // 4 bytes per float and we'll send the points together.
+      ptr = CanvasKit._malloc(2 * arr.length * 4);
+      n = points.length;
+      for (var i = 0; i < points.length; i++) {
+        ptr[i*2] = points[i][0];
+        ptr[i*2 + 1] = points[i][1];
+      }
+    }
+    this._drawPoints(mode, ptr, n, paint);
+  }
+
   // str can be either a text string or a ShapedText object
   CanvasKit.SkCanvas.prototype.drawText = function(str, x, y, paint, font) {
     if (typeof str === 'string') {
