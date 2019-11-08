@@ -484,9 +484,9 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    GrSurfaceProxy* proxy = fTargetView.proxy();
+    SkASSERT(fTargetView.proxy());
+    GrRenderTargetProxy* proxy = fTargetView.proxy()->asRenderTargetProxy();
     SkASSERT(proxy);
-    SkASSERT(proxy->peekRenderTarget());
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
@@ -496,7 +496,17 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     const GrCaps& caps = *flushState->gpu()->caps();
     GrRenderTarget* renderTarget = proxy->peekRenderTarget();
     SkASSERT(renderTarget);
-    GrStencilAttachment* stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+
+    GrStencilAttachment* stencil = nullptr;
+    if (int numStencilSamples = proxy->numStencilSamples()) {
+        if (!flushState->resourceProvider()->attachStencilAttachment(
+                renderTarget, numStencilSamples)) {
+            return false;
+        }
+        stencil = renderTarget->renderTargetPriv().getStencilAttachment();
+    }
+
+    SkASSERT(!stencil || stencil->numSamples() >= proxy->numStencilSamples());
 
     GrLoadOp stencilLoadOp;
     switch (fInitialStencilContent) {
