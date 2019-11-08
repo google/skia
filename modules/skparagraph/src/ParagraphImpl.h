@@ -11,6 +11,7 @@
 #include "include/private/SkTHash.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/src/TextCanvas.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
@@ -196,6 +197,9 @@ public:
     InternalLineMetrics computeEmptyMetrics();
     InternalLineMetrics getStrutMetrics() const { return fStrutMetrics; }
 
+    void startFormatRecording(const SkString& fileName, SkRect bounds);
+    void stopFormatRecording();
+
 private:
     friend class ParagraphBuilder;
     friend class ParagraphCacheKey;
@@ -244,6 +248,8 @@ private:
     SkScalar fMaxWidthWithTrailingSpaces;
     SkRect fOrigin;
     std::vector<size_t> fWords;
+
+    static TextCanvas* fTextCanvas;
 };
 }  // namespace textlayout
 }  // namespace skia

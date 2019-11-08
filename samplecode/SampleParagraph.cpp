@@ -1729,14 +1729,14 @@ protected:
         paragraph->layout(500);
 
         // Write down the format
-        //auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-        //impl->startFormatRecording(SkString("/tmp/format.txt"), canvas->getLocalClipBounds());
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        impl->startFormatRecording(SkString("/tmp/format.txt"), canvas->getLocalClipBounds());
 
         canvas->translate(10, 10);
         canvas->scale(3, 3);
         paragraph->paint(canvas, 17, 17);
 
-        //impl->stopFormatRecording();
+        impl->stopFormatRecording();
     }
 
 private:
