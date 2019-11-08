@@ -121,7 +121,7 @@ private:
 
     // These two methods wrap the interactions with the free pool
     void recycleSurface(sk_sp<GrSurface> surface);
-    sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy, int minStencilSampleCount);
+    sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy);
 
     struct FreePoolTraits {
         static const GrScratchKey& GetKey(const GrSurface& s) {

@@ -262,21 +262,6 @@ bool GrRenderTask::isInstantiated() const {
         return false;
     }
 
-    int minStencilSampleCount = (proxy->asRenderTargetProxy())
-            ? proxy->asRenderTargetProxy()->numStencilSamples()
-            : 0;
-
-    if (minStencilSampleCount) {
-        GrRenderTarget* rt = proxy->peekRenderTarget();
-        SkASSERT(rt);
-
-        GrStencilAttachment* stencil = rt->renderTargetPriv().getStencilAttachment();
-        if (!stencil) {
-            return false;
-        }
-        SkASSERT(stencil->numSamples() >= minStencilSampleCount);
-    }
-
     GrSurface* surface = proxy->peekSurface();
     if (surface->wasDestroyed()) {
         return false;

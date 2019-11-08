@@ -38,10 +38,6 @@ public:
 
     bool doLazyInstantiation(GrResourceProvider*);
 
-
-    static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,
-                                                            int minStencilSampleCount);
-
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}
     GrSurfaceProxyPriv(const GrSurfaceProxyPriv&) {} // unimpl
