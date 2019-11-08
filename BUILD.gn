@@ -6,7 +6,6 @@
 import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
-
 import("gn/skia.gni")
 
 if (skia_use_dawn) {
@@ -500,11 +499,7 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
-  if (!is_fuchsia) {
-    public_defines = [ "SK_GL" ]
-  } else {
-    public_defines = []
-  }
+  public_defines = []
   public_configs = []
   public_deps = []
 
@@ -519,9 +514,6 @@ optional("gpu") {
     sources += [ "src/gpu/GrPathRendering_none.cpp" ]
   }
 
-  # These paths need to be absolute to match the ones produced by shared_sources.gni.
-  sources -= get_path_info([ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ],
-                           "abspath")
   libs = []
   if (is_android) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
@@ -549,6 +541,10 @@ optional("gpu") {
     sources += [ "src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
   }
 
+  if (skia_use_gl) {
+    public_defines += [ "SK_GL" ]
+    sources += skia_gl_gpu_sources
+  }
   if (skia_use_vulkan) {
     public_defines += [ "SK_VULKAN" ]
     deps += [ "third_party/vulkanmemoryallocator" ]
@@ -557,7 +553,7 @@ optional("gpu") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      if (using_fuchsia_sdk) {
+      if (skia_using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
@@ -1303,6 +1299,7 @@ if (skia_enable_tools) {
       "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp",
       "tools/gpu/mock/MockTestContext.cpp",
     ]
+
     libs = []
 
     if (is_android || skia_use_egl) {
