@@ -62,18 +62,19 @@ public:
                         const GrXferProcessor::DstProxyView& dstProxyView)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
+                , fRenderTargetProxy(surfaceView->asRenderTargetProxy())
                 , fAppliedClip(appliedClip)
                 , fDstProxyView(dstProxyView) {
             SkASSERT(surfaceView->asRenderTargetProxy());
         }
 
-        int numSamples() const { return this->proxy()->numSamples(); }
+        int numSamples() const { return fRenderTargetProxy->numSamples(); }
+        int numStencilSamples() const { return fRenderTargetProxy->numStencilSamples(); }
         GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }
-        GrRenderTargetProxy* proxy() const { return fSurfaceView->asRenderTargetProxy(); }
-        GrRenderTarget* renderTarget() const { return this->proxy()->peekRenderTarget(); }
+        GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
@@ -88,6 +89,7 @@ public:
     private:
         GrOp*                         fOp;
         GrSurfaceProxyView*           fSurfaceView;
+        GrRenderTargetProxy*          fRenderTargetProxy;
         GrAppliedClip*                fAppliedClip;
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
     };
