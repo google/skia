@@ -141,7 +141,7 @@ void GrCCPathProcessor::drawPaths(GrOpFlushState* flushState, const GrPipeline& 
                              baseInstance, enablePrimitiveRestart);
     mesh.setVertexData(resources.refVertexBuffer());
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+    GrProgramInfo programInfo(flushState->drawOpArgs().numRasterSamples(),
                               flushState->drawOpArgs().origin(),
                               pipeline,
                               *this,

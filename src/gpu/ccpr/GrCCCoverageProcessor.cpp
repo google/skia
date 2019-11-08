@@ -205,7 +205,7 @@ void GrCCCoverageProcessor::draw(
 
     GrPrimitiveType primitiveType = this->primType();
 
-    GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+    GrProgramInfo programInfo(flushState->drawOpArgs().numRasterSamples(),
                               flushState->drawOpArgs().origin(),
                               pipeline,
                               *this,

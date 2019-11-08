@@ -176,7 +176,7 @@ private:
 
         FwidthSquircleTestProcessor primProc(fViewMatrix);
 
-        GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+        GrProgramInfo programInfo(flushState->drawOpArgs().numRasterSamples(),
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,
