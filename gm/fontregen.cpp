@@ -17,6 +17,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
@@ -109,3 +110,51 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new FontRegenGM())
+
+// Download SF Pro from : https://developer.apple.com/fonts/
+
+class BadAppleGM : public skiagm::GpuGM {
+
+    SkString onShortName() override { return SkString("badapple"); }
+
+    SkISize onISize() override { return {kSize, kSize}; }
+
+    void onOnceBeforeDraw() override {
+        this->setBGColor(SK_ColorWHITE);
+        auto fm = SkFontMgr::RefDefault();
+        auto tf = fm->makeFromFile("/Library/Fonts/SF-Pro-Display-Semibold.otf");
+        SkASSERT(tf != nullptr);
+
+        static const SkString kTexts[] = {
+                SkString("Meet"),
+                SkString("iPad Pro"),
+        };
+
+        SkFont font;
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setSubpixel(true);
+        font.setSize(260);
+        font.setTypeface(tf);
+
+        fBlobs[0] = make_blob(kTexts[0], font);
+        fBlobs[1] = make_blob(kTexts[1], font);
+    }
+
+    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(0xFF111111);
+        canvas->drawTextBlob(fBlobs[0], 10, 260, paint);
+        canvas->drawTextBlob(fBlobs[1], 10, 500, paint);
+        context->flush();
+    }
+
+private:
+    static constexpr int kSize = 512;
+
+    sk_sp<SkTextBlob> fBlobs[3];
+    typedef GM INHERITED;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+DEF_GM(return new BadAppleGM())
