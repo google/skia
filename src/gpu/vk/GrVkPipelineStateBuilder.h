@@ -77,9 +77,7 @@ public:
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrVkPipelineState* finalize(const GrStencilSettings&,
-                                VkRenderPass compatibleRenderPass,
-                                Desc*);
+    GrVkPipelineState* finalize(const GrStencilSettings&, VkRenderPass compatibleRenderPass, Desc*);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
