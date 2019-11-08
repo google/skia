@@ -82,50 +82,42 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 bool SkColorFilter_Matrix::program(skvm::Builder* p,
                                    SkColorSpace* /*dstCS*/,
                                    skvm::Uniforms* uniforms,
-                                   skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+                                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
-        // Convert to [0,1] floats.
-        skvm::F32 R = p->mul(p->to_f32(*r), p->splat(1/255.0f)),
-                  G = p->mul(p->to_f32(*g), p->splat(1/255.0f)),
-                  B = p->mul(p->to_f32(*b), p->splat(1/255.0f)),
-                  A = p->mul(p->to_f32(*a), p->splat(1/255.0f));
-
         // Unpremul.
-        skvm::F32 invA = p->select(p->eq(A, p->splat(0.0f)), p->splat(0.0f)
-                                                           , p->div(p->splat(1.0f), A));
-        R = p->mul(R, invA);
-        G = p->mul(G, invA);
-        B = p->mul(B, invA);
+        skvm::F32 invA = p->div(p->splat(1.0f), *a),
+                  inf  = p->bit_cast(p->splat(0x7f800000));
+
+        // If *a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
+        invA = p->bit_cast(p->bit_and(p->lt(invA, inf),
+                                      p->bit_cast(invA)));
+        *r = p->mul(*r, invA);
+        *g = p->mul(*g, invA);
+        *b = p->mul(*b, invA);
 
         // Apply matrix.
         skvm::Builder::Uniform u = uniforms->pushF(fMatrix, 20);
-        auto m = [&](int i) { return p->bit_cast(p->uniform32(u.ptr, u.offset + 4*i)); };
+        auto m = [&](int i) { return p->uniformF(u.ptr, u.offset + 4*i); };
 
         skvm::F32 rgba[4];
         for (int j = 0; j < 4; j++) {
             rgba[j] =        m(4+j*5);
-            rgba[j] = p->mad(m(3+j*5), A, rgba[j]);
-            rgba[j] = p->mad(m(2+j*5), B, rgba[j]);
-            rgba[j] = p->mad(m(1+j*5), G, rgba[j]);
-            rgba[j] = p->mad(m(0+j*5), R, rgba[j]);
+            rgba[j] = p->mad(m(3+j*5), *a, rgba[j]);
+            rgba[j] = p->mad(m(2+j*5), *b, rgba[j]);
+            rgba[j] = p->mad(m(1+j*5), *g, rgba[j]);
+            rgba[j] = p->mad(m(0+j*5), *r, rgba[j]);
         }
-
-        // Clamp back to bytes.
-        R = p->mad(rgba[0], p->splat(255.0f), p->splat(0.5f));
-        G = p->mad(rgba[1], p->splat(255.0f), p->splat(0.5f));
-        B = p->mad(rgba[2], p->splat(255.0f), p->splat(0.5f));
-        A = p->mad(rgba[3], p->splat(255.0f), p->splat(0.5f));
-
-        *r = p->max(p->splat(0), p->min(p->to_i32(R), p->splat(255)));
-        *g = p->max(p->splat(0), p->min(p->to_i32(G), p->splat(255)));
-        *b = p->max(p->splat(0), p->min(p->to_i32(B), p->splat(255)));
-        *a = p->max(p->splat(0), p->min(p->to_i32(A), p->splat(255)));
+        *r = rgba[0];
+        *g = rgba[1];
+        *b = rgba[2];
+        *a = rgba[3];
 
         // Premul.
-        *r = p->scale_unorm8(*r, *a);
-        *g = p->scale_unorm8(*g, *a);
-        *b = p->scale_unorm8(*b, *a);
+        *r = p->mul(*r, *a);
+        *g = p->mul(*g, *a);
+        *b = p->mul(*b, *a);
+
         return true;
     }
     return false;
