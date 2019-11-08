@@ -418,50 +418,22 @@ defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
 
 def get_defines(json):
   return {str(d) for d in json['targets']['//:skia']['defines']}
-android_defines = get_defines(js)
-linux_defines   = get_defines(js_linux)
-mac_defines     = get_defines(js_mac)
-win_defines     = get_defines(js_win)
 
-def mkdir_if_not_exists(path):
-  if not os.path.exists(path):
-    os.makedirs(path)
-mkdir_if_not_exists('android/include/config/')
-mkdir_if_not_exists('linux/include/config/')
-mkdir_if_not_exists('mac/include/config/')
-mkdir_if_not_exists('win/include/config/')
+def write_config(config_directory, defines, platform):
+  config_path = config_directory + '/include/config/SkUserConfig.h'
+  directory = os.path.dirname(config_path)
+  if not os.path.exists(directory):
+    os.makedirs(directory)
 
-platforms = { 'IOS', 'MAC', 'WIN', 'ANDROID', 'UNIX' }
-
-def disallow_platforms(config, desired):
-  with open(config, 'a') as f:
-    p = sorted(platforms.difference({ desired }))
-    s = '#if '
-    for i in range(len(p)):
-      s = s + 'defined(SK_BUILD_FOR_%s)' % p[i]
-      if i < len(p) - 1:
-        s += ' || '
-        if i % 2 == 1:
-          s += '\\\n    '
-    print >>f, s
-    print >>f, '    #error "Only SK_BUILD_FOR_%s should be defined!"' % desired
-    print >>f, '#endif'
-
-def append_to_file(config, s):
-  with open(config, 'a') as f:
-    print >>f, s
-
-android_config = 'android/include/config/SkUserConfig.h'
-gn_to_bp_utils.WriteUserConfig(android_config, android_defines)
-append_to_file(android_config, '''
+  with open(config_path, 'w') as f:
+    gn_to_bp_utils.WriteUserConfigFile(f, defines)
+    if platform == 'ANDROID':
+      print >>f, '''
 #ifndef SK_BUILD_FOR_ANDROID
     #error "SK_BUILD_FOR_ANDROID must be defined!"
-#endif''')
-disallow_platforms(android_config, 'ANDROID')
-
-def write_config(config_path, defines, platform):
-  gn_to_bp_utils.WriteUserConfig(config_path, defines)
-  append_to_file(config_path, '''
+#endif'''
+    else:
+      print >>f, '''
 // Correct SK_BUILD_FOR flags that may have been set by
 // SkPreConfig.h/Android.bp
 #ifndef SK_BUILD_FOR_%s
@@ -469,12 +441,19 @@ def write_config(config_path, defines, platform):
 #endif
 #ifdef SK_BUILD_FOR_ANDROID
     #undef SK_BUILD_FOR_ANDROID
-#endif''' % (platform, platform))
-  disallow_platforms(config_path, platform)
+#endif''' % (platform, platform)
 
-write_config('linux/include/config/SkUserConfig.h', linux_defines, 'UNIX')
-write_config('mac/include/config/SkUserConfig.h',   mac_defines, 'MAC')
-write_config('win/include/config/SkUserConfig.h',   win_defines, 'WIN')
+    all_platforms = [ 'ANDROID', 'IOS', 'MAC', 'UNIX', 'WIN' ]
+    p = ' || \\\n    '.join('defined(SK_BUILD_FOR_%s)' % v
+                    for v in all_platforms if v != platform)
+    print >>f, '#if', p
+    print >>f, '    #error "Only SK_BUILD_FOR_%s should be defined!"' % platform
+    print >>f, '#endif'
+
+write_config('android', get_defines(js),       'ANDROID')
+write_config('linux',   get_defines(js_linux), 'UNIX')
+write_config('mac',     get_defines(js_mac),   'MAC')
+write_config('win',     get_defines(js_win),   'WIN')
 
 # Turn a list of strings into the style bpfmt outputs.
 def bpfmt(indent, lst, sort=True):
