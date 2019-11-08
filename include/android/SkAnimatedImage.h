@@ -110,6 +110,16 @@ public:
         return fRepetitionCount;
     }
 
+    /**
+     *  Return the total number of frames in the animation.
+     */
+    int getFrameCount() const { return fFrameCount; }
+
+    /**
+     * Return the (possibly scaled) dimensions of the image.
+     */
+    SkISize dimensions() const { return fScaledSize; }
+
 protected:
     SkRect onGetBounds() override;
     void onDraw(SkCanvas*) override;

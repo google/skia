@@ -157,6 +157,9 @@ describe('Core canvas behavior', function() {
                 let aImg = CanvasKit.MakeAnimatedImageFromEncoded(gifData);
                 expect(aImg).toBeTruthy();
                 expect(aImg.getRepetitionCount()).toEqual(-1); // infinite loop
+                expect(aImg.width()).toEqual(320);
+                expect(aImg.height()).toEqual(240);
+                expect(aImg.getFrameCount()).toEqual(60);
 
                 const surface = CanvasKit.MakeCanvasSurface('test');
                 expect(surface).toBeTruthy('Could not make surface')
