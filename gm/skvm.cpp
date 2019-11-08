@@ -32,13 +32,13 @@ struct Fade : public SkShaderBase {
                    SkColorSpace* dstCS,
                    skvm::Uniforms* uniforms,
                    skvm::F32 x, skvm::F32 y,
-                   skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
+                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
         if (as_SB(fShader)->program(p, dstCS,
                                     uniforms,
                                     x,y, r,g,b,a)) {
             // In this GM `y` will range over 0-50 and `x` over 50-100.
-            *r = p->to_i32(p->mul(y, p->splat(255/ 50.0f)));
-            *g = p->to_i32(p->mul(x, p->splat(255/100.0f)));
+            *r = p->mul(y, p->splat(1/ 50.0f));
+            *g = p->mul(x, p->splat(1/100.0f));
             return true;
         }
         return false;

@@ -94,26 +94,22 @@ static bool common_program(SkColor4f color, SkColorSpace* cs,
                            skvm::Builder* p,
                            SkColorSpace* dstCS,
                            skvm::Uniforms* uniforms,
-                           skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) {
+                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) {
     SkColorSpaceXformSteps(   cs, kUnpremul_SkAlphaType,
-                           dstCS, kUnpremul_SkAlphaType).apply(color.vec());
+                           dstCS,   kPremul_SkAlphaType).apply(color.vec());
 
-    if (color.fitsInBytes()) {
-        skvm::I32 rgba = p->uniform32(uniforms->push(color.premul().toBytes_RGBA()));
-        *r = p->extract(rgba,  0, p->splat(0xff));
-        *g = p->extract(rgba,  8, p->splat(0xff));
-        *b = p->extract(rgba, 16, p->splat(0xff));
-        *a = p->extract(rgba, 24, p->splat(0xff));
-        return true;
-    }
-    return false;
+    *r = p->uniformF(uniforms->pushF(color.fR));
+    *g = p->uniformF(uniforms->pushF(color.fG));
+    *b = p->uniformF(uniforms->pushF(color.fB));
+    *a = p->uniformF(uniforms->pushF(color.fA));
+    return true;
 }
 
 bool SkColorShader::onProgram(skvm::Builder* p,
                               SkColorSpace* dstCS,
                               skvm::Uniforms* uniforms,
                               skvm::F32 /*x*/, skvm::F32 /*y*/,
-                              skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     return common_program(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
                           p, dstCS, uniforms, r,g,b,a);
 }
@@ -121,7 +117,7 @@ bool SkColor4Shader::onProgram(skvm::Builder* p,
                                SkColorSpace* dstCS,
                                skvm::Uniforms* uniforms,
                                skvm::F32 /*x*/, skvm::F32 /*y*/,
-                               skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     return common_program(fColor, fColorSpace.get(),
                           p, dstCS, uniforms, r,g,b,a);
 }

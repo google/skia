@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -104,40 +105,33 @@ namespace {
 
 
     struct Builder : public skvm::Builder {
-        skvm::Color unpack_8888(skvm::I32 rgba) {
-            return {
-                extract(rgba,  0, splat(0xff)),
-                extract(rgba,  8, splat(0xff)),
-                extract(rgba, 16, splat(0xff)),
-                extract(rgba, 24, splat(0xff)),
-            };
+
+        skvm::F32 unorm(int bits, skvm::I32 x) {
+            float limit = (1<<bits)-1.0f;
+            return mul(to_f32(x), splat(1/limit));
+        }
+        skvm::I32 unorm(int bits, skvm::F32 x) {
+            float limit = (1<<bits)-1.0f;
+            return to_i32(mad(x, splat(limit), splat(0.5f)));
         }
 
-        skvm::I32 pack_8888(skvm::Color c) {
-            return pack(pack(c.r, c.g, 8),
-                        pack(c.b, c.a, 8), 16);
+
+        skvm::Color unpack_8888(skvm::I32 rgba) {
+            return {
+                unorm(8, extract(rgba,  0, splat(0xff))),
+                unorm(8, extract(rgba,  8, splat(0xff))),
+                unorm(8, extract(rgba, 16, splat(0xff))),
+                unorm(8, extract(rgba, 24, splat(0xff))),
+            };
         }
 
         skvm::Color unpack_565(skvm::I32 bgr) {
-            // N.B. kRGB_565_SkColorType is named confusingly;
-            //      blue is in the low bits and red the high.
-            skvm::I32 r = extract(bgr, 11, splat(0b011'111)),
-                      g = extract(bgr,  5, splat(0b111'111)),
-                      b = extract(bgr,  0, splat(0b011'111));
             return {
-                // Scale 565 up to 888.
-                bit_or(shl(r, 3), shr(r, 2)),
-                bit_or(shl(g, 2), shr(g, 4)),
-                bit_or(shl(b, 3), shr(b, 2)),
-                splat(0xff),
+                unorm(5, extract(bgr, 11, splat(0b011'111))),
+                unorm(6, extract(bgr,  5, splat(0b111'111))),
+                unorm(5, extract(bgr,  0, splat(0b011'111))),
+                splat(1.0f),
             };
-        }
-
-        skvm::I32 pack_565(skvm::Color c) {
-            skvm::I32 r = scale_unorm8(c.r, splat(31)),
-                      g = scale_unorm8(c.g, splat(63)),
-                      b = scale_unorm8(c.b, splat(31));
-            return pack(pack(b, g,5), r,11);
         }
 
         // If Builder can't build this program, CacheKey() sets *ok to false.
@@ -152,7 +146,7 @@ namespace {
                                              p.index())),
                           y = p.to_f32(p.uniform32(uniforms->ptr,
                                                    offsetof(BlitterUniforms, y)));
-                skvm::I32 r,g,b,a;
+                skvm::F32 r,g,b,a;
                 if (shader->program(&p,
                                     params.colorSpace.get(),
                                     uniforms,
@@ -209,14 +203,24 @@ namespace {
                                                          params.colorSpace.get(),
                                                          uniforms,
                                                          x,y, &src.r, &src.g, &src.b, &src.a));
-
             if (params.coverage == Coverage::Mask3D) {
-                skvm::I32 M = load8(varying<uint8_t>()),
-                          A = load8(varying<uint8_t>());
+                skvm::F32 M = unorm(8, load8(varying<uint8_t>())),
+                          A = unorm(8, load8(varying<uint8_t>()));
 
-                src.r = min(add(scale_unorm8(src.r, M), A), src.a);
-                src.g = min(add(scale_unorm8(src.g, M), A), src.a);
-                src.b = min(add(scale_unorm8(src.b, M), A), src.a);
+                src.r = min(mad(src.r, M, A), src.a);
+                src.g = min(mad(src.g, M, A), src.a);
+                src.b = min(mad(src.b, M, A), src.a);
+            }
+
+            // Normalized premul formats can surprisingly represent some out-of-gamut
+            // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
+            // working with normalized premul colors is not prepared to handle r,g,b > a.
+            // So we clamp the shader to gamut here before blending and coverage.
+            if (params.alphaType == kPremul_SkAlphaType
+                    && SkColorTypeIsNormalized(params.colorType)) {
+                src.r = min(max(splat(0.0f), src.r), src.a);
+                src.g = min(max(splat(0.0f), src.g), src.a);
+                src.b = min(max(splat(0.0f), src.b), src.a);
             }
 
             // There are several orderings here of when we load dst and coverage
@@ -231,12 +235,12 @@ namespace {
                     case Coverage::Full: return false;
 
                     case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              uniform8(uniform());
+                                              unorm(8, uniform8(uniform()));
                                               return true;
 
                     case Coverage::Mask3D:
                     case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
-                                           load8(varying<uint8_t>());
+                                           unorm(8, load8(varying<uint8_t>()));
                                            return true;
 
                     case Coverage::MaskLCD16:
@@ -258,10 +262,10 @@ namespace {
                                                    params.coverage == Coverage::MaskLCD16)) {
                 skvm::Color cov;
                 if (load_coverage(&cov)) {
-                    src.r = scale_unorm8(src.r, cov.r);
-                    src.g = scale_unorm8(src.g, cov.g);
-                    src.b = scale_unorm8(src.b, cov.b);
-                    src.a = scale_unorm8(src.a, cov.a);
+                    src.r = mul(src.r, cov.r);
+                    src.g = mul(src.g, cov.g);
+                    src.b = mul(src.b, cov.b);
+                    src.a = mul(src.a, cov.a);
                 }
                 lerp_coverage_post_blend = false;
             }
@@ -281,7 +285,7 @@ namespace {
             // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
             // optional, and sometimes helps cut a small amount of work in these programs.
             const bool force_opaque = true && params.alphaType == kOpaque_SkAlphaType;
-            if (force_opaque) { dst.a = splat(0xff); }
+            if (force_opaque) { dst.a = splat(1.0f); }
 
             // We'd need to premul dst after loading and unpremul before storing.
             if (params.alphaType == kUnpremul_SkAlphaType) { TODO; }
@@ -291,49 +295,66 @@ namespace {
             // Lerp with coverage post-blend if needed.
             skvm::Color cov;
             if (lerp_coverage_post_blend && load_coverage(&cov)) {
-                src.r = lerp_unorm8(dst.r, src.r, cov.r);
-                src.g = lerp_unorm8(dst.g, src.g, cov.g);
-                src.b = lerp_unorm8(dst.b, src.b, cov.b);
-                src.a = lerp_unorm8(dst.a, src.a, cov.a);
+                src.r = mad(sub(src.r, dst.r), cov.r, dst.r);
+                src.g = mad(sub(src.g, dst.g), cov.g, dst.g);
+                src.b = mad(sub(src.b, dst.b), cov.b, dst.b);
+                src.a = mad(sub(src.a, dst.a), cov.a, dst.a);
             }
 
-            if (force_opaque) { src.a = splat(0xff); }
+            // Clamp to fit destination color format if needed.
+            if (SkColorTypeIsNormalized(params.colorType)) {
+                src.r = min(max(splat(0.0f), src.r), splat(1.0f));
+                src.g = min(max(splat(0.0f), src.g), splat(1.0f));
+                src.b = min(max(splat(0.0f), src.b), splat(1.0f));
+                src.a = min(max(splat(0.0f), src.a), splat(1.0f));
+                // TODO: remove src.a clamp?  alpha shouldn't go outside [0,1].
+            }
+            if (force_opaque) { src.a = splat(1.0f); }
 
             // Store back to the destination.
             switch (params.colorType) {
                 default: SkUNREACHABLE;
 
-                case kRGB_565_SkColorType:   store16(dst_ptr, pack_565(src)); break;
+                case kRGB_565_SkColorType:
+                    store16(dst_ptr, pack(pack(unorm(5,src.b),
+                                               unorm(6,src.g), 5),
+                                               unorm(5,src.r),11));
+                    break;
 
                 case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  // fallthrough
-                case kRGBA_8888_SkColorType: store32(dst_ptr, pack_8888(src)); break;
+                case kRGBA_8888_SkColorType:
+                     store32(dst_ptr, pack(pack(unorm(8, src.r),
+                                                unorm(8, src.g), 8),
+                                           pack(unorm(8, src.b),
+                                                unorm(8, src.a), 8), 16));
+                     break;
             }
         #undef TODO
         }
     };
 
-    // Scale the output of another shader by an 8-bit alpha.
+    // Scale the output of another shader by alpha.
     struct AlphaShader : public SkShaderBase {
-        AlphaShader(sk_sp<SkShader> shader, uint8_t alpha)
+        AlphaShader(sk_sp<SkShader> shader, float alpha)
             : fShader(std::move(shader))
             , fAlpha(alpha) {}
 
         sk_sp<SkShader> fShader;
-        uint8_t         fAlpha;
+        float           fAlpha;
 
         bool onProgram(skvm::Builder* p,
                        SkColorSpace* dstCS,
                        skvm::Uniforms* uniforms,
                        skvm::F32 x, skvm::F32 y,
-                       skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override {
+                       skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
             if (as_SB(fShader)->program(p, dstCS,
                                         uniforms,
                                         x,y, r,g,b,a)) {
-                skvm::I32 A = p->uniform32(uniforms->push(fAlpha));
-                *r = p->scale_unorm8(*r, A);
-                *g = p->scale_unorm8(*g, A);
-                *b = p->scale_unorm8(*b, A);
-                *a = p->scale_unorm8(*a, A);
+                skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
+                *r = p->mul(*r, A);
+                *g = p->mul(*g, A);
+                *b = p->mul(*b, A);
+                *a = p->mul(*a, A);
                 return true;
             }
             return false;
@@ -353,8 +374,8 @@ namespace {
         sk_sp<SkShader> shader = paint.refShader();
         if (!shader) {
             shader = SkShaders::Color(paint.getColor4f(), nullptr);
-        } else if (paint.getAlpha() < 0xff) {
-            shader = sk_make_sp<AlphaShader>(std::move(shader), paint.getAlpha());
+        } else if (paint.getAlphaf() < 1.0f) {
+            shader = sk_make_sp<AlphaShader>(std::move(shader), paint.getAlphaf());
         }
 
         // The most common blend mode is SrcOver, and it can be strength-reduced
@@ -553,94 +574,89 @@ bool skvm::BlendModeSupported(SkBlendMode mode) {
     return mode <= SkBlendMode::kScreen;
 }
 
-skvm::Color skvm::BlendModeProgram(skvm::Builder* p, SkBlendMode mode, skvm::Color src,
-                                   skvm::Color dst) {
-    auto mma_d255 = [p](skvm::I32 a, skvm::I32 b, skvm::I32 c, skvm::I32 d) {
-        return p->div255(p->add(p->mul(a, b), p->mul(c, d)));
+skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
+                                   SkBlendMode mode, skvm::Color src, skvm::Color dst) {
+    auto mma = [&](skvm::F32 x, skvm::F32 y, skvm::F32 z, skvm::F32 w) {
+        return p->mad(x,y, p->mul(z,w));
     };
 
-    skvm::Color res;
+    auto inv = [&](skvm::F32 x) {
+        return p->sub(p->splat(1.0f), x);
+    };
+
     switch (mode) {
-        default: SkASSERT(false);
+        default: SkASSERT(false); /*but also, for safety, fallthrough*/
 
-        case SkBlendMode::kClear: {
-            auto zero = p->splat(0);
-            res = {zero, zero, zero, zero};
-        } break;
+        case SkBlendMode::kClear: return {
+            p->splat(0.0f),
+            p->splat(0.0f),
+            p->splat(0.0f),
+            p->splat(0.0f),
+        };
 
-        case SkBlendMode::kSrc:   res = src; break;
-        case SkBlendMode::kDst:   res = dst; break;
+        case SkBlendMode::kSrc: return src;
+        case SkBlendMode::kDst: return dst;
 
         case SkBlendMode::kDstOver: std::swap(src, dst); // fall-through
-        case SkBlendMode::kSrcOver: {
-            auto invA = p->sub(p->splat(255), src.a);
-            res.r = p->add(src.r, p->scale_unorm8(dst.r, invA));
-            res.g = p->add(src.g, p->scale_unorm8(dst.g, invA));
-            res.b = p->add(src.b, p->scale_unorm8(dst.b, invA));
-            res.a = p->add(src.a, p->scale_unorm8(dst.a, invA));
-        } break;
+        case SkBlendMode::kSrcOver: return {
+            p->mad(dst.r, inv(src.a), src.r),
+            p->mad(dst.g, inv(src.a), src.g),
+            p->mad(dst.b, inv(src.a), src.b),
+            p->mad(dst.a, inv(src.a), src.a),
+        };
 
         case SkBlendMode::kDstIn: std::swap(src, dst); // fall-through
-        case SkBlendMode::kSrcIn: {
-            res.r = p->scale_unorm8(src.r, dst.a);
-            res.g = p->scale_unorm8(src.g, dst.a);
-            res.b = p->scale_unorm8(src.b, dst.a);
-            res.a = p->scale_unorm8(src.a, dst.a);
-        } break;
+        case SkBlendMode::kSrcIn: return {
+            p->mul(src.r, dst.a),
+            p->mul(src.g, dst.a),
+            p->mul(src.b, dst.a),
+            p->mul(src.a, dst.a),
+        };
 
         case SkBlendMode::kDstOut: std::swap(src, dst); // fall-through
-        case SkBlendMode::kSrcOut: {
-            auto invA = p->sub(p->splat(255), dst.a);
-            res.r = p->scale_unorm8(src.r, invA);
-            res.g = p->scale_unorm8(src.g, invA);
-            res.b = p->scale_unorm8(src.b, invA);
-            res.a = p->scale_unorm8(src.a, invA);
-        } break;
+        case SkBlendMode::kSrcOut: return {
+            p->mul(src.r, inv(dst.a)),
+            p->mul(src.g, inv(dst.a)),
+            p->mul(src.b, inv(dst.a)),
+            p->mul(src.a, inv(dst.a)),
+        };
 
         case SkBlendMode::kDstATop: std::swap(src, dst); // fall-through
-        case SkBlendMode::kSrcATop: {
-            auto invsa = p->sub(p->splat(255), src.a);
-            res.r = mma_d255(src.r, dst.a, dst.r, invsa);
-            res.g = mma_d255(src.g, dst.a, dst.g, invsa);
-            res.b = mma_d255(src.b, dst.a, dst.b, invsa);
-            res.a = mma_d255(src.a, dst.a, dst.a, invsa);
-        } break;
+        case SkBlendMode::kSrcATop: return {
+            mma(src.r, dst.a,  dst.r, inv(src.a)),
+            mma(src.g, dst.a,  dst.g, inv(src.a)),
+            mma(src.b, dst.a,  dst.b, inv(src.a)),
+            mma(src.a, dst.a,  dst.a, inv(src.a)),
+        };
 
-        case SkBlendMode::kXor: {
-            auto invsa = p->sub(p->splat(255), src.a);
-            auto invda = p->sub(p->splat(255), dst.a);
-            res.r = mma_d255(src.r, invda, dst.r, invsa);
-            res.g = mma_d255(src.g, invda, dst.g, invsa);
-            res.b = mma_d255(src.b, invda, dst.b, invsa);
-            res.a = mma_d255(src.a, invda, dst.a, invsa);
-        } break;
+        case SkBlendMode::kXor: return {
+            mma(src.r, inv(dst.a),  dst.r, inv(src.a)),
+            mma(src.g, inv(dst.a),  dst.g, inv(src.a)),
+            mma(src.b, inv(dst.a),  dst.b, inv(src.a)),
+            mma(src.a, inv(dst.a),  dst.a, inv(src.a)),
+        };
 
-        case SkBlendMode::kPlus: {
-            auto max = p->splat(255);
-            res.r = p->min(p->add(src.r, dst.r), max);
-            res.g = p->min(p->add(src.g, dst.g), max);
-            res.b = p->min(p->add(src.b, dst.b), max);
-            res.a = p->min(p->add(src.a, dst.a), max);
-        } break;
+        case SkBlendMode::kPlus: return {
+            p->min(p->add(src.r, dst.r), p->splat(1.0f)),
+            p->min(p->add(src.g, dst.g), p->splat(1.0f)),
+            p->min(p->add(src.b, dst.b), p->splat(1.0f)),
+            p->min(p->add(src.a, dst.a), p->splat(1.0f)),
+        };
 
-        case SkBlendMode::kModulate: {
-            res.r = p->scale_unorm8(src.r, dst.r);
-            res.g = p->scale_unorm8(src.g, dst.g);
-            res.b = p->scale_unorm8(src.b, dst.b);
-            res.a = p->scale_unorm8(src.a, dst.a);
-        } break;
+        case SkBlendMode::kModulate: return {
+            p->mul(src.r, dst.r),
+            p->mul(src.g, dst.g),
+            p->mul(src.b, dst.b),
+            p->mul(src.a, dst.a),
+        };
 
-        case SkBlendMode::kScreen: {
-            auto add_sub = [p](skvm::I32 a, skvm::I32 b, skvm::I32 c) {
-                return p->sub(p->add(a, b), c);
-            };
-            res.r = add_sub(src.r, dst.r, p->scale_unorm8(src.r, dst.r));
-            res.g = add_sub(src.g, dst.g, p->scale_unorm8(src.g, dst.g));
-            res.b = add_sub(src.b, dst.b, p->scale_unorm8(src.b, dst.b));
-            res.a = add_sub(src.a, dst.a, p->scale_unorm8(src.a, dst.a));
-        } break;
+        case SkBlendMode::kScreen: return {
+            p->sub(p->add(src.r, dst.r), p->mul(src.r, dst.r)),
+            p->sub(p->add(src.g, dst.g), p->mul(src.g, dst.g)),
+            p->sub(p->add(src.b, dst.b), p->mul(src.b, dst.b)),
+            p->sub(p->add(src.a, dst.a), p->mul(src.a, dst.a)),
+        };
     }
-    return res;
 }
 
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,

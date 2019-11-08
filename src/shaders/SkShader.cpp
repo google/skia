@@ -196,10 +196,10 @@ bool SkShaderBase::program(skvm::Builder* p,
                            SkColorSpace* dstCS,
                            skvm::Uniforms* uniforms,
                            skvm::F32 x, skvm::F32 y,
-                           skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // Force opaque alpha for all opaque shaders.
     //
-    // This is primarily nice in that we usually have a 0xff constant splat
+    // This is primarily nice in that we usually have a 1.0f constant splat
     // somewhere in the program anyway, and this will let us drop the work the
     // shader notionally does to produce alpha, p->extract(...), etc. in favor
     // of that simple hoistable splat.
@@ -211,7 +211,7 @@ bool SkShaderBase::program(skvm::Builder* p,
     // SrcOver -> Src strength reduction.
     if (this->onProgram(p, dstCS, uniforms, x,y, r,g,b,a)) {
         if (this->isOpaque()) {
-            *a = p->splat(0xff);
+            *a = p->splat(1.0f);
         }
         return true;
     }

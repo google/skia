@@ -347,6 +347,7 @@ namespace skvm {
         I32 uniform8 (Arg ptr, int offset=0);
         I32 uniform16(Arg ptr, int offset=0);
         I32 uniform32(Arg ptr, int offset=0);
+        F32 uniformF (Arg ptr, int offset=0) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
         struct Uniform {
             Arg ptr;
@@ -355,6 +356,7 @@ namespace skvm {
         I32 uniform8 (Uniform u) { return this->uniform8 (u.ptr, u.offset); }
         I32 uniform16(Uniform u) { return this->uniform16(u.ptr, u.offset); }
         I32 uniform32(Uniform u) { return this->uniform32(u.ptr, u.offset); }
+        F32 uniformF (Uniform u) { return this->uniformF (u.ptr, u.offset); }
 
         // Load an immediate constant.
         I32 splat(int      n);
@@ -455,27 +457,9 @@ namespace skvm {
 
         uint32_t hash() const;
 
-        // (v+127)/255, for v in [0, 255*255].
-        skvm::I32 div255(skvm::I32 v) {
-            // This should be a bit-perfect version of (v+127)/255,
-            // implemented as (v + ((v+128)>>8) + 128)>>8.
-            // TODO: can do this better on ARM, in ~2 insns.
-            skvm::I32 v128 = add(v, splat(128));
-            return shr(add(v128, shr(v128, 8)), 8);
-        }
-
-        skvm::I32 scale_unorm8(skvm::I32 x, skvm::I32 y) {
-            return div255(mul(x,y));
-        }
-
-        skvm::I32 lerp_unorm8(skvm::I32 x, skvm::I32 y, skvm::I32 t) {
-            return div255(add(mul(x, sub(splat(255), t)),
-                              mul(y,                 t )));
-        }
-
         // TODO: native min/max ops
-        skvm::I32 min(skvm::I32 x, skvm::I32 y) { return select(lt(x,y), x,y); }
-        skvm::I32 max(skvm::I32 x, skvm::I32 y) { return select(gt(x,y), x,y); }
+        skvm::F32 min(skvm::F32 x, skvm::F32 y) { return select(lt(x,y), x,y); }
+        skvm::F32 max(skvm::F32 x, skvm::F32 y) { return select(gt(x,y), x,y); }
 
     private:
         struct InstructionHash {

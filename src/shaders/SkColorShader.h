@@ -48,7 +48,7 @@ private:
                    SkColorSpace* dstCS,
                    skvm::Uniforms* uniforms,
                    skvm::F32 x, skvm::F32 y,
-                   skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
+                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override;
 
     SkColor fColor;
 };
@@ -74,7 +74,7 @@ private:
                    SkColorSpace* dstCS,
                    skvm::Uniforms* uniforms,
                    skvm::F32 x, skvm::F32 y,
-                   skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const override;
+                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override;
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;

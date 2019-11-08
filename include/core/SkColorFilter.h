@@ -24,8 +24,6 @@ class SkString;
 
 namespace skvm {
     class Builder;
-    struct Arg;
-    struct I32;
     struct F32;
     struct Uniforms;
 }
@@ -67,7 +65,7 @@ public:
     virtual bool program(skvm::Builder*,
                          SkColorSpace* dstCS,
                          skvm::Uniforms* uniforms,
-                         skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const;
+                         skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
