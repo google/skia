@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5a4d0b4b_883aa0a0",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-08T14:36:50Z",
+      "side": 1,
+      "message": "Flutter\u0027s animated image API [1] has getters for both repetition count and frames, but only exposes a frame iterator. \n\nIn C++ land, under the hood, they take encoded bytes, plug them into SkCodec and then ask SkCodec how many frames the image has to see if they need to wrap it as a SingleFrameImage or a MultiFrameImage before passing it off to the client. For flutter-web, they want to do the same trick.\n\nI added the new methods to SkAnimatedImage, WDYT?\n\n[1] https://api.flutter.dev/flutter/dart-ui/Codec-class.html",
+      "parentUuid": "38913d89_23408d2f",
+      "range": {
+        "startLine": 851,
+        "startChar": 0,
+        "endLine": 853,
+        "endChar": 11
+      },
+      "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9aee7b90_f257c79e",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32dde653_8bcbe78a",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-08T14:36:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9aee7b90_f257c79e",
+      "range": {
+        "startLine": 856,
+        "startChar": 19,
+        "endLine": 856,
+        "endChar": 64
+      },
+      "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7633d196_e70469cd",
+        "filename": "modules/canvaskit/gpu.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-08T14:36:50Z",
+      "side": 1,
+      "message": "I can move that to a different CL.",
+      "parentUuid": "5486e78a_d3fba514",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 9
+      },
+      "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "644e1aff_b34336d6",
         "filename": "modules/canvaskit/tests/core.spec.js",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17b8613c_b4a7621a",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-08T14:36:50Z",
+      "side": 1,
+      "message": "Oops, that was left over from testing locally (It\u0027s not a javascript thing, but a feature of the test harness. If you change it to fit, it Forces the test to run (so only that test runs).  Removed.",
+      "parentUuid": "644e1aff_b34336d6",
+      "range": {
+        "startLine": 150,
+        "startChar": 4,
+        "endLine": 150,
+        "endChar": 7
+      },
+      "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
