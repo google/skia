@@ -93,7 +93,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
                         std::move(appliedClip));
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
-    GrProgramInfo programInfo(state->drawOpArgs().numSamples(),
+    GrProgramInfo programInfo(state->drawOpArgs().numRasterSamples(),
                               state->drawOpArgs().origin(),
                               pipeline,
                               *pathProc,
