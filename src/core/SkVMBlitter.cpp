@@ -112,7 +112,7 @@ namespace {
         }
         skvm::I32 unorm(int bits, skvm::F32 x) {
             float limit = (1<<bits)-1.0f;
-            return trunc(mad(x, splat(limit), splat(0.5f)));
+            return round(mul(x, splat(limit)));
         }
 
 
