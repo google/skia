@@ -909,9 +909,9 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
         auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                           : GrTextureOp::Saturate::kNo;
-        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, saturate, aaType, constraint,
-                                       viewMatrix, std::move(texXform));
-        this->addDrawOp(clip, std::move(op));
+        GrTextureOp::CreateTextureSetOps(this, clip, fContext, set, cnt, filter, saturate, aaType,
+                                         constraint, viewMatrix, std::move(texXform));
+        //this->addDrawOp(clip, std::move(op));
     }
 }
 

@@ -20,7 +20,8 @@ class GrTextureProxy;
 struct SkRect;
 class SkMatrix;
 
-namespace GrTextureOp {
+class GrTextureOp {
+public:
 
 /**
  * Controls whether saturate() is called after the texture is color-converted to ensure all
@@ -39,30 +40,35 @@ enum class Saturate : bool { kNo = false, kYes = true };
  * deconstructed into the texture, filter, modulating color, and blend mode. When blend mode is
  * src over, this will return a GrFillRectOp with a paint that samples the proxy.
  */
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                               GrSurfaceProxyView,
-                               GrColorType srcColorType,
-                               sk_sp<GrColorSpaceXform>,
-                               GrSamplerState::Filter,
-                               const SkPMColor4f&,
-                               Saturate,
-                               SkBlendMode,
-                               GrAAType,
-                               GrQuadAAFlags,
-                               const GrQuad& deviceQuad,
-                               const GrQuad& localQuad,
-                               const SkRect* domain = nullptr);
+static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
+                                      GrSurfaceProxyView,
+                                      GrColorType srcColorType,
+                                      sk_sp<GrColorSpaceXform>,
+                                      GrSamplerState::Filter,
+                                      const SkPMColor4f&,
+                                      Saturate,
+                                      SkBlendMode,
+                                     GrAAType,
+                                      GrQuadAAFlags,
+                                      const GrQuad& deviceQuad,
+                                      const GrQuad& localQuad,
+                                      const SkRect* domain = nullptr);
 
 // Unlike the single-proxy factory, this only supports src-over blending.
-std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext*,
-                                  const GrRenderTargetContext::TextureSetEntry[],
-                                  int cnt,
-                                  GrSamplerState::Filter,
-                                  Saturate,
-                                  GrAAType,
-                                  SkCanvas::SrcRectConstraint,
-                                  const SkMatrix& viewMatrix,
-                                  sk_sp<GrColorSpaceXform> textureXform);
+static void CreateTextureSetOps(GrRenderTargetContext*,
+                                const GrClip& clip,
+                                GrRecordingContext*,
+                                const GrRenderTargetContext::TextureSetEntry[],
+                                int cnt,
+                                GrSamplerState::Filter,
+                                Saturate,
+                               GrAAType,
+                                SkCanvas::SrcRectConstraint,
+                                const SkMatrix& viewMatrix,
+                                sk_sp<GrColorSpaceXform> textureXform);
 
-}
+private:
+    class BatchSizeLimiter;
+};
+
 #endif  // GrTextureOp_DEFINED
