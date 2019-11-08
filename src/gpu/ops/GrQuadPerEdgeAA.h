@@ -151,6 +151,10 @@ namespace GrQuadPerEdgeAA {
     // It will, correctly, return nullptr if the indexBufferOption is kTriStrips.
     sk_sp<const GrBuffer> GetIndexBuffer(GrMeshDrawOp::Target*, IndexBufferOption);
 
+#ifdef SK_DEBUG
+    int QuadLimit(IndexBufferOption);
+#endif
+
     // This method will configure the vertex and index data of the provided 'mesh' to comply
     // with the indexing method specified in the vertexSpec. It is up to the calling code
     // to allocate and fill in the vertex data and acquire the correct indexBuffer if it is needed.
