@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "b3cf5928_1f555856",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-08T14:45:45Z",
+      "side": 1,
+      "message": "Just to make sure I understand, they have a public API we need to support? From your description, it sounds like what they really want is something like:\n\n    boolean isAnimated() const { return fFrameCount \u003e 1; }",
+      "parentUuid": "5a4d0b4b_883aa0a0",
+      "range": {
+        "startLine": 851,
+        "startChar": 0,
+        "endLine": 853,
+        "endChar": 11
+      },
+      "revId": "7108a64b74a5f62587aa8eca0358dd6f2a04c848",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9aee7b90_f257c79e",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 3

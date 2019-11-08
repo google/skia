@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf4944dd_6f7940b1",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-08T14:45:45Z",
+      "side": 1,
+      "message": "nit: getFrameCount()",
+      "range": {
+        "startLine": 11,
+        "startChar": 27,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "0845c57d19b484545bc81c7b790c6ef2033cc265",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
