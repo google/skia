@@ -13,6 +13,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include "third_party/icu/SkLoadICU.h"
+
 #define VeryLongCanvasWidth 1000000
 #define TestCanvasWidth 1000
 #define TestCanvasHeight 600
@@ -48,6 +50,10 @@ public:
         std::vector<SkString> fonts;
         SkOSFile::Iter iter(fResourceDir.c_str());
 
+        if (!SkLoadICU()) {
+            SkDebugf("ICU not loaded, skipping all the tests\n");
+            return;
+        }
         SkString path;
         while (iter.next(&path)) {
             if (path.endsWith("Roboto-Italic.ttf")) {
@@ -57,6 +63,7 @@ public:
         }
 
         if (!fFontsFound) {
+            SkDebugf("Fonts not found, skipping all the tests\n");
             return;
         }
         // Only register fonts if we have to
@@ -72,8 +79,6 @@ public:
             this->setAssetFontManager(std::move(fFontProvider));
         }
         this->disableFontFallback();
-
-        if (!fFontsFound) SkDebugf("Fonts not found, skipping all the tests\n");
     }
 
     ~ResourceFontCollection() = default;
