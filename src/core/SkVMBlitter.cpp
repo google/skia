@@ -225,6 +225,9 @@ namespace {
                 src.g = min(max(splat(0.0f), src.g), src.a);
                 src.b = min(max(splat(0.0f), src.b), src.a);
 
+                assert_true(gte(src.a, splat(0.0f)));
+                assert_true(lte(src.a, splat(1.0f)));
+
                 // Knowing that we're normalizing here and that blending and coverage
                 // won't affect that when the destination is normalized, we can avoid
                 // avoid a redundant clamp just before storing.
@@ -314,7 +317,9 @@ namespace {
                 src.r = min(max(splat(0.0f), src.r), splat(1.0f));
                 src.g = min(max(splat(0.0f), src.g), splat(1.0f));
                 src.b = min(max(splat(0.0f), src.b), splat(1.0f));
-                // src.a should already be in [0,1].
+
+                assert_true(gte(src.a, splat(0.0f)));
+                assert_true(lte(src.a, splat(1.0f)));
             }
             if (force_opaque) { src.a = splat(1.0f); }
 
