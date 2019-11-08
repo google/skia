@@ -829,6 +829,14 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vminps(A::ymm0, A::ymm1, A::ymm2);
+        a.vmaxps(A::ymm0, A::ymm1, A::ymm2);
+    },{
+        0xc5,0xf4,0x5d,0xc2,
+        0xc5,0xf4,0x5f,0xc2,
+    });
+
+    test_asm(r, [&](A& a) {
         a.vpblendvb(A::ymm0, A::ymm1, A::ymm2, A::ymm3);
     },{
         0xc4,0xe3,0x75, 0x4c, 0xc2, 0x30,
@@ -1063,6 +1071,8 @@ DEF_TEST(SkVM_Assembler, r) {
         a.fsub4s(A::v4, A::v3, A::v1);
         a.fmul4s(A::v4, A::v3, A::v1);
         a.fdiv4s(A::v4, A::v3, A::v1);
+        a.fmin4s(A::v4, A::v3, A::v1);
+        a.fmax4s(A::v4, A::v3, A::v1);
 
         a.fmla4s(A::v4, A::v3, A::v1);
 
@@ -1091,6 +1101,8 @@ DEF_TEST(SkVM_Assembler, r) {
         0x64,0xd4,0xa1,0x4e,
         0x64,0xdc,0x21,0x6e,
         0x64,0xfc,0x21,0x6e,
+        0x64,0xf4,0xa1,0x4e,
+        0x64,0xf4,0x21,0x4e,
 
         0x64,0xcc,0x21,0x4e,
 

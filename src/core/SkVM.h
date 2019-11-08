@@ -69,7 +69,7 @@ namespace skvm {
         DstEqXOpY vpand, vpor, vpxor, vpandn,
                   vpaddd, vpsubd, vpmulld,
                           vpsubw, vpmullw,
-                  vaddps, vsubps, vmulps, vdivps,
+                  vaddps, vsubps, vmulps, vdivps, vminps, vmaxps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb,
                   vpcmpeqd, vpcmpgtd;
@@ -144,7 +144,7 @@ namespace skvm {
                add4s,  sub4s,  mul4s,
               cmeq4s, cmgt4s,
                        sub8h,  mul8h,
-              fadd4s, fsub4s, fmul4s, fdiv4s,
+              fadd4s, fsub4s, fmul4s, fdiv4s, fmin4s, fmax4s,
               fcmeq4s, fcmgt4s, fcmge4s,
               tbl;
 
@@ -262,6 +262,8 @@ namespace skvm {
         sub_f32, sub_i32, sub_i16x2,
         mul_f32, mul_i32, mul_i16x2,
         div_f32,
+        min_f32,
+        max_f32,
         mad_f32,
                  shl_i32, shl_i16x2,
                  shr_i32, shr_i16x2,
@@ -368,6 +370,8 @@ namespace skvm {
         F32 sub(F32 x, F32 y);
         F32 mul(F32 x, F32 y);
         F32 div(F32 x, F32 y);
+        F32 min(F32 x, F32 y);
+        F32 max(F32 x, F32 y);
         F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
 
         I32 eq (F32 x, F32 y);
@@ -456,10 +460,6 @@ namespace skvm {
         void dump(SkWStream* = nullptr) const;
 
         uint32_t hash() const;
-
-        // TODO: native min/max ops
-        skvm::F32 min(skvm::F32 x, skvm::F32 y) { return select(lt(x,y), x,y); }
-        skvm::F32 max(skvm::F32 x, skvm::F32 y) { return select(gt(x,y), x,y); }
 
     private:
         struct InstructionHash {
