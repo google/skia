@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e2510f7_9c4adc53",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-08T18:54:23Z",
+      "side": 1,
+      "message": "thank you. I find this formatting/arrangement much easier to parse",
+      "range": {
+        "startLine": 91,
+        "startChar": 25,
+        "endLine": 91,
+        "endChar": 26
+      },
+      "revId": "b494d5069d81d15139e4a4a373fbe0e7c7db21a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61992266_125dfcf2",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-08T18:54:23Z",
+      "side": 1,
+      "message": "you are the master of minimizing code w/o sacrificing clarity",
+      "range": {
+        "startLine": 609,
+        "startChar": 34,
+        "endLine": 609,
+        "endChar": 40
+      },
+      "revId": "b494d5069d81d15139e4a4a373fbe0e7c7db21a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
