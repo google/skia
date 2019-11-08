@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c4291a7_7989b0d0",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 37
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-08T15:36:59Z",
+      "side": 1,
+      "message": "Don\u0027t see where this is being used. Remove?",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 75
+      },
+      "revId": "ab487b7a24245d631787c95fe40866cc4c38551a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
