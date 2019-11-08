@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36a6541a_b476a5ef",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-08T17:35:44Z",
+      "side": 1,
+      "message": "Seems like it to me... I\u0027d think it was a bug somewhere else if A got out of range.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 0
+      },
+      "revId": "973721fd09601cb555cbf84b57f2298c25497455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94c3a875_3500c929",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-08T17:35:44Z",
+      "side": 1,
+      "message": "Brian O would definitely know better than me. I grep\u0027ed around and didn\u0027t come up with anything that looks like it needs updating.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 47
+      },
+      "revId": "973721fd09601cb555cbf84b57f2298c25497455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
