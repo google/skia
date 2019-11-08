@@ -13,7 +13,7 @@ A8 over A8
 ↑ v10 = splat 437F0000 (255)
 ↑ v11 = splat 3F000000 (0.5)
   v12 = mad_f32 v9 v10 v11
-  v13 = to_i32 v12
+  v13 = trunc v12
   store8 arg(1) v13
 
 7 registers, 15 instructions:
@@ -31,7 +31,7 @@ loop:
     r6 = sub_f32 r1 r4
     r4 = mad_f32 r5 r6 r4
     r4 = mad_f32 r4 r2 r3
-    r4 = to_i32 r4
+    r4 = trunc r4
     store8 arg(1) r4
 
 A8 over G8
@@ -55,7 +55,7 @@ A8 over G8
 ↑ v16 = splat 437F0000 (255)
 ↑ v17 = splat 3F000000 (0.5)
   v18 = mad_f32 v15 v16 v17
-  v19 = to_i32 v18
+  v19 = trunc v18
   store8 arg(1) v19
 
 9 registers, 21 instructions:
@@ -79,7 +79,7 @@ loop:
     r7 = mad_f32 r8 r3 r7
     r7 = mad_f32 r8 r2 r7
     r7 = mad_f32 r7 r5 r6
-    r7 = to_i32 r7
+    r7 = trunc r7
     store8 arg(1) r7
 
 A8 over RGBA_8888
@@ -99,26 +99,26 @@ A8 over RGBA_8888
 ↑ v12 = splat 437F0000 (255)
 ↑ v13 = splat 3F000000 (0.5)
   v14 = mad_f32 v11 v12 v13
-  v15 = to_i32 v14
+  v15 = trunc v14
   v16 = extract v1 8 v2
   v17 = to_f32 v16
   v18 = mul_f32 v0 v17
   v19 = mul_f32 v18 v10
   v20 = mad_f32 v19 v12 v13
-  v21 = to_i32 v20
+  v21 = trunc v20
   v22 = pack v15 v21 8
   v23 = extract v1 16 v2
   v24 = to_f32 v23
   v25 = mul_f32 v0 v24
   v26 = mul_f32 v25 v10
   v27 = mad_f32 v26 v12 v13
-  v28 = to_i32 v27
+  v28 = trunc v27
   v29 = extract v1 24 v2
   v30 = to_f32 v29
   v31 = mul_f32 v0 v30
   v32 = mad_f32 v31 v10 v8
   v33 = mad_f32 v32 v12 v13
-  v34 = to_i32 v33
+  v34 = trunc v33
   v35 = pack v28 v34 8
   v36 = pack v22 v35 16
   store32 arg(1) v36
@@ -140,26 +140,26 @@ loop:
     r8 = sub_f32 r2 r7
     r6 = mul_f32 r6 r8
     r6 = mad_f32 r6 r3 r4
-    r6 = to_i32 r6
+    r6 = trunc r6
     r9 = extract r5 8 r1
     r9 = to_f32 r9
     r9 = mul_f32 r0 r9
     r9 = mul_f32 r9 r8
     r9 = mad_f32 r9 r3 r4
-    r9 = to_i32 r9
+    r9 = trunc r9
     r9 = pack r6 r9 8
     r6 = extract r5 16 r1
     r6 = to_f32 r6
     r6 = mul_f32 r0 r6
     r6 = mul_f32 r6 r8
     r6 = mad_f32 r6 r3 r4
-    r6 = to_i32 r6
+    r6 = trunc r6
     r5 = extract r5 24 r1
     r5 = to_f32 r5
     r5 = mul_f32 r0 r5
     r7 = mad_f32 r5 r8 r7
     r7 = mad_f32 r7 r3 r4
-    r7 = to_i32 r7
+    r7 = trunc r7
     r7 = pack r6 r7 8
     r7 = pack r9 r7 16
     store32 arg(1) r7
@@ -176,7 +176,7 @@ G8 over A8
 ↑ v7 = splat 437F0000 (255)
 ↑ v8 = splat 3F000000 (0.5)
   v9 = mad_f32 v6 v7 v8
-  v10 = to_i32 v9
+  v10 = trunc v9
   store8 arg(1) v10
 
 6 registers, 12 instructions:
@@ -191,7 +191,7 @@ loop:
     r5 = mul_f32 r1 r5
     r5 = mad_f32 r5 r2 r0
     r5 = mad_f32 r5 r3 r4
-    r5 = to_i32 r5
+    r5 = trunc r5
     store8 arg(1) r5
 
 G8 over G8
@@ -215,7 +215,7 @@ G8 over G8
 ↑ v16 = splat 437F0000 (255)
 ↑ v17 = splat 3F000000 (0.5)
   v18 = mad_f32 v15 v16 v17
-  v19 = to_i32 v18
+  v19 = trunc v18
   store8 arg(1) v19
 
 9 registers, 21 instructions:
@@ -239,7 +239,7 @@ loop:
     r8 = mad_f32 r7 r3 r8
     r8 = mad_f32 r7 r2 r8
     r8 = mad_f32 r8 r5 r6
-    r8 = to_i32 r8
+    r8 = trunc r8
     store8 arg(1) r8
 
 G8 over RGBA_8888
@@ -259,26 +259,26 @@ G8 over RGBA_8888
 ↑ v12 = splat 437F0000 (255)
 ↑ v13 = splat 3F000000 (0.5)
   v14 = mad_f32 v11 v12 v13
-  v15 = to_i32 v14
+  v15 = trunc v14
   v16 = extract v4 8 v5
   v17 = to_f32 v16
   v18 = mul_f32 v0 v17
   v19 = mad_f32 v18 v10 v3
   v20 = mad_f32 v19 v12 v13
-  v21 = to_i32 v20
+  v21 = trunc v20
   v22 = pack v15 v21 8
   v23 = extract v4 16 v5
   v24 = to_f32 v23
   v25 = mul_f32 v0 v24
   v26 = mad_f32 v25 v10 v3
   v27 = mad_f32 v26 v12 v13
-  v28 = to_i32 v27
+  v28 = trunc v27
   v29 = extract v4 24 v5
   v30 = to_f32 v29
   v31 = mul_f32 v0 v30
   v32 = mad_f32 v31 v10 v9
   v33 = mad_f32 v32 v12 v13
-  v34 = to_i32 v33
+  v34 = trunc v33
   v35 = pack v28 v34 8
   v36 = pack v22 v35 16
   store32 arg(1) v36
@@ -300,26 +300,26 @@ loop:
     r8 = mul_f32 r0 r8
     r8 = mad_f32 r8 r3 r6
     r8 = mad_f32 r8 r4 r5
-    r8 = to_i32 r8
+    r8 = trunc r8
     r9 = extract r7 8 r1
     r9 = to_f32 r9
     r9 = mul_f32 r0 r9
     r9 = mad_f32 r9 r3 r6
     r9 = mad_f32 r9 r4 r5
-    r9 = to_i32 r9
+    r9 = trunc r9
     r9 = pack r8 r9 8
     r8 = extract r7 16 r1
     r8 = to_f32 r8
     r8 = mul_f32 r0 r8
     r6 = mad_f32 r8 r3 r6
     r6 = mad_f32 r6 r4 r5
-    r6 = to_i32 r6
+    r6 = trunc r6
     r7 = extract r7 24 r1
     r7 = to_f32 r7
     r7 = mul_f32 r0 r7
     r7 = mad_f32 r7 r3 r2
     r7 = mad_f32 r7 r4 r5
-    r7 = to_i32 r7
+    r7 = trunc r7
     r7 = pack r6 r7 8
     r7 = pack r9 r7 16
     store32 arg(1) r7
@@ -341,7 +341,7 @@ RGBA_8888 over A8
 ↑ v12 = splat 437F0000 (255)
 ↑ v13 = splat 3F000000 (0.5)
   v14 = mad_f32 v11 v12 v13
-  v15 = to_i32 v14
+  v15 = trunc v14
   store8 arg(1) v15
 
 8 registers, 17 instructions:
@@ -361,7 +361,7 @@ loop:
     r7 = sub_f32 r2 r5
     r5 = mad_f32 r6 r7 r5
     r5 = mad_f32 r5 r3 r4
-    r5 = to_i32 r5
+    r5 = trunc r5
     store8 arg(1) r5
 
 RGBA_8888 over G8
@@ -398,7 +398,7 @@ RGBA_8888 over G8
 ↑ v29 = splat 437F0000 (255)
 ↑ v30 = splat 3F000000 (0.5)
   v31 = mad_f32 v28 v29 v30
-  v32 = to_i32 v31
+  v32 = trunc v31
   store8 arg(1) v32
 
 13 registers, 34 instructions:
@@ -435,7 +435,7 @@ loop:
     r8 = mad_f32 r12 r4 r8
     r8 = mad_f32 r9 r3 r8
     r8 = mad_f32 r8 r6 r7
-    r8 = to_i32 r8
+    r8 = trunc r8
     store8 arg(1) r8
 
 RGBA_8888 over RGBA_8888
@@ -459,7 +459,7 @@ RGBA_8888 over RGBA_8888
 ↑ v16 = splat 437F0000 (255)
 ↑ v17 = splat 3F000000 (0.5)
   v18 = mad_f32 v15 v16 v17
-  v19 = to_i32 v18
+  v19 = trunc v18
   v20 = extract v1 8 v2
   v21 = to_f32 v20
   v22 = mul_f32 v0 v21
@@ -468,7 +468,7 @@ RGBA_8888 over RGBA_8888
   v25 = mul_f32 v0 v24
   v26 = mad_f32 v25 v14 v22
   v27 = mad_f32 v26 v16 v17
-  v28 = to_i32 v27
+  v28 = trunc v27
   v29 = pack v19 v28 8
   v30 = extract v1 16 v2
   v31 = to_f32 v30
@@ -478,13 +478,13 @@ RGBA_8888 over RGBA_8888
   v35 = mul_f32 v0 v34
   v36 = mad_f32 v35 v14 v32
   v37 = mad_f32 v36 v16 v17
-  v38 = to_i32 v37
+  v38 = trunc v37
   v39 = extract v6 24 v2
   v40 = to_f32 v39
   v41 = mul_f32 v0 v40
   v42 = mad_f32 v41 v14 v12
   v43 = mad_f32 v42 v16 v17
-  v44 = to_i32 v43
+  v44 = trunc v43
   v45 = pack v38 v44 8
   v46 = pack v29 v45 16
   store32 arg(1) v46
@@ -510,7 +510,7 @@ loop:
     r10 = sub_f32 r2 r9
     r6 = mad_f32 r8 r10 r6
     r6 = mad_f32 r6 r3 r4
-    r6 = to_i32 r6
+    r6 = trunc r6
     r8 = extract r5 8 r1
     r8 = to_f32 r8
     r8 = mul_f32 r0 r8
@@ -519,7 +519,7 @@ loop:
     r11 = mul_f32 r0 r11
     r8 = mad_f32 r11 r10 r8
     r8 = mad_f32 r8 r3 r4
-    r8 = to_i32 r8
+    r8 = trunc r8
     r8 = pack r6 r8 8
     r5 = extract r5 16 r1
     r5 = to_f32 r5
@@ -529,13 +529,13 @@ loop:
     r6 = mul_f32 r0 r6
     r5 = mad_f32 r6 r10 r5
     r5 = mad_f32 r5 r3 r4
-    r5 = to_i32 r5
+    r5 = trunc r5
     r7 = extract r7 24 r1
     r7 = to_f32 r7
     r7 = mul_f32 r0 r7
     r9 = mad_f32 r7 r10 r9
     r9 = mad_f32 r9 r3 r4
-    r9 = to_i32 r9
+    r9 = trunc r9
     r9 = pack r5 r9 8
     r9 = pack r8 r9 16
     store32 arg(1) r9

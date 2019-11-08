@@ -87,7 +87,7 @@ namespace skvm {
                     vpermq;
 
         using DstEqOpX = void(Ymm dst, Ymm x);
-        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq;
+        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq, vcvtps2dq;
 
         void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
 
@@ -165,12 +165,11 @@ namespace skvm {
         DOpN not16b,    // d = ~n
              scvtf4s,   // int -> float
              fcvtzs4s,  // truncate float -> int
+             fcvtns4s,  // round float -> int
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
              uxtlb2h,   // u8 -> u16
              uxtlh2s;   // u16 -> u32
-
-        // TODO: both these platforms support rounding float->int (vcvtps2dq, fcvtns.4s)... use?
 
         void ret (X);
         void add (X d, X n, int imm12);
@@ -269,7 +268,7 @@ namespace skvm {
                  shr_i32, shr_i16x2,
                  sra_i32, sra_i16x2,
 
-         to_i32,  to_f32,
+         trunc, round,  to_f32,
 
          eq_f32,  eq_i32,  eq_i16x2,
         neq_f32, neq_i32, neq_i16x2,
@@ -381,7 +380,8 @@ namespace skvm {
         I32 gt (F32 x, F32 y);
         I32 gte(F32 x, F32 y);
 
-        I32 to_i32(F32 x);
+        I32 trunc(F32 x);
+        I32 round(F32 x);
         I32 bit_cast(F32 x) { return {x.id}; }
 
         // int math, comparisons, etc.

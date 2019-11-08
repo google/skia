@@ -60,7 +60,7 @@ SrcoverBuilder_F32::SrcoverBuilder_F32(Fmt srcFmt, Fmt dstFmt) {
     auto f32_to_byte = [&](skvm::F32 f32) {
         skvm::F32 _255 = splat(255.0f),
                   _0_5 = splat(0.5f);
-        return to_i32(mad(f32, _255, _0_5));
+        return trunc(mad(f32, _255, _0_5));
     };
     switch (dstFmt) {
         case Fmt::A8: {
