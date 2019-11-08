@@ -22,6 +22,30 @@
       "revId": "46a4326eb26c61b9d0301ac7862d857f205d6564",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96d95566_d6fb9e53",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-08T16:27:33Z",
+      "side": 1,
+      "message": "I think I prefer it the way it is. A while ago we made a push to remove the notion of \"numColorSamples\", and switched to using a simple sample count for the render target, which means color. We are moving more and more towards separating stencil from the render target as well, so in my mind, \"numSamples\" makes sense to refer to the color buffer. I see \"numSamples\" as an intrinsic part of the render target, whereas a mixed sampled stencil buffer is just something that might be attached sometimes.\n\nWe can\u0027t remove this getter though because it is used quite extensively.",
+      "parentUuid": "83652f88_ba07133e",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "46a4326eb26c61b9d0301ac7862d857f205d6564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
