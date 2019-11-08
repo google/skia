@@ -45,10 +45,7 @@ public:
     }
 
     /**
-     * Returns the number of stencil samples required by this proxy.
-     * NOTE: Once instantiated, the actual render target may have more samples, but it is guaranteed
-     * to have at least this many. (After a multisample stencil buffer has been attached to a render
-     * target, we never "downgrade" it to one with fewer samples.)
+     * Returns the number of stencil samples this proxy will use, or 0 if it does not use stencil.
      */
     int numStencilSamples() const { return fNumStencilSamples; }
 
