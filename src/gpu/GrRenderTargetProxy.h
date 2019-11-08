@@ -54,6 +54,10 @@ public:
      */
     int numSamples() const { return fSampleCnt; }
 
+    // Returns the number of samples the rasterizer will compute when rendering to this proxy. This
+    // number may be larger than the proxy's sample count if we have mixed samples.
+    int numRasterSamples() const { return std::max(fSampleCnt, fNumStencilSamples); }
+
     int maxWindowRectangles(const GrCaps& caps) const;
 
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
