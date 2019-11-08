@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Use newer version of Freetype2 (Tracking Skia's DEPS now).
  - Use newer versions of libpng and zlib (Tracking Skia's DEPS now).
 
+### Fixed
+ - null dereference when sometimes falling back to CPU.
+
 ## [0.8.0] - 2019-10-21
 
 ### Added
