@@ -12,6 +12,8 @@
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tests/Test.h"
 
+#ifdef SK_GL
+
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInfo) {
 #define GL(F) GR_GL_CALL(ctxInfo.glContext()->gl(), F)
 
@@ -164,3 +166,5 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
 
 #undef GL
 }
+
+#endif  // SK_GL
