@@ -518,6 +518,7 @@ DM_SRCS_ALL = struct(
         "gm/video_decoder.cpp",
         "tests/FontMgrAndroidParserTest.cpp",  # Android-only.
         "tests/FontMgrFontConfigTest.cpp",  # FontConfig-only.
+        "tests/SkParagraphTest.cpp",  # Skipping tests for now.
         "tests/skia_test.cpp",  # Old main.
         "tools/gpu/atlastext/*",
         "tools/gpu/dawn/*",
