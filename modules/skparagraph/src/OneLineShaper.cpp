@@ -471,7 +471,10 @@ bool OneLineShaper::shape() {
 
         // Set up the shaper and shape the next
         auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
-        SkASSERT_RELEASE(shaper != nullptr);
+        if (shaper == nullptr) {
+            // For instance, loadICU does not work. We have to stop the process
+            return false;
+        }
 
         iterateThroughFontStyles(styleSpan,
                 [this, &shaper, textDirection, limitlessWidth, &advanceX](Block block) {
