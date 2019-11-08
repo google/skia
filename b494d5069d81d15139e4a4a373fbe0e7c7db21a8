@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0f2377ca_8abba796",
+        "filename": "src/core/SkColorFilter_Matrix.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-08T19:03:50Z",
+      "side": 1,
+      "message": "Turns out it\u0027s actually kind of important here too, given that *a is now any arbitrary float.\n\nThe smallest we used to get was either 0.0f or 1/255.0f, but *a could now be some value between those, and there are non-zero floats where 1.0f/*a is infinite, like denorms.  So checking 1/*a for for infinite is actually the more robust approach.",
+      "parentUuid": "0e2510f7_9c4adc53",
+      "range": {
+        "startLine": 91,
+        "startChar": 25,
+        "endLine": 91,
+        "endChar": 26
+      },
+      "revId": "b494d5069d81d15139e4a4a373fbe0e7c7db21a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "61992266_125dfcf2",
         "filename": "src/core/SkVMBlitter.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-11-08T18:54:23Z",
       "side": 1,
       "message": "you are the master of minimizing code w/o sacrificing clarity",
+      "range": {
+        "startLine": 609,
+        "startChar": 34,
+        "endLine": 609,
+        "endChar": 40
+      },
+      "revId": "b494d5069d81d15139e4a4a373fbe0e7c7db21a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57ab6fbd_835fd268",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-08T19:03:50Z",
+      "side": 1,
+      "message": ":)  I have a healthy suspicion of variables that just mean \"the thing I\u0027m going to return\".  :P",
+      "parentUuid": "61992266_125dfcf2",
       "range": {
         "startLine": 609,
         "startChar": 34,
