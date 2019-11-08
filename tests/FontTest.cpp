@@ -30,18 +30,16 @@ static SkFont serialize_deserialize(const SkFont& font, skiatest::Reporter* repo
 enum {
     kForceAutoHinting      = 1 << 0,
     kEmbeddedBitmaps       = 1 << 1,
-    kSubpixel              = 1 << 2,
-    kLinearMetrics         = 1 << 3,
-    kEmbolden              = 1 << 4,
-    kBaselineSnap          = 1 << 5,
+    kLinearMetrics         = 1 << 2,
+    kEmbolden              = 1 << 3,
+    kBaselineSnap          = 1 << 4,
 
-    kAllBits = 0x3F,
+    kAllBits = 0x1F,
 };
 
 static void apply_flags(SkFont* font, unsigned flags) {
     font->setForceAutoHinting(SkToBool(flags & kForceAutoHinting));
     font->setEmbeddedBitmaps( SkToBool(flags & kEmbeddedBitmaps));
-    font->setSubpixel(        SkToBool(flags & kSubpixel));
     font->setLinearMetrics(   SkToBool(flags & kLinearMetrics));
     font->setEmbolden(        SkToBool(flags & kEmbolden));
     font->setBaselineSnap(    SkToBool(flags & kBaselineSnap));
@@ -57,6 +55,11 @@ DEF_TEST(Font_flatten, reporter) {
     const SkFontHinting hints[] = {
         SkFontHinting::kNone, SkFontHinting::kSlight, SkFontHinting::kNormal, SkFontHinting::kFull
     };
+    const SkFont::Positioning positions[] = {
+        SkFont::Positioning::kIntegral,
+        SkFont::Positioning::kSubpixel,
+        SkFont::Positioning::kContinuous,
+    };
 
     SkFont font;
     for (float size : sizes) {
@@ -69,11 +72,14 @@ DEF_TEST(Font_flatten, reporter) {
                     font.setEdging(edge);
                     for (auto hint : hints) {
                         font.setHinting(hint);
-                        for (unsigned flags = 0; flags <= kAllBits; ++flags) {
-                            apply_flags(&font, flags);
+                        for (auto pos : positions) {
+                            font.setPositioning(pos);
+                            for (unsigned flags = 0; flags <= kAllBits; ++flags) {
+                                apply_flags(&font, flags);
 
-                            SkFont clone = serialize_deserialize(font, reporter);
-                            REPORTER_ASSERT(reporter, font == clone);
+                                SkFont clone = serialize_deserialize(font, reporter);
+                                REPORTER_ASSERT(reporter, font == clone);
+                            }
                         }
                     }
                 }

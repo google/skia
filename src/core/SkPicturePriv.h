@@ -74,6 +74,7 @@ public:
     // V71: Unify erode and dilate image filters
     // V72: SkColorFilter_Matrix domain (rgba vs. hsla)
     // V73: Use SkColor4f in per-edge AA quad API
+    // V74: Replace subpixel_flag with positioning enum in SkFont
 
     enum Version {
         kTileModeInBlurImageFilter_Version  = 56,
@@ -94,10 +95,11 @@ public:
         kUnifyErodeDilateImpls_Version      = 71,
         kMatrixColorFilterDomain_Version    = 72,
         kEdgeAAQuadColor4f_Version          = 73,
+        kFontPositioningEnum_Version        = 74,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kTileModeInBlurImageFilter_Version,
-        kCurrent_Version = kEdgeAAQuadColor4f_Version
+        kCurrent_Version = kFontPositioningEnum_Version
     };
 
     static_assert(kMin_Version <= 62, "Remove kFontAxes_bad from SkFontDescriptor.cpp");

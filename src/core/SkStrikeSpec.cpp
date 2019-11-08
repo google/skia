@@ -133,6 +133,11 @@ bool SkStrikeSpec::ShouldDrawAsPath(
         return true;
     }
 
+    // this is the point of kContinuous
+    if (font.getPositioning() == SkFont::Positioning::kContinuous) {
+        return true;
+    }
+
     // we don't cache perspective
     if (viewMatrix.hasPerspective()) {
         return true;
