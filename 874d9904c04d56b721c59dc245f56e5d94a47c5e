@@ -46,6 +46,30 @@
       "revId": "874d9904c04d56b721c59dc245f56e5d94a47c5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79ed9e28_bda2feea",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-08T20:40:50Z",
+      "side": 1,
+      "message": "You know what?  This shouldn\u0027t be that hard on x86, with the combination of vptest to do the test and int3 (0xcc) to hook into a debugger on failure...",
+      "parentUuid": "58e7f745_ef057317",
+      "range": {
+        "startLine": 309,
+        "startChar": 25,
+        "endLine": 309,
+        "endChar": 31
+      },
+      "revId": "874d9904c04d56b721c59dc245f56e5d94a47c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
