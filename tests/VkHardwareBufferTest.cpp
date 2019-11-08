@@ -70,6 +70,7 @@ protected:
     int fFdHandle = 0;
 };
 
+#ifdef SK_GL
 class EGLTestHelper : public BaseTestHelper {
 public:
     EGLTestHelper(const GrContextOptions& options) : fFactory(options) {}
@@ -362,6 +363,7 @@ void EGLTestHelper::doClientSync() {
     fenceSync->waitFence(fence);
     fenceSync->deleteFence(fence);
 }
+#endif  // SK_GL
 
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 
@@ -1078,7 +1080,11 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     if (SrcType::kVulkan == srcType) {
         srcHelper.reset(new VulkanTestHelper());
     } else if (SrcType::kEGL == srcType) {
+#ifdef SK_GL
         srcHelper.reset(new EGLTestHelper(options));
+#else
+        SkASSERT(false, "SrcType::kEGL used without OpenGL support.");
+#endif
     }
     if (srcHelper) {
         if (!srcHelper->init(reporter)) {
@@ -1090,8 +1096,12 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     if (DstType::kVulkan == dstType) {
         dstHelper.reset(new VulkanTestHelper());
     } else {
+#ifdef SK_GL
         SkASSERT(DstType::kEGL == dstType);
         dstHelper.reset(new EGLTestHelper(options));
+#else
+        SkASSERT(false, "DstType::kEGL used without OpenGL support.");
+#endif
     }
     if (dstHelper) {
         if (!dstHelper->init(reporter)) {
@@ -1275,12 +1285,17 @@ DEF_GPUTEST(VulkanHardwareBuffer_CPU_Vulkan, reporter, options) {
     run_test(reporter, options, SrcType::kCPU, DstType::kVulkan, false);
 }
 
-DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan, reporter, options) {
-    run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, false);
-}
-
 DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan, reporter, options) {
     run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, false);
+}
+
+DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs, reporter, options) {
+    run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, true);
+}
+
+#if defined(SK_GL)
+DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan, reporter, options) {
+    run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, false);
 }
 
 DEF_GPUTEST(VulkanHardwareBuffer_CPU_EGL, reporter, options) {
@@ -1306,10 +1321,8 @@ DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_EGL_Syncs, reporter, options) {
 DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan_Syncs, reporter, options) {
     run_test(reporter, options, SrcType::kEGL, DstType::kVulkan, true);
 }
-
-DEF_GPUTEST(VulkanHardwareBuffer_Vulkan_Vulkan_Syncs, reporter, options) {
-    run_test(reporter, options, SrcType::kVulkan, DstType::kVulkan, true);
-}
-
 #endif
+
+#endif  // SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) &&
+        // __ANDROID_API__ >= 26 && defined(SK_VULKAN)
 

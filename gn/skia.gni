@@ -49,6 +49,7 @@ declare_args() {
   skia_use_freetype = is_android || is_fuchsia || is_linux
   skia_use_gl = !is_fuchsia
   skia_use_harfbuzz = true
+  skia_use_gl = !is_fuchsia
   skia_use_icu = !is_fuchsia && !is_ios
   skia_use_libheif = is_skia_dev_build
   skia_use_libjpeg_turbo = true
