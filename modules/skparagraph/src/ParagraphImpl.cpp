@@ -63,6 +63,8 @@ bool TextBreaker::initialize(SkSpan<const char> text, UBreakIteratorType type) {
     return true;
 }
 
+TextCanvas* ParagraphImpl::fTextCanvas = nullptr;
+
 ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
@@ -207,6 +209,17 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     }
 }
 
+void ParagraphImpl::startFormatRecording(const SkString& fileName, SkRect bounds) {
+    if (fTextCanvas == nullptr) {
+        fTextCanvas = new TextCanvas(fileName, bounds);
+        fTextCanvas->start();
+    }
+}
+
+void ParagraphImpl::stopFormatRecording() {
+    fTextCanvas->stop();
+}
+
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
     if (fState < kDrawn) {
@@ -217,6 +230,11 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
     SkMatrix matrix = SkMatrix::MakeTrans(x + fOrigin.fLeft, y + fOrigin.fTop);
     canvas->drawPicture(fPicture, &matrix, nullptr);
+    if (fTextCanvas == nullptr) {
+        return;
+    }
+    matrix = matrix.postConcat(canvas->getTotalMatrix());
+    fTextCanvas->drawPicture(fPicture, &matrix, nullptr);
 }
 
 void ParagraphImpl::resetContext() {
