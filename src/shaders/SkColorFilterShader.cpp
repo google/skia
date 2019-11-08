@@ -64,7 +64,7 @@ bool SkColorFilterShader::onProgram(skvm::Builder* p,
                                     SkColorSpace* dstCS,
                                     skvm::Uniforms* uniforms,
                                     skvm::F32 x, skvm::F32 y,
-                                    skvm::I32* r, skvm::I32* g, skvm::I32* b, skvm::I32* a) const {
+                                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // Run the shader.
     if (!as_SB(fShader)->program(p, dstCS, uniforms, x,y, r,g,b,a)) {
         return false;
@@ -72,12 +72,11 @@ bool SkColorFilterShader::onProgram(skvm::Builder* p,
 
     // Scale that by alpha.
     if (fAlpha != 1.0f) {
-        int alpha = fAlpha*255 + 0.5f;
-        skvm::I32 A = p->uniform32(uniforms->push(alpha));
-        *r = p->scale_unorm8(*r, A);
-        *g = p->scale_unorm8(*g, A);
-        *b = p->scale_unorm8(*b, A);
-        *a = p->scale_unorm8(*a, A);
+        skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
+        *r = p->mul(*r, A);
+        *g = p->mul(*g, A);
+        *b = p->mul(*b, A);
+        *a = p->mul(*a, A);
     }
 
     // Finally run that through the color filter.
