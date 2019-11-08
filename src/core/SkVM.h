@@ -247,6 +247,7 @@ namespace skvm {
     };
 
     enum class Op : uint8_t {
+          assert_true,
           store8,   store16,   store32,
     // ↑ side effects / no side effects ↓
            index,
@@ -325,6 +326,8 @@ namespace skvm {
         // TODO: allow uniform (i.e. Arg) offsets to store* and load*?
         // TODO: sign extension (signed types) for <32-bit loads?
         // TODO: unsigned integer operations where relevant (just comparisons?)?
+
+        void assert_true(I32 val);
 
         // Store {8,16,32}-bit varying.
         void store8 (Arg ptr, I32 val);
