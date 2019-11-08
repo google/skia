@@ -138,6 +138,8 @@ namespace skvm {
                 case Op::sub_f32: write(o, V{id}, "= sub_f32", V{x}, V{y}      ); break;
                 case Op::mul_f32: write(o, V{id}, "= mul_f32", V{x}, V{y}      ); break;
                 case Op::div_f32: write(o, V{id}, "= div_f32", V{x}, V{y}      ); break;
+                case Op::min_f32: write(o, V{id}, "= min_f32", V{x}, V{y}      ); break;
+                case Op::max_f32: write(o, V{id}, "= max_f32", V{x}, V{y}      ); break;
                 case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
 
                 case Op:: eq_f32: write(o, V{id}, "= eq_f32", V{x}, V{y}); break;
@@ -243,6 +245,8 @@ namespace skvm {
                 case Op::sub_f32: write(o, R{d}, "= sub_f32", R{x}, R{y}      ); break;
                 case Op::mul_f32: write(o, R{d}, "= mul_f32", R{x}, R{y}      ); break;
                 case Op::div_f32: write(o, R{d}, "= div_f32", R{x}, R{y}      ); break;
+                case Op::min_f32: write(o, R{d}, "= min_f32", R{x}, R{y}      ); break;
+                case Op::max_f32: write(o, R{d}, "= max_f32", R{x}, R{y}      ); break;
                 case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y}, R{z}); break;
 
                 case Op:: eq_f32: write(o, R{d}, "= eq_f32", R{x}, R{y}); break;
@@ -497,6 +501,8 @@ namespace skvm {
     F32 Builder::sub(F32 x, F32 y       ) { return {this->push(Op::sub_f32, x.id, y.id)}; }
     F32 Builder::mul(F32 x, F32 y       ) { return {this->push(Op::mul_f32, x.id, y.id)}; }
     F32 Builder::div(F32 x, F32 y       ) { return {this->push(Op::div_f32, x.id, y.id)}; }
+    F32 Builder::min(F32 x, F32 y       ) { return {this->push(Op::min_f32, x.id, y.id)}; }
+    F32 Builder::max(F32 x, F32 y       ) { return {this->push(Op::max_f32, x.id, y.id)}; }
     F32 Builder::mad(F32 x, F32 y, F32 z) {
         if (this->isZero(z.id)) {
             return this->mul(x,y);
@@ -755,6 +761,8 @@ namespace skvm {
     void Assembler::vsubps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5c, dst,x,y); }
     void Assembler::vmulps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x59, dst,x,y); }
     void Assembler::vdivps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5e, dst,x,y); }
+    void Assembler::vminps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5d, dst,x,y); }
+    void Assembler::vmaxps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5f, dst,x,y); }
 
     void Assembler::vfmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x98, dst,x,y); }
     void Assembler::vfmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xa8, dst,x,y); }
@@ -1063,6 +1071,8 @@ namespace skvm {
     void Assembler::fsub4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11010'1, n, d); }
     void Assembler::fmul4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11011'1, n, d); }
     void Assembler::fdiv4s(V d, V n, V m) { this->op(0b0'1'1'01110'0'0'1, m, 0b11111'1, n, d); }
+    void Assembler::fmin4s(V d, V n, V m) { this->op(0b0'1'0'01110'1'0'1, m, 0b11110'1, n, d); }
+    void Assembler::fmax4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b11110'1, n, d); }
 
     void Assembler::fcmeq4s(V d, V n, V m) { this->op(0b0'1'0'01110'0'0'1, m, 0b1110'0'1, n, d); }
     void Assembler::fcmgt4s(V d, V n, V m) { this->op(0b0'1'1'01110'1'0'1, m, 0b1110'0'1, n, d); }
@@ -1364,6 +1374,8 @@ namespace skvm {
                     CASE(Op::sub_f32): r(d).f32 = r(x).f32 - r(y).f32; break;
                     CASE(Op::mul_f32): r(d).f32 = r(x).f32 * r(y).f32; break;
                     CASE(Op::div_f32): r(d).f32 = r(x).f32 / r(y).f32; break;
+                    CASE(Op::min_f32): r(d).f32 = min(r(x).f32, r(y).f32); break;
+                    CASE(Op::max_f32): r(d).f32 = max(r(x).f32, r(y).f32); break;
 
                     CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
 
@@ -1872,6 +1884,8 @@ namespace skvm {
                 case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
                 case Op::mul_f32: a->vmulps(dst(), r[x], r[y]); break;
                 case Op::div_f32: a->vdivps(dst(), r[x], r[y]); break;
+                case Op::min_f32: a->vminps(dst(), r[x], r[y]); break;
+                case Op::max_f32: a->vmaxps(dst(), r[x], r[y]); break;
 
                 case Op::mad_f32:
                     if      (avail & (1<<r[x])) { set_dst(r[x]); a->vfmadd132ps(r[x], r[z], r[y]); }
@@ -1956,6 +1970,8 @@ namespace skvm {
                 case Op::sub_f32: a->fsub4s(dst(), r[x], r[y]); break;
                 case Op::mul_f32: a->fmul4s(dst(), r[x], r[y]); break;
                 case Op::div_f32: a->fdiv4s(dst(), r[x], r[y]); break;
+                case Op::min_f32: a->fmin4s(dst(), r[x], r[y]); break;
+                case Op::max_f32: a->fmax4s(dst(), r[x], r[y]); break;
 
                 case Op::mad_f32: // fmla4s is z += x*y
                     if (avail & (1<<r[z])) { set_dst(r[z]); a->fmla4s( r[z],  r[x],  r[y]);   }
