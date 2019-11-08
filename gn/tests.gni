@@ -86,6 +86,7 @@ tests_sources = [
   "$_tests/FontMgrFontConfigTest.cpp",
   "$_tests/FontMgrTest.cpp",
   "$_tests/FontNamesTest.cpp",
+  "$_tests/FontTest.cpp",
   "$_tests/FrontBufferedStreamTest.cpp",
   "$_tests/GeometryTest.cpp",
   "$_tests/GifTest.cpp",
