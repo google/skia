@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83652f88_ba07133e",
+        "filename": "src/gpu/GrRenderTargetProxy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-08T13:49:50Z",
+      "side": 1,
+      "message": "Can we remove this then? or rename it ?",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 18
+      },
+      "revId": "46a4326eb26c61b9d0301ac7862d857f205d6564",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
