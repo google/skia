@@ -507,7 +507,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         stencil = renderTarget->renderTargetPriv().getStencilAttachment();
     }
 
-    SkASSERT(!stencil || stencil->numSamples() >= proxy->numStencilSamples());
+    SkASSERT(!stencil || stencil->numSamples() == proxy->numStencilSamples());
 
     GrLoadOp stencilLoadOp;
     switch (fInitialStencilContent) {
