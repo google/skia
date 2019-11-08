@@ -120,8 +120,12 @@ var CanvasKit = {
 
 	SkAnimatedImage: {
 		// public API (from C++ bindings)
-		getRepetitionCount: function() {},
 		decodeNextFrame: function() {},
+		getFrameCount: function() {},
+		getRepetitionCount: function() {},
+		height: function() {},
+		reset: function() {},
+		width: function() {},
 	},
 
 	SkCanvas: {

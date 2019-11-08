@@ -847,14 +847,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkAnimatedImage>("SkAnimatedImage")
         .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<SkAnimatedImage>")
+        .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame)
+        .function("getFrameCount", &SkAnimatedImage::getFrameCount)
         .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
-        .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame);
+        .function("height",  optional_override([](SkAnimatedImage& self)->int32_t {
+            return self.dimensions().height();
+        }))
+        .function("reset", &SkAnimatedImage::reset)
+        .function("width",  optional_override([](SkAnimatedImage& self)->int32_t {
+            return self.dimensions().width();
+        }));
 
     class_<SkCanvas>("SkCanvas")
         .constructor<>()
         .function("clear", &SkCanvas::clear)
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
-        .function("clipRRect",optional_override([](SkCanvas& self, const SimpleRRect& r, SkClipOp op, bool doAntiAlias) {
+        .function("clipRRect", optional_override([](SkCanvas& self, const SimpleRRect& r, SkClipOp op, bool doAntiAlias) {
             self.clipRRect(toRRect(r), op, doAntiAlias);
         }))
         .function("clipRect", select_overload<void (const SkRect&, SkClipOp, bool)>(&SkCanvas::clipRect))
