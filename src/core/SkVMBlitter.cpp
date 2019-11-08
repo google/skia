@@ -306,8 +306,7 @@ namespace {
                 src.r = min(max(splat(0.0f), src.r), splat(1.0f));
                 src.g = min(max(splat(0.0f), src.g), splat(1.0f));
                 src.b = min(max(splat(0.0f), src.b), splat(1.0f));
-                src.a = min(max(splat(0.0f), src.a), splat(1.0f));
-                // TODO: remove src.a clamp?  alpha shouldn't go outside [0,1].
+                // src.a should already be in [0,1].
             }
             if (force_opaque) { src.a = splat(1.0f); }
 
