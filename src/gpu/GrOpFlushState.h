@@ -68,6 +68,7 @@ public:
         }
 
         int numSamples() const { return this->proxy()->numSamples(); }
+        int numStencilBits() const { return 0; /* this->proxy()->numStencilBits(); */ }
         GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 

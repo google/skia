@@ -1435,7 +1435,7 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
 
 GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
-    SkASSERT(numStencilSamples == rt->numSamples());
+    SkASSERT(numStencilSamples >= rt->numSamples());
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
 
