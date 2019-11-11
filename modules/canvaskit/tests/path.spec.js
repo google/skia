@@ -261,4 +261,71 @@ describe('CanvasKit\'s Path Behavior', function() {
             reportSurface(surface, 'path_relative', done);
         }));
     });
+
+    it('can measure a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+
+            const path = new CanvasKit.SkPath();
+            path.moveTo(10, 10)
+                .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
+
+            path.moveTo(80, 0)
+                .lineTo(80, 10)
+                .lineTo(100, 5)
+                .lineTo(80, 0);
+
+            const meas = new CanvasKit.SkPathMeasure(path, false, 1);
+            expect(meas.getLength()).toBeCloseTo(50.0, 3);
+            const pt = meas.getPosTan(28.7); // arbitrary point
+            expect(pt[0]).toBeCloseTo(27.22, 3); // x
+            expect(pt[1]).toBeCloseTo(32.96, 3); // y
+            expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
+            expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+            const subpath = meas.getSegment(20, 40, true); // make sure this doesn't crash
+
+            expect(meas.nextContour()).toBeTruthy();
+            expect(meas.getLength()).toBeCloseTo(51.231, 3);
+
+            expect(meas.nextContour()).toBeFalsy();
+
+            path.delete();
+            done();
+        }));
+    });
+
+    it('can draw a polygon', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            // This is taken from example.html
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setStrokeWidth(1.0);
+            paint.setAntiAlias(true);
+            paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const points = [[5, 5], [30, 20], [55, 5], [55, 50], [30, 30], [5, 50]];
+
+            const mPoints = CanvasKit.Malloc(Float32Array, 6 * 2);
+            mPoints.set([105, 105, 130, 120, 155, 105, 155, 150, 130, 130, 105, 150]);
+
+            const path = new CanvasKit.SkPath();
+            path.addPoly(points, true)
+                .moveTo(100, 0)
+                .addPoly(mPoints, true);
+
+            canvas.drawPath(path, paint);
+
+            surface.flush();
+            path.delete();
+            paint.delete();
+
+            reportSurface(surface, 'drawpoly_path', done);
+        }));
+    });
 });

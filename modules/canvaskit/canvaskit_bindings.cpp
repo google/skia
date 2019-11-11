@@ -889,10 +889,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawDRRect(toRRect(o), toRRect(i), paint);
         }))
         .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
-                                                        SkScalar x, SkScalar y)->void {
+                                                             SkScalar x, SkScalar y)->void {
             self.drawDrawable(aImg.get(), x, y);
         }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
+        .function("drawImageNine", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
+                                                        SkIRect center, SkRect dst,
+                                                        const SkPaint* paint)->void {
+            self.drawImageNine(image, center, dst, paint);
+        }), allow_raw_pointers())
         .function("drawImageRect", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                         SkRect src, SkRect dst,
                                                         const SkPaint* paint, bool fastSample)->void {
@@ -913,6 +918,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // Of note, picture is *not* what is colloquially thought of as a "picture", what we call
         // a bitmap. An SkPicture is a series of draw commands.
         .function("drawPicture",  select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))
+        .function("_drawPoints", optional_override([](SkCanvas& self, SkCanvas::PointMode mode,
+                                                     uintptr_t /* SkPoint* */ pptr,
+                                                     int count, SkPaint paint)->void {
+            // See comment above for uintptr_t explanation
+            const SkPoint* pts = reinterpret_cast<const SkPoint*>(pptr);
+            self.drawPoints(mode, count, pts, paint);
+        }))
         .function("drawRRect",optional_override([](SkCanvas& self, const SimpleRRect& r, const SkPaint& paint) {
             self.drawRRect(toRRect(r), paint);
         }))
@@ -1171,6 +1183,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // interface.js has 3 overloads of addPath
         .function("_addOval", &ApplyAddOval)
         .function("_addPath", &ApplyAddPath)
+        .function("_addPoly", optional_override([](SkPath& self,
+                                                   uintptr_t /* SkPoint* */ pptr,
+                                                   int count, bool close)->void {
+            // See comment above for uintptr_t explanation
+            const SkPoint* pts = reinterpret_cast<const SkPoint*>(pptr);
+            self.addPoly(pts, count, close);
+        }))
         // interface.js has 4 overloads of addRect
         .function("_addRect", &ApplyAddRect)
         // interface.js has 4 overloads of addRoundRect
@@ -1236,6 +1255,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 SkDebugf("zero-length path in getPosTan\n");
             }
             return PosTan{p.x(), p.y(), v.x(), v.y()};
+        }))
+        .function("getSegment", optional_override([](SkPathMeasure& self, SkScalar startD,
+                                                     SkScalar stopD, bool startWithMoveTo) -> SkPath {
+            SkPath p;
+            bool ok = self.getSegment(startD, stopD, &p, startWithMoveTo);
+            if (ok) {
+                return p;
+            }
+            return SkPath();
         }))
         .function("isClosed", &SkPathMeasure::isClosed)
         .function("nextContour", &SkPathMeasure::nextContour);
@@ -1445,6 +1473,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Union",              SkPathOp::kUnion_SkPathOp)
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("ReverseDifference",  SkPathOp::kReverseDifference_SkPathOp);
+
+    enum_<SkCanvas::PointMode>("PointMode")
+        .value("Points",   SkCanvas::PointMode::kPoints_PointMode)
+        .value("Lines",    SkCanvas::PointMode::kLines_PointMode)
+        .value("Polygon",  SkCanvas::PointMode::kPolygon_PointMode);
 
     enum_<SkPaint::Cap>("StrokeCap")
         .value("Butt",   SkPaint::Cap::kButt_Cap)

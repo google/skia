@@ -270,6 +270,7 @@ describe('Core canvas behavior', function() {
                 redCF.delete();
                 blurIF.delete();
                 combined.delete();
+                img.delete();
 
                 reportSurface(surface, 'combined_filters', done);
             })();

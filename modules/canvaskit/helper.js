@@ -91,7 +91,7 @@ function copy1dArray(arr, dest, ptr) {
 }
 
 // arr should be a non-jagged 2d JS array (TypedArrays can't be nested
-//     inside themselves.)
+//     inside themselves). A common use case is points.
 // dest is something like CanvasKit.HEAPF32
 // ptr can be optionally provided if the memory was already allocated.
 function copy2dArray(arr, dest, ptr) {

@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkPath.rArcTo`, `SkPath.rConicTo`, `SkPath.rCubicTo`, `SkPath.rLineTo`, `SkPath.rMoveTo`,
    `SkPath.rQuadTo`. Like their non-relative siblings, these are chainable.
  - Add `width()`, `height()`, `reset()`, `getFrameCount()` to SkAnimatedImage.
+ - `SkCanvas.drawImageNine`, `SkCanvas.drawPoints` and related `PointMode` enum.
+ - `SkPath.addPoly`
+ - `SkPathMeasure.getSegment`
 
 ### Deprecated
  - `CanvasKit.MakeBlurMaskFilter` will be renamed/moved soon to `CanvasKit.SkMaskFilter.MakeBlur`.
