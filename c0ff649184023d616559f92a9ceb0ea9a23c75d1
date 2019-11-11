@@ -93,6 +93,30 @@
       "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ab7af6c_cd5ded91",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T18:06:35Z",
+      "side": 1,
+      "message": "Also calling get() or -\u003e on an sk_sp returns a T*, so putting const in front of an sk_sp doesn\u0027t really do anything in terms of protecting the inner object.",
+      "parentUuid": "faa2ef5a_0c11e25c",
+      "range": {
+        "startLine": 653,
+        "startChar": 4,
+        "endLine": 653,
+        "endChar": 56
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
