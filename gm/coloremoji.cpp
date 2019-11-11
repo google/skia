@@ -193,9 +193,58 @@ protected:
 
     typedef GM INHERITED;
 };
+DEF_GM(return new ColorEmojiGM;)
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ColorEmojiGM;)
+class EmojiPositioningGM : public skiagm::GM {
+public:
+    EmojiPositioningGM() { }
 
-}
+protected:
+    struct EmojiFont {
+        sk_sp<SkTypeface> typeface;
+        const char* text;
+    } emojiFont;
+
+    void onOnceBeforeDraw() override {
+        emojiFont.typeface = ToolUtils::emoji_typeface();
+        emojiFont.text     = ToolUtils::emoji_sample_text();
+    }
+
+    SkString onShortName() override {
+        return SkString("emoji_positioning");
+    }
+
+    SkISize onISize() override { return SkISize::Make(650, 1200); }
+
+    void onDraw(SkCanvas* canvas) override {
+
+        SkFont font(emojiFont.typeface);
+        font.setSize(50);
+        SkFont font2(font);
+        font2.setTypeface(nullptr);
+
+        SkString str(emojiFont.text);
+        SkString str2("Positioning");
+
+        const SkFont::Positioning pos[] = {
+            SkFont::Positioning::kIntegral,
+            SkFont::Positioning::kSubpixel,
+            SkFont::Positioning::kContinuous,
+        };
+        float y = 50;
+        for (auto p : pos) {
+            font.setPositioning(p);
+            canvas->drawSimpleText(str.c_str(), str.size(), SkTextEncoding::kUTF8,
+                                   10, y, font, SkPaint());
+            canvas->drawSimpleText(str2.c_str(), str2.size(), SkTextEncoding::kUTF8,
+                                   10 + 200, y, font2, SkPaint());
+            y += 60;
+        }
+    }
+
+    typedef GM INHERITED;
+};
+DEF_GM(return new EmojiPositioningGM;)
