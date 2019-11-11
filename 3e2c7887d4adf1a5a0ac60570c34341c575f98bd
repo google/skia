@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65e402b1_814d8a9b",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-11T13:52:48Z",
+      "side": 1,
+      "message": "Checking my understanding, is a clearer name for this. Is it the number of color samples? Or am I not understanding it correctly?",
+      "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
