@@ -763,8 +763,10 @@ void GrRenderTargetContext::setNeedsStencil(bool useMixedSamplesIfNotMSAA) {
     // forever in the event that there are driver bugs and we need to clear as a draw.
     bool hasInitializedStencil = fNumStencilSamples > 0;
 
-    int numRequiredSamples = this->numSamples();
-    if (useMixedSamplesIfNotMSAA && 1 == numRequiredSamples) {
+    bool notMSAA = (this->numSamples() == 1);
+
+    int numRequiredSamples = 8;
+    if (useMixedSamplesIfNotMSAA && notMSAA) {
         SkASSERT(fRenderTargetProxy->canUseMixedSamples(*this->caps()));
         numRequiredSamples = this->caps()->internalMultisampleCount(
                 this->asSurfaceProxy()->backendFormat());

@@ -170,6 +170,7 @@ private:
         ClockwiseTestProcessor primProc(fReadSkFragCoord);
 
         GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                                  flushState->drawOpArgs().numStencilBits(),
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
                                   primProc,

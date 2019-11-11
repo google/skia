@@ -24,14 +24,14 @@ GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fCWFlags[0] & gUnused.fCCWFlags[0
 
 const GrUserStencilSettings& GrUserStencilSettings::kUnused = gUnused;
 
-void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencilClip,
+void GrStencilSettings::reset2(const GrUserStencilSettings& user, bool hasStencilClip,
                               int numStencilBits) {
     uint16_t cwFlags = user.fCWFlags[hasStencilClip];
     if (cwFlags & kSingleSided_StencilFlag) {
         SkASSERT(cwFlags == user.fCCWFlags[hasStencilClip]);
         fFlags = cwFlags;
         if (!this->isDisabled()) {
-            fCWFace.reset(user.fCWFace, hasStencilClip, numStencilBits);
+            fCWFace.reset1(user.fCWFace, hasStencilClip, numStencilBits);
         }
         return;
     }
@@ -42,18 +42,18 @@ void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencil
         return;
     }
     if (!(cwFlags & kDisabled_StencilFlag)) {
-        fCWFace.reset(user.fCWFace, hasStencilClip, numStencilBits);
+        fCWFace.reset1(user.fCWFace, hasStencilClip, numStencilBits);
     } else {
         fCWFace.setDisabled();
     }
     if (!(ccwFlags & kDisabled_StencilFlag)) {
-        fCCWFace.reset(user.fCCWFace, hasStencilClip, numStencilBits);
+        fCCWFace.reset1(user.fCCWFace, hasStencilClip, numStencilBits);
     } else {
         fCCWFace.setDisabled();
     }
 }
 
-void GrStencilSettings::reset(const GrStencilSettings& that) {
+void GrStencilSettings::reset2(const GrStencilSettings& that) {
     fFlags = that.fFlags;
     if ((kInvalid_PrivateFlag | kDisabled_StencilFlag) & fFlags) {
         return;
@@ -168,7 +168,7 @@ GR_STATIC_ASSERT(10 == (int)GrUserStencilOp::kInvertClipBit);
 GR_STATIC_ASSERT(11 == (int)GrUserStencilOp::kSetClipAndReplaceUserBits);
 GR_STATIC_ASSERT(12 == (int)GrUserStencilOp::kZeroClipAndUserBits);
 
-void GrStencilSettings::Face::reset(const GrUserStencilSettings::Face& user, bool hasStencilClip,
+void GrStencilSettings::Face::reset1(const GrUserStencilSettings::Face& user, bool hasStencilClip,
                                     int numStencilBits) {
     SkASSERT(user.fTest < (GrUserStencilTest)kGrUserStencilTestCount);
     SkASSERT(user.fPassOp < (GrUserStencilOp)kGrUserStencilOpCount);

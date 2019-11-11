@@ -152,6 +152,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     StencilResolveProcessor primProc;
 
     GrProgramInfo programInfo(flushState->drawOpArgs().numSamples(),
+                              flushState->drawOpArgs().numStencilBits(),
                               flushState->drawOpArgs().origin(),
                               resolvePipeline,
                               primProc,
