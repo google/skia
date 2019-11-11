@@ -45,6 +45,30 @@
       "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad447a1f_60ff2d80",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T17:40:20Z",
+      "side": 1,
+      "message": "The idea was to make the sk_sp const and guarantee that we don\u0027t change our proxy. The reason for that is because in this CL we change to tracking the stencil sample count on the proxy instead of on the renderTargetContext.\n\nAfter more thought, I think this is wrong. Now I\u0027m considering a new direction, where we keep the stencil sample count on the renderTargetContext and remove it entirely from the proxy.",
+      "parentUuid": "5d8a11f1_566473cf",
+      "range": {
+        "startLine": 653,
+        "startChar": 4,
+        "endLine": 653,
+        "endChar": 56
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
