@@ -477,6 +477,13 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
+
+        // We need the ability to disable multisample and dual source blending in order to support
+        // mixed samples in every corner case.
+        if (features.features.dualSrcBlend) {
+            fMixedSamplesSupport = extensions.hasExtension(
+                    VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1);
+        }
     }
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
