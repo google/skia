@@ -135,3 +135,120 @@ class ClipView : public Sample {
 };
 
 DEF_SAMPLE( return new ClipView(); )
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "src/core/SkEdgeClipper.h"
+
+static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
+    SkMatrix mx, inv;
+    SkVector v = p1 - p0;
+    mx.setAll(v.fX, -v.fY, p0.fX,
+              v.fY,  v.fX, p0.fY,
+                 0,     0,     1);
+    SkAssertResult(mx.invert(&inv));
+
+    SkPath rotated;
+    path.transform(inv, &rotated);
+
+    SkScalar big = 1e28f;
+    SkRect clip = {-big, 0, big, big };
+
+    struct Rec {
+        SkPath  fResult;
+        SkPoint fPrev;
+    } rec;
+
+    SkEdgeClipper::ClipPath(rotated, clip, false,
+                            [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
+        Rec* rec = (Rec*)ctx;
+
+        bool addLineTo = false;
+        SkPoint      pts[4];
+        SkPath::Verb verb;
+        while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
+            if (newCtr) {
+                rec->fResult.moveTo(pts[0]);
+                rec->fPrev = pts[0];
+                newCtr = false;
+            }
+
+            if (addLineTo || pts[0] != rec->fPrev) {
+                rec->fResult.lineTo(pts[0]);
+            }
+
+            switch (verb) {
+                case SkPath::kLine_Verb:
+                    rec->fResult.lineTo (pts[1]);
+                    rec->fPrev = pts[1];
+                    break;
+                case SkPath::kQuad_Verb:
+                    rec->fResult.quadTo(pts[1], pts[2]);
+                    rec->fPrev = pts[2];
+                    break;
+                case SkPath::kCubic_Verb:
+                    rec->fResult.cubicTo(pts[1], pts[2], pts[3]);
+                    rec->fPrev = pts[3];
+                    break;
+                default: break;
+            }
+            addLineTo = true;
+        }
+    }, &rec);
+
+    rec.fResult.transform(mx);
+    return rec.fResult;
+}
+
+static void draw_halfplane(SkCanvas* canvas, SkPoint p0, SkPoint p1) {
+    SkVector v = p1 - p0;
+    p0 = p0 - v * 1000;
+    p1 = p1 + v * 1000;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawLine(p0, p1, paint);
+}
+
+class HalfPlaneView : public Sample {
+    SkPoint fPts[2];
+    SkPath fPath;
+
+    SkString name() override { return SkString("halfplane"); }
+
+    void onOnceBeforeDraw() override {
+        fPts[0] = {0, 0};
+        fPts[1] = {3, 2};
+
+        SkRandom rand;
+        auto rand_pt = [&rand]() { return SkPoint{rand.nextF() * 400, rand.nextF() * 400}; };
+
+        for (int i = 0; i < 4; ++i) {
+            fPath.moveTo(rand_pt()).quadTo(rand_pt(), rand_pt())
+                 .quadTo(rand_pt(), rand_pt()).lineTo(rand_pt());
+        }
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+
+        paint.setColor({0.5f, 0.5f, 0.5f, 1.0f}, nullptr);
+        canvas->drawPath(fPath, paint);
+
+        paint.setColor({0, 0, 0, 1}, nullptr);
+        canvas->drawPath(clip(fPath, fPts[0], fPts[1]), paint);
+
+        draw_halfplane(canvas, fPts[0], fPts[1]);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        return new Click;
+    }
+
+    bool onClick(Click* click) override {
+        fPts[0] = click->fCurr;
+        fPts[1] = fPts[0] + SkPoint{3, 2};
+        return true;
+    }
+};
+DEF_SAMPLE( return new HalfPlaneView(); )
