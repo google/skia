@@ -135,3 +135,62 @@ class ClipView : public Sample {
 };
 
 DEF_SAMPLE( return new ClipView(); )
+
+///////////////////////////////////////////////////////////////////////////////
+
+static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
+    return path;
+}
+
+static void draw_halfplane(SkCanvas* canvas, SkPoint p0, SkPoint p1) {
+    SkVector v = p1 - p0;
+    p0 = p0 - v * 1000;
+    p1 = p1 + v * 1000;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawLine(p0, p1, paint);
+}
+
+class HalfPlaneView : public Sample {
+    SkPoint fPts[2];
+    SkPath fPath;
+
+    SkString name() override { return SkString("halfplane"); }
+
+    void onOnceBeforeDraw() override {
+        fPts[0] = {0, 0};
+        fPts[1] = {3, 2};
+
+        SkRandom rand;
+        auto rand_pt = [&rand]() { return SkPoint{rand.nextF() * 400, rand.nextF() * 400}; };
+
+        for (int i = 0; i < 4; ++i) {
+            fPath.moveTo(rand_pt()).cubicTo(rand_pt(), rand_pt(), rand_pt())
+                 .quadTo(rand_pt(), rand_pt()).lineTo(rand_pt());
+        }
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+
+        paint.setColor({0.5f, 0.5f, 0.5f, 1.0f}, nullptr);
+        canvas->drawPath(fPath, paint);
+
+        paint.setColor({0, 0, 0, 1}, nullptr);
+        canvas->drawPath(clip(fPath, fPts[0], fPts[1]), paint);
+
+        draw_halfplane(canvas, fPts[0], fPts[1]);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        return new Click;
+    }
+
+    bool onClick(Click* click) override {
+        fPts[0] = click->fCurr;
+        fPts[1] = fPts[0] + SkPoint{3, 2};
+        return true;
+    }
+};
+DEF_SAMPLE( return new HalfPlaneView(); )
