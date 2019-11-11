@@ -650,7 +650,8 @@ private:
 
     std::unique_ptr<GrTextTarget> fTextTarget;
 
-    sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
+    // The pointer to our underlying proxy should never change, so we mark the sk_sp const.
+    const sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
     GrSwizzle fOutputSwizzle;
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
@@ -660,7 +661,6 @@ private:
     SkSurfaceProps fSurfaceProps;
     bool fManagedOpsTask;
 
-    int fNumStencilSamples = 0;
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
