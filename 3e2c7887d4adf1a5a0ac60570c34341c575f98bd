@@ -34,6 +34,24 @@
       "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da840017_4a966e7f",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T17:34:49Z",
+      "side": 1,
+      "message": "It could be, yes. But the direction we went a few months ago was to have a surface\u0027s sample count refer strictly to the number of color samples, and then mixed samples is just an internal, special exception type thing. The rest of the code is named like \"sampleCount/stencilSampleCount\", so if we rename this to numColorSamples, then we may need to rename all the rest of the code also.\n\nOr maybe we take out numSamples completely from the struct and callers say \"proxy()-\u003enumSamples()?\"\n\nI think actually a good change might be to remove the stencil sample count entirely from the proxy and have that variable live on the flushState or somewhere else. I\u0027ll look into that.",
+      "parentUuid": "6c395993_3b37db98",
+      "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
