@@ -122,15 +122,13 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
                                                  GrColor color,
                                                  GrDeferredUploadTarget* uploadTarget,
                                                  GrStrikeCache* glyphCache,
-                                                 GrAtlasManager* fullAtlasManager,
-                                                 SkExclusiveStrikePtr* lazyStrike)
+                                                 GrAtlasManager* fullAtlasManager)
         : fResourceProvider(resourceProvider)
         , fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
         , fGlyphCache(glyphCache)
         , fFullAtlasManager(fullAtlasManager)
-        , fLazyStrike(lazyStrike)
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
         , fColor(color) {
     // Compute translation if any
@@ -166,9 +164,9 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
 
         const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
-        if (!*fLazyStrike || (*fLazyStrike)->getDescriptor() != strikeSpec.descriptor()) {
-            *fLazyStrike =
-                    strikeSpec.findOrCreateExclusiveStrike(SkStrikeCache::GlobalStrikeCache());
+        if (!fMetricsAndImages.isValid()
+            || fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
+            fMetricsAndImages.init(strikeSpec);
         }
 
         if (regenGlyphs) {
@@ -193,7 +191,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                 // Get the id from the old glyph, and use the new strike to lookup
                 // the glyph.
                 SkPackedGlyphID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
-                fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fLazyStrike->get());
+                fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fMetricsAndImages.get());
                 SkASSERT(id == fBlob->fGlyphs[glyphOffset]->fPackedID);
             }
             glyph = fBlob->fGlyphs[glyphOffset];
@@ -203,7 +201,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                 GrDrawOpAtlas::ErrorCode code;
                 code = strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
                                               fFullAtlasManager, glyph,
-                                              fLazyStrike->get(), fSubRun->maskFormat(),
+                                              fMetricsAndImages.get(), fSubRun->maskFormat(),
                                               fSubRun->needsTransform());
                 if (GrDrawOpAtlas::ErrorCode::kError == code) {
                     // Something horrible has happened - drop the op
