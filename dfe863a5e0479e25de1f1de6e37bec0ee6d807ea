@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24cc865d_a3716019",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T16:03:56Z",
+      "side": 1,
+      "message": "can this be moved into initGrCaps since fMixedSamplesSupport is a GrCaps things and not GrVkCaps.",
+      "range": {
+        "startLine": 357,
+        "startChar": 2,
+        "endLine": 363,
+        "endChar": 5
+      },
+      "revId": "dfe863a5e0479e25de1f1de6e37bec0ee6d807ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

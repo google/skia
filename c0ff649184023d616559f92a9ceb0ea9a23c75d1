@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02127258_5b41edbb",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T16:03:56Z",
+      "side": 0,
+      "message": "can we keep this assert but just add in caps mixedSampleSupport?",
+      "range": {
+        "startLine": 303,
+        "startChar": 7,
+        "endLine": 303,
+        "endChar": 65
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
