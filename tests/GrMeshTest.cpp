@@ -415,6 +415,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
     GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
 
     GrProgramInfo programInfo(fState->drawOpArgs().numSamples(),
+                              fState->drawOpArgs().numStencilSamples(),
                               fState->drawOpArgs().origin(),
                               pipeline,
                               mtp,

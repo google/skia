@@ -13,10 +13,12 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 
 class GrMesh;
+class GrStencilSettings;
 
 class GrProgramInfo {
 public:
     GrProgramInfo(int numSamples,
+                  int numStencilBits,
                   GrSurfaceOrigin origin,
                   const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
@@ -25,6 +27,7 @@ public:
                   int numDynamicStateArrays,
                   GrPrimitiveType primitiveType)
             : fNumSamples(numSamples)
+            , fNumStencilBits(numStencilBits)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
@@ -45,6 +48,7 @@ public:
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
     int numSamples() const { return fNumSamples;  }
+    int numStencilBits() const { return fNumStencilBits; }
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
@@ -91,7 +95,7 @@ public:
         return fFixedDynamicState->fPrimitiveProcessorTextures;
     }
 
-    GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+    GrStencilSettings stencilSettings() const;
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -107,6 +111,7 @@ public:
 
 private:
     const int                             fNumSamples;
+    const int                             fNumStencilBits;
     const GrSurfaceOrigin                 fOrigin;
     const GrPipeline&                     fPipeline;
     const GrPrimitiveProcessor&           fPrimProc;
