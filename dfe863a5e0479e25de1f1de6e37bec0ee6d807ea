@@ -22,6 +22,30 @@
       "revId": "dfe863a5e0479e25de1f1de6e37bec0ee6d807ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc50c75_4f7cbcb9",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T23:40:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24cc865d_a3716019",
+      "range": {
+        "startLine": 357,
+        "startChar": 2,
+        "endLine": 363,
+        "endChar": 5
+      },
+      "revId": "dfe863a5e0479e25de1f1de6e37bec0ee6d807ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
