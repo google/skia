@@ -46,6 +46,30 @@
       "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22732af5_aa818c8e",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T18:00:57Z",
+      "side": 0,
+      "message": "you have access to the gpu so you can get that and then the caps.",
+      "parentUuid": "997a4d77_3c587e88",
+      "range": {
+        "startLine": 303,
+        "startChar": 7,
+        "endLine": 303,
+        "endChar": 65
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
