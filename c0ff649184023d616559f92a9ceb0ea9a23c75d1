@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ded2efa_d1bcfbcb",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T16:00:07Z",
+      "side": 1,
+      "message": "what happens if I had a proxy on a different RTC, add stencil there, and then wrapped that proxy into a new RTC. I would think we could have stencil then.",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 57
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d8a11f1_566473cf",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T16:00:07Z",
+      "side": 1,
+      "message": "what are you trying to make \"const\" here? It seems weird to say in sk_sp is const. If you are trying to say the GrRenderTargetProxy is const, is there really no property on it that we would update on it? Like if we instantiate it?",
+      "range": {
+        "startLine": 653,
+        "startChar": 4,
+        "endLine": 653,
+        "endChar": 56
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
