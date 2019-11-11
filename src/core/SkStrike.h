@@ -176,7 +176,7 @@ private:
 
     const SkAutoDescriptor                 fDesc;
     const std::unique_ptr<SkScalerContext> fScalerContext;
-    SkFontMetrics                          fFontMetrics;
+    const SkFontMetrics                    fFontMetrics;
 
     // Map from a combined GlyphID and sub-pixel position to a SkGlyph*.
     // The actual glyph is stored in the fAlloc. This structure provides an
