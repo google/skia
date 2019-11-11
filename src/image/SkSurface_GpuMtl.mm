@@ -20,7 +20,7 @@
 #if SK_SUPPORT_GPU
 
 #include "include/gpu/GrSurface.h"
-#include "src/gpu/mtl/GrMtlRenderTarget.h"
+#include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 
 #ifdef SK_METAL
 #import <Metal/Metal.h>
@@ -48,10 +48,13 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     }
 
     GrSurfaceDesc desc;
-
     desc.fWidth = metalLayer.drawableSize.width;
     desc.fHeight = metalLayer.drawableSize.height;
     desc.fConfig = config;
+
+    GrProxyProvider::TextureInfo texInfo;
+    texInfo.fMipMapped = GrMipMapped::kNo;
+    texInfo.fTextureType = GrTextureType::k2D;
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [layer, drawable, sampleCnt, config](GrResourceProvider* resourceProvider) {
@@ -64,8 +67,15 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
                 desc.fConfig = config;
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
-                auto surface = GrMtlRenderTarget::MakeWrappedRenderTarget(mtlGpu, desc, sampleCnt,
-                                                                          currentDrawable.texture);
+                sk_sp<GrRenderTarget> surface;
+                if (metalLayer.framebufferOnly && sampleCnt <= 1) {
+                    surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
+                                      mtlGpu, desc, sampleCnt, currentDrawable.texture);
+                } else {
+                    surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
+                                      mtlGpu, desc, sampleCnt, currentDrawable.texture,
+                                      GrWrapCacheable::kNo);
+                }
                 if (surface && sampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
@@ -79,7 +89,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             origin,
             sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
                           : GrInternalSurfaceFlags::kNone,
-            nullptr, // not textureable
+            metalLayer.framebufferOnly && sampleCnt <= 1 ? nullptr : &texInfo,
             GrMipMapsStatus::kNotAllocated,
             SkBackingFit::kExact,
             SkBudgeted::kYes,
