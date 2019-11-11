@@ -434,4 +434,51 @@ describe('CanvasKit\'s Canvas Behavior', function() {
         }));
     });
 
+
+    it('can drawPoints', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            paint.setStrokeWidth(10);
+            paint.setColor(CanvasKit.Color(153, 204, 162, 0.82));
+
+            const points = [[32, 16], [48, 48], [16, 32]];
+
+            const caps = [CanvasKit.StrokeCap.Round, CanvasKit.StrokeCap.Square,
+                          CanvasKit.StrokeCap.Butt];
+            const joins = [CanvasKit.StrokeJoin.Round, CanvasKit.StrokeJoin.Miter,
+                           CanvasKit.StrokeJoin.Bevel];
+            const modes = [CanvasKit.PointMode.Points, CanvasKit.PointMode.Lines,
+                           CanvasKit.PointMode.Polygon];
+
+            for (let i = 0; i < caps.length; i++) {
+                paint.setStrokeCap(caps[i]);
+                paint.setStrokeJoin(joins[i]);
+
+                for (const m of modes) {
+                    canvas.drawPoints(m, points, paint);
+                    canvas.translate(64, 0);
+                }
+                // Try with the malloc approach. Note that the drawPoints
+                // will free the pointer when done.
+                const mPoints = CanvasKit.Malloc(Float32Array, 6);
+                mPoints.set([32, 16, 48, 48, 16, 32]);
+                canvas.drawPoints(CanvasKit.PointMode.Polygon, mPoints, paint);
+                canvas.translate(-192, 64);
+            }
+
+            surface.flush();
+            paint.delete();
+
+            reportSurface(surface, 'drawpoints_canvas', done);
+        }));
+    });
 });
