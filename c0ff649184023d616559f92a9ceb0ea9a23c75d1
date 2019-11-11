@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3d2bde8c_cafaab25",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T22:43:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ded2efa_d1bcfbcb",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 57
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5d8a11f1_566473cf",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 1
@@ -108,6 +132,30 @@
       "side": 1,
       "message": "Also calling get() or -\u003e on an sk_sp returns a T*, so putting const in front of an sk_sp doesn\u0027t really do anything in terms of protecting the inner object.",
       "parentUuid": "faa2ef5a_0c11e25c",
+      "range": {
+        "startLine": 653,
+        "startChar": 4,
+        "endLine": 653,
+        "endChar": 56
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2098f3f_0bf1dd32",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T22:43:53Z",
+      "side": 1,
+      "message": "The idea of the const was to make it so we never change the pointer itself.",
+      "parentUuid": "5ab7af6c_cd5ded91",
       "range": {
         "startLine": 653,
         "startChar": 4,
