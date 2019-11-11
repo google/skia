@@ -320,6 +320,19 @@ static void setup_all_sample_locations_at_pixel_center(
     sampleLocations->sampleLocationsInfo.pSampleLocations = kCenteredSampleLocations;
 }
 
+static void setup_coverage_modulation_state(
+        VkPipelineCoverageModulationStateCreateInfoNV* coverageModulationInfo) {
+    memset(coverageModulationInfo, 0, sizeof(VkPipelineCoverageModulationStateCreateInfoNV));
+    coverageModulationInfo->sType =
+            VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV;
+    coverageModulationInfo->pNext = nullptr;
+    coverageModulationInfo->flags = 0;
+    coverageModulationInfo->coverageModulationMode = VK_COVERAGE_MODULATION_MODE_RGBA_NV;
+    coverageModulationInfo->coverageModulationTableEnable = false;
+    coverageModulationInfo->coverageModulationTableCount = 0;
+    coverageModulationInfo->pCoverageModulationTable = nullptr;
+}
+
 static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
     static const VkBlendFactor gTable[] = {
         VK_BLEND_FACTOR_ZERO,                      // kZero_GrBlendCoeff
@@ -554,6 +567,16 @@ GrVkPipeline* GrVkPipeline::Create(
             setup_all_sample_locations_at_pixel_center(programInfo, &sampleLocations);
             sampleLocations.pNext = multisampleInfo.pNext;
             multisampleInfo.pNext = &sampleLocations;
+        }
+    }
+
+    VkPipelineCoverageModulationStateCreateInfoNV coverageModulationInfo;
+    if (gpu->caps()->mixedSamplesSupport()) {
+        if (programInfo.isMixedSampled()) {
+            SkASSERT(gpu->caps()->mixedSamplesSupport());
+            setup_coverage_modulation_state(&coverageModulationInfo);
+            coverageModulationInfo.pNext = multisampleInfo.pNext;
+            multisampleInfo.pNext = &coverageModulationInfo;
         }
     }
 

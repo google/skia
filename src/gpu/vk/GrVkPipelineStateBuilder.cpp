@@ -352,5 +352,11 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     // Vulkan requires the full primitive type as part of its key
     b.add32((uint32_t)programInfo.primitiveType());
 
+    if (caps.mixedSamplesSupport()) {
+        // Add "0" to indicate that coverage modulation will not be enabled, or the (non-zero)
+        // raster sample count if it will.
+        b.add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
+    }
+
     return true;
 }
