@@ -60,8 +60,7 @@
 #endif
 
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
-#define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
-#define VK_CALL_ERRCHECK(X) GR_VK_CALL_ERRCHECK(this, X)
+#define VK_CALL_RET(RET, X) GR_VK_CALL_RESULT(this, RET, X)
 
 sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                            const GrContextOptions& options, GrContext* context) {
@@ -1498,14 +1497,13 @@ static void set_image_layout(const GrVkInterface* vkInterface, VkCommandBuffer c
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = info->fImage;
     barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, mipLevels, 0, 1};
-    GR_VK_CALL(vkInterface, CmdPipelineBarrier(
-                               cmdBuffer,
-                               srcStageMask,
-                               dstStageMask,
-                               0,
-                               0, nullptr,
-                               0, nullptr,
-                               1, &barrier));
+    GR_VK_CALL(vkInterface, CmdPipelineBarrier(cmdBuffer,
+                                               srcStageMask,
+                                               dstStageMask,
+                                               0,
+                                               0, nullptr,
+                                               0, nullptr,
+                                               1, &barrier));
     info->fImageLayout = newLayout;
 }
 
@@ -1583,7 +1581,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     };
 
     VkCommandBuffer cmdBuffer;
-    err = VK_CALL(AllocateCommandBuffers(fDevice, &cmdInfo, &cmdBuffer));
+    VK_CALL_RET(err, AllocateCommandBuffers(fDevice, &cmdInfo, &cmdBuffer));
     if (err) {
         GrVkImage::DestroyImageInfo(this, info);
         return false;
@@ -1596,8 +1594,12 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     cmdBufferBeginInfo.pInheritanceInfo = nullptr;
 
-    err = VK_CALL(BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
-    SkASSERT(!err);
+    VK_CALL_RET(err, BeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo));
+    if (err) {
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        GrVkImage::DestroyImageInfo(this, info);
+        return false;
+    }
 
     // Set image layout and add barrier
     set_image_layout(this->vkInterface(), cmdBuffer, info, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1621,7 +1623,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
         bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         bufInfo.queueFamilyIndexCount = 0;
         bufInfo.pQueueFamilyIndices = nullptr;
-        err = VK_CALL(CreateBuffer(fDevice, &bufInfo, nullptr, &buffer));
+        VK_CALL_RET(err, CreateBuffer(fDevice, &bufInfo, nullptr, &buffer));
 
         if (err) {
             GrVkImage::DestroyImageInfo(this, info);
@@ -1707,8 +1709,16 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     }
 
     // End CommandBuffer
-    err = VK_CALL(EndCommandBuffer(cmdBuffer));
-    SkASSERT(!err);
+    VK_CALL_RET(err, EndCommandBuffer(cmdBuffer));
+    if (err) {
+        GrVkImage::DestroyImageInfo(this, info);
+        if (buffer != VK_NULL_HANDLE) { // workaround for an older NVidia driver crash
+            GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+            VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+        }
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        return false;
+    }
 
     // Create Fence for queue
     VkFenceCreateInfo fenceInfo;
@@ -1718,8 +1728,16 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     fenceInfo.flags = 0;
     VkFence fence = VK_NULL_HANDLE;
 
-    err = VK_CALL(CreateFence(fDevice, &fenceInfo, nullptr, &fence));
-    SkASSERT(!err);
+    VK_CALL_RET(err, CreateFence(fDevice, &fenceInfo, nullptr, &fence));
+    if (err) {
+        GrVkImage::DestroyImageInfo(this, info);
+        if (buffer != VK_NULL_HANDLE) { // workaround for an older NVidia driver crash
+            GrVkMemory::FreeBufferMemory(this, GrVkBuffer::kCopyRead_Type, bufferAlloc);
+            VK_CALL(DestroyBuffer(fDevice, buffer, nullptr));
+        }
+        VK_CALL(FreeCommandBuffers(fDevice, fCmdPool->vkCommandPool(), 1, &cmdBuffer));
+        return false;
+    }
 
     VkProtectedSubmitInfo protectedSubmitInfo;
     if (fProtectedContext == GrProtected::kYes) {
@@ -1740,10 +1758,11 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     submitInfo.pCommandBuffers = &cmdBuffer;
     submitInfo.signalSemaphoreCount = 0;
     submitInfo.pSignalSemaphores = nullptr;
-    err = VK_CALL(QueueSubmit(this->queue(), 1, &submitInfo, fence));
-    SkASSERT(!err);
+    VK_CALL_RET(err, QueueSubmit(this->queue(), 1, &submitInfo, fence));
 
-    err = VK_CALL(WaitForFences(this->device(), 1, &fence, VK_TRUE, UINT64_MAX));
+    if (!err) {
+        VK_CALL_RET(err, WaitForFences(this->device(), 1, &fence, VK_TRUE, UINT64_MAX));
+    }
     if (VK_SUCCESS != err) {
         GrVkImage::DestroyImageInfo(this, info);
         if (buffer != VK_NULL_HANDLE) { // workaround for an older NVidia driver crash
@@ -1756,7 +1775,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
             SkDebugf("Fence failed to signal: %d\n", err);
             SK_ABORT("failing");
         } else {
-            SkDebugf("Fence failed: %d\n", err);
+            SkDebugf("Queue submit or fence wait failed: %d\n", err);
             return false;
         }
     }
@@ -2451,9 +2470,17 @@ GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
     VkFence fence = VK_NULL_HANDLE;
+    VkResult result;
 
-    VK_CALL_ERRCHECK(CreateFence(this->device(), &createInfo, nullptr, &fence));
-    VK_CALL(QueueSubmit(this->queue(), 0, nullptr, fence));
+    VK_CALL_RET(result, CreateFence(this->device(), &createInfo, nullptr, &fence));
+    if (result != VK_SUCCESS) {
+        return 0;
+    }
+    VK_CALL_RET(result, QueueSubmit(this->queue(), 0, nullptr, fence));
+    if (result != VK_SUCCESS) {
+        VK_CALL(DestroyFence(this->device(), fence, nullptr));
+        return 0;
+    }
 
     GR_STATIC_ASSERT(sizeof(GrFence) >= sizeof(VkFence));
     return (GrFence)fence;
@@ -2462,7 +2489,8 @@ GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
 bool GrVkGpu::waitFence(GrFence fence, uint64_t timeout) {
     SkASSERT(VK_NULL_HANDLE != (VkFence)fence);
 
-    VkResult result = VK_CALL(WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, timeout));
+    VkResult result;
+    VK_CALL_RET(result, WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, timeout));
     return (VK_SUCCESS == result);
 }
 

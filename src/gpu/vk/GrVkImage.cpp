@@ -197,7 +197,11 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
         initialLayout                                // initialLayout
     };
 
-    GR_VK_CALL_ERRCHECK(gpu, CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
+    VkResult result;
+    GR_VK_CALL_RESULT(gpu, result, CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
+    if (result != VK_SUCCESS) {
+        return false;
+    }
 
     if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, isLinear, &alloc)) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));

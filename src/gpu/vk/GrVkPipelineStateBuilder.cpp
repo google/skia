@@ -175,8 +175,12 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
-    GR_VK_CALL_ERRCHECK(fGpu, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
-                                                   &pipelineLayout));
+    VkResult result;
+    GR_VK_CALL_RESULT(fGpu, result, CreatePipelineLayout(fGpu->device(), &layoutCreateInfo, nullptr,
+                                                         &pipelineLayout));
+    if (result != VK_SUCCESS) {
+        return nullptr;
+    }
 
     // We need to enable the following extensions so that the compiler can correctly make spir-v
     // from our glsl shaders.

@@ -45,10 +45,6 @@ bool GrVkDescriptorPool::isCompatible(VkDescriptorType type, uint32_t count) con
     return fType == type && count <= fCount;
 }
 
-void GrVkDescriptorPool::reset(GrVkGpu* gpu) {
-    GR_VK_CALL_ERRCHECK(gpu, ResetDescriptorPool(gpu->device(), fDescPool, 0));
-}
-
 void GrVkDescriptorPool::freeGPUData(GrVkGpu* gpu) const {
     // Destroying the VkDescriptorPool will automatically free and delete any VkDescriptorSets
     // allocated from the pool.
