@@ -1708,7 +1708,8 @@ namespace skvm {
         };
         SkTHashMap<int, LabelAndReg> splats,
                                      bytes_masks;
-        LabelAndReg                  iota;
+        LabelAndReg                  iota,
+                                     all_mask;
 
         auto warmup = [&](Val id) {
             const Builder::Instruction& inst = instructions[id];
@@ -1850,7 +1851,13 @@ namespace skvm {
                     return false;  // TODO: many new ops
 
             #if defined(__x86_64__)
-                case Op::assert_true: /*TODO vptest + int3*/ break;
+                case Op::assert_true: {
+                    a->vptest (r[x], &all_mask.label);
+                    A::Label all_true;
+                    a->jc(&all_true);
+                    a->int3();
+                    a->label(&all_true);
+                } break;
 
                 case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
@@ -2185,7 +2192,13 @@ namespace skvm {
                 a->word(i);
             }
         }
-
+        if (!all_mask.label.references.empty()) {
+            a->align(4);
+            a->label(&all_mask.label);
+            for (int i = 0; i < K; i++) {
+                a->word(0xffffffff);
+            }
+        }
 
         return true;
     }
