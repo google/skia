@@ -314,7 +314,10 @@ tests_sources = [
   "$_tests/YUVTest.cpp",
 ]
 
-metal_tests_sources = [ "$_tests/MtlBackendAllocationTest.mm" ]
+metal_tests_sources = [
+  "$_tests/MtlBackendAllocationTest.mm",
+  "$_tests/MtlCopySurfaceTest.mm",
+]
 
 pathops_tests_sources = [
   "$_tests/PathOpsAngleIdeas.cpp",

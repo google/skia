@@ -590,6 +590,7 @@ optional("gpu") {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     libs += [ "Metal.framework" ]
+    libs += [ "MetalKit.framework" ]
     libs += [ "Foundation.framework" ]
     cflags_objcc += [ "-fobjc-arc" ]
   }
@@ -1527,6 +1528,7 @@ if (skia_enable_tools) {
     sources = tests_sources + pathops_tests_sources
     if (skia_use_metal) {
       sources += metal_tests_sources
+      cflags_objcc = [ "-fobjc-arc" ]
     }
     if (!skia_enable_fontmgr_android) {
       sources -= [ "//tests/FontMgrAndroidParserTest.cpp" ]

@@ -65,8 +65,13 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount, MTLPixelFormat srcFormat,
-                       int srcSampleCount, const SkIRect& srcRect, const SkIPoint& dstPoint,
+    bool canCopyAsBlit(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint,
+                       bool areDstSrcSameObj) const;
+
+    bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount,
+                       MTLPixelFormat srcFormat, int srcSampleCount,
+                       const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
     bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
