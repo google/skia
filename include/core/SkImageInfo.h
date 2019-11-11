@@ -439,6 +439,15 @@ public:
     static SkImageInfo MakeA8(int width, int height) {
         return Make({width, height}, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
     }
+    /** Creates SkImageInfo from integral dimensions, kAlpha_8_SkColorType,
+        kPremul_SkAlphaType, with SkColorSpace set to nullptr.
+
+        @param dimensions   pixel row and column count; must be zero or greater
+        @return            created SkImageInfo
+    */
+    static SkImageInfo MakeA8(SkISize dimensions) {
+        return Make(dimensions, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr);
+    }
 
     /** Creates SkImageInfo from integral dimensions width and height, kUnknown_SkColorType,
         kUnknown_SkAlphaType, with SkColorSpace set to nullptr.
