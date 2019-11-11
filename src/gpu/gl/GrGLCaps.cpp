@@ -1023,10 +1023,6 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-namespace {
-const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
-}
-
 void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 
     // Build up list of legal stencil formats (though perhaps not supported on
@@ -1039,10 +1035,7 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
                   // internal Format      stencil bits      total bits        packed?
         gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
         gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
-        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
-        gS4    = {GR_GL_STENCIL_INDEX4,   4,                4,                false},
-    //  gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
-        gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
+        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true };
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
         bool supportsPackedDS =
@@ -1058,10 +1051,6 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
         if (supportsPackedDS) {
             fStencilFormats.push_back() = gD24S8;
         }
-        fStencilFormats.push_back() = gS4;
-        if (supportsPackedDS) {
-            fStencilFormats.push_back() = gDS;
-        }
     } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
         // ES2 has STENCIL_INDEX8 without extensions but requires extensions
         // for other formats.
@@ -1072,9 +1061,6 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_OES_packed_depth_stencil")) {
             fStencilFormats.push_back() = gD24S8;
-        }
-        if (ctxInfo.hasExtension("GL_OES_stencil4")) {
-            fStencilFormats.push_back() = gS4;
         }
     } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
         fStencilFormats.push_back() = gS8;
