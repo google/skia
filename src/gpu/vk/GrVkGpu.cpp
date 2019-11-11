@@ -1435,18 +1435,16 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
 
 GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
-    SkASSERT(numStencilSamples == rt->numSamples());
+    SkASSERT(numStencilSamples == rt->numSamples() || this->caps()->mixedSamplesSupport());
     SkASSERT(width >= rt->width());
     SkASSERT(height >= rt->height());
-
-    int samples = rt->numSamples();
 
     const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferredStencilFormat();
 
     GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
                                                                  width,
                                                                  height,
-                                                                 samples,
+                                                                 numStencilSamples,
                                                                  sFmt));
     fStats.incStencilAttachmentCreates();
     return stencil;
