@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad63ba6a_85862624",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-11T17:00:26Z",
+      "side": 1,
+      "message": "Think it\u0027d make things clearer if we rename these like,\n\n   extract_low_bits_clamp         --\u003e extract_low_bits_clamp_clamp\n   extract_low_bits_repeat_mirror --\u003e extract_low_bits_general\n\n?  As writtenwe can really only use extract_low_bits_clamp when both tilex and tiley are clamp, right?",
+      "range": {
+        "startLine": 246,
+        "startChar": 69,
+        "endLine": 246,
+        "endChar": 91
+      },
+      "revId": "b0857a581f7882e98b9de10792451fddee674d1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb45a369_ffd7c2de",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-11T17:00:26Z",
+      "side": 1,
+      "message": "Maybe\n\n  // For use with extract_low_bits_general(), where clamp() above expects extract_low_bits_clamp_clamp().\n  static unsigned general_clamp(...) { ... }\n\nMight make sense to put this one with the others too just so it\u0027s easier to see how they relate?",
+      "range": {
+        "startLine": 463,
+        "startChar": 16,
+        "endLine": 463,
+        "endChar": 38
+      },
+      "revId": "b0857a581f7882e98b9de10792451fddee674d1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcbf29ff_6d7891f0",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-11T17:00:26Z",
+      "side": 1,
+      "message": "Let\u0027s fold these through?  All this redundant tileproc_general_ just makes it harder to read...",
+      "revId": "b0857a581f7882e98b9de10792451fddee674d1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28e000d8_ce06fb01",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-11T17:00:26Z",
+      "side": 1,
+      "message": "Can probably leave this else { ... } out?  It\u0027s pretty clear the if (fTileModeX \u003d\u003d fTileModeY) case always returns early, and then it\u0027ll be clear that `return GeneralProcs[index]` is always our exit point for this side.",
+      "revId": "b0857a581f7882e98b9de10792451fddee674d1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c928559_1c2f564f",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-11T17:00:26Z",
+      "side": 1,
+      "message": "Please put {} around all these if cases.  It\u0027s okay to put them on one line if you find that clearer, but even then, please use {}.",
+      "revId": "b0857a581f7882e98b9de10792451fddee674d1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
