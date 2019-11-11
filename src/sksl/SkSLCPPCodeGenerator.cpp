@@ -122,8 +122,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
             }
             int64_t index = ((IntLiteral&) *i.fIndex).fValue;
             String name = "sk_TransformedCoords2D_" + to_string(index);
-            fFormatArgs.push_back("_outer.computeLocalCoordsInVertexShader() ? " + name +
-                                  ".c_str() : \"_coords\"");
+            fFormatArgs.push_back(name + ".c_str()");
             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
                 addExtraEmitCodeLine("SkString " + name +
                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
