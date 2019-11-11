@@ -340,7 +340,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     char* currVertex = reinterpret_cast<char*>(vertices);
 
-    SkExclusiveStrikePtr autoGlyphCache;
     // each of these is a SubRun
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
@@ -349,7 +348,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
-                atlasManager, &autoGlyphCache);
+                atlasManager);
         bool done = false;
         while (!done) {
             GrTextBlob::VertexRegenerator::Result result;
