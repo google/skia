@@ -1348,32 +1348,6 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     return tex;
 }
 
-namespace {
-
-const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
-
-void inline get_stencil_rb_sizes(const GrGLInterface* gl,
-                                 GrGLStencilAttachment::Format* format) {
-
-    // we shouldn't ever know one size and not the other
-    SkASSERT((kUnknownBitCount == format->fStencilBits) ==
-             (kUnknownBitCount == format->fTotalBits));
-    if (kUnknownBitCount == format->fStencilBits) {
-        GR_GL_GetRenderbufferParameteriv(gl, GR_GL_RENDERBUFFER,
-                                         GR_GL_RENDERBUFFER_STENCIL_SIZE,
-                                         (GrGLint*)&format->fStencilBits);
-        if (format->fPacked) {
-            GR_GL_GetRenderbufferParameteriv(gl, GR_GL_RENDERBUFFER,
-                                             GR_GL_RENDERBUFFER_DEPTH_SIZE,
-                                             (GrGLint*)&format->fTotalBits);
-            format->fTotalBits += format->fStencilBits;
-        } else {
-            format->fTotalBits = format->fStencilBits;
-        }
-    }
-}
-}
-
 int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
     static const int kSize = 16;
     SkASSERT(this->glCaps().canFormatBeFBOColorAttachment(format));
@@ -1580,7 +1554,6 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
     // After sized formats we attempt an unsized format and take
     // whatever sizes GL gives us. In that case we query for the size.
     GrGLStencilAttachment::Format format = sFmt;
-    get_stencil_rb_sizes(this->glInterface(), &format);
     GrGLStencilAttachment* stencil = new GrGLStencilAttachment(this,
                                                                sbDesc,
                                                                width,
