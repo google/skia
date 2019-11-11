@@ -88,6 +88,24 @@
       "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f504b54_a820e784",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T22:24:53Z",
+      "side": 1,
+      "message": "Went with the other option.",
+      "parentUuid": "7735df06_7dfedad4",
+      "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
