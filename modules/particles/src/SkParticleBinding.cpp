@@ -10,7 +10,6 @@
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPath.h"
 #include "include/utils/SkParsePath.h"
-#include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkReflected.h"

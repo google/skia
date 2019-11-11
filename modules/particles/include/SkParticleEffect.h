@@ -14,7 +14,6 @@
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
 #include "modules/particles/include/SkParticleData.h"
 
 #include <memory>
@@ -128,11 +127,12 @@ private:
 
 class SkParticleEffect : public SkRefCnt {
 public:
-    SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
+    SkParticleEffect(sk_sp<SkParticleEffectParams> params);
 
     // Start playing this effect, specifying initial values for the emitter's properties
     void start(double now, bool looping, SkPoint position, SkVector heading, float scale,
-               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t flags);
+               SkVector velocity, float spin, SkColor4f color, float frame, uint32_t flags,
+               uint32_t random);
 
     // Start playing this effect, with default values for the emitter's properties
     void start(double now, bool looping) {
@@ -144,7 +144,8 @@ public:
                     0.0f,                        // spin
                     { 1.0f, 1.0f, 1.0f, 1.0f },  // color
                     0.0f,                        // sprite frame
-                    0);                          // flags
+                    0,                           // flags
+                    0);                          // random
     }
 
     void update(double now);
@@ -200,8 +201,6 @@ private:
 
     sk_sp<SkParticleEffectParams> fParams;
 
-    SkRandom fRandom;
-
     bool   fLooping;
     int    fCount;
     double fLastTime;
@@ -225,11 +224,12 @@ private:
         SkColor4f fColor;
         float     fFrame;
         uint32_t  fFlags;
+        uint32_t  fRandom;
     };
     EffectState fState;
 
-    SkParticles             fParticles;
-    SkAutoTMalloc<SkRandom> fStableRandoms;
+    SkParticles          fParticles;
+    SkAutoTMalloc<float> fStableRandoms;
 
     // Cached
     int fCapacity;
