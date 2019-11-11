@@ -69,6 +69,30 @@
       "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faa2ef5a_0c11e25c",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-11T17:59:59Z",
+      "side": 1,
+      "message": "I think in general having it on the proxy does make sense. In the future surface(TM) world, we will have a proxy that wraps the stencil buffer, and in that world it makes sense to me that the proxy has the sample count. There really wouldn\u0027t be any distinction between a color and stencil sample count since each proxy just wraps one surface.",
+      "parentUuid": "ad447a1f_60ff2d80",
+      "range": {
+        "startLine": 653,
+        "startChar": 4,
+        "endLine": 653,
+        "endChar": 56
+      },
+      "revId": "c0ff649184023d616559f92a9ceb0ea9a23c75d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
