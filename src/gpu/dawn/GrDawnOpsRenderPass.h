@@ -17,6 +17,7 @@
 
 class GrDawnGpu;
 class GrDawnRenderTarget;
+struct GrDawnProgram;
 
 class GrDawnOpsRenderPass : public GrOpsRenderPass, private GrMesh::SendToGpuImpl {
 public:
@@ -39,7 +40,7 @@ private:
     GrGpu* gpu() override;
 
     void setScissorState(const GrProgramInfo&);
-    void applyState(const GrProgramInfo& programInfo);
+    void applyState(GrDawnProgram*, const GrProgramInfo& programInfo, int index);
 
     void onDraw(const GrProgramInfo& programInfo,
                 const GrMesh mesh[],

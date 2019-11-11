@@ -28,7 +28,6 @@ public:
     typedef GrTAllocator<UniformInfo> UniformInfoArray;
     enum {
         kUniformBinding = 0,
-        kSamplerBindingBase = 1,
     };
     uint32_t getRTHeightOffset() const;
 
