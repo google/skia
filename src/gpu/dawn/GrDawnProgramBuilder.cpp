@@ -244,7 +244,7 @@ static wgpu::DepthStencilStateDescriptor create_depth_stencil_state(
     if (!stencilSettings.isDisabled()) {
         if (stencilSettings.isTwoSided()) {
             auto front = stencilSettings.postOriginCCWFace(origin);
-            auto back = stencilSettings.postOriginCCWFace(origin);
+            auto back = stencilSettings.postOriginCWFace(origin);
             state.stencilFront = to_stencil_state_face(front);
             state.stencilBack = to_stencil_state_face(back);
             state.stencilReadMask = front.fTestMask;
