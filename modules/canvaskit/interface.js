@@ -273,6 +273,26 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  // points is either an array of [x, y] where x and y are numbers or
+  // a typed array from Malloc where the even indices will be treated
+  // as x coordinates and the odd indices will be treated as y coordinates.
+  CanvasKit.SkPath.prototype.addPoly = function(points, close) {
+    var ptr;
+    var n;
+    // This was created with CanvasKit.Malloc, so assume the user has
+    // already been filled with data.
+    if (points['_ck']) {
+      ptr = points.byteOffset;
+      n = points.length/2;
+    } else {
+      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      n = points.length;
+    }
+    this._addPoly(ptr, n, close);
+    CanvasKit._free(ptr);
+    return this;
+  };
+
   CanvasKit.SkPath.prototype.addRect = function() {
     // Takes 1, 2, 4 or 5 args
     //  - SkRect
@@ -625,6 +645,25 @@ CanvasKit.onRuntimeInitialized = function() {
       CanvasKit._free(colorPtr);
     }
 
+  }
+
+  // points is either an array of [x, y] where x and y are numbers or
+  // a typed array from Malloc where the even indices will be treated
+  // as x coordinates and the odd indices will be treated as y coordinates.
+  CanvasKit.SkCanvas.prototype.drawPoints = function(mode, points, paint) {
+    var ptr;
+    var n;
+    // This was created with CanvasKit.Malloc, so assume the user has
+    // already been filled with data.
+    if (points['_ck']) {
+      ptr = points.byteOffset;
+      n = points.length/2;
+    } else {
+      ptr = copy2dArray(points, CanvasKit.HEAPF32);
+      n = points.length;
+    }
+    this._drawPoints(mode, ptr, n, paint);
+    CanvasKit._free(ptr);
   }
 
   // str can be either a text string or a ShapedText object
