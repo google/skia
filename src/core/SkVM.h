@@ -58,6 +58,7 @@ namespace skvm {
 
         void align(int mod);
 
+        void int3();
         void vzeroupper();
         void ret();
 
@@ -104,7 +105,10 @@ namespace skvm {
         void je (Label*);
         void jne(Label*);
         void jl (Label*);
+        void jc (Label*);
         void cmp(GP64, int imm);
+
+        void vptest(Ymm dst, Label*);
 
         void vbroadcastss(Ymm dst, Label*);
         void vbroadcastss(Ymm dst, Xmm src);
