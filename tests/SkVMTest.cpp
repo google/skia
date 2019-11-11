@@ -728,7 +728,7 @@ DEF_TEST(SkVM_assert, r) {
                        b.splat(42)));
 
     test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
-        int buf[] = { 0,1,2,3,4 };
+        int buf[] = { 0,1,2,3,4,5,6,7,8,9 };
         program.eval(SK_ARRAY_COUNT(buf), buf);
     });
 }
