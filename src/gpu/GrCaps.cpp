@@ -81,6 +81,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
 }
 
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fShaderCaps->applyOptionsOverrides(options);
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDriverBlacklistCCPR);
@@ -128,6 +129,13 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
+
+    if (fMixedSamplesSupport) {
+        // We need dual source blending and the ability to disable multisample (after all options
+        // have been applied) in order to support mixed samples in every corner case.
+        fMixedSamplesSupport = this->multisampleDisableSupport() &&
+                               this->shaderCaps()->dualSourceBlendingSupport();
+    }
 }
 
 

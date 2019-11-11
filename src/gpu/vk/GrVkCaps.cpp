@@ -389,7 +389,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
 }
 
 void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
