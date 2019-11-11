@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32c55d49_77288ada",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1580,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T20:06:23Z",
+      "side": 0,
+      "message": "Was this referring to the \"kUnknownBitCount\" that used to be at the end of the StencilFormat table?\n\nDoes the spec guarantee the sized formats will be supported on all platforms we run on?",
+      "range": {
+        "startLine": 1580,
+        "startChar": 7,
+        "endLine": 1580,
+        "endChar": 55
+      },
+      "revId": "4a09815d8e98cdc2d8326ad3399f754f1b9db332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
