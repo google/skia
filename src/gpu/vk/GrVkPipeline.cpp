@@ -288,7 +288,7 @@ static void setup_multisample_state(const GrProgramInfo& programInfo,
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleInfo->pNext = nullptr;
     multisampleInfo->flags = 0;
-    SkAssertResult(GrSampleCountToVkSampleCount(programInfo.numSamples(),
+    SkAssertResult(GrSampleCountToVkSampleCount(programInfo.numRasterSamples(),
                                                 &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;
     multisampleInfo->minSampleShading = 0.0f;
@@ -310,13 +310,13 @@ static void setup_all_sample_locations_at_pixel_center(
     sampleLocations->sampleLocationsInfo.sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
     sampleLocations->sampleLocationsInfo.pNext = nullptr;
     SkAssertResult(GrSampleCountToVkSampleCount(
-            programInfo.numSamples(),
+            programInfo.numRasterSamples(),
             &sampleLocations->sampleLocationsInfo.sampleLocationsPerPixel));
     sampleLocations->sampleLocationsInfo.sampleLocationGridSize.width = 1;
     sampleLocations->sampleLocationsInfo.sampleLocationGridSize.height = 1;
-    SkASSERT(programInfo.numSamples() < (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
+    SkASSERT(programInfo.numRasterSamples() < (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
     sampleLocations->sampleLocationsInfo.sampleLocationsCount = std::min(
-            programInfo.numSamples(), (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
+            programInfo.numRasterSamples(), (int)SK_ARRAY_COUNT(kCenteredSampleLocations));
     sampleLocations->sampleLocationsInfo.pSampleLocations = kCenteredSampleLocations;
 }
 
@@ -550,7 +550,7 @@ GrVkPipeline* GrVkPipeline::Create(
 
     VkPipelineSampleLocationsStateCreateInfoEXT sampleLocations;
     if (gpu->caps()->multisampleDisableSupport()) {
-        if (programInfo.numSamples() > 1 && !programInfo.pipeline().isHWAntialiasState()) {
+        if (programInfo.numRasterSamples() > 1 && !programInfo.pipeline().isHWAntialiasState()) {
             setup_all_sample_locations_at_pixel_center(programInfo, &sampleLocations);
             sampleLocations.pNext = multisampleInfo.pNext;
             multisampleInfo.pNext = &sampleLocations;

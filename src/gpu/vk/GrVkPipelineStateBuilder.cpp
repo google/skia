@@ -347,6 +347,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     stencil.genKey(&b);
 
     programInfo.pipeline().genKey(&b, caps);
+    b.add32(programInfo.numRasterSamples());
 
     // Vulkan requires the full primitive type as part of its key
     b.add32((uint32_t)programInfo.primitiveType());

@@ -18,6 +18,7 @@ class GrStencilSettings;
 class GrProgramInfo {
 public:
     GrProgramInfo(int numSamples,
+                  int numStencilSamples,
                   GrSurfaceOrigin origin,
                   const GrPipeline& pipeline,
                   const GrPrimitiveProcessor& primProc,
@@ -25,7 +26,8 @@ public:
                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                   int numDynamicStateArrays,
                   GrPrimitiveType primitiveType)
-            : fNumSamples(numSamples)
+            : fNumRasterSamples(pipeline.isStencilEnabled() ? numStencilSamples : numSamples)
+            , fIsMixedSampled(fNumRasterSamples > numSamples)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
@@ -33,6 +35,7 @@ public:
             , fDynamicStateArrays(dynamicStateArrays)
             , fNumDynamicStateArrays(numDynamicStateArrays)
             , fPrimitiveType(primitiveType) {
+        SkASSERT(fNumRasterSamples > 0);
         fRequestedFeatures = fPrimProc.requestedFeatures();
         for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
             fRequestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
@@ -45,7 +48,8 @@ public:
 
     GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
-    int numSamples() const { return fNumSamples;  }
+    int numRasterSamples() const { return fNumRasterSamples;  }
+    bool isMixedSampled() const { return fIsMixedSampled; }
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
@@ -111,7 +115,8 @@ public:
 #endif
 
 private:
-    const int                             fNumSamples;
+    const int                             fNumRasterSamples;
+    const bool                            fIsMixedSampled;
     const GrSurfaceOrigin                 fOrigin;
     const GrPipeline&                     fPipeline;
     const GrPrimitiveProcessor&           fPrimProc;

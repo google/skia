@@ -62,18 +62,17 @@ public:
                         const GrXferProcessor::DstProxyView& dstProxyView)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
+                , fRenderTargetProxy(surfaceView->asRenderTargetProxy())
                 , fAppliedClip(appliedClip)
                 , fDstProxyView(dstProxyView) {
             SkASSERT(surfaceView->asRenderTargetProxy());
         }
 
-        int numSamples() const { return this->proxy()->numSamples(); }
         GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }
-        GrRenderTargetProxy* proxy() const { return fSurfaceView->asRenderTargetProxy(); }
-        GrRenderTarget* renderTarget() const { return this->proxy()->peekRenderTarget(); }
+        GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
@@ -88,6 +87,7 @@ public:
     private:
         GrOp*                         fOp;
         GrSurfaceProxyView*           fSurfaceView;
+        GrRenderTargetProxy*          fRenderTargetProxy;
         GrAppliedClip*                fAppliedClip;
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
     };
@@ -129,11 +129,11 @@ public:
                                     int* actualIndexCount) final;
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
-    GrRenderTargetProxy* proxy() const final { return fOpArgs->proxy(); }
-    const GrAppliedClip* appliedClip() final { return fOpArgs->appliedClip(); }
+    GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
+    const GrAppliedClip* appliedClip() final { return this->drawOpArgs().appliedClip(); }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
-        return fOpArgs->dstProxyView();
+        return this->drawOpArgs().dstProxyView();
     }
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
     const GrCaps& caps() const final;
