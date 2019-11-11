@@ -42,7 +42,7 @@ public:
                           GrRenderTarget*,
                           const GrProgramInfo&,
                           const GrStencilSettings&,
-                          GrVkGpu* gpu);
+                          const GrCaps& caps);
 
         size_t shaderKeyLength() const { return fShaderKeyLength; }
 

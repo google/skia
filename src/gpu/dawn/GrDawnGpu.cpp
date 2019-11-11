@@ -89,8 +89,8 @@ public:
                       GrRenderTarget* rt,
                       const GrProgramInfo& programInfo,
                       bool hasDepthStencil,
-                      GrGpu* gpu) {
-        if (!GrProgramDesc::Build(desc, rt, programInfo, gpu)) {
+                      const GrCaps& caps) {
+        if (!GrProgramDesc::Build(desc, rt, programInfo, caps)) {
             return false;
         }
         GrProcessorKeyBuilder b(&desc->key());
@@ -620,7 +620,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         const GrProgramInfo& programInfo) {
     bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
     Desc desc;
-    if (!Desc::Build(&desc, rt, programInfo, hasDepthStencil, this)) {
+    if (!Desc::Build(&desc, rt, programInfo, hasDepthStencil, *this->caps())) {
         return nullptr;
     }
 

@@ -449,8 +449,8 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
                                             GrRenderTarget* renderTarget,
                                             const GrProgramInfo& programInfo,
-                                            GrMtlGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, gpu)) {
+                                            const GrMtlCaps& caps) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, caps)) {
         return false;
     }
 
@@ -462,13 +462,16 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
 
     b.add32(renderTarget->config());
     b.add32(renderTarget->numSamples());
+
     bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
-    b.add32(hasStencilAttachment ? gpu->mtlCaps().preferredStencilFormat().fInternalFormat
+    SkASSERT(!programInfo.pipeline().isStencilEnabled() || hasStencilAttachment);
+
+    b.add32(hasStencilAttachment ? caps.preferredStencilFormat().fInternalFormat
                                  : MTLPixelFormatInvalid);
     b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
 
-    programInfo.pipeline().genKey(&b, *gpu->caps());
+    programInfo.pipeline().genKey(&b, caps);
 
     b.add32((uint32_t)programInfo.primitiveType());
 

@@ -139,10 +139,12 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
     ++fTotalRequests;
 #endif
 
+    const GrMtlCaps& caps = fGpu->mtlCaps();
+
     // TODO: unify GL, VK and Mtl
     // Get GrMtlProgramDesc
     GrMtlPipelineStateBuilder::Desc desc;
-    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, fGpu)) {
+    if (!GrMtlPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, caps)) {
         GrCapsDebugf(fGpu->caps(), "Failed to build mtl program descriptor!\n");
         return nullptr;
     }

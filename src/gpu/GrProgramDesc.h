@@ -31,9 +31,9 @@ public:
      * @param desc          The built and finalized descriptor
      * @param renderTarget  The target of the draw
      * @param programInfo   Program information need to build the key
-     * @param gpu           Pointer to the GrGpu object the program will be used with.
+     * @param caps          the caps
      **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, GrGpu*);
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
 
     // This is strictly an OpenGL call since the other backends have additional data in their
     // keys

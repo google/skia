@@ -1700,6 +1700,24 @@ int GrVkCaps::getFragmentUniformSet() const {
     return GrVkUniformHandler::kUniformBufferDescSet;
 }
 
+void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
+                                  const GrSamplerState& samplerState,
+                                  const GrBackendFormat& format) const {
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    if (!ycbcrInfo) {
+        return;
+    }
+
+    GrVkSampler::Key key = GrVkSampler::GenerateKey(samplerState, *ycbcrInfo);
+
+    size_t numInts = (sizeof(key) + 3) / 4;
+
+    uint32_t* tmp = b->add32n(numInts);
+
+    tmp[numInts - 1] = 0;
+    memcpy(tmp, &key, sizeof(key));
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinations() const {
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
