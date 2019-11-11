@@ -52,6 +52,24 @@
       "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85796a63_7c09e960",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-11T21:50:08Z",
+      "side": 1,
+      "message": "That last option sounds like a good direction, and more in line with the future framebuffer direction.",
+      "parentUuid": "da840017_4a966e7f",
+      "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
