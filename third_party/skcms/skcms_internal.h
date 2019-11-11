@@ -21,9 +21,6 @@ extern "C" {
 // ~~~~ General Helper Macros ~~~~
     #define ARRAY_COUNT(arr) (int)(sizeof((arr)) / sizeof(*(arr)))
 
-// ~~~~ skcms_ICCProfile ~~~~
-    bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m);
-
     // 252 of a random shuffle of all possible bytes.
     // 252 is evenly divisible by 3 and 4.  Only 192, 10, 241, and 43 are missing.
     // Used for ICC profile equivalence testing.

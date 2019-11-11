@@ -186,6 +186,9 @@ typedef struct skcms_ICCTag {
 SKCMS_API void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
 SKCMS_API bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
+SKCMS_API bool skcms_GetCHAD(const skcms_ICCProfile*, skcms_Matrix3x3*);
+SKCMS_API bool skcms_GetWTPT(const skcms_ICCProfile*, float xyz[3]);
+
 // These are common ICC signature values
 enum {
     // data_color_space
