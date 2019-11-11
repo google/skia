@@ -235,8 +235,7 @@ void OneLineShaper::increment(TextIndex& index) {
 
 // Make it [left:right) regardless of a text direction
 TextRange OneLineShaper::normalizeTextRange(GlyphRange glyphRange) {
-    TextRange textRange(fCurrentText.start + fCurrentRun->fClusterIndexes[glyphRange.start],
-                        fCurrentText.start + fCurrentRun->fClusterIndexes[glyphRange.end]);
+    TextRange textRange(clusterIndex(glyphRange.start), clusterIndex(glyphRange.end));
     if (!fCurrentRun->leftToRight()) {
         std::swap(textRange.start, textRange.end);
     }
@@ -289,8 +288,6 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
     GlyphRange block = EMPTY_RANGE;
     for (size_t i = 0; i < fCurrentRun->size(); ++i) {
 
-        auto clusterIndex = fCurrentRun->fClusterIndexes[i];
-
         // Inspect the glyph
         auto glyph = fCurrentRun->fGlyphs[i];
         if (glyph != 0) {
@@ -301,7 +298,7 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
             // This is the end of unresolved block
             block.end = i;
         } else {
-            const char* cluster = text.begin() + clusterIndex;
+            const char* cluster = text.begin() + clusterIndex(i);
             SkUnichar codepoint = utf8_next(&cluster, text.end());
             if (u_iscntrl(codepoint)) {
                 // This codepoint does not have to be resolved; let's pretend it's resolved

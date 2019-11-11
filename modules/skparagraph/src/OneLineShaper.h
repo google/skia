@@ -89,6 +89,9 @@ private:
     void commitRunBuffer(const RunInfo&) override;
 
     TextRange clusteredText(GlyphRange glyphs);
+    ClusterIndex clusterIndex(GlyphIndex glyph) {
+        return fCurrentText.start + fCurrentRun->fClusterIndexes[glyph];
+    }
     void addFullyResolved();
     void addUnresolvedWithRun(GlyphRange glyphRange);
     void sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnresolvedBLock);
