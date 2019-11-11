@@ -569,18 +569,6 @@ public:
         }
     }
 
-    /**
-     * Returns a key that represents the sampler that will be created for the passed in parameters.
-     * Currently this key is only used when we are building a vulkan pipeline with immutable
-     * samplers. In that case, we need our cache key to also contain this key.
-     *
-     * A return value of 0 indicates that the program/pipeline we are creating is not affected by
-     * the sampler.
-     */
-    virtual uint32_t getExtraSamplerKeyForProgram(const GrSamplerState&, const GrBackendFormat&) {
-        return 0;
-    }
-
     virtual void storeVkPipelineCacheData() {}
 
 protected:

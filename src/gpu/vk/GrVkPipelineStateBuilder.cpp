@@ -327,8 +327,8 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
                                            const GrStencilSettings& stencil,
-                                           GrVkGpu* gpu) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, gpu)) {
+                                           const GrCaps& caps) {
+    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, caps)) {
         return false;
     }
 
@@ -346,7 +346,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
 
     stencil.genKey(&b);
 
-    programInfo.pipeline().genKey(&b, *gpu->caps());
+    programInfo.pipeline().genKey(&b, caps);
 
     // Vulkan requires the full primitive type as part of its key
     b.add32((uint32_t)programInfo.primitiveType());
