@@ -65,7 +65,12 @@ void GrVkCommandPool::reset(GrVkGpu* gpu) {
     SkASSERT(!fOpen);
     fOpen = true;
     fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(gpu);
-    GR_VK_CALL_ERRCHECK(gpu, ResetCommandPool(gpu->device(), fCommandPool, 0));
+    // We can't use the normal result macro calls here because we may call reset on a different
+    // thread and we can't be modifying the lost state on the GrVkGpu. We just call
+    // vkResetCommandPool and assume the "next" vulkan call will catch the lost device.
+    SkDEBUGCODE(VkResult result = )GR_VK_CALL(gpu->vkInterface(),
+                                              ResetCommandPool(gpu->device(), fCommandPool, 0));
+    SkASSERT(result == VK_SUCCESS || result == VK_ERROR_DEVICE_LOST);
 }
 
 void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {
