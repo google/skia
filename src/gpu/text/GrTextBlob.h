@@ -593,8 +593,7 @@ public:
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob*, int runIdx, int subRunIdx,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
-                      GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*,
-                      SkExclusiveStrikePtr*);
+                      GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
     struct Result {
         /**
@@ -626,7 +625,7 @@ private:
     GrDeferredUploadTarget* fUploadTarget;
     GrStrikeCache* fGlyphCache;
     GrAtlasManager* fFullAtlasManager;
-    SkExclusiveStrikePtr* fLazyStrike;
+    SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
     GrColor fColor;
     SkScalar fTransX;
