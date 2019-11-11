@@ -148,7 +148,7 @@ void GrDawnOpsRenderPass::applyState(const GrProgramInfo& programInfo) {
     fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
     const GrPipeline& pipeline = programInfo.pipeline();
     if (pipeline.isStencilEnabled()) {
-        fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fCCWFace.fRef);
+        fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fCWFace.fRef);
     }
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
     const float* c = blendInfo.fBlendConstant.vec();
