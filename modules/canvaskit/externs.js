@@ -141,6 +141,7 @@ var CanvasKit = {
 		drawColor: function() {},
 		drawDRRect:  function() {},
 		drawImage: function() {},
+		drawImageNine: function() {},
 		drawImageRect: function() {},
 		drawLine: function() {},
 		drawOval: function() {},
@@ -148,6 +149,7 @@ var CanvasKit = {
 		drawParagraph: function() {},
 		drawPath: function() {},
 		drawPicture: function() {},
+		drawPoints: function() {},
 		drawRRect:  function() {},
 		drawRect: function() {},
 		drawRoundRect: function() {},
@@ -170,6 +172,7 @@ var CanvasKit = {
 
 		// private API
 		_drawAtlas: function() {},
+		_drawPoints: function() {},
 		_drawSimpleText: function() {},
 		_readPixels: function() {},
 		_writePixels: function() {},
@@ -335,6 +338,7 @@ var CanvasKit = {
 
 	SkPathMeasure: {
 		getLength: function() {},
+		getSegment: function() {},
 		getPosTan: function() {},
 		isClosed: function() {},
 		nextContour: function() {},
@@ -577,6 +581,12 @@ var CanvasKit = {
 		Union: {},
 		XOR: {},
 		ReverseDifference: {},
+	},
+
+	PointMode: {
+		Points: {},
+		Lines: {},
+		Polygon: {},
 	},
 
 	RectHeightStyle: {
