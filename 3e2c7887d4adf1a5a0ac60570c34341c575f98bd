@@ -70,6 +70,24 @@
       "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7735df06_7dfedad4",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-11T22:13:35Z",
+      "side": 1,
+      "message": "It\u0027s good in theory, but after discussing with Rob and Greg, and looking over the code, we\u0027ve come to realize this will be a large undertaking. How do you feel about landing as-is with the understanding that eventually numStencilSamples will not reside on the proxy?",
+      "parentUuid": "85796a63_7c09e960",
+      "revId": "3e2c7887d4adf1a5a0ac60570c34341c575f98bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
