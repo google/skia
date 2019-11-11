@@ -53,13 +53,13 @@ public:
 
     ~GrVkPipelineState();
 
-    void setAndBindUniforms(GrVkGpu*, const GrRenderTarget*, const GrProgramInfo&,
+    bool setAndBindUniforms(GrVkGpu*, const GrRenderTarget*, const GrProgramInfo&,
                             GrVkCommandBuffer*);
     /**
      * This must be called after setAndBindUniforms() since that function invalidates texture
      * bindings.
      */
-    void setAndBindTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
+    bool setAndBindTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
                             const GrTextureProxy* const primitiveProcessorTextures[],
                             GrVkCommandBuffer*);
 

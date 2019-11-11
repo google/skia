@@ -24,8 +24,6 @@ public:
 
     VkDescriptorPool descPool() const { return fDescPool; }
 
-    void reset(GrVkGpu* gpu);
-
     // Returns whether or not this descriptor pool could be used, assuming it gets fully reset and
     // not in use by another draw, to support the requested type and count.
     bool isCompatible(VkDescriptorType type, uint32_t count) const;

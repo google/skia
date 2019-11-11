@@ -485,14 +485,18 @@ GrVkPipelineState* GrVkOpsRenderPass::prepareDrawState(
     // same place (i.e., the target renderTargetProxy) they had best agree.
     SkASSERT(programInfo.origin() == fOrigin);
 
-    pipelineState->setAndBindUniforms(fGpu, fRenderTarget, programInfo, currentCB);
+    if (!pipelineState->setAndBindUniforms(fGpu, fRenderTarget, programInfo, currentCB)) {
+        return nullptr;
+    }
 
     // Check whether we need to bind textures between each GrMesh. If not we can bind them all now.
     if (!programInfo.hasDynamicPrimProcTextures()) {
         auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
                                                               : nullptr;
-        pipelineState->setAndBindTextures(fGpu, programInfo.primProc(), programInfo.pipeline(),
-                                          proxies, currentCB);
+        if (!pipelineState->setAndBindTextures(fGpu, programInfo.primProc(), programInfo.pipeline(),
+                                               proxies, currentCB)) {
+            return nullptr;
+        }
     }
 
     if (!programInfo.pipeline().isScissorEnabled()) {
@@ -601,8 +605,15 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         }
         if (hasDynamicTextures) {
             auto meshProxies = programInfo.dynamicPrimProcTextures(i);
-            pipelineState->setAndBindTextures(fGpu, programInfo.primProc(), programInfo.pipeline(),
-                                              meshProxies, this->currentCommandBuffer());
+            if (!pipelineState->setAndBindTextures(fGpu, programInfo.primProc(),
+                                                   programInfo.pipeline(), meshProxies,
+                                                   this->currentCommandBuffer())) {
+                if (fGpu->isDeviceLost()) {
+                    return;
+                } else {
+                    continue;
+                }
+            }
         }
         SkASSERT(pipelineState);
         mesh.sendToGpu(this);
