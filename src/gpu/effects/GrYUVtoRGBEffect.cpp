@@ -102,6 +102,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
                 SkASSERT(fColorSpaceMatrixVar.isValid());
                 fragBuilder->codeAppendf(
                     "yuvOne *= %s;", args.fUniformHandler->getUniformCStr(fColorSpaceMatrixVar));
+                fragBuilder->codeAppend("yuvOne.xyz = clamp(yuvOne.xyz, 0, 1);");
             }
 
             if (_outer.yuvaIndex(3).fIndex >= 0) {
