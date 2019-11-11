@@ -11,8 +11,10 @@
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkStrikeSpec.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
@@ -80,12 +82,12 @@ static void expand_bits(INT_TYPE* dst,
     }
 }
 
-static bool get_packed_glyph_image(SkStrike* cache, SkGlyph* glyph, int width,
+static bool get_packed_glyph_image(const SkGlyph* glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
                                    void* dst, const SkMasks& masks) {
     SkASSERT(glyph->width() == width);
     SkASSERT(glyph->height() == height);
-    const void* src = cache->prepareImage(glyph);
+    const void* src = glyph->image();
     if (src == nullptr) {
         return false;
     }
@@ -190,11 +192,11 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    GrStrikeCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
-                                   SkStrike* skStrikeCache,
+                                   SkBulkGlyphMetricsAndImages* metricsAndImages,
                                    GrMaskFormat expectedMaskFormat,
                                    bool isScaledGlyph) {
     SkASSERT(glyph);
-    SkASSERT(skStrikeCache);
+    SkASSERT(metricsAndImages);
     SkASSERT(fCache.find(glyph->fPackedID));
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
@@ -215,13 +217,13 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
     SkAutoSMalloc<1024> storage(size);
 
-    SkGlyph* skGlyph = skStrikeCache->glyph(glyph->fPackedID);
+    const SkGlyph* skGlyph = metricsAndImages->glyph(glyph->fPackedID);
     void* dataPtr = storage.get();
     if (addPad) {
         sk_bzero(dataPtr, size);
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
     }
-    if (!get_packed_glyph_image(skStrikeCache, skGlyph, glyph->width(), glyph->height(),
+    if (!get_packed_glyph_image(skGlyph, glyph->width(), glyph->height(),
                                 rowBytes, expectedMaskFormat,
                                 dataPtr, glyphCache->getMasks())) {
         return GrDrawOpAtlas::ErrorCode::kError;
@@ -241,4 +243,26 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
         fAtlasedGlyphs++;
     }
     return result;
+}
+
+GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
+    GrGlyph* grGlyph = fCache.find(skGlyph.getPackedID());
+    if (grGlyph == nullptr) {
+        grGlyph = fAlloc.make<GrGlyph>(skGlyph);
+        fCache.add(grGlyph);
+    }
+    return grGlyph;
+}
+
+GrGlyph*
+GrTextStrike::getGlyph(SkPackedGlyphID packed, SkBulkGlyphMetricsAndImages* metricsAndImages) {
+    GrGlyph* grGlyph = fCache.find(packed);
+    if (grGlyph == nullptr) {
+        // We could return this to the caller, but in practice it adds code complexity for
+        // potentially little benefit(ie, if the glyph is not in our font cache, then its not
+        // in the atlas and we're going to be doing a texture upload anyways).
+        grGlyph = fAlloc.make<GrGlyph>(*metricsAndImages->glyph(packed));
+        fCache.add(grGlyph);
+    }
+    return grGlyph;
 }

@@ -891,14 +891,17 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
     auto scalerProxy = static_cast<SkScalerContextProxy*>(testCache->getScalerContext());
     scalerProxy->initCache(testCache.get(), &strikeCache);
 
+    auto rounding = testCache->roundingSpec();
+    SkBulkGlyphMetricsAndImages metricsAndImages{std::move(testCache)};
+
     // Look for the lost glyph.
     {
         SkPoint pt{SkFixedToScalar(lostGlyphID.getSubXFixed()),
                    SkFixedToScalar(lostGlyphID.getSubYFixed())};
         SkPackedGlyphID packedID{
-            lostGlyphID.glyphID(), pt, testCache->roundingSpec().ignorePositionFieldMask};
-        SkGlyph* lostGlyph = testCache->glyph(packedID);
-        testCache->prepareImage(lostGlyph);
+            lostGlyphID.glyphID(), pt, rounding.ignorePositionFieldMask};
+
+        const SkGlyph* lostGlyph = metricsAndImages.glyph(packedID);
 
         REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
         REPORTER_ASSERT(reporter, lostGlyph->width() == 2);
@@ -911,9 +914,8 @@ DEF_TEST(SkRemoteGlyphCache_SearchOfDesperation, reporter) {
         SkPoint pt{SkFixedToScalar(SK_FixedQuarter),
                    SkFixedToScalar(SK_FixedQuarter)};
         SkPackedGlyphID packedID{
-                lostGlyphID.glyphID(), pt, testCache->roundingSpec().ignorePositionFieldMask};
-        SkGlyph* lostGlyph = testCache->glyph(packedID);
-        testCache->prepareImage(lostGlyph);
+                lostGlyphID.glyphID(), pt, rounding.ignorePositionFieldMask};
+        const SkGlyph* lostGlyph = metricsAndImages.glyph(packedID);
 
         REPORTER_ASSERT(reporter, lostGlyph->height() == 1);
         REPORTER_ASSERT(reporter, lostGlyph->width() == 2);

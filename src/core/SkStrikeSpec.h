@@ -13,8 +13,9 @@
 #include "src/core/SkStrikeForGPU.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextContext.h"
+class GrStrikeCache;
+class GrTextStrike;
 #endif
 
 class SkFont;
@@ -40,10 +41,10 @@ public:
             SkScalerContextFlags scalerContextFlags);
 
     static SkStrikeSpec MakeSourceFallback(const SkFont& font,
-                                                  const SkPaint& paint,
-                                                  const SkSurfaceProps& surfaceProps,
-                                                  SkScalerContextFlags scalerContextFlags,
-                                                  SkScalar maxSourceGlyphDimension);
+                                           const SkPaint& paint,
+                                           const SkSurfaceProps& surfaceProps,
+                                           SkScalerContextFlags scalerContextFlags,
+                                           SkScalar maxSourceGlyphDimension);
 
     // Create a canonical strike spec for device-less measurements.
     static SkStrikeSpec MakeCanonicalized(
@@ -99,6 +100,7 @@ class SkBulkGlyphMetrics {
 public:
     explicit SkBulkGlyphMetrics(const SkStrikeSpec& spec);
     SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
+    const SkGlyph* glyph(SkGlyphID glyphID);
 
 private:
     static constexpr int kTypicalGlyphCount = 20;
@@ -109,7 +111,11 @@ private:
 class SkBulkGlyphMetricsAndPaths {
 public:
     explicit SkBulkGlyphMetricsAndPaths(const SkStrikeSpec& spec);
+    explicit SkBulkGlyphMetricsAndPaths(SkExclusiveStrikePtr&& strike);
     SkSpan<const SkGlyph*> glyphs(SkSpan<const SkGlyphID> glyphIDs);
+    const SkGlyph* glyph(SkGlyphID glyphID);
+    void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
+                        const SkGlyph* glyph, SkScalar* array, int* count);
 
 private:
     static constexpr int kTypicalGlyphCount = 20;
@@ -120,7 +126,11 @@ private:
 class SkBulkGlyphMetricsAndImages {
 public:
     explicit SkBulkGlyphMetricsAndImages(const SkStrikeSpec& spec);
-    SkSpan<const SkGlyph*> glyphs(SkSpan<const SkPackedGlyphID> glyphIDs);
+    explicit SkBulkGlyphMetricsAndImages(SkExclusiveStrikePtr&& strike);
+    SkSpan<const SkGlyph*> glyphs(SkSpan<const SkPackedGlyphID> packedIDs);
+    const SkGlyph* glyph(SkPackedGlyphID packedID);
+    const SkDescriptor& descriptor() const;
+
 
 private:
     static constexpr int kTypicalGlyphCount = 64;

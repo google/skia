@@ -39,26 +39,17 @@ public:
              std::unique_ptr<SkScalerContext> scaler,
              const SkFontMetrics&);
 
-    // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
-    // advances using a scaler.
-    SkGlyph* glyph(SkPackedGlyphID packedID);
-
     // Return a glyph.  Create it if it doesn't exist, and initialize with the prototype.
     SkGlyph* glyphFromPrototype(const SkGlyphPrototype& p, void* image = nullptr);
 
     // Return a glyph or nullptr if it does not exits in the strike.
     SkGlyph* glyphOrNull(SkPackedGlyphID id) const;
 
-    const void* prepareImage(SkGlyph* glyph);
-
     // Lookup (or create if needed) the toGlyph using toID. If that glyph is not initialized with
     // an image, then use the information in from to initialize the width, height top, left,
     // format and image of the toGlyph. This is mainly used preserving the glyph if it was
     // created by a search of desperation.
     SkGlyph* mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& from);
-
-    // If the path has never been set, then use the scaler context to add the glyph.
-    const SkPath* preparePath(SkGlyph*);
 
     // If the path has never been set, then add a path to glyph.
     const SkPath* preparePath(SkGlyph* glyph, const SkPath* path);
@@ -163,11 +154,19 @@ private:
     template <typename Fn>
     void commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn);
 
+    // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
+    // advances using a scaler.
+    SkGlyph* glyph(SkPackedGlyphID packedID);
+
+    const void* prepareImage(SkGlyph* glyph);
+
+    // If the path has never been set, then use the scaler context to add the glyph.
+    const SkPath* preparePath(SkGlyph*);
+
     enum PathDetail {
         kMetricsOnly,
         kMetricsAndPath
     };
-
     // internalPrepare will only be called with a mutex already held.
     SkSpan<const SkGlyph*> internalPrepare(
             SkSpan<const SkGlyphID> glyphIDs,
