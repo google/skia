@@ -763,9 +763,11 @@ DEF_TEST(SkVM_Assembler, r) {
     using A = skvm::Assembler;
     // Our exit strategy from AVX code.
     test_asm(r, [&](A& a) {
+        a.int3();
         a.vzeroupper();
         a.ret();
     },{
+        0xcc,
         0xc5, 0xf8, 0x77,
         0xc3,
     });
@@ -882,6 +884,8 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpshufb(A::ymm4, A::ymm3, &l);
         a.vpaddd (A::ymm4, A::ymm3, &l);
         a.vpsubd (A::ymm4, A::ymm3, &l);
+
+        a.vptest(A::ymm4, &l);
     },{
         0x01, 0x02, 0x03, 0x4,
 
@@ -895,6 +899,8 @@ DEF_TEST(SkVM_Assembler, r) {
 
         0xc5, 0xe5,        0xfe,   0b00'100'101,   0xc7,0xff,0xff,0xff,   // 0xffffffc7 == -57
         0xc5, 0xe5,        0xfa,   0b00'100'101,   0xbf,0xff,0xff,0xff,   // 0xffffffbf == -65
+
+        0xc4, 0xe2, 0x7d,  0x17,   0b00'100'101,   0xb6,0xff,0xff,0xff,   // 0xffffffb6 == -72
     });
 
     test_asm(r, [&](A& a) {
@@ -923,6 +929,7 @@ DEF_TEST(SkVM_Assembler, r) {
         a.je (&l);
         a.jmp(&l);
         a.jl (&l);
+        a.jc (&l);
 
         a.cmp(A::rdx, 0);
         a.cmp(A::rax, 12);
@@ -933,6 +940,7 @@ DEF_TEST(SkVM_Assembler, r) {
         0x0f,0x84, 0xee,0xff,0xff,0xff,   // near je  -18 bytes
         0xe9,      0xe9,0xff,0xff,0xff,   // near jmp -23 bytes
         0x0f,0x8c, 0xe3,0xff,0xff,0xff,   // near jl  -29 bytes
+        0x0f,0x82, 0xdd,0xff,0xff,0xff,   // near jc  -35 bytes
 
         0x48,0x83,0xfa,0x00,
         0x48,0x83,0xf8,0x0c,

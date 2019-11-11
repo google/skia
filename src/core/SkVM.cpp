@@ -722,6 +722,10 @@ namespace skvm {
         }
     }
 
+    void Assembler::int3() {
+        this->byte(0xcc);
+    }
+
     void Assembler::vzeroupper() {
         this->byte(0xc5);
         this->byte(0xf8);
@@ -870,6 +874,8 @@ namespace skvm {
     void Assembler::vpaddd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfe, dst,x,l); }
     void Assembler::vpsubd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfa, dst,x,l); }
 
+    void Assembler::vptest(Ymm dst, Label* l) { this->op(0x66, 0x380f, 0x17, dst, (Ymm)0, l); }
+
     void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
     void Assembler::vbroadcastss(Ymm dst, Xmm src)  { this->op(0x66,0x380f,0x18, dst, (Ymm)src); }
     void Assembler::vbroadcastss(Ymm dst, GP64 ptr, int off) {
@@ -897,6 +903,7 @@ namespace skvm {
     void Assembler::je (Label* l) { this->jump(0x84, l); }
     void Assembler::jne(Label* l) { this->jump(0x85, l); }
     void Assembler::jl (Label* l) { this->jump(0x8c, l); }
+    void Assembler::jc (Label* l) { this->jump(0x82, l); }
 
     void Assembler::jmp(Label* l) {
         // Like above in jump(), we could use 8-bit displacement here, but always use 32-bit.
