@@ -243,14 +243,14 @@ static wgpu::DepthStencilStateDescriptor create_depth_stencil_state(
     state.format = depthStencilFormat;
     if (!stencilSettings.isDisabled()) {
         if (stencilSettings.isTwoSided()) {
-            auto front = stencilSettings.front(origin);
-            auto back = stencilSettings.front(origin);
+            auto front = stencilSettings.postOriginCCWFace(origin);
+            auto back = stencilSettings.postOriginCCWFace(origin);
             state.stencilFront = to_stencil_state_face(front);
             state.stencilBack = to_stencil_state_face(back);
             state.stencilReadMask = front.fTestMask;
             state.stencilWriteMask = front.fWriteMask;
         } else {
-            auto frontAndBack = stencilSettings.frontAndBack();
+            auto frontAndBack = stencilSettings.singleSidedFace();
             state.stencilBack = state.stencilFront = to_stencil_state_face(frontAndBack);
             state.stencilReadMask = frontAndBack.fTestMask;
             state.stencilWriteMask = frontAndBack.fWriteMask;
@@ -353,7 +353,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     depthStencilState = create_depth_stencil_state(stencil, depthStencilFormat,
                                                    programInfo.origin());
 
-    std::vector<wgpu::VertexBufferDescriptor> inputs;
+    std::vector<wgpu::VertexBufferLayoutDescriptor> inputs;
 
     std::vector<wgpu::VertexAttributeDescriptor> vertexAttributes;
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
@@ -369,8 +369,8 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
             offset += attrib.sizeAlign4();
             i++;
         }
-        wgpu::VertexBufferDescriptor input;
-        input.stride = offset;
+        wgpu::VertexBufferLayoutDescriptor input;
+        input.arrayStride = offset;
         input.stepMode = wgpu::InputStepMode::Vertex;
         input.attributeCount = vertexAttributes.size();
         input.attributes = &vertexAttributes.front();
@@ -389,17 +389,17 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
             offset += attrib.sizeAlign4();
             i++;
         }
-        wgpu::VertexBufferDescriptor input;
-        input.stride = offset;
+        wgpu::VertexBufferLayoutDescriptor input;
+        input.arrayStride = offset;
         input.stepMode = wgpu::InputStepMode::Instance;
         input.attributeCount = instanceAttributes.size();
         input.attributes = &instanceAttributes.front();
         inputs.push_back(input);
     }
-    wgpu::VertexInputDescriptor vertexInput;
-    vertexInput.indexFormat = wgpu::IndexFormat::Uint16;
-    vertexInput.bufferCount = inputs.size();
-    vertexInput.buffers = &inputs.front();
+    wgpu::VertexStateDescriptor vertexState;
+    vertexState.indexFormat = wgpu::IndexFormat::Uint16;
+    vertexState.vertexBufferCount = inputs.size();
+    vertexState.vertexBuffers = &inputs.front();
 
     wgpu::ProgrammableStageDescriptor vsDesc;
     vsDesc.module = vsModule;
@@ -413,7 +413,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     rpDesc.layout = pipelineLayout;
     rpDesc.vertexStage = vsDesc;
     rpDesc.fragmentStage = &fsDesc;
-    rpDesc.vertexInput = &vertexInput;
+    rpDesc.vertexState = &vertexState;
     rpDesc.primitiveTopology = to_dawn_primitive_topology(programInfo.primitiveType());
     if (hasDepthStencil) {
         rpDesc.depthStencilState = &depthStencilState;
