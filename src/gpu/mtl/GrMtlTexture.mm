@@ -25,6 +25,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
     this->registerWithCache(budgeted);
     if (GrMtlFormatIsCompressed(texture.pixelFormat)) {
         this->setReadOnly();
@@ -43,6 +44,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
     if (ioType == kRead_GrIOType) {
         this->setReadOnly();
     }
@@ -58,6 +60,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    SkASSERT(SkToBool(texture.usage & MTLTextureUsageShaderRead));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
