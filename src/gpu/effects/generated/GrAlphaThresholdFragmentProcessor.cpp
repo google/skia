@@ -51,8 +51,7 @@ public:
                 "color.w = %s;\n}\n%s = color;\n",
                 args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
-                                                          : "_coords",
+                sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),
                 args.fUniformHandler->getUniformCStr(outerThresholdVar),

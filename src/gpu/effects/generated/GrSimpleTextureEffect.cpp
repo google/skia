@@ -30,8 +30,7 @@ public:
         fragBuilder->codeAppendf(
                 "%s = %s * sample(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                _outer.computeLocalCoordsInVertexShader() ? sk_TransformedCoords2D_0.c_str()
-                                                          : "_coords",
+                sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
     }
 

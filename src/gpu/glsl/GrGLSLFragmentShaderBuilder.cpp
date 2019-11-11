@@ -72,6 +72,9 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
 }
 
 SkString GrGLSLFragmentShaderBuilder::ensureCoords2D(const GrShaderVar& coords) {
+    if (!coords.getName().size()) {
+        return SkString("_coords");
+    }
     if (kFloat3_GrSLType != coords.getType() && kHalf3_GrSLType != coords.getType()) {
         SkASSERT(kFloat2_GrSLType == coords.getType() || kHalf2_GrSLType == coords.getType());
         return coords.getName();
