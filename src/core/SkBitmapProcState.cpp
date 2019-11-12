@@ -262,7 +262,7 @@ bool SkBitmapProcState::chooseProcs() {
     SkASSERT(fPixmap.colorType() == kN32_SkColorType);
     SkASSERT(fPixmap.alphaType() == kPremul_SkAlphaType ||
              fPixmap.alphaType() == kOpaque_SkAlphaType);
-    SkASSERT(fTileModeX == fTileModeY);
+
     SkASSERT(fTileModeX != SkTileMode::kDecal);
     SkASSERT(fFilterQuality < kHigh_SkFilterQuality);
 
@@ -289,6 +289,7 @@ bool SkBitmapProcState::chooseProcs() {
     if (fAlphaScale == 256
             && fFilterQuality == kNone_SkFilterQuality
             && SkTileMode::kClamp == fTileModeX
+            && SkTileMode::kClamp == fTileModeY
             && fInvMatrix.isScaleTranslate()) {
         fShaderProc32 = Clamp_S32_opaque_D32_nofilter_DX_shaderproc;
     } else {
