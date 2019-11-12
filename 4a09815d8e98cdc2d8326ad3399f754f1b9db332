@@ -22,6 +22,30 @@
       "revId": "4a09815d8e98cdc2d8326ad3399f754f1b9db332",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5da48cf_f6c76513",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1580,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-12T13:24:43Z",
+      "side": 0,
+      "message": "Right - it was the \u0027gDS\u0027 case for desktop. \n\nfwiw:\n\nDEPTH24 STENCIL8 support is required for desktop GL 3.0 and I would be surprised if stencil 8 just isn\u0027t always supported before that too. If we do run into trouble we can re-add the \u0027gDS\u0027 case but require that it always yields 8 stencil bits.\n\nIn ES 2.0, STENCIL_INDEX8 is the only stencil format listed as being stencil-renderable so, I guess, if there is any stenciling available it has to be INDEX8.\n\nIn ES 3.0, the spec flat out states STENCIL_INDEX8 must be supported.",
+      "parentUuid": "32c55d49_77288ada",
+      "range": {
+        "startLine": 1580,
+        "startChar": 7,
+        "endLine": 1580,
+        "endChar": 55
+      },
+      "revId": "4a09815d8e98cdc2d8326ad3399f754f1b9db332",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
