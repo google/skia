@@ -95,13 +95,12 @@ public:
         }
         GrProcessorKeyBuilder b(&desc->key());
 
-        GrStencilSettings stencil;
-        const GrPipeline& pipeline = programInfo.pipeline();
-        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), 8);
+        GrStencilSettings stencil = programInfo.nonGLStencilSettings();
         stencil.genKey(&b);
+
         b.add32(rt->config());
         b.add32(static_cast<int32_t>(hasDepthStencil));
-        b.add32(get_blend_info_key(pipeline));
+        b.add32(get_blend_info_key(programInfo.pipeline()));
         b.add32(static_cast<uint32_t>(programInfo.primitiveType()));
         return true;
     }
