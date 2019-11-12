@@ -241,13 +241,13 @@ GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrTex
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
     GrSLType samplerType = kSampler_GrSLType, textureType = kTexture2D_GrSLType;
-    int binding = kSamplerBindingBase + fSamplers.count() * 2;
+    int binding = fSamplers.count() * 2;
     UniformInfo& info = fSamplers.push_back();
     info.fVar.setType(samplerType);
     info.fVar.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     info.fVar.setName(mangleName);
     SkString layoutQualifier;
-    layoutQualifier.appendf("set = 0, binding = %d", binding);
+    layoutQualifier.appendf("set = 1, binding = %d", binding);
     info.fVar.addLayoutQualifier(layoutQualifier.c_str());
     info.fVisibility = kFragment_GrShaderFlag;
     info.fUBOOffset = 0;
@@ -262,7 +262,7 @@ GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrTex
     texInfo.fVar.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     texInfo.fVar.setName(mangleTexName);
     SkString texLayoutQualifier;
-    texLayoutQualifier.appendf("set = 0, binding = %d", binding + 1);
+    texLayoutQualifier.appendf("set = 1, binding = %d", binding + 1);
     texInfo.fVar.addLayoutQualifier(texLayoutQualifier.c_str());
     texInfo.fVisibility = kFragment_GrShaderFlag;
     texInfo.fUBOOffset = 0;
