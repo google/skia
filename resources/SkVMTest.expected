@@ -1,526 +1,484 @@
 A8 over A8
-14 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load8 arg(0)
-  v2 = to_f32 v1
-  v3 = mul_f32 v0 v2
-  v4 = load8 arg(1)
-  v5 = to_f32 v4
-  v6 = mul_f32 v0 v5
-↑ v7 = splat 3F800000 (1)
-  v8 = sub_f32 v7 v3
-  v9 = mad_f32 v6 v8 v3
-↑ v10 = splat 437F0000 (255)
-  v11 = mul_f32 v9 v10
-  v12 = round v11
-  store8 arg(1) v12
+12 values:
+  v0 = load8 arg(0)
+  v1 = to_f32 v0
+  v2 = mul_f32 v1 3B808081 (0.0039215689)
+  v3 = load8 arg(1)
+  v4 = to_f32 v3
+  v5 = mul_f32 v4 3B808081 (0.0039215689)
+↑ v6 = splat 3F800000 (1)
+  v7 = sub_f32 v6 v2
+  v8 = mad_f32 v5 v7 v2
+  v9 = mul_f32 v8 437F0000 (255)
+  v10 = round v9
+  store8 arg(1) v10
 
-6 registers, 14 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat 3F800000 (1)
-r2 = splat 437F0000 (255)
+4 registers, 12 instructions:
+r0 = splat 3F800000 (1)
 loop:
-    r3 = load8 arg(0)
+    r1 = load8 arg(0)
+    r1 = to_f32 r1
+    r1 = mul_f32 r1 3B808081 (0.0039215689)
+    r2 = load8 arg(1)
+    r2 = to_f32 r2
+    r2 = mul_f32 r2 3B808081 (0.0039215689)
+    r3 = sub_f32 r0 r1
+    r1 = mad_f32 r2 r3 r1
+    r1 = mul_f32 r1 437F0000 (255)
+    r1 = round r1
+    store8 arg(1) r1
+
+A8 over G8
+17 values:
+  v0 = load8 arg(1)
+  v1 = to_f32 v0
+  v2 = mul_f32 v1 3B808081 (0.0039215689)
+  v3 = load8 arg(0)
+  v4 = to_f32 v3
+  v5 = mul_f32 v4 3B808081 (0.0039215689)
+↑ v6 = splat 3F800000 (1)
+  v7 = sub_f32 v6 v5
+  v8 = mul_f32 v2 v7
+↑ v9 = splat 3E59B3D0 (0.21259999)
+↑ v10 = splat 3F371759 (0.71520001)
+  v11 = mul_f32 v8 3D93DD98 (0.0722)
+  v12 = mad_f32 v8 v10 v11
+  v13 = mad_f32 v8 v9 v12
+  v14 = mul_f32 v13 437F0000 (255)
+  v15 = round v14
+  store8 arg(1) v15
+
+5 registers, 17 instructions:
+r0 = splat 3F800000 (1)
+r1 = splat 3E59B3D0 (0.21259999)
+r2 = splat 3F371759 (0.71520001)
+loop:
+    r3 = load8 arg(1)
     r3 = to_f32 r3
-    r3 = mul_f32 r0 r3
-    r4 = load8 arg(1)
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r4 = load8 arg(0)
     r4 = to_f32 r4
-    r4 = mul_f32 r0 r4
-    r5 = sub_f32 r1 r3
-    r3 = mad_f32 r4 r5 r3
-    r3 = mul_f32 r3 r2
+    r4 = mul_f32 r4 3B808081 (0.0039215689)
+    r4 = sub_f32 r0 r4
+    r4 = mul_f32 r3 r4
+    r3 = mul_f32 r4 3D93DD98 (0.0722)
+    r3 = mad_f32 r4 r2 r3
+    r3 = mad_f32 r4 r1 r3
+    r3 = mul_f32 r3 437F0000 (255)
     r3 = round r3
     store8 arg(1) r3
 
-A8 over G8
-20 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load8 arg(1)
-  v2 = to_f32 v1
-  v3 = mul_f32 v0 v2
-  v4 = load8 arg(0)
-  v5 = to_f32 v4
-  v6 = mul_f32 v0 v5
-↑ v7 = splat 3F800000 (1)
-  v8 = sub_f32 v7 v6
-  v9 = mul_f32 v3 v8
-↑ v10 = splat 3E59B3D0 (0.21259999)
-↑ v11 = splat 3F371759 (0.71520001)
-↑ v12 = splat 3D93DD98 (0.0722)
-  v13 = mul_f32 v9 v12
-  v14 = mad_f32 v9 v11 v13
-  v15 = mad_f32 v9 v10 v14
-↑ v16 = splat 437F0000 (255)
-  v17 = mul_f32 v15 v16
-  v18 = round v17
-  store8 arg(1) v18
-
-8 registers, 20 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat 3F800000 (1)
-r2 = splat 3E59B3D0 (0.21259999)
-r3 = splat 3F371759 (0.71520001)
-r4 = splat 3D93DD98 (0.0722)
-r5 = splat 437F0000 (255)
-loop:
-    r6 = load8 arg(1)
-    r6 = to_f32 r6
-    r6 = mul_f32 r0 r6
-    r7 = load8 arg(0)
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r7 = sub_f32 r1 r7
-    r7 = mul_f32 r6 r7
-    r6 = mul_f32 r7 r4
-    r6 = mad_f32 r7 r3 r6
-    r6 = mad_f32 r7 r2 r6
-    r6 = mul_f32 r6 r5
-    r6 = round r6
-    store8 arg(1) r6
-
 A8 over RGBA_8888
-37 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load32 arg(1)
-↑ v2 = splat FF (3.5733111e-43)
-  v3 = extract v1 0 v2
-  v4 = to_f32 v3
-  v5 = mul_f32 v0 v4
-  v6 = load8 arg(0)
-  v7 = to_f32 v6
-  v8 = mul_f32 v0 v7
-↑ v9 = splat 3F800000 (1)
-  v10 = sub_f32 v9 v8
-  v11 = mul_f32 v5 v10
-↑ v12 = splat 437F0000 (255)
-  v13 = mul_f32 v11 v12
-  v14 = round v13
-  v15 = extract v1 8 v2
-  v16 = to_f32 v15
-  v17 = mul_f32 v0 v16
-  v18 = mul_f32 v17 v10
-  v19 = mul_f32 v18 v12
-  v20 = round v19
-  v21 = pack v14 v20 8
-  v22 = extract v1 16 v2
-  v23 = to_f32 v22
-  v24 = mul_f32 v0 v23
-  v25 = mul_f32 v24 v10
-  v26 = mul_f32 v25 v12
-  v27 = round v26
-  v28 = extract v1 24 v2
-  v29 = to_f32 v28
-  v30 = mul_f32 v0 v29
-  v31 = mad_f32 v30 v10 v8
-  v32 = mul_f32 v31 v12
-  v33 = round v32
-  v34 = pack v27 v33 8
-  v35 = pack v21 v34 16
-  store32 arg(1) v35
+35 values:
+  v0 = load32 arg(1)
+↑ v1 = splat FF (3.5733111e-43)
+  v2 = extract v0 0 v1
+  v3 = to_f32 v2
+  v4 = mul_f32 v3 3B808081 (0.0039215689)
+  v5 = load8 arg(0)
+  v6 = to_f32 v5
+  v7 = mul_f32 v6 3B808081 (0.0039215689)
+↑ v8 = splat 3F800000 (1)
+  v9 = sub_f32 v8 v7
+  v10 = mul_f32 v4 v9
+  v11 = mul_f32 v10 437F0000 (255)
+  v12 = round v11
+  v13 = extract v0 8 v1
+  v14 = to_f32 v13
+  v15 = mul_f32 v14 3B808081 (0.0039215689)
+  v16 = mul_f32 v15 v9
+  v17 = mul_f32 v16 437F0000 (255)
+  v18 = round v17
+  v19 = pack v12 v18 8
+  v20 = extract v0 16 v1
+  v21 = to_f32 v20
+  v22 = mul_f32 v21 3B808081 (0.0039215689)
+  v23 = mul_f32 v22 v9
+  v24 = mul_f32 v23 437F0000 (255)
+  v25 = round v24
+  v26 = extract v0 24 v1
+  v27 = to_f32 v26
+  v28 = mul_f32 v27 3B808081 (0.0039215689)
+  v29 = mad_f32 v28 v9 v7
+  v30 = mul_f32 v29 437F0000 (255)
+  v31 = round v30
+  v32 = pack v25 v31 8
+  v33 = pack v19 v32 16
+  store32 arg(1) v33
 
-9 registers, 37 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat FF (3.5733111e-43)
-r2 = splat 3F800000 (1)
-r3 = splat 437F0000 (255)
+7 registers, 35 instructions:
+r0 = splat FF (3.5733111e-43)
+r1 = splat 3F800000 (1)
 loop:
-    r4 = load32 arg(1)
-    r5 = extract r4 0 r1
-    r5 = to_f32 r5
-    r5 = mul_f32 r0 r5
-    r6 = load8 arg(0)
-    r6 = to_f32 r6
-    r6 = mul_f32 r0 r6
-    r7 = sub_f32 r2 r6
-    r5 = mul_f32 r5 r7
-    r5 = mul_f32 r5 r3
-    r5 = round r5
-    r8 = extract r4 8 r1
-    r8 = to_f32 r8
-    r8 = mul_f32 r0 r8
-    r8 = mul_f32 r8 r7
-    r8 = mul_f32 r8 r3
-    r8 = round r8
-    r8 = pack r5 r8 8
-    r5 = extract r4 16 r1
-    r5 = to_f32 r5
-    r5 = mul_f32 r0 r5
-    r5 = mul_f32 r5 r7
-    r5 = mul_f32 r5 r3
-    r5 = round r5
-    r4 = extract r4 24 r1
+    r2 = load32 arg(1)
+    r3 = extract r2 0 r0
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r4 = load8 arg(0)
     r4 = to_f32 r4
-    r4 = mul_f32 r0 r4
-    r6 = mad_f32 r4 r7 r6
-    r6 = mul_f32 r6 r3
+    r4 = mul_f32 r4 3B808081 (0.0039215689)
+    r5 = sub_f32 r1 r4
+    r3 = mul_f32 r3 r5
+    r3 = mul_f32 r3 437F0000 (255)
+    r3 = round r3
+    r6 = extract r2 8 r0
+    r6 = to_f32 r6
+    r6 = mul_f32 r6 3B808081 (0.0039215689)
+    r6 = mul_f32 r6 r5
+    r6 = mul_f32 r6 437F0000 (255)
     r6 = round r6
-    r6 = pack r5 r6 8
-    r6 = pack r8 r6 16
-    store32 arg(1) r6
+    r6 = pack r3 r6 8
+    r3 = extract r2 16 r0
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r3 = mul_f32 r3 r5
+    r3 = mul_f32 r3 437F0000 (255)
+    r3 = round r3
+    r2 = extract r2 24 r0
+    r2 = to_f32 r2
+    r2 = mul_f32 r2 3B808081 (0.0039215689)
+    r4 = mad_f32 r2 r5 r4
+    r4 = mul_f32 r4 437F0000 (255)
+    r4 = round r4
+    r4 = pack r3 r4 8
+    r4 = pack r6 r4 16
+    store32 arg(1) r4
 
 G8 over A8
-11 values:
+9 values:
 ↑ v0 = splat 3F800000 (1)
-↑ v1 = splat 3B808081 (0.0039215689)
-  v2 = load8 arg(1)
-  v3 = to_f32 v2
-  v4 = mul_f32 v1 v3
-↑ v5 = sub_f32 v0 v0
-  v6 = mad_f32 v4 v5 v0
-↑ v7 = splat 437F0000 (255)
-  v8 = mul_f32 v6 v7
-  v9 = round v8
-  store8 arg(1) v9
+  v1 = load8 arg(1)
+  v2 = to_f32 v1
+  v3 = mul_f32 v2 3B808081 (0.0039215689)
+↑ v4 = sub_f32 v0 v0
+  v5 = mad_f32 v3 v4 v0
+  v6 = mul_f32 v5 437F0000 (255)
+  v7 = round v6
+  store8 arg(1) v7
 
-5 registers, 11 instructions:
+3 registers, 9 instructions:
 r0 = splat 3F800000 (1)
-r1 = splat 3B808081 (0.0039215689)
-r2 = sub_f32 r0 r0
-r3 = splat 437F0000 (255)
+r1 = sub_f32 r0 r0
 loop:
-    r4 = load8 arg(1)
-    r4 = to_f32 r4
-    r4 = mul_f32 r1 r4
-    r4 = mad_f32 r4 r2 r0
-    r4 = mul_f32 r4 r3
-    r4 = round r4
-    store8 arg(1) r4
+    r2 = load8 arg(1)
+    r2 = to_f32 r2
+    r2 = mul_f32 r2 3B808081 (0.0039215689)
+    r2 = mad_f32 r2 r1 r0
+    r2 = mul_f32 r2 437F0000 (255)
+    r2 = round r2
+    store8 arg(1) r2
 
 G8 over G8
-20 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load8 arg(0)
-  v2 = to_f32 v1
-  v3 = mul_f32 v0 v2
-  v4 = load8 arg(1)
-  v5 = to_f32 v4
-  v6 = mul_f32 v0 v5
-↟ v7 = splat 3F800000 (1)
-↑ v8 = sub_f32 v7 v7
-  v9 = mad_f32 v6 v8 v3
-↑ v10 = splat 3E59B3D0 (0.21259999)
-↑ v11 = splat 3F371759 (0.71520001)
-↑ v12 = splat 3D93DD98 (0.0722)
-  v13 = mul_f32 v9 v12
-  v14 = mad_f32 v9 v11 v13
-  v15 = mad_f32 v9 v10 v14
-↑ v16 = splat 437F0000 (255)
-  v17 = mul_f32 v15 v16
-  v18 = round v17
-  store8 arg(1) v18
-
-8 registers, 20 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat 3F800000 (1)
-r1 = sub_f32 r1 r1
-r2 = splat 3E59B3D0 (0.21259999)
-r3 = splat 3F371759 (0.71520001)
-r4 = splat 3D93DD98 (0.0722)
-r5 = splat 437F0000 (255)
-loop:
-    r6 = load8 arg(0)
-    r6 = to_f32 r6
-    r6 = mul_f32 r0 r6
-    r7 = load8 arg(1)
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r6 = mad_f32 r7 r1 r6
-    r7 = mul_f32 r6 r4
-    r7 = mad_f32 r6 r3 r7
-    r7 = mad_f32 r6 r2 r7
-    r7 = mul_f32 r7 r5
-    r7 = round r7
-    store8 arg(1) r7
-
-G8 over RGBA_8888
-37 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load8 arg(0)
-  v2 = to_f32 v1
-  v3 = mul_f32 v0 v2
-  v4 = load32 arg(1)
-↑ v5 = splat FF (3.5733111e-43)
-  v6 = extract v4 0 v5
-  v7 = to_f32 v6
-  v8 = mul_f32 v0 v7
-↑ v9 = splat 3F800000 (1)
-↑ v10 = sub_f32 v9 v9
-  v11 = mad_f32 v8 v10 v3
-↑ v12 = splat 437F0000 (255)
-  v13 = mul_f32 v11 v12
-  v14 = round v13
-  v15 = extract v4 8 v5
-  v16 = to_f32 v15
-  v17 = mul_f32 v0 v16
-  v18 = mad_f32 v17 v10 v3
-  v19 = mul_f32 v18 v12
-  v20 = round v19
-  v21 = pack v14 v20 8
-  v22 = extract v4 16 v5
-  v23 = to_f32 v22
-  v24 = mul_f32 v0 v23
-  v25 = mad_f32 v24 v10 v3
-  v26 = mul_f32 v25 v12
-  v27 = round v26
-  v28 = extract v4 24 v5
-  v29 = to_f32 v28
-  v30 = mul_f32 v0 v29
-  v31 = mad_f32 v30 v10 v9
-  v32 = mul_f32 v31 v12
-  v33 = round v32
-  v34 = pack v27 v33 8
-  v35 = pack v21 v34 16
-  store32 arg(1) v35
-
-9 registers, 37 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat FF (3.5733111e-43)
-r2 = splat 3F800000 (1)
-r3 = sub_f32 r2 r2
-r4 = splat 437F0000 (255)
-loop:
-    r5 = load8 arg(0)
-    r5 = to_f32 r5
-    r5 = mul_f32 r0 r5
-    r6 = load32 arg(1)
-    r7 = extract r6 0 r1
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r7 = mad_f32 r7 r3 r5
-    r7 = mul_f32 r7 r4
-    r7 = round r7
-    r8 = extract r6 8 r1
-    r8 = to_f32 r8
-    r8 = mul_f32 r0 r8
-    r8 = mad_f32 r8 r3 r5
-    r8 = mul_f32 r8 r4
-    r8 = round r8
-    r8 = pack r7 r8 8
-    r7 = extract r6 16 r1
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r5 = mad_f32 r7 r3 r5
-    r5 = mul_f32 r5 r4
-    r5 = round r5
-    r6 = extract r6 24 r1
-    r6 = to_f32 r6
-    r6 = mul_f32 r0 r6
-    r6 = mad_f32 r6 r3 r2
-    r6 = mul_f32 r6 r4
-    r6 = round r6
-    r6 = pack r5 r6 8
-    r6 = pack r8 r6 16
-    store32 arg(1) r6
-
-RGBA_8888 over A8
-16 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load32 arg(0)
-↑ v2 = splat FF (3.5733111e-43)
-  v3 = extract v1 24 v2
+17 values:
+  v0 = load8 arg(0)
+  v1 = to_f32 v0
+  v2 = mul_f32 v1 3B808081 (0.0039215689)
+  v3 = load8 arg(1)
   v4 = to_f32 v3
-  v5 = mul_f32 v0 v4
-  v6 = load8 arg(1)
-  v7 = to_f32 v6
-  v8 = mul_f32 v0 v7
-↑ v9 = splat 3F800000 (1)
-  v10 = sub_f32 v9 v5
-  v11 = mad_f32 v8 v10 v5
-↑ v12 = splat 437F0000 (255)
-  v13 = mul_f32 v11 v12
-  v14 = round v13
-  store8 arg(1) v14
+  v5 = mul_f32 v4 3B808081 (0.0039215689)
+↟ v6 = splat 3F800000 (1)
+↑ v7 = sub_f32 v6 v6
+  v8 = mad_f32 v5 v7 v2
+↑ v9 = splat 3E59B3D0 (0.21259999)
+↑ v10 = splat 3F371759 (0.71520001)
+  v11 = mul_f32 v8 3D93DD98 (0.0722)
+  v12 = mad_f32 v8 v10 v11
+  v13 = mad_f32 v8 v9 v12
+  v14 = mul_f32 v13 437F0000 (255)
+  v15 = round v14
+  store8 arg(1) v15
 
-7 registers, 16 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat FF (3.5733111e-43)
-r2 = splat 3F800000 (1)
-r3 = splat 437F0000 (255)
+5 registers, 17 instructions:
+r0 = splat 3F800000 (1)
+r0 = sub_f32 r0 r0
+r1 = splat 3E59B3D0 (0.21259999)
+r2 = splat 3F371759 (0.71520001)
 loop:
-    r4 = load32 arg(0)
-    r4 = extract r4 24 r1
+    r3 = load8 arg(0)
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r4 = load8 arg(1)
     r4 = to_f32 r4
-    r4 = mul_f32 r0 r4
-    r5 = load8 arg(1)
-    r5 = to_f32 r5
-    r5 = mul_f32 r0 r5
-    r6 = sub_f32 r2 r4
-    r4 = mad_f32 r5 r6 r4
-    r4 = mul_f32 r4 r3
+    r4 = mul_f32 r4 3B808081 (0.0039215689)
+    r3 = mad_f32 r4 r0 r3
+    r4 = mul_f32 r3 3D93DD98 (0.0722)
+    r4 = mad_f32 r3 r2 r4
+    r4 = mad_f32 r3 r1 r4
+    r4 = mul_f32 r4 437F0000 (255)
     r4 = round r4
     store8 arg(1) r4
 
-RGBA_8888 over G8
-33 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load32 arg(0)
-↑ v2 = splat FF (3.5733111e-43)
-  v3 = extract v1 0 v2
-  v4 = to_f32 v3
-  v5 = mul_f32 v0 v4
-  v6 = load8 arg(1)
-  v7 = to_f32 v6
-  v8 = mul_f32 v0 v7
-  v9 = extract v1 24 v2
-  v10 = to_f32 v9
-  v11 = mul_f32 v0 v10
-↑ v12 = splat 3F800000 (1)
-  v13 = sub_f32 v12 v11
-  v14 = mad_f32 v8 v13 v5
-↑ v15 = splat 3E59B3D0 (0.21259999)
-  v16 = extract v1 8 v2
-  v17 = to_f32 v16
-  v18 = mul_f32 v0 v17
-  v19 = mad_f32 v8 v13 v18
-↑ v20 = splat 3F371759 (0.71520001)
-  v21 = extract v1 16 v2
-  v22 = to_f32 v21
-  v23 = mul_f32 v0 v22
-  v24 = mad_f32 v8 v13 v23
-↑ v25 = splat 3D93DD98 (0.0722)
-  v26 = mul_f32 v24 v25
-  v27 = mad_f32 v19 v20 v26
-  v28 = mad_f32 v14 v15 v27
-↑ v29 = splat 437F0000 (255)
-  v30 = mul_f32 v28 v29
-  v31 = round v30
-  store8 arg(1) v31
-
-12 registers, 33 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat FF (3.5733111e-43)
-r2 = splat 3F800000 (1)
-r3 = splat 3E59B3D0 (0.21259999)
-r4 = splat 3F371759 (0.71520001)
-r5 = splat 3D93DD98 (0.0722)
-r6 = splat 437F0000 (255)
-loop:
-    r7 = load32 arg(0)
-    r8 = extract r7 0 r1
-    r8 = to_f32 r8
-    r8 = mul_f32 r0 r8
-    r9 = load8 arg(1)
-    r9 = to_f32 r9
-    r9 = mul_f32 r0 r9
-    r10 = extract r7 24 r1
-    r10 = to_f32 r10
-    r10 = mul_f32 r0 r10
-    r10 = sub_f32 r2 r10
-    r8 = mad_f32 r9 r10 r8
-    r11 = extract r7 8 r1
-    r11 = to_f32 r11
-    r11 = mul_f32 r0 r11
-    r11 = mad_f32 r9 r10 r11
-    r7 = extract r7 16 r1
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r7 = mad_f32 r9 r10 r7
-    r7 = mul_f32 r7 r5
-    r7 = mad_f32 r11 r4 r7
-    r7 = mad_f32 r8 r3 r7
-    r7 = mul_f32 r7 r6
-    r7 = round r7
-    store8 arg(1) r7
-
-RGBA_8888 over RGBA_8888
-47 values:
-↑ v0 = splat 3B808081 (0.0039215689)
-  v1 = load32 arg(0)
-↑ v2 = splat FF (3.5733111e-43)
-  v3 = extract v1 0 v2
-  v4 = to_f32 v3
-  v5 = mul_f32 v0 v4
-  v6 = load32 arg(1)
-  v7 = extract v6 0 v2
-  v8 = to_f32 v7
-  v9 = mul_f32 v0 v8
-  v10 = extract v1 24 v2
-  v11 = to_f32 v10
-  v12 = mul_f32 v0 v11
-↑ v13 = splat 3F800000 (1)
-  v14 = sub_f32 v13 v12
-  v15 = mad_f32 v9 v14 v5
-↑ v16 = splat 437F0000 (255)
-  v17 = mul_f32 v15 v16
+G8 over RGBA_8888
+35 values:
+  v0 = load8 arg(0)
+  v1 = to_f32 v0
+  v2 = mul_f32 v1 3B808081 (0.0039215689)
+  v3 = load32 arg(1)
+↑ v4 = splat FF (3.5733111e-43)
+  v5 = extract v3 0 v4
+  v6 = to_f32 v5
+  v7 = mul_f32 v6 3B808081 (0.0039215689)
+↑ v8 = splat 3F800000 (1)
+↑ v9 = sub_f32 v8 v8
+  v10 = mad_f32 v7 v9 v2
+  v11 = mul_f32 v10 437F0000 (255)
+  v12 = round v11
+  v13 = extract v3 8 v4
+  v14 = to_f32 v13
+  v15 = mul_f32 v14 3B808081 (0.0039215689)
+  v16 = mad_f32 v15 v9 v2
+  v17 = mul_f32 v16 437F0000 (255)
   v18 = round v17
-  v19 = extract v1 8 v2
-  v20 = to_f32 v19
-  v21 = mul_f32 v0 v20
-  v22 = extract v6 8 v2
-  v23 = to_f32 v22
-  v24 = mul_f32 v0 v23
-  v25 = mad_f32 v24 v14 v21
-  v26 = mul_f32 v25 v16
-  v27 = round v26
-  v28 = pack v18 v27 8
-  v29 = extract v1 16 v2
-  v30 = to_f32 v29
-  v31 = mul_f32 v0 v30
-  v32 = extract v6 16 v2
-  v33 = to_f32 v32
-  v34 = mul_f32 v0 v33
-  v35 = mad_f32 v34 v14 v31
-  v36 = mul_f32 v35 v16
-  v37 = round v36
-  v38 = extract v6 24 v2
-  v39 = to_f32 v38
-  v40 = mul_f32 v0 v39
-  v41 = mad_f32 v40 v14 v12
-  v42 = mul_f32 v41 v16
-  v43 = round v42
-  v44 = pack v37 v43 8
-  v45 = pack v28 v44 16
-  store32 arg(1) v45
+  v19 = pack v12 v18 8
+  v20 = extract v3 16 v4
+  v21 = to_f32 v20
+  v22 = mul_f32 v21 3B808081 (0.0039215689)
+  v23 = mad_f32 v22 v9 v2
+  v24 = mul_f32 v23 437F0000 (255)
+  v25 = round v24
+  v26 = extract v3 24 v4
+  v27 = to_f32 v26
+  v28 = mul_f32 v27 3B808081 (0.0039215689)
+  v29 = mad_f32 v28 v9 v8
+  v30 = mul_f32 v29 437F0000 (255)
+  v31 = round v30
+  v32 = pack v25 v31 8
+  v33 = pack v19 v32 16
+  store32 arg(1) v33
 
-11 registers, 47 instructions:
-r0 = splat 3B808081 (0.0039215689)
-r1 = splat FF (3.5733111e-43)
-r2 = splat 3F800000 (1)
-r3 = splat 437F0000 (255)
+7 registers, 35 instructions:
+r0 = splat FF (3.5733111e-43)
+r1 = splat 3F800000 (1)
+r2 = sub_f32 r1 r1
+loop:
+    r3 = load8 arg(0)
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r4 = load32 arg(1)
+    r5 = extract r4 0 r0
+    r5 = to_f32 r5
+    r5 = mul_f32 r5 3B808081 (0.0039215689)
+    r5 = mad_f32 r5 r2 r3
+    r5 = mul_f32 r5 437F0000 (255)
+    r5 = round r5
+    r6 = extract r4 8 r0
+    r6 = to_f32 r6
+    r6 = mul_f32 r6 3B808081 (0.0039215689)
+    r6 = mad_f32 r6 r2 r3
+    r6 = mul_f32 r6 437F0000 (255)
+    r6 = round r6
+    r6 = pack r5 r6 8
+    r5 = extract r4 16 r0
+    r5 = to_f32 r5
+    r5 = mul_f32 r5 3B808081 (0.0039215689)
+    r3 = mad_f32 r5 r2 r3
+    r3 = mul_f32 r3 437F0000 (255)
+    r3 = round r3
+    r4 = extract r4 24 r0
+    r4 = to_f32 r4
+    r4 = mul_f32 r4 3B808081 (0.0039215689)
+    r4 = mad_f32 r4 r2 r1
+    r4 = mul_f32 r4 437F0000 (255)
+    r4 = round r4
+    r4 = pack r3 r4 8
+    r4 = pack r6 r4 16
+    store32 arg(1) r4
+
+RGBA_8888 over A8
+14 values:
+  v0 = load32 arg(0)
+↑ v1 = splat FF (3.5733111e-43)
+  v2 = extract v0 24 v1
+  v3 = to_f32 v2
+  v4 = mul_f32 v3 3B808081 (0.0039215689)
+  v5 = load8 arg(1)
+  v6 = to_f32 v5
+  v7 = mul_f32 v6 3B808081 (0.0039215689)
+↑ v8 = splat 3F800000 (1)
+  v9 = sub_f32 v8 v4
+  v10 = mad_f32 v7 v9 v4
+  v11 = mul_f32 v10 437F0000 (255)
+  v12 = round v11
+  store8 arg(1) v12
+
+5 registers, 14 instructions:
+r0 = splat FF (3.5733111e-43)
+r1 = splat 3F800000 (1)
+loop:
+    r2 = load32 arg(0)
+    r2 = extract r2 24 r0
+    r2 = to_f32 r2
+    r2 = mul_f32 r2 3B808081 (0.0039215689)
+    r3 = load8 arg(1)
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r4 = sub_f32 r1 r2
+    r2 = mad_f32 r3 r4 r2
+    r2 = mul_f32 r2 437F0000 (255)
+    r2 = round r2
+    store8 arg(1) r2
+
+RGBA_8888 over G8
+30 values:
+  v0 = load32 arg(0)
+↑ v1 = splat FF (3.5733111e-43)
+  v2 = extract v0 0 v1
+  v3 = to_f32 v2
+  v4 = mul_f32 v3 3B808081 (0.0039215689)
+  v5 = load8 arg(1)
+  v6 = to_f32 v5
+  v7 = mul_f32 v6 3B808081 (0.0039215689)
+  v8 = extract v0 24 v1
+  v9 = to_f32 v8
+  v10 = mul_f32 v9 3B808081 (0.0039215689)
+↑ v11 = splat 3F800000 (1)
+  v12 = sub_f32 v11 v10
+  v13 = mad_f32 v7 v12 v4
+↑ v14 = splat 3E59B3D0 (0.21259999)
+  v15 = extract v0 8 v1
+  v16 = to_f32 v15
+  v17 = mul_f32 v16 3B808081 (0.0039215689)
+  v18 = mad_f32 v7 v12 v17
+↑ v19 = splat 3F371759 (0.71520001)
+  v20 = extract v0 16 v1
+  v21 = to_f32 v20
+  v22 = mul_f32 v21 3B808081 (0.0039215689)
+  v23 = mad_f32 v7 v12 v22
+  v24 = mul_f32 v23 3D93DD98 (0.0722)
+  v25 = mad_f32 v18 v19 v24
+  v26 = mad_f32 v13 v14 v25
+  v27 = mul_f32 v26 437F0000 (255)
+  v28 = round v27
+  store8 arg(1) v28
+
+9 registers, 30 instructions:
+r0 = splat FF (3.5733111e-43)
+r1 = splat 3F800000 (1)
+r2 = splat 3E59B3D0 (0.21259999)
+r3 = splat 3F371759 (0.71520001)
 loop:
     r4 = load32 arg(0)
-    r5 = extract r4 0 r1
+    r5 = extract r4 0 r0
     r5 = to_f32 r5
-    r5 = mul_f32 r0 r5
-    r6 = load32 arg(1)
-    r7 = extract r6 0 r1
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r8 = extract r4 24 r1
-    r8 = to_f32 r8
-    r8 = mul_f32 r0 r8
-    r9 = sub_f32 r2 r8
-    r5 = mad_f32 r7 r9 r5
-    r5 = mul_f32 r5 r3
-    r5 = round r5
-    r7 = extract r4 8 r1
-    r7 = to_f32 r7
-    r7 = mul_f32 r0 r7
-    r10 = extract r6 8 r1
-    r10 = to_f32 r10
-    r10 = mul_f32 r0 r10
-    r7 = mad_f32 r10 r9 r7
-    r7 = mul_f32 r7 r3
-    r7 = round r7
-    r7 = pack r5 r7 8
-    r4 = extract r4 16 r1
-    r4 = to_f32 r4
-    r4 = mul_f32 r0 r4
-    r5 = extract r6 16 r1
-    r5 = to_f32 r5
-    r5 = mul_f32 r0 r5
-    r4 = mad_f32 r5 r9 r4
-    r4 = mul_f32 r4 r3
-    r4 = round r4
-    r6 = extract r6 24 r1
+    r5 = mul_f32 r5 3B808081 (0.0039215689)
+    r6 = load8 arg(1)
     r6 = to_f32 r6
-    r6 = mul_f32 r0 r6
-    r8 = mad_f32 r6 r9 r8
-    r8 = mul_f32 r8 r3
-    r8 = round r8
-    r8 = pack r4 r8 8
-    r8 = pack r7 r8 16
-    store32 arg(1) r8
+    r6 = mul_f32 r6 3B808081 (0.0039215689)
+    r7 = extract r4 24 r0
+    r7 = to_f32 r7
+    r7 = mul_f32 r7 3B808081 (0.0039215689)
+    r7 = sub_f32 r1 r7
+    r5 = mad_f32 r6 r7 r5
+    r8 = extract r4 8 r0
+    r8 = to_f32 r8
+    r8 = mul_f32 r8 3B808081 (0.0039215689)
+    r8 = mad_f32 r6 r7 r8
+    r4 = extract r4 16 r0
+    r4 = to_f32 r4
+    r4 = mul_f32 r4 3B808081 (0.0039215689)
+    r4 = mad_f32 r6 r7 r4
+    r4 = mul_f32 r4 3D93DD98 (0.0722)
+    r4 = mad_f32 r8 r3 r4
+    r4 = mad_f32 r5 r2 r4
+    r4 = mul_f32 r4 437F0000 (255)
+    r4 = round r4
+    store8 arg(1) r4
+
+RGBA_8888 over RGBA_8888
+45 values:
+  v0 = load32 arg(0)
+↑ v1 = splat FF (3.5733111e-43)
+  v2 = extract v0 0 v1
+  v3 = to_f32 v2
+  v4 = mul_f32 v3 3B808081 (0.0039215689)
+  v5 = load32 arg(1)
+  v6 = extract v5 0 v1
+  v7 = to_f32 v6
+  v8 = mul_f32 v7 3B808081 (0.0039215689)
+  v9 = extract v0 24 v1
+  v10 = to_f32 v9
+  v11 = mul_f32 v10 3B808081 (0.0039215689)
+↑ v12 = splat 3F800000 (1)
+  v13 = sub_f32 v12 v11
+  v14 = mad_f32 v8 v13 v4
+  v15 = mul_f32 v14 437F0000 (255)
+  v16 = round v15
+  v17 = extract v0 8 v1
+  v18 = to_f32 v17
+  v19 = mul_f32 v18 3B808081 (0.0039215689)
+  v20 = extract v5 8 v1
+  v21 = to_f32 v20
+  v22 = mul_f32 v21 3B808081 (0.0039215689)
+  v23 = mad_f32 v22 v13 v19
+  v24 = mul_f32 v23 437F0000 (255)
+  v25 = round v24
+  v26 = pack v16 v25 8
+  v27 = extract v0 16 v1
+  v28 = to_f32 v27
+  v29 = mul_f32 v28 3B808081 (0.0039215689)
+  v30 = extract v5 16 v1
+  v31 = to_f32 v30
+  v32 = mul_f32 v31 3B808081 (0.0039215689)
+  v33 = mad_f32 v32 v13 v29
+  v34 = mul_f32 v33 437F0000 (255)
+  v35 = round v34
+  v36 = extract v5 24 v1
+  v37 = to_f32 v36
+  v38 = mul_f32 v37 3B808081 (0.0039215689)
+  v39 = mad_f32 v38 v13 v11
+  v40 = mul_f32 v39 437F0000 (255)
+  v41 = round v40
+  v42 = pack v35 v41 8
+  v43 = pack v26 v42 16
+  store32 arg(1) v43
+
+9 registers, 45 instructions:
+r0 = splat FF (3.5733111e-43)
+r1 = splat 3F800000 (1)
+loop:
+    r2 = load32 arg(0)
+    r3 = extract r2 0 r0
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r4 = load32 arg(1)
+    r5 = extract r4 0 r0
+    r5 = to_f32 r5
+    r5 = mul_f32 r5 3B808081 (0.0039215689)
+    r6 = extract r2 24 r0
+    r6 = to_f32 r6
+    r6 = mul_f32 r6 3B808081 (0.0039215689)
+    r7 = sub_f32 r1 r6
+    r3 = mad_f32 r5 r7 r3
+    r3 = mul_f32 r3 437F0000 (255)
+    r3 = round r3
+    r5 = extract r2 8 r0
+    r5 = to_f32 r5
+    r5 = mul_f32 r5 3B808081 (0.0039215689)
+    r8 = extract r4 8 r0
+    r8 = to_f32 r8
+    r8 = mul_f32 r8 3B808081 (0.0039215689)
+    r5 = mad_f32 r8 r7 r5
+    r5 = mul_f32 r5 437F0000 (255)
+    r5 = round r5
+    r5 = pack r3 r5 8
+    r2 = extract r2 16 r0
+    r2 = to_f32 r2
+    r2 = mul_f32 r2 3B808081 (0.0039215689)
+    r3 = extract r4 16 r0
+    r3 = to_f32 r3
+    r3 = mul_f32 r3 3B808081 (0.0039215689)
+    r2 = mad_f32 r3 r7 r2
+    r2 = mul_f32 r2 437F0000 (255)
+    r2 = round r2
+    r4 = extract r4 24 r0
+    r4 = to_f32 r4
+    r4 = mul_f32 r4 3B808081 (0.0039215689)
+    r6 = mad_f32 r4 r7 r6
+    r6 = mul_f32 r6 437F0000 (255)
+    r6 = round r6
+    r6 = pack r2 r6 8
+    r6 = pack r5 r6 16
+    store32 arg(1) r6
 
 I32 (Naive) 8888 over 8888
 29 values:

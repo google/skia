@@ -117,6 +117,7 @@ namespace skvm {
         void vpshufb(Ymm dst, Ymm x, Label*);
         void vpaddd (Ymm dst, Ymm x, Label*);
         void vpsubd (Ymm dst, Ymm x, Label*);
+        void vmulps (Ymm dst, Ymm x, Label*);
 
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
         void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
@@ -272,6 +273,7 @@ namespace skvm {
                  shl_i32, shl_i16x2,
                  shr_i32, shr_i16x2,
                  sra_i32, sra_i16x2,
+        mul_f32_imm,
 
          trunc, round,  to_f32,
 
@@ -474,7 +476,7 @@ namespace skvm {
         };
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int imm=0);
-        bool isZero(Val) const;
+        bool isImm(Val, int* imm) const;
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;

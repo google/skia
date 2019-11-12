@@ -144,6 +144,8 @@ namespace skvm {
                 case Op::max_f32: write(o, V{id}, "= max_f32", V{x}, V{y}      ); break;
                 case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
 
+                case Op::mul_f32_imm: write(o, V{id}, "= mul_f32", V{x}, Splat{imm}); break;
+
                 case Op:: eq_f32: write(o, V{id}, "= eq_f32", V{x}, V{y}); break;
                 case Op::neq_f32: write(o, V{id}, "= neq_f32", V{x}, V{y}); break;
                 case Op:: gt_f32: write(o, V{id}, "= gt_f32", V{x}, V{y}); break;
@@ -253,6 +255,8 @@ namespace skvm {
                 case Op::min_f32: write(o, R{d}, "= min_f32", R{x}, R{y}      ); break;
                 case Op::max_f32: write(o, R{d}, "= max_f32", R{x}, R{y}      ); break;
                 case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y}, R{z}); break;
+
+                case Op::mul_f32_imm: write(o, R{d}, "= mul_f32", R{x}, Splat{imm}); break;
 
                 case Op:: eq_f32: write(o, R{d}, "= eq_f32", R{x}, R{y}); break;
                 case Op::neq_f32: write(o, R{d}, "= neq_f32", R{x}, R{y}); break;
@@ -454,9 +458,12 @@ namespace skvm {
         return id;
     }
 
-    bool Builder::isZero(Val id) const {
-        return fProgram[id].op  == Op::splat
-            && fProgram[id].imm == 0;
+    bool Builder::isImm(Val id, int* imm) const {
+        if (fProgram[id].op == Op::splat) {
+            *imm = fProgram[id].imm;
+            return true;
+        }
+        return false;
     }
 
     Arg Builder::arg(int stride) {
@@ -511,15 +518,22 @@ namespace skvm {
 
     F32 Builder::add(F32 x, F32 y       ) { return {this->push(Op::add_f32, x.id, y.id)}; }
     F32 Builder::sub(F32 x, F32 y       ) { return {this->push(Op::sub_f32, x.id, y.id)}; }
-    F32 Builder::mul(F32 x, F32 y       ) { return {this->push(Op::mul_f32, x.id, y.id)}; }
     F32 Builder::div(F32 x, F32 y       ) { return {this->push(Op::div_f32, x.id, y.id)}; }
     F32 Builder::min(F32 x, F32 y       ) { return {this->push(Op::min_f32, x.id, y.id)}; }
     F32 Builder::max(F32 x, F32 y       ) { return {this->push(Op::max_f32, x.id, y.id)}; }
     F32 Builder::mad(F32 x, F32 y, F32 z) {
-        if (this->isZero(z.id)) {
+        int imm;
+        if (this->isImm(z.id, &imm) && imm == 0) {
             return this->mul(x,y);
         }
         return {this->push(Op::mad_f32, x.id, y.id, z.id)};
+    }
+
+    F32 Builder::mul(F32 x, F32 y) {
+        int imm;
+        if (this->isImm(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
+        if (this->isImm(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
+        return {this->push(Op::mul_f32, x.id, y.id)};
     }
 
     I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
@@ -873,6 +887,7 @@ namespace skvm {
     void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
     void Assembler::vpaddd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfe, dst,x,l); }
     void Assembler::vpsubd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfa, dst,x,l); }
+    void Assembler::vmulps (Ymm dst, Ymm x, Label* l) { this->op(   0,  0x0f,0x59, dst,x,l); }
 
     void Assembler::vptest(Ymm dst, Label* l) { this->op(0x66, 0x380f, 0x17, dst, (Ymm)0, l); }
 
@@ -1401,6 +1416,12 @@ namespace skvm {
                     CASE(Op::min_f32): r(d).f32 = min(r(x).f32, r(y).f32); break;
                     CASE(Op::max_f32): r(d).f32 = max(r(x).f32, r(y).f32); break;
 
+                    CASE(Op::mul_f32_imm): {
+                        Slot tmp;
+                        tmp.i32 = imm;
+                        r(d).f32 = r(x).f32 * tmp.f32;
+                    } break;
+
                     CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
 
                     CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y).i32; break;
@@ -1706,10 +1727,9 @@ namespace skvm {
             A::Label label;
             Reg      reg;
         };
-        SkTHashMap<int, LabelAndReg> splats,
-                                     bytes_masks;
-        LabelAndReg                  iota,
-                                     all_mask;
+        SkTHashMap<int, LabelAndReg> constants,    // All constants share the same pool.
+                                     bytes_masks;  // These vary per-lane.
+        LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
 
         auto warmup = [&](Val id) {
             const Builder::Instruction& inst = instructions[id];
@@ -1719,9 +1739,6 @@ namespace skvm {
 
             switch (op) {
                 default: break;
-
-                case Op::splat: if (imm/*0 -> xor*/ && !splats.find(imm)) { splats.set(imm, {}); }
-                                break;
 
                 case Op::bytes: if (!bytes_masks.find(imm)) {
                                     bytes_masks.set(imm, {});
@@ -1852,7 +1869,7 @@ namespace skvm {
 
             #if defined(__x86_64__)
                 case Op::assert_true: {
-                    a->vptest (r[x], &all_mask.label);
+                    a->vptest (r[x], &constants[0xffffffff].label);
                     A::Label all_true;
                     a->jc(&all_true);
                     a->int3();
@@ -1907,15 +1924,9 @@ namespace skvm {
                                 a->vpsubd(dst(), tmp(), &iota.label);
                                 break;
 
-                case Op::splat: if (imm) { a->vbroadcastss(dst(), &splats.find(imm)->label); }
+                case Op::splat: if (imm) { a->vbroadcastss(dst(), &constants[imm].label); }
                                 else     { a->vpxor(dst(), dst(), dst()); }
                                 break;
-                                // TODO: many of these instructions have variants that
-                                // can read one of their arugments from 32-byte memory
-                                // instead of a register.  Find a way to avoid needing
-                                // to splat most* constants out at all?
-                                // (*Might work for x - 255 but not 255 - x, so will
-                                // always need to be able to splat to a register.)
 
                 case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
                 case Op::sub_f32: a->vsubps(dst(), r[x], r[y]); break;
@@ -1932,6 +1943,8 @@ namespace skvm {
                                                                  a->vmovdqa    (dst(),r[x]);
                                                                  a->vfmadd132ps(dst(),r[z], r[y]); }
                                                                  break;
+
+                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[imm].label); break;
 
                 case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
                 case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
@@ -1999,7 +2012,7 @@ namespace skvm {
                                  else        { a->ldrq(dst(), arg[imm]); }
                                                break;
 
-                case Op::splat: if (imm) { a->ldrq(dst(), &splats.find(imm)->label); }
+                case Op::splat: if (imm) { a->ldrq(dst(), &constants[imm].label); }
                                 else     { a->eor16b(dst(), dst(), dst()); }
                                 break;
                                 // TODO: If we hoist these, pack 4 values in each register
@@ -2019,6 +2032,11 @@ namespace skvm {
                                                             a->fmla4s(tmp(),  r[x],  r[y]);
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
+
+                // TODO: handle these immediate op constants better on ARM?
+                case Op::mul_f32_imm: a->ldrq(tmp(), &constants[imm].label);
+                                      a->fmul4s(dst(), r[x], tmp());
+                                      break;
 
                 case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
                 case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
@@ -2157,20 +2175,16 @@ namespace skvm {
         }
 
         // Except for explicit aligned load and store instructions, AVX allows
-        // memory operands to be unaligned.  So even though bytes_masks and
-        // iota use 32-byte patterns on x86, we need only align them to 4
-        // bytes, the element size and required alignment on ARM.
+        // memory operands to be unaligned.  So even though we're creating 16
+        // byte patterns on ARM or 32-byte patterns on x86, we only need to
+        // align to 4 bytes, the element size and alignment requirement.
 
-        splats.foreach([&](int imm, LabelAndReg* entry) {
-            // vbroadcastss 4 bytes on x86-64, or simply load 16-bytes on aarch64.
+        constants.foreach([&](int imm, LabelAndReg* entry) {
             a->align(4);
             a->label(&entry->label);
-            a->word(imm);
-        #if defined(__aarch64__)
-            a->word(imm);
-            a->word(imm);
-            a->word(imm);
-        #endif
+            for (int i = 0; i < K; i++) {
+                a->word(imm);
+            }
         });
 
         bytes_masks.foreach([&](int imm, LabelAndReg* entry) {
@@ -2190,13 +2204,6 @@ namespace skvm {
             a->label(&iota.label);
             for (int i = 0; i < K; i++) {
                 a->word(i);
-            }
-        }
-        if (!all_mask.label.references.empty()) {
-            a->align(4);
-            a->label(&all_mask.label);
-            for (int i = 0; i < K; i++) {
-                a->word(0xffffffff);
             }
         }
 
