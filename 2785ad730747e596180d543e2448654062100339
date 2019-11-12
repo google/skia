@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc089a1e_cd94a446",
+        "filename": "src/utils/mac/SkStream_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T19:30:56Z",
+      "side": 0,
+      "message": "Note that this is a bug which may have caused leaks. SkData was changed to SkNVRefCnt, so this actually looked in the wrong place for the ref count, which would usually have been zero. This should have casted to SkData*.",
+      "range": {
+        "startLine": 20,
+        "startChar": 6,
+        "endLine": 20,
+        "endChar": 14
+      },
+      "revId": "2785ad730747e596180d543e2448654062100339",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
