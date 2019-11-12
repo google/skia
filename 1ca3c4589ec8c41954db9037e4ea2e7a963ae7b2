@@ -510,6 +510,24 @@
       "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82765b40_fffccebe",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T20:17:20Z",
+      "side": 1,
+      "message": "It would be nice to write this like\n\nreturn CFDataCreateWithBytesNoCopy(\n    kCFAllocatorDefault,\n    data-\u003edata(),\n    data-\u003esize(),\n    CFAllocatorCreate(\n        kCFAllocatorDefault,\n        {\n            0,\n            data.release(),\n            ...\n        }\n     )\n);\n\nbut we\u0027re just prevented from doing so due to parameter evaluation ordering issues (don\u0027t want to call data.release() before data-\u003edata()) and CFAllocatorCreate taking the context by address (so we need to give it a name to take its address). Also we don\u0027t want to make this a const CFAllocatorContext because CFAllocatorCreate takes a non-const pointer to CFAllocatorContext, so we would need to cast away the const explicitly anyway, and the scope is so short here that it wouldn\u0027t add much for the reader of the code.",
+      "parentUuid": "217c9761_46ff8401",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
