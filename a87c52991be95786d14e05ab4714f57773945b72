@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "538938aa_d5cf8808",
+        "filename": "src/gpu/GrProgramInfo.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-11-12T21:20:45Z",
+      "side": 1,
+      "message": "\u003cbikeshed\u003e Not sure I understand the naming here. Is this the settings that all backends except GL use? Would this name still make sense if the GL backend were removed, for example?",
+      "revId": "a87c52991be95786d14e05ab4714f57773945b72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
