@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "755a51f7_c98b19b5",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-12T17:09:06Z",
+      "side": 1,
+      "message": "It is an override because somebody could suppress dual source blending in their context options, making mixed samples not supportable.",
+      "parentUuid": "093e8c63_50e56878",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 79
+      },
+      "revId": "fa8a7daa4b8b9b8c3ead9c0ad889bbb6370a94cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "531b40e2_0051a67e",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
