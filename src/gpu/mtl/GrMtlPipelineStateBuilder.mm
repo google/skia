@@ -456,10 +456,6 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
 
     GrProcessorKeyBuilder b(&desc->key());
 
-    int keyLength = desc->key().count();
-    SkASSERT(0 == (keyLength % 4));
-    desc->fShaderKeyLength = SkToU32(keyLength);
-
     b.add32(renderTarget->config());
     b.add32(programInfo.numRasterSamples());
 

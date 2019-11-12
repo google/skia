@@ -46,8 +46,7 @@ public:
     bool snapVerticesToPixelCenters() const {
         return fProgramInfo.pipeline().snapVerticesToPixelCenters();
     }
-    // TODO: remove this usage of the descriptor's header
-    bool hasPointSize() const { return fDesc->hasPointSize(); }
+    bool hasPointSize() const { return fProgramInfo.primitiveType() == GrPrimitiveType::kPoints; }
 
     // TODO: stop passing in the renderTarget for just the sampleLocations
     int effectiveSampleCnt() const {
