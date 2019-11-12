@@ -1040,8 +1040,6 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
         gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
         gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
         gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
-        gS4    = {GR_GL_STENCIL_INDEX4,   4,                4,                false},
-    //  gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
         gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
@@ -1057,9 +1055,6 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
         fStencilFormats.push_back() = gS16;
         if (supportsPackedDS) {
             fStencilFormats.push_back() = gD24S8;
-        }
-        fStencilFormats.push_back() = gS4;
-        if (supportsPackedDS) {
             fStencilFormats.push_back() = gDS;
         }
     } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
@@ -1068,13 +1063,9 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
         // ES doesn't support using the unsized format.
 
         fStencilFormats.push_back() = gS8;
-        //fStencilFormats.push_back() = gS16;
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_OES_packed_depth_stencil")) {
             fStencilFormats.push_back() = gD24S8;
-        }
-        if (ctxInfo.hasExtension("GL_OES_stencil4")) {
-            fStencilFormats.push_back() = gS4;
         }
     } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
         fStencilFormats.push_back() = gS8;
