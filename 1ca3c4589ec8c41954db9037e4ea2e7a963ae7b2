@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db0ef583_7ed1b7b0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:20:12Z",
+      "side": 1,
+      "message": "I think you can add: Bug: skia:9627 - this should fix the memory leakage.",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c4b7bd8_919db5e0",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2712,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:20:12Z",
+      "side": 1,
+      "message": "Maybe variationDict?",
+      "range": {
+        "startLine": 2712,
+        "startChar": 39,
+        "endLine": 2712,
+        "endChar": 43
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c4ac29c_c7a053c0",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2716,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:20:12Z",
+      "side": 1,
+      "message": "CGFontVariations -\u003e CTFontVariations?",
+      "range": {
+        "startLine": 2716,
+        "startChar": 11,
+        "endLine": 2716,
+        "endChar": 27
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49c83da2_33f9b79b",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2804,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:20:12Z",
+      "side": 1,
+      "message": "So this flattens a stream if you can\u0027t get the base address right away? Does that create a flattened copy?",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09df9560_6215eac6",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:20:12Z",
+      "side": 1,
+      "message": "Can this be const?",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
