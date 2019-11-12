@@ -41,7 +41,7 @@ void GrVkCommandBuffer::invalidateState() {
 }
 
 void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu) const {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {
         fTrackedResources[i]->notifyRemovedFromCommandBuffer();
@@ -78,7 +78,7 @@ void GrVkCommandBuffer::abandonGPUData() const {
 }
 
 void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     SkDEBUGCODE(fResourcesReleased = true;)
     SkASSERT(!fIsActive);
     for (int i = 0; i < fTrackedResources.count(); ++i) {

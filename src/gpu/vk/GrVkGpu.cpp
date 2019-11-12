@@ -336,7 +336,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
 
 void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
                                   GrGpuFinishedContext finishedContext) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     SkASSERT(fCurrentCmdBuffer);
     SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 

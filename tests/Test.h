@@ -84,7 +84,8 @@ struct Test {
     }
 
     void run(skiatest::Reporter* r, const GrContextOptions& options) const {
-        TRACE_EVENT1("test", TRACE_FUNC, "name", this->name/*these are static*/);
+        TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("test"), TRACE_FUNC, "name",
+                     this->name/*these are static*/);
         this->proc(r, options);
     }
 };

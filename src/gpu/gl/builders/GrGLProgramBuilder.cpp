@@ -199,7 +199,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
 }
 
 GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompiledProgram) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
     // verify we can get a program id
     GrGLuint programID;

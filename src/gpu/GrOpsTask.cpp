@@ -396,7 +396,7 @@ void GrOpsTask::endFlush() {
 void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 #endif
     // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
@@ -417,7 +417,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     SkASSERT(fTargetView.proxy()->peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 #endif
     // TODO: remove the check for discard here once reduced op splitting is turned on. Currently we
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
@@ -432,7 +432,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-            TRACE_EVENT0("skia.gpu", chain.head()->name());
+            TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), chain.head()->name());
 #endif
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           &fTargetView,
@@ -487,7 +487,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fTargetView.proxy());
     GrRenderTargetProxy* proxy = fTargetView.proxy()->asRenderTargetProxy();
     SkASSERT(proxy);
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
     // Make sure load ops are not kClear if the GPU needs to use draws for clears
     SkASSERT(fColorLoadOp != GrLoadOp::kClear ||
@@ -566,7 +566,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
             continue;
         }
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        TRACE_EVENT0("skia.gpu", chain.head()->name());
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), chain.head()->name());
 #endif
 
         GrOpFlushState::OpArgs opArgs(chain.head(),

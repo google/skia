@@ -469,7 +469,7 @@ sk_sp<Animation> Animation::Builder::make(SkStream* stream) {
 }
 
 sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
-    TRACE_EVENT0("skottie", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skottie"), TRACE_FUNC);
 
     // Sanitize factory args.
     class NullResourceProvider final : public ResourceProvider {
@@ -576,7 +576,7 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR) const {
 }
 
 void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderFlags) const {
-    TRACE_EVENT0("skottie", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skottie"), TRACE_FUNC);
 
     if (!fScene)
         return;
@@ -601,7 +601,7 @@ void Animation::render(SkCanvas* canvas, const SkRect* dstR, RenderFlags renderF
 }
 
 void Animation::seekFrame(double t, sksg::InvalidationController* ic) {
-    TRACE_EVENT0("skottie", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skottie"), TRACE_FUNC);
 
     if (!fScene)
         return;

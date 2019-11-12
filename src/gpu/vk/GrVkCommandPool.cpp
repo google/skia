@@ -69,7 +69,7 @@ void GrVkCommandPool::reset(GrVkGpu* gpu) {
 }
 
 void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     SkASSERT(!fOpen);
     fPrimaryCommandBuffer->releaseResources(gpu);
 }

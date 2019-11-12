@@ -36,7 +36,8 @@ bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
 }
 
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
-    TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
+    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "generateMetrics", "rec",
+                 TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
     }
@@ -68,7 +69,8 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
 }
 
 void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
-    TRACE_EVENT1("skia", "generateImage", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
+    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "generateImage", "rec",
+                 TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateImage: %s\n", this->getRec().dump().c_str());
     }
@@ -79,7 +81,8 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph) {
 }
 
 bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
-    TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
+    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "generatePath", "rec",
+                 TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());
     }
@@ -95,8 +98,8 @@ bool SkScalerContextProxy::generatePath(SkGlyphID glyphID, SkPath* path) {
 }
 
 void SkScalerContextProxy::generateFontMetrics(SkFontMetrics* metrics) {
-    TRACE_EVENT1(
-            "skia", "generateFontMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
+    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "generateFontMetrics", "rec",
+                 TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateFontMetrics: %s\n", this->getRec().dump().c_str());
         SkDEBUGCODE(SkStrikeCache::Dump());

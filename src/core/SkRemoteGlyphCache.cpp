@@ -597,7 +597,7 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
 
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
-    TRACE_EVENT1("skia", "RecForDesc", "rec",
+    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "RecForDesc", "rec",
             TRACE_STR_COPY(
                     [&desc](){
                         auto ptr = desc.findEntry(kRec_SkDescriptorTag, nullptr);

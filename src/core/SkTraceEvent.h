@@ -13,6 +13,7 @@
 #include "include/utils/SkEventTracer.h"
 #include "src/core/SkTraceEventCommon.h"
 #include <atomic>
+#include <string_view>
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation specific tracing API definitions.
@@ -73,9 +74,27 @@
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API
 
-// We prepend this string to all category names, so that ALL Skia trace events are
-// disabled by default when tracing in Chrome.
-#define TRACE_CATEGORY_PREFIX "disabled-by-default-"
+static inline constexpr bool starts_with(const std::string_view& s,
+                                         const std::string_view& prefix) {
+    if (s.size() < prefix.size()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < prefix.size(); ++i) {
+        if (s[i] != prefix[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+#define INTERNAL_TRACE_ASSERT_DISABLED_BY_DEFAULT(category_group)                            \
+    static_assert(                                                                           \
+        starts_with(std::string_view(category_group, SK_ARRAY_COUNT(category_group) - 1),    \
+                    std::string_view(TRACE_DISABLED_BY_DEFAULT_PREFIX,                       \
+                                     SK_ARRAY_COUNT(TRACE_DISABLED_BY_DEFAULT_PREFIX) - 1)), \
+        "All Skia tracing categories must be disabled by default,");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -106,8 +125,9 @@
 #define INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group) \
     static std::atomic<intptr_t> INTERNAL_TRACE_EVENT_UID(atomic){0}; \
     const uint8_t* INTERNAL_TRACE_EVENT_UID(category_group_enabled); \
+    INTERNAL_TRACE_ASSERT_DISABLED_BY_DEFAULT(category_group); \
     INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO_CUSTOM_VARIABLES( \
-        TRACE_CATEGORY_PREFIX category_group, \
+        category_group, \
         INTERNAL_TRACE_EVENT_UID(atomic), \
         INTERNAL_TRACE_EVENT_UID(category_group_enabled));
 

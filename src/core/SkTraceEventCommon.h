@@ -59,6 +59,12 @@
 
 #define TRACE_EMPTY do {} while (0)
 
+#define TRACE_DISABLED_BY_DEFAULT_PREFIX "disabled-by-default-"
+
+// This will mark the trace event as disabled by default. The user will need
+// to explicitly enable the event.
+#define TRACE_DISABLED_BY_DEFAULT(name) TRACE_DISABLED_BY_DEFAULT_PREFIX name
+
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #include <cutils/trace.h>

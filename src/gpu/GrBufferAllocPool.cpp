@@ -76,7 +76,8 @@ void GrBufferAllocPool::CpuBufferCache::releaseAll() {
 
 #define UNMAP_BUFFER(block)                                                          \
     do {                                                                             \
-        TRACE_EVENT_INSTANT1("skia.gpu", "GrBufferAllocPool Unmapping Buffer",       \
+        TRACE_EVENT_INSTANT1(TRACE_DISABLED_BY_DEFAULT("skia.gpu"),                  \
+                             "GrBufferAllocPool Unmapping Buffer",                   \
                              TRACE_EVENT_SCOPE_THREAD, "percent_unwritten",          \
                              (float)((block).fBytesFree) / (block).fBuffer->size()); \
         SkASSERT(!block.fBuffer->isCpuBuffer());                                     \

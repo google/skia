@@ -482,7 +482,7 @@ private:
     static void Tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
                      GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt,
                      GrSamplerState::Filter filter) {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
         auto origin = proxy->origin();
         SkISize dimensions = proxy->backingStoreDimensions();
 
@@ -515,7 +515,7 @@ private:
     }
 
     void onPrePrepareDraws(GrRecordingContext* context, const GrAppliedClip* clip) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
         SkASSERT(!fPrePreparedDesc);
@@ -689,7 +689,7 @@ private:
 
     // onPrePrepareDraws may or may not have been called at this point
     void onPrepareDraws(Target* target) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
 
@@ -781,7 +781,7 @@ private:
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
         const auto* that = t->cast<TextureOp>();
 
         if (fPrePreparedDesc || that->fPrePreparedDesc) {

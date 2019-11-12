@@ -187,7 +187,7 @@ private:
             const GrUserStencilSettings*);
 
     void onPrepareDraws(Target* target) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
         using Domain = GrQuadPerEdgeAA::Domain;
         static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
@@ -252,7 +252,7 @@ private:
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
         const auto* that = t->cast<FillRectOp>();
 
         bool upgradeToCoverageAAOnMerge = false;

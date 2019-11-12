@@ -151,7 +151,7 @@ void GrResourceCache::insertResource(GrGpuResource* resource) {
     if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         ++fBudgetedCount;
         fBudgetedBytes += size;
-        TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
+        TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
                        fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
 #if GR_CACHE_STATS
         fBudgetedHighWaterCount = SkTMax(fBudgetedCount, fBudgetedHighWaterCount);
@@ -185,7 +185,7 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
     if (GrBudgetedType::kBudgeted == resource->resourcePriv().budgetedType()) {
         --fBudgetedCount;
         fBudgetedBytes -= size;
-        TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
+        TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
                        fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
     }
 
@@ -495,7 +495,7 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         }
     }
     SkASSERT(wasPurgeable == resource->resourcePriv().isPurgeable());
-    TRACE_COUNTER2("skia.gpu.cache", "skia budget", "used",
+    TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia.gpu.cache"), "skia budget", "used",
                    fBudgetedBytes, "free", fMaxBytes - fBudgetedBytes);
 
     this->validate();

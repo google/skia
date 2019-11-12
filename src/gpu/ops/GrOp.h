@@ -171,7 +171,7 @@ public:
 
     /** Issues the op's commands to GrGpu. */
     void execute(GrOpFlushState* state, const SkRect& chainBounds) {
-        TRACE_EVENT0("skia.gpu", name());
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), name());
         this->onExecute(state, chainBounds);
     }
 

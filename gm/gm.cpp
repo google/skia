@@ -72,13 +72,14 @@ GM::GM(SkColor bgColor) {
 GM::~GM() {}
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {
-    TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName()));
+    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("GM"), TRACE_FUNC, "name",
+                 TRACE_STR_COPY(this->getName()));
     this->drawBackground(canvas);
     return this->drawContent(canvas, errorMsg);
 }
 
 DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
-    TRACE_EVENT0("GM", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("GM"), TRACE_FUNC);
     if (!fHaveCalledOnceBeforeDraw) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();
@@ -98,7 +99,7 @@ DrawResult GM::drawContent(SkCanvas* canvas, SkString* errorMsg) {
 }
 
 void GM::drawBackground(SkCanvas* canvas) {
-    TRACE_EVENT0("GM", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("GM"), TRACE_FUNC);
     if (!fHaveCalledOnceBeforeDraw) {
         fHaveCalledOnceBeforeDraw = true;
         this->onOnceBeforeDraw();

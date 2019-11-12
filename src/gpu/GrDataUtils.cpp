@@ -190,7 +190,7 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
 
 void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int baseHeight,
                             char* dstPixels, const SkColor4f& colorf) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     int currentWidth = baseWidth;
     int currentHeight = baseHeight;
     if (SkImage::kETC1_CompressionType == type) {
@@ -342,7 +342,7 @@ static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
 bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
                      const GrImageInfo& srcInfo, const void* src, size_t srcRB,
                      bool flipY) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     if (srcInfo.colorType() == GrColorType::kRGB_888) {
         // We don't expect to have to convert from this format.
         return false;
@@ -499,7 +499,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
 }
 
 bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f color) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
     if (!dstInfo.isValid()) {
         return false;

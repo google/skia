@@ -86,7 +86,7 @@ SkDeflateWStream::SkDeflateWStream(SkWStream* out,
 SkDeflateWStream::~SkDeflateWStream() { this->finalize(); }
 
 void SkDeflateWStream::finalize() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), TRACE_FUNC);
     if (!fImpl->fOut) {
         return;
     }
@@ -97,7 +97,7 @@ void SkDeflateWStream::finalize() {
 }
 
 bool SkDeflateWStream::write(const void* void_buffer, size_t len) {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), TRACE_FUNC);
     if (!fImpl->fOut) {
         return false;
     }

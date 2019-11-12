@@ -23,10 +23,12 @@ namespace {
  */
 struct TracingShape {
     TracingShape() {
-        TRACE_EVENT_OBJECT_CREATED_WITH_ID("skia.objects", this->typeName(), this);
+        TRACE_EVENT_OBJECT_CREATED_WITH_ID(TRACE_DISABLED_BY_DEFAULT("skia.objects"),
+                                           this->typeName(), this);
     }
     virtual ~TracingShape() {
-        TRACE_EVENT_OBJECT_DELETED_WITH_ID("skia.objects", this->typeName(), this);
+        TRACE_EVENT_OBJECT_DELETED_WITH_ID(TRACE_DISABLED_BY_DEFAULT("skia.objects"),
+                                           this->typeName(), this);
     }
     void traceSnapshot() {
         // The state of an object can be specified at any point with the OBJECT_SNAPSHOT macro.
@@ -40,7 +42,8 @@ struct TracingShape {
         // name, and a special tag that refers to the type name originally used at creation time.
         // Skia's JSON tracer handles this automatically, so SNAPSHOT macros can simply use the
         // derived type name, and the JSON will be formatted correctly to link the events.
-        TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID("skia.objects", this->typeName(), this,
+        TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(TRACE_DISABLED_BY_DEFAULT("skia.objects"),
+                                            this->typeName(), this,
                                             TRACE_STR_COPY(this->toString().c_str()));
     }
 
@@ -86,13 +89,13 @@ static void do_work(int howMuchWork) {
 static void test_trace_simple() {
     // Simple event that lasts until the end of the current scope. TRACE_FUNC is an easy way
     // to insert the current function name.
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), TRACE_FUNC);
 
     {
         // There are versions of the macro that take 1 or 2 named arguments. The arguments
         // can be any simple type. Strings need to be static/literal - we just copy pointers.
         // Argument names & values are shown when the event is selected in the viewer.
-        TRACE_EVENT1("skia", "Nested work",
+        TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "Nested work",
                      "isBGRA", kN32_SkColorType == kBGRA_8888_SkColorType);
         do_work(500);
     }
@@ -101,46 +104,50 @@ static void test_trace_simple() {
         // If you must copy a string as an argument value, use the TRACE_STR_COPY macro.
         // This will instruct the tracing system (if one is active) to make a copy.
         SkString message = SkStringPrintf("%s %s", "Hello", "World");
-        TRACE_EVENT1("skia", "Dynamic String", "message", TRACE_STR_COPY(message.c_str()));
+        TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("skia"), "Dynamic String", "message",
+                     TRACE_STR_COPY(message.c_str()));
         do_work(500);
     }
 }
 
 static void test_trace_counters() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), TRACE_FUNC);
 
     {
-        TRACE_EVENT0("skia", "Single Counter");
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "Single Counter");
 
         // Counter macros allow recording a named value (which must be a 32-bit integer).
         // The value will be graphed in the viewer.
         for (int i = 0; i < 180; ++i) {
             SkScalar rad = SkDegreesToRadians(SkIntToScalar(i));
-            TRACE_COUNTER1("skia", "sin", SkScalarSin(rad) * 1000.0f + 1000.0f);
+            TRACE_COUNTER1(TRACE_DISABLED_BY_DEFAULT("skia"), "sin",
+                           SkScalarSin(rad) * 1000.0f + 1000.0f);
             do_work(10);
         }
     }
 
     {
-        TRACE_EVENT0("skia", "Independent Counters");
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"),"Independent Counters");
 
         // Recording multiple counters with separate COUNTER1 macros will make separate graphs.
         for (int i = 0; i < 180; ++i) {
             SkScalar rad = SkDegreesToRadians(SkIntToScalar(i));
-            TRACE_COUNTER1("skia", "sin", SkScalarSin(rad) * 1000.0f + 1000.0f);
-            TRACE_COUNTER1("skia", "cos", SkScalarCos(rad) * 1000.0f + 1000.0f);
+            TRACE_COUNTER1(TRACE_DISABLED_BY_DEFAULT("skia"), "sin",
+                           SkScalarSin(rad) * 1000.0f + 1000.0f);
+            TRACE_COUNTER1(TRACE_DISABLED_BY_DEFAULT("skia"), "cos",
+                           SkScalarCos(rad) * 1000.0f + 1000.0f);
             do_work(10);
         }
     }
 
     {
-        TRACE_EVENT0("skia", "Stacked Counters");
+        TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia"), "Stacked Counters");
 
         // Two counters can be recorded together with COUNTER2. They will be graphed together,
         // as a stacked bar graph. The combined graph needs a name, as does each data series.
         for (int i = 0; i < 180; ++i) {
             SkScalar rad = SkDegreesToRadians(SkIntToScalar(i));
-            TRACE_COUNTER2("skia", "trig",
+            TRACE_COUNTER2(TRACE_DISABLED_BY_DEFAULT("skia"), "trig",
                            "sin", SkScalarSin(rad) * 1000.0f + 1000.0f,
                            "cos", SkScalarCos(rad) * 1000.0f + 1000.0f);
             do_work(10);
@@ -149,7 +156,9 @@ static void test_trace_counters() {
 }
 
 static void test_trace_objects() {
-    TRACE_EVENT0("skia", TRACE_FUNC);
+    static constexpr char gSkiaTrace[] = TRACE_DISABLED_BY_DEFAULT("skia");
+
+    TRACE_EVENT0(gSkiaTrace, TRACE_FUNC);
 
     // Objects can be tracked through time with the TRACE_EVENT_OBJECT_ macros.
     // The macros in use (and their idiosyncracies) are commented in the TracingShape class above.
@@ -171,7 +180,7 @@ static void test_trace_objects() {
         // Other events (duration or instant) can refer directly to objects. For Skia's JSON
         // tracer, having an argument whose name starts with '#' will trigger the creation of JSON
         // that links the event to the object (with a direct link to the most recent snapshot).
-        TRACE_EVENT1("skia", "Processing Shape", "#shape", circle);
+        TRACE_EVENT1(gSkiaTrace, "Processing Shape", "#shape", circle);
         do_work(100);
     }
 
@@ -180,6 +189,7 @@ static void test_trace_objects() {
 }
 
 DEF_TEST(Tracing, reporter) {
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("nooo"), TRACE_FUNC);
     test_trace_simple();
     test_trace_counters();
     test_trace_objects();

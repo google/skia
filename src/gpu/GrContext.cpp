@@ -196,7 +196,7 @@ void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
 }
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
     ASSERT_SINGLE_OWNER
 
@@ -372,7 +372,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
                                                  GrProtected isProtected) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -477,7 +477,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  GrMipMapped mipMapped,
                                                  GrRenderable renderable,
                                                  GrProtected isProtected) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     if (!this->asDirectContext()) {
         return GrBackendTexture();
     }
@@ -523,7 +523,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
 
 GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int numLevels,
                                                  GrRenderable renderable, GrProtected isProtected) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
 
     if (!this->asDirectContext()) {
         return {};
@@ -549,7 +549,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("skia.gpu"), TRACE_FUNC);
     if (this->abandoned() || !backendTex.isValid()) {
         return;
     }
