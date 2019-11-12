@@ -106,6 +106,10 @@ public:
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
     SkDEBUGCODE(void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const override;)
 
+#if GR_TEST_UTILS
+    int numOpChains() const { return fOpChains.count(); }
+#endif
+
 private:
     bool isNoOp() const {
         // TODO: GrLoadOp::kDiscard (i.e., storing a discard) should also be grounds for skipping
