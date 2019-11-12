@@ -601,6 +601,11 @@ void SkWuffsCodec::onGetFrameCountInternal() {
     }
 
     fFramesComplete = true;
+
+    // We've seen the end of the animation. There'll be no more frames, so we
+    // no longer need the kFrameCount decoder. Releasing it earlier than the
+    // SkWuffsCodec destructor might help peak memory use.
+    fDecoders[WhichDecoder::kFrameCount].reset(nullptr);
 }
 
 bool SkWuffsCodec::onGetFrameInfo(int i, SkCodec::FrameInfo* frameInfo) const {
