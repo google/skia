@@ -70,7 +70,7 @@ void init_stencil_pass_settings(const GrOpFlushState& flushState,
                                 GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
     const GrAppliedClip* appliedClip = flushState.drawOpArgs().appliedClip();
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
-    stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
+    stencil->reset2(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
                    flushState.drawOpArgs().renderTarget()->renderTargetPriv().numStencilBits());
 }
 
