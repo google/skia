@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "ac0fe608_b3e15245",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 705,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "See note on SkCreateTypefaceFromCTFont, will need to do this later.",
+      "parentUuid": "73aab308_cd6aebc9",
+      "range": {
+        "startLine": 705,
+        "startChar": 53,
+        "endLine": 705,
+        "endChar": 90
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d156f2a8_4870bd56",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -62,6 +86,30 @@
       "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e285df12_d9559a54",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "See note on SkCreateTypefaceFromCTFont, will need to do this later.",
+      "parentUuid": "d156f2a8_4870bd56",
+      "range": {
+        "startLine": 710,
+        "startChar": 8,
+        "endLine": 710,
+        "endChar": 55
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "002d80e9_c36e0001",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "See note on SkCreateTypefaceFromCTFont, will need to do this later.",
+      "parentUuid": "79b95fd1_b05cd369",
+      "range": {
+        "startLine": 721,
+        "startChar": 4,
+        "endLine": 721,
+        "endChar": 51
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0fe3b9ee_f86443b4",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -111,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "e2252a54_227e727f",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "See note on SkCreateTypefaceFromCTFont, will need to do this later.",
+      "parentUuid": "0fe3b9ee_f86443b4",
+      "range": {
+        "startLine": 773,
+        "startChar": 47,
+        "endLine": 773,
+        "endChar": 81
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22c48712_0fe7b8d6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -128,6 +224,47 @@
         "endLine": 792,
         "endChar": 83
       },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4fefc5f_1fc1c418",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "See note on SkCreateTypefaceFromCTFont, will need to do this later.",
+      "parentUuid": "22c48712_0fe7b8d6",
+      "range": {
+        "startLine": 792,
+        "startChar": 63,
+        "endLine": 792,
+        "endChar": 83
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b349fcb5_aeee198e",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "It appears blink::LoadFromBrowserProcess is passing non-null to this, seems that CGFont comes from content::WebSandboxSupport::LoadFont which uses content::FontLoader::LoadFont to call CGFontCreateWithDataProvider. It looks like that code will also need to be updated to create CTFonts instead of CGFonts before we can completely remove this.",
       "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -157,6 +294,30 @@
     },
     {
       "key": {
+        "uuid": "478e5138_6be7fdb8",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2712,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "It\u0027s just longer and is a bit overly repetitive at the use site (like ctVariation.variationDict, it\u0027s a bit of a stutter to type variation twice in a row like that).",
+      "parentUuid": "1c4b7bd8_919db5e0",
+      "range": {
+        "startLine": 2712,
+        "startChar": 39,
+        "endLine": 2712,
+        "endChar": 43
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c4ac29c_c7a053c0",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -180,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "19dcc30d_7568f583",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2716,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c4ac29c_c7a053c0",
+      "range": {
+        "startLine": 2716,
+        "startChar": 11,
+        "endLine": 2716,
+        "endChar": 27
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49c83da2_33f9b79b",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -197,6 +382,24 @@
     },
     {
       "key": {
+        "uuid": "b855b84e_b1106794",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2804,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "Yes. Unfortunately, CFData always wants flattened data. On the other hand, it turns out that internally the CoreText code was always taking the CGDataProvider and making a copy all the time anyway (to ensure it was flattened, I suppose). Now that we\u0027re passing it a CFData it appears at least one copy is skipped when the common case of the stream being backed by contiguous memory.",
+      "parentUuid": "49c83da2_33f9b79b",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09df9560_6215eac6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -211,6 +414,24 @@
       "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f837315_4adb9198",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-12T17:20:59Z",
+      "side": 1,
+      "message": "Everything here can be const! The only reason anything has names in here is either for sequence ordering (using data before release\u0027ing it), so we can take the address of it, or so it can be disposed of automatically. It would be nice to use a language where nothing in here needed to be named.",
+      "parentUuid": "09df9560_6215eac6",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
