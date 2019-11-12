@@ -19,6 +19,121 @@
     },
     {
       "key": {
+        "uuid": "73aab308_cd6aebc9",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 705,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:48:33Z",
+      "side": 1,
+      "message": "I think we can strip this now then.",
+      "range": {
+        "startLine": 705,
+        "startChar": 53,
+        "endLine": 705,
+        "endChar": 90
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d156f2a8_4870bd56",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:48:33Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 710,
+        "startChar": 8,
+        "endLine": 710,
+        "endChar": 55
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79b95fd1_b05cd369",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:48:33Z",
+      "side": 1,
+      "message": "ditto.",
+      "range": {
+        "startLine": 721,
+        "startChar": 4,
+        "endLine": 721,
+        "endChar": 51
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fe3b9ee_f86443b4",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:48:33Z",
+      "side": 1,
+      "message": "I think we can strip this one now, as they are only nullptr calls for this argument.",
+      "range": {
+        "startLine": 773,
+        "startChar": 47,
+        "endLine": 773,
+        "endChar": 81
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22c48712_0fe7b8d6",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 792,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T16:48:33Z",
+      "side": 1,
+      "message": "Similarly, this can be stripped, right?",
+      "range": {
+        "startLine": 792,
+        "startChar": 63,
+        "endLine": 792,
+        "endChar": 83
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1c4b7bd8_919db5e0",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
