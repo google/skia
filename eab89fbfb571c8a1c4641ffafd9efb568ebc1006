@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "787c539d_02808d1d",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-12T18:40:42Z",
+      "side": 1,
+      "message": "could we locate this lower in the file? That is, keep the generic sk_gpu_sources first.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 19
+      },
+      "revId": "eab89fbfb571c8a1c4641ffafd9efb568ebc1006",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33c244aa_a40a146e",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 884,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-12T18:40:42Z",
+      "side": 1,
+      "message": "This change looks spurious.",
+      "range": {
+        "startLine": 882,
+        "startChar": 0,
+        "endLine": 884,
+        "endChar": 71
+      },
+      "revId": "eab89fbfb571c8a1c4641ffafd9efb568ebc1006",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
