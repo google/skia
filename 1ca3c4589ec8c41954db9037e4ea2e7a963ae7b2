@@ -528,6 +528,24 @@
       "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4d00bf5_08394e9c",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2019-11-12T20:29:32Z",
+      "side": 1,
+      "message": "Got it, thanks.",
+      "parentUuid": "82765b40_fffccebe",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
