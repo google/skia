@@ -452,7 +452,91 @@ protected:
 private:
     typedef Sample INHERITED;
 };
+DEF_SAMPLE( return new SlideView(); )
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new SlideView(); )
+#include "include/effects/SkGradientShader.h"
+#include "tools/Resources.h"
+
+static void draw_tri(SkCanvas* canvas, const SkPoint pts[3], SkColor c) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(c);
+
+    canvas->drawLine(pts[0], pts[1], paint);
+    canvas->drawLine(pts[1], pts[2], paint);
+    canvas->drawLine(pts[2], pts[0], paint);
+
+    paint.setStrokeWidth(6);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, pts, paint);
+}
+
+class TriangleView : public Sample {
+    SkPoint fPts[6];
+    SkPoint* fTex = &fPts[3];
+    sk_sp<SkShader> fShader[2];
+    int             fIndex = 0;
+    SkRect          fRect;
+
+
+    SkString name() override { return SkString("Triangle"); }
+
+    void onOnceBeforeDraw() override {
+        fPts[0] = { 300, 100 };
+        fPts[1] = { 500, 200 };
+        fPts[2] = { 400, 300 };
+
+        fTex[0] = { 50, 100 };
+        fTex[1] = { 150, 40 };
+        fTex[2] = { 100, 200 };
+
+        auto image = GetResourceAsImage("images/mandrill_256.png");
+        fShader[0] = image->makeShader();
+        fRect = SkRect::MakeIWH(image->width(), image->height());
+
+        SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+        fShader[1] = SkGradientShader::MakeRadial({128, 128}, 128, colors, nullptr, 3, SkTileMode::kClamp);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setShader(fShader[fIndex]);
+        canvas->drawRect(fRect, paint);
+
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        auto v = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, fPts, fTex, nullptr);
+        canvas->drawVertices(v, SkBlendMode::kSrc, paint);
+
+        draw_tri(canvas, fPts, SK_ColorRED);
+        draw_tri(canvas, fTex, SK_ColorWHITE);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        SkScalar rad = 6;
+        SkRect r = SkRect::MakeLTRB(x - rad, y - rad, x + rad, y + rad);
+        Click* click = new Click;
+        for (int i = 0; i < 6; ++i) {
+            if (r.contains(fPts[i].fX, fPts[i].fY)) {
+                click->fMeta.setS32("index", i);
+                break;
+            }
+        }
+        return click;
+    }
+    bool onClick(Click* click) override {
+        int32_t index;
+        if (click->fMeta.findS32("index", &index)) {
+            SkASSERT((unsigned)index < 6);
+            fPts[index] = click->fCurr;
+            return true;
+        }
+        return false;
+    }
+
+
+private:
+    typedef Sample INHERITED;
+};
+DEF_SAMPLE( return new TriangleView(); )
