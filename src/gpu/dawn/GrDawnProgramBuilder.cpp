@@ -320,26 +320,33 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     result->fXferProcessor = std::move(builder.fXferProcessor);
     result->fFragmentProcessors = std::move(builder.fFragmentProcessors);
     result->fFragmentProcessorCnt = builder.fFragmentProcessorCnt;
-    std::vector<wgpu::BindGroupLayoutBinding> layoutBindings;
+    std::vector<wgpu::BindGroupLayoutBinding> uniformLayoutBindings;
     if (0 != uniformBufferSize) {
-        layoutBindings.push_back({ GrDawnUniformHandler::kUniformBinding,
-                                   wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-                                   wgpu::BindingType::UniformBuffer});
+        uniformLayoutBindings.push_back({ GrDawnUniformHandler::kUniformBinding,
+                                          wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+                                          wgpu::BindingType::UniformBuffer});
     }
-    uint32_t binding = GrDawnUniformHandler::kSamplerBindingBase;
+    wgpu::BindGroupLayoutDescriptor uniformBindGroupLayoutDesc;
+    uniformBindGroupLayoutDesc.bindingCount = uniformLayoutBindings.size();
+    uniformBindGroupLayoutDesc.bindings = uniformLayoutBindings.data();
+    result->fBindGroupLayouts[0] =
+        gpu->device().CreateBindGroupLayout(&uniformBindGroupLayoutDesc);
+    uint32_t binding = 0;
+    std::vector<wgpu::BindGroupLayoutBinding> textureLayoutBindings;
     for (int i = 0; i < builder.fUniformHandler.fSamplers.count(); ++i) {
-        layoutBindings.push_back({ binding++, wgpu::ShaderStage::Fragment,
-                                   wgpu::BindingType::Sampler});
-        layoutBindings.push_back({ binding++, wgpu::ShaderStage::Fragment,
-                                   wgpu::BindingType::SampledTexture});
+        textureLayoutBindings.push_back({ binding++, wgpu::ShaderStage::Fragment,
+                                          wgpu::BindingType::Sampler});
+        textureLayoutBindings.push_back({ binding++, wgpu::ShaderStage::Fragment,
+                                          wgpu::BindingType::SampledTexture});
     }
-    wgpu::BindGroupLayoutDescriptor bindGroupLayoutDesc;
-    bindGroupLayoutDesc.bindingCount = layoutBindings.size();
-    bindGroupLayoutDesc.bindings = layoutBindings.data();
-    result->fBindGroupLayout = gpu->device().CreateBindGroupLayout(&bindGroupLayoutDesc);
+    wgpu::BindGroupLayoutDescriptor textureBindGroupLayoutDesc;
+    textureBindGroupLayoutDesc.bindingCount = textureLayoutBindings.size();
+    textureBindGroupLayoutDesc.bindings = textureLayoutBindings.data();
+    result->fBindGroupLayouts[1] =
+        gpu->device().CreateBindGroupLayout(&textureBindGroupLayoutDesc);
     wgpu::PipelineLayoutDescriptor pipelineLayoutDesc;
-    pipelineLayoutDesc.bindGroupLayoutCount = 1;
-    pipelineLayoutDesc.bindGroupLayouts = &result->fBindGroupLayout;
+    pipelineLayoutDesc.bindGroupLayoutCount = 2;
+    pipelineLayoutDesc.bindGroupLayouts = &result->fBindGroupLayouts[0];
     auto pipelineLayout = gpu->device().CreatePipelineLayout(&pipelineLayoutDesc);
     result->fBuiltinUniformHandles = builder.fUniformHandles;
     const GrPipeline& pipeline = programInfo.pipeline();
@@ -484,8 +491,8 @@ void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrig
     }
 }
 
-static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* texture,
-                       std::vector<wgpu::BindGroupBinding> *bindings, int* binding) {
+static void set_texture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* texture,
+                        std::vector<wgpu::BindGroupBinding> *bindings, int* binding) {
     // FIXME: could probably cache samplers in GrDawnProgram
     wgpu::Sampler sampler = gpu->getOrCreateSampler(state);
     bindings->push_back(make_bind_group_binding((*binding)++, sampler));
@@ -494,8 +501,8 @@ static void setTexture(GrDawnGpu* gpu, const GrSamplerState& state, GrTexture* t
     bindings->push_back(make_bind_group_binding((*binding)++, textureView));
 }
 
-wgpu::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
-                                       const GrProgramInfo& programInfo) {
+wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarget* renderTarget,
+                                              const GrProgramInfo& programInfo) {
     std::vector<wgpu::BindGroupBinding> bindings;
     GrDawnRingBuffer::Slice slice;
     uint32_t uniformBufferSize = fDataManager.uniformBufferSize();
@@ -510,37 +517,58 @@ wgpu::BindGroup GrDawnProgram::setData(GrDawnGpu* gpu, const GrRenderTarget* ren
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
-    int binding = GrDawnUniformHandler::kSamplerBindingBase;
-    auto primProcTextures = programInfo.hasFixedPrimProcTextures() ?
-                                programInfo.fixedPrimProcTextures() : nullptr;
-
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        auto& sampler = primProc.textureSampler(i);
-        setTexture(gpu, sampler.samplerState(), primProcTextures[i]->peekTexture(), &bindings,
-                   &binding);
-    }
     GrFragmentProcessor::Iter iter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     const GrFragmentProcessor* fp = iter.next();
     GrGLSLFragmentProcessor* glslFP = glslIter.next();
     while (fp && glslFP) {
         glslFP->setData(fDataManager, *fp);
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            auto& s = fp->textureSampler(i);
-            setTexture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
-        }
         fp = iter.next();
         glslFP = glslIter.next();
     }
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
-    if (dstTexture) {
-        setTexture(gpu, GrSamplerState::ClampNearest(), dstTexture, &bindings, &binding);
-    }
     fDataManager.uploadUniformBuffers(gpu, slice);
     wgpu::BindGroupDescriptor descriptor;
-    descriptor.layout = fBindGroupLayout;
+    descriptor.layout = fBindGroupLayouts[0];
+    descriptor.bindingCount = bindings.size();
+    descriptor.bindings = bindings.data();
+    return gpu->device().CreateBindGroup(&descriptor);
+}
+
+wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
+                                           const GrProgramInfo& programInfo,
+                                           const GrTextureProxy* const primProcTextures[]) {
+    std::vector<wgpu::BindGroupBinding> bindings;
+    int binding = 0;
+    const GrPipeline& pipeline = programInfo.pipeline();
+    const GrPrimitiveProcessor& primProc = programInfo.primProc();
+    if (primProcTextures) {
+        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            auto& sampler = primProc.textureSampler(i);
+            set_texture(gpu, sampler.samplerState(), primProcTextures[i]->peekTexture(), &bindings,
+                        &binding);
+        }
+    }
+    GrFragmentProcessor::Iter iter(pipeline);
+    GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
+    const GrFragmentProcessor* fp = iter.next();
+    GrGLSLFragmentProcessor* glslFP = glslIter.next();
+    while (fp && glslFP) {
+        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
+            auto& s = fp->textureSampler(i);
+            set_texture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
+        }
+        fp = iter.next();
+        glslFP = glslIter.next();
+    }
+    SkIPoint offset;
+    if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {
+        set_texture(gpu, GrSamplerState::ClampNearest(), dstTexture, &bindings, &binding);
+    }
+    wgpu::BindGroupDescriptor descriptor;
+    descriptor.layout = fBindGroupLayouts[1];
     descriptor.bindingCount = bindings.size();
     descriptor.bindings = bindings.data();
     return gpu->device().CreateBindGroup(&descriptor);

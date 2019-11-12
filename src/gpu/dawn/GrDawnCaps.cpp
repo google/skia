@@ -15,6 +15,7 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     fMaxVertexAttributes = 16; // FIXME
     fClampToBorderSupport = false;
     fPerformPartialClearsAsDraws = true;
+    fDynamicStateArrayGeometryProcessorTextureSupport = true;
 
     fShaderCaps->fFlatInterpolationSupport = true;
     fShaderCaps->fIntegerSupport = true;
