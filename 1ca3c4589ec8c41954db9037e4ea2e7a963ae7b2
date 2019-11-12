@@ -271,6 +271,24 @@
     },
     {
       "key": {
+        "uuid": "3a37c9ff_7ba32573",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-11-12T20:00:14Z",
+      "side": 1,
+      "message": "Thanks for tracking that down. I filed crbug.com/1023923 for this - could you add a TODO in the CL here and at the SkTypeface_Mac constructor perhaps to track cleaning up the \"captured\" CGFont argument?",
+      "parentUuid": "b349fcb5_aeee198e",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1c4b7bd8_919db5e0",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -306,6 +324,30 @@
       "side": 1,
       "message": "It\u0027s just longer and is a bit overly repetitive at the use site (like ctVariation.variationDict, it\u0027s a bit of a stutter to type variation twice in a row like that).",
       "parentUuid": "1c4b7bd8_919db5e0",
+      "range": {
+        "startLine": 2712,
+        "startChar": 39,
+        "endLine": 2712,
+        "endChar": 43
+      },
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7327b3ab_42b9acfd",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2712,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-11-12T20:00:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "478e5138_6be7fdb8",
       "range": {
         "startLine": 2712,
         "startChar": 39,
@@ -400,6 +442,24 @@
     },
     {
       "key": {
+        "uuid": "5f1fa187_0b3f2558",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2804,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-11-12T20:00:14Z",
+      "side": 1,
+      "message": "Thanks for the explanations.",
+      "parentUuid": "b855b84e_b1106794",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09df9560_6215eac6",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 1
@@ -429,6 +489,24 @@
       "side": 1,
       "message": "Everything here can be const! The only reason anything has names in here is either for sequence ordering (using data before release\u0027ing it), so we can take the address of it, or so it can be disposed of automatically. It would be nice to use a language where nothing in here needed to be named.",
       "parentUuid": "09df9560_6215eac6",
+      "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "217c9761_46ff8401",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-11-12T20:00:14Z",
+      "side": 1,
+      "message": "I am not sure I follow completely - could you elaborate what you mean by \"having names\"? You mean the memory blocks that we\u0027re passing to be owned by CF? I was thinking whether it could be \"const CFAllocatorContext ctx \u003d ...\".",
+      "parentUuid": "9f837315_4adb9198",
       "revId": "1ca3c4589ec8c41954db9037e4ea2e7a963ae7b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
