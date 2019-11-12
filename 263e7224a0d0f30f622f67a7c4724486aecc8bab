@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24627ecd_0a2c8a04",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-12T15:03:59Z",
+      "side": 1,
+      "message": "nit: This isn\u0027t directly changed in this CL, but we name or statics as set_texture(...). Can you update this function name to be formatted as such.",
+      "range": {
+        "startLine": 550,
+        "startChar": 12,
+        "endLine": 550,
+        "endChar": 22
+      },
+      "revId": "263e7224a0d0f30f622f67a7c4724486aecc8bab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
