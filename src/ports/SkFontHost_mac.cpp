@@ -2675,17 +2675,12 @@ protected:
         return create_from_dataProvider(std::move(pr), std::move(stream), ttcIndex);
     }
 
-    /** Creates a dictionary suitable for setting the axes on a CGFont. */
-    static SkUniqueCFRef<CFDictionaryRef> copy_axes(CGFontRef cg, const SkFontArguments& args) {
-        // The CGFont variation data is keyed by name, but lacks the tag.
-        // The CTFont variation data is keyed by tag, and also has the name.
-        // We would like to work with CTFont variations, but creating a CTFont font with
-        // CTFont variation dictionary runs into bugs. So use the CTFont variation data
-        // to match names to tags to create the appropriate CGFont.
-        SkUniqueCFRef<CTFontRef> ct(CTFontCreateWithGraphicsFont(cg, 0, nullptr, nullptr));
+
+    /** Creates a dictionary suitable for setting the axes on a CTFontDescriptor, for the NSCTFontVariationAttribute key. */
+    static SkUniqueCFRef<CFDictionaryRef> copy_axes(CTFontRef ct, const SkFontArguments& args) {
         // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
         // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
-        SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct.get()));
+        SkUniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(ct));
         if (!ctAxes) {
             return nullptr;
         }
@@ -2705,13 +2700,6 @@ protected:
             }
             CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
 
-            // The assumption is that values produced by kCTFontVariationAxisNameKey and
-            // kCGFontVariationAxisName will always be equal.
-            // If they are ever not, seach the project history for "get_tag_for_name".
-            CFTypeRef axisName = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisNameKey);
-            if (!axisName || CFGetTypeID(axisName) != CFStringGetTypeID()) {
-                return nullptr;
-            }
 
             CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
             if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
@@ -2723,7 +2711,7 @@ protected:
                 return nullptr;
             }
 
-            // The variation axes can be set to any value, but cg will effectively pin them.
+            // The variation axes can be set to any value, but CoreText will effectively pin them.
             // Pin them here to normalize.
             CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMinimumValueKey);
             CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
@@ -2759,7 +2747,7 @@ protected:
             }
             SkUniqueCFRef<CFNumberRef> valueNumber(
                 CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &value));
-            CFDictionaryAddValue(dict.get(), axisName, valueNumber.get());
+            CFDictionaryAddValue(dict.get(), tagNumber, valueNumber.get());
         }
         return dict;
     }
@@ -2772,28 +2760,38 @@ protected:
         if (!provider) {
             return nullptr;
         }
-        SkUniqueCFRef<CGFontRef> cg(CGFontCreateWithDataProvider(provider.get()));
-        if (!cg) {
+
+        SkUniqueCFRef<CFDataRef> fontData(CGDataProviderCopyData(provider.get()));
+        SkUniqueCFRef<CTFontDescriptorRef> dataDescriptor(
+            CTFontManagerCreateFontDescriptorFromData(fontData.get()));
+
+        SkASSERT(dataDescriptor);
+
+        SkUniqueCFRef<CTFontRef> ctBase(CTFontCreateWithFontDescriptor(
+            dataDescriptor.get(), 0, nullptr));
+
+        if (!args.getVariationDesignPosition().coordinateCount)
+          return create_from_CTFontRef(std::move(ctBase), nullptr, std::move(s));
+
+        SkUniqueCFRef<CFDictionaryRef> axisDict(copy_axes(ctBase.get(), args));
+        if (!axisDict)
+          return create_from_CTFontRef(std::move(ctBase), nullptr, std::move(s));
+
+        SkUniqueCFRef<CFMutableDictionaryRef> axisAttributeDict(
+            CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+                                          &kCFTypeDictionaryKeyCallBacks,
+                                          &kCFTypeDictionaryValueCallBacks));
+        CFDictionaryAddValue(axisAttributeDict.get(), kCTFontVariationAttribute, axisDict.get());
+        SkUniqueCFRef<CTFontDescriptorRef> axisDescriptor(
+            CTFontDescriptorCreateWithAttributes(axisAttributeDict.get()));
+
+        SkUniqueCFRef<CTFontRef> ctVariation(CTFontCreateCopyWithAttributes(
+            ctBase.get(), 0, nullptr, axisDescriptor.get()));
+
+        if (!ctVariation) {
             return nullptr;
         }
-
-        SkUniqueCFRef<CFDictionaryRef> cgVariations = copy_axes(cg.get(), args);
-        // The CGFontRef returned by CGFontCreateCopyWithVariations when the passed CGFontRef was
-        // created from a data provider does not appear to have any ownership of the underlying
-        // data. The original CGFontRef must be kept alive until the copy will no longer be used.
-        SkUniqueCFRef<CGFontRef> cgVariant;
-        if (cgVariations) {
-            cgVariant.reset(CGFontCreateCopyWithVariations(cg.get(), cgVariations.get()));
-        } else {
-            cgVariant.reset(cg.release());
-        }
-
-        SkUniqueCFRef<CTFontRef> ct(
-                CTFontCreateWithGraphicsFont(cgVariant.get(), 0, nullptr, nullptr));
-        if (!ct) {
-            return nullptr;
-        }
-        return create_from_CTFontRef(std::move(ct), std::move(cg), std::move(s));
+        return create_from_CTFontRef(std::move(ctVariation), nullptr, std::move(s));
     }
 
     /** Creates a dictionary suitable for setting the axes on a CGFont. */
