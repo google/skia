@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "34339f7c_68ff6d30",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-12T18:51:22Z",
+      "side": 1,
+      "message": "But multisampledDisableSupport is not part of an override. It seems like both of these things should be checked in the normal caps setting. Then the override should just be:\nfMixedSampleSupport \u003d fMixedSampleSupport \u0026\u0026 !options.fSuppressDualSourceBlending\n\nAdditionally we only allow the dualSource to be disabled in GR_TEST_UTILS so I would also wrap the check in that.",
+      "parentUuid": "4c23109b_3f5801bb",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 79
+      },
+      "revId": "fa8a7daa4b8b9b8c3ead9c0ad889bbb6370a94cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "531b40e2_0051a67e",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
