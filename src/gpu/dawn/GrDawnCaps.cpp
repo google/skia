@@ -25,7 +25,6 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     fShaderCaps->fShaderDerivativeSupport = true;
 
     this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
 }
 
 bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
