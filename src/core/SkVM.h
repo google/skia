@@ -273,7 +273,6 @@ namespace skvm {
                  shl_i32, shl_i16x2,
                  shr_i32, shr_i16x2,
                  sra_i32, sra_i16x2,
-        mul_f32_imm,
 
          trunc, round,  to_f32,
 
