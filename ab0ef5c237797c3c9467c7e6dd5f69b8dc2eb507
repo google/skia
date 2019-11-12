@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "36e3bf04_34d36ff2",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-12T19:18:12Z",
+      "side": 1,
+      "message": "Yep - it just means no one else can override it - so, basically, this class is the end of the derivation chain.",
+      "parentUuid": "886cbcca_4b462579",
+      "range": {
+        "startLine": 624,
+        "startChar": 25,
+        "endLine": 624,
+        "endChar": 30
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "72b1fbaa_5b69794d",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 17
@@ -45,6 +69,30 @@
       "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c17f7706_5d68e5dd",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-12T19:18:12Z",
+      "side": 1,
+      "message": "lol - done",
+      "parentUuid": "72b1fbaa_5b69794d",
+      "range": {
+        "startLine": 958,
+        "startChar": 6,
+        "endLine": 958,
+        "endChar": 19
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "acbf59ae_a1167c6d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-12T19:18:12Z",
+      "side": 1,
+      "message": "We spoke offline and will keep it the same for now. Since we access it in the BatchSizeLimiter.",
+      "parentUuid": "0eaabb76_d1af1569",
+      "range": {
+        "startLine": 976,
+        "startChar": 21,
+        "endLine": 976,
+        "endChar": 71
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3525c86f_f23ab563",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 17
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "e4e5483c_9ba90f45",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-12T19:18:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3525c86f_f23ab563",
+      "range": {
+        "startLine": 1024,
+        "startChar": 4,
+        "endLine": 1025,
+        "endChar": 59
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f26353ce_8a746eb7",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 17
@@ -114,6 +210,30 @@
       "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a36da65a_9679153d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-12T19:18:12Z",
+      "side": 1,
+      "message": "I believe not.",
+      "parentUuid": "f26353ce_8a746eb7",
+      "range": {
+        "startLine": 1081,
+        "startChar": 10,
+        "endLine": 1081,
+        "endChar": 24
+      },
+      "revId": "ab0ef5c237797c3c9467c7e6dd5f69b8dc2eb507",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
