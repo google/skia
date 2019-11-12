@@ -140,7 +140,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
                 canvas2DFastPath ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
 
-        auto tempCtx = direct->priv().makeDeferredRenderTargetContext(
+        auto tempCtx = direct->priv().makeDeferredRenderTargetContextWithFallback(
                 SkBackingFit::kApprox, dstInfo.width(), dstInfo.height(), colorType, std::move(cs),
                 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
         if (!tempCtx) {

@@ -3786,6 +3786,10 @@ bool GrGLCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 
 GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
+    auto format = surface->backendFormat().asGLFormat();
+    if (!surface->asRenderTarget() && !this->isFormatRenderable(format, 1)) {
+        return SurfaceReadPixelsSupport::kCopyToTexture2D;
+    }
     if (auto tex = static_cast<const GrGLTexture*>(surface->asTexture())) {
         // We don't support reading pixels directly from EXTERNAL textures as it would require
         // binding the texture to a FBO.
