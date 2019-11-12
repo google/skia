@@ -46,8 +46,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
     SkASSERT(proxy && proxy->asTextureProxy());
 
     std::unique_ptr<GrSurfaceContext> surfaceContext;
-    if (proxy->asRenderTargetProxy()) {
-        SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
+    if (proxy->asRenderTargetProxy() && alphaType != kUnpremul_SkAlphaType) {
         // Will we ever want a swizzle that is not the default write swizzle for the format and
         // colorType here? If so we will need to manually pass that in.
         GrSwizzle writeSwizzle;
@@ -212,7 +211,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
                                     ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
 
-        auto tempCtx = GrRenderTargetContext::Make(
+        auto tempCtx = GrRenderTargetContext::MakeWithFallback(
                 dContext, colorType, std::move(cs), SkBackingFit::kApprox, dstInfo.dimensions(),
                 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!tempCtx) {
