@@ -106,12 +106,14 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     fDataManager.resetDirtyBits();
 
+#ifdef SK_DEBUG
     if (programInfo.pipeline().isStencilEnabled()) {
         SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        fStencil.reset(*programInfo.pipeline().getUserStencil(),
-                       programInfo.pipeline().hasStencilClip(),
-                       renderTarget->renderTargetPriv().numStencilBits());
+        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
     }
+#endif
+
+    fStencil = programInfo.nonGLStencilSettings();
 }
 
 void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
