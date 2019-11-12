@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "093e8c63_50e56878",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-12T14:33:30Z",
+      "side": 1,
+      "message": "this doesn\u0027t seem like a context options override to me?",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 79
+      },
+      "revId": "fa8a7daa4b8b9b8c3ead9c0ad889bbb6370a94cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "531b40e2_0051a67e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-12T14:33:30Z",
+      "side": 1,
+      "message": "nit: since your changing code around here, fix the line length here :)",
+      "range": {
+        "startLine": 944,
+        "startChar": 100,
+        "endLine": 944,
+        "endChar": 102
+      },
+      "revId": "fa8a7daa4b8b9b8c3ead9c0ad889bbb6370a94cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
