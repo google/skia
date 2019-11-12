@@ -1679,9 +1679,8 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
     if (programInfo.pipeline().isStencilEnabled()) {
-        // TODO: attach stencil and create settings during render target flush.
         SkASSERT(glRT->renderTargetPriv().getStencilAttachment());
-        stencil.reset(*programInfo.pipeline().getUserStencil(),
+        stencil.reset2(*programInfo.pipeline().getUserStencil(),
                       programInfo.pipeline().hasStencilClip(),
                       glRT->renderTargetPriv().numStencilBits());
     }
