@@ -74,13 +74,5 @@ static inline CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
  */
 void SkCGDrawBitmap(CGContextRef, const SkBitmap&, float x, float y);
 
-/**
- *  Return a provider that wraps the specified stream.
- *  When the provider is finally deleted, it will delete the stream.
- */
-CGDataProviderRef SkCreateDataProviderFromStream(std::unique_ptr<SkStreamRewindable>);
-
-CGDataProviderRef SkCreateDataProviderFromData(sk_sp<SkData>);
-
 #endif  // defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #endif  // SkCGUtils_DEFINED
