@@ -24,7 +24,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        const GrStencilSettings& stencil,
         Desc* desc,
         VkRenderPass compatibleRenderPass) {
     // ensure that we use "." as a decimal separator when creating SkSL code
@@ -38,7 +37,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(stencil, compatibleRenderPass, desc);
+    return builder.finalize(compatibleRenderPass, desc);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -147,8 +146,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& stencil,
-                                                      VkRenderPass compatibleRenderPass,
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
                                                       Desc* desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
@@ -291,8 +289,10 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
             this->storeShadersInCache(shaders, inputs, isSkSL);
         }
     }
-        GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, stencil,
-            shaderStageInfo, numShaderStages, compatibleRenderPass, pipelineLayout);
+
+    GrVkPipeline* pipeline = resourceProvider.createPipeline(fProgramInfo, shaderStageInfo,
+                                                             numShaderStages, compatibleRenderPass,
+                                                             pipelineLayout);
     for (int i = 0; i < kGrShaderTypeCount; ++i) {
         // This if check should not be needed since calling destroy on a VK_NULL_HANDLE is allowed.
         // However this is causing a crash in certain drivers (e.g. NVidia).
@@ -326,7 +326,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
                                            GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
-                                           const GrStencilSettings& stencil,
                                            const GrCaps& caps) {
     if (!GrProgramDesc::Build(desc, renderTarget, programInfo, caps)) {
         return false;
@@ -344,6 +343,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
     SkASSERT(vkRT->getSimpleRenderPass());
     vkRT->getSimpleRenderPass()->genKey(&b);
 
+    GrStencilSettings stencil = programInfo.nonGLStencilSettings();
     stencil.genKey(&b);
 
     programInfo.pipeline().genKey(&b, caps);

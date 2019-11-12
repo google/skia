@@ -13,6 +13,7 @@
 #include "src/gpu/GrPrimitiveProcessor.h"
 
 class GrMesh;
+class GrStencilSettings;
 
 class GrProgramInfo {
 public:
@@ -92,6 +93,10 @@ public:
     }
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+
+    // For Dawn, Metal and Vulkan the number of stencil bits is known a priori so we can
+    // create the stencil settings here.
+    GrStencilSettings nonGLStencilSettings() const;
 
 #ifdef SK_DEBUG
     void validate() const;
