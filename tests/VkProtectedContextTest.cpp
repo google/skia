@@ -122,6 +122,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
 }
 
 void VulkanTestHelper::cleanup() {
+    fGrContext->releaseResourcesAndAbandonContext();
     fGrContext.reset();
 
     fBackendContext.fMemoryAllocator.reset();
