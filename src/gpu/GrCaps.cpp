@@ -80,7 +80,20 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDriverBugWorkarounds = options.fDriverBugWorkarounds;
 }
 
+void GrCaps::finishInitialization(const GrContextOptions& options) {
+    this->applyOptionsOverrides(options);
+
+    if (fMixedSamplesSupport) {
+        // We need multisample disable and dual source blending in order to support mixed samples.
+        // If support for either of these was turned off by the overrides (or never existed) then we
+        // need to turn off mixed samples.
+        fMixedSamplesSupport = this->multisampleDisableSupport() &&
+                               this->shaderCaps()->dualSourceBlendingSupport();
+    }
+}
+
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fShaderCaps->applyOptionsOverrides(options);
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDriverBlacklistCCPR);

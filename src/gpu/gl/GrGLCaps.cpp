@@ -692,8 +692,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // already been detected.
     this->initFormatTable(ctxInfo, gli, formatWorkarounds);
 
-    this->applyOptionsOverrides(contextOptions);
-    shaderCaps->applyOptionsOverrides(contextOptions);
+    this->finishInitialization(contextOptions);
 
     // For now these two are equivalent but we could have dst read in shader via some other method.
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
@@ -942,13 +941,11 @@ bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrG
     return true;
 }
 
-void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
-                               const GrGLInterface* gli) {
-    // We need dual source blending and the ability to disable multisample in order to support mixed
-    // samples in every corner case.
-    if (fMultisampleDisableSupport && this->shaderCaps()->dualSourceBlendingSupport()) {
-        fMixedSamplesSupport = ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
-                               ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples");
+void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
+                               const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+    if (ctxInfo.hasExtension("GL_NV_framebuffer_mixed_samples") ||
+        ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_mixed_samples")) {
+        fMixedSamplesSupport = true;
     }
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
