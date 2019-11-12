@@ -85,10 +85,8 @@ public:
         return !(*this == other);
     }
 
-    // TODO: remove this use of the header
-    bool hasPointSize() const { return this->header().fHasPointSize; }
-
 protected:
+    // TODO: this should be removed and converted to just data added to the key
     struct KeyHeader {
         // Set to uniquely identify any swizzling of the shader's output color(s).
         uint16_t fOutputSwizzle;
@@ -103,14 +101,8 @@ protected:
     };
     GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
 
-    const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
-
     template<typename T, size_t OFFSET> T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
-    }
-
-    template<typename T, size_t OFFSET> const T* atOffset() const {
-        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
 
     // The key, stored in fKey, is composed of two parts:
@@ -119,7 +111,6 @@ protected:
     enum KeyOffsets {
         kHeaderOffset = 0,
         kHeaderSize = SkAlign4(sizeof(KeyHeader)),
-        // Part 4.
         // This is the offset into the backenend specific part of the key, which includes
         // per-processor keys.
         kProcessorKeysOffset = kHeaderOffset + kHeaderSize,
@@ -133,7 +124,6 @@ protected:
     };
 
     SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
-    const SkSTArray<kPreAllocSize, uint8_t, true>& key() const { return fKey; }
 
 private:
     SkSTArray<kPreAllocSize, uint8_t, true> fKey;
