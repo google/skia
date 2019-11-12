@@ -32,7 +32,7 @@ void GrStencilPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds
 
     int numStencilBits = rt->renderTargetPriv().numStencilBits();
     GrStencilSettings stencil(GrPathRendering::GetStencilPassSettings(fPath->getFillType()),
-                              fHasStencilClip, numStencilBits);
+                              fHasStencilClip, numStencilBits, true);
 
     GrPathRendering::StencilPathArgs args(fUseHWAA, state->drawOpArgs().proxy(),
                                           &fViewMatrix, &fScissor, &stencil);
