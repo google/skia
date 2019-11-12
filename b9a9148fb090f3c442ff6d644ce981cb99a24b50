@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aa90246_8f0ebf40",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-12T14:42:48Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to be what you want. Deleting the GrContext should free everything in it.",
+      "range": {
+        "startLine": 125,
+        "startChar": 4,
+        "endLine": 125,
+        "endChar": 52
+      },
+      "revId": "b9a9148fb090f3c442ff6d644ce981cb99a24b50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
