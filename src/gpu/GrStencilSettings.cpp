@@ -24,7 +24,7 @@ GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fCWFlags[0] & gUnused.fCCWFlags[0
 
 const GrUserStencilSettings& GrUserStencilSettings::kUnused = gUnused;
 
-void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencilClip,
+void GrStencilSettings::reset2(const GrUserStencilSettings& user, bool hasStencilClip,
                               int numStencilBits) {
     uint16_t cwFlags = user.fCWFlags[hasStencilClip];
     if (cwFlags & kSingleSided_StencilFlag) {
@@ -53,7 +53,7 @@ void GrStencilSettings::reset(const GrUserStencilSettings& user, bool hasStencil
     }
 }
 
-void GrStencilSettings::reset(const GrStencilSettings& that) {
+void GrStencilSettings::reset3(const GrStencilSettings& that) {
     fFlags = that.fFlags;
     if ((kInvalid_PrivateFlag | kDisabled_StencilFlag) & fFlags) {
         return;
