@@ -236,9 +236,11 @@ static wgpu::StencilStateFaceDescriptor to_stencil_state_face(const GrStencilSet
 }
 
 static wgpu::DepthStencilStateDescriptor create_depth_stencil_state(
-        const GrStencilSettings& stencilSettings,
-        wgpu::TextureFormat depthStencilFormat,
-        GrSurfaceOrigin origin) {
+        const GrProgramInfo& programInfo,
+        wgpu::TextureFormat depthStencilFormat) {
+    GrStencilSettings stencilSettings = programInfo.nonGLStencilSettings();
+    GrSurfaceOrigin origin = programInfo.origin();
+
     wgpu::DepthStencilStateDescriptor state;
     state.format = depthStencilFormat;
     if (!stencilSettings.isDisabled()) {
@@ -352,13 +354,13 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     const GrPipeline& pipeline = programInfo.pipeline();
     auto colorState = create_color_state(gpu, pipeline, colorFormat);
     wgpu::DepthStencilStateDescriptor depthStencilState;
-    GrStencilSettings stencil;
+
+#ifdef SK_DEBUG
     if (pipeline.isStencilEnabled()) {
-        int numStencilBits = renderTarget->renderTargetPriv().numStencilBits();
-        stencil.reset(*pipeline.getUserStencil(), pipeline.hasStencilClip(), numStencilBits);
+        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
     }
-    depthStencilState = create_depth_stencil_state(stencil, depthStencilFormat,
-                                                   programInfo.origin());
+#endif
+    depthStencilState = create_depth_stencil_state(programInfo, depthStencilFormat);
 
     std::vector<wgpu::VertexBufferLayoutDescriptor> inputs;
 
