@@ -48,16 +48,16 @@ static constexpr int kGrStencilOpCount = 1 + (int)GrStencilOp::kDecClamp;
 class GrStencilSettings {
 public:
     GrStencilSettings() { this->setDisabled(); }
-    GrStencilSettings(const GrUserStencilSettings& user, bool hasStencilClip, int numStencilBits) {
-        this->reset(user, hasStencilClip, numStencilBits);
+    GrStencilSettings(const GrUserStencilSettings& user, bool hasStencilClip, int numStencilBits, bool foo) {
+        this->reset2(user, hasStencilClip, numStencilBits);
     }
-    GrStencilSettings(const GrStencilSettings& that) { this->reset(that); }
-    GrStencilSettings& operator=(const GrStencilSettings& that) { this->reset(that); return *this; }
+    GrStencilSettings(const GrStencilSettings& that) { this->reset3(that); }
+    GrStencilSettings& operator=(const GrStencilSettings& that) { this->reset3(that); return *this; }
 
     void invalidate() { fFlags |= kInvalid_PrivateFlag; }
     void setDisabled() { fFlags = kAll_StencilFlags; }
-    void reset(const GrUserStencilSettings&, bool hasStencilClip, int numStencilBits);
-    void reset(const GrStencilSettings&);
+    void reset2(const GrUserStencilSettings&, bool hasStencilClip, int numStencilBits);
+    void reset3(const GrStencilSettings&);
 
     bool isValid() const { return !(fFlags & kInvalid_PrivateFlag); }
     bool isDisabled() const { SkASSERT(this->isValid()); return fFlags & kDisabled_StencilFlag; }
