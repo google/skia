@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "291bbb9e_d8a0d6b9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2019-11-12T20:01:58Z",
+      "side": 1,
+      "message": "...changing the Blink side to avoid that is tracked in crbug.com/1023923",
+      "revId": "9c4c19ba65d08e8ff7c6a2b93331db43bc145510",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
