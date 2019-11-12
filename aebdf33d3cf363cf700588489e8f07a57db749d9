@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "499aa29e_0a7bba60",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 2020,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-12T16:40:54Z",
+      "side": 1,
+      "message": "How about we add a new flag to gn/BUILDCONFIG.gn so that warnings can be disabled explicitly,\nand then just set that flag in gn_to_bp.py, e.g.\n\n   warnings \u003d false\n\n?",
+      "revId": "aebdf33d3cf363cf700588489e8f07a57db749d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
