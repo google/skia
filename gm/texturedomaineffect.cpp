@@ -45,7 +45,7 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises GrTextureDomainEffect.
+ * This GM directly exercises GrDomainEffect.
  */
 class TextureDomainEffect : public GpuGM {
 public:
@@ -104,7 +104,7 @@ protected:
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxy;
         GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
-                                context->priv().caps()->mipMapSupport()
+                                           context->priv().caps()->mipMapSupport()
                 ? GrMipMapped::kYes : GrMipMapped::kNo;
         proxy = proxyProvider->createProxyFromBitmap(fBitmap, mipMapped);
         if (!proxy) {
@@ -117,13 +117,11 @@ protected:
         textureMatrices.push_back() = SkMatrix::MakeScale(1.5f, 0.85f);
         textureMatrices.push_back();
         textureMatrices.back().setRotate(45.f, proxy->width() / 2.f, proxy->height() / 2.f);
-
         const SkIRect texelDomains[] = {
             fBitmap.bounds(),
             SkIRect::MakeXYWH(fBitmap.width() / 4 - 1, fBitmap.height() / 4 - 1,
                               fBitmap.width() / 2 + 2, fBitmap.height() / 2 + 2),
         };
-
         SkRect renderRect = SkRect::Make(fBitmap.bounds());
         renderRect.outset(kDrawPad, kDrawPad);
 
@@ -141,12 +139,15 @@ protected:
 
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    auto fp = GrTextureDomainEffect::Make(
-                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
-                            textureMatrices[tm],
-                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
 
+                    auto fp = GrSimpleTextureEffect::Make(
+                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()), SkMatrix::I(),
+                            fFilter);
+                    bool filterIfDecal = GrDomainEffect::DecalFilterFromSamplerFilter(fFilter);
+                    fp = GrDomainEffect::Make(
+                            std::move(fp), textureMatrices[tm],
+                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode), mode,
+                            filterIfDecal);
                     if (!fp) {
                         continue;
                     }
