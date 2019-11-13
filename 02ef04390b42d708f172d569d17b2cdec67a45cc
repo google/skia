@@ -22,6 +22,30 @@
       "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de457dae_e6ef6aaf",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-13T18:39:25Z",
+      "side": 1,
+      "message": "I would be opposed to increasing support after the overrides, but I\u0027m not so bothered by reducing support, especially since as you mentioned, the dual source blending might affect this outcome.\n\nI don\u0027t love the idea of splitting up multisampleDisable and dualSourceBlending checks for a couple of reasons:\n\n- It\u0027s more organized do do it all in one place\n- Multisample disable could potentially find its way into the overrides at some point\n\nMy preference would be to just have this check after the overrides are applied, whether that means here or at the end of the applyOverrides method.",
+      "parentUuid": "519a3464_2f87796d",
+      "range": {
+        "startLine": 86,
+        "startChar": 2,
+        "endLine": 92,
+        "endChar": 5
+      },
+      "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
