@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a471e4ed_9036d6bc",
+        "filename": "src/gpu/GrPathProcessor.cpp",
+        "patchSetId": 39
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-13T15:23:24Z",
+      "side": 1,
+      "message": "Should this and all the other \"#if SK_GL\"s actually be #ifdef SK_GL?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 9
+      },
+      "revId": "2d5a069f0bde7856db4ef067369d3b0bdb4de5bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
