@@ -36,7 +36,7 @@ public:
         fShaderCaps->fDualSourceBlendingSupport = options.fDualSourceBlendingSupport;
         fShaderCaps->fSampleMaskSupport = true;
 
-        this->applyOptionsOverrides(contextOptions);
+        this->finishInitialization(contextOptions);
     }
 
     bool isFormatSRGB(const GrBackendFormat& format) const override {
