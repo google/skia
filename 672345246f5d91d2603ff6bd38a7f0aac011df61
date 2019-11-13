@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "706033e4_8310642d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-13T16:51:28Z",
+      "side": 1,
+      "message": "This is going to be overwritten by line 559, right?",
+      "range": {
+        "startLine": 606,
+        "startChar": 4,
+        "endLine": 606,
+        "endChar": 36
+      },
+      "revId": "672345246f5d91d2603ff6bd38a7f0aac011df61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
