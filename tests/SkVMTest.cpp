@@ -161,6 +161,7 @@ DEF_TEST(SkVM, r) {
         dump(b, &buf);
     }
 
+#if defined(SK_CPU_X86)
     sk_sp<SkData> blob = buf.detachAsData();
     {
 
@@ -181,6 +182,7 @@ DEF_TEST(SkVM, r) {
             }
         }
     }
+#endif
 
     auto test_8888 = [&](skvm::Program&& program) {
         uint32_t src[9];
