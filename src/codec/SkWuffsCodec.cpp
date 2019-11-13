@@ -261,6 +261,7 @@ private:
     size_t   fIncrDecRowBytes;
     bool     fFirstCallToIncrementalDecode;
 
+    uint64_t                  fFrameCountReaderIOPosition;
     uint64_t                  fNumFullyReceivedFrames;
     std::vector<SkWuffsFrame> fFrames;
     bool                      fFramesComplete;
@@ -363,6 +364,7 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fIncrDecReaderIOPosition(0),
       fIncrDecRowBytes(0),
       fFirstCallToIncrementalDecode(false),
+      fFrameCountReaderIOPosition(0),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
       fDecoderIsSuspended{
@@ -593,16 +595,15 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeInternal(int* rowsDecoded) {
 }
 
 int SkWuffsCodec::onGetFrameCount() {
-    if (!fFramesComplete) {
+    if (!fFramesComplete && seek_buffer(&fIOBuffer, fStream.get(), fFrameCountReaderIOPosition)) {
         this->onGetFrameCountInternal();
+        fFrameCountReaderIOPosition =
+            fDecoders[WhichDecoder::kFrameCount] ? fIOBuffer.reader_io_position() : 0;
     }
     return fFrames.size();
 }
 
 void SkWuffsCodec::onGetFrameCountInternal() {
-    if (!seek_buffer(&fIOBuffer, fStream.get(), 0)) {
-        return;
-    }
     if (!fDecoders[WhichDecoder::kFrameCount]) {
         void* decoder_raw = sk_malloc_canfail(sizeof__wuffs_gif__decoder());
         if (!decoder_raw) {
@@ -610,20 +611,13 @@ void SkWuffsCodec::onGetFrameCountInternal() {
         }
         std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> decoder(
             reinterpret_cast<wuffs_gif__decoder*>(decoder_raw), &sk_free);
+        reset_and_decode_image_config(decoder.get(), nullptr, &fIOBuffer, fStream.get());
         fDecoders[WhichDecoder::kFrameCount] = std::move(decoder);
-    }
-    reset_and_decode_image_config(fDecoders[WhichDecoder::kFrameCount].get(), nullptr, &fIOBuffer,
-                                  fStream.get());
-
-    size_t n = fFrames.size();
-    int    i = n ? n - 1 : 0;
-    if (this->seekFrame(WhichDecoder::kFrameCount, i) != SkCodec::kSuccess) {
-        return;
     }
 
     // Iterate through the frames, converting from Wuffs'
     // wuffs_base__frame_config type to Skia's SkWuffsFrame type.
-    for (; i < INT_MAX; i++) {
+    while (true) {
         const char* status = this->decodeFrameConfig(WhichDecoder::kFrameCount);
         if (status == nullptr) {
             // No-op.
@@ -633,7 +627,11 @@ void SkWuffsCodec::onGetFrameCountInternal() {
             return;
         }
 
-        if (static_cast<size_t>(i) < fFrames.size()) {
+        uint64_t i = fDecoders[WhichDecoder::kFrameCount]->num_decoded_frame_configs();
+        if (i > INT_MAX) {
+            break;
+        }
+        if ((i == 0) || (static_cast<size_t>(i - 1) != fFrames.size())) {
             continue;
         }
         fFrames.emplace_back(&fFrameConfigs[WhichDecoder::kFrameCount]);
