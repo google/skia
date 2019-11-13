@@ -566,9 +566,11 @@ namespace skvm {
     }
 
     F32 Builder::mul(F32 x, F32 y) {
+    #if defined(SK_CPU_X86)
         int imm;
         if (this->isImm(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
         if (this->isImm(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::mul_f32, x.id, y.id)};
     }
 
@@ -2098,10 +2100,8 @@ namespace skvm {
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
 
-                // TODO: handle these immediate op constants better on ARM?
-                case Op::mul_f32_imm: a->ldrq(tmp(), &constants[imm].label);
-                                      a->fmul4s(dst(), r[x], tmp());
-                                      break;
+                // We should not see _imm ops on ARM.
+                case Op::mul_f32_imm: SkUNREACHABLE; break;
 
                 case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
                 case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
