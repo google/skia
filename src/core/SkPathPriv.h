@@ -313,6 +313,7 @@ class SkPathEdgeIter {
     const SkScalar* fConicWeights;
     SkPoint         fScratch[2];    // for auto-close lines
     bool            fNeedsCloseLine;
+    bool            fNextIsNewContour;
     SkDEBUGCODE(bool fIsConic);
 
     enum {
@@ -341,6 +342,7 @@ public:
     struct Result {
         const SkPoint*  fPts;   // points for the segment, or null if done
         Edge            fEdge;
+        bool            fIsNewContour;
 
         // Returns true when it holds an Edge, false when the path is done.
         operator bool() { return fPts != nullptr; }
@@ -351,7 +353,8 @@ public:
             fScratch[0] = fPts[-1];
             fScratch[1] = *fMoveToPtr;
             fNeedsCloseLine = false;
-            return Result{ fScratch, Edge::kLine };
+            fNextIsNewContour = true;
+            return Result{ fScratch, Edge::kLine, false };
         };
 
         for (;;) {
@@ -359,7 +362,7 @@ public:
             if (fVerbs == fVerbsStop) {
                 return fNeedsCloseLine
                     ? closeline()
-                    : Result{ nullptr, Edge(kIllegalEdgeValue) };
+                    : Result{ nullptr, Edge(kIllegalEdgeValue), false };
             }
 
             SkDEBUGCODE(fIsConic = false;)
@@ -390,7 +393,9 @@ public:
                     SkDEBUGCODE(fIsConic = (v == SkPath::kConic_Verb);)
                     SkASSERT(fIsConic == (cws_count > 0));
 
-                    return { &fPts[-(pts_count + 1)], Edge(v) };
+                    bool isNewContour = fNextIsNewContour;
+                    fNextIsNewContour = false;
+                    return { &fPts[-(pts_count + 1)], Edge(v), isNewContour };
                 }
             }
         }

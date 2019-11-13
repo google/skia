@@ -135,3 +135,318 @@ class ClipView : public Sample {
 };
 
 DEF_SAMPLE( return new ClipView(); )
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "src/core/SkEdgeClipper.h"
+
+static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
+    SkMatrix mx, inv;
+    SkVector v = p1 - p0;
+    mx.setAll(v.fX, -v.fY, p0.fX,
+              v.fY,  v.fX, p0.fY,
+                 0,     0,     1);
+    SkAssertResult(mx.invert(&inv));
+
+    SkPath rotated;
+    path.transform(inv, &rotated);
+
+    SkScalar big = 1e28f;
+    SkRect clip = {-big, 0, big, big };
+
+    struct Rec {
+        SkPath  fResult;
+        SkPoint fPrev;
+    } rec;
+
+    SkEdgeClipper::ClipPath(rotated, clip, false,
+                            [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
+        Rec* rec = (Rec*)ctx;
+
+        bool addLineTo = false;
+        SkPoint      pts[4];
+        SkPath::Verb verb;
+        while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
+            if (newCtr) {
+                rec->fResult.moveTo(pts[0]);
+                rec->fPrev = pts[0];
+                newCtr = false;
+            }
+
+            if (addLineTo || pts[0] != rec->fPrev) {
+                rec->fResult.lineTo(pts[0]);
+            }
+
+            switch (verb) {
+                case SkPath::kLine_Verb:
+                    rec->fResult.lineTo (pts[1]);
+                    rec->fPrev = pts[1];
+                    break;
+                case SkPath::kQuad_Verb:
+                    rec->fResult.quadTo(pts[1], pts[2]);
+                    rec->fPrev = pts[2];
+                    break;
+                case SkPath::kCubic_Verb:
+                    rec->fResult.cubicTo(pts[1], pts[2], pts[3]);
+                    rec->fPrev = pts[3];
+                    break;
+                default: break;
+            }
+            addLineTo = true;
+        }
+    }, &rec);
+
+    rec.fResult.transform(mx);
+    return rec.fResult;
+}
+
+static void draw_halfplane(SkCanvas* canvas, SkPoint p0, SkPoint p1) {
+    SkVector v = p1 - p0;
+    p0 = p0 - v * 1000;
+    p1 = p1 + v * 1000;
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawLine(p0, p1, paint);
+}
+
+static SkPath make_path() {
+    SkRandom rand;
+    auto rand_pt = [&rand]() { return SkPoint{rand.nextF() * 400, rand.nextF() * 400}; };
+
+    SkPath path;
+    for (int i = 0; i < 4; ++i) {
+        path.moveTo(rand_pt()).quadTo(rand_pt(), rand_pt())
+            .quadTo(rand_pt(), rand_pt()).lineTo(rand_pt());
+    }
+    return path;
+}
+
+class HalfPlaneView : public Sample {
+    SkPoint fPts[2];
+    SkPath fPath;
+
+    SkString name() override { return SkString("halfplane"); }
+
+    void onOnceBeforeDraw() override {
+        fPts[0] = {0, 0};
+        fPts[1] = {3, 2};
+        fPath = make_path();
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkPaint paint;
+
+        paint.setColor({0.5f, 0.5f, 0.5f, 1.0f}, nullptr);
+        canvas->drawPath(fPath, paint);
+
+        paint.setColor({0, 0, 0, 1}, nullptr);
+        canvas->drawPath(clip(fPath, fPts[0], fPts[1]), paint);
+
+        draw_halfplane(canvas, fPts[0], fPts[1]);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        return new Click;
+    }
+
+    bool onClick(Click* click) override {
+        fPts[0] = click->fCurr;
+        fPts[1] = fPts[0] + SkPoint{3, 2};
+        return true;
+    }
+};
+DEF_SAMPLE( return new HalfPlaneView(); )
+
+struct SkHalfPlane {
+    SkScalar fA, fB, fC;
+
+    SkScalar operator()(SkScalar x, SkScalar y) const {
+        return fA * x + fB * y + fC;
+    }
+
+    void twoPts(SkPoint pts[2]) const {
+        if (fB) {
+            pts[0] = { 0, -fC / fB };
+            pts[1] = { 1, (-fC - fA) / fB };
+        } else {
+            pts[0] = { -fC / fA,        0 };
+            pts[1] = { (-fC - fB) / fA, 1 };
+        }
+    }
+};
+
+static void draw_halfplane(SkCanvas* canvas, const SkHalfPlane& p) {
+    SkPoint pts[2];
+    p.twoPts(pts);
+    draw_halfplane(canvas, pts[0], pts[1]);
+}
+
+static void compute_half_planes(const SkMatrix& mx, SkScalar W, SkScalar H,
+                                SkHalfPlane planes[4]) {
+    SkScalar a = mx[0], b = mx[1], c = mx[2],
+             d = mx[3], e = mx[4], f = mx[5],
+             g = mx[6], h = mx[7], i = mx[8];
+
+    planes[0] = { 2*g - 2*a/W,  2*h - 2*b/W,  2*i - 2*c/W };
+    planes[1] = { 2*a/W,        2*b/W,        2*c/W };
+    planes[2] = { 2*g - 2*d/H,  2*h - 2*e/H,  2*i - 2*f/H };
+    planes[3] = { 2*d/H,        2*e/H,        2*f/H };
+}
+
+class HalfPlaneView2 : public Sample {
+    SkPoint fPts[4];
+    SkPath fPath;
+
+    SkString name() override { return SkString("halfplane2"); }
+
+    void onOnceBeforeDraw() override {
+        fPath = make_path();
+        SkRect r = fPath.getBounds();
+        r.toQuad(fPts);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkMatrix mx;
+        {
+            SkRect r = fPath.getBounds();
+            SkPoint src[4];
+            r.toQuad(src);
+            mx.setPolyToPoly(src, fPts, 4);
+        }
+
+        SkPaint paint;
+        canvas->drawPath(fPath, paint);
+
+        canvas->save();
+        canvas->concat(mx);
+        paint.setColor(0x40FF0000);
+        canvas->drawPath(fPath, paint);
+        canvas->restore();
+
+        // draw the frame
+        paint.setStrokeWidth(10);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPts, paint);
+
+        // draw the half-planes
+        SkHalfPlane planes[4];
+        compute_half_planes(mx, 400, 400, planes);
+        for (auto& p : planes) {
+            draw_halfplane(canvas, p);
+        }
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        SkScalar r = 8;
+        SkRect rect = SkRect::MakeXYWH(x - r, y - r, 2*r, 2*r);
+        for (int i = 0; i < 4; ++i) {
+            if (rect.contains(fPts[i].fX, fPts[i].fY)) {
+                Click* c = new Click;
+                c->fMeta.setS32("index", i);
+                return c;
+            }
+        }
+        return nullptr;
+    }
+
+    bool onClick(Click* click) override {
+        int32_t index;
+        SkAssertResult(click->fMeta.findS32("index", &index));
+        SkASSERT(index >= 0 && index < 4);
+        fPts[index] = click->fCurr;
+        return true;
+    }
+};
+DEF_SAMPLE( return new HalfPlaneView2(); )
+
+#include "include/core/SkMatrix44.h"
+#include "include/utils/Sk3D.h"
+
+static SkMatrix44 inv(const SkMatrix44& m) {
+    SkMatrix44 inverse;
+    SkAssertResult(m.invert(&inverse));
+    return inverse;
+}
+
+class HalfPlaneView3 : public Sample {
+    float   fNear = 0.5;
+    float   fFar = 4;
+    float   fAngle = SK_ScalarPI / 4;
+
+    SkMatrix44  fRot;
+
+    SkPoint3    fEye { 0, 0, 1.0f / tan(fAngle/2) - 1 };
+    SkPoint3    fCOA {0,0,0};//{ 0.5f, 0.5f, 0.5f };
+    SkPoint3    fUp  { 0, 1, 0 };
+
+    SkPath fPath;
+
+    SkString name() override { return SkString("halfplane3"); }
+
+    void onOnceBeforeDraw() override {
+        fPath = make_path();
+    }
+
+    void rotate(float x, float y, float z) {
+        SkMatrix44 r;
+        if (x) {
+            r.setRotateAboutUnit(1, 0, 0, x);
+        } else if (y) {
+            r.setRotateAboutUnit(0, 1, 0, y);
+        } else {
+            r.setRotateAboutUnit(0, 0, 1, z);
+        }
+        fRot.postConcat(r);
+    }
+
+    SkMatrix get44() const {
+        SkMatrix44  camera,
+                    perspective,
+                    viewport;
+
+        Sk3Perspective(&perspective, fNear, fFar, fAngle);
+        Sk3LookAt(&camera, fEye, fCOA, fUp);
+        viewport.setScale(200, 200, 1).postTranslate( 200,  200, 0);
+
+        return viewport * perspective * camera * fRot * inv(viewport);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkMatrix mx = this->get44();
+
+        SkPaint paint;
+        canvas->drawPath(fPath, paint);
+
+        canvas->save();
+        canvas->concat(mx);
+        paint.setColor(0xFFFF0000);
+        canvas->drawPath(fPath, paint);
+        canvas->restore();
+    }
+
+    bool onChar(SkUnichar uni) override {
+        float delta = M_PI / 30;
+        switch (uni) {
+            case 'a': this->rotate( delta, 0, 0); return true;
+            case 'd': this->rotate(-delta, 0, 0); return true;
+            case 'w': this->rotate(0,  delta, 0); return true;
+            case 's': this->rotate(0, -delta, 0); return true;
+            case 'q': this->rotate(0, 0,  delta); return true;
+            case 'z': this->rotate(0, 0, -delta); return true;
+
+            case 'i': fEye.fZ += 0.1f; SkDebugf("ez %g\n", fEye.fZ); return true;
+            case 'k': fEye.fZ -= 0.1f; SkDebugf("ez %g\n", fEye.fZ); return true;
+            default: break;
+        }
+        return false;
+    }
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        return nullptr;
+    }
+
+    bool onClick(Click* click) override {
+        return false;
+    }
+};
+DEF_SAMPLE( return new HalfPlaneView3(); )
