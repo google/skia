@@ -80,7 +80,19 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDriverBugWorkarounds = options.fDriverBugWorkarounds;
 }
 
+void GrCaps::finishInitialization(const GrContextOptions& options) {
+    if (fMixedSamplesSupport) {
+        // We need multisample disable and dual source blending in order to support mixed samples.
+        fMixedSamplesSupport = this->multisampleDisableSupport() &&
+                               this->shaderCaps()->dualSourceBlendingSupport();
+    }
+
+    // Overrides happen last.
+    this->applyOptionsOverrides(options);
+}
+
 void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
+    fShaderCaps->applyOptionsOverrides(options);
     this->onApplyOptionsOverrides(options);
     if (options.fDisableDriverCorrectnessWorkarounds) {
         SkASSERT(!fDriverBlacklistCCPR);
@@ -109,8 +121,10 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fMaxTileSizeOverride && options.fMaxTileSizeOverride < fMaxTextureSize) {
         fMaxTileSize = options.fMaxTileSizeOverride;
     }
-    if (options.fSuppressGeometryShaders) {
-        fShaderCaps->fGeometryShaderSupport = false;
+    if (options.fSuppressDualSourceBlending) {
+        // GrShaderCaps::applyOptionsOverrides already handled the rest; here we just need to make
+        // sure mixed samples gets disabled if dual source blending is suppressed.
+        fMixedSamplesSupport = false;
     }
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
