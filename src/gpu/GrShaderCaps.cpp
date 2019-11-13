@@ -166,6 +166,11 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fNoDefaultPrecisionForExternalSamplers);
     }
 #if GR_TEST_UTILS
-    fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
+    if (options.fSuppressDualSourceBlending) {
+        fDualSourceBlendingSupport = false;
+    }
+    if (options.fSuppressGeometryShaders) {
+        fGeometryShaderSupport = false;
+    }
 #endif
 }

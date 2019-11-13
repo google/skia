@@ -30,8 +30,7 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->initFormatTable();
     this->initStencilFormat(device);
 
-    this->applyOptionsOverrides(contextOptions);
-    fShaderCaps->applyOptionsOverrides(contextOptions);
+    this->finishInitialization(contextOptions);
 
     // The following are disabled due to the unfinished Metal backend, not because Metal itself
     // doesn't support it.
