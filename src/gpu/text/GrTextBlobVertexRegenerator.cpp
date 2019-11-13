@@ -121,13 +121,13 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
                                                  const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                                  GrColor color,
                                                  GrDeferredUploadTarget* uploadTarget,
-                                                 GrStrikeCache* glyphCache,
+                                                 GrStrikeCache* grStrikeCache,
                                                  GrAtlasManager* fullAtlasManager)
         : fResourceProvider(resourceProvider)
         , fViewMatrix(viewMatrix)
         , fBlob(blob)
         , fUploadTarget(uploadTarget)
-        , fGlyphCache(glyphCache)
+        , fGrStrikeCache(grStrikeCache)
         , fFullAtlasManager(fullAtlasManager)
         , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
         , fColor(color) {
@@ -158,7 +158,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                                             bool regenPos, bool regenCol, bool regenTexCoords,
                                             bool regenGlyphs) {
     SkASSERT(!regenGlyphs || regenTexCoords);
-    sk_sp<GrTextStrike> strike;
+    sk_sp<GrTextStrike> grStrike;
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
 
@@ -169,10 +169,23 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             fMetricsAndImages.init(strikeSpec);
         }
 
-        if (regenGlyphs) {
-            strike = strikeSpec.findOrCreateGrStrike(fGlyphCache);
+        if (!regenGlyphs) {
+            grStrike = fSubRun->refStrike();
         } else {
-            strike = fSubRun->refStrike();
+            // Start this batch at the start of the subRun plus any glyphs that were previously
+            // processed.
+            size_t glyphStart = fSubRun->glyphStartIndex() + fCurrGlyph;
+            grStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
+            SkSpan<GrGlyph*> glyphs{&(fBlob->fGlyphs[glyphStart]),
+                                    fSubRun->glyphCount() - fCurrGlyph};
+
+            for (auto& glyph : glyphs) {
+                SkPackedGlyphID id = glyph->fPackedID;
+                glyph = grStrike->getGlyph(id, fMetricsAndImages.get());
+                SkASSERT(id == glyph->fPackedID);
+            }
+
+            fSubRun->setStrike(grStrike);
         }
     }
 
@@ -186,23 +199,15 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         GrGlyph* glyph = nullptr;
         if (regenTexCoords) {
             size_t glyphOffset = glyphIdx + fSubRun->glyphStartIndex();
-
-            if (regenGlyphs) {
-                // Get the id from the old glyph, and use the new strike to lookup
-                // the glyph.
-                SkPackedGlyphID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
-                fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fMetricsAndImages.get());
-                SkASSERT(id == fBlob->fGlyphs[glyphOffset]->fPackedID);
-            }
             glyph = fBlob->fGlyphs[glyphOffset];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fFullAtlasManager->hasGlyph(glyph)) {
                 GrDrawOpAtlas::ErrorCode code;
-                code = strike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGlyphCache,
-                                              fFullAtlasManager, glyph,
-                                              fMetricsAndImages.get(), fSubRun->maskFormat(),
-                                              fSubRun->needsTransform());
+                code = grStrike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGrStrikeCache,
+                                                 fFullAtlasManager, glyph,
+                                                 fMetricsAndImages.get(), fSubRun->maskFormat(),
+                                                 fSubRun->needsTransform());
                 if (GrDrawOpAtlas::ErrorCode::kError == code) {
                     // Something horrible has happened - drop the op
                     return false;
@@ -236,9 +241,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     // We may have changed the color so update it here
     fSubRun->setColor(fColor);
     if (regenTexCoords) {
-        if (regenGlyphs) {
-            fSubRun->setStrike(std::move(strike));
-        }
         fSubRun->setAtlasGeneration(fBrokenRun
                                     ? GrDrawOpAtlas::kInvalidAtlasGeneration
                                     : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat()));
