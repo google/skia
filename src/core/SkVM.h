@@ -174,8 +174,10 @@ namespace skvm {
              xtns2h,    // u32 -> u16
              xtnh2b,    // u16 -> u8
              uxtlb2h,   // u8 -> u16
-             uxtlh2s;   // u16 -> u32
+             uxtlh2s,   // u16 -> u32
+             uminv4s;   // dst[0] = min(n[0],n[1],n[2],n[3]), n as unsigned
 
+        void brk (int imm16);
         void ret (X);
         void add (X d, X n, int imm12);
         void sub (X d, X n, int imm12);
@@ -206,6 +208,8 @@ namespace skvm {
         void strq(V src, X dst);  // 128-bit *dst = src
         void strs(V src, X dst);  //  32-bit *dst = src
         void strb(V src, X dst);  //   8-bit *dst = src
+
+        void fmovs(X dst, V src); // dst = 32-bit src[0]
 
     private:
         // dst = op(dst, imm)

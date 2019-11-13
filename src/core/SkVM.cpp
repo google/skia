@@ -1151,6 +1151,13 @@ namespace skvm {
     void Assembler::uxtlb2h(V d, V n) { this->op(0b0'0'1'011110'0001'000'10100'1, n,d); }
     void Assembler::uxtlh2s(V d, V n) { this->op(0b0'0'1'011110'0010'000'10100'1, n,d); }
 
+    void Assembler::uminv4s(V d, V n) { this->op(0b0'1'1'01110'10'11000'1'1010'10, n,d); }
+
+    void Assembler::brk(int imm16) {
+        this->word(0b11010100'001'0000000000000000'000'00
+                  | (imm16 & 16_mask) << 5);
+    }
+
     void Assembler::ret(X n) {
         this->word(0b1101011'0'0'10'11111'0000'0'0 << 10
                   | (n & 5_mask) << 5);
@@ -1201,6 +1208,12 @@ namespace skvm {
     void Assembler::strq(V src, X dst) { this->op(0b00'111'1'01'10'000000000000, dst, src); }
     void Assembler::strs(V src, X dst) { this->op(0b10'111'1'01'00'000000000000, dst, src); }
     void Assembler::strb(V src, X dst) { this->op(0b00'111'1'01'00'000000000000, dst, src); }
+
+    void Assembler::fmovs(X dst, V src) {
+        this->word(0b0'0'0'11110'00'1'00'110'000000 << 10
+                  | (src & 5_mask)                  << 5
+                  | (dst & 5_mask)                  << 0);
+    }
 
     void Assembler::ldrq(V dst, Label* l) {
         const int imm19 = this->disp19(l);
@@ -1699,16 +1712,18 @@ namespace skvm {
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
-        A::GP64 N     = A::rdi,
-                arg[] = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+        A::GP64 N       = A::rdi,
+                scratch = A::rax,
+                arg[]   = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
         // All 16 ymm registers are available to use.
         using Reg = A::Ymm;
         uint32_t avail = 0xffff;
 
     #elif defined(__aarch64__)
-        A::X N     = A::x0,
-             arg[] = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
+        A::X N       = A::x0,
+             scratch = A::x8,
+             arg[]   = { A::x1, A::x2, A::x3, A::x4, A::x5, A::x6, A::x7 };
 
         // We can use v0-v7 and v16-v31 freely; we'd need to preserve v8-v15.
         using Reg = A::V;
@@ -1911,8 +1926,8 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), arg[imm]); }
                                  break;
 
-                case Op::uniform8: a->movzbl(A::rax, arg[imm&0xffff], imm>>16);
-                                   a->vmovd_direct((A::Xmm)dst(), A::rax);
+                case Op::uniform8: a->movzbl(scratch, arg[imm&0xffff], imm>>16);
+                                   a->vmovd_direct((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), (A::Xmm)dst());
                                    break;
 
@@ -1989,7 +2004,14 @@ namespace skvm {
                                 break;
 
             #elif defined(__aarch64__)
-                case Op::assert_true: /*TODO somehow?*/ break;
+                case Op::assert_true: {
+                    a->uminv4s(tmp(), r[x]);   // uminv acts like an all() across the vector.
+                    a->fmovs(scratch, tmp());
+                    A::Label all_true;
+                    a->cbnz(scratch, &all_true);
+                    a->brk(0);
+                    a->label(&all_true);
+                } break;
 
                 case Op::store8: a->xtns2h(tmp(), r[x]);
                                  a->xtnh2b(tmp(), tmp());
