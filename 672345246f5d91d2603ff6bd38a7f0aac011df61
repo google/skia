@@ -22,6 +22,30 @@
       "revId": "672345246f5d91d2603ff6bd38a7f0aac011df61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5fb6ac2_ce689910",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-11-13T22:05:09Z",
+      "side": 1,
+      "message": "Good point. PTAL.",
+      "parentUuid": "706033e4_8310642d",
+      "range": {
+        "startLine": 606,
+        "startChar": 4,
+        "endLine": 606,
+        "endChar": 36
+      },
+      "revId": "672345246f5d91d2603ff6bd38a7f0aac011df61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
