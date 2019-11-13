@@ -623,7 +623,7 @@ private:
     const SkMatrix& fViewMatrix;
     GrTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
-    GrStrikeCache* fGlyphCache;
+    GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
