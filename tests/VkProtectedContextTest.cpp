@@ -470,6 +470,10 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
 void DDLMakeRenderTargetTestImpl(GrContext* context, skiatest::Reporter* reporter);
 
 DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
+// Disabled on fuchsia due to fxb/40061.
+#if defined(__Fuchsia__)
+    return;
+#else
     auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
     if (!protectedTestHelper->init(reporter)) {
         return;
@@ -477,6 +481,7 @@ DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, protectedTestHelper->grContext() != nullptr);
 
     DDLMakeRenderTargetTestImpl(protectedTestHelper->grContext(), reporter);
+#endif  //  defined(__Fuchsia__)
 }
 
 void DDLSurfaceCharacterizationTestImpl(GrContext* context, skiatest::Reporter* reporter);
