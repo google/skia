@@ -213,6 +213,30 @@
       "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3751e8b6_5754ba16",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-13T21:29:21Z",
+      "side": 1,
+      "message": "Yea, I know it\u0027s possible to do but did not think it was worth writing a bunch of python to do some of what go/gerrit does.",
+      "parentUuid": "6a438890_e46df837",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 42
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
