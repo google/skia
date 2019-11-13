@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "297e8cdb_6b46cdf3",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-13T19:46:21Z",
+      "side": 1,
+      "message": "Removed this and android SA (which is only for this repo as well).",
+      "parentUuid": "af84bb53_35d01be2",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 113
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f15c2810_f15d3345",
         "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
         "patchSetId": 10
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "We have different definitions of \"easy\" :)  IMO requiring git, a full checkout, and depot tools is pretty huge overhead for what should be a lightweight operation.",
       "parentUuid": "e3ffbae9_f57a4120",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 42
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "664bc761_564dc7f4",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-13T19:46:21Z",
+      "side": 1,
+      "message": "I consider it easy because it\u0027s a couple of lines here. I don\u0027t really know of a simple way to do Gerrit auth and API access from this script.",
+      "parentUuid": "e3cb295e_2ad59023",
       "range": {
         "startLine": 113,
         "startChar": 0,
