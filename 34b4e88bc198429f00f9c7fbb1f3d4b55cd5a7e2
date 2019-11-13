@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "af84bb53_35d01be2",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-13T19:36:30Z",
+      "side": 1,
+      "message": "Yeah, this is shared configuration. We should be able to just hard-code this in gen_tasks.",
+      "parentUuid": "c1f82ff1_243381ab",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 113
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f15c2810_f15d3345",
         "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
         "patchSetId": 10
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Sure, but so much more easier to use \"git cl comments\" (Android compile bot does the same). Will definitely have to use Gerrit API when/if all this is transferred to use task driver one day.",
       "parentUuid": "f15c2810_f15d3345",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 42
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3cb295e_2ad59023",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-13T19:36:30Z",
+      "side": 1,
+      "message": "We have different definitions of \"easy\" :)  IMO requiring git, a full checkout, and depot tools is pretty huge overhead for what should be a lightweight operation.",
+      "parentUuid": "e3ffbae9_f57a4120",
       "range": {
         "startLine": 113,
         "startChar": 0,
