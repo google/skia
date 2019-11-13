@@ -70,6 +70,30 @@
       "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bed5b13_87ee4c87",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-11-13T19:45:27Z",
+      "side": 1,
+      "message": "I think the next CL shouldbe a good solution?",
+      "parentUuid": "1c136725_17d62707",
+      "range": {
+        "startLine": 86,
+        "startChar": 2,
+        "endLine": 92,
+        "endChar": 5
+      },
+      "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
