@@ -189,6 +189,30 @@
       "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a438890_e46df837",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-13T20:18:58Z",
+      "side": 1,
+      "message": "Ok, this isn\u0027t on the CQ, so I guess it\u0027s not a big deal.  Maybe add a TODO?  From what I\u0027m reading in depot tools, you\u0027d just need to do a POST request with the header:\nAuthorization: Bearer \u003ctoken\u003e\nWhere \u003ctoken\u003e is generated from LUCI_CONTEXT, which I think you can do with:\ntoken \u003d self.m.service_account.default().get_access_token()\nThe above might need the gerrit or cloud-platform scope as a parameter to get_access_token.\nAlternatively, the \"gerrit\" recipe module in depot_tools might do what you want.",
+      "parentUuid": "664bc761_564dc7f4",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 42
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
