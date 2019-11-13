@@ -267,6 +267,7 @@ type Config struct {
 	// Service accounts.
 	ServiceAccountAndroidFrameworkCompile string `json:"service_account_android_framework_compile"`
 	ServiceAccountCompile                 string `json:"service_account_compile"`
+	ServiceAccountG3FrameworkCompile      string `json:"service_account_g3_framework_compile"`
 	ServiceAccountHousekeeper             string `json:"service_account_housekeeper"`
 	ServiceAccountRecreateSKPs            string `json:"service_account_recreate_skps"`
 	ServiceAccountUploadBinary            string `json:"service_account_upload_binary"`
@@ -1162,8 +1163,9 @@ func (b *builder) androidFrameworkCompile(name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func (b *builder) g3FrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", b.cfg.ServiceAccountG3FrameworkCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 3*time.Hour)
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 	return name
 }
