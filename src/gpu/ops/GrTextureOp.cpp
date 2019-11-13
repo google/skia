@@ -159,7 +159,6 @@ public:
                                          color, saturate, aaType, aaFlags, deviceQuad, localQuad,
                                          domain);
     }
-
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           const GrRenderTargetContext::TextureSetEntry set[],
                                           int cnt,
@@ -596,11 +595,9 @@ private:
         auto textureType = fViewCountPairs[0].fProxyView.asTextureProxy()->textureType();
         GrAAType aaType = this->aaType();
 
-        int quadCount = 0;
         for (const auto& op : ChainRange<TextureOp>(this)) {
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 auto* proxy = op.fViewCountPairs[p].fProxyView.asTextureProxy();
-                quadCount += op.fViewCountPairs[p].fQuadCnt;
                 SkASSERT(proxy);
                 SkASSERT(proxy->textureType() == textureType);
                 SkASSERT(op.fViewCountPairs[p].fProxyView.swizzle() ==
@@ -615,13 +612,7 @@ private:
                 SkASSERT(aaType == GrAAType::kMSAA && op.aaType() == GrAAType::kMSAA);
             }
         }
-
-        SkASSERT(quadCount == this->numChainedQuads());
     }
-#endif
-
-#if GR_TEST_UTILS
-    int numQuads() const final { return this->totNumQuads(); }
 #endif
 
     void characterize(PrePreparedDesc* desc) const {
@@ -668,8 +659,6 @@ private:
         desc->fVertexSpec = VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true,
                                        domain, overallAAType, /* alpha as coverage */ true,
                                        indexBufferOption);
-
-        SkASSERT(desc->fNumTotalQuads <= GrQuadPerEdgeAA::QuadLimit(indexBufferOption));
     }
 
     int totNumQuads() const {
@@ -890,25 +879,21 @@ private:
 
 }  // anonymous namespace
 
-#if GR_TEST_UTILS
-uint32_t GrTextureOp::ClassID() {
-    return TextureOp::ClassID();
-}
-#endif
+namespace GrTextureOp {
 
-std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
-                                            GrSurfaceProxyView proxyView,
-                                            GrColorType srcColorType,
-                                            sk_sp<GrColorSpaceXform> textureXform,
-                                            GrSamplerState::Filter filter,
-                                            const SkPMColor4f& color,
-                                            Saturate saturate,
-                                            SkBlendMode blendMode,
-                                            GrAAType aaType,
-                                            GrQuadAAFlags aaFlags,
-                                            const GrQuad& deviceQuad,
-                                            const GrQuad& localQuad,
-                                            const SkRect* domain) {
+std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+                               GrSurfaceProxyView proxyView,
+                               GrColorType srcColorType,
+                               sk_sp<GrColorSpaceXform> textureXform,
+                               GrSamplerState::Filter filter,
+                               const SkPMColor4f& color,
+                               Saturate saturate,
+                               SkBlendMode blendMode,
+                               GrAAType aaType,
+                               GrQuadAAFlags aaFlags,
+                               const GrQuad& deviceQuad,
+                               const GrQuad& localQuad,
+                               const SkRect* domain) {
     GrTextureProxy* proxy = proxyView.asTextureProxy();
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
     if (domain && domain->contains(proxy->backingStoreBoundsRect())) {
@@ -953,143 +938,20 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
     }
 }
 
-// A helper class that assists in breaking up bulk API quad draws into manageable chunks.
-class GrTextureOp::BatchSizeLimiter {
-public:
-    BatchSizeLimiter(GrRenderTargetContext* rtc,
-                     const GrClip& clip,
-                     GrRecordingContext* context,
-                     int numEntries,
-                     GrSamplerState::Filter filter,
-                     GrTextureOp::Saturate saturate,
-                     SkCanvas::SrcRectConstraint constraint,
-                     const SkMatrix& viewMatrix,
-                     sk_sp<GrColorSpaceXform> textureColorSpaceXform)
-            : fRTC(rtc)
-            , fClip(clip)
-            , fContext(context)
-            , fFilter(filter)
-            , fSaturate(saturate)
-            , fConstraint(constraint)
-            , fViewMatrix(viewMatrix)
-            , fTextureColorSpaceXform(textureColorSpaceXform)
-            , fNumLeft(numEntries) {
-    }
-
-    void createOp(const GrRenderTargetContext::TextureSetEntry set[],
-                  int clumpSize,
-                  GrAAType aaType) {
-        std::unique_ptr<GrDrawOp> op = TextureOp::Make(fContext, &set[fNumClumped], clumpSize,
-                                                       fFilter, fSaturate, aaType,
-                                                       fConstraint, fViewMatrix,
-                                                       fTextureColorSpaceXform);
-        fRTC->addDrawOp(fClip, std::move(op));
-
-        fNumLeft -= clumpSize;
-        fNumClumped += clumpSize;
-    }
-
-    int numLeft() const { return fNumLeft;  }
-    int baseIndex() const { return fNumClumped; }
-
-private:
-    GrRenderTargetContext*      fRTC;
-    const GrClip&               fClip;
-    GrRecordingContext*         fContext;
-    GrSamplerState::Filter      fFilter;
-    GrTextureOp::Saturate       fSaturate;
-    SkCanvas::SrcRectConstraint fConstraint;
-    const SkMatrix&             fViewMatrix;
-    sk_sp<GrColorSpaceXform>    fTextureColorSpaceXform;
-
-    int                         fNumLeft;
-    int                         fNumClumped = 0; // also the offset for the start of the next clump
-};
-
-// Greedily clump quad draws together until the index buffer limit is exceeded.
-void GrTextureOp::CreateTextureSetOps(GrRenderTargetContext* rtc,
-                                      const GrClip& clip,
-                                      GrRecordingContext* context,
-                                      const GrRenderTargetContext::TextureSetEntry set[],
-                                      int cnt,
-                                      GrSamplerState::Filter filter,
-                                      Saturate saturate,
-                                      GrAAType aaType,
-                                      SkCanvas::SrcRectConstraint constraint,
-                                      const SkMatrix& viewMatrix,
-                                      sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
-
-    // First check if we can always just make a single op and avoid the extra iteration
-    // needed to clump things together.
-    if (cnt <= SkTMin(GrResourceProvider::MaxNumNonAAQuads(),
-                      GrResourceProvider::MaxNumAAQuads())) {
-        auto op = TextureOp::Make(context, set, cnt, filter, saturate, aaType,
-                                  constraint, viewMatrix, std::move(textureColorSpaceXform));
-        rtc->addDrawOp(clip, std::move(op));
-        return;
-    }
-
-    BatchSizeLimiter state(rtc, clip, context, cnt, filter, saturate, constraint, viewMatrix,
+std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
+                                  const GrRenderTargetContext::TextureSetEntry set[],
+                                  int cnt,
+                                  GrSamplerState::Filter filter,
+                                  Saturate saturate,
+                                  GrAAType aaType,
+                                  SkCanvas::SrcRectConstraint constraint,
+                                  const SkMatrix& viewMatrix,
+                                  sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+    return TextureOp::Make(context, set, cnt, filter, saturate, aaType, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
-
-    // kNone and kMSAA never get altered
-    if (aaType == GrAAType::kNone || aaType == GrAAType::kMSAA) {
-        // Clump these into series of MaxNumNonAAQuads-sized GrTextureOps
-        while (state.numLeft() > 0) {
-            int clumpSize = SkTMin(state.numLeft(), GrResourceProvider::MaxNumNonAAQuads());
-
-            state.createOp(set, clumpSize, aaType);
-        }
-    } else {
-        // kCoverage can be downgraded to kNone. Note that the following is conservative. kCoverage
-        // can also get downgraded to kNone if all the quads are on integer coordinates and
-        // axis-aligned.
-        SkASSERT(aaType == GrAAType::kCoverage);
-
-        while (state.numLeft() > 0) {
-            GrAAType runningAA = GrAAType::kNone;
-            bool clumped = false;
-
-            for (int i = 0; i < state.numLeft(); ++i) {
-                int absIndex = state.baseIndex() + i;
-
-                if (set[absIndex].fAAFlags != GrQuadAAFlags::kNone) {
-
-                    if (i >= GrResourceProvider::MaxNumAAQuads()) {
-                        // Here we either need to boost the AA type to kCoverage, but doing so with
-                        // all the accumulated quads would overflow, or we have a set of AA quads
-                        // that has just gotten too large. In either case, calve off the existing
-                        // quads as their own TextureOp.
-                        state.createOp(
-                            set,
-                            runningAA == GrAAType::kNone ? i : GrResourceProvider::MaxNumAAQuads(),
-                            runningAA); // maybe downgrading AA here
-                        clumped = true;
-                        break;
-                    }
-
-                    runningAA = GrAAType::kCoverage;
-                } else if (runningAA == GrAAType::kNone) {
-
-                    if (i >= GrResourceProvider::MaxNumNonAAQuads()) {
-                        // Here we've found a consistent batch of non-AA quads that has gotten too
-                        // large. Calve it off as its own GrTextureOp.
-                        state.createOp(set, GrResourceProvider::MaxNumNonAAQuads(),
-                                       GrAAType::kNone); // definitely downgrading AA here
-                        clumped = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!clumped) {
-                // We ran through the above loop w/o hitting a limit. Spit out this last clump of
-                // quads and call it a day.
-                state.createOp(set, state.numLeft(), runningAA); // maybe downgrading AA here
-            }
-        }
-    }
 }
+
+}  // namespace GrTextureOp
 
 #if GR_TEST_UTILS
 #include "include/private/GrRecordingContext.h"
