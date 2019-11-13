@@ -72,9 +72,10 @@ or revised. This service is offered free of charge; please provide us with your
 mailing address.
 */
 
-#include "include/core/SkColorPriv.h"
-#include "src/codec/SkGifCodec.h"
 #include "third_party/gif/SkGifImageReader.h"
+#include "third_party/gif/SkLibGifCodec.h"
+
+#include "include/core/SkColorPriv.h"
 
 #include <algorithm>
 #include <string.h>
@@ -403,7 +404,7 @@ sk_sp<SkColorTable> SkGifImageReader::getColorTable(SkColorType colorType, int i
 // Perform decoding for this frame. frameComplete will be true if the entire frame is decoded.
 // Returns false if a decoding error occurred. This is a fatal error and causes the SkGifImageReader to set the "decode failed" flag.
 // Otherwise, either not enough data is available to decode further than before, or the new data has been decoded successfully; returns true in this case.
-bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkGifCodec* client,
+bool SkGIFFrameContext::decode(SkStreamBuffer* streamBuffer, SkLibGifCodec* client,
                                bool* frameComplete)
 {
     *frameComplete = false;
