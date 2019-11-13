@@ -553,7 +553,7 @@ optional("gpu") {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
     if (is_fuchsia) {
-      if (skia_using_fuchsia_sdk) {
+      if (using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
