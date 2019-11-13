@@ -169,10 +169,19 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             fMetricsAndImages.init(strikeSpec);
         }
 
-        if (regenGlyphs) {
-            strike = strikeSpec.findOrCreateGrStrike(fGlyphCache);
-        } else {
+        if (!regenGlyphs) {
             strike = fSubRun->refStrike();
+        } else {
+            size_t glyphStart = fSubRun->glyphStartIndex() + fCurrGlyph;
+            strike = strikeSpec.findOrCreateGrStrike(fGlyphCache);
+            SkSpan<GrGlyph*> glyphs{&(fBlob->fGlyphs[glyphStart]), fSubRun->glyphCount() - fCurrGlyph};
+
+            for (auto& glyph : glyphs) {
+                SkPackedGlyphID id = glyph->fPackedID;
+                glyph = strike->getGlyph(id, fMetricsAndImages.get());
+                SkASSERT(id == glyph->fPackedID);
+            }
+            fSubRun->setStrike(strike);
         }
     }
 
@@ -186,14 +195,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         GrGlyph* glyph = nullptr;
         if (regenTexCoords) {
             size_t glyphOffset = glyphIdx + fSubRun->glyphStartIndex();
-
-            if (regenGlyphs) {
-                // Get the id from the old glyph, and use the new strike to lookup
-                // the glyph.
-                SkPackedGlyphID id = fBlob->fGlyphs[glyphOffset]->fPackedID;
-                fBlob->fGlyphs[glyphOffset] = strike->getGlyph(id, fMetricsAndImages.get());
-                SkASSERT(id == fBlob->fGlyphs[glyphOffset]->fPackedID);
-            }
             glyph = fBlob->fGlyphs[glyphOffset];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
@@ -236,9 +237,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     // We may have changed the color so update it here
     fSubRun->setColor(fColor);
     if (regenTexCoords) {
-        if (regenGlyphs) {
-            fSubRun->setStrike(std::move(strike));
-        }
         fSubRun->setAtlasGeneration(fBrokenRun
                                     ? GrDrawOpAtlas::kInvalidAtlasGeneration
                                     : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat()));
