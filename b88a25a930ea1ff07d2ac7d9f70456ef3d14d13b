@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18a3c967_cca86542",
+        "filename": "src/core/SkBitmapProcState_matrixProcs.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-11-13T13:09:16Z",
+      "side": 1,
+      "message": "Its not obvious how this table is organized/sorted. Can we add a comment,\nor some other way to make it easier for the next person to know how to\nmake modifications?",
+      "range": {
+        "startLine": 473,
+        "startChar": 13,
+        "endLine": 473,
+        "endChar": 30
+      },
+      "revId": "b88a25a930ea1ff07d2ac7d9f70456ef3d14d13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
