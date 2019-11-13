@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c1f82ff1_243381ab",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-13T19:32:58Z",
+      "side": 1,
+      "message": "No nobody else should need it, is that what this config is for? should I remove this line?",
+      "parentUuid": "8c30b58f_f6591212",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 113
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f15c2810_f15d3345",
         "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3ffbae9_f57a4120",
+        "filename": "infra/bots/g3_compile/trigger_wait_g3_task.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-13T19:32:58Z",
+      "side": 1,
+      "message": "Sure, but so much more easier to use \"git cl comments\" (Android compile bot does the same). Will definitely have to use Gerrit API when/if all this is transferred to use task driver one day.",
+      "parentUuid": "f15c2810_f15d3345",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 42
+      },
+      "revId": "34b4e88bc198429f00f9c7fbb1f3d4b55cd5a7e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
