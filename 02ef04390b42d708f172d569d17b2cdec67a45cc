@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "519a3464_2f87796d",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-13T18:32:21Z",
+      "side": 1,
+      "message": "my only comment is shouldn\u0027t this happen before overrides? Part of me feels like the overrides should always be the last thing we do. As in we set all our state as if there were not overrides and then change things last minute if there are.\n\nSo I would move this above the applyOptionsOoverrides, and then in the override do the\nfMixedSampleSupport \u003d fMixedSampleSupport \u0026\u0026 !disableDualSourceBlending;",
+      "range": {
+        "startLine": 86,
+        "startChar": 2,
+        "endLine": 92,
+        "endChar": 5
+      },
+      "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
