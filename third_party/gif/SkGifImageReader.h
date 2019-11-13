@@ -40,7 +40,7 @@
 
 // Define ourselves as the clientPtr.  Mozilla just hacked their C++ callback class into this old C decoder,
 // so we will too.
-class SkGifCodec;
+class SkLibGifCodec;
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
@@ -94,7 +94,7 @@ class SkGIFColorMap;
 // LZW decoder state machine.
 class SkGIFLZWContext final : public SkNoncopyable {
 public:
-    SkGIFLZWContext(SkGifCodec* client, const SkGIFFrameContext* frameContext)
+    SkGIFLZWContext(SkLibGifCodec* client, const SkGIFFrameContext* frameContext)
         : codesize(0)
         , codemask(0)
         , clearCode(0)
@@ -135,7 +135,7 @@ private:
     SkGIFRow rowBuffer; // Single scanline temporary buffer.
     unsigned char* rowIter;
 
-    SkGifCodec* const m_client;
+    SkLibGifCodec* const m_client;
     const SkGIFFrameContext* m_frameContext;
 };
 
@@ -220,7 +220,7 @@ public:
         m_lzwBlocks.emplace_back(position, size);
     }
 
-    bool decode(SkStreamBuffer*, SkGifCodec* client, bool* frameDecoded);
+    bool decode(SkStreamBuffer*, SkLibGifCodec* client, bool* frameDecoded);
 
     int transparentPixel() const { return m_transparentPixel; }
     void setTransparentPixel(int pixel) { m_transparentPixel = pixel; }
@@ -288,7 +288,7 @@ public:
     {
     }
 
-    void setClient(SkGifCodec* client) { m_client = client; }
+    void setClient(SkLibGifCodec* client) { m_client = client; }
 
     // Option to pass to parse(). All enums are negative, because a non-negative value is used to
     // indicate that the Reader should parse up to and including the frame indicated.
@@ -372,7 +372,7 @@ private:
     }
 
     // Unowned pointer
-    SkGifCodec* m_client;
+    SkLibGifCodec* m_client;
 
     // Parsing state machine.
     SkGIFState m_state; // Current decoder master state.
