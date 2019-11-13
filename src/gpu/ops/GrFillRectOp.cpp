@@ -385,7 +385,7 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
 
         fillRects->addQuad(deviceQuad,
                            GrQuad::MakeFromRect(quads[i].fRect, quads[i].fLocalMatrix),
-                           quads[i].fColor, resolvedEdgeFlags,resolvedAA);
+                           quads[i].fColor, resolvedEdgeFlags, resolvedAA);
     }
 
     return op;
