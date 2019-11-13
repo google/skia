@@ -46,6 +46,30 @@
       "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c136725_17d62707",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-13T18:44:43Z",
+      "side": 1,
+      "message": "I guess in my head I don\u0027t ever want to think about overrides at all when setting up caps. So it just seems a little weird for me to relying on the override already being called before I start setting my caps up. The more code we have that depends on one thing being called before another in caps IMO makes the logic of it more complicated.",
+      "parentUuid": "de457dae_e6ef6aaf",
+      "range": {
+        "startLine": 86,
+        "startChar": 2,
+        "endLine": 92,
+        "endChar": 5
+      },
+      "revId": "02ef04390b42d708f172d569d17b2cdec67a45cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
