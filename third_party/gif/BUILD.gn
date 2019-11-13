@@ -1,0 +1,16 @@
+# Copyright 2019 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE_BSD_3_CLAUSE.md file.
+
+source_set("libgifcodec") {
+  include_dirs = [ "../.." ]
+  public = [
+    "SkGifCodec.h",
+  ]
+  sources = [
+    "SkGifImageReader.cpp",
+    "SkGifImageReader.h",
+    "SkLibGifCodec.cpp",
+    "SkLibGifCodec.h",
+  ]
+}
