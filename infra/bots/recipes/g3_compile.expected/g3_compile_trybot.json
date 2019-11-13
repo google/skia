@@ -8,7 +8,9 @@
       "--patchset",
       "12",
       "--output_file",
-      "[CLEANUP]/g3_try_tmp_1/output_file"
+      "[CLEANUP]/g3_try_tmp_1/output_file",
+      "--builder_name",
+      "Build-Debian9-Clang-TAP-Presubmit-G3_Framework"
     ],
     "name": "Trigger and wait for g3 compile task"
   },

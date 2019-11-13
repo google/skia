@@ -16,6 +16,7 @@ import time
 INFRA_BOTS_DIR = os.path.abspath(os.path.realpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir)))
 sys.path.insert(0, INFRA_BOTS_DIR)
+import git_utils
 import utils
 
 
@@ -108,6 +109,14 @@ def _trigger_task(options):
   return task
 
 
+def _add_cl_comment(issue, comment):
+  # Depot tools needs a checkout to use "git cl" even though we are just adding
+  # a comment to a change unrelated to the checkout.
+  with git_utils.NewGitCheckout(repository=utils.SKIA_REPO) as checkout:
+    add_comment_cmd = ['git', 'cl', 'comments', '-i', str(issue), '-a', comment]
+    subprocess.check_call(add_comment_cmd)
+
+
 def _read_from_storage(gs_file, use_expo_retries=True):
   """Returns the contents of the specified file from storage."""
   num_retries = GS_RETRIES if use_expo_retries else 1
@@ -134,6 +143,17 @@ def trigger_and_wait(options):
       options.issue, options.patchset, G3_COMPILE_BUCKET)
   print '%s will be polled every %d seconds.' % (G3_COMPILE_BUCKET,
                                                  POLLING_FREQUENCY_SECS)
+
+
+  ############ REMOVE ############
+  ret = _read_from_storage(gs_file)
+  msg = ('FYI: The %s bot failed for patchset #%s.\n'
+         'The bot is known to be flaky and might or might not be related '
+         'to your change.\n'
+         'Please take a quick look at https://cl/%s to verify.') % (
+             options.builder_name, task['patchset'], ret['cl'])
+  _add_cl_comment(task['issue'], msg)
+  ############ REMOVE ############
 
   # Now poll the Google storage file till the task completes or till deadline
   # is hit.
@@ -168,6 +188,13 @@ def trigger_and_wait(options):
       elif ret['status'] == 'merge_conflict':
           raise G3CompileException(MERGE_CONFLICT_ERROR_MSG)
       elif ret['status'] == 'failure':
+        # Add a comment to the CL before throwing the exception. See skbug/9631.
+        msg = ('FYI: The %s bot failed for patchset #%s.\n'
+               'The bot is known to be flaky and might or might not be related '
+               'to your change.\n'
+               'Please take a quick look at https://cl/%s to verify.') % (
+                   options.builder_name, task['patchset'], ret['cl'])
+        _add_cl_comment(task['issue'], msg)
         raise G3CompileException(
             '\n\nRun failed G3 TAP: cl/%s' % ret['cl'] + PATCHING_INFORMATION)
       elif ret['status'] == 'success':
@@ -201,6 +228,9 @@ def main():
   option_parser.add_option(
       '', '--output_file', type=str,
       help='The file to write the task to.')
+  option_parser.add_option(
+      '', '--builder_name', type=str, default='',
+      help='The builder that triggered this run.')
   options, _ = option_parser.parse_args()
   sys.exit(trigger_and_wait(options))
 
