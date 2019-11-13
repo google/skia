@@ -178,13 +178,19 @@ public:
     DEFINE_OP_CLASS_ID
 
 private:
-    // For GrFillRectOp::MakeSet's use of addQuad
-    friend std::unique_ptr<GrDrawOp> GrFillRectOp::MakeSet(
+    // For GrFillRectOp::CreateFillRectOps's use of addQuad
+    friend void GrFillRectOp::CreateFillRectOps(
+            GrRenderTargetContext*,
+            const GrClip& clip,
             GrRecordingContext*,
             GrPaint&&,
             GrAAType, const SkMatrix& viewMatrix,
             const GrRenderTargetContext::QuadSetEntry quads[], int quadCount,
             const GrUserStencilSettings*);
+
+#if GR_TEST_UTILS
+    int numQuads() const final { return fQuads.count(); }
+#endif
 
     void onPrepareDraws(Target* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -297,7 +303,7 @@ private:
     // But since it's avoiding the op list management, it must update the op's bounds. This is only
     // used with quad sets, which uses the same view matrix for each quad so this assumes that the
     // device quad type of the new quad is the same as the op's.
-    void addQuad(const GrQuad& deviceQuad, const GrQuad& localQuad,
+    bool addQuad(const GrQuad& deviceQuad, const GrQuad& localQuad,
                  const SkPMColor4f& color, GrQuadAAFlags edgeAA, GrAAType aaType) {
         // The new quad's aa type should be the same as the first quad's or none, except when the
         // first quad's aa type was already downgraded to none, in which case the stored type must
@@ -318,6 +324,7 @@ private:
         this->setBounds(newBounds, HasAABloat(fHelper.aaType() == GrAAType::kCoverage),
                         IsHairline::kNo);
         fQuads.append(deviceQuad, { color, edgeAA }, fHelper.isTrivial() ? nullptr : &localQuad);
+        return true;
     }
 
     struct ColorAndAA {
@@ -335,35 +342,35 @@ private:
 
 } // anonymous namespace
 
-namespace GrFillRectOp {
-
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               GrPaint&& paint,
-                               GrAAType aaType,
-                               GrQuadAAFlags aaFlags,
-                               const GrQuad& deviceQuad,
-                               const GrQuad& localQuad,
-                               const GrUserStencilSettings* stencil) {
+std::unique_ptr<GrDrawOp> GrFillRectOp::Make(GrRecordingContext* context,
+                                             GrPaint&& paint,
+                                             GrAAType aaType,
+                                             GrQuadAAFlags aaFlags,
+                                             const GrQuad& deviceQuad,
+                                             const GrQuad& localQuad,
+                                             const GrUserStencilSettings* stencil) {
     return FillRectOp::Make(context, std::move(paint), aaType, aaFlags, stencil,
                             deviceQuad, localQuad);
 }
 
-std::unique_ptr<GrDrawOp> MakeNonAARect(GrRecordingContext* context,
-                                        GrPaint&& paint,
-                                        const SkMatrix& view,
-                                        const SkRect& rect,
-                                        const GrUserStencilSettings* stencil) {
+std::unique_ptr<GrDrawOp> GrFillRectOp::MakeNonAARect(GrRecordingContext* context,
+                                                      GrPaint&& paint,
+                                                      const SkMatrix& view,
+                                                      const SkRect& rect,
+                                                      const GrUserStencilSettings* stencil) {
     return FillRectOp::Make(context, std::move(paint), GrAAType::kNone, GrQuadAAFlags::kNone,
                             stencil, GrQuad::MakeFromRect(rect, view), GrQuad(rect));
 }
 
-std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
-                                  GrPaint&& paint,
-                                  GrAAType aaType,
-                                  const SkMatrix& viewMatrix,
-                                  const GrRenderTargetContext::QuadSetEntry quads[],
-                                  int cnt,
-                                  const GrUserStencilSettings* stencilSettings) {
+void GrFillRectOp::CreateFillRectOps(GrRenderTargetContext* rtc,
+                                     const GrClip& clip,
+                                     GrRecordingContext* context,
+                                     GrPaint&& paint,
+                                     GrAAType aaType,
+                                     const SkMatrix& viewMatrix,
+                                     const GrRenderTargetContext::QuadSetEntry quads[],
+                                     int cnt,
+                                     const GrUserStencilSettings* stencilSettings) {
     // First make a draw op for the first quad in the set
     SkASSERT(cnt > 0);
 
@@ -383,17 +390,21 @@ std::unique_ptr<GrDrawOp> MakeSet(GrRecordingContext* context,
         GrQuadUtils::ResolveAAType(aaType, quads[i].fAAFlags, deviceQuad,
                                    &resolvedAA, &resolvedEdgeFlags);
 
-        fillRects->addQuad(deviceQuad,
-                           GrQuad::MakeFromRect(quads[i].fRect, quads[i].fLocalMatrix),
-                           quads[i].fColor, resolvedEdgeFlags,resolvedAA);
+        if (!fillRects->addQuad(deviceQuad,
+                                GrQuad::MakeFromRect(quads[i].fRect, quads[i].fLocalMatrix),
+                                quads[i].fColor, resolvedEdgeFlags, resolvedAA)) {
+            break;
+        }
     }
 
-    return op;
+    rtc->addDrawOp(clip, std::move(op));
 }
 
-} // namespace GrFillRectOp
-
 #if GR_TEST_UTILS
+
+uint32_t GrFillRectOp::ClassID() {
+    return FillRectOp::ClassID();
+}
 
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/SkGr.h"
@@ -417,6 +428,7 @@ GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
 
     if (random->nextBool()) {
         if (random->nextBool()) {
+#if 0
             if (random->nextBool()) {
                 // Local matrix with a set op
                 uint32_t extraQuadCt = random->nextRangeU(1, 4);
@@ -439,7 +451,9 @@ GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
 
                 return GrFillRectOp::MakeSet(context, std::move(paint), aaType, viewMatrix,
                                              quads.begin(), quads.count(), stencil);
-            } else {
+            } else
+#endif
+            {
                 // Single local matrix
                 SkMatrix localMatrix = GrTest::TestMatrixInvertible(random);
                 return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags,
