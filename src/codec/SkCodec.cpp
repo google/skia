@@ -27,7 +27,7 @@
 #ifdef SK_HAS_WUFFS_LIBRARY
 #include "src/codec/SkWuffsCodec.h"
 #else
-#include "src/codec/SkGifCodec.h"
+#include "third_party/gif/SkGifCodec.h"
 #endif
 
 struct DecoderProc {

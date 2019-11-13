@@ -2,10 +2,12 @@
  * Copyright 2015 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
- * found in the LICENSE file.
+ * found in the LICENSE_BSD_3_CLAUSE.md file.
  */
-#ifndef SkGifCodec_DEFINED
-#define SkGifCodec_DEFINED
+#ifndef SkLibGifCodec_DEFINED
+#define SkLibGifCodec_DEFINED
+
+#include "third_party/gif/SkGifImageReader.h"
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
@@ -14,14 +16,12 @@
 #include "src/codec/SkColorTable.h"
 #include "src/codec/SkSwizzler.h"
 
-#include "third_party/gif/SkGifImageReader.h"
-
 /*
  *
  * This class implements the decoding for gif images
  *
  */
-class SkGifCodec : public SkCodec {
+class SkLibGifCodec : public SkCodec {
 public:
     static bool IsGif(const void*, size_t);
 
@@ -34,6 +34,13 @@ public:
     // Callback for SkGifImageReader when a row is available.
     void haveDecodedRow(int frameIndex, const unsigned char* rowBegin,
                         int rowNumber, int repeatCount, bool writeTransparentPixels);
+    /*
+     * Creates an instance of the decoder
+     * Called only by NewFromStream
+     * Takes ownership of the SkGifImageReader
+     */
+    SkLibGifCodec(SkEncodedInfo&&, SkGifImageReader*);
+
 protected:
     /*
      * Performs the full gif decode
@@ -121,13 +128,6 @@ private:
      */
     void applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint8_t* src) const;
 
-    /*
-     * Creates an instance of the decoder
-     * Called only by NewFromStream
-     * Takes ownership of the SkGifImageReader
-     */
-    SkGifCodec(SkEncodedInfo&&, SkGifImageReader*);
-
     std::unique_ptr<SkGifImageReader>   fReader;
     std::unique_ptr<uint8_t[]>          fTmpBuffer;
     std::unique_ptr<SkSwizzler>         fSwizzler;
@@ -153,4 +153,4 @@ private:
 
     typedef SkCodec INHERITED;
 };
-#endif  // SkGifCodec_DEFINED
+#endif  // SkLibGifCodec_DEFINED
