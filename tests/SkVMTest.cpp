@@ -1199,6 +1199,9 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.brk(0);
+        a.brk(65535);
+
         a.ret(A::x30);   // Conventional ret using link register.
         a.ret(A::x13);   // Can really return using any register if we like.
 
@@ -1222,6 +1225,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.cbnz(A::x2, &l);
         a.cbz(A::x2, &l);
     },{
+        0x00,0x00,0x20,0xd4,
+        0xe0,0xff,0x3f,0xd4,
+
         0xc0,0x03,0x5f,0xd6,
         0xa0,0x01,0x5f,0xd6,
 
@@ -1314,6 +1320,9 @@ DEF_TEST(SkVM_Assembler, r) {
         a.ldrs   (A::v0, A::x0);
         a.uxtlb2h(A::v0, A::v0);
         a.uxtlh2s(A::v0, A::v0);
+
+        a.uminv4s(A::v3, A::v4);
+        a.fmovs  (A::x3, A::v4);  // fmov w3,s4
     },{
         0x00,0x28,0x61,0x0e,
         0x00,0x28,0x21,0x0e,
@@ -1322,6 +1331,9 @@ DEF_TEST(SkVM_Assembler, r) {
         0x00,0x00,0x40,0xbd,
         0x00,0xa4,0x08,0x2f,
         0x00,0xa4,0x10,0x2f,
+
+        0x83,0xa8,0xb1,0x6e,
+        0x83,0x00,0x26,0x1e,
     });
 
     test_asm(r, [&](A& a) {
