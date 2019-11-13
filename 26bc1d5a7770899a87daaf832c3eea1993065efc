@@ -22,6 +22,30 @@
       "revId": "26bc1d5a7770899a87daaf832c3eea1993065efc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02dcd41c_da222e1c",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2130,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-13T19:21:10Z",
+      "side": 1,
+      "message": "Yes, though that\u0027s true of all hoisting.  We\u0027ll either hoist everything that is hoistable, or return false here and try again with try_hoisting set to false, where we\u0027ll hoist nothing.",
+      "parentUuid": "923bccac_514caf16",
+      "range": {
+        "startLine": 2130,
+        "startChar": 11,
+        "endLine": 2130,
+        "endChar": 56
+      },
+      "revId": "26bc1d5a7770899a87daaf832c3eea1993065efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
