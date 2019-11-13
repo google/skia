@@ -1731,34 +1731,35 @@ namespace skvm {
                                      bytes_masks;  // These vary per-lane.
         LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
 
-        auto warmup = [&](Val id) {
+        // We have some Ops beyond Op::splat that carry an immediate constant argument payload.
+        // On x86 we generally arrange to use that constant directly from memory,  but on ARM
+        // we'll need those values in a register.  We'll hoist them all here if hoisting, or
+        // hoist none if not, instead loading the constants just before they're used.
+        auto hoist_immediates = [&](Val id) {
+        #if defined(__aarch64__)
             const Builder::Instruction& inst = instructions[id];
 
             Op op = inst.op;
             int imm = inst.imm;
 
+            SkTHashMap<int, LabelAndReg>* pool = nullptr;
             switch (op) {
-                default: break;
-
-                case Op::bytes: if (!bytes_masks.find(imm)) {
-                                    bytes_masks.set(imm, {});
-                                    if (try_hoisting) {
-                                        // vpshufb can always work with the mask from memory,
-                                        // but it helps to hoist the mask to a register for tbl.
-                                    #if defined(__aarch64__)
-                                        LabelAndReg* entry = bytes_masks.find(imm);
-                                        if (int found = __builtin_ffs(avail)) {
-                                            entry->reg = (Reg)(found-1);
-                                            avail ^= 1 << entry->reg;
-                                            a->ldrq(entry->reg, &entry->label);
-                                        } else {
-                                            return false;
-                                        }
-                                    #endif
-                                    }
-                                }
-                                break;
+                default:                                   break;
+                case Op::mul_f32_imm: pool = &constants;   break;
+                case Op::bytes:       pool = &bytes_masks; break;
             }
+
+            if (pool && !pool->find(imm)) {
+                LabelAndReg* entry = pool->set(imm, {});
+                if (int found = __builtin_ffs(avail)) {
+                    entry->reg = (Reg)(found-1);
+                    avail ^= 1 << entry->reg;
+                    a->ldrq(entry->reg, &entry->label);
+                } else {
+                    return false;
+                }
+            }
+        #endif
             return true;
         };
 
@@ -1985,7 +1986,7 @@ namespace skvm {
                 case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
-                case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks.find(imm)->label);
+                case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks[imm].label);
                                 break;
 
             #elif defined(__aarch64__)
@@ -2033,10 +2034,11 @@ namespace skvm {
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
 
-                // TODO: handle these immediate op constants better on ARM?
-                case Op::mul_f32_imm: a->ldrq(tmp(), &constants[imm].label);
-                                      a->fmul4s(dst(), r[x], tmp());
-                                      break;
+                case Op::mul_f32_imm:
+                    if (try_hoisting) { a->fmul4s(dst(), r[x], constants[imm].reg); }
+                    else              { a->ldrq(tmp(), &constants[imm].label);
+                                        a->fmul4s(dst(), r[x], tmp()); }
+                                        break;
 
                 case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
                 case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
@@ -2088,8 +2090,8 @@ namespace skvm {
                 case Op::round:  a->fcvtns4s(dst(), r[x]); break;
 
                 case Op::bytes:
-                    if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(imm)->reg); }
-                    else              { a->ldrq(tmp(), &bytes_masks.find(imm)->label);
+                    if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks[imm].reg); }
+                    else              { a->ldrq(tmp(), &bytes_masks[imm].label);
                                         a->tbl (dst(), r[x], tmp()); }
                                         break;
             #endif
@@ -2125,7 +2127,7 @@ namespace skvm {
                  done;
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            if (!warmup(id)) {
+            if (try_hoisting && !hoist_immediates(id)) {
                 return false;
             }
             if (hoisted(id) && !emit(id, /*scalar=*/false)) {
