@@ -606,10 +606,7 @@ optional("gpu") {
 
 optional("gif") {
   enabled = !skia_use_wuffs
-  sources = [
-    "src/codec/SkGifCodec.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
-  ]
+  deps = [ "//third_party/gif:libgifcodec" ]
 }
 
 optional("heif") {
