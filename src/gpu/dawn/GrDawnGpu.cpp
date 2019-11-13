@@ -261,7 +261,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
                                                            GrColorType colorType) {
     GrDawnImageInfo info;
-    if (!rt.getDawnImageInfo(&info) && !info.fTexture) {
+    if (!rt.getDawnImageInfo(&info)) {
         return nullptr;
     }
 
@@ -276,7 +276,7 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
                                                                     int sampleCnt,
                                                                     GrColorType colorType) {
     GrDawnImageInfo info;
-    if (!tex.getDawnImageInfo(&info) || !info.fTexture) {
+    if (!tex.getDawnImageInfo(&info)) {
         return nullptr;
     }
 
