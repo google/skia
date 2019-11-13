@@ -24,6 +24,14 @@
 
 namespace {
 
+#define DEF_GPUTEST_DISABLED(name, reporter, options)                                    \
+    static void test_##name(skiatest::Reporter*, const GrContextOptions&);               \
+    skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, true, test_##name)); \
+    void test_##name(skiatest::Reporter* reporter, const GrContextOptions& options) {    \
+        SkDebugf("Disabled: " #name "\n");                                               \
+    }                                                                                    \
+    void disabled_##name(skiatest::Reporter* reporter, const GrContextOptions&)
+
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 
 #define ACQUIRE_INST_VK_PROC(name)                                                           \
@@ -469,7 +477,8 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
 
 void DDLMakeRenderTargetTestImpl(GrContext* context, skiatest::Reporter* reporter);
 
-DEF_GPUTEST(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
+// Disabled due to fxb/40061.
+DEF_GPUTEST_DISABLED(VkProtectedContext_DDLMakeRenderTargetTest, reporter, ctxInfo) {
     auto protectedTestHelper = std::make_unique<VulkanTestHelper>(true);
     if (!protectedTestHelper->init(reporter)) {
         return;
