@@ -141,8 +141,8 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 
     // Look up the texture sample at the clamped coordinate location
     builder->codeAppend("half4 inside = ");
-    builder->appendTextureLookupAndModulate(inModulateColor, sampler, "clampedCoord",
-                                            kFloat2_GrSLType);
+    builder->appendTextureLookupAndBlend(inModulateColor, SkBlendMode::kModulate, sampler, "clampedCoord",
+                                         kFloat2_GrSLType);
     builder->codeAppend(";");
 
     // Apply decal mode's transparency interpolation if needed

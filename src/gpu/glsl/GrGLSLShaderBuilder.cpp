@@ -84,18 +84,21 @@ void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
 }
 
-void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
-                                                    const char* modulation,
+void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
+                                                    const char* dst,
+                                                    SkBlendMode mode,
                                                     SamplerHandle samplerHandle,
                                                     const char* coordName,
                                                     GrSLType varyingType,
                                                     GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    if (!dst) {
+        dst = "half4(1)";
+    }
     SkString lookup;
+    this->codeAppendf("blend(%d" , static_cast<int>(mode));
     this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
-    if (modulation) {
-        this->codeAppendf(" * %s", modulation);
-    }
+    this->codeAppendf(", %s)", dst);
 }
 
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
