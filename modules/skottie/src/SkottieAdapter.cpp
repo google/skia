@@ -120,42 +120,56 @@ void TransformAdapter3D::apply() {
     fMatrixNode->setMatrix(this->totalMatrix());
 }
 
-CameraAdapter:: CameraAdapter(const SkSize& viewport_size)
-    : fViewportSize(viewport_size) {}
+CameraAdapter:: CameraAdapter(const SkSize& viewport_size, Type type)
+    : fViewportSize(viewport_size)
+    , fType(type)
+{}
 
 CameraAdapter::~CameraAdapter() = default;
 
 sk_sp<CameraAdapter> CameraAdapter::MakeDefault(const SkSize &viewport_size) {
-    auto adapter = sk_make_sp<CameraAdapter>(viewport_size);
+    auto adapter = sk_make_sp<CameraAdapter>(viewport_size, Type::kOneNode);
 
     static constexpr float kDefaultAEZoom = 879.13f;
     const auto center = SkVector::Make(viewport_size.width()  * 0.5f,
                                        viewport_size.height() * 0.5f);
     adapter->setZoom(kDefaultAEZoom);
-    adapter->setAnchorPoint(TransformAdapter3D::Vec3({center.fX, center.fY, 0}));
     adapter->setPosition   (TransformAdapter3D::Vec3({center.fX, center.fY, -kDefaultAEZoom}));
 
     return adapter;
+}
+
+SkPoint3 CameraAdapter::poi() const {
+    // AE supports two camera types:
+    //
+    //   - one-node camera: does not auto-orient, and starts off perpendicular to the z = 0 plane.
+    //
+    //   - two-node camera: has a point of interest (encoded as the anchor point), and auto-orients
+    //                      to point in its direction.
+    return fType == Type::kOneNode
+            ? SkPoint3{ this->getPosition().fX,
+                        this->getPosition().fY,
+                        0 }
+            : SkPoint3{ this->getAnchorPoint().fX,
+                        this->getAnchorPoint().fY,
+                       -this->getAnchorPoint().fZ};
 }
 
 SkMatrix44 CameraAdapter::totalMatrix() const {
     // Camera parameters:
     //
     //   * location          -> position attribute
-    //   * point of interest -> anchor point attribute
+    //   * point of interest -> anchor point attribute (two-node camera only)
     //   * orientation       -> rotation attribute
     //
-    SkPoint3 pos = { this->getPosition().fX,
-                     this->getPosition().fY,
-                    -this->getPosition().fZ },
-             poi = { this->getAnchorPoint().fX,
-                     this->getAnchorPoint().fY,
-                    -this->getAnchorPoint().fZ },
-              up = { 0, 1, 0 };
+    const auto pos = SkPoint3{ this->getPosition().fX,
+                               this->getPosition().fY,
+                              -this->getPosition().fZ },
+                up = SkPoint3{ 0, 1, 0 };
 
     // Initial camera vector.
     SkMatrix44 cam_t;
-    Sk3LookAt(&cam_t, pos, poi, up);
+    Sk3LookAt(&cam_t, pos, this->poi(), up);
 
     // Rotation origin is camera position.
     {

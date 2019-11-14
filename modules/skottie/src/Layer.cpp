@@ -325,7 +325,12 @@ sk_sp<sksg::Transform> LayerBuilder::doAttachTransform(const AnimationBuilder& a
     auto parent_transform = this->getParentTransform(abuilder, cbuilder, ttype);
 
     if (this->isCamera()) {
-        auto camera_adapter = sk_make_sp<CameraAdapter>(abuilder.fSize);
+        // The presence of an anchor point property ('a') differentiates
+        // one-node vs. two-node cameras.
+        const auto camera_type = (*jtransform)["a"].is<skjson::NullValue>()
+                ? CameraAdapter::Type::kOneNode
+                : CameraAdapter::Type::kTwoNode;
+        auto camera_adapter = sk_make_sp<CameraAdapter>(abuilder.fSize, camera_type);
 
         abuilder.bindProperty<ScalarValue>(fJlayer["pe"],
             [camera_adapter] (const ScalarValue& pe) {
