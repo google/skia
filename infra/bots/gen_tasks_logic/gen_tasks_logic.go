@@ -588,6 +588,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	d := map[string]string{
 		"pool": b.cfg.Pool,
 	}
+	if strings.Contains(parts["extra_config"], "Docker") && parts["role"] == "Build" {
+		return b.dockerGceDimensions()
+	}
 	if os, ok := parts["os"]; ok {
 		d["os"], ok = map[string]string{
 			"Android":    "Android",
@@ -978,7 +981,7 @@ func (b *builder) usesGo(t *specs.TaskSpec, name string) {
 
 // usesDocker adds attributes to tasks which use docker.
 func usesDocker(t *specs.TaskSpec, name string) {
-	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") {
+	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") || strings.Contains(name, "Docker") {
 		t.Caches = append(t.Caches, CACHES_DOCKER...)
 	}
 }
