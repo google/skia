@@ -318,6 +318,7 @@ def generate_args(target_os, enable_gpu):
     'skia_use_fontconfig':                'false',
     'skia_use_fixed_gamma_text':          'true',
     'skia_include_multiframe_procs':      'false',
+    'skia_libgifcodec_path':              '"third_party/libgifcodec"',
   }
   d['target_os'] = target_os
   if target_os == '"android"':
