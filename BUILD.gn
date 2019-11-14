@@ -601,11 +601,10 @@ optional("gpu") {
 }
 
 optional("gif") {
-  enabled = !skia_use_wuffs
-  sources = [
-    "src/codec/SkGifCodec.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
-  ]
+  enabled = !skia_use_wuffs && skia_use_libgifcodec
+  import(skia_libgifcodec_path + "/libgifcodec.gni")
+  include_dirs = [ ".",  skia_libgifcodec_path ]
+  sources = rebase_path(libgifcodec_sources + libgifcodec_public, ".", skia_libgifcodec_path)
 }
 
 optional("heif") {
@@ -898,6 +897,10 @@ component("skia") {
 
   defines = []
   libs = []
+  if (!skia_use_wuffs && skia_use_libgifcodec) {
+    include_dirs = [ ".",  skia_libgifcodec_path ]
+    defines += [ "SK_USE_LIBGIFCODEC" ]
+  }
 
   if (is_win) {
     sources += [
