@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816f0e5d_26424ed1",
+        "filename": "src/gpu/ops/GrFillRectOp.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-14T16:18:00Z",
+      "side": 1,
+      "message": "Maybe Record or AddFillRectOps to reinforce that this will be pushing them into the GrRTC?",
+      "range": {
+        "startLine": 50,
+        "startChar": 16,
+        "endLine": 50,
+        "endChar": 33
+      },
+      "revId": "62eec2372105cd86a0e732eb763a9f885abf42bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
