@@ -223,9 +223,17 @@ Compiler::Compiler(Flags flags)
                                     *fContext->fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
-    std::vector<std::unique_ptr<ProgramElement>> ignored;
+    std::vector<std::unique_ptr<ProgramElement>> intrinsics;
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
-                             symbols, &ignored, &fGpuSymbolTable);
+                             symbols, &intrinsics, &fGpuSymbolTable);
+    for (auto& e : intrinsics) {
+        SkASSERT(e->fKind == ProgramElement::kFunction_Kind);
+        FunctionDefinition& f = (FunctionDefinition&) *e;
+        StringFragment name = f.fDeclaration.fName;
+        SkASSERT(fIRGenerator->fIntrinsics.find(name) == fIRGenerator->fIntrinsics.end());
+        fIRGenerator->fIntrinsics[name] = std::pair<std::unique_ptr<ProgramElement>, bool>(
+                                                                               std::move(e), false);
+    }
     this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE),
                              fGpuSymbolTable, &fVertexInclude, &fVertexSymbolTable);
     this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE),
