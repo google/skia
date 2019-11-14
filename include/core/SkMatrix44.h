@@ -336,22 +336,22 @@ public:
                 SkMScalar m_02, SkMScalar m_12, SkMScalar m_22, SkMScalar m_32,
                 SkMScalar m_03, SkMScalar m_13, SkMScalar m_23, SkMScalar m_33);
 
-    void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
-    void preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
-    void postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
+    SkMatrix44& setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
+    SkMatrix44& preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
+    SkMatrix44& postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
 
-    void setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz);
-    void preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz);
-    void postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz);
+    SkMatrix44& setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz);
+    SkMatrix44& preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz);
+    SkMatrix44& postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz);
 
-    inline void setScale(SkMScalar scale) {
-        this->setScale(scale, scale, scale);
+    inline SkMatrix44& setScale(SkMScalar scale) {
+        return this->setScale(scale, scale, scale);
     }
-    inline void preScale(SkMScalar scale) {
-        this->preScale(scale, scale, scale);
+    inline SkMatrix44& preScale(SkMScalar scale) {
+        return this->preScale(scale, scale, scale);
     }
-    inline void postScale(SkMScalar scale) {
-        this->postScale(scale, scale, scale);
+    inline SkMatrix44& postScale(SkMScalar scale) {
+        return this->postScale(scale, scale, scale);
     }
 
     void setRotateDegreesAbout(SkMScalar x, SkMScalar y, SkMScalar z,
