@@ -264,18 +264,41 @@ BASE_SRCS_ALL = struct(
     ],
 )
 
-def codec_srcs(limited):
-    """Sources for the codecs. Excludes Raw, and Ico, Webp, and Png if limited."""
+# Provides SkCodec support for Jpeg(libjpeg), Gif(Wuffs), Bmp, Wbmp.
+LIMITED_CODEC_SRCS = [
+    "src/codec/SkAndroidCodec.cpp",
+    "src/codec/SkAndroidCodecAdapter.cpp",
+    "src/codec/SkBmpBaseCodec.cpp",
+    "src/codec/SkBmpCodec.cpp",
+    "src/codec/SkBmpMaskCodec.cpp",
+    "src/codec/SkBmpRLECodec.cpp",
+    "src/codec/SkBmpStandardCodec.cpp",
+    "src/codec/SkCodec.cpp",
+    "src/codec/SkCodecImageGenerator.cpp",
+    "src/codec/SkColorTable.cpp",
+    "src/codec/SkEncodedInfo.cpp",
+    "src/codec/SkHeifCodec.cpp",
+    "src/codec/SkJpegCodec.cpp",
+    "src/codec/SkJpegDecoderMgr.cpp",
+    "src/codec/SkJpegUtility.cpp",
+    "src/codec/SkMaskSwizzler.cpp",
+    "src/codec/SkMasks.cpp",
+    "src/codec/SkParseEncodedOrigin.cpp",
+    "src/codec/SkSampledCodec.cpp",
+    "src/codec/SkSampler.cpp",
+    "src/codec/SkStreamBuffer.cpp",
+    "src/codec/SkSwizzler.cpp",
+    "src/codec/SkWbmpCodec.cpp",
+    "src/codec/SkWuffsCodec.cpp",
+]
 
-    # TODO: Enable wuffs in Google3
-    exclude = ["src/codec/SkWuffsCodec.cpp", "src/codec/*Raw*.cpp"]
-    if limited:
-        exclude += [
-            "src/codec/*Ico*.cpp",
-            "src/codec/*Webp*.cpp",
-            "src/codec/*Png*",
-        ]
-    return native.glob(["src/codec/*.cpp", "third_party/gif/*.cpp"], exclude = exclude)
+# Provides SkCodec support for Jpeg(libjpeg), Gif(Wuffs), Bmp, Wbmp,
+# Ico, Png(libpng), and Webp(libwebp).
+FULL_CODEC_SRCS = LIMITED_CODEC_SRCS + [
+    "src/codec/SkIcoCodec.cpp",
+    "src/codec/SkPngCodec.cpp",
+    "src/codec/SkWebpCodec.cpp",
+]
 
 GL_SRCS_UNIX = struct(
     include = [
