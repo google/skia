@@ -473,10 +473,6 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = SkTMin(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
 
-    if (properties.limits.standardSampleLocations) {
-        fSampleLocationsSupport = true;
-    }
-
     if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
@@ -552,7 +548,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     // to be true with Vulkan as well.
     shaderCaps->fPreferFlatInterpolation = kQualcomm_VkVendor != properties.vendorID;
 
-    shaderCaps->fSampleMaskSupport = true;
+    // GrShaderCaps
 
     shaderCaps->fShaderDerivativeSupport = true;
 
