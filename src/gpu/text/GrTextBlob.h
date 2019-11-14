@@ -25,11 +25,13 @@
 #include "src/gpu/text/GrTextTarget.h"
 
 class GrAtlasManager;
+class GrAtlasTextOp;
 struct GrDistanceFieldAdjustTable;
 struct GrGlyph;
 
 class SkTextBlob;
 class SkTextBlobRunIterator;
+
 
 // With this flag enabled, the GrTextContext will, as a sanity check, regenerate every blob
 // that comes in to verify the integrity of its cache
@@ -50,8 +52,9 @@ class SkTextBlobRunIterator;
  * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
 class GrTextBlob : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
-    struct Run;
 public:
+    struct Run;
+    class SubRun;
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
 
     class VertexRegenerator;
@@ -176,7 +179,7 @@ public:
                const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
                const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
-    void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
+    void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                              bool needsGlyphTransform) {
         // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
@@ -184,8 +187,6 @@ public:
         // We handle vertex bounds differently for distance field text and bitmap text because
         // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
         // from one blob then we are going to pay the price here of mapping the rect for each run.
-        const Run& run = fRuns[runIndex];
-        const SubRun& subRun = run.fSubRunInfo[subRunIndex];
         *outBounds = subRun.vertexBounds();
         if (needsGlyphTransform) {
             // Distance field text is positioned with the (X,Y) as part of the glyph position,
@@ -273,6 +274,7 @@ private:
         }
     }
 
+public:
     class SubRun {
     public:
         SubRun(Run* run, const SkStrikeSpec& strikeSpec, GrColor color)
@@ -505,8 +507,9 @@ private:
         GrColor fColor;
     };  // Run
 
+private:
     std::unique_ptr<GrAtlasTextOp> makeOp(
-            const SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
+            SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
@@ -591,7 +594,8 @@ public:
      * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
      * SkGlyphCache.
      */
-    VertexRegenerator(GrResourceProvider*, GrTextBlob*, int runIdx, int subRunIdx,
+    VertexRegenerator(GrResourceProvider*, GrTextBlob*,
+            GrTextBlob::SubRun* subRun,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 

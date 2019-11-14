@@ -117,7 +117,7 @@ static void regen_texcoords(char* vertex, size_t vertexStride, const GrGlyph* gl
 
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob* blob,
-                                                 int runIdx, int subRunIdx,
+                                                 GrTextBlob::SubRun* subRun,
                                                  const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                                  GrColor color,
                                                  GrDeferredUploadTarget* uploadTarget,
@@ -129,7 +129,7 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
         , fUploadTarget(uploadTarget)
         , fGrStrikeCache(grStrikeCache)
         , fFullAtlasManager(fullAtlasManager)
-        , fSubRun(&blob->fRuns[runIdx].fSubRunInfo[subRunIdx])
+        , fSubRun(subRun)
         , fColor(color) {
     // Compute translation if any
     fSubRun->computeTranslation(fViewMatrix, x, y, &fTransX, &fTransY);
