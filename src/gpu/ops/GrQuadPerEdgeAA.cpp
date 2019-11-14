@@ -166,6 +166,15 @@ sk_sp<const GrBuffer> GetIndexBuffer(GrMeshDrawOp::Target* target,
     }
 }
 
+int QuadLimit(IndexBufferOption option) {
+    switch (option) {
+        case IndexBufferOption::kPictureFramed: return GrResourceProvider::MaxNumAAQuads();
+        case IndexBufferOption::kIndexedRects:  return GrResourceProvider::MaxNumNonAAQuads();
+        case IndexBufferOption::kTriStrips:     return SK_MaxS32; // not limited by an indexBuffer
+    }
+
+    SkUNREACHABLE;
+}
 
 void ConfigureMesh(GrMesh* mesh, const VertexSpec& spec,
                    int runningQuadCount, int quadsInDraw, int maxVerts,
