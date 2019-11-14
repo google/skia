@@ -172,9 +172,14 @@ private:
 
 class CameraAdapter final : public TransformAdapter3D {
 public:
+    enum class Type {
+        kOneNode, // implicitly facing the z == 0 plane, does not auto-orient
+        kTwoNode, // explicitly facing a POI (the anchor point), auto-orients
+    };
+
     static sk_sp<CameraAdapter> MakeDefault(const SkSize& viewport_size);
 
-    explicit CameraAdapter(const SkSize& viewport_size);
+    CameraAdapter(const SkSize& viewport_size, Type);
     ~CameraAdapter() override;
 
     ADAPTER_PROPERTY(Zoom, SkScalar, 0)
@@ -182,7 +187,10 @@ public:
 private:
     SkMatrix44 totalMatrix() const override;
 
+    SkPoint3 poi() const;
+
     const SkSize fViewportSize;
+    const Type   fType;
 
     using INHERITED = TransformAdapter3D;
 };
