@@ -14,11 +14,19 @@
 
 #include "include/private/SkTLogic.h"
 
-// SkEnumerate returns a tuple with an index and the value returned by the iterator. The index always
-// starts at 0.
 template <typename Iter, typename C = skstd::monostate>
 class SkEnumerate {
-    using Result = std::tuple<size_t, decltype(*std::declval<Iter>())>;
+    using Captured = decltype(*std::declval<Iter>());
+    template <typename> struct is_tuple : std::false_type {};
+    template <typename... T> struct is_tuple<std::tuple<T...>> : std::true_type {};
+    static constexpr auto MakeResult(size_t i, Captured&& v) {
+        if constexpr (is_tuple<Captured>::value) {
+            return std::tuple_cat(std::make_tuple(i), std::move(v));
+        } else {
+            return std::forward_as_tuple(i, std::move(v));
+        }
+    }
+    using Result = decltype(MakeResult(0, std::declval<Captured>()));
 
     class Iterator {
     public:
@@ -33,7 +41,7 @@ class SkEnumerate {
         constexpr Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
         constexpr bool operator==(const Iterator& rhs) const { return fIt == rhs.fIt; }
         constexpr bool operator!=(const Iterator& rhs) const { return fIt != rhs.fIt; }
-        constexpr reference operator*() { return std::forward_as_tuple(fIndex, *fIt); }
+        constexpr reference operator*() { return MakeResult(fIndex, *fIt); }
 
     private:
         ptrdiff_t fIndex;
@@ -49,7 +57,8 @@ public:
     constexpr SkEnumerate(const SkEnumerate& that) = default;
     constexpr SkEnumerate& operator=(const SkEnumerate& that) {
         fBegin = that.fBegin;
-        fEnd = that.fEnd; return *this;
+        fEnd = that.fEnd;
+        return *this;
     }
     constexpr Iterator begin() const { return Iterator{0, fBegin}; }
     constexpr Iterator end() const { return Iterator{fEnd - fBegin, fEnd}; }

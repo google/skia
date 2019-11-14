@@ -521,8 +521,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkEnumerate and SkMakeZip in ranged for
         auto zz = SkMakeZip(A, B, C, D, S);
-        for (auto [i, t] : SkMakeEnumerate(zz)) {
-            auto [a, b, c, d, s] = t;
+        for (auto [i, a, b, c, d, s] : SkMakeEnumerate(zz)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -534,8 +533,7 @@ DEF_TEST(SkMakeZip, reporter) {
     {
         // Check SkEnumerate and SkMakeZip in ranged for
         const auto& zz = SkMakeZip(A, B, C, D, S);
-        for (auto [i, t] : SkMakeEnumerate(zz)) {
-            auto [a, b, c, d, s] = t;
+        for (auto [i, a, b, c, d, s] : SkMakeEnumerate(zz)) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);
@@ -546,8 +544,7 @@ DEF_TEST(SkMakeZip, reporter) {
 
     {
         // Check SkEnumerate and SkMakeZip in ranged for
-        for (auto [i, t] : SkMakeEnumerate(SkMakeZip(A, B, C, D, S))) {
-            auto [a, b, c, d, s] = t;
+        for (auto [i, a, b, c, d, s] : SkMakeEnumerate(SkMakeZip(A, B, C, D, S))) {
             REPORTER_ASSERT(reporter, a == A[i]);
             REPORTER_ASSERT(reporter, b == B[i]);
             REPORTER_ASSERT(reporter, c == C[i]);

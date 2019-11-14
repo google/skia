@@ -12,7 +12,6 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkSpan.h"
 
 #include <memory>
@@ -22,6 +21,7 @@ class SkDrawableGlyphBuffer;
 class SkGlyph;
 class SkMaskFilter;
 class SkPathEffect;
+class SkSourceGlyphBuffer;
 class SkTypeface;
 struct SkGlyphPositionRoundingSpec;
 struct SkScalerContextEffects;
