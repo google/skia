@@ -103,9 +103,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     auto source = SkMakeZip(glyphIDs, positions);
 
     rejects.setSource(source);
-    for (auto t : SkMakeEnumerate(rejects.source())) {
-        size_t i; SkGlyphID glyphID; SkPoint pos;
-        std::forward_as_tuple(i, std::tie(glyphID, pos)) = t;
+    for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         REPORTER_ASSERT(reporter, glyphID == std::get<0>(source[i]));
         REPORTER_ASSERT(reporter, pos == std::get<1>(source[i]));
     }
@@ -114,9 +112,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     rejects.reject(2, 100);
     rejects.flipRejectsToSource();
     REPORTER_ASSERT(reporter, rejects.rejectedMaxDimension() == 100);
-    for (auto t : SkMakeEnumerate(rejects.source())) {
-        size_t i; SkGlyphID glyphID; SkPoint pos;
-        std::forward_as_tuple(i, std::tie(glyphID, pos)) = t;
+    for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         // This will index 1 and 2 from the original source.
         size_t j = i + 1;
         REPORTER_ASSERT(reporter, glyphID == std::get<0>(source[j]));
@@ -127,9 +123,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     rejects.reject(0, 10);
     rejects.flipRejectsToSource();
     REPORTER_ASSERT(reporter, rejects.rejectedMaxDimension() == 10);
-    for (auto t : SkMakeEnumerate(rejects.source())) {
-        size_t i; SkGlyphID glyphID; SkPoint pos;
-        std::forward_as_tuple(i, std::tie(glyphID, pos)) = t;
+    for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         // This will index 1 from the original source.
         size_t j = i + 1;
         REPORTER_ASSERT(reporter, glyphID == std::get<0>(source[j]));
@@ -138,9 +132,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
 
     // Start all over
     rejects.setSource(source);
-    for (auto t : SkMakeEnumerate(rejects.source())) {
-        size_t i; SkGlyphID glyphID; SkPoint pos;
-        std::forward_as_tuple(i, std::tie(glyphID, pos)) = t;
+    for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         REPORTER_ASSERT(reporter, glyphID == std::get<0>(source[i]));
         REPORTER_ASSERT(reporter, pos == std::get<1>(source[i]));
     }
@@ -150,9 +142,7 @@ DEF_TEST(SkSourceGlyphBufferBasic, reporter) {
     rejects.reject(2, 100);
     rejects.flipRejectsToSource();
     REPORTER_ASSERT(reporter, rejects.rejectedMaxDimension() == 100);
-    for (auto t : SkMakeEnumerate(rejects.source())) {
-        size_t i; SkGlyphID glyphID; SkPoint pos;
-        std::forward_as_tuple(i, std::tie(glyphID, pos)) = t;
+    for (auto [i, glyphID, pos] : SkMakeEnumerate(rejects.source())) {
         // This will index 1 and 2 from the original source.
         size_t j = i + 1;
         REPORTER_ASSERT(reporter, glyphID == std::get<0>(source[j]));
@@ -171,9 +161,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
         drawable.startSource(source, {100, 100});
-        for (auto t : SkMakeEnumerate(drawable.input())) {
-            size_t i; SkGlyphVariant packedID; SkPoint pos;
-            std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             REPORTER_ASSERT(reporter, packedID.packedID().glyphID() == glyphIDs[i]);
             REPORTER_ASSERT(reporter, pos == positions[i] + SkPoint::Make(100, 100));
         }
@@ -185,9 +173,7 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         SkMatrix matrix = SkMatrix::MakeScale(0.5);
         SkGlyphPositionRoundingSpec rounding{true, kX_SkAxisAlignment};
         drawable.startDevice(source, {100, 100}, matrix, rounding);
-        for (auto t : SkMakeEnumerate(drawable.input())) {
-            size_t i; SkGlyphVariant packedID; SkPoint pos;
-            std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             REPORTER_ASSERT(reporter, glyphIDs[i] == packedID.packedID().glyphID());
             REPORTER_ASSERT(reporter,
                     pos.x() == positions[i].x() * 0.5 + 50 + SkPackedGlyphID::kSubpixelRound);
@@ -199,14 +185,10 @@ DEF_TEST(SkDrawableGlyphBufferBasic, reporter) {
         SkDrawableGlyphBuffer drawable;
         drawable.ensureSize(100);
         drawable.startSource(source, {100, 100});
-        for (auto t : SkMakeEnumerate(drawable.input())) {
-            size_t i; SkGlyphVariant packedID; SkPoint pos;
-            std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        for (auto [i, packedID, pos] : SkMakeEnumerate(drawable.input())) {
             drawable.push_back(&glyphs[i], i);
         }
-        for (auto t : SkMakeEnumerate(drawable.drawable())) {
-            size_t i; SkGlyphVariant glyph; SkPoint pos;
-            std::forward_as_tuple(i, std::tie(glyph, pos)) = t;
+        for (auto [i, glyph, pos] : SkMakeEnumerate(drawable.drawable())) {
             REPORTER_ASSERT(reporter, glyph.glyph() == &glyphs[i]);
         }
     }
