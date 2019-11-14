@@ -132,6 +132,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(mustEnableSpecificAdvBlendEqs);
     CAP(mustDeclareFragmentShaderOutput);
     CAP(mustDoOpBetweenFloorAndAbs);
+    CAP(mustGuardDivisionEvenAfterExplicitZeroCheck);
     CAP(atan2ImplementedAsAtanYOverX);
     CAP(canUseAnyFunctionInShader);
     CAP(floatIs32Bits);
