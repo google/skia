@@ -549,12 +549,16 @@ private:
     friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
     friend class GrCCPerFlushResources;              // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
+    friend class GrFillRectOp;                       // for access to addDrawOp
+
+#if GR_TEST_UTILS
     // for a unit test
     friend void test_draw_op(GrContext*,
                              GrRenderTargetContext*,
                              std::unique_ptr<GrFragmentProcessor>,
                              sk_sp<GrTextureProxy>,
                              GrColorType);
+#endif
 
     GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
                           GrSurfaceOrigin, GrSwizzle texSwizzle, GrSwizzle outSwizzle,

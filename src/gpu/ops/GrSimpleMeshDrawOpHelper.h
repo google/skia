@@ -119,7 +119,7 @@ public:
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }
 
     void setAAType(GrAAType aaType) {
-      fAAType = static_cast<unsigned>(aaType);
+        fAAType = static_cast<unsigned>(aaType);
     }
 
     void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
