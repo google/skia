@@ -191,9 +191,7 @@ public:
 
     template <typename Fn>
     void forEachGlyphID(Fn&& fn) {
-        for (auto t : SkMakeEnumerate(this->input())) {
-            size_t i; SkGlyphVariant packedID; SkPoint pos;
-            std::forward_as_tuple(i, std::tie(packedID, pos)) = t;
+        for (auto [i, packedID, pos] : SkMakeEnumerate(this->input())) {
             fn(i, packedID.packedID(), pos);
         }
     }
