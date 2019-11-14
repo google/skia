@@ -549,6 +549,7 @@ private:
     friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
     friend class GrCCPerFlushResources;              // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
+    friend class GrTextureOp;                        // for access to addDrawOp
     // for a unit test
     friend void test_draw_op(GrContext*,
                              GrRenderTargetContext*,
