@@ -473,6 +473,10 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     static const uint32_t kMaxVertexAttributes = 64;
     fMaxVertexAttributes = SkTMin(properties.limits.maxVertexInputAttributes, kMaxVertexAttributes);
 
+    if (properties.limits.standardSampleLocations) {
+        fSampleLocationsSupport = true;
+    }
+
     if (extensions.hasExtension(VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME, 1)) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
@@ -548,7 +552,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     // to be true with Vulkan as well.
     shaderCaps->fPreferFlatInterpolation = kQualcomm_VkVendor != properties.vendorID;
 
-    // GrShaderCaps
+    shaderCaps->fSampleMaskSupport = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
 
@@ -1172,8 +1176,12 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
     if (flags & VK_SAMPLE_COUNT_16_BIT) {
         fColorSampleCounts.push_back(16);
     }
+<<<<<<< HEAD
     // Standard sample locations are not defined for more than 16 samples, and we don't need more
     // than 16. Omit 32 and 64.
+=======
+    // Standard sample locations are not defined for 32 or 64 samples, so we omit these options.
+>>>>>>> 95ee8dfba5... Reland "Implement sample mask and sample locations support in Vulkan"
 }
 
 void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
