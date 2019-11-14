@@ -729,6 +729,9 @@ public:
     */
     sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy,
                                const SkMatrix* localMatrix = nullptr) const;
+    sk_sp<SkShader> makeShader(SkTileMode tmx, SkTileMode tmy, const SkMatrix& localMatrix) const {
+        return this->makeShader(tmx, tmy, &localMatrix);
+    }
 
     /** Creates SkShader from SkImage. SkShader dimensions are taken from SkImage. SkShader uses
         SkShader::kClamp_TileMode to fill drawn area outside SkImage. localMatrix permits
@@ -740,6 +743,10 @@ public:
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix = nullptr) const {
         return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, localMatrix);
     }
+    sk_sp<SkShader> makeShader(const SkMatrix& localMatrix) const {
+        return this->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &localMatrix);
+    }
+
 
     /** Copies SkImage pixel address, row bytes, and SkImageInfo to pixmap, if address
         is available, and returns true. If pixel address is not available, return

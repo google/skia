@@ -255,33 +255,35 @@ void SkMatrix44::set4x4(SkMScalar m_00, SkMScalar m_10, SkMScalar m_20, SkMScala
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix44::setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
+SkMatrix44& SkMatrix44::setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     this->setIdentity();
 
     if (!dx && !dy && !dz) {
-        return;
+        return *this;
     }
 
     fMat[3][0] = dx;
     fMat[3][1] = dy;
     fMat[3][2] = dz;
     this->setTypeMask(kTranslate_Mask);
+    return *this;
 }
 
-void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
+SkMatrix44& SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     if (!dx && !dy && !dz) {
-        return;
+        return *this;
     }
 
     for (int i = 0; i < 4; ++i) {
         fMat[3][i] = fMat[0][i] * dx + fMat[1][i] * dy + fMat[2][i] * dz + fMat[3][i];
     }
     this->recomputeTypeMask();
+    return *this;
 }
 
-void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
+SkMatrix44& SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
     if (!dx && !dy && !dz) {
-        return;
+        return *this;
     }
 
     if (this->getType() & kPerspective_Mask) {
@@ -296,26 +298,28 @@ void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
         fMat[3][2] += dz;
         this->recomputeTypeMask();
     }
+    return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
+SkMatrix44& SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     this->setIdentity();
 
     if (1 == sx && 1 == sy && 1 == sz) {
-        return;
+        return *this;
     }
 
     fMat[0][0] = sx;
     fMat[1][1] = sy;
     fMat[2][2] = sz;
     this->setTypeMask(kScale_Mask);
+    return *this;
 }
 
-void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
+SkMatrix44& SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     if (1 == sx && 1 == sy && 1 == sz) {
-        return;
+        return *this;
     }
 
     // The implementation matrix * pureScale can be shortcut
@@ -327,11 +331,12 @@ void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[2][i] *= sz;
     }
     this->recomputeTypeMask();
+    return *this;
 }
 
-void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
+SkMatrix44& SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
     if (1 == sx && 1 == sy && 1 == sz) {
-        return;
+        return *this;
     }
 
     for (int i = 0; i < 4; i++) {
@@ -340,6 +345,7 @@ void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[i][2] *= sz;
     }
     this->recomputeTypeMask();
+    return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
