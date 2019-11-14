@@ -163,7 +163,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 }
 
 inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
-        const SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
+        SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextTarget* target) {
@@ -188,6 +188,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
     geometry.fBlob = SkRef(this);
     geometry.fRun = run;
     geometry.fSubRun = subRun;
+    geometry.fSubRunPtr = &info;
     geometry.fColor = info.maskFormat() == kARGB_GrMaskFormat ? SK_PMColor4fWHITE : filteredColor;
     geometry.fX = x;
     geometry.fY = y;
@@ -315,7 +316,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
         int lastSubRun = SkTMin(run.fSubRunInfo.count(), 1 << 16) - 1;
         for (int subRun = 0; subRun <= lastSubRun; subRun++) {
-            const SubRun& info = run.fSubRunInfo[subRun];
+            SubRun& info = run.fSubRunInfo[subRun];
             int glyphCount = info.glyphCount();
             if (0 == glyphCount) {
                 continue;
@@ -371,7 +372,7 @@ std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
         SkScalar x, SkScalar y, const SkPaint& paint, const SkPMColor4f& filteredColor,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
         GrTextTarget* target) {
-    const GrTextBlob::SubRun& info = fRuns[run].fSubRunInfo[subRun];
+    GrTextBlob::SubRun& info = fRuns[run].fSubRunInfo[subRun];
     SkIRect emptyRect = SkIRect::MakeEmpty();
     return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect,
                         paint, filteredColor, props, distanceAdjustTable, target);

@@ -346,7 +346,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         Blob* blob = args.fBlob;
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, blob, args.fRun, args.fSubRun, args.fViewMatrix, args.fX, args.fY,
+                resourceProvider, blob, args.fRun, args.fSubRunPtr, args.fViewMatrix, args.fX, args.fY,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
                 atlasManager);
         bool done = false;

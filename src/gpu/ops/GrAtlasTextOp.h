@@ -37,6 +37,7 @@ public:
         SkScalar    fY;
         uint16_t    fRun;
         uint16_t    fSubRun;
+        GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
     };
 
