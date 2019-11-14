@@ -601,11 +601,11 @@ optional("gpu") {
 }
 
 optional("gif") {
-  enabled = !skia_use_wuffs
-  sources = [
-    "src/codec/SkGifCodec.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
-  ]
+  enabled = !skia_use_wuffs && skia_use_libgifcodec
+  public_defines = [ "SK_USE_LIBGIFCODEC" ]
+  libgifcodec_path = "third_party/externals/libgifcodec"
+  import(libgifcodec_path + "/libgifcodec.gni")
+  sources = rebase_path(libgifcodec_sources + libgifcodec_public, ".", libgifcodec_path)
 }
 
 optional("heif") {
