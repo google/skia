@@ -733,8 +733,9 @@ void GrRenderTargetContext::drawQuadSet(const GrClip& clip, GrPaint&& paint, GrA
                                         const SkMatrix& viewMatrix, const QuadSetEntry quads[],
                                         int cnt) {
     GrAAType aaType = this->chooseAAType(aa);
-    this->addDrawOp(clip, GrFillRectOp::MakeSet(fContext, std::move(paint), aaType, viewMatrix,
-                                                quads, cnt));
+
+    GrFillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix,
+                                 quads, cnt);
 }
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {
