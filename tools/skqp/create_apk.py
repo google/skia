@@ -150,7 +150,11 @@ def create_apk_impl(opts):
             gn_args = opts.gn_args(arch)
             args = ' '.join('%s=%s' % (k, v) for k, v in gn_args.items())
             check_call(['bin/gn', 'gen', build, '--args=' + args])
-            check_call(['ninja', '-C', build, lib])
+            try:
+                check_call(['ninja', '-C', build, lib])
+            except subprocess.CalledProcessError:
+                check_call(['ninja', '-C', build, '-t', 'clean'])
+                check_call(['ninja', '-C', build, lib])
             dst = '%s/%s' % (lib_dir, skia_to_android_arch_name_map[arch])
             makedirs(dst)
             shutil.copy(os.path.join(build, lib), dst)
