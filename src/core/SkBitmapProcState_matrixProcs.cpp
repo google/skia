@@ -70,7 +70,7 @@ static void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int cou
 }
 
 // A generic implementation for unfiltered scale+translate, templated on tiling method.
-template <unsigned (*tile)(SkFixed, int), bool tryDecal>
+template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int), bool tryDecal>
 static void nofilter_scale(const SkBitmapProcState& s,
                            uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isScaleTranslate());
@@ -79,7 +79,7 @@ static void nofilter_scale(const SkBitmapProcState& s,
     SkFractionalInt fx;
     {
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
-        *xy++ = tile(mapper.fixedY(), s.fPixmap.height() - 1);
+        *xy++ = tiley(mapper.fixedY(), s.fPixmap.height() - 1);
         fx = mapper.fractionalIntX();
     }
 
@@ -104,19 +104,19 @@ static void nofilter_scale(const SkBitmapProcState& s,
 
     // Remember, each x-coordinate is 16-bit.
     for (; count >= 2; count -= 2) {
-        *xy++ = pack_two_shorts(tile(SkFractionalIntToFixed(fx     ), maxX),
-                                tile(SkFractionalIntToFixed(fx + dx), maxX));
+        *xy++ = pack_two_shorts(tilex(SkFractionalIntToFixed(fx     ), maxX),
+                                tilex(SkFractionalIntToFixed(fx + dx), maxX));
         fx += dx+dx;
     }
 
     auto xx = (uint16_t*)xy;
     while (count --> 0) {
-        *xx++ = tile(SkFractionalIntToFixed(fx), maxX);
+        *xx++ = tilex(SkFractionalIntToFixed(fx), maxX);
         fx += dx;
     }
 }
 
-template <unsigned (*tile)(SkFixed, int)>
+template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int)>
 static void nofilter_affine(const SkBitmapProcState& s,
                             uint32_t xy[], int count, int x, int y) {
     SkASSERT(!s.fInvMatrix.hasPerspective());
@@ -131,23 +131,26 @@ static void nofilter_affine(const SkBitmapProcState& s,
         maxY = s.fPixmap.height() - 1;
 
     while (count --> 0) {
-        *xy++ = (tile(SkFractionalIntToFixed(fy), maxY) << 16)
-              | (tile(SkFractionalIntToFixed(fx), maxX)      );
+        *xy++ = (tiley(SkFractionalIntToFixed(fy), maxY) << 16)
+              | (tilex(SkFractionalIntToFixed(fx), maxX)      );
         fx += dx;
         fy += dy;
     }
 }
 
+// used when both tilex and tiley are clamp
 // Extract the high four fractional bits from fx, the lerp parameter when filtering.
-static unsigned extract_low_bits_clamp(SkFixed fx, int /*max*/) {
+static unsigned extract_low_bits_clamp_clamp(SkFixed fx, int /*max*/) {
     // If we're already scaled up to by max like clamp/decal,
     // just grab the high four fractional bits.
     return (fx >> 12) & 0xf;
 }
-static unsigned extract_low_bits_repeat_mirror(SkFixed fx, int max) {
+
+//used when one of tilex and tiley is not clamp
+static unsigned extract_low_bits_general(SkFixed fx, int max) {
     // In repeat or mirror fx is in [0,1], so scale up by max first.
     // TODO: remove the +1 here and the -1 at the call sites...
-    return extract_low_bits_clamp((fx & 0xffff) * (max+1), max);
+    return extract_low_bits_clamp_clamp((fx & 0xffff) * (max+1), max);
 }
 
 template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
@@ -158,7 +161,7 @@ static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
     return packed;
 }
 
-template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int), bool tryDecal>
+template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int), bool tryDecal>
 static void filter_scale(const SkBitmapProcState& s,
                          uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isScaleTranslate());
@@ -170,7 +173,7 @@ static void filter_scale(const SkBitmapProcState& s,
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
-        *xy++ = pack<tile, extract_low_bits>(mapper.fixedY(), maxY, s.fFilterOneY);
+        *xy++ = pack<tiley, extract_low_bits>(mapper.fixedY(), maxY, s.fFilterOneY);
         // now initialize fx
         fx = mapper.fractionalIntX();
     }
@@ -190,12 +193,12 @@ static void filter_scale(const SkBitmapProcState& s,
     }
 
     while (count --> 0) {
-        *xy++ = pack<tile, extract_low_bits>(SkFractionalIntToFixed(fx), maxX, s.fFilterOneX);
+        *xy++ = pack<tilex, extract_low_bits>(SkFractionalIntToFixed(fx), maxX, s.fFilterOneX);
         fx += dx;
     }
 }
 
-template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
+template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
 static void filter_affine(const SkBitmapProcState& s,
                           uint32_t xy[], int count, int x, int y) {
     SkASSERT(!s.fInvMatrix.hasPerspective());
@@ -212,8 +215,8 @@ static void filter_affine(const SkBitmapProcState& s,
     unsigned maxX = s.fPixmap.width () - 1,
              maxY = s.fPixmap.height() - 1;
     while (count --> 0) {
-        *xy++ = pack<tile, extract_low_bits>(SkFractionalIntToFixed(fy), maxY, oneY);
-        *xy++ = pack<tile, extract_low_bits>(SkFractionalIntToFixed(fx), maxX, oneX);
+        *xy++ = pack<tiley, extract_low_bits>(SkFractionalIntToFixed(fy), maxY, oneY);
+        *xy++ = pack<tilex, extract_low_bits>(SkFractionalIntToFixed(fx), maxX, oneX);
 
         fy += dy;
         fx += dx;
@@ -226,9 +229,6 @@ static inline unsigned SK_USHIFT16(unsigned x) {
     return x >> 16;
 }
 
-static unsigned clamp(SkFixed fx, int max) {
-    return SkClampMax(fx >> 16, max);
-}
 static unsigned repeat(SkFixed fx, int max) {
     SkASSERT(max < 65535);
     return SK_USHIFT16((unsigned)(fx & 0xFFFF) * (max + 1));
@@ -242,17 +242,29 @@ static unsigned mirror(SkFixed fx, int max) {
     return SK_USHIFT16( ((fx ^ s) & 0xFFFF) * (max + 1) );
 }
 
+static unsigned clamp(SkFixed fx, int max) {
+    return SkClampMax(fx >> 16, max);
+}
+
+#if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
+ // For use with extract_low_bits_general(), where clamp() above expects extract_low_bits_clamp_clamp()
+static unsigned general_clamp(SkFixed fx, int max)
+{
+    return repeat(SkClampMax(fx, 0xFFFF), max);
+}
+#endif
+
 static const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs[] = {
-    nofilter_scale <clamp, true>, filter_scale <clamp, extract_low_bits_clamp, true>,
-    nofilter_affine<clamp>,       filter_affine<clamp, extract_low_bits_clamp>,
+    nofilter_scale <clamp, clamp, true>, filter_scale <clamp, clamp, extract_low_bits_clamp_clamp, true>,
+    nofilter_affine<clamp, clamp>,       filter_affine<clamp, clamp, extract_low_bits_clamp_clamp>,
 };
 static const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs[] = {
-    nofilter_scale <repeat, false>, filter_scale <repeat, extract_low_bits_repeat_mirror,false>,
-    nofilter_affine<repeat>,        filter_affine<repeat, extract_low_bits_repeat_mirror>,
+    nofilter_scale <repeat, repeat, false>, filter_scale <repeat, repeat, extract_low_bits_general, false>,
+    nofilter_affine<repeat, repeat>,        filter_affine<repeat, repeat, extract_low_bits_general>
 };
 static const SkBitmapProcState::MatrixProc MirrorX_MirrorY_Procs[] = {
-    nofilter_scale <mirror, false>, filter_scale <mirror, extract_low_bits_repeat_mirror, false>,
-    nofilter_affine<mirror>,        filter_affine<mirror, extract_low_bits_repeat_mirror>,
+    nofilter_scale <mirror, mirror,  false>, filter_scale <mirror, mirror, extract_low_bits_general, false>,
+    nofilter_affine<mirror, mirror>,         filter_affine<mirror, mirror, extract_low_bits_general>,
 };
 
 
@@ -309,12 +321,13 @@ static void fill_backwards(uint16_t xptr[], int pos, int count) {
     }
 }
 
+template< U16CPU (tiley)(int x, int n) >
 static void clampx_nofilter_trans(const SkBitmapProcState& s,
                                   uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isTranslate());
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
-    *xy++ = int_clamp(mapper.intY(), s.fPixmap.height());
+    *xy++ = tiley(mapper.intY(), s.fPixmap.height());
     int xpos = mapper.intX();
 
     const int width = s.fPixmap.width();
@@ -360,12 +373,13 @@ static void clampx_nofilter_trans(const SkBitmapProcState& s,
     sk_memset16(xptr, width - 1, count);
 }
 
+template< U16CPU (tiley)(int x, int n) >
 static void repeatx_nofilter_trans(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isTranslate());
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
-    *xy++ = int_repeat(mapper.intY(), s.fPixmap.height());
+    *xy++ = tiley(mapper.intY(), s.fPixmap.height());
     int xpos = mapper.intX();
 
     const int width = s.fPixmap.width();
@@ -396,12 +410,13 @@ static void repeatx_nofilter_trans(const SkBitmapProcState& s,
     }
 }
 
+template< U16CPU (tiley)(int x, int n) >
 static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
                                    uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isTranslate());
 
     const SkBitmapProcStateAutoMapper mapper(s, x, y);
-    *xy++ = int_mirror(mapper.intY(), s.fPixmap.height());
+    *xy++ = tiley(mapper.intY(), s.fPixmap.height());
     int xpos = mapper.intX();
 
     const int width = s.fPixmap.width();
@@ -456,44 +471,127 @@ static void mirrorx_nofilter_trans(const SkBitmapProcState& s,
     }
 }
 
+
+#if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
+
+// below table is arranged as given below
+// first special optimized translate only MatrixProcs are put for all tilex and tiley configurations
+// then nofilter_scale MatrixProcs are put for all tilex and tiley configurations
+// then filter_scale MatrixProcs are put for all tilex and tiley configurations
+// then nofilter_affine MatrixProcs are put for all tilex and tiley configurations
+// then filter_affine MatrixProcs are put for all tilex and tiley configurations
+static const SkBitmapProcState::MatrixProc GeneralProcs[] = {
+        // below entries are configured using translateOnlyMatrixProcType<tiley>
+        clampx_nofilter_trans<int_repeat>,
+        clampx_nofilter_trans<int_mirror>,
+        repeatx_nofilter_trans<int_clamp>,
+        repeatx_nofilter_trans<int_mirror>,
+        mirrorx_nofilter_trans<int_clamp>,
+        mirrorx_nofilter_trans<int_repeat>,
+        // below proc entries are configured using nofilter_scale< tilex, tiley, tryDecal >
+        nofilter_scale< general_clamp, repeat, false>,
+        nofilter_scale< general_clamp, mirror, false>,
+        nofilter_scale< repeat,        general_clamp, false>,
+        nofilter_scale< repeat,        mirror, false>,
+        nofilter_scale< mirror,        general_clamp, false>,
+        nofilter_scale< mirror,        repeat, false>,
+        // below proc entries are configured using filter_scale< tilex, tiley, extract_low_bits, tryDecal >
+        filter_scale<   general_clamp, repeat,        extract_low_bits_general, false>,
+        filter_scale<   general_clamp, mirror,        extract_low_bits_general, false>,
+        filter_scale<   repeat,        general_clamp, extract_low_bits_general, false>,
+        filter_scale<   repeat,        mirror,        extract_low_bits_general, false>,
+        filter_scale<   mirror,        general_clamp, extract_low_bits_general, false>,
+        filter_scale<   mirror,        repeat,        extract_low_bits_general, false>,
+        // below proc entries are configured using nofilter_affine< tilex, tiley >
+        nofilter_affine<general_clamp, repeat>,
+        nofilter_affine<general_clamp, mirror>,
+        nofilter_affine<repeat,        general_clamp>,
+        nofilter_affine<repeat,        mirror>,
+        nofilter_affine<mirror,        general_clamp>,
+        nofilter_affine<mirror,        repeat>,
+        // below proc entries are configured using filter_affine< tilex, tiley, extract_low_bits >
+        filter_affine<  general_clamp, repeat,        extract_low_bits_general>,
+        filter_affine<  general_clamp, mirror,        extract_low_bits_general>,
+        filter_affine<  repeat,        general_clamp, extract_low_bits_general>,
+        filter_affine<  repeat,        mirror,        extract_low_bits_general>,
+        filter_affine<  mirror,        general_clamp, extract_low_bits_general>,
+        filter_affine<  mirror,        repeat,        extract_low_bits_general>};
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // The main entry point to the file, choosing between everything above.
 
 SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate_only_matrix) {
     SkASSERT(!fInvMatrix.hasPerspective());
-    SkASSERT(fTileModeX == fTileModeY);
     SkASSERT(fTileModeX != SkTileMode::kDecal);
 
-    // Check for our special case translate methods when there is no scale/affine/perspective.
-    if (translate_only_matrix && kNone_SkFilterQuality == fFilterQuality) {
-        switch (fTileModeX) {
-            default: SkASSERT(false);
-            case SkTileMode::kClamp:  return  clampx_nofilter_trans;
-            case SkTileMode::kRepeat: return repeatx_nofilter_trans;
-            case SkTileMode::kMirror: return mirrorx_nofilter_trans;
+    if( fTileModeX == fTileModeY ) {
+        // Check for our special case translate methods when there is no scale/affine/perspective.
+        if (translate_only_matrix && kNone_SkFilterQuality == fFilterQuality) {
+            switch (fTileModeX) {
+                default: SkASSERT(false);
+                case SkTileMode::kClamp:  return  clampx_nofilter_trans<int_clamp>;
+                case SkTileMode::kRepeat: return repeatx_nofilter_trans<int_repeat>;
+                case SkTileMode::kMirror: return mirrorx_nofilter_trans<int_mirror>;
+            }
         }
+
+        // The arrays are all [ nofilter, filter ].
+        int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
+        if (!fInvMatrix.isScaleTranslate()) {
+            index |= 2;
+        }
+
+        if (fTileModeX == SkTileMode::kClamp) {
+            // clamp gets special version of filterOne, working in non-normalized space (allowing decal)
+            fFilterOneX = SK_Fixed1;
+            fFilterOneY = SK_Fixed1;
+            return ClampX_ClampY_Procs[index];
+        }
+
+        // all remaining procs use this form for filterOne, putting them into normalized space.
+        fFilterOneX = SK_Fixed1 / fPixmap.width();
+        fFilterOneY = SK_Fixed1 / fPixmap.height();
+
+        if (fTileModeX == SkTileMode::kRepeat) {
+            return RepeatX_RepeatY_Procs[index];
+        }
+
+        return MirrorX_MirrorY_Procs[index];
     }
 
-    // The arrays are all [ nofilter, filter ].
-    int index = fFilterQuality > kNone_SkFilterQuality ? 1 : 0;
+
+#if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
+
+    int index = translate_only_matrix && kNone_SkFilterQuality == fFilterQuality ? 0 : 6;
+
+    index += ( fFilterQuality > kNone_SkFilterQuality ? 6 : 0 );
+
     if (!fInvMatrix.isScaleTranslate()) {
-        index |= 2;
+        index += 2 * 6;
     }
 
-    if (fTileModeX == SkTileMode::kClamp) {
-        // clamp gets special version of filterOne, working in non-normalized space (allowing decal)
-        fFilterOneX = SK_Fixed1;
-        fFilterOneY = SK_Fixed1;
-        return ClampX_ClampY_Procs[index];
+    if (fTileModeX == SkTileMode::kRepeat) {
+        index = index + 2;
+    }
+    else if (fTileModeX == SkTileMode::kMirror) {
+        index = index + 4;
     }
 
-    // all remaining procs use this form for filterOne, putting them into normalized space.
+    if (fTileModeY == SkTileMode::kMirror ||
+        (fTileModeY == SkTileMode::kRepeat && fTileModeX == SkTileMode::kMirror)) {
+        index += 1;
+    }
+
     fFilterOneX = SK_Fixed1 / fPixmap.width();
     fFilterOneY = SK_Fixed1 / fPixmap.height();
 
-    if (fTileModeX == SkTileMode::kRepeat) {
-        return RepeatX_RepeatY_Procs[index];
-    }
+    return GeneralProcs[ index ];
 
-    return MirrorX_MirrorY_Procs[index];
+#else
+
+    SkASSERT(fTileModeX == fTileModeY);
+    return nullptr;
+
+#endif
 }
