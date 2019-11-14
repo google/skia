@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2e3fdd1_7bb34536",
+        "filename": "src/core/SkEnumerate.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-14T19:43:49Z",
+      "side": 1,
+      "message": "I suppose when this can land SkEnumerate2 will replace SkEnumerate? If not, seems like a better name might be wanted?",
+      "range": {
+        "startLine": 65,
+        "startChar": 6,
+        "endLine": 65,
+        "endChar": 18
+      },
+      "revId": "f42a42e4b5cf39eae6a3fe03095373e009fbdf1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a463590_243b78a8",
+        "filename": "src/core/SkEnumerate.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-14T19:43:49Z",
+      "side": 1,
+      "message": "Just to nitpick (and this applies to the existing SkEnumerate)...\n\nTechnically to be an input_iterator it is also necessary to implement\n\nFoo* operator-\u003e();\n\nhttps://stackoverflow.com/questions/27582845/how-to-implement-operator-for-an-iterator-that-constructs-its-values-on-demand\n\nFor example\n\nclass Iterator {\npublic:\nusing value_type \u003d ...;\nstruct PointerProxy {\n  value_type value;\n  value_type operator*()\u0026\u0026 { return value; }\n  value_type* operator-\u003e() { return \u0026value; }\n};\nPointerProxy operator-\u003e() { return {**this}; } // short for \u0027return {this-\u003eoperator*()};\u0027\n};",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 57
+      },
+      "revId": "f42a42e4b5cf39eae6a3fe03095373e009fbdf1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
