@@ -294,56 +294,32 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
     SkPathEdgeIter iter(path);
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
-        SkEdgeClipper clipper(canCullToTheRight);
+        struct Rec {
+            SkEdgeBuilder* fBuilder;
+            bool           fIsFinite;
+        } rec = { this, true };
 
-        auto apply_clipper = [this, &clipper, &is_finite] {
+        SkEdgeClipper::ClipPath(path, clip, canCullToTheRight,
+                                [](SkEdgeClipper* clipper, bool, void* ctx) {
+            Rec* rec = (Rec*)ctx;
             SkPoint      pts[4];
             SkPath::Verb verb;
 
-            while ((verb = clipper.next(pts)) != SkPath::kDone_Verb) {
+            while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
                 const int count = SkPathPriv::PtsInIter(verb);
                 if (!SkScalarsAreFinite(&pts[0].fX, count*2)) {
-                    is_finite = false;
+                    rec->fIsFinite = false;
                     return;
                 }
                 switch (verb) {
-                    case SkPath::kLine_Verb:  this->addLine (pts); break;
-                    case SkPath::kQuad_Verb:  this->addQuad (pts); break;
-                    case SkPath::kCubic_Verb: this->addCubic(pts); break;
+                    case SkPath::kLine_Verb:  rec->fBuilder->addLine (pts); break;
+                    case SkPath::kQuad_Verb:  rec->fBuilder->addQuad (pts); break;
+                    case SkPath::kCubic_Verb: rec->fBuilder->addCubic(pts); break;
                     default: break;
                 }
             }
-        };
-
-        while (auto e = iter.next()) {
-            switch (e.fEdge) {
-                case SkPathEdgeIter::Edge::kLine:
-                    if (clipper.clipLine(e.fPts[0], e.fPts[1], clip)) {
-                        apply_clipper();
-                    }
-                    break;
-                case SkPathEdgeIter::Edge::kQuad:
-                    if (clipper.clipQuad(e.fPts, clip)) {
-                        apply_clipper();
-                    }
-                    break;
-                case SkPathEdgeIter::Edge::kConic: {
-                    const SkPoint* quadPts = quadder.computeQuads(
-                                          e.fPts, iter.conicWeight(), conicTol);
-                    for (int i = 0; i < quadder.countQuads(); ++i) {
-                        if (clipper.clipQuad(quadPts, clip)) {
-                            apply_clipper();
-                        }
-                        quadPts += 2;
-                    }
-                } break;
-                case SkPathEdgeIter::Edge::kCubic:
-                    if (clipper.clipCubic(e.fPts, clip)) {
-                        apply_clipper();
-                    }
-                    break;
-            }
-        }
+        }, &rec);
+        is_finite = rec.fIsFinite;
     } else {
         auto handle_quad = [this](const SkPoint pts[3]) {
             SkPoint monoX[5];
