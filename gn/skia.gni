@@ -29,6 +29,7 @@ declare_args() {
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
+  skia_libgifcodec_path = "third_party/externals/libgifcodec"
   skia_pdf_subset_harfbuzz = false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
   skia_qt_path = getenv("QT_PATH")
   skia_skqp_global_error_tolerance = 0
@@ -93,6 +94,7 @@ declare_args() {
   skia_enable_nvpr = !skia_enable_flutter_defines
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
+  skia_use_libgifcodec = !skia_use_wuffs
   skia_use_sfntly = skia_use_icu
 }
 
