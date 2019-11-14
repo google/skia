@@ -6,7 +6,6 @@
  */
 
 #include "bench/SKPAnimationBench.h"
-#include "include/core/SkMultiPictureDraw.h"
 #include "include/core/SkSurface.h"
 #include "tools/flags/CommandLineFlags.h"
 
