@@ -247,12 +247,14 @@ public:
     */
     bool getProps(SkSurfaceProps* props) const;
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_FLUSH
     /** Triggers the immediate execution of all pending draw operations.
         If SkCanvas is associated with GPU surface, resolves all pending GPU operations.
         If SkCanvas is associated with raster surface, has no effect; raster draw
         operations are never deferred.
     */
     void flush();
+#endif
 
     /** Gets the size of the base or root layer in global canvas coordinates. The
         origin of the base layer is always (0,0). The area available for drawing may be
