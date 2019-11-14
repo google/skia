@@ -54,6 +54,11 @@ public:
     }
 #endif
 
+#if GR_TEST_UTILS
+    // This is really only intended for GrTextureOp and GrFillRectOp to override
+    virtual int numQuads() const { return -1; }
+#endif
+
 private:
     typedef GrOp INHERITED;
 };
