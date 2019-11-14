@@ -46,6 +46,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-NoDEPS',
   'Build-Debian9-Clang-x86_64-Release-Static',
   'Build-Debian9-Clang-x86_64-Release-SwiftShader',
+  'Build-Debian9-Clang-x86_64-Release-Valgrind_SK_CPU_LIMIT_SSE41',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
   'Build-Debian9-EMCC-asmjs-Debug-PathKit',
   'Build-Debian9-EMCC-asmjs-Release-PathKit',

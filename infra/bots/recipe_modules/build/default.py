@@ -296,6 +296,9 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Wuffs' in extra_tokens:
     args['skia_use_wuffs'] = 'true'
 
+  if 'Valgrind' in extra_tokens:
+    args['extra_cflags_cc'] = '["-stdlib=libstdc++"]'
+
   for (k,v) in {
     'cc':  cc,
     'cxx': cxx,
