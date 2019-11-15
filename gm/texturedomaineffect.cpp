@@ -45,7 +45,7 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises GrTextureDomainEffect.
+ * This GM directly exercises GrDomainEffect.
  */
 class TextureDomainEffect : public GpuGM {
 public:
@@ -141,12 +141,15 @@ protected:
 
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    auto fp = GrTextureDomainEffect::Make(
-                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
-                            textureMatrices[tm],
-                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
 
+                    auto fp = GrSimpleTextureEffect::Make(
+                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()), SkMatrix::I(),
+                            fFilter);
+                    bool filterIfDecal = GrDomainEffect::DecalFilterFromSamplerFilter(fFilter);
+                    fp = GrDomainEffect::Make(
+                            std::move(fp), textureMatrices[tm],
+                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode), mode,
+                            filterIfDecal);
                     if (!fp) {
                         continue;
                     }

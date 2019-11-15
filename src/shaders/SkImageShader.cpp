@@ -250,8 +250,12 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
             SkRect domain = GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(proxy->dimensions()),
                                                              domainX, domainY);
-            inner = GrTextureDomainEffect::Make(std::move(proxy), srcColorType, lmInverse, domain,
-                                                domainX, domainY, samplerState);
+            inner = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, SkMatrix::I(),
+                                                samplerState);
+            bool filterIfDecal =
+                    GrDomainEffect::DecalFilterFromSamplerFilter(samplerState.filter());
+            inner = GrDomainEffect::Make(std::move(inner), lmInverse, domain,
+                                         GrTextureDomain::kClamp_Mode, filterIfDecal);
         } else {
             inner = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, lmInverse,
                                                 samplerState);
