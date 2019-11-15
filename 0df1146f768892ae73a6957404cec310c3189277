@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "286b7ac9_64e60ab0",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-15T19:57:41Z",
+      "side": 1,
+      "message": "I think we are stuck putting non-POD in the ddl-time arena for a while (and maybe forever). I will rename it in a follow up.",
+      "parentUuid": "a4b57ef0_d86f7c87",
+      "range": {
+        "startLine": 165,
+        "startChar": 11,
+        "endLine": 165,
+        "endChar": 19
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6797a124_e24d2050",
         "filename": "gm/clockwise.cpp",
         "patchSetId": 7
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "6797a124_e24d2050",
+      "range": {
+        "startLine": 177,
+        "startChar": 50,
+        "endLine": 177,
+        "endChar": 59
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6e7e4ca_bc7cb4e8",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-15T19:57:41Z",
+      "side": 1,
+      "message": "I agree - short term I will look into having it take a const*. Longer term, maybe the GrProgramInfo could just have a pipeline.",
+      "parentUuid": "aac5293e_b128460e",
       "range": {
         "startLine": 177,
         "startChar": 50,
@@ -130,6 +178,30 @@
       "writtenOn": "2019-11-15T19:29:43Z",
       "side": 1,
       "message": "A future hint? or a debugging leftover to be removed?",
+      "range": {
+        "startLine": 444,
+        "startChar": 15,
+        "endLine": 446,
+        "endChar": 60
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "452783d6_a14f62e1",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-15T19:57:41Z",
+      "side": 1,
+      "message": "Added comment to make it clear this is intentionally here.",
+      "parentUuid": "db947b05_ba7424b5",
       "range": {
         "startLine": 444,
         "startChar": 15,
