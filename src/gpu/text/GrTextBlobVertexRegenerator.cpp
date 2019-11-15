@@ -190,7 +190,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     }
 
     sk_sp<GrTextStrike> grStrike = fSubRun->refStrike();
-    bool hasW = fSubRun->hasWCoord();
+    bool hasW = fSubRun->hasW();
     auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
     char* currVertex = fBlob->fVertices + fSubRun->vertexStartIndex() +
                        fCurrGlyph * kVerticesPerGlyph * vertexStride;
@@ -269,7 +269,7 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
                              fRegenFlags & kRegenTex,
                              fRegenFlags & kRegenGlyph);
     } else {
-        bool hasW = fSubRun->hasWCoord();
+        bool hasW = fSubRun->hasW();
         auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
         result->fFinished = true;
         result->fGlyphsRegenerated = fSubRun->glyphCount() - fCurrGlyph;

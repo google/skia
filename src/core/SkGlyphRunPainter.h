@@ -134,28 +134,21 @@ class SkGlyphRunPainterInterface {
 public:
     virtual ~SkGlyphRunPainterInterface() = default;
 
-    virtual void startRun(const SkGlyphRun& glyphRun, bool useSDFT) = 0;
-
     virtual void processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
+    virtual void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                    const SkStrikeSpec& strikeSpec) = 0;
+
     virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                    const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,
                                    const SkFont& runFont,
                                    SkScalar minScale,
-                                   SkScalar maxScale,
-                                   bool hasWCoord) = 0;
-
-    virtual void processSourceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                       const SkStrikeSpec& strikeSpec,
-                                       bool hasW) = 0;
-
-    virtual void processDeviceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
-                                       const SkStrikeSpec& strikeSpec) = 0;
-
+                                   SkScalar maxScale) = 0;
 };
 
 #endif  // SkGlyphRunPainter_DEFINED
