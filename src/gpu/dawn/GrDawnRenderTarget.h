@@ -17,7 +17,7 @@ class GrDawnRenderTarget: public GrRenderTarget {
 public:
     static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
                                                  GrPixelConfig config, int sampleCnt,
-                                                 const GrDawnImageInfo&);
+                                                 const GrDawnRenderTargetInfo&);
 
     ~GrDawnRenderTarget() override;
 
@@ -27,14 +27,14 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
-    wgpu::Texture texture() const { return fInfo.fTexture; }
+    wgpu::TextureView textureView() const { return fInfo.fTextureView; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
                        const SkISize& dimensions,
                        GrPixelConfig config,
                        int sampleCnt,
-                       const GrDawnImageInfo& info);
+                       const GrDawnRenderTargetInfo& info);
 
     void onAbandon() override;
     void onRelease() override;
@@ -44,10 +44,10 @@ protected:
     size_t onGpuMemorySize() const override;
 
     static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
-                                      const GrDawnImageInfo&);
+                                      const GrDawnRenderTargetInfo&);
 
     bool completeStencilAttachment() override;
-    GrDawnImageInfo fInfo;
+    GrDawnRenderTargetInfo fInfo;
     typedef GrRenderTarget INHERITED;
 };
 

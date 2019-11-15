@@ -12,7 +12,6 @@
 #include "dawn/dawncpp.h"
 
 class GrDawnGpu;
-struct GrDawnImageInfo;
 
 class GrDawnTexture : public GrTexture {
 public:
@@ -23,7 +22,7 @@ public:
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
                                             GrPixelConfig config, GrRenderable, int sampleCnt,
                                             GrMipMapsStatus, GrWrapCacheable,
-                                            const GrDawnImageInfo&);
+                                            const GrDawnTextureInfo&);
 
     ~GrDawnTexture() override;
 
@@ -40,7 +39,7 @@ public:
     wgpu::TextureView textureView() const { return fTextureView; }
 protected:
     GrDawnTexture(GrDawnGpu*, const SkISize& dimensions, GrPixelConfig config, wgpu::TextureView,
-                  const GrDawnImageInfo&, GrMipMapsStatus);
+                  const GrDawnTextureInfo&, GrMipMapsStatus);
 
     GrDawnGpu* getDawnGpu() const;
 
@@ -52,9 +51,9 @@ protected:
     }
 
 private:
-    GrDawnTexture(GrDawnGpu*, const GrSurfaceDesc&, const GrDawnImageInfo&, GrMipMapsStatus);
+    GrDawnTexture(GrDawnGpu*, const GrSurfaceDesc&, const GrDawnTextureInfo&, GrMipMapsStatus);
 
-    GrDawnImageInfo          fInfo;
+    GrDawnTextureInfo        fInfo;
     wgpu::TextureView        fTextureView;
 
     typedef GrTexture INHERITED;
