@@ -257,9 +257,12 @@ describe('Core canvas behavior', function() {
                 const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
                 const combined = CanvasKit.SkImageFilter.MakeCompose(redIF, blurIF);
 
-                paint.setImageFilter(combined);
+                // rotate 10 degrees centered on 200, 200
+                const m = CanvasKit.SkMatrix.rotated(Math.PI/18, 200, 200);
+                const rotated = CanvasKit.SkImageFilter.MakeMatrixTransform(m, CanvasKit.FilterQuality.Medium, combined);
+                paint.setImageFilter(rotated);
 
-                canvas.rotate(10, 200, 200);
+                //canvas.rotate(10, 200, 200);
                 canvas.drawImage(img, 0, 0, paint);
                 canvas.drawRect(CanvasKit.LTRBRect(5, 35, 45, 80), paint);
 
@@ -270,6 +273,7 @@ describe('Core canvas behavior', function() {
                 redCF.delete();
                 blurIF.delete();
                 combined.delete();
+                rotated.delete();
                 img.delete();
 
                 reportSurface(surface, 'combined_filters', done);
