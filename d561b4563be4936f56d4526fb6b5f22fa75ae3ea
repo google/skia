@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48938271_497f23c9",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 18
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T02:08:57Z",
+      "side": 1,
+      "message": "Herb, I would be grateful if you can start looking through these.",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f199b23_337783d9",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T02:08:57Z",
+      "side": 1,
+      "message": "Copied from canvaskit.py.",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77b4be35_a913a5f1",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T02:08:57Z",
+      "side": 1,
+      "message": "I decided to use the hash rather than trying to come up with a tag based on the time or something.",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f840f32_fcdb4723",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T02:08:57Z",
+      "side": 1,
+      "message": "I realized after finishing this script that there\u0027s a docker module. I can edit to use that if you\u0027d like. (Canvaskit doesn\u0027t use it either.)",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6a3b5ef_35a65f29",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T02:08:57Z",
+      "side": 1,
+      "message": "Longer-term I think this script probably should be added to the image in the Dockerfile, but for now it seems like the resources dir makes the most sense.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 60
+      },
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
