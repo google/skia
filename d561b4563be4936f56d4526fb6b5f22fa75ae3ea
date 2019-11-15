@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d8814377_552618e0",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 18
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-15T14:46:02Z",
+      "side": 1,
+      "message": "I looked through all these. They are good warnings, and we may want to turn them on in the future. -Wparentheses looks pretty nice. But, I think we can leave this as is for now.",
+      "parentUuid": "48938271_497f23c9",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f199b23_337783d9",
         "filename": "infra/bots/recipe_modules/build/docker.py",
         "patchSetId": 18
