@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "5e844f98_46a2494f",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T15:51:39Z",
+      "side": 1,
+      "message": "My hope is that we would periodically recreate this image with latest Debian and latest of the other packages installed. These would presumably have the same version of GCC.\n\nOne option for that would be to use the date-tagged Debian images, e.g. buster-20191014-slim, in which case we could remove the \u0027apt-get upgrade\u0027 and use that date as the version.\n\nBut TBH, it doesn\u0027t seem to have a favorable cost-benefit to specify a version everywhere, e.g. the Dockerfile and the Makefile can get out of sync, and three places to update a version instead of one.",
+      "parentUuid": "f04190d1_55a41bcf",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f840f32_fcdb4723",
         "filename": "infra/bots/recipe_modules/build/docker.py",
         "patchSetId": 18
@@ -118,6 +136,24 @@
       "side": 1,
       "message": "Yeah, I think Eric\u0027s vision is that everything eventually uses that module. Not quite sure what canvaskit doesn\u0027t...",
       "parentUuid": "5f840f32_fcdb4723",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a721c942_522c71b1",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T15:51:39Z",
+      "side": 1,
+      "message": "Will do in a followup.",
+      "parentUuid": "f34999a5_33e27ed1",
       "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -161,6 +197,24 @@
       "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5afb81d_491f4f02",
+        "filename": "infra/gcc/Debian10/Dockerfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-15T15:51:39Z",
+      "side": 1,
+      "message": "This is in all our Dockerfiles that use apt-get, e.g. https://skia.googlesource.com/buildbot/+/9a23788b98c4982c5d92c8cbd7395155ce134b86/kube/base-cipd/Dockerfile#6\n\nNo reason to keep around the packages after they\u0027re installed.",
+      "parentUuid": "230ee243_bef0de77",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
