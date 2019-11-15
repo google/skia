@@ -360,6 +360,7 @@ void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
 
 void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                                        TypefaceVisitor visitor) {
+    bool anyFamilyMatched = false;
     for (auto& fontFamily : textStyle.getFontFamilies()) {
         auto typeface = fParagraph->fFontCollection->matchTypeface(
                 fontFamily.c_str(), textStyle.getFontStyle(), textStyle.getLocale());
@@ -367,12 +368,13 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
             continue;
         }
 
+        anyFamilyMatched = true;
         if (!visitor(typeface)) {
             return;
         }
     }
 
-    if (textStyle.getFontFamilies().empty()) {
+    if (!anyFamilyMatched) {
         auto typeface = fParagraph->fFontCollection->matchDefaultTypeface(textStyle.getFontStyle(),
                                                                           textStyle.getLocale());
         if (typeface != nullptr) {
