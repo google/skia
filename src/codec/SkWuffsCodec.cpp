@@ -132,7 +132,6 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
     return SkCodec::kSuccess;
 }
 
-
 // -------------------------------- Class definitions
 
 class SkWuffsCodec;
@@ -179,6 +178,7 @@ public:
                  std::unique_ptr<SkStream>                               stream,
                  std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> dec,
                  std::unique_ptr<uint8_t, decltype(&sk_free)>            pixbuf_ptr,
+                 bool                                                    pixbuf_zeroed,
                  std::unique_ptr<uint8_t, decltype(&sk_free)>            workbuf_ptr,
                  size_t                                                  workbuf_len,
                  wuffs_base__image_config                                imgcfg,
@@ -266,6 +266,10 @@ private:
     std::vector<SkWuffsFrame> fFrames;
     bool                      fFramesComplete;
 
+    // True if fPixelBuffer's contents are known to be already zeroed. This is
+    // conservative, and may be false even if the buffer is zeroed.
+    bool fPixbufZeroed;
+
     // If calling an fDecoders[which] method returns an incomplete status, then
     // fDecoders[which] is suspended in a coroutine (i.e. waiting on I/O or
     // halted on a non-recoverable error). To keep its internal proof-of-safety
@@ -333,6 +337,7 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
                            std::unique_ptr<SkStream>                               stream,
                            std::unique_ptr<wuffs_gif__decoder, decltype(&sk_free)> dec,
                            std::unique_ptr<uint8_t, decltype(&sk_free)>            pixbuf_ptr,
+                           bool                                                    pixbuf_zeroed,
                            std::unique_ptr<uint8_t, decltype(&sk_free)>            workbuf_ptr,
                            size_t                                                  workbuf_len,
                            wuffs_base__image_config                                imgcfg,
@@ -367,6 +372,7 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fFrameCountReaderIOPosition(0),
       fNumFullyReceivedFrames(0),
       fFramesComplete(false),
+      fPixbufZeroed(pixbuf_zeroed),
       fDecoderIsSuspended{
           false,
           false,
@@ -443,12 +449,20 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     size_t src_bytes_per_pixel = src_bits_per_pixel / 8;
 
     // Zero-initialize Wuffs' buffer covering the frame rect.
-    wuffs_base__rect_ie_u32 frame_rect = fFrameConfigs[WhichDecoder::kIncrDecode].bounds();
-    wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
-    for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
-        sk_bzero(pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bytes_per_pixel),
-                 frame_rect.width() * src_bytes_per_pixel);
+    if (!fPixbufZeroed) {
+        wuffs_base__rect_ie_u32 frame_rect = fFrameConfigs[WhichDecoder::kIncrDecode].bounds();
+        wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
+        for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
+            sk_bzero(
+                pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bytes_per_pixel),
+                frame_rect.width() * src_bytes_per_pixel);
+        }
     }
+    // The buffer is zeroed now, but this onStartIncrementalDecode call will
+    // almost certainly be followed by some onIncrementalDecode calls that can
+    // modify fPixelBuffer's contents. We set fPixbufZeroed to false so that
+    // the next onStartIncrementalDecode call will zero-initialize the buffer.
+    fPixbufZeroed = false;
 
     fIncrDecDst = static_cast<uint8_t*>(dst);
     fIncrDecReaderIOPosition = fIOBuffer.reader_io_position();
@@ -886,8 +900,10 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     std::unique_ptr<uint8_t, decltype(&sk_free)> workbuf_ptr(
         reinterpret_cast<uint8_t*>(workbuf_ptr_raw), &sk_free);
 
-    uint64_t pixbuf_len = imgcfg.pixcfg.pixbuf_len();
-    void*    pixbuf_ptr_raw = pixbuf_len <= SIZE_MAX ? sk_malloc_canfail(pixbuf_len) : nullptr;
+    constexpr int pixbuf_sk_malloc_flags = SK_MALLOC_ZERO_INITIALIZE;
+    uint64_t      pixbuf_len = imgcfg.pixcfg.pixbuf_len();
+    void*         pixbuf_ptr_raw =
+        pixbuf_len <= SIZE_MAX ? sk_malloc_flags(pixbuf_len, pixbuf_sk_malloc_flags) : nullptr;
     if (!pixbuf_ptr_raw) {
         *result = SkCodec::kInternalError;
         return nullptr;
@@ -919,5 +935,6 @@ std::unique_ptr<SkCodec> SkWuffsCodec_MakeFromStream(std::unique_ptr<SkStream> s
     *result = SkCodec::kSuccess;
     return std::unique_ptr<SkCodec>(new SkWuffsCodec(
         std::move(encodedInfo), std::move(stream), std::move(decoder), std::move(pixbuf_ptr),
-        std::move(workbuf_ptr), workbuf_len, imgcfg, pixbuf, iobuf));
+        (pixbuf_sk_malloc_flags & SK_MALLOC_ZERO_INITIALIZE) != 0, std::move(workbuf_ptr),
+        workbuf_len, imgcfg, pixbuf, iobuf));
 }
