@@ -160,7 +160,7 @@ private:
                       const GrAppliedClip*) final {
         // We're going to create the GrProgramInfo (and the GrPipeline it relies on) in the
         // DDL-record-time arena.
-        SkArenaAlloc* arena = context->priv().opPODAllocator();
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // Not POD! It has some sk_sp's buried inside it!
         GrPipeline* pipeline = arena->make<GrPipeline>(GrScissorTest::kDisabled, SkBlendMode::kPlus,

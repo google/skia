@@ -46,8 +46,8 @@ public:
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
 
-    SkArenaAlloc* opPODAllocator() { return fContext->opPODAllocator(); }
-    std::unique_ptr<SkArenaAlloc> detachOpPOD();
+    SkArenaAlloc* recordTimeAllocator() { return fContext->recordTimeAllocator(); }
+    std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
 
     GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }

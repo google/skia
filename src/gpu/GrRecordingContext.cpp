@@ -137,18 +137,20 @@ GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
 
 // Stored in this arena:
 //     GrTextureOp's DynamicStateArrays and FixedDynamicState
-SkArenaAlloc* GrRecordingContext::opPODAllocator() {
-    if (!fOpPODAllocator) {
+//     some GrGeometryProcessors, GrPipelines and GrProgramInfos
+SkArenaAlloc* GrRecordingContext::recordTimeAllocator() {
+    if (!fRecordTimeAllocator) {
         // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
-        fOpPODAllocator = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(sizeof(GrPipeline) * 100));
+        fRecordTimeAllocator = std::unique_ptr<SkArenaAlloc>(
+                                                    new SkArenaAlloc(sizeof(GrPipeline) * 100));
     }
 
-    SkASSERT(fOpPODAllocator);
-    return fOpPODAllocator.get();
+    SkASSERT(fRecordTimeAllocator);
+    return fRecordTimeAllocator.get();
 }
 
-std::unique_ptr<SkArenaAlloc> GrRecordingContext::detachOpPOD() {
-    return std::move(fOpPODAllocator);
+std::unique_ptr<SkArenaAlloc> GrRecordingContext::detachRecordTimeAllocator() {
+    return std::move(fRecordTimeAllocator);
 }
 
 GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
@@ -322,8 +324,8 @@ sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
     return fContext->refCaps();
 }
 
-std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachOpPOD() {
-    return fContext->detachOpPOD();
+std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachRecordTimeAllocator() {
+    return fContext->detachRecordTimeAllocator();
 }
 
 sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
