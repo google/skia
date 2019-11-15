@@ -80,8 +80,8 @@ class ClockwiseGM : public skiagm::GpuGM {
 
 class ClockwiseTestProcessor : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(bool readSkFragCoord) {
-        return sk_sp<GrGeometryProcessor>(new ClockwiseTestProcessor(readSkFragCoord));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, bool readSkFragCoord) {
+        return arena->make<ClockwiseTestProcessor>(readSkFragCoord);
     }
 
     const char* name() const final { return "ClockwiseTestProcessor"; }
@@ -92,7 +92,12 @@ public:
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
+    bool readSkFragCoord() const { return fReadSkFragCoord; }
+
 private:
+    friend class SkArenaAlloc; // for access to ctor
+//    friend class GLSLClockwiseTestProcessor;
+
     ClockwiseTestProcessor(bool readSkFragCoord)
             : GrGeometryProcessor(kClockwiseTestProcessor_ClassID)
             , fReadSkFragCoord(readSkFragCoord) {
@@ -101,7 +106,7 @@ private:
 
     const bool fReadSkFragCoord;
 
-    friend class GLSLClockwiseTestProcessor;
+    typedef GrGeometryProcessor INHERITED;
 };
 
 class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
@@ -114,7 +119,7 @@ class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
         args.fFragBuilder->codeAppendf(
                 "%s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);", args.fOutputColor);
-        if (!proc.fReadSkFragCoord) {
+        if (!proc.readSkFragCoord()) {
             args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);
         } else {
             // Verify layout(origin_upper_left) on gl_FragCoord does not affect gl_FrontFacing.
@@ -144,7 +149,9 @@ public:
 
 private:
     ClockwiseTestOp(bool readSkFragCoord, float y)
-            : GrDrawOp(ClassID()), fReadSkFragCoord(readSkFragCoord), fY(y) {
+            : GrDrawOp(ClassID())
+            , fReadSkFragCoord(readSkFragCoord)
+            , fY(y) {
         this->setBounds(SkRect::MakeXYWH(0, fY, 100, 100), HasAABloat::kNo, IsHairline::kNo);
     }
 
@@ -166,8 +173,7 @@ private:
         GrPipeline* pipeline = arena->make<GrPipeline>(GrScissorTest::kDisabled, SkBlendMode::kPlus,
                                                        dstView->swizzle());
 
-        // This is allocated in the processor memory pool!?!
-        fGeomProc = ClockwiseTestProcessor::Make(fReadSkFragCoord);
+        GrPrimitiveProcessor* geomProc = ClockwiseTestProcessor::Make(arena, fReadSkFragCoord);
 
         // The programInfo is POD
         GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
@@ -175,7 +181,7 @@ private:
                                                   dstProxy->numStencilSamples(),
                                                   dstView->origin(),
                                                   *pipeline,
-                                                  *fGeomProc,
+                                                  *geomProc,
                                                   nullptr, nullptr, 0,
                                                   GrPrimitiveType::kTriangleStrip);
     }
@@ -209,8 +215,8 @@ private:
             GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
                                 dstView->swizzle());
 
-            // This is allocated in the processor memory pool!?!
-            sk_sp<GrPrimitiveProcessor> gp = ClockwiseTestProcessor::Make(fReadSkFragCoord);
+            GrGeometryProcessor* gp = ClockwiseTestProcessor::Make(flushState->allocator(),
+                                                                   fReadSkFragCoord);
 
             GrProgramInfo programInfo(dstView->asRenderTargetProxy()->numSamples(),
                                       dstView->asRenderTargetProxy()->numStencilSamples(),
@@ -230,9 +236,6 @@ private:
     sk_sp<GrBuffer>                fVertexBuffer;
     const bool                     fReadSkFragCoord;
     const float                    fY;
-
-    // This is allocated in the processor memory pool so we need to hold an sk_sp
-    sk_sp<GrPrimitiveProcessor>    fGeomProc;
 
     // The program info (and the GrPipeline it relies on), when allocated, are allocated in the
     // ddl-record-time arena. It is the arena's job to free up their memory so we just have a
