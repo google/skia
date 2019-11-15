@@ -143,6 +143,14 @@ PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
 PARAGRAPH_BINDINGS="-DSK_INCLUDE_PARAGRAPH=1 \
   $BASE_DIR/paragraph_bindings.cpp"
 
+if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]]; then
+  echo "Omitting paragraph (must also have non-primitive shaper)"
+  PARAGRAPH_JS=""
+  PARAGRAPH_LIB=""
+  PARAGRAPH_BINDINGS=""
+fi
+
+
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
 NINJA=`which ninja`

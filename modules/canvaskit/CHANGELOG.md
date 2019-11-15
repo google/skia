@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - null dereference when sometimes falling back to CPU.
  - Actually ask WebGL for a stencil buffer.
+ - Can opt out of Paragraph API with no_paragraph passed into compile.sh or when using primitive_shaper.
 
 ## [0.8.0] - 2019-10-21
 
