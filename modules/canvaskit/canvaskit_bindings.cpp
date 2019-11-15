@@ -142,10 +142,13 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, in
     info.fFBOID = (GrGLuint) buffer;
     SkColorType colorType;
 
+    GrGLint stencil;
+    glGetIntegerv(GL_STENCIL_BITS, &stencil);
+
     info.fFormat = GL_RGBA8;
     colorType = kRGBA_8888_SkColorType;
 
-    GrBackendRenderTarget target(width, height, 0, 8, info);
+    GrBackendRenderTarget target(width, height, 0, stencil, info);
 
     sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
                                                                     kBottomLeft_GrSurfaceOrigin,
