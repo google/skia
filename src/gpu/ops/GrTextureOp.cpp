@@ -939,10 +939,8 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
             SkRect correctedDomain;
             compute_domain(Domain::kYes, filter, kTopLeft_GrSurfaceOrigin, *domain,
                            1.f, 1.f, proxy->height(), &correctedDomain);
-            fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), srcColorType, SkMatrix::I(), filter);
-            bool filterIfDecal = GrDomainEffect::DecalFilterFromSamplerFilter(filter);
-            fp = GrDomainEffect::Make(std::move(fp), SkMatrix::I(), correctedDomain,
-                                      GrTextureDomain::kClamp_Mode, filterIfDecal);
+            fp = GrTextureDomainEffect::Make(sk_ref_sp(proxy), srcColorType, SkMatrix::I(),
+                                             correctedDomain, GrTextureDomain::kClamp_Mode, filter);
         } else {
             fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), srcColorType, SkMatrix::I(), filter);
         }
