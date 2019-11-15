@@ -619,6 +619,10 @@ void SkCanvas::onFlush() {
     }
 }
 
+SkSurface* SkCanvas::getSurface() const {
+    return fSurfaceBase;
+}
+
 SkISize SkCanvas::getBaseLayerSize() const {
     SkBaseDevice* d = this->getDevice();
     return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
