@@ -11,11 +11,10 @@
       }
 
       function makeWebGLContext(canvas, attrs) {
-        // These defaults come from the emscripten _emscripten_webgl_create_context
         var contextAttributes = {
           alpha: get(attrs, 'alpha', 1),
           depth: get(attrs, 'depth', 1),
-          stencil: get(attrs, 'stencil', 0),
+          stencil: get(attrs, 'stencil', 8),
           antialias: get(attrs, 'antialias', 1),
           premultipliedAlpha: get(attrs, 'premultipliedAlpha', 1),
           preserveDrawingBuffer: get(attrs, 'preserveDrawingBuffer', 0),
