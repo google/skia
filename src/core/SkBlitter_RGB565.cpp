@@ -10,7 +10,6 @@
 #include "include/private/SkColorData.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkXfermodePriv.h"
-#include "src/utils/SkUTF.h"
 
 #include "include/private/SkNx.h"
 

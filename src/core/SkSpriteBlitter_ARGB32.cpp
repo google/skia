@@ -13,7 +13,6 @@
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkSpriteBlitter.h"
 #include "src/core/SkXfermodePriv.h"
-#include "src/utils/SkUTF.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

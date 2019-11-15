@@ -14,7 +14,6 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
-#include "src/utils/SkUTF.h"
 #include <atomic>
 #include <utility>
 
