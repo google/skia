@@ -14,7 +14,6 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTDArray.h"
 

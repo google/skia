@@ -21,7 +21,6 @@ struct SkRect;
 class SkPaint;
 class SkPixelRef;
 class SkShader;
-class SkString;
 
 /** \class SkBitmap
     SkBitmap describes a two-dimensional raster pixel array. SkBitmap is built on

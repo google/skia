@@ -28,7 +28,6 @@ class SkImageFilter;
 class SkImageGenerator;
 class SkPaint;
 class SkPicture;
-class SkString;
 class SkSurface;
 class GrBackendTexture;
 class GrContext;

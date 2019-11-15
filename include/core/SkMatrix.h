@@ -14,7 +14,6 @@
 
 struct SkRSXform;
 struct SkPoint3;
-class SkString;
 
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
