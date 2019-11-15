@@ -687,5 +687,6 @@ SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
     }
 
     fNeedsCloseLine = false;
+    fNextIsNewContour = false;
     SkDEBUGCODE(fIsConic = false;)
 }
