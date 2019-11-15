@@ -146,10 +146,19 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
 
     // This "base<>" tells Emscripten that ParagraphImpl is a Paragraph and can get substituted
     // in properly in drawParagraph. However, Emscripten will not let us bind pure virtual methods
-    // so we have to "expose" the ParagraphImpl and its methods.
+    // so we have to "expose" the ParagraphImpl in those cases.
     class_<para::ParagraphImpl, base<para::Paragraph>>("ParagraphImpl")
-        .function("_getRectsForRange", &GetRectsForRange)
+        .function("didExceedMaxLines", &para::Paragraph::didExceedMaxLines)
+        .function("getAlphabeticBaseline", &para::Paragraph::getAlphabeticBaseline)
         .function("getGlyphPositionAtCoordinate", &para::ParagraphImpl::getGlyphPositionAtCoordinate)
+        .function("getHeight", &para::Paragraph::getHeight)
+        .function("getIdeographicBaseline", &para::Paragraph::getIdeographicBaseline)
+        .function("getLongestLine", &para::Paragraph::getLongestLine)
+        .function("getMaxIntrinsicWidth", &para::Paragraph::getMaxIntrinsicWidth)
+        .function("getMaxWidth", &para::Paragraph::getMaxWidth)
+        .function("getMinIntrinsicWidth", &para::Paragraph::getMinIntrinsicWidth)
+        .function("_getRectsForRange", &GetRectsForRange)
+        .function("getWordBoundary", &para::ParagraphImpl::getWordBoundary)
         .function("layout", &para::ParagraphImpl::layout);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
@@ -231,7 +240,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("pos",      &para::PositionWithAffinity::position)
         .field("affinity", &para::PositionWithAffinity::affinity);
 
- value_object<SimpleFontStyle>("FontStyle")
+    value_object<SimpleFontStyle>("FontStyle")
         .field("slant",     &SimpleFontStyle::slant)
         .field("weight",    &SimpleFontStyle::weight)
         .field("width",     &SimpleFontStyle::width);
@@ -256,6 +265,12 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("fontStyle",           &SimpleTextStyle::fontStyle)
         .field("foregroundColor",     &SimpleTextStyle::foregroundColor)
         .field("_numFontFamilies",    &SimpleTextStyle::numFontFamilies);
+
+    // The U stands for unsigned - we can't bind a generic/template object, so we have to specify it
+    // with the type we are using.
+    value_object<para::SkRange<size_t>>("URange")
+        .field("start",    &para::SkRange<size_t>::start)
+        .field("end",      &para::SkRange<size_t>::end);
 
     // TextDecoration should be a const because they can be combined
     constant("NoDecoration", int(para::TextDecoration::kNoDecoration));

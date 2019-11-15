@@ -100,7 +100,16 @@ var CanvasKit = {
 
 	Paragraph: {
 		// public API (from C++ bindings)
+		didExceedMaxLines: function() {},
+		getAlphabeticBaseline: function() {},
 		getGlyphPositionAtCoordinate: function() {},
+		getHeight: function() {},
+		getIdeographicBaseline: function() {},
+		getLongestLine: function() {},
+		getMaxIntrinsicWidth: function() {},
+		getMaxWidth: function() {},
+		getMinIntrinsicWidth: function() {},
+		getWordBoundary: function() {},
 		layout: function() {},
 
 		// private API
