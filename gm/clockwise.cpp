@@ -174,8 +174,8 @@ private:
         fProgramInfo = arena->make<GrProgramInfo>(dstProxy->numSamples(),
                                                   dstProxy->numStencilSamples(),
                                                   dstView->origin(),
-                                                  *pipeline,
-                                                  *fGeomProc,
+                                                  pipeline,
+                                                  fGeomProc.get(),
                                                   nullptr, nullptr, 0,
                                                   GrPrimitiveType::kTriangleStrip);
     }
@@ -215,8 +215,8 @@ private:
             GrProgramInfo programInfo(dstView->asRenderTargetProxy()->numSamples(),
                                       dstView->asRenderTargetProxy()->numStencilSamples(),
                                       dstView->origin(),
-                                      pipeline,
-                                      *gp,
+                                      &pipeline,
+                                      gp.get(),
                                       nullptr, nullptr, 0,
                                       GrPrimitiveType::kTriangleStrip);
 
@@ -224,7 +224,6 @@ private:
                                               SkRect::MakeXYWH(0, fY, 100, 100));
 
         }
-
     }
 
     sk_sp<GrBuffer>                fVertexBuffer;

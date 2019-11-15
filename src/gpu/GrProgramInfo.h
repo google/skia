@@ -20,13 +20,13 @@ public:
     GrProgramInfo(int numSamples,
                   int numStencilSamples,
                   GrSurfaceOrigin origin,
-                  const GrPipeline& pipeline,
-                  const GrPrimitiveProcessor& primProc,
+                  const GrPipeline* pipeline,
+                  const GrPrimitiveProcessor* primProc,
                   const GrPipeline::FixedDynamicState* fixedDynamicState,
                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                   int numDynamicStateArrays,
                   GrPrimitiveType primitiveType)
-            : fNumRasterSamples(pipeline.isStencilEnabled() ? numStencilSamples : numSamples)
+            : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
             , fIsMixedSampled(fNumRasterSamples > numSamples)
             , fOrigin(origin)
             , fPipeline(pipeline)
@@ -36,11 +36,11 @@ public:
             , fNumDynamicStateArrays(numDynamicStateArrays)
             , fPrimitiveType(primitiveType) {
         SkASSERT(fNumRasterSamples > 0);
-        fRequestedFeatures = fPrimProc.requestedFeatures();
-        for (int i = 0; i < fPipeline.numFragmentProcessors(); ++i) {
-            fRequestedFeatures |= fPipeline.getFragmentProcessor(i).requestedFeatures();
+        fRequestedFeatures = fPrimProc->requestedFeatures();
+        for (int i = 0; i < fPipeline->numFragmentProcessors(); ++i) {
+            fRequestedFeatures |= fPipeline->getFragmentProcessor(i).requestedFeatures();
         }
-        fRequestedFeatures |= fPipeline.getXferProcessor().requestedFeatures();
+        fRequestedFeatures |= fPipeline->getXferProcessor().requestedFeatures();
 
         SkDEBUGCODE(this->validate();)
         (void) fNumDynamicStateArrays;  // touch this to quiet unused member warnings
@@ -51,12 +51,12 @@ public:
     int numRasterSamples() const { return fNumRasterSamples;  }
     bool isMixedSampled() const { return fIsMixedSampled; }
     GrSurfaceOrigin origin() const { return fOrigin;  }
-    const GrPipeline& pipeline() const { return fPipeline; }
-    const GrPrimitiveProcessor& primProc() const { return fPrimProc; }
+    const GrPipeline& pipeline() const { return *fPipeline; }
+    const GrPrimitiveProcessor& primProc() const { return *fPrimProc; }
     const GrPipeline::FixedDynamicState* fixedDynamicState() const { return fFixedDynamicState; }
 
     bool hasDynamicScissors() const {
-        return fPipeline.isScissorEnabled() &&
+        return fPipeline->isScissorEnabled() &&
                fDynamicStateArrays && fDynamicStateArrays->fScissorRects;
     }
 
@@ -66,7 +66,7 @@ public:
         return fDynamicStateArrays->fScissorRects[i];
     }
 
-    bool hasFixedScissor() const { return fPipeline.isScissorEnabled() && fFixedDynamicState; }
+    bool hasFixedScissor() const { return fPipeline->isScissorEnabled() && fFixedDynamicState; }
 
     const SkIRect& fixedScissor() const {
         SkASSERT(this->hasFixedScissor());
@@ -83,7 +83,7 @@ public:
         SkASSERT(i < fNumDynamicStateArrays);
 
         return fDynamicStateArrays->fPrimitiveProcessorTextures +
-                                                                i * fPrimProc.numTextureSamplers();
+                                                                i * fPrimProc->numTextureSamplers();
     }
 
     bool hasFixedPrimProcTextures() const {
@@ -109,8 +109,8 @@ public:
     void compatibleWithMeshes(const GrMesh meshes[], int meshCount) const;
 
     bool isNVPR() const {
-        return fPrimProc.isPathRendering() && !fPrimProc.willUseGeoShader() &&
-               !fPrimProc.numVertexAttributes() && !fPrimProc.numInstanceAttributes();
+        return fPrimProc->isPathRendering() && !fPrimProc->willUseGeoShader() &&
+               !fPrimProc->numVertexAttributes() && !fPrimProc->numInstanceAttributes();
     }
 #endif
 
@@ -118,8 +118,8 @@ private:
     const int                             fNumRasterSamples;
     const bool                            fIsMixedSampled;
     const GrSurfaceOrigin                 fOrigin;
-    const GrPipeline&                     fPipeline;
-    const GrPrimitiveProcessor&           fPrimProc;
+    const GrPipeline*                     fPipeline;
+    const GrPrimitiveProcessor*           fPrimProc;
     const GrPipeline::FixedDynamicState*  fFixedDynamicState;
     const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
     const int                             fNumDynamicStateArrays;

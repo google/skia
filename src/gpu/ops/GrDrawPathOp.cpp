@@ -97,8 +97,8 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrProgramInfo programInfo(state->proxy()->numSamples(),
                               state->proxy()->numStencilSamples(),
                               state->drawOpArgs().origin(),
-                              pipeline,
-                              *pathProc,
+                              &pipeline,
+                              pathProc.get(),
                               &fixedDynamicState,
                               nullptr, 0,
                               GrPrimitiveType::kPath);
