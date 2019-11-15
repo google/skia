@@ -255,7 +255,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             bool filterIfDecal =
                     GrDomainEffect::DecalFilterFromSamplerFilter(samplerState.filter());
             inner = GrDomainEffect::Make(std::move(inner), lmInverse, domain,
-                                         GrTextureDomain::kClamp_Mode, filterIfDecal);
+                                         domainX, domainY, filterIfDecal);
         } else {
             inner = GrSimpleTextureEffect::Make(std::move(proxy), srcColorType, lmInverse,
                                                 samplerState);
