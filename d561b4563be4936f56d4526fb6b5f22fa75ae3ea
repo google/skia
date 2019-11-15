@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "f04190d1_55a41bcf",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-15T12:18:17Z",
+      "side": 1,
+      "message": "The convention I was using in CanvasKit was the build version (1.2.3) followed by a revision number (_v1) so that it\u0027s somewhat clear from the image name what is being used to do the build. Would such a thing add clarity here?  (i.e. take gcc --version and use that as the name)",
+      "parentUuid": "77b4be35_a913a5f1",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f840f32_fcdb4723",
         "filename": "infra/bots/recipe_modules/build/docker.py",
         "patchSetId": 18
@@ -64,6 +82,24 @@
       "writtenOn": "2019-11-15T02:08:57Z",
       "side": 1,
       "message": "I realized after finishing this script that there\u0027s a docker module. I can edit to use that if you\u0027d like. (Canvaskit doesn\u0027t use it either.)",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f34999a5_33e27ed1",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-15T12:18:17Z",
+      "side": 1,
+      "message": "Yeah, I think Eric\u0027s vision is that everything eventually uses that module. Not quite sure what canvaskit doesn\u0027t...",
+      "parentUuid": "5f840f32_fcdb4723",
       "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
@@ -90,6 +126,23 @@
       "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "230ee243_bef0de77",
+        "filename": "infra/gcc/Debian10/Dockerfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-15T12:18:17Z",
+      "side": 1,
+      "message": "What\u0027s this for?  I take it gcc comes with build-essential?",
+      "revId": "d561b4563be4936f56d4526fb6b5f22fa75ae3ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
