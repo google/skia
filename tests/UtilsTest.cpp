@@ -333,6 +333,22 @@ DEF_TEST(SkZip, reporter) {
         REPORTER_ASSERT(reporter, i = 2);
     }
 
+    {
+        // Check last(n)
+        int i = 0;
+        for (auto t : z.last(2)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i + 2]);
+            REPORTER_ASSERT(reporter, b == B[i + 2]);
+            REPORTER_ASSERT(reporter, c == C[i + 2]);
+            REPORTER_ASSERT(reporter, d == D[i + 2]);
+            REPORTER_ASSERT(reporter, s == S[i + 2]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 2);
+    }
 
     {
         // Check copy.
