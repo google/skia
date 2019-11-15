@@ -140,6 +140,7 @@ public:
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                    const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
