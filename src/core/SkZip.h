@@ -90,6 +90,12 @@ public:
         if (n == 0) { return SkZip(); }
         return SkZip{n, this->pointersAt(fSize - n)};
     }
+    constexpr SkZip subspan(size_t offset, size_t count) const {
+        SkASSERT(offset < this->size());
+        SkASSERT(count <= this->size() - offset);
+        if (count == 0) { return SkZip(); }
+        return SkZip(count, pointersAt(offset));
+    }
 
 private:
     constexpr SkZip(size_t n, const std::tuple<Ts*...>& pointers)
