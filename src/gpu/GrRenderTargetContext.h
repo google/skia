@@ -550,9 +550,10 @@ private:
     friend class GrCCPerFlushResources;              // for access to addDrawOp
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     friend class GrFillRectOp;                       // for access to addDrawOp
+    friend class GrTextureOp;                        // for access to addDrawOp
 
 #if GR_TEST_UTILS
-    // for a unit test
+// for a unit test
     friend void test_draw_op(GrContext*,
                              GrRenderTargetContext*,
                              std::unique_ptr<GrFragmentProcessor>,
