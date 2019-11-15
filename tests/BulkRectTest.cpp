@@ -17,7 +17,6 @@ static std::unique_ptr<GrRenderTargetContext> new_RTC(GrContext* context) {
                                                            GrColorType::kRGBA_8888, nullptr);
 }
 
-#if 0
 sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
     GrSurfaceDesc desc;
     desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -32,7 +31,6 @@ sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
         format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
         SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 }
-#endif
 
 typedef GrQuadAAFlags (*PerQuadAAFunc)(int i);
 
@@ -81,7 +79,6 @@ static void bulk_fill_rect_create_test(skiatest::Reporter* reporter, GrContext* 
     delete[] quads;
 }
 
-#if 0
 //-------------------------------------------------------------------------------------------------
 static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContext* context,
                                           PerQuadAAFunc perQuadAA, GrAAType overallAA,
@@ -132,7 +129,6 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
 
     delete[] set;
 }
-#endif
 
 //-------------------------------------------------------------------------------------------------
 static void run_test(GrContext* context, skiatest::Reporter* reporter, BulkRectTest test) {
@@ -200,8 +196,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkFillRectTest, reporter, ctxInfo) {
     run_test(ctxInfo.grContext(), reporter, bulk_fill_rect_create_test);
 }
 
-#if 0
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkTextureRectTest, reporter, ctxInfo) {
     run_test(ctxInfo.grContext(), reporter, bulk_texture_rect_create_test);
 }
-#endif
