@@ -6,6 +6,23 @@
 from . import util
 
 
+def py_to_gn(val):
+  """Convert val to a string that can be used as GN args."""
+  if isinstance(val, bool):
+    return 'true' if val else 'false'
+  elif isinstance(val, basestring):
+    # TODO(dogben): Handle quoting "$\
+    return '"%s"' % val
+  elif isinstance(val, (list, tuple)):
+    return '[%s]' % (','.join(py_to_gn(x) for x in val))
+  elif isinstance(val, dict):
+    gn = ' '.join(
+        '%s=%s' % (k, py_to_gn(v)) for (k, v) in sorted(val.iteritems()))
+    return gn
+  else:  # pragma: nocover
+    raise Exception('Converting %s to gn is not implemented.' % type(val))
+
+
 def compile_fn(api, checkout_root, out_dir):
   compiler = api.vars.builder_cfg.get('compiler', '')
   configuration = api.vars.builder_cfg.get('configuration', '')
@@ -15,21 +32,49 @@ def compile_fn(api, checkout_root, out_dir):
   target_arch = api.vars.builder_cfg.get('target_arch', '')
 
   args = {
-      'target_cpu': '"%s"' % target_arch,
-      'werror': 'true'
+      'extra_cflags': [],
+      'extra_ldflags': [],
+      'target_cpu': target_arch,
+      'werror': True
   }
   if configuration != 'Debug':
-    args['is_debug'] = 'false'
+    args['is_debug'] = False
+
+  if 'NoGPU' in extra_tokens:
+    args['skia_enable_gpu'] = False
+    extra_tokens.remove('NoGPU')
+  if 'Shared' in extra_tokens:
+    args['is_component_build'] = True
+    extra_tokens.remove('Shared')
+  if 'Valgrind' in extra_tokens:
+    # Valgrind doesn't seem to support AVX/AVX2/AVX512 extensions, so we limit
+    # to SSE4.1 and use portable code for skcms.
+    args['extra_cflags'].extend(['-DSK_CPU_LIMIT_SSE41', '-DSKCMS_PORTABLE'])
+    # We generally compile Valgrind for Release because it's glacially slow, but
+    # we need debugging symbols to make any sense of the warnings.
+    args['extra_cflags'].append('-g')
+    args['extra_ldflags'].append('-g')
+    extra_tokens.remove('Valgrind')
 
   image = None
-  if os == 'Debian10':
-    if compiler == 'GCC':
-      if not extra_tokens:
-        image = (
-            'gcr.io/skia-public/gcc-debian10@sha256:'
-            '89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c')
-        args['cc'] = '"gcc"'
-        args['cxx'] = '"g++"'
+  if os == 'Debian10' and compiler == 'GCC' and not extra_tokens:
+    args['cc'] = 'gcc'
+    args['cxx'] = 'g++'
+    if target_arch == 'x86_64':
+      image = (
+          'gcr.io/skia-public/gcc-debian10@sha256:'
+          '89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c')
+    elif target_arch == 'x86':
+      image = (
+          'gcr.io/skia-public/gcc-debian10-x86@sha256:'
+          'b1ec55403ac66d9500d033d6ffd7663894d32335711fbbb0fb4c67dfce812203')
+    elif target_arch in ['mips64el', 'loongson3a']:
+      image = (
+          'gcr.io/skia-public/gcc-debian10-mips64el@sha256:'
+          'c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540')
+      args['cc'] = '/usr/bin/mips64el-linux-gnuabi64-gcc-8'
+      args['cxx'] = '/usr/bin/mips64el-linux-gnuabi64-g++-8'
+
   if not image:
     raise Exception('Not implemented: ' + api.vars.builder_name)
 
@@ -37,15 +82,12 @@ def compile_fn(api, checkout_root, out_dir):
   # compile tasks. However, we need to force a recompile when the toolchain
   # changes. The simplest way to do that is using a C define that changes
   # anytime the image changes.
-  args['extra_cflags'] = '["-DDUMMY_docker_image=%s"]' % image
+  args['extra_cflags'].append('-DDUMMY_docker_image=%s' % image)
 
   # We want to make sure the directories exist and were created by chrome-bot.
   # (Note that the docker --mount option, unlike the --volume option, does not
   # create this dir as root if it doesn't exist.)
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
-
-  # Format the GN args for this build.
-  gn_args = ' '.join('%s=%s' % (k, v) for (k, v) in sorted(args.iteritems()))
 
   # Run the compile script inside the docker container. It expects two mounts:
   # the start_dir at /SRC and the output directory at /OUT.
@@ -54,7 +96,7 @@ def compile_fn(api, checkout_root, out_dir):
   inner_script_path = ('/SRC/recipe_bundle/skia/infra/bots/recipe_modules'
                        '/build/resources/docker-compile.sh')
   cmd = ['docker', 'run', '--rm', '--mount', src_mnt, '--mount', out_mnt, image,
-         inner_script_path, gn_args]
+         inner_script_path, py_to_gn(args)]
   # Override DOCKER_CONFIG set by Kitchen.
   env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
   with api.env(env):
