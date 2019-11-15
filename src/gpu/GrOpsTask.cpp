@@ -408,7 +408,7 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
 
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
-            chain.head()->prePrepare(context, chain.appliedClip());
+            chain.head()->prePrepare(context, &fTargetView, chain.appliedClip());
         }
     }
 }
@@ -440,6 +440,12 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
                                           chain.dstProxyView());
 
             flushState->setOpArgs(&opArgs);
+
+            // Temporary debugging helper: for debugging prePrepare w/o going through DDLs
+            // Delete once most of the GrOps have an onPrePrepare.
+            // chain.head()->prePrepare(flushState->gpu()->getContext(), &fTargetView,
+            //                          chain.appliedClip());
+
             // GrOp::prePrepare may or may not have been called at this point
             chain.head()->prepare(flushState);
             flushState->setOpArgs(nullptr);
