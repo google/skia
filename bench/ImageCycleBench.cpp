@@ -73,7 +73,9 @@ protected:
                 }
             }
             // Prevent any batching between "frames".
-            canvas->flush();
+            if (auto surf = canvas->getSurface()) {
+                surf->flush();
+            }
         }
     }
 
