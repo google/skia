@@ -6,7 +6,6 @@
  */
 
 #include "bench/SKPBench.h"
-#include "include/core/SkMultiPictureDraw.h"
 #include "include/core/SkSurface.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -125,17 +124,7 @@ void SKPBench::onDraw(int loops, SkCanvas* canvas) {
 }
 
 void SKPBench::drawMPDPicture() {
-    SkMultiPictureDraw mpd;
-
-    for (int j = 0; j < fTileRects.count(); ++j) {
-        SkMatrix trans;
-        trans.setTranslate(-fTileRects[j].fLeft/fScale,
-                           -fTileRects[j].fTop/fScale);
-        mpd.add(fSurfaces[j]->getCanvas(), fPic.get(), &trans);
-    }
-
-    // We flush after each picture to more closely model how Chrome rasterizes tiles.
-    mpd.draw(/*flush = */ true);
+    // TODO: remove me
 }
 
 void SKPBench::drawPicture() {

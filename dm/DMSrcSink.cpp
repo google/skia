@@ -15,7 +15,6 @@
 #include "include/core/SkExecutor.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkMallocPixelRef.h"
-#include "include/core/SkMultiPictureDraw.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
@@ -1861,59 +1860,6 @@ Error ViaSerialization::draw(
     }
 
     return check_against_reference(bitmap, src, fSink.get());
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ViaTiles::ViaTiles(int w, int h, SkBBHFactory* factory, Sink* sink)
-    : Via(sink)
-    , fW(w)
-    , fH(h)
-    , fFactory(factory) {}
-
-Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    auto size = src.size();
-    SkPictureRecorder recorder;
-    Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
-                                                 SkIntToScalar(size.height()),
-                                                 fFactory.get()));
-    if (!err.isEmpty()) {
-        return err;
-    }
-    sk_sp<SkPicture> pic(recorder.finishRecordingAsPicture());
-
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
-        const int xTiles = (size.width()  + fW - 1) / fW,
-                  yTiles = (size.height() + fH - 1) / fH;
-        SkMultiPictureDraw mpd(xTiles*yTiles);
-        SkTArray<sk_sp<SkSurface>> surfaces;
-//        surfaces.setReserve(xTiles*yTiles);
-
-        SkImageInfo info = canvas->imageInfo().makeWH(fW, fH);
-        for (int j = 0; j < yTiles; j++) {
-            for (int i = 0; i < xTiles; i++) {
-                // This lets our ultimate Sink determine the best kind of surface.
-                // E.g., if it's a GpuSink, the surfaces and images are textures.
-                auto s = canvas->makeSurface(info);
-                if (!s) {
-                    s = SkSurface::MakeRaster(info);  // Some canvases can't create surfaces.
-                }
-                surfaces.push_back(s);
-                SkCanvas* c = s->getCanvas();
-                c->translate(SkIntToScalar(-i * fW),
-                             SkIntToScalar(-j * fH));  // Line up the canvas with this tile.
-                mpd.add(c, pic.get());
-            }
-        }
-        mpd.draw();
-        for (int j = 0; j < yTiles; j++) {
-            for (int i = 0; i < xTiles; i++) {
-                sk_sp<SkImage> image(surfaces[i+xTiles*j]->makeImageSnapshot());
-                canvas->drawImage(image, SkIntToScalar(i*fW), SkIntToScalar(j*fH));
-            }
-        }
-        return "";
-    });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

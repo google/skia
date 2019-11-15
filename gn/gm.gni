@@ -246,7 +246,6 @@ gm_sources = [
   "$_gm/mixercolorfilter.cpp",
   "$_gm/modecolorfilters.cpp",
   "$_gm/morphology.cpp",
-  "$_gm/multipicturedraw.cpp",
   "$_gm/nested.cpp",
   "$_gm/ninepatchstretch.cpp",
   "$_gm/nonclosedpaths.cpp",
