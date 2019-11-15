@@ -708,7 +708,7 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
     this->appendStrokeMeshesToBuffers(0, batch, startIndices, startScissorSubBatch, drawBounds);
     if (!fMeshesBuffer.empty()) {
         LinearStrokeProcessor linearProc;
-        this->flushBufferedMeshesAsStrokes(linearProc, flushState, pipeline, drawBounds);
+        this->flushBufferedMeshesAsStrokes(&linearProc, flushState, &pipeline, drawBounds);
     }
 
     // Draw cubic strokes. (Quadratics were converted to cubics for GPU processing.)
@@ -717,7 +717,7 @@ void GrCCStroker::drawStrokes(GrOpFlushState* flushState, GrCCCoverageProcessor*
     }
     if (!fMeshesBuffer.empty()) {
         CubicStrokeProcessor cubicProc;
-        this->flushBufferedMeshesAsStrokes(cubicProc, flushState, pipeline, drawBounds);
+        this->flushBufferedMeshesAsStrokes(&cubicProc, flushState, &pipeline, drawBounds);
     }
 
     // Draw triangles.
@@ -769,9 +769,9 @@ void GrCCStroker::appendStrokeMeshesToBuffers(int numSegmentsLog2, const Batch& 
     }
 }
 
-void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& processor,
+void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor* processor,
                                                GrOpFlushState* flushState,
-                                               const GrPipeline& pipeline,
+                                               const GrPipeline* pipeline,
                                                const SkIRect& drawBounds) const {
     SkASSERT(fMeshesBuffer.count() == fScissorsBuffer.count());
     GrPipeline::DynamicStateArrays dynamicStateArrays;

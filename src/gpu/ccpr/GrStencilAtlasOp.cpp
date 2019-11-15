@@ -154,8 +154,8 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->drawOpArgs().origin(),
-                              resolvePipeline,
-                              primProc,
+                              &resolvePipeline,
+                              &primProc,
                               &scissorRectState,
                               nullptr, 0, GrPrimitiveType::kTriangleStrip);
 

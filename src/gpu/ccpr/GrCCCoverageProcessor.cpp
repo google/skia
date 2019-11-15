@@ -208,8 +208,8 @@ void GrCCCoverageProcessor::draw(
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->drawOpArgs().origin(),
-                              pipeline,
-                              *this,
+                              &pipeline,
+                              this,
                               nullptr,
                               &dynamicStateArrays, 0, primitiveType);
 
