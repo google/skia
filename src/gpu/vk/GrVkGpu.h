@@ -75,7 +75,10 @@ public:
         kSkip_SyncQueue
     };
 
-    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
+    void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override {
+        SkASSERT(!this->caps()->sampleLocationsSupport());
+        SK_ABORT("Sample locations not yet implemented for Vulkan.");
+    }
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
