@@ -20,7 +20,6 @@ class SkBitmap;
 class SkColorMatrix;
 class SkColorSpace;
 struct SkStageRec;
-class SkString;
 
 namespace skvm {
     class Builder;

@@ -15,7 +15,6 @@
 
 class SkMatrix;
 struct SkRect;
-class SkString;
 
 /** \class SkMaskFilter
 

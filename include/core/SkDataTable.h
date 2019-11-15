@@ -9,7 +9,6 @@
 #define SkDataTable_DEFINED
 
 #include "include/core/SkData.h"
-#include "include/core/SkString.h"
 #include "include/private/SkTDArray.h"
 
 /**
