@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4b57ef0_d86f7c87",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-15T19:29:43Z",
+      "side": 1,
+      "message": "SkArenaAlloc doesn\u0027t restrict itself to POD, but should we update opPODAllocator as a name?\n\nIt does look like SkArenaAlloc is set up to correctly destruct the GrPipeline when the arena is destroyed, so I think this is all correct.",
+      "range": {
+        "startLine": 165,
+        "startChar": 11,
+        "endLine": 165,
+        "endChar": 19
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6797a124_e24d2050",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-15T19:29:43Z",
+      "side": 1,
+      "message": "It is weird that GrProgramInfo stores the pipeline as const\u0026, since this makes it appear (externally) as if the pipeline is being copied into the info struct.",
+      "range": {
+        "startLine": 177,
+        "startChar": 50,
+        "endLine": 177,
+        "endChar": 59
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f2f8cd3_5ba320f3",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-15T19:29:43Z",
+      "side": 1,
+      "message": "Is it though? Make() just returns new ClockwiseTestProcessor. Regular GPs maybe are in the memory pool, will that be significant for this proof of concept?",
+      "range": {
+        "startLine": 212,
+        "startChar": 15,
+        "endLine": 212,
+        "endChar": 64
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db947b05_ba7424b5",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-15T19:29:43Z",
+      "side": 1,
+      "message": "A future hint? or a debugging leftover to be removed?",
+      "range": {
+        "startLine": 444,
+        "startChar": 15,
+        "endLine": 446,
+        "endChar": 60
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
