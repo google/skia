@@ -238,6 +238,7 @@ var CanvasKit = {
 		MakeBlur: function() {},
 		MakeColorFilter: function() {},
 		MakeCompose: function() {},
+		MakeMatrixTransform: function() {},
 	},
 
 	SkMatrix: {

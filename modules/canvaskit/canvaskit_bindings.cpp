@@ -1133,7 +1133,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             // Emscripten does not like default args nor SkIRect* much
             return SkImageFilters::ColorFilter(cf, input);
         }))
-        .class_function("MakeCompose", &SkImageFilters::Compose);
+        .class_function("MakeCompose", &SkImageFilters::Compose)
+        .class_function("MakeMatrixTransform", optional_override([](SimpleMatrix sm, SkFilterQuality fq,
+                                                                   sk_sp<SkImageFilter> input)->sk_sp<SkImageFilter> {
+            return SkImageFilters::MatrixTransform(toSkMatrix(sm), fq, input);
+        }));
 
     class_<SkMaskFilter>("SkMaskFilter")
         .smart_ptr<sk_sp<SkMaskFilter>>("sk_sp<SkMaskFilter>")
