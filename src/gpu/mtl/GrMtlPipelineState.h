@@ -48,6 +48,10 @@ public:
 
     void setData(const GrRenderTarget*, const GrProgramInfo&);
 
+    void setTextures(const GrProgramInfo& programInfo,
+                     const GrTextureProxy* const primProcTextures[]);
+    void bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder);
+
     void setDrawState(id<MTLRenderCommandEncoder>, const GrSwizzle& outputSwizzle,
                       const GrXferProcessor&);
 
