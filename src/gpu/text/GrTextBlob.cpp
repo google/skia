@@ -32,10 +32,9 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
 
     size_t blobStart = 0;
-    size_t vertex = sk_align<alignof(char)>           (blobStart + sizeof(GrTextBlob) * 1);
-    size_t glyphs = sk_align<alignof(GrGlyph*)>       (vertex + sizeof(char) * verticesCount);
-    size_t   runs = sk_align<alignof(GrTextBlob::Run)>(glyphs + sizeof(GrGlyph*) * glyphCount);
-    size_t   size =                                   (runs + sizeof(GrTextBlob::Run) * runCount);
+    size_t vertex = sk_align<alignof(char)>     (blobStart + sizeof(GrTextBlob) * 1);
+    size_t glyphs = sk_align<alignof(GrGlyph*)> (vertex + sizeof(char) * verticesCount);
+    size_t   size =                             (glyphs + sizeof(GrGlyph*) * glyphCount);
 
     void* allocation = ::operator new (size);
 
@@ -43,33 +42,14 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
         sk_bzero(allocation, size);
     }
 
-    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache}};
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache, color}};
     blob->fSize = size;
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);
-    blob->fGlyphs = SkTAddOffset<GrGlyph*>(blob.get(), glyphs);
-    blob->fRuns = SkTAddOffset<GrTextBlob::Run>(blob.get(), runs);
+    blob->fGlyphs   = SkTAddOffset<GrGlyph*>(blob.get(), glyphs);
 
-    // Initialize runs
-    for (int i = 0; i < runCount; i++) {
-        new (&blob->fRuns[i]) GrTextBlob::Run{blob.get(), color};
-    }
-    blob->fRunCountLimit = runCount;
     return blob;
-}
-
-void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
-
-    if (fFallbackStrikeSpec != nullptr) {
-        *fFallbackStrikeSpec = strikeSpec;
-    } else {
-        fStrikeSpec = strikeSpec;
-    }
-}
-
-void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position, SkScalar scale) {
-    fPathGlyphs.emplace_back(path, position.x(), position.y(), scale);
 }
 
 bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosition,
@@ -162,7 +142,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 }
 
 inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
-        SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
+        SubRun& info, int glyphCount,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextTarget* target) {
@@ -218,52 +198,35 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                        const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
                        const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
 
-    // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
-    // Encountering something larger than this is highly unlikely, so we'll just not draw it.
-    int lastRun = SkTMin(fRunCountLimit, (1 << 16)) - 1;
-    // For each run in the GrTextBlob we're going to churn through all the glyphs.
-    // Each run is broken into a path part and a Mask / DFT / ARGB part.
-    for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
-
-        Run& run = fRuns[runIndex];
-
-        // first flush any path glyphs
-        if (run.fPathGlyphs.count()) {
+    for (auto& subRun : fSubRuns) {
+        if (subRun.drawAsPath()) {
             SkPaint runPaint{paint};
-            runPaint.setAntiAlias(run.fAntiAlias);
+            runPaint.setAntiAlias(subRun.isAntiAliased());
+            // If there are shaders, blurs or styles, the path must be scaled into source
+            // space independently of the CTM. This allows the CTM to be correct for the
+            // different effects.
+            GrStyle style(runPaint);
 
-            for (int i = 0; i < run.fPathGlyphs.count(); i++) {
-                GrTextBlob::Run::PathGlyph& pathGlyph = run.fPathGlyphs[i];
+            bool scalePath = runPaint.getShader()
+                             || style.applies()
+                             || runPaint.getMaskFilter();
 
-                SkMatrix ctm;
-                const SkPath* path = &pathGlyph.fPath;
+            // The origin for the blob may have changed, so figure out the delta.
+            SkVector originShift = SkPoint{x, y} - SkPoint{fInitialX, fInitialY};
+
+            for (const auto& pathGlyph : subRun.fPaths) {
+                SkMatrix ctm{viewMatrix};
+                SkMatrix pathMatrix = SkMatrix::MakeScale(subRun.fStrikeSpec.strikeToSourceRatio());
+                // Shift the original glyph location in source space to the position of the new
+                // blob.
+                pathMatrix.postTranslate(originShift.x() + pathGlyph.fOrigin.x(),
+                                         originShift.y() + pathGlyph.fOrigin.y());
 
                 // TmpPath must be in the same scope as GrShape shape below.
                 SkTLazy<SkPath> tmpPath;
-
-                // Positions and outlines are in source space.
-                ctm = viewMatrix;
-
-                SkMatrix pathMatrix = SkMatrix::MakeScale(pathGlyph.fScale, pathGlyph.fScale);
-
-                // The origin for the blob may have changed, so figure out the delta.
-                SkVector originShift = SkPoint{x, y} - SkPoint{fInitialX, fInitialY};
-
-                // Shift the original glyph location in source space to the position of the new
-                // blob.
-                pathMatrix.postTranslate(originShift.x() + pathGlyph.fX,
-                                         originShift.y() + pathGlyph.fY);
-
-                // If there are shaders, blurs or styles, the path must be scaled into source
-                // space independently of the CTM. This allows the CTM to be correct for the
-                // different effects.
-                GrStyle style(runPaint);
-                bool scalePath = runPaint.getShader()
-                                 || style.applies()
-                                 || runPaint.getMaskFilter();
+                const SkPath* path = &pathGlyph.fPath;
                 if (!scalePath) {
                     // Scale can be applied to CTM -- no effects.
-
                     ctm.preConcat(pathMatrix);
                 } else {
                     // Scale the outline into source space.
@@ -278,20 +241,10 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
                 // TODO: we are losing the mutability of the path here
                 GrShape shape(*path, paint);
-
                 target->drawShape(clip, runPaint, ctm, shape);
             }
-        }
-
-        // then flush each subrun, if any
-        if (!run.fInitialized) {
-            continue;
-        }
-
-        int lastSubRun = SkTMin(run.fSubRunInfo.count(), 1 << 16) - 1;
-        for (int subRun = 0; subRun <= lastSubRun; subRun++) {
-            SubRun& info = run.fSubRunInfo[subRun];
-            int glyphCount = info.glyphCount();
+        } else {
+            int glyphCount = subRun.glyphCount();
             if (0 == glyphCount) {
                 continue;
             }
@@ -304,13 +257,13 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
             GrAA aa;
             // We can clip geometrically if we're not using SDFs or transformed glyphs,
             // and we have an axis-aligned rectangular non-AA clip
-            if (!info.drawAsDistanceFields() && !info.needsTransform() &&
+            if (!subRun.drawAsDistanceFields() && !subRun.needsTransform() &&
                 clip.isRRect(rtBounds, &clipRRect, &aa) &&
                 clipRRect.isRect() && GrAA::kNo == aa) {
                 skipClip = true;
                 // We only need to do clipping work if the subrun isn't contained by the clip
                 SkRect subRunBounds;
-                this->computeSubRunBounds(&subRunBounds, info, viewMatrix, x, y, false);
+                this->computeSubRunBounds(&subRunBounds, subRun, viewMatrix, x, y, false);
                 if (!clipRRect.getBounds().contains(subRunBounds)) {
                     // If the subrun is completely outside, don't add an op for it
                     if (!clipRRect.getBounds().intersects(subRunBounds)) {
@@ -323,7 +276,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
             }
 
             if (submitOp) {
-                auto op = this->makeOp(info, glyphCount, runIndex, subRun, viewMatrix, x, y,
+                auto op = this->makeOp(subRun, glyphCount, viewMatrix, x, y,
                                        clipRect, paint, filteredColor, props, distanceAdjustTable,
                                        target);
                 if (op) {
@@ -336,18 +289,17 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 }
             }
         }
-
     }
 }
 
 std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
-        int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
+        int glyphCount, const SkMatrix& viewMatrix,
         SkScalar x, SkScalar y, const SkPaint& paint, const SkPMColor4f& filteredColor,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
         GrTextTarget* target) {
-    GrTextBlob::SubRun& info = fRuns[run].fSubRunInfo[subRun];
+    GrTextBlob::SubRun& info = fSubRuns[0];
     SkIRect emptyRect = SkIRect::MakeEmpty();
-    return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect,
+    return this->makeOp(info, glyphCount, viewMatrix, x, y, emptyRect,
                         paint, filteredColor, props, distanceAdjustTable, target);
 }
 
@@ -367,7 +319,7 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
     SkASSERT_RELEASE(l.fMinMaxScale == r.fMinMaxScale);
     SkASSERT_RELEASE(l.fTextType == r.fTextType);
 
-    SkASSERT_RELEASE(l.fRunCountLimit == r.fRunCountLimit);
+    /*
     for (int i = 0; i < l.fRunCountLimit; i++) {
         const Run& lRun = l.fRuns[i];
         const Run& rRun = r.fRuns[i];
@@ -412,7 +364,7 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
             SkASSERT_RELEASE(lPathGlyph.fPath == rPathGlyph.fPath);
             // We can't assert that these have the same translations
         }
-    }
+    }*/
 }
 
 void GrTextBlob::SubRun::computeTranslation(const SkMatrix& viewMatrix,
