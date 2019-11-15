@@ -4,6 +4,7 @@
 
 DEPS = [
   'depot_tools/gclient',
+  'docker',
   'env',
   'infra',
   'recipe_engine/context',
