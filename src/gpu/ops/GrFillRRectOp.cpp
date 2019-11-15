@@ -755,8 +755,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->drawOpArgs().origin(),
-                              *pipeline,
-                              *proc,
+                              pipeline,
+                              proc,
                               fixedDynamicState,
                               nullptr, 0,
                               GrPrimitiveType::kTriangles);

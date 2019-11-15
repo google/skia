@@ -26,18 +26,18 @@ GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
 #include "src/gpu/GrTexturePriv.h"
 
 void GrProgramInfo::validate() const {
-    SkASSERT(!fPipeline.isBad());
+    SkASSERT(!fPipeline->isBad());
 
     if (this->hasDynamicPrimProcTextures()) {
         SkASSERT(!this->hasFixedPrimProcTextures());
-        SkASSERT(fPrimProc.numTextureSamplers());
+        SkASSERT(fPrimProc->numTextureSamplers());
     } else if (this->hasFixedPrimProcTextures()) {
-        SkASSERT(fPrimProc.numTextureSamplers());
+        SkASSERT(fPrimProc->numTextureSamplers());
     } else {
-        SkASSERT(!fPrimProc.numTextureSamplers());
+        SkASSERT(!fPrimProc->numTextureSamplers());
     }
 
-    SkASSERT(!fPipeline.isScissorEnabled() || this->hasFixedScissor() ||
+    SkASSERT(!fPipeline->isScissorEnabled() || this->hasFixedScissor() ||
              this->hasDynamicScissors());
 
     if (this->hasDynamicPrimProcTextures()) {
@@ -126,8 +126,8 @@ void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) c
     SkASSERT(!fNumDynamicStateArrays || meshCount == fNumDynamicStateArrays);
 
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(fPrimProc.hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(fPrimProc.hasInstanceAttributes() == meshes[i].hasInstanceData());
+        SkASSERT(fPrimProc->hasVertexAttributes() == meshes[i].hasVertexData());
+        SkASSERT(fPrimProc->hasInstanceAttributes() == meshes[i].hasInstanceData());
     }
 }
 

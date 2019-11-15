@@ -780,8 +780,8 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->drawOpArgs().origin(),
-                              pipeline,
-                              processor,
+                              &pipeline,
+                              &processor,
                               nullptr,
                               &dynamicStateArrays, 0, GrPrimitiveType::kTriangleStrip);
 
