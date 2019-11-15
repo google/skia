@@ -18,8 +18,8 @@ import sys
 import tempfile
 
 
-BUCKET_SKIA_PRIMARY = 'skia.primary'
-BUCKET_SKIA_INTERNAL = 'skia.internal'
+BUCKET_SKIA_PRIMARY = 'skia/skia.primary'
+BUCKET_SKIA_INTERNAL = 'skia-internal/skia.internal'
 CHECKOUT_ROOT = os.path.realpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir))
 INFRA_BOTS = os.path.join(CHECKOUT_ROOT, 'infra', 'bots')
@@ -29,7 +29,6 @@ TMP_DIR = os.path.join(tempfile.gettempdir(), 'sktry')
 
 sys.path.insert(0, INFRA_BOTS)
 
-import update_meta_config
 import utils
 
 
@@ -69,7 +68,6 @@ def main():
     jobs.append((BUCKET_SKIA_PRIMARY, json.load(f)))
   if args.internal:
     jobs.append(get_jobs(REPO_INTERNAL))
-  jobs.extend(update_meta_config.CQ_INCLUDE_CHROMIUM_TRYBOTS)
   if args.job:
     filtered_jobs = []
     for bucket, job_list in jobs:
