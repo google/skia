@@ -29,7 +29,6 @@ TMP_DIR = os.path.join(tempfile.gettempdir(), 'sktry')
 
 sys.path.insert(0, INFRA_BOTS)
 
-import update_meta_config
 import utils
 
 
@@ -69,7 +68,6 @@ def main():
     jobs.append((BUCKET_SKIA_PRIMARY, json.load(f)))
   if args.internal:
     jobs.append(get_jobs(REPO_INTERNAL))
-  jobs.extend(update_meta_config.CQ_INCLUDE_CHROMIUM_TRYBOTS)
   if args.job:
     filtered_jobs = []
     for bucket, job_list in jobs:
@@ -114,7 +112,7 @@ def main():
 
   # Trigger the try jobs.
   for bucket, job_list in jobs:
-    cmd = ['git', 'cl', 'try', '-B', bucket]
+    cmd = ['git', 'cl', 'try', '-B', 'skia/' + bucket]
     for j in job_list:
       cmd.extend(['-b', j])
     try:
