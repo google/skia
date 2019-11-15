@@ -904,15 +904,15 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
                                    srcQuad, domain);
         }
     } else {
-        // Can use a single op, avoiding GrPaint creation, and can batch across proxies
+        // Create the minimum number of GrTextureOps needed to draw this set. Individual
+        // GrTextureOps can rebind the texture between draws thus avoiding GrPaint (re)creation.
         AutoCheckFlush acf(this->drawingManager());
         GrAAType aaType = this->chooseAAType(aa);
         auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
         auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                           : GrTextureOp::Saturate::kNo;
-        auto op = GrTextureOp::MakeSet(fContext, set, cnt, filter, saturate, aaType, constraint,
-                                       viewMatrix, std::move(texXform));
-        this->addDrawOp(clip, std::move(op));
+        GrTextureOp::CreateTextureSetOps(this, clip, fContext, set, cnt, filter, saturate, aaType,
+                                         constraint, viewMatrix, std::move(texXform));
     }
 }
 
