@@ -122,12 +122,11 @@ SkString GrAtlasTextOp::dumpInfo() const {
     SkString str;
 
     for (int i = 0; i < fGeoCount; ++i) {
-        str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f Runs: %d\n",
+        str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f\n",
                     i,
                     fGeoData[i].fColor.toBytes_RGBA(),
                     fGeoData[i].fX,
-                    fGeoData[i].fY,
-                    fGeoData[i].fBlob->runCountLimit());
+                    fGeoData[i].fY);
     }
 
     str += fProcessors.dumpProcessors();
