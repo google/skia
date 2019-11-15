@@ -85,6 +85,23 @@ describe('CanvasKit\'s Path Behavior', function() {
 
             paragraph.layout(wrapTo);
 
+            expect(paragraph.didExceedMaxLines()).toBeTruthy();
+            expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(21.377, 3);
+            expect(paragraph.getHeight()).toEqual(240);
+            expect(paragraph.getIdeographicBaseline()).toBeCloseTo(27.236, 3);
+            expect(paragraph.getLongestLine()).toBeCloseTo(142.129, 3);
+            expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(1444.250, 3);
+            expect(paragraph.getMaxWidth()).toEqual(200);
+            expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(172.360, 3);
+            expect(paragraph.getWordBoundary(8)).toEqual({
+                start: 0,
+                end: 14,
+            });
+            expect(paragraph.getWordBoundary(25)).toEqual({
+                start: 25,
+                end: 26,
+            });
+
             canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
             canvas.drawParagraph(paragraph, 10, 10);
 

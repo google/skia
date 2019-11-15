@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkCanvas.drawImageNine`, `SkCanvas.drawPoints` and related `PointMode` enum.
  - `SkPath.addPoly`
  - `SkPathMeasure.getSegment`
+ - More information on SkParagraph API, eg. `getLongestLine()`, `getWordBoundary`, and others.
 
 ### Deprecated
  - `CanvasKit.MakeBlurMaskFilter` will be renamed/moved soon to `CanvasKit.SkMaskFilter.MakeBlur`.
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - null dereference when sometimes falling back to CPU.
+ - Actually ask WebGL for a stencil buffer.
 
 ## [0.8.0] - 2019-10-21
 
