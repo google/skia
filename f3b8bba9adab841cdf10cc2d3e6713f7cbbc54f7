@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f320dc2f_d59870cc",
+        "filename": "src/utils/SkUTF.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-15T20:23:00Z",
+      "side": 1,
+      "message": "This would commonly be known as SK_SPI (which may have the same definition in practice, but be different in theory) since this is being made \u0027public but unstable / undocumented\u0027. At least, that\u0027s what it looks like this is doing.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 6
+      },
+      "revId": "f3b8bba9adab841cdf10cc2d3e6713f7cbbc54f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
