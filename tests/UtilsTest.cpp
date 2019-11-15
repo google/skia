@@ -351,6 +351,23 @@ DEF_TEST(SkZip, reporter) {
     }
 
     {
+        // Check subspan(offset, count)
+        int i = 0;
+        for (auto t : z.subspan(1, 2)) {
+            uint16_t a; float b; int c; int d; int s;
+            std::tie(a, b, c, d, s) = t;
+            REPORTER_ASSERT(reporter, a == A[i + 1]);
+            REPORTER_ASSERT(reporter, b == B[i + 1]);
+            REPORTER_ASSERT(reporter, c == C[i + 1]);
+            REPORTER_ASSERT(reporter, d == D[i + 1]);
+            REPORTER_ASSERT(reporter, s == S[i + 1]);
+
+            i++;
+        }
+        REPORTER_ASSERT(reporter, i = 2);
+    }
+
+    {
         // Check copy.
         auto zz{z};
         int i = 0;
