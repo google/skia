@@ -24,23 +24,27 @@ static constexpr int None = 0L;
 
 struct GrDawnImageInfo {
     wgpu::Texture       fTexture;
+    wgpu::TextureView   fTextureView;
     wgpu::TextureFormat fFormat;
     uint32_t            fLevelCount;
-    GrDawnImageInfo() : fTexture(nullptr), fFormat(), fLevelCount(0) {
+    GrDawnImageInfo() : fTexture(nullptr), fTextureView(nullptr), fFormat(), fLevelCount(0) {
     }
     GrDawnImageInfo(const GrDawnImageInfo& other)
         : fTexture(other.fTexture)
+        , fTextureView(other.fTextureView)
         , fFormat(other.fFormat)
         , fLevelCount(other.fLevelCount) {
     }
     GrDawnImageInfo& operator=(const GrDawnImageInfo& other) {
         fTexture = other.fTexture;
+        fTextureView = other.fTextureView;
         fFormat = other.fFormat;
         fLevelCount = other.fLevelCount;
         return *this;
     }
     bool operator==(const GrDawnImageInfo& other) const {
         return fTexture.Get() == other.fTexture.Get() &&
+               fTextureView.Get() == other.fTextureView.Get() &&
                fFormat == other.fFormat &&
                fLevelCount == other.fLevelCount;
     }

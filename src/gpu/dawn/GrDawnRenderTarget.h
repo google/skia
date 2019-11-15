@@ -28,6 +28,7 @@ public:
     GrBackendRenderTarget getBackendRenderTarget() const override;
     GrBackendFormat backendFormat() const override;
     wgpu::Texture texture() const { return fInfo.fTexture; }
+    wgpu::TextureView textureView() const { return fInfo.fTextureView; }
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,

@@ -15,13 +15,11 @@
 GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
                              const SkISize& dimensions,
                              GrPixelConfig config,
-                             wgpu::TextureView textureView,
                              const GrDawnImageInfo& info,
                              GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, config, GrProtected::kNo)
         , GrTexture(gpu, dimensions, config, GrProtected::kNo, GrTextureType::k2D, mipMapsStatus)
-        , fInfo(info)
-        , fTextureView(textureView) {}
+        , fInfo(info) {}
 
 sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensions,
                                          GrPixelConfig config, wgpu::TextureFormat format,
@@ -53,14 +51,9 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensio
         return nullptr;
     }
 
-    wgpu::TextureView textureView = tex.CreateView();
-
-    if (!textureView) {
-        return nullptr;
-    }
-
     GrDawnImageInfo info;
     info.fTexture = tex;
+    info.fTextureView = tex.CreateView();
     info.fFormat = textureDesc.format;
     info.fLevelCount = mipLevels;
     sk_sp<GrDawnTexture> result;
@@ -68,13 +61,11 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensio
         result = sk_sp<GrDawnTextureRenderTarget>(new GrDawnTextureRenderTarget(gpu,
                                                                                 dimensions,
                                                                                 config,
-                                                                                textureView,
                                                                                 sampleCnt,
                                                                                 info,
                                                                                 status));
     } else {
-        result = sk_sp<GrDawnTexture>(
-                new GrDawnTexture(gpu, dimensions, config, textureView, info, status));
+        result = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, config, info, status));
     }
     result->registerWithCache(budgeted);
     return result;
@@ -89,18 +80,12 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& d
                                                 int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
                                                 const GrDawnImageInfo& info) {
-    wgpu::TextureView textureView = info.fTexture.CreateView();
-    if (!textureView) {
-        return nullptr;
-    }
-
     sk_sp<GrDawnTexture> tex;
     if (GrRenderable::kYes == renderable) {
         tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(
-                gpu, dimensions, config, textureView, sampleCnt, info, status));
+                gpu, dimensions, config, sampleCnt, info, status));
     } else {
-        tex = sk_sp<GrDawnTexture>(
-                new GrDawnTexture(gpu, dimensions, config, textureView, info, status));
+        tex = sk_sp<GrDawnTexture>(new GrDawnTexture(gpu, dimensions, config, info, status));
     }
     tex->registerWithCacheWrapped(cacheable);
     return tex;
