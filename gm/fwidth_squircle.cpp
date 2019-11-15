@@ -65,16 +65,21 @@ static constexpr GrGeometryProcessor::Attribute gVertex =
 
 class FwidthSquircleTestProcessor : public GrGeometryProcessor {
 public:
-    FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
-            : GrGeometryProcessor(kFwidthSquircleTestProcessor_ClassID)
-            , fViewMatrix(viewMatrix) {
-        this->setVertexAttributes(&gVertex, 1);
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
+        return arena->make<FwidthSquircleTestProcessor>(viewMatrix);
     }
+
     const char* name() const override { return "FwidthSquircleTestProcessor"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
+    FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
+            : GrGeometryProcessor(kFwidthSquircleTestProcessor_ClassID)
+            , fViewMatrix(viewMatrix) {
+        this->setVertexAttributes(&gVertex, 1);
+    }
+
     const SkMatrix fViewMatrix;
 
     class Impl;
@@ -174,13 +179,14 @@ private:
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                             flushState->drawOpArgs().outputSwizzle());
 
-        FwidthSquircleTestProcessor primProc(fViewMatrix);
+        GrGeometryProcessor* primProc = FwidthSquircleTestProcessor::Make(flushState->allocator(),
+                                                                          fViewMatrix);
 
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->drawOpArgs().origin(),
                                   pipeline,
-                                  primProc,
+                                  *primProc,
                                   nullptr, nullptr, 0,
                                   GrPrimitiveType::kTriangleStrip);
 
