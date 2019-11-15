@@ -523,7 +523,7 @@ private:
         SkDEBUGCODE(this->validate();)
         SkASSERT(!fPrePreparedDesc);
 
-        SkArenaAlloc* arena = context->priv().opPODAllocator();
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         fPrePreparedDesc = arena->make<PrePreparedDesc>();
 
