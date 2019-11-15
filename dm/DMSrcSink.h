@@ -525,15 +525,6 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
-class ViaTiles : public Via {
-public:
-    ViaTiles(int w, int h, SkBBHFactory*, Sink*);
-    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-private:
-    const int                   fW, fH;
-    std::unique_ptr<SkBBHFactory> fFactory;
-};
-
 class ViaDDL : public Via {
 public:
     ViaDDL(int numReplays, int numDivisions, Sink* sink);

@@ -550,17 +550,14 @@ skia_pathops_sources = [
 ]
 
 skia_skpicture_public = [
-  "$_include/core/SkMultiPictureDraw.h",
   "$_include/core/SkPicture.h",
   "$_include/core/SkPictureRecorder.h",
 ]
 
 skia_skpicture_sources = [
-  "$_include/core/SkMultiPictureDraw.h",
   "$_include/core/SkPicture.h",
   "$_include/core/SkPictureRecorder.h",
   "$_src/core/SkBigPicture.cpp",
-  "$_src/core/SkMultiPictureDraw.cpp",
   "$_src/core/SkPicture.cpp",
   "$_src/core/SkPictureCommon.h",
   "$_src/core/SkPictureData.cpp",
