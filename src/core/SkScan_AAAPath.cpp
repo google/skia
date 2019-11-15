@@ -21,7 +21,6 @@
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
 #include "src/core/SkTSort.h"
-#include "src/utils/SkUTF.h"
 
 #include <utility>
 

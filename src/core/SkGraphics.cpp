@@ -26,7 +26,6 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTypefaceCache.h"
-#include "src/utils/SkUTF.h"
 
 #include <stdlib.h>
 

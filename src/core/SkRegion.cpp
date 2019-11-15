@@ -12,7 +12,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkSafeMath.h"
-#include "src/utils/SkUTF.h"
 
 #include <utility>
 
