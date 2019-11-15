@@ -576,7 +576,7 @@ void GrCCFiller::drawPrimitives(
     SkASSERT(totalInstanceCount == batch.fTotalPrimitiveCounts.*instanceType);
 
     if (!fMeshesScratchBuffer.empty()) {
-        proc.draw(flushState, pipeline, fScissorRectScratchBuffer.begin(),
+        proc.draw(flushState, &pipeline, fScissorRectScratchBuffer.begin(),
                   fMeshesScratchBuffer.begin(), fMeshesScratchBuffer.count(),
                   SkRect::Make(drawBounds));
     }

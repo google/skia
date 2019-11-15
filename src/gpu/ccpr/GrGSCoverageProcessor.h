@@ -30,7 +30,7 @@ private:
     void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount, int baseInstance,
                     SkTArray<GrMesh>* out) const override;
 
-    void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[], const GrMesh[],
+    void draw(GrOpFlushState*, const GrPipeline*, const SkIRect scissorRects[], const GrMesh[],
               int meshCount, const SkRect& drawBounds) const override;
 
     GrPrimitiveType primType() const final { return GrPrimitiveType::kLines; }
