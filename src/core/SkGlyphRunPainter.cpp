@@ -428,45 +428,74 @@ void GrTextContext::drawGlyphRunList(
                      clip, viewMatrix, origin.x(), origin.y());
 }
 
-void GrTextBlob::SubRun::appendGlyph(GrGlyph* glyph, SkRect dstRect) {
+void GrTextBlob::SubRun::appendGlyph(
+        const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkStrikeSpec& spec) {
 
-    this->joinGlyphBounds(dstRect);
-
-    GrTextBlob* blob = fRun->fBlob;
-
+    auto grStrike = spec.findOrCreateGrStrike(fBlob->fStrikeCache);
+    SkScalar strikeToSource = spec.strikeToSourceRatio();
+    uint32_t glyphCursor = fGlyphStartIndex;
+    size_t vertexCursor = fVertexStartIndex;
     bool hasW = this->hasWCoord();
     // glyphs drawn in perspective must always have a w coord.
-    SkASSERT(hasW || !blob->fInitialViewMatrix.hasPerspective());
-    auto maskFormat = this->maskFormat();
-    size_t vertexStride = GetVertexStride(maskFormat, hasW);
+    SkASSERT(hasW || !fBlob->fInitialViewMatrix.hasPerspective());
+    size_t vertexStride = GetVertexStride(fMaskFormat, hasW);
+    for (auto t : drawables) {
+        SkGlyph* skGlyph; SkPoint pos;
+        std::tie(skGlyph, pos) = t;
 
-    intptr_t vertex = reinterpret_cast<intptr_t>(blob->fVertices + fVertexEndIndex);
+        GrGlyph* grGlyph = grStrike->getGlyph(*skGlyph);
 
-    // We always write the third position component used by SDFs. If it is unused it gets
-    // overwritten. Similarly, we always write the color and the blob will later overwrite it
-    // with texture coords if it is unused.
-    size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
-    // V0
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fTop, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-    vertex += vertexStride;
+        SkRect dstRect;
+        if (strikeToSource == 1.0f) {
+            dstRect = grGlyph->destRect(pos);
+        } else {
+            dstRect = grGlyph->destRect(pos, strikeToSource);
+        }
 
-    // V1
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fBottom, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-    vertex += vertexStride;
+        this->joinGlyphBounds(dstRect);
 
-    // V2
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fTop, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
-    vertex += vertexStride;
+        intptr_t vertex = reinterpret_cast<intptr_t>(fBlob->fVertices + vertexCursor);
 
-    // V3
-    *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fBottom, 1.f};
-    *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+        // We always write the third position component used by SDFs. If it is unused it gets
+        // overwritten. Similarly, we always write the color and the blob will later overwrite it
+        // with texture coords if it is unused.
+        size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
+        // V0
+        *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fTop, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+        vertex += vertexStride;
 
-    fVertexEndIndex += vertexStride * kVerticesPerGlyph;
-    blob->fGlyphs[fGlyphEndIndex++] = glyph;
+        // V1
+        *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fLeft, dstRect.fBottom, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+        vertex += vertexStride;
+
+        // V2
+        *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fTop, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+        vertex += vertexStride;
+
+        // V3
+        *reinterpret_cast<SkPoint3*>(vertex) = {dstRect.fRight, dstRect.fBottom, 1.f};
+        *reinterpret_cast<GrColor*>(vertex + colorOffset) = fColor;
+
+        vertexCursor += vertexStride * kVerticesPerGlyph;
+        fBlob->fGlyphs[glyphCursor++] = grGlyph;
+    }
+    SkASSERT(glyphCursor == fGlyphEndIndex);
+    SkASSERT(vertexCursor == fVertexEndIndex);
+}
+
+std::tuple<uint32_t, uint32_t, size_t, size_t> GrTextBlob::reserveGlyphsAndVertices(
+        uint32_t glyphCount, bool hasW, GrMaskFormat format) {
+    uint32_t glyphsStart = fGlyphsCursor;
+    fGlyphsCursor += glyphCount;
+    uint32_t glyphsEnd = fGlyphsCursor;
+    size_t verticesStart = fVerticiesCursor;
+    fVerticiesCursor += glyphCount * GetVertexStride(format, hasW);
+    size_t verticesEnd = fVerticiesCursor;
+
+    return {glyphsStart, glyphsEnd, verticesStart, verticesEnd};
 }
 
 void GrTextBlob::Run::switchSubRunIfNeededAndAppendGlyph(GrGlyph* glyph,
@@ -538,6 +567,101 @@ void GrTextBlob::generateFromGlyphRunList(const GrShaderCaps& shaderCaps,
 
 GrTextBlob::Run* GrTextBlob::currentRun() {
     return &fRuns[fRunCount - 1];
+}
+
+class GrTextBlob::SubRun* GrTextBlob::makeSubRun(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                                  const SkStrikeSpec& strikeSpec,
+                                                  GrMaskFormat format) {
+    bool hasW = fInitialViewMatrix.hasPerspective();
+    uint32_t glyphsStart = fGlyphsCursor;
+    fGlyphsCursor += drawables.size();
+    uint32_t glyphsEnd = fGlyphsCursor;
+    size_t verticesStart = fVerticiesCursor;
+    fVerticiesCursor += drawables.size() * GetVertexStride(format, hasW);
+    size_t verticesEnd = fVerticiesCursor;
+
+    SubRunBufferSpec bufferSpec = {glyphsStart, glyphsEnd, verticesStart, verticesEnd};
+
+    SubRun& subRun = fSubRuns.emplace_back(this, strikeSpec, fColor, format, bufferSpec);
+    subRun.fCurrentViewMatrix = fInitialViewMatrix;
+    subRun.fX = fInitialX;
+    subRun.fY = fInitialY;
+    subRun.appendGlyph(drawables, strikeSpec);
+    return &subRun;
+}
+
+void GrTextBlob::addSingleMaskFormatDirect(
+        const SkZip<SkGlyphVariant, SkPoint>& drawables,
+        const SkStrikeSpec& strikeSpec,
+        GrMaskFormat format) {
+
+    this->makeSubRun(drawables, strikeSpec, format);
+}
+
+void GrTextBlob::addMultiMaskFormatDirect(
+        const SkZip<SkGlyphVariant, SkPoint>& glyphs, const SkStrikeSpec& strikeSpec) {
+    SkGlyph* glyph;
+    std::tie(glyph, std::ignore) = glyphs[0];
+    GrMaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+    size_t startIndex = 0;
+    for (size_t i = 1; i < glyphs.size(); i++) {
+        std::tie(glyph, std::ignore) = glyphs[i];
+        GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+        if (format != nextFormat) {
+            auto sameFormat = glyphs.subspan(startIndex, i - startIndex);
+            this->addSingleMaskFormatDirect(sameFormat, strikeSpec, format);
+            format = nextFormat;
+            startIndex = i;
+        }
+    }
+    auto sameFormat = glyphs.last(glyphs.size() - startIndex);
+    this->addSingleMaskFormatDirect(sameFormat, strikeSpec, format);
+}
+
+void GrTextBlob::addSingleMaskFormatTransform(
+        const SkZip<SkGlyphVariant, SkPoint>& drawables,
+        const SkStrikeSpec& strikeSpec,
+        GrMaskFormat format) {
+
+    SubRun* subRun = this->makeSubRun(drawables, strikeSpec, format);
+    subRun->setNeedsTransform(true);
+}
+
+void GrTextBlob::addMultiMaskFormatTransform(
+        const SkZip<SkGlyphVariant, SkPoint>& glyphs, const SkStrikeSpec& strikeSpec) {
+    SkGlyph* glyph;
+    std::tie(glyph, std::ignore) = glyphs[0];
+    GrMaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+    size_t startIndex = 0;
+    for (size_t i = 1; i < glyphs.size(); i++) {
+        std::tie(glyph, std::ignore) = glyphs[i];
+        GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
+        if (format != nextFormat) {
+            auto sameFormat = glyphs.subspan(startIndex, i - startIndex);
+            this->addSingleMaskFormatDirect(sameFormat, strikeSpec, format);
+            format = nextFormat;
+            startIndex = i;
+        }
+    }
+    auto sameFormat = glyphs.last(glyphs.size() - startIndex);
+    this->addSingleMaskFormatDirect(sameFormat, strikeSpec, format);
+}
+
+void GrTextBlob::addSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                         const SkStrikeSpec& strikeSpec,
+                         const SkFont& runFont,
+                         SkScalar minScale,
+                         SkScalar maxScale) {
+    bool hasW = fInitialViewMatrix.hasPerspective();
+
+    this->setMinAndMaxScale(minScale, maxScale);
+
+    SubRun* subRun = this->makeSubRun(drawables, strikeSpec, kA8_GrMaskFormat);
+
+    subRun->setUseLCDText(runFont.getEdging() == SkFont::Edging::kSubpixelAntiAlias);
+    subRun->setAntiAliased(runFont.hasSomeAntiAliasing());
+    subRun->setDrawAsDistanceFields();
+    subRun->setHasWCoord(hasW);
 }
 
 void GrTextBlob::startRun(const SkGlyphRun& glyphRun, bool useSDFT) {

@@ -43,7 +43,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
         sk_bzero(allocation, size);
     }
 
-    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache}};
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache, color}};
     blob->fSize = size;
 
     // setup offsets for vertices / glyphs

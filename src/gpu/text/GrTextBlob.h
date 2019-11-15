@@ -56,6 +56,7 @@ public:
     struct Run;
     class SubRun;
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrTextBlob);
+    using SubRunBufferSpec = std::tuple<uint32_t, uint32_t, size_t, size_t>;
 
     class VertexRegenerator;
 
@@ -254,7 +255,9 @@ public:
                                           GrTextTarget*);
 
 private:
-    GrTextBlob(GrStrikeCache* strikeCache) : fStrikeCache{strikeCache} { }
+    GrTextBlob(GrStrikeCache* strikeCache, GrColor color)
+        : fColor{color}
+        , fStrikeCache{strikeCache} { }
 
     // This function will only be called when we are generating a blob from scratch. We record the
     // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
@@ -277,16 +280,21 @@ private:
 public:
     class SubRun {
     public:
-        SubRun(Run* run, const SkStrikeSpec& strikeSpec, GrColor color)
-            : fColor{color}
-            , fRun{run}
+        SubRun(GrTextBlob* textBlob,
+                const SkStrikeSpec& strikeSpec,
+                GrColor color,
+                GrMaskFormat format,
+                const SubRunBufferSpec& spec)
+            : fBlob{textBlob}
+            , fColor{color}
+            , fMaskFormat{format}
             , fStrikeSpec{strikeSpec} {}
 
         // When used with emplace_back, this constructs a SubRun from the last SubRun in an array.
         //SubRun(SkSTArray<1, SubRun>* subRunList)
         //    : fColor{subRunList->fromBack(1).fColor} { }
 
-        void appendGlyph(GrGlyph* glyph, SkRect dstRect);
+        void appendGlyph(const SkZip<SkGlyphVariant, SkPoint>& drawables, const SkStrikeSpec& spec);
 
         // TODO when this object is more internal, drop the privacy
         void resetBulkUseToken() { fBulkUseToken.reset(); }
@@ -305,21 +313,8 @@ public:
         uint32_t glyphCount() const { return fGlyphEndIndex - fGlyphStartIndex; }
         uint32_t glyphStartIndex() const { return fGlyphStartIndex; }
         uint32_t glyphEndIndex() const { return fGlyphEndIndex; }
-        void setColor(GrColor color) { fColor = color; }
         GrColor color() const { return fColor; }
-        void setMaskFormat(GrMaskFormat format) { fMaskFormat = format; }
         GrMaskFormat maskFormat() const { return fMaskFormat; }
-
-        void setAsSuccessor(const SubRun& prev) {
-            fGlyphStartIndex = prev.glyphEndIndex();
-            fGlyphEndIndex = fGlyphStartIndex;
-
-            fVertexStartIndex = prev.vertexEndIndex();
-            fVertexEndIndex = fVertexStartIndex;
-
-            // copy over viewmatrix settings
-            this->init(prev.fCurrentViewMatrix, prev.fX, prev.fY);
-        }
 
         const SkRect& vertexBounds() const { return fVertexBounds; }
         void joinGlyphBounds(const SkRect& glyphBounds) {
@@ -350,20 +345,20 @@ public:
 
         const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
 
-    private:
+        GrTextBlob* const fBlob;
         GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
         sk_sp<GrTextStrike> fStrike;
         SkMatrix fCurrentViewMatrix;
         SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
         uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
-        size_t fVertexStartIndex{0};
-        size_t fVertexEndIndex{0};
-        uint32_t fGlyphStartIndex{0};
-        uint32_t fGlyphEndIndex{0};
+        const size_t fVertexStartIndex{0};
+        const size_t fVertexEndIndex{0};
+        const uint32_t fGlyphStartIndex{0};
+        const uint32_t fGlyphEndIndex{0};
         SkScalar fX;
         SkScalar fY;
-        GrColor fColor{GrColor_ILLEGAL};
-        GrMaskFormat fMaskFormat{kA8_GrMaskFormat};
+        const GrColor fColor;
+        const GrMaskFormat fMaskFormat;
         struct {
             bool drawAsSdf:1;
             bool useLCDText:1;
@@ -371,9 +366,8 @@ public:
             bool hasWCoord:1;
             bool needsTransform:1;
         } fFlags{false, false, false, false, false};
-        Run* const fRun;
         const SkStrikeSpec& fStrikeSpec;
-    };  // SubRunInfo
+    };  // SubRun
 
     /*
      * Each Run inside of the blob can have its texture coordinates regenerated if required.
@@ -485,7 +479,7 @@ public:
             bool fPreTransformed;
         };
 
-        SkSTArray<1, SubRun> fSubRunInfo;
+        SkSTArray<1, SubRun*> fSubRunInfo;
         SkStrikeSpec fStrikeSpec;
 
         // Distance field text cannot draw coloremoji, and so has to fall back.  However,
@@ -502,6 +496,32 @@ public:
         GrTextBlob* const fBlob;
         GrColor fColor;
     };  // Run
+
+    SubRun* makeSubRun(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                       const SkStrikeSpec& strikeSpec,
+                       GrMaskFormat format);
+
+    void addSingleMaskFormatDirect(
+            const SkZip<SkGlyphVariant, SkPoint>& drawables,
+            const SkStrikeSpec& strikeSpec,
+            GrMaskFormat format);
+
+    void addMultiMaskFormatDirect(
+            const SkZip<SkGlyphVariant, SkPoint>& glyphs, const SkStrikeSpec& strikeSpec);
+
+    void addSingleMaskFormatTransform(
+            const SkZip<SkGlyphVariant, SkPoint>& drawables,
+            const SkStrikeSpec& strikeSpec,
+            GrMaskFormat format);
+
+    void addMultiMaskFormatTransform(
+            const SkZip<SkGlyphVariant, SkPoint>& glyphs, const SkStrikeSpec& strikeSpec);
+
+    void addSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                 const SkStrikeSpec& strikeSpec,
+                 const SkFont& runFont,
+                 SkScalar minScale,
+                 SkScalar maxScale);
 
 private:
     std::unique_ptr<GrAtlasTextOp> makeOp(
@@ -536,6 +556,8 @@ private:
     void processDeviceFallback(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                const SkStrikeSpec& strikeSpec) override;
 
+    SubRunBufferSpec reserveGlyphsAndVertices(uint32_t glyphCount, bool hasW, GrMaskFormat format);
+
     struct StrokeInfo {
         SkScalar fFrameWidth;
         SkScalar fMiterLimit;
@@ -549,8 +571,12 @@ private:
 
     // all glyph / vertex offsets are into these pools.
     char* fVertices;
+    size_t fVerticiesCursor{0};
     GrGlyph** fGlyphs;
+    uint32_t fGlyphsCursor{0};
     Run* fRuns;
+    SkSTArray<1, SubRun> fSubRuns;
+    const GrColor fColor;
 
     // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
     // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
