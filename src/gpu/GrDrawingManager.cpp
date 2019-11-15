@@ -581,7 +581,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
         renderTask->prePrepare(fContext);
     }
 
-    ddl->fOpPOD = fContext->priv().detachOpPOD();
+    ddl->fRecordTimeData = fContext->priv().detachRecordTimeAllocator();
 
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
