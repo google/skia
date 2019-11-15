@@ -87,13 +87,17 @@ protected:
     }
 
 private:
-    void onPrePrepare(GrRecordingContext* context, const GrAppliedClip* clip) final {
-        this->onPrePrepareDraws(context, clip);
+    void onPrePrepare(GrRecordingContext* context,
+                      const GrSurfaceProxyView* dstView,
+                      const GrAppliedClip* clip) final {
+        this->onPrePrepareDraws(context, dstView, clip);
     }
     void onPrepare(GrOpFlushState* state) final;
 
     // Only the GrTextureOp currently overrides this virtual
-    virtual void onPrePrepareDraws(GrRecordingContext*, const GrAppliedClip*) {}
+    virtual void onPrePrepareDraws(GrRecordingContext*,
+                                   const GrSurfaceProxyView*,
+                                   const GrAppliedClip*) {}
 
     virtual void onPrepareDraws(Target*) = 0;
     typedef GrDrawOp INHERITED;

@@ -515,7 +515,9 @@ private:
         }
     }
 
-    void onPrePrepareDraws(GrRecordingContext* context, const GrAppliedClip* clip) override {
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView* dstView,
+                           const GrAppliedClip* clip) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
