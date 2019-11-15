@@ -296,6 +296,16 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Wuffs' in extra_tokens:
     args['skia_use_wuffs'] = 'true'
 
+  if 'Valgrind' in extra_tokens:
+    #args['extra_cflags_cc'] = '["-stdlib=libstdc++"]'
+    # Valgrind doesn't seem to support AVX/AVX2/AVX512 extensions, so we limit
+    # to SSE4.1 and use portable code for skcms.
+    extra_cflags.extend(['-DSK_CPU_LIMIT_SSE41', '-DSKCMS_PORTABLE'])
+    # We generally compile Valgrind for Release because it's glacially slow, but
+    # we need debugging symbols to make any sense of the warnings.
+    extra_cflags.append('-g')
+    extra_ldflags.append('-g')
+
   for (k,v) in {
     'cc':  cc,
     'cxx': cxx,
