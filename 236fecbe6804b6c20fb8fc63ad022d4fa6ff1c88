@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6186bb91_5f261f7d",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 10306
+      },
+      "writtenOn": "2019-11-15T18:30:01Z",
+      "side": 1,
+      "message": "Add this line:\ninfo.fTextureView \u003d tex.CreateView();",
+      "range": {
+        "startLine": 389,
+        "startChar": 4,
+        "endLine": 389,
+        "endChar": 24
+      },
+      "revId": "236fecbe6804b6c20fb8fc63ad022d4fa6ff1c88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
