@@ -82,7 +82,13 @@ public:
     constexpr std::tuple<Ts*...> data() const { return fPointers; }
     constexpr SkZip first(size_t n) const {
         SkASSERT(n <= this->size());
+        if (n == 0) { return SkZip(); }
         return SkZip{n, fPointers};
+    }
+    constexpr SkZip last(size_t n) const {
+        SkASSERT(n <= this->size());
+        if (n == 0) { return SkZip(); }
+        return SkZip{n, this->pointersAt(fSize - n)};
     }
 
 private:
@@ -99,6 +105,17 @@ private:
     template<std::size_t... Is>
     constexpr ReturnTuple indexDetail(size_t i, skstd::index_sequence<Is...>) const {
         return ReturnTuple((std::get<Is>(fPointers))[i]...);
+    }
+
+    std::tuple<Ts*...> pointersAt(size_t i) const {
+        SkASSERT(this->size() > 0);
+        SkASSERT(i < this->size());
+        return pointersAtDetail(i, skstd::make_index_sequence<sizeof...(Ts)>{});
+    }
+
+    template<std::size_t... Is>
+    constexpr std::tuple<Ts*...> pointersAtDetail(size_t i, skstd::index_sequence<Is...>) const {
+        return std::tuple<Ts*...>{&(std::get<Is>(fPointers))[i]...};
     }
 
     std::tuple<Ts*...> fPointers;
