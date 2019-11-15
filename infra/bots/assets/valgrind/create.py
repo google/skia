@@ -22,7 +22,7 @@ import urllib2
 import utils
 
 
-VALGRIND = 'valgrind-3.13.0'
+VALGRIND = 'valgrind-3.15.0'
 TARBALL = '%s.tar.bz2' % VALGRIND
 DOWNLOAD_URL = 'ftp://sourceware.org/pub/valgrind/%s' % TARBALL
 TEMP_DIR = os.path.join(tempfile.gettempdir(), 'skia-%s' % VALGRIND)
