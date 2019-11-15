@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "aac5293e_b128460e",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-15T19:43:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6797a124_e24d2050",
+      "range": {
+        "startLine": 177,
+        "startChar": 50,
+        "endLine": 177,
+        "endChar": 59
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f2f8cd3_5ba320f3",
         "filename": "gm/clockwise.cpp",
         "patchSetId": 7
@@ -68,6 +92,30 @@
       "revId": "0df1146f768892ae73a6957404cec310c3189277",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b2f33df_3035baec",
+        "filename": "gm/clockwise.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-15T19:43:15Z",
+      "side": 1,
+      "message": "Missed operator new override on grProcessor.",
+      "parentUuid": "7f2f8cd3_5ba320f3",
+      "range": {
+        "startLine": 212,
+        "startChar": 15,
+        "endLine": 212,
+        "endChar": 64
+      },
+      "revId": "0df1146f768892ae73a6957404cec310c3189277",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
