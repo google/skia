@@ -72,7 +72,9 @@ public:
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }
-        GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
+        const GrSurfaceProxyView* view() const { return fSurfaceView; }
+        GrRenderTargetProxy* proxy() const { return fSurfaceView->asRenderTargetProxy(); }
+        GrRenderTarget* renderTarget() const { return this->proxy()->peekRenderTarget(); }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }

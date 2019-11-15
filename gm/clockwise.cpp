@@ -147,6 +147,39 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
+    void createProgramInfo(const GrSurfaceProxyView* dstView) {
+        SkASSERT(!fPipeline && !fProgramInfo);
+
+        fPipeline.reset(new GrPipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
+                                       dstView->swizzle()));
+
+        ClockwiseTestProcessor primProc(fReadSkFragCoord);
+
+        fProgramInfo.reset(new GrProgramInfo(dstView->asRenderTargetProxy()->numSamples(),
+                                             dstView->origin(),
+                                             *fPipeline,
+                                             primProc,
+                                             nullptr, nullptr, 0,
+                                             GrPrimitiveType::kTriangleStrip));
+    }
+    void onPrePrepare(GrRecordingContext* context,
+                      const GrSurfaceProxyView* dstView,
+                      const GrAppliedClip*) final {
+        SkArenaAlloc* arena = context->priv().opPODAllocator();
+
+        // Create the GrProgramInfo in the DDL-record-time arena.
+        GrPipeline* tmp = arena->make<GrPipeline>(GrScissorTest::kDisabled, SkBlendMode::kPlus, // Not POD
+                                                  dstView->swizzle());
+        GrPrimitiveProcessor* tmp2 = arena->make<ClockwiseTestProcessor>(fReadSkFragCoord);
+
+        GrProgramInfo* tmp3 = arena->make<GrProgramInfo>(dstView->asRenderTargetProxy()->numSamples(),
+                                                         dstView->origin(),
+                                                         *tmp,
+                                                         *tmp2,
+                                                         nullptr, nullptr, 0,
+                                                         GrPrimitiveType::kTriangleStrip);
+        this->createProgramInfo(dstView);
+    }
     void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
@@ -161,12 +194,16 @@ private:
         if (!fVertexBuffer) {
             return;
         }
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().outputSwizzle());
+
+        if (!fProgramInfo) {
+            this->createProgramInfo(flushState->drawOpArgs().view());
+        }
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
 
+#if 0
         ClockwiseTestProcessor primProc(fReadSkFragCoord);
 
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
@@ -178,11 +215,14 @@ private:
                                   GrPrimitiveType::kTriangleStrip);
 
         flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeXYWH(0, fY, 100, 100));
+#endif
     }
 
-    sk_sp<GrBuffer> fVertexBuffer;
-    const bool fReadSkFragCoord;
-    const float fY;
+    sk_sp<GrBuffer>                fVertexBuffer;
+    const bool                     fReadSkFragCoord;
+    const float                    fY;
+    std::unique_ptr<GrPipeline>    fPipeline;
+    std::unique_ptr<GrProgramInfo> fProgramInfo;
 
     friend class ::GrOpMemoryPool; // for ctor
 };
