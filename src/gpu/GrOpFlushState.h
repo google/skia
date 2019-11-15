@@ -72,7 +72,9 @@ public:
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
         GrOp* op() { return fOp; }
-        GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
+        const GrSurfaceProxyView* view() const { return fSurfaceView; }
+        GrRenderTargetProxy* proxy() const { return fSurfaceView->asRenderTargetProxy(); }
+        GrRenderTarget* renderTarget() const { return this->proxy()->peekRenderTarget(); }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
@@ -129,6 +131,7 @@ public:
                                     int* actualIndexCount) final;
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
+    const GrSurfaceProxyView* view() const { return this->drawOpArgs().view(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
     const GrAppliedClip* appliedClip() final { return this->drawOpArgs().appliedClip(); }
     GrAppliedClip detachAppliedClip() final;
