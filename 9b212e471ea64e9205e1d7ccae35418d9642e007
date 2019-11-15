@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1913c85f_ce787a59",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-15T16:16:38Z",
+      "side": 1,
+      "message": "At least, you can control it now. The previous approach looked better you could not control it at all.",
+      "range": {
+        "startLine": 212,
+        "startChar": 0,
+        "endLine": 212,
+        "endChar": 20
+      },
+      "revId": "9b212e471ea64e9205e1d7ccae35418d9642e007",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
