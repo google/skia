@@ -197,7 +197,7 @@ GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGLSLInstance(const GrShad
 }
 
 void GrCCCoverageProcessor::draw(
-        GrOpFlushState* flushState, const GrPipeline& pipeline, const SkIRect scissorRects[],
+        GrOpFlushState* flushState, const GrPipeline* pipeline, const SkIRect scissorRects[],
         const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
     GrPipeline::DynamicStateArrays dynamicStateArrays;
     dynamicStateArrays.fScissorRects = scissorRects;
@@ -209,7 +209,7 @@ void GrCCCoverageProcessor::draw(
                               flushState->proxy()->numStencilSamples(),
                               flushState->drawOpArgs().origin(),
                               pipeline,
-                              *this,
+                              this,
                               nullptr,
                               &dynamicStateArrays, 0, primitiveType);
 

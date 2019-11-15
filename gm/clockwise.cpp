@@ -172,8 +172,8 @@ private:
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
+                                  &pipeline,
+                                  &primProc,
                                   nullptr, nullptr, 0,
                                   GrPrimitiveType::kTriangleStrip);
 

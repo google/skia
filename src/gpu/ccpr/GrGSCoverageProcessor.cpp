@@ -440,7 +440,7 @@ void GrGSCoverageProcessor::appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, 
 }
 
 void GrGSCoverageProcessor::draw(
-        GrOpFlushState* flushState, const GrPipeline& pipeline, const SkIRect scissorRects[],
+        GrOpFlushState* flushState, const GrPipeline* pipeline, const SkIRect scissorRects[],
         const GrMesh meshes[], int meshCount, const SkRect& drawBounds) const {
     // The geometry shader impl draws primitives in two subpasses: The first pass fills the interior
     // and does edge AA. The second pass does touch up on corner pixels.

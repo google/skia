@@ -120,7 +120,7 @@ public:
     virtual void appendMesh(sk_sp<const GrGpuBuffer> instanceBuffer, int instanceCount,
                             int baseInstance, SkTArray<GrMesh>* out) const = 0;
 
-    virtual void draw(GrOpFlushState*, const GrPipeline&, const SkIRect scissorRects[],
+    virtual void draw(GrOpFlushState*, const GrPipeline*, const SkIRect scissorRects[],
                       const GrMesh[], int meshCount, const SkRect& drawBounds) const;
 
     virtual GrPrimitiveType primType() const = 0;
