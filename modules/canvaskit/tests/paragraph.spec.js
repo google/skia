@@ -209,9 +209,8 @@ describe('CanvasKit\'s Path Behavior', function() {
             const paraStyle = new CanvasKit.ParagraphStyle({
                 textStyle: {
                     color: CanvasKit.BLACK,
-                    // Put emoji first, otherwise zero-space-joiner will be matched by serif,
-                    // and we don't get families or rainbow flags.
-                    fontFamilies: ['Noto Color Emoji', 'Noto Serif'],
+                    // Put text first, otherwise the "emoji space" is used and that looks bad.
+                    fontFamilies: ['Noto Serif', 'Noto Color Emoji'],
                     fontSize: 30,
                 },
                 textAlign: CanvasKit.TextAlign.Left,
