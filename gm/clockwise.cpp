@@ -147,6 +147,28 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
+
+    void onPrePrepare(GrRecordingContext* context,
+                      const GrSurfaceProxyView* dstView,
+                      const GrAppliedClip*) final {
+        SkArenaAlloc* arena = context->priv().opPODAllocator();
+
+        // Create the GrProgramInfo in the DDL-record-time arena.
+        // Not POD!
+        fPipeline.reset(arena->make<GrPipeline>(GrScissorTest::kDisabled, SkBlendMode::kPlus,
+                                                dstView->swizzle()));
+        GrPrimitiveProcessor* tmp2 = arena->make<ClockwiseTestProcessor>(fReadSkFragCoord);
+
+        GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+        fProgramInfo.reset(arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                                      dstProxy->numStencilSamples(),
+                                                      dstView->origin(),
+                                                      *fPipeline,
+                                                      *tmp2,
+                                                      nullptr, nullptr, 0,
+                                                      GrPrimitiveType::kTriangleStrip));
+    }
+
     void onPrepare(GrOpFlushState* flushState) override {
         SkPoint vertices[4] = {
             {100, fY},
@@ -157,32 +179,47 @@ private:
         fVertexBuffer = flushState->resourceProvider()->createBuffer(
                 sizeof(vertices), GrGpuBufferType::kVertex, kStatic_GrAccessPattern, vertices);
     }
+
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         if (!fVertexBuffer) {
             return;
         }
-        GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().outputSwizzle());
+
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);
         mesh.setVertexData(std::move(fVertexBuffer));
 
-        ClockwiseTestProcessor primProc(fReadSkFragCoord);
+        if (fProgramInfo) {
+            flushState->opsRenderPass()->draw(*fProgramInfo, &mesh, 1,
+                                              SkRect::MakeXYWH(0, fY, 100, 100));
+        } else {
+            const GrSurfaceProxyView* dstView = flushState->view();
 
-        GrProgramInfo programInfo(flushState->proxy()->numSamples(),
-                                  flushState->proxy()->numStencilSamples(),
-                                  flushState->drawOpArgs().origin(),
-                                  pipeline,
-                                  primProc,
-                                  nullptr, nullptr, 0,
-                                  GrPrimitiveType::kTriangleStrip);
+            GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kPlus,
+                                dstView->swizzle());
 
-        flushState->opsRenderPass()->draw(programInfo, &mesh, 1, SkRect::MakeXYWH(0, fY, 100, 100));
+            ClockwiseTestProcessor primProc(fReadSkFragCoord);
+
+            GrProgramInfo programInfo(dstView->asRenderTargetProxy()->numSamples(),
+                                      dstView->asRenderTargetProxy()->numStencilSamples(),
+                                      dstView->origin(),
+                                      pipeline,
+                                      primProc,
+                                      nullptr, nullptr, 0,
+                                      GrPrimitiveType::kTriangleStrip);
+
+            flushState->opsRenderPass()->draw(programInfo, &mesh, 1,
+                                              SkRect::MakeXYWH(0, fY, 100, 100));
+
+        }
+
     }
 
-    sk_sp<GrBuffer> fVertexBuffer;
-    const bool fReadSkFragCoord;
-    const float fY;
+    sk_sp<GrBuffer>                fVertexBuffer;
+    const bool                     fReadSkFragCoord;
+    const float                    fY;
+    std::unique_ptr<GrPipeline>    fPipeline;
+    std::unique_ptr<GrProgramInfo> fProgramInfo;
 
     friend class ::GrOpMemoryPool; // for ctor
 };
