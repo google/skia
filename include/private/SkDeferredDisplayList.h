@@ -71,7 +71,7 @@ private:
 
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
-    std::unique_ptr<SkArenaAlloc>   fOpPOD;
+    std::unique_ptr<SkArenaAlloc>   fRecordTimeData;
 #endif
     sk_sp<LazyProxyData>            fLazyProxyData;
 };

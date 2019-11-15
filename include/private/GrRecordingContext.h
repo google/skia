@@ -50,10 +50,10 @@ protected:
     sk_sp<GrOpMemoryPool> refOpMemoryPool();
     GrOpMemoryPool* opMemoryPool();
 
-    SkArenaAlloc* opPODAllocator();
-    // This entry point should only be used for DDL creation where we want the ops' POD lifetime
+    SkArenaAlloc* recordTimeAllocator();
+    // This entry point should only be used for DDL creation where we want the ops' data's lifetime
     // to match that of the DDL.
-    std::unique_ptr<SkArenaAlloc> detachOpPOD();
+    std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
 
     GrStrikeCache* getGrStrikeCache() { return fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache();
@@ -131,7 +131,7 @@ private:
     std::unique_ptr<GrDrawingManager> fDrawingManager;
     // All the GrOp-derived classes use this pool.
     sk_sp<GrOpMemoryPool>             fOpMemoryPool;
-    std::unique_ptr<SkArenaAlloc>     fOpPODAllocator;
+    std::unique_ptr<SkArenaAlloc>     fRecordTimeAllocator;
 
     std::unique_ptr<GrStrikeCache>    fStrikeCache;
     std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
