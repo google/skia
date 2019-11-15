@@ -243,7 +243,7 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     bool stroke = d->fRandom->nextBool();
     bool roundCaps = stroke ? d->fRandom->nextBool() : false;
     bool wideColor = d->fRandom->nextBool();
@@ -251,7 +251,7 @@ sk_sp<GrGeometryProcessor> CircleGeometryProcessor::TestCreate(GrProcessorTestDa
     bool isectPlane = d->fRandom->nextBool();
     bool unionPlane = d->fRandom->nextBool();
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    return sk_sp<GrGeometryProcessor>(new CircleGeometryProcessor(
+    return std::unique_ptr<GrGeometryProcessor>(new CircleGeometryProcessor(
             stroke, clipPlane, isectPlane, unionPlane, roundCaps, wideColor, matrix));
 }
 #endif
@@ -488,10 +488,10 @@ private:
 };
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> ButtCapDashedCircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+std::unique_ptr<GrGeometryProcessor> ButtCapDashedCircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
     bool wideColor = d->fRandom->nextBool();
     const SkMatrix& matrix = GrTest::TestMatrix(d->fRandom);
-    return sk_sp<GrGeometryProcessor>(new ButtCapDashedCircleGeometryProcessor(wideColor, matrix));
+    return std::unique_ptr<GrGeometryProcessor>(new ButtCapDashedCircleGeometryProcessor(wideColor, matrix));
 }
 #endif
 
@@ -676,8 +676,8 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return sk_sp<GrGeometryProcessor>(
+std::unique_ptr<GrGeometryProcessor> EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return std::unique_ptr<GrGeometryProcessor>(
             new EllipseGeometryProcessor(d->fRandom->nextBool(), d->fRandom->nextBool(),
                                          d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom)));
 }
@@ -876,8 +876,8 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
-    return sk_sp<GrGeometryProcessor>(new DIEllipseGeometryProcessor(
+std::unique_ptr<GrGeometryProcessor> DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
+    return std::unique_ptr<GrGeometryProcessor>(new DIEllipseGeometryProcessor(
             d->fRandom->nextBool(), d->fRandom->nextBool(), GrTest::TestMatrix(d->fRandom),
             (DIEllipseStyle)(d->fRandom->nextRangeU(0, 2))));
 }
@@ -1240,7 +1240,7 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(new CircleGeometryProcessor(
+        std::unique_ptr<GrGeometryProcessor> gp(new CircleGeometryProcessor(
                 !fAllFill, fClipPlane, fClipPlaneIsect, fClipPlaneUnion, fRoundCaps, fWideColor,
                 localMatrix));
 
@@ -1572,8 +1572,8 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(new ButtCapDashedCircleGeometryProcessor(fWideColor,
-                                                                               localMatrix));
+        std::unique_ptr<GrGeometryProcessor> gp(new ButtCapDashedCircleGeometryProcessor(fWideColor,
+                                                                                         localMatrix));
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
@@ -1871,8 +1871,8 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor, fUseScale,
-                                                                   localMatrix));
+        std::unique_ptr<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor,
+                                                                             fUseScale, localMatrix));
         QuadHelper helper(target, gp->vertexStride(), fEllipses.count());
         GrVertexWriter verts{helper.vertices()};
         if (!verts.fPtr) {
@@ -2109,7 +2109,7 @@ public:
 private:
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(
+        std::unique_ptr<GrGeometryProcessor> gp(
                 new DIEllipseGeometryProcessor(fWideColor, fUseScale, this->viewMatrix(),
                                                this->style()));
 
@@ -2485,7 +2485,7 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(
+        std::unique_ptr<GrGeometryProcessor> gp(
                 new CircleGeometryProcessor(!fAllFill, false, false, false, false, fWideColor,
                                             localMatrix));
 
@@ -2777,8 +2777,8 @@ private:
         }
 
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor, fUseScale,
-                                                                   localMatrix));
+        std::unique_ptr<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, fWideColor,
+                                                                             fUseScale, localMatrix));
 
         // drop out the middle quad if we're stroked
         int indicesPerInstance = fStroked ? kIndicesPerStrokeRRect : kIndicesPerFillRRect;

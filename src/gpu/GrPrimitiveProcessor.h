@@ -40,11 +40,8 @@ class GrGLSLPrimitiveProcessor;
  * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
- *
- * TODO: This class does not really need to be ref counted. Instances should be allocated using
- * GrOpFlushState's arena and destroyed when the arena is torn down.
  */
-class GrPrimitiveProcessor : public GrProcessor, public GrNonAtomicRef<GrPrimitiveProcessor> {
+class GrPrimitiveProcessor : public GrProcessor {
 public:
     class TextureSampler;
 

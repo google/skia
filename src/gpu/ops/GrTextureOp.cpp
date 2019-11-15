@@ -709,7 +709,7 @@ private:
         if (fPrePreparedDesc) {
             desc = *fPrePreparedDesc;
         } else {
-            SkArenaAlloc* arena = target->allocator();
+            SkArenaAlloc* arena = target->allocator1();
 
             this->characterize(&desc);
             desc.allocateCommon(arena, target->appliedClip());
@@ -759,7 +759,7 @@ private:
             return;
         }
 
-        sk_sp<GrGeometryProcessor> gp;
+        std::unique_ptr<GrGeometryProcessor> gp;
 
         {
             const GrBackendFormat& backendFormat =

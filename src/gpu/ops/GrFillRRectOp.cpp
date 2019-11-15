@@ -735,7 +735,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
         return;  // Setup failed.
     }
 
-    Processor* proc = flushState->allocator()->make<Processor>(fAAType, fFlags);
+    Processor* proc = flushState->allocator1()->make<Processor>(fAAType, fFlags);
     SkASSERT(proc->instanceStride() == (size_t)fInstanceStride);
 
     GrPipeline::InitArgs initArgs;
@@ -747,8 +747,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState* fixedDynamicState =
-        flushState->allocator()->make<GrPipeline::FixedDynamicState>(clip.scissorState().rect());
-    GrPipeline* pipeline = flushState->allocator()->make<GrPipeline>(initArgs,
+        flushState->allocator1()->make<GrPipeline::FixedDynamicState>(clip.scissorState().rect());
+    GrPipeline* pipeline = flushState->allocator1()->make<GrPipeline>(initArgs,
                                                                      std::move(fProcessors),
                                                                      std::move(clip));
 
@@ -761,7 +761,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
                               nullptr, 0,
                               GrPrimitiveType::kTriangles);
 
-    GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
+    GrMesh* mesh = flushState->allocator1()->make<GrMesh>(GrPrimitiveType::kTriangles);
     mesh->setIndexedInstanced(
             std::move(fIndexBuffer), fIndexCount, std::move(fInstanceBuffer), fInstanceCount,
             fBaseInstance, GrPrimitiveRestart::kNo);

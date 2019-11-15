@@ -295,17 +295,18 @@ class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
 public:
     using Saturate = GrTextureOp::Saturate;
 
-    static sk_sp<GrGeometryProcessor> Make(const VertexSpec& spec) {
-        return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(spec));
+    static std::unique_ptr<GrGeometryProcessor> Make(const VertexSpec& spec) {
+        return std::unique_ptr<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(spec));
     }
 
-    static sk_sp<GrGeometryProcessor> Make(const VertexSpec& vertexSpec, const GrShaderCaps& caps,
-                                           const GrBackendFormat& backendFormat,
-                                           const GrSamplerState& samplerState,
-                                           const GrSwizzle& swizzle,
-                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                                           Saturate saturate) {
-        return sk_sp<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(
+    static std::unique_ptr<GrGeometryProcessor> Make(const VertexSpec& vertexSpec,
+                                                     const GrShaderCaps& caps,
+                                                     const GrBackendFormat& backendFormat,
+                                                     const GrSamplerState& samplerState,
+                                                     const GrSwizzle& swizzle,
+                                                     sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                                     Saturate saturate) {
+        return std::unique_ptr<QuadPerEdgeAAGeometryProcessor>(new QuadPerEdgeAAGeometryProcessor(
                 vertexSpec, caps, backendFormat, samplerState, swizzle,
                 std::move(textureColorSpaceXform), saturate));
     }
@@ -591,11 +592,11 @@ private:
     typedef GrGeometryProcessor INHERITED;
 };
 
-sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec) {
+std::unique_ptr<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec) {
     return QuadPerEdgeAAGeometryProcessor::Make(spec);
 }
 
-sk_sp<GrGeometryProcessor> MakeTexturedProcessor(const VertexSpec& spec, const GrShaderCaps& caps,
+std::unique_ptr<GrGeometryProcessor> MakeTexturedProcessor(const VertexSpec& spec, const GrShaderCaps& caps,
                                                  const GrBackendFormat& backendFormat,
                                                  const GrSamplerState& samplerState,
                                                  const GrSwizzle& swizzle,

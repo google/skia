@@ -539,7 +539,7 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make(fFalloffProxy.get());
+        std::unique_ptr<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make(fFalloffProxy.get());
 
         int instanceCount = fGeoData.count();
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());

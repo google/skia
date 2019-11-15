@@ -44,8 +44,8 @@ protected:
                       int indicesPerRepetition, int repeatCount, int maxRepetitions);
 
         /** Called to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>) const;
-        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>,
+        void recordDraw(Target*, std::unique_ptr<const GrGeometryProcessor>) const;
+        void recordDraw(Target*, std::unique_ptr<const GrGeometryProcessor>,
                         const GrPipeline::FixedDynamicState*) const;
 
         void* vertices() const { return fVertices; }
@@ -105,7 +105,7 @@ public:
 
     /** Adds a draw of a mesh. */
     virtual void recordDraw(
-            sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+            std::unique_ptr<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
             const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
             GrPrimitiveType) = 0;
 
@@ -113,7 +113,7 @@ public:
      * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
      * scissor clip.
      */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
+    void recordDraw(std::unique_ptr<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
                     GrPrimitiveType primitiveType) {
         static constexpr int kZeroPrimProcTextures = 0;
         auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
@@ -160,10 +160,10 @@ public:
     virtual void putBackVertices(int vertices, size_t vertexStride) = 0;
 
     GrMesh* allocMesh(GrPrimitiveType primitiveType) {
-        return this->allocator()->make<GrMesh>(primitiveType);
+        return this->allocator1()->make<GrMesh>(primitiveType);
     }
 
-    GrMesh* allocMeshes(int n) { return this->allocator()->makeArray<GrMesh>(n); }
+    GrMesh* allocMeshes(int n) { return this->allocator1()->makeArray<GrMesh>(n); }
 
     static GrPipeline::DynamicStateArrays* AllocDynamicStateArrays(SkArenaAlloc*,
                                                                    int numMeshes,
@@ -176,7 +176,7 @@ public:
 
 
     GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures) {
-        return MakeFixedDynamicState(this->allocator(), this->appliedClip(),
+        return MakeFixedDynamicState(this->allocator1(), this->appliedClip(),
                                      numPrimitiveProcessorTextures);
     }
 
@@ -202,7 +202,7 @@ public:
 
     virtual GrDeferredUploadTarget* deferredUploadTarget() = 0;
 
-    virtual SkArenaAlloc* allocator() = 0;
+    virtual SkArenaAlloc* allocator1() = 0;
 };
 
 #endif

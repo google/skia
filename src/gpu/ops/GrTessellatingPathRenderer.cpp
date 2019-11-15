@@ -255,7 +255,7 @@ private:
         return path;
     }
 
-    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
+    void draw(Target* target, std::unique_ptr<const GrGeometryProcessor> gp, size_t vertexStride) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
@@ -310,7 +310,7 @@ private:
         this->drawVertices(target, std::move(gp), std::move(vb), 0, count);
     }
 
-    void drawAA(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
+    void drawAA(Target* target, std::unique_ptr<const GrGeometryProcessor> gp, size_t vertexStride) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -331,7 +331,7 @@ private:
     }
 
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp;
+        std::unique_ptr<GrGeometryProcessor> gp;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -370,8 +370,8 @@ private:
         }
     }
 
-    void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, sk_sp<const GrBuffer> vb,
-                      int firstVertex, int count) {
+    void drawVertices(Target* target, std::unique_ptr<const GrGeometryProcessor> gp,
+                      sk_sp<const GrBuffer> vb, int firstVertex, int count) {
         GrPrimitiveType primitiveType = TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
                                                               : GrPrimitiveType::kTriangles;
 
