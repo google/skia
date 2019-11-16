@@ -97,8 +97,12 @@ static void copyToMask(const SkRegion& rgn, SkMask* mask) {
     tmpRgn.translate(-rgn.getBounds().fLeft, -rgn.getBounds().fTop);
 
     SkCanvas canvas(bitmap);
-    canvas.clipRegion(tmpRgn);
-    canvas.drawColor(SK_ColorBLACK);
+    SkRegion::Cliperator iter(tmpRgn, tmpRgn.getBounds());
+    SkPaint paint;
+    while (!iter.done()) {
+        canvas.drawRect(SkRect::Make(iter.rect()), paint);
+        iter.next();
+    }
 }
 
 static SkIRect rand_rect(SkRandom& rand, int n) {
