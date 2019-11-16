@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     SkRegion region(iRect);
     canvas->rotate(10);
     canvas->save();
-    canvas->clipRegion(region, SkClipOp::kIntersect);
+ //   canvas->clipRegion(region, SkClipOp::kIntersect);
     canvas->drawCircle(50, 50, 45, paint);
     canvas->restore();
     canvas->translate(100, 100);

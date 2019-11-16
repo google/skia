@@ -1042,7 +1042,9 @@ ClipRegionCommand::ClipRegionCommand(const SkRegion& region, SkClipOp op)
     fOp     = op;
 }
 
-void ClipRegionCommand::execute(SkCanvas* canvas) const { canvas->clipRegion(fRegion, fOp); }
+void ClipRegionCommand::execute(SkCanvas* canvas) const {
+//    canvas->clipRegion(fRegion, fOp);
+}
 
 void ClipRegionCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);

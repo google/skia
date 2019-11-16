@@ -1171,7 +1171,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 int op;
                 fuzz->next(&region);
                 fuzz->nextRange(&op, 0, 1);
-                canvas->clipRegion(region, (SkClipOp)op);
+//                canvas->clipRegion(region, (SkClipOp)op);
                 break;
             }
             case 23:

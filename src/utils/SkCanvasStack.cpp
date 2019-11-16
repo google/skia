@@ -35,7 +35,7 @@ void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint&
             localBounds.offset(origin - fCanvasData[i-1].origin);
 
             fCanvasData[i-1].requiredClip.op(localBounds, SkRegion::kDifference_Op);
-            fList[i-1]->clipRegion(fCanvasData[i-1].requiredClip);
+         //   fList[i-1]->clipRegion(fCanvasData[i-1].requiredClip);
         }
     }
     SkASSERT(fList.count() == fCanvasData.count());
@@ -54,7 +54,7 @@ void SkCanvasStack::removeAll() {
 void SkCanvasStack::clipToZOrderedBounds() {
     SkASSERT(fList.count() == fCanvasData.count());
     for (int i = 0; i < fList.count(); ++i) {
-        fList[i]->clipRegion(fCanvasData[i].requiredClip);
+    //    fList[i]->clipRegion(fCanvasData[i].requiredClip);
     }
 }
 
@@ -99,7 +99,7 @@ void SkCanvasStack::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
         deviceRgn.translate(-fCanvasData[i].origin.x(),
                             -fCanvasData[i].origin.y(), &tempRegion);
         tempRegion.op(fCanvasData[i].requiredClip, SkRegion::kIntersect_Op);
-        fList[i]->clipRegion(tempRegion, op);
+    //    fList[i]->clipRegion(tempRegion, op);
     }
     this->SkCanvas::onClipRegion(deviceRgn, op);
 }
