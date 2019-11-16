@@ -150,7 +150,7 @@ protected:
         if (x) {
             fCanvas->save();
             fCanvas->concat(x->ctm());
-            fCanvas->clipRegion(peek_rasterclip(x->clip()).bwRgn());
+        //    fCanvas->clipRegion(peek_rasterclip(x->clip()).bwRgn());
         }
         fCanvas->drawRect(r, p);
     }
