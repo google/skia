@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bfe3bf5_36c3d264",
+        "filename": "site/dev/tools/markdown.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-18T17:29:27Z",
+      "side": 1,
+      "message": "With Go modules, GOPATH doesn\u0027t need to be defined; if it\u0027s not, I believe Go uses $HOME/go.  Also, the modules end up in $GOPATH/pkg/mod/${module}@${version}",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "f22cffa32c284a7cf3a6eab02730734e615a4d29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
