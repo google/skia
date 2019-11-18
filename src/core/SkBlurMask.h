@@ -46,9 +46,9 @@ public:
                                                       SkBlurStyle, SkIPoint* margin = nullptr);
 
     // If radius > 0, return the corresponding sigma, else return 0
-    static SkScalar SK_API ConvertRadiusToSigma(SkScalar radius);
+    static SkScalar SK_SPI ConvertRadiusToSigma(SkScalar radius);
     // If sigma > 0.5, return the corresponding radius, else return 0
-    static SkScalar SK_API ConvertSigmaToRadius(SkScalar sigma);
+    static SkScalar SK_SPI ConvertSigmaToRadius(SkScalar sigma);
 
     /* Helper functions for analytic rectangle blurs */
 

@@ -19,7 +19,7 @@ class SkStreamSeekable;
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
  */
-SK_API sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
+SK_SPI sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
 
 struct SkDocumentPage {
     sk_sp<SkPicture> fPicture;
@@ -29,14 +29,14 @@ struct SkDocumentPage {
 /**
  *  Returns the number of pages in the SkMultiPictureDocument.
  */
-SK_API int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src);
+SK_SPI int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src);
 
 /**
  *  Read the SkMultiPictureDocument into the provided array of pages.
  *  dstArrayCount must equal SkMultiPictureDocumentReadPageCount().
  *  Return false on error.
  */
-SK_API bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
+SK_SPI bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
                                        SkDocumentPage* dstArray,
                                        int dstArrayCount,
                                        const SkDeserialProcs* = nullptr);

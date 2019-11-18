@@ -197,4 +197,9 @@
     #endif
 #endif
 
+// SK_SPI is functionally identical to SK_API, but used within src to clarify that it's less stable
+#if !defined(SK_SPI)
+    #define SK_SPI SK_API
+#endif
+
 #endif

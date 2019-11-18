@@ -55,7 +55,7 @@ class SkSurfaceProps;
  * GrVkSecondaryCBDrawContext, the client must call releaseResources() so that Skia can cleanup
  * any internal objects that were created for the draws into the secondary command buffer.
  */
-class SK_API GrVkSecondaryCBDrawContext : public SkRefCnt {
+class SK_SPI GrVkSecondaryCBDrawContext : public SkRefCnt {
 public:
     static sk_sp<GrVkSecondaryCBDrawContext> Make(GrContext*, const SkImageInfo&,
                                                   const GrVkDrawableInfo&,
