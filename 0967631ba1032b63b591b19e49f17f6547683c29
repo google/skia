@@ -22,6 +22,30 @@
       "revId": "0967631ba1032b63b591b19e49f17f6547683c29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d296bb8e_7dd63fa6",
+        "filename": "src/gpu/ops/GrDrawPathOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-18T21:50:37Z",
+      "side": 1,
+      "message": "lol - yep - I had it on two lines initially and then felt this was the lesser of two evils.",
+      "parentUuid": "e89db1a0_0112a510",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 71
+      },
+      "revId": "0967631ba1032b63b591b19e49f17f6547683c29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
