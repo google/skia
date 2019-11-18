@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c0c7674_e895dfb9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T14:22:46Z",
+      "side": 1,
+      "message": "Did you mean \"Explicit is often better\"?\n\nFWIW, I think there are pros and cons for each. I think being explicit is fine here.",
+      "range": {
+        "startLine": 9,
+        "startChar": 43,
+        "endLine": 9,
+        "endChar": 70
+      },
+      "revId": "2163a0f6bfe339c449a7a44049ce94374278d4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eeeee58_9be4fb4c",
+        "filename": "public.bzl",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T14:22:46Z",
+      "side": 1,
+      "message": "I take it a follow-on change to cr/280259456 will switch to using these?",
+      "range": {
+        "startLine": 268,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 18
+      },
+      "revId": "2163a0f6bfe339c449a7a44049ce94374278d4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
