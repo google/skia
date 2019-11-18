@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "742a4d96_ae943bf6",
+        "filename": "gn/copy_git_directory.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T19:47:01Z",
+      "side": 1,
+      "message": "I presume this won\u0027t be an issue where you\u0027re running it, but if you set \"dst\" to a directory with a .git folder inside, this would (piece by piece) remove that folder, right? Maybe there should be a warning about that?",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 68
+      },
+      "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "511abc73_384279ff",
         "filename": "gn/copy_git_directory.py",
         "patchSetId": 2
