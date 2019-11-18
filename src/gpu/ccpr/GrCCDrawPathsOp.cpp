@@ -436,7 +436,10 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
     initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
     auto clip = flushState->detachAppliedClip();
-    GrPipeline::FixedDynamicState fixedDynamicState(clip.scissorState().rect());
+    GrPipeline::FixedDynamicState fixedDynamicState;
+    if (clip.scissorState().enabled()) {
+        fixedDynamicState.fScissorRect = clip.scissorState().rect();
+    }
     GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
 
     int baseInstance = fBaseInstance;
