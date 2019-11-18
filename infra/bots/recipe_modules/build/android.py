@@ -46,6 +46,8 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_enable_vulkan_debug_layers'] = 'false'
   if 'ASAN' in extra_tokens:
     args['sanitize'] = '"ASAN"'
+  if 'Wuffs' in extra_tokens:
+    args['skia_use_wuffs'] = 'true'
 
   # If an Android API level is specified, use that.
   for t in extra_tokens:
