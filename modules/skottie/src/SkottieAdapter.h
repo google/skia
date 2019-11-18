@@ -173,7 +173,7 @@ private:
 class CameraAdapter final : public TransformAdapter3D {
 public:
     enum class Type {
-        kOneNode, // implicitly facing the z == 0 plane, does not auto-orient
+        kOneNode, // implicitly facing forward (decreasing z), does not auto-orient
         kTwoNode, // explicitly facing a POI (the anchor point), auto-orients
     };
 
