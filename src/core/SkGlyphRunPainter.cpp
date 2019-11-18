@@ -250,12 +250,15 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             // heights.
             SkScalar conservativeMaxGlyphDimension = maxDimensionInSourceSpace * maxScale;
 
-            // If the situation that the matrix is simple, and all the glyphs are small enough.
+            // The situation is that the matrix is simple, and all the glyphs are small enough.
             // Go fast!
+            // The one exception is if we're using paths -- in that case the glyphs won't
+            // be transformed into device space correctly so we have to fall into the slow path.
             // N.B. If the matrix has scale, that will be reflected in the strike through the
             // viewMatrix in the useFastPath case.
             bool useDeviceCache =
-                    viewMatrix.isScaleTranslate()
+                    !usePaths
+                    && viewMatrix.isScaleTranslate()
                     && conservativeMaxGlyphDimension <= SkStrikeCommon::kSkSideTooBigForAtlas;
 
             // A scaled and translated transform is the common case, and is handled directly in
@@ -280,7 +283,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 }
             } else {
                 // If the matrix is complicated or if scaling is used to fit the glyphs in the
-                // atlas, then this case is used.
+                // atlas or if we're using paths, then this case is used.
 
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeSourceFallback(
                         runFont, runPaint, fDeviceProps,
