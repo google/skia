@@ -23,13 +23,13 @@ preview changes much quicker. You must have a recent version (>=8.9) of
 you are running on a Google corporate workstation. Installation also means
 that you have `$GOPATH/bin` [added to your PATH](https://golang.org/doc/code.html#GOPATH). Run:
 
-    go get -u go.skia.org/infra/doc/go/docserver
-    cd $GOPATH/src/go.skia.org/infra/doc
+    git clone https://skia.googlesource.com/buildbot
+    cd buildbot/docserverk
     make
 
 And then **from within** the directory of your local Git checkout of Skia run:
 
-    docserver --preview --local
+    docserverk --preview --local
 
 Then visit http://localhost:8000 to preview your changes. There is no need to
 restart the server for file changes, but you will need to restart it if there
@@ -39,7 +39,7 @@ to appear in the navigation on the right hand side of the page.
 If port 8000 is unavailable on your machine you can set the port to use via
 the --port flag:
 
-    docserver --preview --local --port=:8002
+    docserverk --preview --local --port=:8002
 
 METADATA
 --------
