@@ -217,7 +217,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
                                   &surfaceView,
                                   nullptr,
                                   GrXferProcessor::DstProxyView(GrSurfaceProxyView(),
-                                                                SkIPoint::Make(0, 0)));
+                                                                SkIPoint::Make(0, 0)) /*$$*/);
 
     // Cripple the atlas manager so it can't allocate any pages. This will force a failure
     // in the preparation of the text op

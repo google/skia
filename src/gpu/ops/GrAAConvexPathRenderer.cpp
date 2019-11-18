@@ -812,7 +812,7 @@ private:
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
-            target->recordDraw(quadProcessor, meshes, draws.count(), GrPrimitiveType::kTriangles);
+            target->recordDraw2(quadProcessor, meshes, draws.count(), GrPrimitiveType::kTriangles);
         }
     }
 

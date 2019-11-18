@@ -94,9 +94,9 @@ std::unique_ptr<GrFillRRectOp> GrFillRRectOp::Make(
     return pool->allocate<GrFillRRectOp>(aaType, rrect, flags, m, std::move(paint), devBounds);
 }
 
-GrFillRRectOp::GrFillRRectOp(
-        GrAAType aaType, const SkRRect& rrect, Flags flags,
-        const SkMatrix& totalShapeMatrix, GrPaint&& paint, const SkRect& devBounds)
+GrFillRRectOp::GrFillRRectOp(GrAAType aaType, const SkRRect& rrect, Flags flags,
+                             const SkMatrix& totalShapeMatrix, GrPaint&& paint,
+                             const SkRect& devBounds)
         : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fOriginalColor(paint.getColor4f())
@@ -135,7 +135,6 @@ GrProcessorSet::Analysis GrFillRRectOp::finalize(
 
     SkPMColor4f overrideColor;
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
-
             fOriginalColor, GrProcessorAnalysisCoverage::kSingleChannel, clip,
             &GrUserStencilSettings::kUnused, hasMixedSampledCoverage, caps, clampType,
             &overrideColor);
@@ -175,6 +174,21 @@ GrDrawOp::CombineResult GrFillRRectOp::onCombineIfPossible(GrOp* op, const GrCap
 
 class GrFillRRectOp::Processor : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, Flags flags) {
+        return arena->make<Processor>(aaType, flags);
+    }
+
+    const char* name() const final { return "GrFillRRectOp::Processor"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
+        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     Processor(GrAAType aaType, Flags flags)
             : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
             , fAAType(aaType)
@@ -208,15 +222,6 @@ public:
         }
     }
 
-    const char* name() const override { return "GrFillRRectOp::Processor"; }
-
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
-
-private:
     static constexpr Attribute kVertexAttribs[] = {
             {"radii_selector", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
@@ -231,6 +236,8 @@ private:
 
     class CoverageImpl;
     class MSAAImpl;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 constexpr GrPrimitiveProcessor::Attribute GrFillRRectOp::Processor::kVertexAttribs[];
@@ -441,6 +448,15 @@ static constexpr uint16_t kMSAAIndexData[] = {
         21, 23, 22};
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
+
+void GrFillRRectOp::onPrePrepare(GrRecordingContext* context,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip* clip) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    // TODO: need to also give this to the recording context
+    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView, clip);
+}
 
 void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {
     if (void* instanceData = flushState->makeVertexSpace(fInstanceStride, fInstanceCount,
@@ -730,49 +746,70 @@ GrGLSLPrimitiveProcessor* GrFillRRectOp::Processor::createGLSLInstance(
     return new CoverageImpl();
 }
 
+GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
+                                                SkArenaAlloc* arena,
+                                                const GrSurfaceProxyView* dstView,
+                                                GrAppliedClip* appliedClip) {
+    GrPipeline::InitArgs initArgs;
+    if (GrAAType::kMSAA == fAAType) {
+        initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
+    }
+    initArgs.fCaps = caps;
+//    initArgs.fDstProxyView = dstView; -----------------------------------------
+    initArgs.fOutputSwizzle = dstView->swizzle();
+
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    if (appliedClip && appliedClip->scissorState().enabled()) {
+        fixedDynamicState = arena->make<GrPipeline::FixedDynamicState>(
+                                                        appliedClip->scissorState().rect());
+    }
+
+    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs, std::move(fProcessors),
+                                                   appliedClip ? std::move(*appliedClip)
+                                                               : GrAppliedClip());
+
+    GrGeometryProcessor* geomProc = Processor::Make(arena, fAAType, fFlags);
+    SkASSERT(geomProc->instanceStride() == (size_t)fInstanceStride);
+
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                      dstProxy->numStencilSamples(),
+                                      dstView->origin(),
+                                      pipeline,
+                                      geomProc,
+                                      fixedDynamicState,
+                                      nullptr, 0,
+                                      GrPrimitiveType::kTriangles);
+}
+
+
 void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
     }
 
-    Processor* proc = flushState->allocator()->make<Processor>(fAAType, fFlags);
-    SkASSERT(proc->instanceStride() == (size_t)fInstanceStride);
+    if (!fProgramInfo) {
+        const GrSurfaceProxyView* dstView = flushState->view();
 
-    GrPipeline::InitArgs initArgs;
-    if (GrAAType::kMSAA == fAAType) {
-        initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
+        fProgramInfo = this->createProgramInfo(&flushState->caps(),
+                                               flushState->allocator(),
+                                               dstView,
+                                               flushState->appliedClip());
     }
-    initArgs.fCaps = &flushState->caps();
-    initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
-    initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
-    auto clip = flushState->detachAppliedClip();
-    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
-
-    if (clip.scissorState().enabled()) {
-        fixedDynamicState = flushState->allocator()->make<GrPipeline::FixedDynamicState>(
-                                                                    clip.scissorState().rect());
-    }
-
-    GrPipeline* pipeline = flushState->allocator()->make<GrPipeline>(initArgs,
-                                                                     std::move(fProcessors),
-                                                                     std::move(clip));
-
-    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
-                              flushState->proxy()->numStencilSamples(),
-                              flushState->drawOpArgs().origin(),
-                              pipeline,
-                              proc,
-                              fixedDynamicState,
-                              nullptr, 0,
-                              GrPrimitiveType::kTriangles);
 
     GrMesh* mesh = flushState->allocator()->make<GrMesh>(GrPrimitiveType::kTriangles);
-    mesh->setIndexedInstanced(
-            std::move(fIndexBuffer), fIndexCount, std::move(fInstanceBuffer), fInstanceCount,
-            fBaseInstance, GrPrimitiveRestart::kNo);
+    mesh->setIndexedInstanced(std::move(fIndexBuffer), fIndexCount,
+                              std::move(fInstanceBuffer), fInstanceCount,
+                              fBaseInstance, GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(fVertexBuffer));
-    flushState->opsRenderPass()->draw(programInfo, mesh, 1, this->bounds());
-    fIndexCount = 0;
+
+    flushState->opsRenderPass()->draw1(*fProgramInfo, mesh, 1, this->bounds());
+
+#if 0
+    initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
+#endif
+
 }
 
 // Will the given corner look good if we use HW derivatives?

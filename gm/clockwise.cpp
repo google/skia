@@ -163,7 +163,7 @@ private:
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* dstView,
-                      const GrAppliedClip*) final {
+                      GrAppliedClip*) final {
         // We're going to create the GrProgramInfo (and the GrPipeline and geometry processor
         // it relies on) in the DDL-record-time arena.
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
@@ -206,7 +206,7 @@ private:
         mesh.setVertexData(std::move(fVertexBuffer));
 
         if (fProgramInfo) {
-            flushState->opsRenderPass()->draw(*fProgramInfo, &mesh, 1,
+            flushState->opsRenderPass()->draw1(*fProgramInfo, &mesh, 1,
                                               SkRect::MakeXYWH(0, fY, 100, 100));
         } else {
             const GrSurfaceProxyView* dstView = flushState->view();
@@ -225,7 +225,7 @@ private:
                                       nullptr, nullptr, 0,
                                       GrPrimitiveType::kTriangleStrip);
 
-            flushState->opsRenderPass()->draw(programInfo, &mesh, 1,
+            flushState->opsRenderPass()->draw1(programInfo, &mesh, 1,
                                               SkRect::MakeXYWH(0, fY, 100, 100));
 
         }

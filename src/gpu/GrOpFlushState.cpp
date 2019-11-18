@@ -64,7 +64,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   fCurrDraw->fMeshCnt,
                                   fCurrDraw->fPrimitiveType);
 
-        this->opsRenderPass()->draw(programInfo, fCurrDraw->fMeshes,
+        this->opsRenderPass()->draw1(programInfo, fCurrDraw->fMeshes,
                                     fCurrDraw->fMeshCnt, chainBounds);
         fTokenTracker->flushToken();
         ++fCurrDraw;
@@ -139,7 +139,7 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
     return fTokenTracker->nextTokenToFlush();
 }
 
-void GrOpFlushState::recordDraw(
+void GrOpFlushState::recordDraw1(
         sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
@@ -165,7 +165,7 @@ void GrOpFlushState::recordDraw(
     draw.fDynamicStateArrays = dynamicStateArrays;
     draw.fMeshes = meshes;
     draw.fMeshCnt = meshCnt;
-    draw.fOp = fOpArgs->op();
+    draw.fOp = fOpArgs->op1();
     draw.fPrimitiveType = primitiveType;
     if (firstDraw) {
         fBaseDrawToken = token;
@@ -205,7 +205,7 @@ void GrOpFlushState::putBackVertices(int vertices, size_t vertexStride) {
 }
 
 GrAppliedClip GrOpFlushState::detachAppliedClip() {
-    return fOpArgs->appliedClip() ? std::move(*fOpArgs->appliedClip()) : GrAppliedClip();
+    return fOpArgs->appliedClip1() ? std::move(*fOpArgs->appliedClip1()) : GrAppliedClip();
 }
 
 GrStrikeCache* GrOpFlushState::glyphCache() const {

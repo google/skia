@@ -780,7 +780,7 @@ private:
             SkASSERT(vertexSize == gp->vertexStride());
         }
 
-        target->recordDraw(std::move(gp), meshes, desc.fNumProxies,
+        target->recordDraw1(std::move(gp), meshes, desc.fNumProxies,
                            desc.fFixedDynamicState, desc.fDynamicStateArrays,
                            desc.fVertexSpec.primitiveType());
     }

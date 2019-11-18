@@ -214,5 +214,5 @@ void GrCCCoverageProcessor::draw(
                               &dynamicStateArrays, 0, primitiveType);
 
 
-    renderPass->draw(programInfo, meshes, meshCount, drawBounds);
+    renderPass->draw1(programInfo, meshes, meshCount, drawBounds);
 }

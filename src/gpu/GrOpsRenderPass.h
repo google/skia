@@ -56,7 +56,7 @@ public:
     // GrMesh object and emit a draw for it. Each draw will use the same GrPipeline and
     // GrPrimitiveProcessor. This may fail if the draw would exceed any resource limits (e.g.
     // number of vertex attributes is too large).
-    bool draw(const GrProgramInfo&, const GrMesh[], int meshCount, const SkRect& bounds);
+    bool draw1(const GrProgramInfo&, const GrMesh[], int meshCount, const SkRect& bounds);
 
     // Performs an upload of vertex data in the middle of a set of a set of draws
     virtual void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) = 0;
