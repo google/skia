@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5c519dd7_12ee0719",
+        "filename": "gn/copy_git_directory.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-18T20:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f437a817_a674d8d4",
+      "range": {
+        "startLine": 16,
+        "startChar": 13,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "742a4d96_ae943bf6",
         "filename": "gn/copy_git_directory.py",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "b44e54ed_d0e1054d",
+        "filename": "gn/copy_git_directory.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-18T20:58:31Z",
+      "side": 1,
+      "message": "Noted in the comments.",
+      "parentUuid": "742a4d96_ae943bf6",
+      "range": {
+        "startLine": 31,
+        "startChar": 4,
+        "endLine": 31,
+        "endChar": 68
+      },
+      "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "511abc73_384279ff",
         "filename": "gn/copy_git_directory.py",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4281c51f_1047c53b",
+        "filename": "gn/copy_git_directory.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-18T20:58:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "511abc73_384279ff",
+      "range": {
+        "startLine": 40,
+        "startChar": 39,
+        "endLine": 40,
+        "endChar": 42
+      },
+      "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
