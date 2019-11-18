@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTFitsIn.h"
@@ -28,10 +29,32 @@
 
 #if defined(SKVM_JIT)
     #include <sys/mman.h>
-#endif
-#if defined(SKVM_PERF_DUMPS)
-    #include <stdio.h>
-    #include <time.h>
+
+    #if defined(SKVM_PERF_DUMPS)
+        #include <stdio.h>
+        #include <time.h>
+    #endif
+
+    #if defined(SKVM_JIT_VTUNE)
+        #include <jitprofiling.h>
+        static void notify_vtune(const char* name, void* addr, size_t len) {
+            if (iJIT_IsProfilingActive() != iJIT_SAMPLING_ON) {
+                return;
+            }
+
+            iJIT_Method_Load event;
+            memset(&event, 0, sizeof(event));
+            event.method_id           = iJIT_GetNewMethodID();
+            event.method_name         = const_cast<char*>(name);  // wtf?
+            event.method_load_address = addr;
+            event.method_size         = len;
+            // TODO: a line number table would be neat.
+
+            iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, &event);
+        }
+    #else
+        static void notify_vtune(const char* name, void* addr, size_t len) {}
+    #endif
 #endif
 
 
@@ -400,6 +423,12 @@ namespace skvm {
                 if (inst.y != NA) { fProgram[inst.y].used_in_loop = true; }
                 if (inst.z != NA) { fProgram[inst.z].used_in_loop = true; }
             }
+        }
+
+        char buf[64] = "skvm-jit-";
+        if (!debug_name) {
+            *SkStrAppendU32(buf+9, this->hash()) = '\0';
+            debug_name = buf;
         }
 
         return {fProgram, fStrides, debug_name};
@@ -2261,6 +2290,9 @@ namespace skvm {
         mprotect(fJITBuf, fJITSize, PROT_READ|PROT_EXEC);
         __builtin___clear_cache((char*)fJITBuf,
                                 (char*)fJITBuf + fJITSize);
+
+        // Hook into profilers and such for debugging and development.
+        notify_vtune(debug_name, fJITBuf, a.size());
     #if defined(SKVM_PERF_DUMPS)
         this->dumpJIT(debug_name, a.size());
     #endif
@@ -2269,10 +2301,9 @@ namespace skvm {
 
 #if defined(SKVM_PERF_DUMPS)
     void Program::dumpJIT(const char* debug_name, size_t size) const {
+        SkASSERT(debug_name);
     #if 0 && defined(__aarch64__)
-        if (debug_name) {
-            SkDebugf("\n%s:", debug_name);
-        }
+        SkDebugf("\n%s:", debug_name);
         // cat | llvm-mc -arch aarch64 -disassemble
         auto cur = (const uint8_t*)fJITBuf;
         for (int i = 0; i < (int)size; i++) {
@@ -2287,24 +2318,6 @@ namespace skvm {
         // We're doing some really stateful things below so one thread at a time please...
         static SkSpinlock dump_lock;
         SkAutoSpinlock lock(dump_lock);
-
-        auto fnv1a = [](const void* vbuf, size_t n) {
-            uint32_t hash = 2166136261;
-            for (auto buf = (const uint8_t*)vbuf; n --> 0; buf++) {
-                hash ^= *buf;
-                hash *= 16777619;
-            }
-            return hash;
-        };
-
-
-        char name[64];
-        uint32_t hash = fnv1a(fJITBuf, size);
-        if (debug_name) {
-            sprintf(name, "skvm-jit-%s", debug_name);
-        } else {
-            sprintf(name, "skvm-jit-%u", hash);
-        }
 
         // Create a jit-<pid>.dump file that we can `perf inject -j` into a
         // perf.data captured with `perf record -k 1`, letting us see each
@@ -2376,7 +2389,7 @@ namespace skvm {
             uint32_t pid, tid;
             uint64_t vma/*???*/, code_addr, code_size, id;
         } load = {
-            0/*code load*/, (uint32_t)(sizeof(CodeLoad) + strlen(name) + 1 + size),
+            0/*code load*/, (uint32_t)(sizeof(CodeLoad) + strlen(debug_name) + 1 + size),
             timestamp_ns(),
 
             (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
@@ -2385,7 +2398,7 @@ namespace skvm {
 
         // Write the header, the JIT'd function name, and the JIT'd code itself.
         fwrite(&load, sizeof(load), 1, jitdump);
-        fwrite(name, 1, strlen(name), jitdump);
+        fwrite(debug_name, 1, strlen(debug_name), jitdump);
         fwrite("\0", 1, 1, jitdump);
         fwrite(fJITBuf, 1, size, jitdump);
     }
