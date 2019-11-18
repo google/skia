@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 if (is_fuchsia) {
-  import ("//build/fuchsia/sdk.gni")
+  import("//build/fuchsia/sdk.gni")
 }
 
 declare_args() {
@@ -61,8 +61,12 @@ config("default") {
   }
 
   if (is_fuchsia && using_fuchsia_sdk) {
-    ldflags += [ "-v", "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
-    cflags += [ "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
+    ldflags += [
+      "-v",
+      "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot"),
+    ]
+    cflags += [ "--sysroot=" +
+                rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
     if (target_cpu == "x64") {
       target_triple = "--target=x86_64-${target_os}"
     } else if (target_cpu == "arm64") {

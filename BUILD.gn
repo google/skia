@@ -323,7 +323,9 @@ optional("fontmgr_fuchsia") {
   if (is_fuchsia && using_fuchsia_sdk) {
     deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
   } else {
-    deps = [ "//sdk/fidl/fuchsia.fonts" ]
+    deps = [
+      "//sdk/fidl/fuchsia.fonts",
+    ]
   }
   sources = [
     "src/ports/SkFontMgr_fuchsia.cpp",
@@ -1329,7 +1331,8 @@ if (skia_enable_tools) {
         libs += [ "OpenGL32.lib" ]
       }
     } else if (is_fuchsia && using_fuchsia_sdk) {
-      libs += [ "${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/lib/libzircon.so" ]
+      libs +=
+          [ "${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/lib/libzircon.so" ]
     }
 
     cflags_objcc = [ "-fobjc-arc" ]
@@ -2054,7 +2057,9 @@ if (skia_enable_tools) {
       ]
       include_dirs = [ "//" ]
       lib_dirs = []
-      deps = [ ":skqp_lib", ]
+      deps = [
+        ":skqp_lib",
+      ]
     }
     test_app("jitter_gms") {
       sources = [
@@ -2072,7 +2077,7 @@ if (skia_enable_tools) {
     group("skqp_repo") {
       testonly = true
       deps = [
-        "//build/fuchsia/skqp:skqp_repo"
+        "//build/fuchsia/skqp:skqp_repo",
       ]
     }
   }

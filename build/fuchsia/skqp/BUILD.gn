@@ -4,7 +4,7 @@
 
 assert(is_fuchsia)
 
-import ("//build/fuchsia/sdk.gni")
+import("//build/fuchsia/sdk.gni")
 
 pkg_dir = target_gen_dir
 pkg_name = "skqp_pkg"
@@ -14,14 +14,19 @@ fuchsia_package(pkg_name) {
   name = pkg_name
   version = 0
   deps = [
-    "//build/fuchsia", "//:skqp",
+    "//:skqp",
+    "//build/fuchsia",
   ]
   pkg_manifest = "${pkg_dir}/${target_name}.manifest"
 }
 
 fuchsia_repo("skqp_repo") {
   testonly = true
-  deps = [ ":base_manifest", ":append_assets_to_manifest", ":skqp_pkg" ]
+  deps = [
+    ":append_assets_to_manifest",
+    ":base_manifest",
+    ":skqp_pkg",
+  ]
 
   # Put repo directory in out dir (not gen dir).
   repo = "$target_out_dir/skqp_repo"
@@ -38,14 +43,17 @@ group("base_manifest") {
   skqp_path = rebase_path("${target_gen_dir}")
 
   sdk_dist_path = rebase_path("${fuchsia_sdk_path}/arch/${target_cpu}/dist")
-  sdk_sysroot_dist_path = rebase_path("${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/dist/lib")
+  sdk_sysroot_dist_path =
+      rebase_path("${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/dist/lib")
 
   skqp_component_manifest = rebase_path("//build/fuchsia/skqp/skqp.cmx")
 
   if (target_cpu == "x64" || target_cpu == "x86_64") {
-    clang_path=rebase_path("${fuchsia_toolchain_path}/lib/x86_64-unknown-fuchsia/c++")
+    clang_path =
+        rebase_path("${fuchsia_toolchain_path}/lib/x86_64-unknown-fuchsia/c++")
   } else if (target_cpu == "arm64") {
-    clang_path=rebase_path("${fuchsia_toolchain_path}/lib/aarch64-unknown-fuchsia/c++")
+    clang_path =
+        rebase_path("${fuchsia_toolchain_path}/lib/aarch64-unknown-fuchsia/c++")
   } else {
     assert(false, "Unknown target cpu for Fuchsia target.")
   }
