@@ -1,5 +1,5 @@
 if (is_fuchsia) {
-  import ("//build/fuchsia/sdk.gni")
+  import("//build/fuchsia/sdk.gni")
 }
 
 declare_args() {
@@ -23,7 +23,8 @@ declare_args() {
     target_ar = rebase_path("$fuchsia_toolchain_path/bin/llvm-ar")
     target_cc = rebase_path("$fuchsia_toolchain_path/bin/clang")
     target_cxx = rebase_path("$fuchsia_toolchain_path/bin/clang++")
-    cflags = "--sysroot=" + rebase_path("$fuchsia_toolchain_path/$target_cpu/sysroot")
+    cflags = "--sysroot=" +
+             rebase_path("$fuchsia_toolchain_path/$target_cpu/sysroot")
     link = rebase_path("$fuchsia_toolchain_path/bin/ld.lld")
   } else {
     target_ar = ar
