@@ -35,7 +35,7 @@ void GrOpsRenderPass::clearStencilClip(const GrFixedClip& clip, bool insideStenc
     this->onClearStencilClip(clip, insideStencilMask);
 }
 
-bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
+bool GrOpsRenderPass::draw1(const GrProgramInfo& programInfo,
                            const GrMesh meshes[], int meshCount, const SkRect& bounds) {
     if (!meshCount) {
         return true;

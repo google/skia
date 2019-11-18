@@ -277,7 +277,7 @@ private:
         mesh.setInstanced(nullptr, 200*200, 0, 4);
 
         if (fProgramInfo) {
-            flushState->opsRenderPass()->draw(*fProgramInfo, &mesh, 1,
+            flushState->opsRenderPass()->draw1(*fProgramInfo, &mesh, 1,
                                               SkRect::MakeIWH(200, 200));
         } else {
             const GrSurfaceProxyView* dstView = flushState->view();
@@ -300,7 +300,7 @@ private:
                                       nullptr, nullptr, 0,
                                       GrPrimitiveType::kTriangleStrip);
 
-            flushState->opsRenderPass()->draw(programInfo, &mesh, 1,
+            flushState->opsRenderPass()->draw1(programInfo, &mesh, 1,
                                               SkRect::MakeIWH(200, 200));
         }
     }

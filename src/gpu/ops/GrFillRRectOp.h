@@ -20,21 +20,24 @@ public:
             GrRecordingContext*, GrAAType, const SkMatrix& viewMatrix, const SkRRect&,
             const GrCaps&, GrPaint&&);
 
-    const char* name() const override { return "GrFillRRectOp"; }
-    FixedFunctionFlags fixedFunctionFlags() const override {
-        return (GrAAType::kMSAA == fAAType)
-                ? FixedFunctionFlags::kUsesHWAA
-                : FixedFunctionFlags::kNone;
+    const char* name() const final { return "GrFillRRectOp"; }
+
+    FixedFunctionFlags fixedFunctionFlags() const final {
+        return (GrAAType::kMSAA == fAAType) ? FixedFunctionFlags::kUsesHWAA
+                                            : FixedFunctionFlags::kNone;
     }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
-                                      bool hasMixedSampledCoverage, GrClampType) override;
-    CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
+                                      bool hasMixedSampledCoverage, GrClampType) final;
+    CombineResult onCombineIfPossible(GrOp*, const GrCaps&) final;
     void visitProxies(const VisitProxyFunc& fn) const override {
         fProcessors.visitProxies(fn);
     }
-    void onPrepare(GrOpFlushState*) override;
 
-    void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, const GrAppliedClip*) final;
+
+    void onPrepare(GrOpFlushState*) final;
+
+    void onExecute(GrOpFlushState*, const SkRect& chainBounds) final;
 
 private:
     enum class Flags {
@@ -68,6 +71,8 @@ private:
 
     void writeInstanceData() {}  // Halt condition.
 
+    void dang(const GrCaps*, SkArenaAlloc*, const GrSurfaceProxyView* dstView); // , const GrAppliedClip*);
+
     const GrAAType fAAType;
     const SkPMColor4f fOriginalColor;
     const SkRect fLocalRect;
@@ -83,6 +88,8 @@ private:
     sk_sp<const GrBuffer> fIndexBuffer;
     int fBaseInstance;
     int fIndexCount = 0;
+
+    GrProgramInfo* fProgramInfo = nullptr;
 
     friend class GrOpMemoryPool;
 };

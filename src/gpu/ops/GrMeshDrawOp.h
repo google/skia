@@ -108,7 +108,7 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void recordDraw(
+    virtual void recordDraw1(
             sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
             const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
             GrPrimitiveType) = 0;
@@ -117,11 +117,11 @@ public:
      * Helper for drawing GrMesh(es) with zero primProc textures and no dynamic state besides the
      * scissor clip.
      */
-    void recordDraw(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
+    void recordDraw2(sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
                     GrPrimitiveType primitiveType) {
         static constexpr int kZeroPrimProcTextures = 0;
         auto fixedDynamicState = this->makeFixedDynamicState(kZeroPrimProcTextures);
-        this->recordDraw(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr, primitiveType);
+        this->recordDraw1(std::move(gp), meshes, meshCnt, fixedDynamicState, nullptr, primitiveType);
     }
 
     /**

@@ -175,6 +175,21 @@ GrDrawOp::CombineResult GrFillRRectOp::onCombineIfPossible(GrOp* op, const GrCap
 
 class GrFillRRectOp::Processor : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, Flags flags) {
+        return arena->make<Processor>(aaType, flags);
+    }
+
+    const char* name() const final { return "GrFillRRectOp::Processor"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
+        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     Processor(GrAAType aaType, Flags flags)
             : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
             , fAAType(aaType)
@@ -208,15 +223,6 @@ public:
         }
     }
 
-    const char* name() const override { return "GrFillRRectOp::Processor"; }
-
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
-
-private:
     static constexpr Attribute kVertexAttribs[] = {
             {"radii_selector", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
@@ -231,6 +237,8 @@ private:
 
     class CoverageImpl;
     class MSAAImpl;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 constexpr GrPrimitiveProcessor::Attribute GrFillRRectOp::Processor::kVertexAttribs[];
@@ -441,6 +449,54 @@ static constexpr uint16_t kMSAAIndexData[] = {
         21, 23, 22};
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gMSAAIndexBufferKey);
+
+void GrFillRRectOp::dang(const GrCaps* caps,
+                         SkArenaAlloc* arena,
+                         const GrSurfaceProxyView* dstView) {
+//                         const GrAppliedClip*) {
+
+    GrGeometryProcessor* geoProc = arena->make<Processor>(fAAType, fFlags);
+    SkASSERT(geoProc->instanceStride() == (size_t)fInstanceStride);
+
+    GrPipeline::InitArgs initArgs;
+    if (GrAAType::kMSAA == fAAType) {
+        initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
+    }
+    initArgs.fCaps = caps;
+//    initArgs.fDstProxyView = dstView;
+    initArgs.fOutputSwizzle = dstView->swizzle();
+}
+
+
+void GrFillRRectOp::onPrePrepare(GrRecordingContext* context,
+                                 const GrSurfaceProxyView* dstView,
+                                 const GrAppliedClip* clip) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    this->dang(context->priv().caps(), arena, dstView); // , clip);
+
+#if 0
+    // Not POD! It has some sk_sp's buried inside it!
+    GrPipeline* pipeline = arena->make<GrPipeline>(GrScissorTest::kDisabled,
+                                                    SkBlendMode::kSrcOver,
+                                                    dstView->swizzle(),
+                                                    GrPipeline::InputFlags::kHWAntialias,
+                                                    &gStencilWrite);
+
+    GrGeometryProcessor* geomProc = SampleLocationsTestProcessor::Make(arena, fGradType);
+
+    // The programInfo is POD
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    fProgramInfo = arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                                dstProxy->numStencilSamples(),
+                                                dstView->origin(),
+                                                pipeline,
+                                                geomProc,
+                                                nullptr, nullptr, 0,
+                                                GrPrimitiveType::kTriangleStrip);
+#endif
+}
+
 
 void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {
     if (void* instanceData = flushState->makeVertexSpace(fInstanceStride, fInstanceCount,
@@ -735,9 +791,21 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
         return;  // Setup failed.
     }
 
+    if (fProgramInfo) {
+
+    } else {
+        const GrSurfaceProxyView* dstView = flushState->view();
+        auto clip = flushState->detachAppliedClip();
+
+        this->dang(&flushState->caps(), flushState->allocator(), dstView); // , clip);
+    }
+
+#if 1
     Processor* proc = flushState->allocator()->make<Processor>(fAAType, fFlags);
     SkASSERT(proc->instanceStride() == (size_t)fInstanceStride);
+#endif
 
+#if 1
     GrPipeline::InitArgs initArgs;
     if (GrAAType::kMSAA == fAAType) {
         initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
@@ -745,6 +813,8 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     initArgs.fCaps = &flushState->caps();
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
     initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
+#endif
+
     auto clip = flushState->detachAppliedClip();
     GrPipeline::FixedDynamicState* fixedDynamicState =
         flushState->allocator()->make<GrPipeline::FixedDynamicState>(clip.scissorState().rect());
@@ -766,7 +836,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
             std::move(fIndexBuffer), fIndexCount, std::move(fInstanceBuffer), fInstanceCount,
             fBaseInstance, GrPrimitiveRestart::kNo);
     mesh->setVertexData(std::move(fVertexBuffer));
-    flushState->opsRenderPass()->draw(programInfo, mesh, 1, this->bounds());
+    flushState->opsRenderPass()->draw1(programInfo, mesh, 1, this->bounds());
     fIndexCount = 0;
 }
 

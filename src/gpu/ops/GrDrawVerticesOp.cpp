@@ -506,7 +506,7 @@ void DrawVerticesOp::drawVertices(Target* target,
         mesh->setNonIndexedNonInstanced(fVertexCount);
     }
     mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-    target->recordDraw(std::move(gp), mesh, 1, this->primitiveType());
+    target->recordDraw2(std::move(gp), mesh, 1, this->primitiveType());
 }
 
 void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

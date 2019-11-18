@@ -60,8 +60,8 @@ public:
     struct OpArgs {
         explicit OpArgs(GrOp* op, GrSurfaceProxyView* surfaceView, GrAppliedClip* appliedClip,
                         const GrXferProcessor::DstProxyView& dstProxyView)
-                : fOp(op)
-                , fSurfaceView(surfaceView)
+//                : fOp(op)
+                : fSurfaceView(surfaceView)
                 , fRenderTargetProxy(surfaceView->asRenderTargetProxy())
                 , fAppliedClip(appliedClip)
                 , fDstProxyView(dstProxyView) {
@@ -71,7 +71,7 @@ public:
         GrSurfaceOrigin origin() const { return fSurfaceView->origin(); }
         GrSwizzle outputSwizzle() const { return fSurfaceView->swizzle(); }
 
-        GrOp* op() { return fOp; }
+        GrOp* op1() { return nullptr; /* fOp; */ }
         const GrSurfaceProxyView* view() const { return fSurfaceView; }
         GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
@@ -80,13 +80,13 @@ public:
 
 #ifdef SK_DEBUG
         void validate() const {
-            SkASSERT(fOp);
+//            SkASSERT(fOp);
             SkASSERT(fSurfaceView);
         }
 #endif
 
     private:
-        GrOp*                         fOp;
+//        GrOp*                         fOp;
         GrSurfaceProxyView*           fSurfaceView;
         GrRenderTargetProxy*          fRenderTargetProxy;
         GrAppliedClip*                fAppliedClip;
@@ -116,7 +116,7 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void recordDraw(sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+    void recordDraw1(sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
                     const GrPipeline::FixedDynamicState*,
                     const GrPipeline::DynamicStateArrays*, GrPrimitiveType) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,

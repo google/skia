@@ -437,7 +437,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           &fTargetView,
                                           chain.appliedClip(),
-                                          chain.dstProxyView());
+                                          chain.dstProxyView() /*$$*/);
 
             flushState->setOpArgs(&opArgs);
 
@@ -578,7 +578,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       &fTargetView,
                                       chain.appliedClip(),
-                                      chain.dstProxyView());
+                                      chain.dstProxyView() /*$$*/);
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());
