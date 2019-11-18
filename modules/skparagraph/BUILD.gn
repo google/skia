@@ -3,7 +3,7 @@
 import("../../gn/skia.gni")
 
 declare_args() {
-  skia_enable_skparagraph = !(is_win && is_component_build)
+  skia_enable_skparagraph = true
   paragraph_tests_enabled = true
   paragraph_bench_enabled = false
 }
