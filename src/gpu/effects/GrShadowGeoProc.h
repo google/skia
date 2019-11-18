@@ -19,8 +19,11 @@ class GrGLRRectShadowGeoProc;
  */
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make() {
-        return sk_sp<GrGeometryProcessor>(new GrRRectShadowGeoProc());
+    static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> lut) {
+        return sk_sp<GrGeometryProcessor>(
+                new GrRRectShadowGeoProc(std::move(lut),
+                                         GrSamplerState(GrSamplerState::WrapMode::kClamp,
+                                                        GrSamplerState::Filter::kBilerp)));
     }
 
     const char* name() const override { return "RRectShadow"; }
@@ -35,9 +38,11 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    GrRRectShadowGeoProc();
+    GrRRectShadowGeoProc(sk_sp<GrTextureProxy> lut, GrSamplerState samplerParams);
 
     GrColor          fColor;
+    TextureSampler   fLUTTextureSampler;
+
     const Attribute* fInPosition;
     const Attribute* fInColor;
     const Attribute* fInShadowParams;
