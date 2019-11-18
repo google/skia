@@ -100,8 +100,10 @@ GrPipeline::DynamicStateArrays* GrMeshDrawOp::Target::AllocDynamicStateArrays(
 GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::MakeFixedDynamicState(
         SkArenaAlloc* arena, const GrAppliedClip* clip, int numPrimProcTextures) {
 
-    if ((clip && clip->scissorState().enabled()) || numPrimProcTextures) {
-        const SkIRect& scissor = (clip) ? clip->scissorState().rect() : SkIRect::MakeEmpty();
+    bool haveScissor = clip && clip->scissorState().enabled();
+
+    if (haveScissor || numPrimProcTextures) {
+        const SkIRect& scissor = (haveScissor) ? clip->scissorState().rect() : SkIRect::MakeEmpty();
 
         auto result = arena->make<GrPipeline::FixedDynamicState>(scissor);
 
