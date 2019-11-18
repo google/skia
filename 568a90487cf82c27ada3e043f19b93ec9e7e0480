@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f437a817_a674d8d4",
+        "filename": "gn/copy_git_directory.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T19:37:05Z",
+      "side": 1,
+      "message": "enumerate*",
+      "range": {
+        "startLine": 16,
+        "startChar": 13,
+        "endLine": 16,
+        "endChar": 23
+      },
+      "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "511abc73_384279ff",
+        "filename": "gn/copy_git_directory.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T19:37:05Z",
+      "side": 1,
+      "message": "os.sep?",
+      "range": {
+        "startLine": 40,
+        "startChar": 39,
+        "endLine": 40,
+        "endChar": 42
+      },
+      "revId": "568a90487cf82c27ada3e043f19b93ec9e7e0480",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
