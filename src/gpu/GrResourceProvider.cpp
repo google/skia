@@ -529,13 +529,15 @@ sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
     return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt, colorType);
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(bool isOwned) {
-    return fGpu->makeSemaphore(isOwned);
+std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(
+        bool isOwned) {
+    return this->isAbandoned() ? nullptr : fGpu->makeSemaphore(isOwned);
 }
 
-sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                            SemaphoreWrapType wrapType,
-                                                            GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(
+        const GrBackendSemaphore& semaphore,
+        SemaphoreWrapType wrapType,
+        GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore,
                                                                       wrapType,

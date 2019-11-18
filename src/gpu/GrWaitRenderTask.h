@@ -14,11 +14,11 @@
 class GrWaitRenderTask final : public GrRenderTask {
 public:
     GrWaitRenderTask(GrSurfaceProxyView surfaceView,
-                     std::unique_ptr<sk_sp<GrSemaphore>[]> semaphores,
+                     std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,
                      int numSemaphores)
             : GrRenderTask(std::move(surfaceView))
             , fSemaphores(std::move(semaphores))
-            , fNumSemaphores(numSemaphores){}
+            , fNumSemaphores(numSemaphores) {}
 
 private:
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
@@ -39,7 +39,7 @@ private:
     // No non-dst proxies.
     void visitProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const override {}
 #endif
-    std::unique_ptr<sk_sp<GrSemaphore>[]> fSemaphores;
+    std::unique_ptr<std::unique_ptr<GrSemaphore>[]> fSemaphores;
     int fNumSemaphores;
 };
 

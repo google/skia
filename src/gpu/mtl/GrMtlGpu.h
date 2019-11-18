@@ -90,14 +90,17 @@ public:
     bool waitFence(GrFence, uint64_t) override;
     void deleteFence(GrFence) const override;
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                            GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership) override;
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override;
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
+            const GrBackendSemaphore& semaphore,
+            GrResourceProvider::SemaphoreWrapType wrapType,
+            GrWrapOwnership ownership) override;
+    void insertSemaphore(GrSemaphore* semaphore) override;
+    void waitSemaphore(GrSemaphore* semaphore) override;
     void checkFinishProcs() override;
-    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
+    std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override {
+        return nullptr;
+    }
 
     // When the Metal backend actually uses indirect command buffers, this function will actually do
     // what it says. For now, every command is encoded directly into the primary command buffer, so

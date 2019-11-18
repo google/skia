@@ -76,15 +76,16 @@ public:
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) override;
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                            GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership) override;
-    void insertSemaphore(sk_sp<GrSemaphore> semaphore) override;
-    void waitSemaphore(sk_sp<GrSemaphore> semaphore) override;
+    std::unqiue_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) override;
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
+            const GrBackendSemaphore& semaphore,
+            GrResourceProvider::SemaphoreWrapType wrapType,
+            GrWrapOwnership ownership) override;
+    void insertSemaphore(GrSemaphore* semaphore) override;
+    void waitSemaphore(GrSemaphore* semaphore) override;
     void checkFinishProcs() override;
 
-    sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
+    std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
     sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*, const GrProgramInfo&);
 
