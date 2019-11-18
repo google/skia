@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.9.0] - 2019-11-18
 ### Added
  - Experimental `CanvasKit.Malloc`, which can be used to create a
    TypedArray backed by the C++ WASM memory. This can save a copy in some cases
