@@ -779,6 +779,16 @@ optional("skvm_jit") {
   public_defines = [ "SKVM_JIT" ]
 }
 
+config("vtune_includes") {
+  include_dirs = [ "/opt/intel/vtune_amplifier/include" ]
+}
+optional("skvm_jit_vtune") {
+  enabled = skia_enable_skvm_jit_vtune
+  public_defines = [ "SKVM_JIT_VTUNE" ]
+  public_configs = [ ":vtune_includes" ]
+  libs = [ "/opt/intel/vtune_amplifier/lib64/libjitprofiling.a" ]
+}
+
 if (skia_enable_gpu && skia_generate_workarounds) {
   action("workaround_list") {
     script = "tools/build_workaround_header.py"
@@ -839,6 +849,7 @@ component("skia") {
     ":raw",
     ":sksl_interpreter",
     ":skvm_jit",
+    ":skvm_jit_vtune",
     ":sse2",
     ":sse41",
     ":sse42",
