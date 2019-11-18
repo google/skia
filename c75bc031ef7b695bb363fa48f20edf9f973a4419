@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b16ffb4_31bba414",
+        "filename": "resources/ducky.jpg",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-18T18:52:49Z",
+      "side": 1,
+      "message": "Any reason you didn\u0027t put this in resources/images/ ?",
+      "revId": "c75bc031ef7b695bb363fa48f20edf9f973a4419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
