@@ -358,12 +358,12 @@ public:
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;
     virtual void deleteFence(GrFence) const = 0;
 
-    virtual sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) = 0;
-    virtual sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                    GrResourceProvider::SemaphoreWrapType wrapType,
-                                                    GrWrapOwnership ownership) = 0;
-    virtual void insertSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
-    virtual void waitSemaphore(sk_sp<GrSemaphore> semaphore) = 0;
+    virtual std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(
+            bool isOwned = true) = 0;
+    virtual std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+            GrResourceProvider::SemaphoreWrapType wrapType, GrWrapOwnership ownership) = 0;
+    virtual void insertSemaphore(GrSemaphore* semaphore) = 0;
+    virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 
     virtual void checkFinishProcs() = 0;
 
@@ -372,7 +372,7 @@ public:
      *  the backend, this may return a GrSemaphore. If so, other contexts should wait on that
      *  semaphore before using this texture.
      */
-    virtual sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) = 0;
+    virtual std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) = 0;
 
     ///////////////////////////////////////////////////////////////////////////
     // Debugging and Stats

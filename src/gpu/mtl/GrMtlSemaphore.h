@@ -19,12 +19,12 @@ class GrMtlGpu;
 
 class GrMtlSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrMtlSemaphore> Make(GrMtlGpu* gpu, bool isOwned);
+    static std::unqiue_ptr<GrMtlSemaphore> Make(GrMtlGpu* gpu, bool isOwned);
 
-    static sk_sp<GrMtlSemaphore> MakeWrapped(GrMtlGpu* gpu,
-                                             GrMTLHandle event,
-                                             uint64_t value,
-                                             GrWrapOwnership ownership);
+    static std::unique_ptr<GrMtlSemaphore> MakeWrapped(GrMtlGpu* gpu,
+                                                       GrMTLHandle event,
+                                                       uint64_t value,
+                                                       GrWrapOwnership ownership);
 
     id<MTLEvent> event() const API_AVAILABLE(macos(10.14), ios(12.0)) { return fEvent; }
     uint64_t value() const { return fValue; }
