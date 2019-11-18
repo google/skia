@@ -46,6 +46,30 @@
       "revId": "f22cffa32c284a7cf3a6eab02730734e615a4d29",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "572c5fca_f145c01b",
+        "filename": "site/dev/tools/markdown.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-18T17:48:24Z",
+      "side": 1,
+      "message": "LGTM. Note that because this version of the infra code is not obtained via \"go get\", it\u0027s not pinned.  It doesn\u0027t look like that matters in this case though.",
+      "parentUuid": "d948bb9c_e4131bff",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 40
+      },
+      "revId": "f22cffa32c284a7cf3a6eab02730734e615a4d29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
