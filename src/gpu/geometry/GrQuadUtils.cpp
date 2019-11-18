@@ -385,9 +385,16 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
 // TessellationHelper implementation
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-TessellationHelper::TessellationHelper(const GrQuad& deviceQuad, const GrQuad* localQuad)
-        : fDeviceType(deviceQuad.quadType())
-        , fLocalType(localQuad ? localQuad->quadType() : GrQuad::Type::kAxisAligned) {
+void TessellationHelper::reset(const GrQuad& deviceQuad, const GrQuad* localQuad) {
+    // Record basic state that isn't recorded on the Vertices struct itself
+    fDeviceType = deviceQuad.quadType();
+    fLocalType = localQuad ? localQuad->quadType() : GrQuad::Type::kAxisAligned;
+
+    // Reset metadata validity
+    fOutsetRequestValid = false;
+    fEdgeEquationsValid = false;
+
+    // Set vertices to match the device and local quad
     fOriginal.fX = deviceQuad.x4f();
     fOriginal.fY = deviceQuad.y4f();
     fOriginal.fW = deviceQuad.w4f();
@@ -431,10 +438,12 @@ TessellationHelper::TessellationHelper(const GrQuad& deviceQuad, const GrQuad* l
         // on thefInvSinTheta since it will approach infinity.
         fEdgeVectors.fInvSinTheta = rsqrt(1.f - fEdgeVectors.fCosTheta * fEdgeVectors.fCosTheta);
     }
+
+    fVerticesValid = true;
 }
 
 const TessellationHelper::EdgeEquations& TessellationHelper::getEdgeEquations() {
-    if (!fEdgeEquations.fValid) {
+    if (!fEdgeEquationsValid) {
         V4f dx = fEdgeVectors.fDX;
         V4f dy = fEdgeVectors.fDY;
         // Correct for bad edges by copying adjacent edge information into the bad component
@@ -453,7 +462,7 @@ const TessellationHelper::EdgeEquations& TessellationHelper::getEdgeEquations() 
             fEdgeEquations.fC = c;
         }
 
-        fEdgeEquations.fValid = true;
+        fEdgeEquationsValid = true;
     }
     return fEdgeEquations;
 }
@@ -465,7 +474,7 @@ const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
     SkASSERT(all(edgeDistances >= 0.f));
 
     // Rebuild outset request if invalid or if the edge distances have changed.
-    if (!fOutsetRequest.fValid || any(edgeDistances != fOutsetRequest.fEdgeDistances)) {
+    if (!fOutsetRequestValid || any(edgeDistances != fOutsetRequest.fEdgeDistances)) {
         // Based on the edge distances, determine if it's acceptable to use fInvSinTheta to
         // calculate the inset or outset geometry.
         if (fDeviceType <= GrQuad::Type::kRectilinear) {
@@ -513,7 +522,7 @@ const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
         }
 
         fOutsetRequest.fEdgeDistances = edgeDistances;
-        fOutsetRequest.fValid = true;
+        fOutsetRequestValid = true;
     }
     return fOutsetRequest;
 }
@@ -651,6 +660,28 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
         } else {
             correct_bad_coords(abs(denom) < kTolerance, &fU, &fV, nullptr);
         }
+    }
+}
+
+void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
+                                             GrQuad* localOut, GrQuad::Type localType) const {
+    SkASSERT(deviceOut);
+    SkASSERT(fUVRCount == 0 || localOut);
+
+    fX.store(deviceOut->xs());
+    fY.store(deviceOut->ys());
+    if (deviceType == GrQuad::Type::kPerspective) {
+        fW.store(deviceOut->ws());
+    }
+    deviceOut->setQuadType(deviceType); // This sets ws == 1 when device type != perspective
+
+    if (fUVRCount > 0) {
+        fU.store(localOut->xs());
+        fV.store(localOut->ys());
+        if (fUVRCount == 3) {
+            fR.store(localOut->ws());
+        }
+        localOut->setQuadType(localType);
     }
 }
 
@@ -799,9 +830,11 @@ int TessellationHelper::adjustVertices(const skvx::Vec<4, float>& edgeDistances,
 
 V4f TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
                               GrQuad* deviceInset, GrQuad* localInset) {
+    SkASSERT(fVerticesValid);
+
     Vertices inset = fOriginal;
     int vertexCount = this->adjustVertices(edgeDistances, true, &inset);
-    this->setQuads(inset, deviceInset, localInset);
+    inset.asGrQuads(deviceInset, fDeviceType, localInset, fLocalType);
 
     if (vertexCount < 3) {
         // The interior has less than a full pixel's area so estimate reduced coverage using
@@ -815,31 +848,11 @@ V4f TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
 
 void TessellationHelper::outset(const skvx::Vec<4, float>& edgeDistances,
                                 GrQuad* deviceOutset, GrQuad* localOutset) {
+    SkASSERT(fVerticesValid);
+
     Vertices outset = fOriginal;
     this->adjustVertices(edgeDistances, false, &outset);
-    this->setQuads(outset, deviceOutset, localOutset);
-}
-
-void TessellationHelper::setQuads(const Vertices& vertices,
-                                  GrQuad* deviceOut, GrQuad* localOut) const {
-    SkASSERT(deviceOut);
-    SkASSERT(vertices.fUVRCount == 0 || localOut);
-
-    vertices.fX.store(deviceOut->xs());
-    vertices.fY.store(deviceOut->ys());
-    if (fDeviceType == GrQuad::Type::kPerspective) {
-        vertices.fW.store(deviceOut->ws());
-    }
-    deviceOut->setQuadType(fDeviceType); // This sets ws == 1 when device type != perspective
-
-    if (vertices.fUVRCount > 0) {
-        vertices.fU.store(localOut->xs());
-        vertices.fV.store(localOut->ys());
-        if (vertices.fUVRCount == 3) {
-            vertices.fR.store(localOut->ws());
-        }
-        localOut->setQuadType(fLocalType);
-    }
+    outset.asGrQuads(deviceOutset, fDeviceType, localOutset, fLocalType);
 }
 
 }; // namespace GrQuadUtils

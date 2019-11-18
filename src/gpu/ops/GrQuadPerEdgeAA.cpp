@@ -107,6 +107,7 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
             geomDomain.outset(0.5f, 0.5f); // account for AA expansion
         }
 
+        GrQuadUtils::TessellationHelper helper;
         if (aaFlags == GrQuadAAFlags::kNone) {
             // Have to write the coverage AA vertex structure, but there's no math to be done for a
             // non-aa quad batched into a coverage AA op.
@@ -118,8 +119,7 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
             // TODO(michaelludwig) - Update TessellateHelper to select processing functions based on
             // the vertexspec once per op, and then burn through all quads with the selected
             // function ptr.
-            GrQuadUtils::TessellationHelper helper(deviceQuad,
-                                                   spec.hasLocalCoords() ? &localQuad : nullptr);
+            helper.reset(deviceQuad, spec.hasLocalCoords() ? &localQuad : nullptr);
 
             // Edge inset/outset distance ordered LBTR, set to 0.5 for a half pixel if the AA flag
             // is turned on, or 0.0 if the edge is not anti-aliased.

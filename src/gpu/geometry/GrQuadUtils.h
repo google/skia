@@ -42,8 +42,9 @@ namespace GrQuadUtils {
 
     class TessellationHelper {
     public:
-        // Provide nullptr if there are no local coordinates to track
-        TessellationHelper(const GrQuad& deviceQuad, const GrQuad* localQuad);
+        // Set the original device and (optional) local coordinates that are inset or outset
+        // by the requested edge distances. Use nullptr if there are no local coordinates to update.
+        void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
         // Calculates a new quadrilateral with edges parallel to the original except that they
         // have been moved inwards by edgeDistances (which should be positive). Distances are
@@ -94,6 +95,9 @@ namespace GrQuadUtils {
             void moveTo(const skvx::Vec<4, float>& x2d,
                         const skvx::Vec<4, float>& y2d,
                         const skvx::Vec<4, int32_t>& mask);
+
+            void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
+                           GrQuad* localOut, GrQuad::Type localType) const;
         };
 
         // NOTE: This struct is named 'EdgeVectors' because it holds a lot of cached calculations
@@ -117,8 +121,6 @@ namespace GrQuadUtils {
         struct EdgeEquations {
             // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
             skvx::Vec<4, float> fA, fB, fC;
-            // True if the field is up to date with the state of fOriginal+fAAFlags
-            bool fValid = false;
 
             skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
                                                  const skvx::Vec<4, float>& y2d) const;
@@ -134,11 +136,8 @@ namespace GrQuadUtils {
             // be because of the requested edge distances (collapse of inset, etc.)
             bool fInsetDegenerate;
             bool fOutsetDegenerate;
-            // True if the field is up to date with the state of fOriginal+fAAFlags
-            bool fValid = false;
         };
 
-        // Always valid
         Vertices            fOriginal;
         EdgeVectors         fEdgeVectors;
         GrQuad::Type        fDeviceType;
@@ -148,7 +147,13 @@ namespace GrQuadUtils {
         OutsetRequest       fOutsetRequest;
         EdgeEquations       fEdgeEquations;
 
-        void setQuads(const Vertices& vertices, GrQuad* deviceOut, GrQuad* localOut) const;
+        // Validity of Vertices/EdgeVectors (always true after first call to set()).
+        bool fVerticesValid = false;
+        // Validity of outset request (true after calling getOutsetRequest() until next set() call
+        // or next inset/outset() with different edge distances).
+        bool fOutsetRequestValid = false;
+        // Validity of edge equations (true after calling getEdgeEquations() until next set() call).
+        bool fEdgeEquationsValid = false;
 
         // The requested edge distances must be positive so that they can be reused between inset
         // and outset calls.
