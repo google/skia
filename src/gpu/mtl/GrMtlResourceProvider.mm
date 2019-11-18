@@ -262,6 +262,10 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
 }
 
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
+#ifdef SK_BUILD_FOR_MAC
+    // Mac requires 4-byte alignment for didModifyRange:
+    size = GrSizeAlignUp(size, 4);
+#endif
     id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
     if (buffer) {
         return buffer;

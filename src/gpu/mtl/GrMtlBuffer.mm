@@ -41,6 +41,11 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
         if (@available(macOS 10.11, iOS 9.0, *)) {
             options |= MTLResourceStorageModePrivate;
         }
+#ifdef SK_BUILD_FOR_MAC
+        // Mac requires 4-byte alignment for copies so we need
+        // to ensure we have space for the extra data
+        size = GrSizeAlignUp(size, 4);
+#endif
         fMtlBuffer = size == 0 ? nil :
                 [gpu->device() newBufferWithLength: size
                                            options: options];
@@ -77,7 +82,7 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
     }
     SkASSERT(fMappedBuffer);
     if (!fIsDynamic) {
-        SkASSERT(srcInBytes == fMappedBuffer.length);
+        SkASSERT(GrSizeAlignUp(srcInBytes, 4) == fMappedBuffer.length);
     }
     memcpy(fMapPtr, src, srcInBytes);
     this->internalUnmap(srcInBytes);
@@ -129,6 +134,10 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
         if (@available(macOS 10.11, iOS 9.0, *)) {
             options |= MTLResourceStorageModeShared;
         }
+#ifdef SK_BUILD_FOR_MAC
+        // Mac requires 4-byte alignment for copies so we pad this out
+        sizeInBytes = GrSizeAlignUp(sizeInBytes, 4);
+#endif
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
                                                       options: options];
@@ -149,9 +158,13 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         fMapPtr = nullptr;
         return;
     }
+#ifdef SK_BUILD_FOR_MAC
+    // In both cases the size needs to be 4-byte aligned on Mac
+    sizeInBytes = GrSizeAlignUp(sizeInBytes, 4);
+#endif
     if (fIsDynamic) {
 #ifdef SK_BUILD_FOR_MAC
-        // TODO: need to make sure offset and size have valid alignments.
+        SkASSERT(0 == (fOffset & 0x3));  // should be 4-byte aligned
         [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
 #endif
     } else {
