@@ -5,34 +5,35 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlSemaphore.h"
+
+#include "src/core/SkMakeUnique.h"
+#include "src/gpu/mtl/GrMtlGpu.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-sk_sp<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu, bool isOwned) {
+std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu, bool isOwned) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
         uint64_t value = 1; // seems like a reasonable starting point
-        return sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, event, value, isOwned));
+        return skstd::make_unique<GrMtlSemaphore>(gpu, event, value, isOwned);
     } else {
         return nullptr;
     }
 }
 
-sk_sp<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMtlGpu* gpu,
-                                                  GrMTLHandle event,
-                                                  uint64_t value,
-                                                  GrWrapOwnership ownership) {
+std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMtlGpu* gpu,
+                                                            GrMTLHandle event,
+                                                            uint64_t value,
+                                                            GrWrapOwnership ownership) {
     // The GrMtlSemaphore will have strong ownership at this point.
     // The GrMTLHandle will subsequently only have weak ownership.
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
-        auto sema = sk_sp<GrMtlSemaphore>(new GrMtlSemaphore(gpu, mtlEvent, value,
-                                                             kBorrow_GrWrapOwnership != ownership));
-        return sema;
+        return skstd::make_unique<GrMtlSemaphore>(gpu, mtlEvent, value,
+                                                  kBorrow_GrWrapOwnership != ownership);
     } else {
         return nullptr;
     }
