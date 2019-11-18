@@ -26,7 +26,6 @@ to specify nightly and weekly jobs as well. For convenience, most repos also
 have a `gen_tasks.go` which will generate `tasks.json`. You will need to
 [install Go](https://golang.org/doc/install). From the repository root:
 
-	$ go get -u go.skia.org/infra/...
 	$ go run infra/bots/gen_tasks.go
 
 It is necessary to run `gen_tasks.go` every time it is changed or every time an
