@@ -193,7 +193,7 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 }
 
-void GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess,
+bool GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess,
                              const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
     bool forceSync = SkToBool(info.fFlags & kSyncCpu_GrFlushFlag) ||
                      (info.fFinishedProc && !this->mtlCaps().fenceSyncSupport());
@@ -219,6 +219,7 @@ void GrMtlGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAc
         }
         this->submitCommandBuffer(kSkip_SyncQueue);
     }
+    return true;
 }
 
 void GrMtlGpu::checkFinishProcs() {

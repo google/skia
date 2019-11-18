@@ -641,25 +641,64 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
-    if (this->caps()->semaphoreSupport()) {
+    struct SemaphoreInfo {
+        std::unique_ptr<GrSemaphore> fSemaphore;
+        bool fDidCreate = false;
+    };
+
+    std::unique_ptr<SemaphoreInfo[]> semaphoreInfos(new SemaphoreInfo[info.fNumSemaphores]);
+    if (this->caps()->semaphoreSupport() && info.fNumSemaphores) {
         for (int i = 0; i < info.fNumSemaphores; ++i) {
-            std::unique_ptr<GrSemaphore> semaphore;
             if (info.fSignalSemaphores[i].isInitialized()) {
-                semaphore = resourceProvider->wrapBackendSemaphore(
+                semaphoreInfos[i].fSemaphore = resourceProvider->wrapBackendSemaphore(
                         info.fSignalSemaphores[i],
                         GrResourceProvider::SemaphoreWrapType::kWillSignal,
                         kBorrow_GrWrapOwnership);
             } else {
-                semaphore = resourceProvider->makeSemaphore(false);
+                semaphoreInfos[i].fSemaphore = resourceProvider->makeSemaphore(false);
+                semaphoreInfos[i].fDidCreate = true;
             }
-            this->insertSemaphore(semaphore.get());
+            if (!semaphoreInfos[i].fSemaphore) {
+                // We currently don't have a way to let the client know which semaphores failed to
+                // get created so we just don't submit any of them if even one fails. We do need to
+                // delete any GrSemaphores we created though. We do this by manually changing the
+                // ownership from borrowed to owned.
+                for (int j = 0; j < i; ++j) {
+                    SkASSERT(semaphoreInfos[j].fSemaphore);
+                    if (semaphoreInfos[j].fDidCreate) {
+                        semaphoreInfos[j].fSemaphore->setIsOwned();
+                    }
+                }
+
+                // Our currently API says even if we failed to create/submit semaphores we will
+                // still attempt to flush all the commands. However, if we are getting here it is
+                // most likely cause we got a device lost error from semaphore creation. In this
+                // case the finishFlush call will also fail, but it doesn't hurt to call it.
+                this->onFinishFlush(proxies, n, access, info, externalRequests);
+                return GrSemaphoresSubmitted::kNo;
+            }
+        }
+        for (int i = 0; i < info.fNumSemaphores; ++i) {
+            this->insertSemaphore(semaphoreInfos[i].fSemaphore.get());
 
             if (!info.fSignalSemaphores[i].isInitialized()) {
-                info.fSignalSemaphores[i] = semaphore->backendSemaphore();
+                info.fSignalSemaphores[i] = semaphoreInfos[i].fSemaphore->backendSemaphore();
             }
         }
     }
-    this->onFinishFlush(proxies, n, access, info, externalRequests);
+    if (!this->onFinishFlush(proxies, n, access, info, externalRequests)) {
+        // If we didn't do the flush then none of the semaphores were submitted. Therefore the
+        // client can't wait on any of the semaphores. Additionally any semaphores we created here
+        // the client is not responsible for deleting so we must make sure they get deleted. We do
+        // this by changing the ownership from borrowed to owned.
+        for (int i = 0; i < info.fNumSemaphores; ++i) {
+            SkASSERT(semaphoreInfos[i].fSemaphore);
+            if (semaphoreInfos[i].fDidCreate) {
+                semaphoreInfos[i].fSemaphore->setIsOwned();
+            }
+        }
+        return GrSemaphoresSubmitted::kNo;
+    }
     return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }
