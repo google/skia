@@ -274,16 +274,16 @@ public:
      */
     void assignUniqueKeyToResource(const GrUniqueKey&, GrGpuResource*);
 
-    sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
 
     enum class SemaphoreWrapType {
         kWillSignal,
         kWillWait,
     };
 
-    sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
-                                            SemaphoreWrapType wrapType,
-                                            GrWrapOwnership = kBorrow_GrWrapOwnership);
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
+                                                      SemaphoreWrapType wrapType,
+                                                      GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     void abandon() {
         fCache = nullptr;

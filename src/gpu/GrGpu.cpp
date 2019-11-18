@@ -643,7 +643,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
 
     if (this->caps()->semaphoreSupport()) {
         for (int i = 0; i < info.fNumSemaphores; ++i) {
-            sk_sp<GrSemaphore> semaphore;
+            std::unique_ptr<GrSemaphore> semaphore;
             if (info.fSignalSemaphores[i].isInitialized()) {
                 semaphore = resourceProvider->wrapBackendSemaphore(
                         info.fSignalSemaphores[i],
@@ -652,7 +652,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
             } else {
                 semaphore = resourceProvider->makeSemaphore(false);
             }
-            this->insertSemaphore(semaphore);
+            this->insertSemaphore(semaphore.get());
 
             if (!info.fSignalSemaphores[i].isInitialized()) {
                 info.fSignalSemaphores[i] = semaphore->backendSemaphore();

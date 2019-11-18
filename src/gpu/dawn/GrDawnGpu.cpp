@@ -585,23 +585,24 @@ void GrDawnGpu::deleteFence(GrFence fence) const {
     SkASSERT(!"unimplemented");
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
+std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool isOwned) {
     SkASSERT(!"unimplemented");
     return nullptr;
 }
 
-sk_sp<GrSemaphore> GrDawnGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                   GrResourceProvider::SemaphoreWrapType wrapType,
-                                                   GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrDawnGpu::wrapBackendSemaphore(
+        const GrBackendSemaphore& semaphore,
+        GrResourceProvider::SemaphoreWrapType wrapType,
+        GrWrapOwnership ownership) {
     SkASSERT(!"unimplemented");
     return nullptr;
 }
 
-void GrDawnGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+void GrDawnGpu::insertSemaphore(GrSemaphore* semaphore) {
     SkASSERT(!"unimplemented");
 }
 
-void GrDawnGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+void GrDawnGpu::waitSemaphore(GrSemaphore* semaphore) {
     SkASSERT(!"unimplemented");
 }
 
@@ -609,7 +610,7 @@ void GrDawnGpu::checkFinishProcs() {
     SkASSERT(!"unimplemented");
 }
 
-sk_sp<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
+std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     SkASSERT(!"unimplemented");
     return nullptr;
 }

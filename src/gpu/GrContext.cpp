@@ -288,10 +288,10 @@ bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[
         return false;
     }
     for (int i = 0; i < numSemaphores; ++i) {
-        sk_sp<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
+        std::unique_ptr<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
                 waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
                 kAdopt_GrWrapOwnership);
-        fGpu->waitSemaphore(std::move(sema));
+        fGpu->waitSemaphore(sema.get());
     }
     return true;
 }

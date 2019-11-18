@@ -1288,30 +1288,30 @@ void GrMtlGpu::deleteFence(GrFence fence) const {
     }
 }
 
-sk_sp<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool isOwned) {
+std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool /*isOwned*/) {
     SkASSERT(this->caps()->semaphoreSupport());
-    return GrMtlSemaphore::Make(this, isOwned);
+    return GrMtlSemaphore::Make(this);
 }
 
-sk_sp<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-                                                  GrResourceProvider::SemaphoreWrapType wrapType,
-                                                  GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(
+        const GrBackendSemaphore& semaphore,
+        GrResourceProvider::SemaphoreWrapType wrapType,
+        GrWrapOwnership /*ownership*/) {
     SkASSERT(this->caps()->semaphoreSupport());
-    return GrMtlSemaphore::MakeWrapped(this, semaphore.mtlSemaphore(), semaphore.mtlValue(),
-                                       ownership);
+    return GrMtlSemaphore::MakeWrapped(semaphore.mtlSemaphore(), semaphore.mtlValue());
 }
 
-void GrMtlGpu::insertSemaphore(sk_sp<GrSemaphore> semaphore) {
+void GrMtlGpu::insertSemaphore(GrSemaphore* semaphore) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
+        GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore);
 
         this->commandBuffer()->encodeSignalEvent(mtlSem->event(), mtlSem->value());
     }
 }
 
-void GrMtlGpu::waitSemaphore(sk_sp<GrSemaphore> semaphore) {
+void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore.get());
+        GrMtlSemaphore* mtlSem = static_cast<GrMtlSemaphore*>(semaphore);
 
         this->commandBuffer()->encodeWaitForEvent(mtlSem->event(), mtlSem->value());
     }

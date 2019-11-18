@@ -61,7 +61,8 @@ public:
     // work (even to other proxies) that has already been recorded or will be recorded later. The
     // only guarantee is that future work to the passed in proxy will wait on the semaphores to be
     // signaled.
-    void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy, std::unique_ptr<sk_sp<GrSemaphore>[]>,
+    void newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
+                           std::unique_ptr<std::unique_ptr<GrSemaphore>[]>,
                            int numSemaphores);
 
     // Create a new render task which copies the pixels from the srcProxy into the dstBuffer. This
