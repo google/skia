@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c1410912_18dd03a3",
+        "filename": "go.mod",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-18T16:16:52Z",
+      "side": 1,
+      "message": "You should probably revert go.mod and go.sum. I will update the instructions to avoid this issue in the future.",
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1a24076_4a4a7e86",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 1
@@ -25,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "1d4e2c03_c58e2dae",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-18T16:16:52Z",
+      "side": 1,
+      "message": "This definitely doesn\u0027t look right, and I\u0027m not sure how this works at all. AFAICT, you already have the correct Build task -- Build-Debian9-Clang-arm64-Release-Android_Wuffs.",
+      "parentUuid": "f1a24076_4a4a7e86",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 42
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1f8d04f_b500f9fe",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 1
@@ -36,6 +77,30 @@
       "writtenOn": "2019-11-18T15:32:38Z",
       "side": 1,
       "message": "Originally I just copied the line above and added \"-Wuffs\" to the end. The scripts told me it had \"too many parts\", so I deleted \"-GPU-Adreno418\" (I don\u0027t care about the GPU - I just wanted to run on the 5x). Does this look right to run GIF benchmarks on a 5x? (Is there a guide somewhere?)",
+      "range": {
+        "startLine": 179,
+        "startChar": 3,
+        "endLine": 179,
+        "endChar": 61
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb46b1c6_6556d863",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-18T16:16:52Z",
+      "side": 1,
+      "message": "Nope, you want either Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Wuffs or Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android_Wuffs.\n\nI had worked on changing the underscores to dashes at some point, but it was a huge change for not much benefit.",
+      "parentUuid": "b1f8d04f_b500f9fe",
       "range": {
         "startLine": 179,
         "startChar": 3,
