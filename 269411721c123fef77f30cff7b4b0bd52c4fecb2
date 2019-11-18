@@ -22,6 +22,30 @@
       "revId": "269411721c123fef77f30cff7b4b0bd52c4fecb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47b61b11_30ec02e1",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-18T20:34:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23a5aa5d_a76c2aec",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "269411721c123fef77f30cff7b4b0bd52c4fecb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
