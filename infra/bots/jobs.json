@@ -82,6 +82,7 @@
   "Build-Debian9-GCC-x86_64-Release-NoGPU",
   "Build-Debian9-GCC-x86_64-Release-SK_CPU_LIMIT_SSE41",
   "Build-Debian9-GCC-x86_64-Release-Shared",
+  "Build-Debian10-GCC-x86_64-Release-Docker",
   "Build-Mac-Clang-arm-Debug-iOS",
   "Build-Mac-Clang-arm-Release-iOS",
   "Build-Mac-Clang-arm64-Debug-Android",

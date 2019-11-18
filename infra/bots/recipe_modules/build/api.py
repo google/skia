@@ -14,6 +14,7 @@ from . import chromebook
 from . import chromecast
 from . import cmake
 from . import default
+from . import docker
 from . import flutter
 from . import pathkit
 from . import skqp
@@ -47,6 +48,9 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'CMake' in b:
       self.compile_fn = cmake.compile_fn
       self.copy_fn = cmake.copy_build_products
+    elif 'Docker' in b:
+      self.compile_fn = docker.compile_fn
+      self.copy_fn = docker.copy_build_products
     else:
       self.compile_fn = default.compile_fn
       self.copy_fn = default.copy_build_products

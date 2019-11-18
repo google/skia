@@ -350,6 +350,17 @@ config("warnings") {
     cflags_cc += [
       "-Wnon-virtual-dtor",
       "-Wno-noexcept-type",
+
+      # TODO(dogben): The following are new between GCC 6 (stretch) and GCC 8 (buster); they should
+      # all be investigated.
+      "-Wno-array-bounds",
+      "-Wno-class-memaccess",
+      "-Wno-stringop-overflow",
+      "-Wno-restrict",
+      "-Wno-stringop-truncation",
+      "-Wno-sizeof-pointer-memaccess",
+      "-Wno-parentheses",
+      "-Wno-format-truncation",
     ]
   }
 
