@@ -142,14 +142,15 @@ sk_sp<CameraAdapter> CameraAdapter::MakeDefault(const SkSize &viewport_size) {
 SkPoint3 CameraAdapter::poi() const {
     // AE supports two camera types:
     //
-    //   - one-node camera: does not auto-orient, and starts off perpendicular to the z = 0 plane.
+    //   - one-node camera: does not auto-orient, and starts off perpendicular to the z = 0 plane,
+    //     facing "forward" (decreasing z).
     //
     //   - two-node camera: has a point of interest (encoded as the anchor point), and auto-orients
     //                      to point in its direction.
     return fType == Type::kOneNode
             ? SkPoint3{ this->getPosition().fX,
                         this->getPosition().fY,
-                        0 }
+                       -this->getPosition().fZ - 1 }
             : SkPoint3{ this->getAnchorPoint().fX,
                         this->getAnchorPoint().fY,
                        -this->getAnchorPoint().fZ};
