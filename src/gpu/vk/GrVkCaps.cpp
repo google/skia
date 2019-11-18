@@ -441,10 +441,6 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
-    // Temporarily disable the MSAA implementation of CCPR while we work out a crash on Win10
-    // GTX660 and incorrect rendring on Adreno.
-    fDriverBlacklistMSAACCPR = true;
-
     if (kARM_VkVendor == properties.vendorID) {
         fInstanceAttribSupport = false;
         fAvoidWritePixelsFastPath = true; // bugs.skia.org/8064
@@ -493,7 +489,7 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     }
 
     if (extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1)) {
-        fMixedSamplesSupport = true;
+        // fMixedSamplesSupport = true;
     }
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
