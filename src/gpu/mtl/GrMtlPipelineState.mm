@@ -58,19 +58,33 @@ GrMtlPipelineState::GrMtlPipelineState(
 
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
-
-    // Note: the Metal backend currently only supports fixed primProc textures
-    SkASSERT(!programInfo.hasDynamicPrimProcTextures());
-    auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
-                                                          : nullptr;
-
     this->setRenderTargetState(renderTarget, programInfo.origin());
     fGeometryProcessor->setData(fDataManager, programInfo.primProc(),
                                 GrFragmentProcessor::CoordTransformIter(programInfo.pipeline()));
+
+    if (!programInfo.hasDynamicPrimProcTextures()) {
+        auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
+                                                              : nullptr;
+        this->setTextures(programInfo, proxies);
+    }
+    fDataManager.resetDirtyBits();
+
+#ifdef SK_DEBUG
+    if (programInfo.pipeline().isStencilEnabled()) {
+        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
+        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
+    }
+#endif
+
+    fStencil = programInfo.nonGLStencilSettings();
+}
+
+void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
+                                     const GrTextureProxy* const primProcTextures[]) {
     fSamplerBindings.reset();
     for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
         const auto& sampler = programInfo.primProc().textureSampler(i);
-        auto texture = static_cast<GrMtlTexture*>(proxies[i]->peekTexture());
+        auto texture = static_cast<GrMtlTexture*>(primProcTextures[i]->peekTexture());
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
@@ -104,31 +118,23 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
     }
 
     SkASSERT(fNumSamplers == fSamplerBindings.count());
-    fDataManager.resetDirtyBits();
-
-#ifdef SK_DEBUG
-    if (programInfo.pipeline().isStencilEnabled()) {
-        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-        SkASSERT(renderTarget->renderTargetPriv().numStencilBits() == 8);
-    }
-#endif
-
-    fStencil = programInfo.nonGLStencilSettings();
 }
 
 void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
                                       const GrSwizzle& outputSwizzle,
                                       const GrXferProcessor& xferProcessor) {
     [renderCmdEncoder pushDebugGroup:@"setDrawState"];
-    this->bind(renderCmdEncoder);
+    this->bindUniforms(renderCmdEncoder);
     this->setBlendConstants(renderCmdEncoder, outputSwizzle, xferProcessor);
     this->setDepthStencilState(renderCmdEncoder);
     [renderCmdEncoder popDebugGroup];
 }
 
-void GrMtlPipelineState::bind(id<MTLRenderCommandEncoder> renderCmdEncoder) {
+void GrMtlPipelineState::bindUniforms(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     fDataManager.uploadAndBindUniformBuffers(fGpu, renderCmdEncoder);
+}
 
+void GrMtlPipelineState::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder) {
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     for (int index = 0; index < fNumSamplers; ++index) {
         [renderCmdEncoder setFragmentTexture: fSamplerBindings[index].fTexture

@@ -293,6 +293,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fCrossContextTextureSupport = false;
     fHalfFloatVertexAttributeSupport = true;
+
+    fDynamicStateArrayGeometryProcessorTextureSupport = true;
 }
 
 static bool format_is_srgb(MTLPixelFormat format) {

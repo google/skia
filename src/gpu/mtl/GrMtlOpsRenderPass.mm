@@ -89,6 +89,7 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
                                 programInfo.pipeline().getXferProcessor());
 
     bool hasDynamicScissors = programInfo.hasDynamicScissors();
+    bool hasDynamicTextures = programInfo.hasDynamicPrimProcTextures();
 
     if (!programInfo.pipeline().isScissorEnabled()) {
         GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
@@ -103,6 +104,10 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
                                                        programInfo.fixedScissor());
     }
 
+    if (!hasDynamicTextures) {
+        pipelineState->bindTextures(fActiveRenderCmdEncoder);
+    }
+
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         SkASSERT(nil != fActiveRenderCmdEncoder);
@@ -112,6 +117,11 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
             GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
                                                            fOrigin,
                                                            programInfo.dynamicScissor(i));
+        }
+        if (hasDynamicTextures) {
+            auto meshProxies = programInfo.dynamicPrimProcTextures(i);
+            pipelineState->setTextures(programInfo, meshProxies);
+            pipelineState->bindTextures(fActiveRenderCmdEncoder);
         }
 
         mesh.sendToGpu(this);
