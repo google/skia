@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e89db1a0_0112a510",
+        "filename": "src/gpu/ops/GrDrawPathOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-18T21:47:09Z",
+      "side": 1,
+      "message": "On the one hand, fewer lines, on the other hand I\u0027ve always disliked that the asterisk only referred to the first variable in the list. But all things considered, I think I like this more than:\nGrPipeline::FixedDynamicState storage;\nGrPipeline::FixedDynamicState* fixedDynamicState \u003d nullptr;",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 71
+      },
+      "revId": "0967631ba1032b63b591b19e49f17f6547683c29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
