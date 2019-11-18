@@ -373,7 +373,7 @@ static bool set_result_path(SkPath* result, const SkPath& path, SkPath::FillType
     return true;
 }
 
-bool SK_API AsWinding(const SkPath& path, SkPath* result) {
+bool AsWinding(const SkPath& path, SkPath* result) {
     if (!path.isFinite()) {
         return false;
     }

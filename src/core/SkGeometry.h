@@ -89,7 +89,7 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]);
     convert it into the cubic fitting the same curve. The new cubic
     curve is returned in dst[0..3].
 */
-SK_API void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
+void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
 
 ///////////////////////////////////////////////////////////////////////////////
 
