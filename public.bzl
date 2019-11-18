@@ -614,6 +614,8 @@ def base_defines(os_conditions):
         "SK_HAS_JPEG_LIBRARY",
         # Needed for some tests in dm
         "SK_ENABLE_SKSL_INTERPRETER",
+        # Used by SkCodec.cpp
+        "SK_USE_LIBGIFCODEC",
     ] + skia_select(
         os_conditions,
         [
