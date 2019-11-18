@@ -24,8 +24,9 @@ class DockerApi(recipe_api.RecipeApi):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
     with self.m.step.nest('Docker setup'):
-      # Make sure out_dir exists, otherwise Docker will create it with root
-      # permissions.
+      # Make sure out_dir exists, otherwise mounting will fail.
+      # (Note that the docker --mount option, unlike the --volume option, does
+      # not create this dir as root if it doesn't exist.)
       self.m.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
       # ensure_directory won't change the permissions if the dir already exists,
       # so we need to do that explicitly.
@@ -55,8 +56,8 @@ class DockerApi(recipe_api.RecipeApi):
     # Run.
     cmd = [
       'docker', 'run', '--shm-size=2gb', '--rm',
-      '--volume', '%s:%s' % (src_dir, MOUNT_SRC),
-      '--volume', '%s:%s' % (out_dir, MOUNT_OUT),
+      '--mount', 'type=bind,source=%s,target=%s' % (src_dir, MOUNT_SRC),
+      '--mount', 'type=bind,source=%s,target=%s' % (out_dir, MOUNT_OUT),
     ]
     if docker_args:
       cmd.extend(docker_args)

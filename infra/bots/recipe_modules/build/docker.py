@@ -39,29 +39,12 @@ def compile_fn(api, checkout_root, out_dir):
   # anytime the image changes.
   args['extra_cflags'] = '["-DDUMMY_docker_image=%s"]' % image
 
-  # We want to make sure the directories exist and were created by chrome-bot.
-  # (Note that the docker --mount option, unlike the --volume option, does not
-  # create this dir as root if it doesn't exist.)
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
-
   # Format the GN args for this build.
   gn_args = ' '.join('%s=%s' % (k, v) for (k, v) in sorted(args.iteritems()))
-
-  # Run the compile script inside the docker container. It expects two mounts:
-  # the start_dir at /SRC and the output directory at /OUT.
-  src_mnt = 'type=bind,source=%s,target=/SRC' % checkout_root
-  out_mnt = 'type=bind,source=%s,target=/OUT' % out_dir
-  inner_script_path = ('/SRC/recipe_bundle/skia/infra/bots/recipe_modules'
-                       '/build/resources/docker-compile.sh')
-  cmd = ['docker', 'run', '--rm', '--mount', src_mnt, '--mount', out_mnt, image,
-         inner_script_path, gn_args]
-  # Override DOCKER_CONFIG set by Kitchen.
-  env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
-  with api.env(env):
-    api.run(
-        api.step,
-        'Run build script in Docker',
-        cmd=cmd)
+  api.docker.run('Run build script in Docker', image, checkout_root, out_dir,
+                 'recipe_bundle/skia/infra/bots/recipe_modules'
+                 '/build/resources/docker-compile.sh',
+                 args=[gn_args])
 
 def copy_build_products(api, src, dst):
   util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)
