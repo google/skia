@@ -46,6 +46,30 @@
       "revId": "f3b8bba9adab841cdf10cc2d3e6713f7cbbc54f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebfd6f5a_e16b0bdb",
+        "filename": "src/utils/SkUTF.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-18T18:33:11Z",
+      "side": 1,
+      "message": "Sounds ok by me, though we should probably check all those SK_APIs in src/ and check if we really want them.",
+      "parentUuid": "5328c977_5065d5b3",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 6
+      },
+      "revId": "f3b8bba9adab841cdf10cc2d3e6713f7cbbc54f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
