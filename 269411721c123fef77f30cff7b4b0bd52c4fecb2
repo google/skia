@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23a5aa5d_a76c2aec",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-18T19:51:14Z",
+      "side": 1,
+      "message": "reset ?",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 16
+      },
+      "revId": "269411721c123fef77f30cff7b4b0bd52c4fecb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
