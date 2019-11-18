@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "346e539d_6545eb40",
+        "filename": "go.mod",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T19:54:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1410912_18dd03a3",
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1a24076_4a4a7e86",
         "filename": "infra/bots/jobs.json",
         "patchSetId": 1
@@ -54,6 +72,30 @@
       "side": 1,
       "message": "This definitely doesn\u0027t look right, and I\u0027m not sure how this works at all. AFAICT, you already have the correct Build task -- Build-Debian9-Clang-arm64-Release-Android_Wuffs.",
       "parentUuid": "f1a24076_4a4a7e86",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 42
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad25cc63_a3b31a63",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T19:54:21Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "1d4e2c03_c58e2dae",
       "range": {
         "startLine": 21,
         "startChar": 3,
@@ -149,6 +191,30 @@
       "side": 1,
       "message": "(To answer your question about a guide, there is a section \"Adding new jobs\" at https://skia.org/dev/testing/automated_testing, but it wouldn\u0027t have helped you in this case.)",
       "parentUuid": "5fc41932_973d8e1a",
+      "range": {
+        "startLine": 179,
+        "startChar": 3,
+        "endLine": 179,
+        "endChar": 61
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91493d65_57b763d3",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T19:54:21Z",
+      "side": 1,
+      "message": "\u003e Nope, you want either Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-Android_Wuffs or Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android_Wuffs.\n\nOkay, thanks. I chose Perf-Android-Clang-Nexus5x-CPU-Snapdragon808-arm64-Release-All-Android_Wuffs, because I\u0027m not trying to test anything GPU-specific.\n\nThanks for the link and info!",
+      "parentUuid": "071a6c18_5831dd07",
       "range": {
         "startLine": 179,
         "startChar": 3,
