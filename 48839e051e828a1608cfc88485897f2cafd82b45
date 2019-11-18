@@ -110,6 +110,30 @@
       "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fc41932_973d8e1a",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-18T16:34:47Z",
+      "side": 1,
+      "message": "To add to this, the last element of the job name is the \"extra config\", any additional terms which differentiate the job from others.  Because all of the name elements are separated with dashes, it needs to be separated with underscores for validation (actually, as Ben says, this doesn\u0027t have to be the case, but changing the naming structure is hard due to the scope of the changes).",
+      "parentUuid": "cb46b1c6_6556d863",
+      "range": {
+        "startLine": 179,
+        "startChar": 3,
+        "endLine": 179,
+        "endChar": 61
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
