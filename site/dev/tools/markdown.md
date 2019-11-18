@@ -23,7 +23,7 @@ preview changes much quicker. You must have a recent version (>=8.9) of
 you are running on a Google corporate workstation. Installation also means
 that you have `$GOPATH/bin` [added to your PATH](https://golang.org/doc/code.html#GOPATH). Run:
 
-    go get -u go.skia.org/infra/doc/go/docserver
+    go get go.skia.org/infra/doc/go/docserver
     cd $GOPATH/src/go.skia.org/infra/doc
     make
 
