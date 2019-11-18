@@ -434,8 +434,6 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
                     // otherwise we had better have reattached to a cached version
                     SkASSERT(surface->asTexture()->getUniqueKey() == key);
                 }
-            } else {
-                SkASSERT(!surface->getUniqueKey().isValid());
             }
         }
     }
