@@ -443,7 +443,7 @@ void GrTextBlob::SubRun::computeTranslation(const SkMatrix& viewMatrix,
                                                 SkScalar x, SkScalar y, SkScalar* transX,
                                                 SkScalar* transY) {
     // Don't use the matrix to translate on distance field for fallback subruns.
-    calculate_translation(!this->drawAsDistanceFields() && !this->isFallback(), viewMatrix,
+    calculate_translation(!this->drawAsDistanceFields() && !this->needsTransform(), viewMatrix,
             x, y, fCurrentViewMatrix, fX, fY, transX, transY);
     fCurrentViewMatrix = viewMatrix;
     fX = x;
