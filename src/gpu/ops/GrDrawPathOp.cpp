@@ -89,7 +89,14 @@ std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrRecordingContext* context,
 
 void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
     GrAppliedClip appliedClip = state->detachAppliedClip();
-    GrPipeline::FixedDynamicState fixedDynamicState(appliedClip.scissorState().rect());
+
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr, storage;
+
+    if (appliedClip.scissorState().enabled()) {
+        storage.fScissorRect = appliedClip.scissorState().rect();
+        fixedDynamicState = &storage;
+    }
+
     GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
                         std::move(appliedClip));
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
@@ -99,7 +106,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
                               state->drawOpArgs().origin(),
                               &pipeline,
                               pathProc.get(),
-                              &fixedDynamicState,
+                              fixedDynamicState,
                               nullptr, 0,
                               GrPrimitiveType::kPath);
 
