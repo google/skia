@@ -10,7 +10,7 @@
 
 #include "src/core/SkNormalSource.h"
 
-class SK_API SkNormalFlatSourceImpl : public SkNormalSource {
+class SkNormalFlatSourceImpl : public SkNormalSource {
 public:
     SkNormalFlatSourceImpl(){}
 

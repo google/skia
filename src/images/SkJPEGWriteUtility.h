@@ -19,7 +19,7 @@ extern "C" {
 
 #include <setjmp.h>
 
-void SK_API skjpeg_error_exit(j_common_ptr cinfo);
+void skjpeg_error_exit(j_common_ptr cinfo);
 
 /////////////////////////////////////////////////////////////////////////////
 /* Our destination struct for directing decompressed pixels to our stream
