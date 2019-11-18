@@ -22,7 +22,7 @@ void GrWaitRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
 bool GrWaitRenderTask::onExecute(GrOpFlushState* flushState) {
     for (int i = 0; i < fNumSemaphores; ++i) {
-        flushState->gpu()->waitSemaphore(fSemaphores[i]);
+        flushState->gpu()->waitSemaphore(fSemaphores[i].get());
     }
     return true;
 }

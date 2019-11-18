@@ -511,7 +511,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     context->priv().flushSurface(proxy.get());
     GrGpu* gpu = context->priv().getGpu();
 
-    sk_sp<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
+    std::unique_ptr<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
                                                     std::move(sema), pixmap->colorType(),
