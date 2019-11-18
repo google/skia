@@ -6,8 +6,11 @@
  */
 
 #include "GrShadowRRectOp.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrDrawOpTest.h"
 #include "GrOpFlushState.h"
+#include "GrProxyProvider.h"
 #include "SkRRectPriv.h"
 #include "effects/GrShadowGeoProc.h"
 
@@ -189,8 +192,9 @@ public:
     // An insetWidth > 1/2 rect width or height indicates a simple fill.
     ShadowCircularRRectOp(GrColor color, const SkRect& devRect,
                           float devRadius, bool isCircle, float blurRadius, float insetWidth,
-                          float blurClamp)
-            : INHERITED(ClassID()) {
+                          float blurClamp, sk_sp<GrTextureProxy> falloffProxy)
+            : INHERITED(ClassID())
+            , fFalloffProxy(falloffProxy) {
         SkRect bounds = devRect;
         SkASSERT(insetWidth > 0);
         SkScalar innerRadius = 0.0f;
@@ -561,7 +565,7 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make();
+        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make(fFalloffProxy);
 
         int instanceCount = fGeoData.count();
         size_t vertexStride = gp->getVertexStride();
@@ -633,6 +637,7 @@ private:
     }
 
     SkSTArray<1, Geometry, true> fGeoData;
+    sk_sp<GrTextureProxy> fFalloffProxy;
     int fVertCount;
     int fIndexCount;
 
@@ -644,7 +649,51 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace GrShadowRRectOp {
-std::unique_ptr<GrDrawOp> Make(GrColor color,
+
+static sk_sp<GrTextureProxy> create_falloff_texture(GrProxyProvider* proxyProvider) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey key;
+    GrUniqueKey::Builder builder(&key, kDomain, 0, "Shadow Gaussian Falloff");
+    builder.finish();
+
+    sk_sp<GrTextureProxy> falloffTexture = proxyProvider->findOrCreateProxyByUniqueKey(
+            key, kTopLeft_GrSurfaceOrigin);
+    if (!falloffTexture) {
+        static const int kWidth = 128;
+        static const size_t kRowBytes = kWidth*GrColorTypeBytesPerPixel(GrColorType::kAlpha_8);
+        SkImageInfo ii = SkImageInfo::MakeA8(kWidth, 1);
+
+        sk_sp<SkData> data = SkData::MakeUninitialized(kRowBytes);
+        if (!data) {
+            return nullptr;
+        }
+        unsigned char* values = (unsigned char*) data->writable_data();
+        for (int i = 0; i < 128; ++i) {
+            SkScalar d = SK_Scalar1 - i/SkIntToScalar(127);
+            values[i] = SkScalarRoundToInt((SkScalarExp(-4*d*d) - 0.018f)*255);
+        }
+
+        sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), kRowBytes);
+        if (!img) {
+            return nullptr;
+        }
+
+        falloffTexture = proxyProvider->createTextureProxy(std::move(img), kNone_GrSurfaceFlags,
+                                                           kTopLeft_GrSurfaceOrigin, 1,
+                                                           SkBudgeted::kYes, SkBackingFit::kExact);
+        if (!falloffTexture) {
+            return nullptr;
+        }
+
+        SkASSERT(falloffTexture->origin() == kTopLeft_GrSurfaceOrigin);
+        proxyProvider->assignUniqueKeyToProxy(key, falloffTexture.get());
+    }
+
+    return falloffTexture;
+}
+
+std::unique_ptr<GrDrawOp> Make(GrContext* context,
+                               GrColor color,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,
                                SkScalar blurWidth,
@@ -652,6 +701,12 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                SkScalar blurClamp) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
+
+    sk_sp<GrTextureProxy> falloffTexture = create_falloff_texture(
+                                                   context->contextPriv().proxyProvider());
+    if (!falloffTexture) {
+        return nullptr;
+    }
 
     // Do any matrix crunching before we reset the draw state for device coords.
     const SkRect& rrectBounds = rrect.getBounds();
@@ -669,7 +724,8 @@ std::unique_ptr<GrDrawOp> Make(GrColor color,
                                                                rrect.isOval(),
                                                                blurWidth,
                                                                scaledInsetWidth,
-                                                               blurClamp));
+                                                               blurClamp,
+                                                               std::move(falloffTexture)));
 }
 }
 
