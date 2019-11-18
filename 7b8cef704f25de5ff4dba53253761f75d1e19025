@@ -22,6 +22,30 @@
       "revId": "7b8cef704f25de5ff4dba53253761f75d1e19025",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5714b40a_55f1ac14",
+        "filename": "gm/samplelocations.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-18T17:42:05Z",
+      "side": 1,
+      "message": "I share your concern and I may revisited the 3 GM ops. In Ganesh proper there are really only three (non-CCPR) places where we do this dance:\n  GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp\n  GrDrawPathOp::onExecute\n  GrFillRRectOp::onExecute\n\nIn the first location we\u0027re already allocating the GP and pipeline in an arena so I\u0027m considering just always allocating the GrProgramInfo there too (or, rather, creating the programInfo at prepare/prePrepare time).\n\nThe second location is only used in NVPR so I\u0027ll probably just do the same there for consistency (although it currently has both the pipeline and the GrProgramInfo on the stack).\n\nLike the first case, the third case already has the GP and pipeline in an arena so, there too, I\u0027ll just always put everything in the arena.\n\nSo, tl;dr, the gm and test ops are a bit low level and in Ganesh proper this should be cleaner.",
+      "parentUuid": "42d82eaf_d350944e",
+      "range": {
+        "startLine": 244,
+        "startChar": 4,
+        "endLine": 269,
+        "endChar": 83
+      },
+      "revId": "7b8cef704f25de5ff4dba53253761f75d1e19025",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
