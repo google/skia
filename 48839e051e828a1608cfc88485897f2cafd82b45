@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1a24076_4a4a7e86",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T15:32:38Z",
+      "side": 1,
+      "message": "As I understand it, I need to have a builder that matches my Perf bot. I thought the line above this one would work*, but when I ran the tests, it explicitly said I need to add this line. What\u0027s going on here?\n\n*Actually, I initially used \"-Wuffs\" instead of \"_Wuffs\", in an attempt to match the other \"-Wuffs\" bots, but I think I got the \"too many parts\" error when running the tests.",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 42
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1f8d04f_b500f9fe",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-18T15:32:38Z",
+      "side": 1,
+      "message": "Originally I just copied the line above and added \"-Wuffs\" to the end. The scripts told me it had \"too many parts\", so I deleted \"-GPU-Adreno418\" (I don\u0027t care about the GPU - I just wanted to run on the 5x). Does this look right to run GIF benchmarks on a 5x? (Is there a guide somewhere?)",
+      "range": {
+        "startLine": 179,
+        "startChar": 3,
+        "endLine": 179,
+        "endChar": 61
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
