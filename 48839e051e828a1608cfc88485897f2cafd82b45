@@ -134,6 +134,30 @@
       "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "071a6c18_5831dd07",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-18T17:24:31Z",
+      "side": 1,
+      "message": "(To answer your question about a guide, there is a section \"Adding new jobs\" at https://skia.org/dev/testing/automated_testing, but it wouldn\u0027t have helped you in this case.)",
+      "parentUuid": "5fc41932_973d8e1a",
+      "range": {
+        "startLine": 179,
+        "startChar": 3,
+        "endLine": 179,
+        "endChar": 61
+      },
+      "revId": "48839e051e828a1608cfc88485897f2cafd82b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
