@@ -68,6 +68,10 @@ private:
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
+
+        if (fDWriteFontFace1 && fDWriteFontFace1->IsMonospacedFont()) {
+            this->setIsFixedPitch(true);
+        }
     }
 
 public:
