@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9eef54c_48117a0a",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-19T18:21:45Z",
+      "side": 1,
+      "message": "nit: \u0027Our current API...\u0027 or \u0027Currently, our API...\u0027.",
+      "range": {
+        "startLine": 673,
+        "startChar": 19,
+        "endLine": 673,
+        "endChar": 36
+      },
+      "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
