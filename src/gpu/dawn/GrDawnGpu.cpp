@@ -261,7 +261,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
                                                            GrColorType colorType) {
     GrDawnImageInfo info;
-    if (!rt.getDawnImageInfo(&info) && !info.fTexture) {
+    if (!rt.getDawnImageInfo(&info)) {
         return nullptr;
     }
 
@@ -276,7 +276,7 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
                                                                     int sampleCnt,
                                                                     GrColorType colorType) {
     GrDawnImageInfo info;
-    if (!tex.getDawnImageInfo(&info) || !info.fTexture) {
+    if (!tex.getDawnImageInfo(&info)) {
         return nullptr;
     }
 
@@ -387,6 +387,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     fQueue.Submit(1, &cmdBuf);
     GrDawnImageInfo info;
     info.fTexture = tex;
+    info.fTextureView = tex.CreateView();
     info.fFormat = desc.format;
     info.fLevelCount = desc.mipLevelCount;
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
@@ -512,7 +513,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
                              size_t rowBytes) {
     wgpu::Texture tex = get_dawn_texture_from_surface(surface);
 
-    if (0 == rowBytes) {
+    if (!tex || 0 == rowBytes) {
         return false;
     }
     size_t origRowBytes = rowBytes;

@@ -76,7 +76,7 @@ public:
     bool waitFence(GrFence, uint64_t timeout) override;
     void deleteFence(GrFence) const override;
 
-    std::unqiue_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) override;
+    std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
             const GrBackendSemaphore& semaphore,
             GrResourceProvider::SemaphoreWrapType wrapType,
