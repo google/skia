@@ -66,9 +66,10 @@ private:
                       sk_sp<const GrBuffer> indexBuffer,
                       int firstIndex);
 
-    sk_sp<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,
-                                      bool* hasColorAttribute,
-                                      bool* hasLocalCoordAttribute) const;
+    GrGeometryProcessor* makeGP(SkArenaAlloc* arena,
+                                const GrShaderCaps* shaderCaps,
+                                bool* hasColorAttribute,
+                                bool* hasLocalCoordAttribute) const;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -229,9 +230,10 @@ GrProcessorSet::Analysis DrawVerticesOp::finalize(
     return result;
 }
 
-sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps,
-                                                  bool* hasColorAttribute,
-                                                  bool* hasLocalCoordAttribute) const {
+GrGeometryProcessor* DrawVerticesOp::makeGP(SkArenaAlloc* arena,
+                                            const GrShaderCaps* shaderCaps,
+                                            bool* hasColorAttribute,
+                                            bool* hasLocalCoordAttribute) const {
     using namespace GrDefaultGeoProcFactory;
     LocalCoords::Type localCoordsType;
     if (fHelper.usesLocalCoords()) {
@@ -264,11 +266,12 @@ sk_sp<GrGeometryProcessor> DrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps
 
     const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
 
-    return GrDefaultGeoProcFactory::Make(shaderCaps,
-                                            color,
-                                            Coverage::kSolid_Type,
-                                            localCoordsType,
-                                            vm);
+    return GrDefaultGeoProcFactory::Make(arena,
+                                         shaderCaps,
+                                         color,
+                                         Coverage::kSolid_Type,
+                                         localCoordsType,
+                                         vm);
 }
 
 void DrawVerticesOp::onPrepareDraws(Target* target) {
@@ -283,7 +286,8 @@ void DrawVerticesOp::onPrepareDraws(Target* target) {
 void DrawVerticesOp::drawVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->allocator(),
+                                                 target->caps().shaderCaps(),
                                                  &hasColorAttribute,
                                                  &hasLocalCoordsAttribute);
 
@@ -325,7 +329,8 @@ void DrawVerticesOp::drawNonVolatile(Target* target) {
 
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->allocator(),
+                                                 target->caps().shaderCaps(),
                                                  &hasColorAttribute,
                                                  &hasLocalCoordsAttribute);
 

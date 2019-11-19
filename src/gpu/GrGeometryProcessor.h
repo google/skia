@@ -19,7 +19,7 @@
  */
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
-    GrGeometryProcessor(ClassID classID)
+    GrGeometryProcessor(ClassID classID, bool foo)
         : INHERITED(classID)
         , fWillUseGeoShader(false) {}
 

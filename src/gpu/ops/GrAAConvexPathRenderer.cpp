@@ -537,10 +537,11 @@ static void create_vertices(const SegmentArray& segments,
 
 class QuadEdgeEffect : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const SkMatrix& localMatrix, bool usesLocalCoords,
-                                           bool wideColor) {
-        return sk_sp<GrGeometryProcessor>(
-                new QuadEdgeEffect(localMatrix, usesLocalCoords, wideColor));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const SkMatrix& localMatrix,
+                                     bool usesLocalCoords,
+                                     bool wideColor) {
+        return arena->make<QuadEdgeEffect>(localMatrix, usesLocalCoords, wideColor);
     }
 
     ~QuadEdgeEffect() override {}
@@ -628,8 +629,10 @@ public:
     }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     QuadEdgeEffect(const SkMatrix& localMatrix, bool usesLocalCoords, bool wideColor)
-            : INHERITED(kQuadEdgeEffect_ClassID)
+            : INHERITED(kQuadEdgeEffect_ClassID, true)
             , fLocalMatrix(localMatrix)
             , fUsesLocalCoords(usesLocalCoords) {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};

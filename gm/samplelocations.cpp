@@ -113,7 +113,7 @@ private:
     friend class ::SkArenaAlloc; // for access to ctor
 
     SampleLocationsTestProcessor(GradType gradType)
-            : GrGeometryProcessor(kSampleLocationsTestProcessor_ClassID)
+            : GrGeometryProcessor(kSampleLocationsTestProcessor_ClassID, true)
             , fGradType(gradType) {
         this->setWillUseCustomFeature(CustomFeatures::kSampleLocations);
     }
