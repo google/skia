@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b188bb4a_1d871082",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-19T16:46:13Z",
+      "side": 1,
+      "message": "We don\u0027t query the extensions from the Vulkan driver like we do in GL. Instead the client passes to us the set of extensions they have enabled in Vulkan (which they have checked to see if the device supports them). So it is possible that doing the check this way could cause more devices to get restricted then was intended. As a side note to this change we should check how chrome is enabling extensions to see if they are even getting any use out of our expanded extension support.\n\nThe VkPhysicalDeviceProperties does have a driverVersion, deviceID, and vendorID on it? Is Nvidia consistent enough to use any of those values to make this decision?\n\nNot going to block this change on getting the perfect blacklist just more seeing if there was anyway to be more exact.",
+      "range": {
+        "startLine": 449,
+        "startChar": 37,
+        "endLine": 449,
+        "endChar": 82
+      },
+      "revId": "676aaf5266a850af99a7a50650baed9126dde6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
