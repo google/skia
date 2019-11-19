@@ -224,11 +224,6 @@ private:
 
     GrMtlResourceProvider fResourceProvider;
 
-    // For FenceSync
-    id<MTLSharedEvent>      fSharedEvent API_AVAILABLE(macos(10.14), ios(12.0));
-    MTLSharedEventListener* fSharedEventListener API_AVAILABLE(macos(10.14), ios(12.0));
-    uint64_t                fLatestEvent;
-
     bool fDisconnected;
 
     struct FinishCallback {
