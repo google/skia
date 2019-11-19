@@ -163,7 +163,8 @@ private:
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* dstView,
-                      const GrAppliedClip*) final {
+                      GrAppliedClip* appliedClip,
+                      const GrXferProcessor::DstProxyView& dstProxyView) final {
         // We're going to create the GrProgramInfo (and the GrPipeline and geometry processor
         // it relies on) in the DDL-record-time arena.
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
