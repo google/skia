@@ -77,7 +77,7 @@ def RunSteps(api):
       docker_image=DOCKER_IMAGE,
       src_dir=checkout_root,
       out_dir=out_dir,
-      script=INNER_KARMA_SCRIPT,
+      script=checkout_root.join(INNER_KARMA_SCRIPT),
       args=args,
       docker_args=docker_args,
       copies=copies,
