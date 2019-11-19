@@ -177,7 +177,8 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
         if (block.isFullyResolved()) {
             // Just move the entire run
             block.fRun->fIndex = this->fParagraph->fRuns.size();
-            this->fParagraph->fRuns.emplace_back(std::move(*block.fRun));
+            this->fParagraph->fRuns.emplace_back(*block.fRun.get());
+            block.fRun.reset();
             continue;
         } else if (run == nullptr) {
             continue;
@@ -335,8 +336,7 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 }
 
 void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
-                                        ShapeSingleFontVisitor visitor) {
-
+                                             const ShapeSingleFontVisitor& visitor) {
     Block combinedBlock;
     for (auto& block : styleSpan) {
         SkASSERT(combinedBlock.fRange.width() == 0 ||
@@ -356,10 +356,13 @@ void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
     }
 
     visitor(combinedBlock);
+#ifdef SK_DEBUG
+    //printState();
+#endif
 }
 
 void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
-                                       TypefaceVisitor visitor) {
+                                       const TypefaceVisitor& visitor) {
     bool anyFamilyMatched = false;
     for (auto& fontFamily : textStyle.getFontFamilies()) {
         auto typeface = fParagraph->fFontCollection->matchTypeface(
@@ -403,7 +406,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
     }
 }
 
-bool OneLineShaper::iterateThroughShapingRegions(ShapeVisitor shape) {
+bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
 
     SkScalar advanceX = 0;
     for (auto& placeholder : fParagraph->fPlaceholders) {
@@ -445,7 +448,7 @@ bool OneLineShaper::iterateThroughShapingRegions(ShapeVisitor shape) {
                                        runInfo,
                                        0,
                                        1.0f,
-                                       fRuns.count(),
+                                       fParagraph->fRuns.count(),
                                        advanceX);
 
         run.fPositions[0] = { advanceX, 0 };
@@ -487,7 +490,7 @@ bool OneLineShaper::shape() {
 
             matchResolvedFonts(block.fStyle, [&](sk_sp<SkTypeface> typeface) {
                 // Create one more font to try
-                SkFont font(typeface, block.fStyle.getFontSize());
+                SkFont font(std::move(typeface), block.fStyle.getFontSize());
                 font.setEdging(SkFont::Edging::kAntiAlias);
                 font.setHinting(SkFontHinting::kSlight);
                 font.setSubpixel(true);

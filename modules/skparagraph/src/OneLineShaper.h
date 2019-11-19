@@ -19,55 +19,49 @@ class ParagraphImpl;
 class OneLineShaper : public SkShaper::RunHandler {
 public:
     explicit OneLineShaper(ParagraphImpl* paragraph)
-        : fParagraph(paragraph) { }
+        : fParagraph(paragraph)
+        , fHeight(0.0f)
+        , fAdvance(SkPoint::Make(0.0f, 0.0f)) { }
 
     bool shape();
 
 private:
 
     struct RunBlock {
-    RunBlock() { fRun = nullptr; }
+        RunBlock() : fRun(nullptr) { }
 
-    // First unresolved block
-    RunBlock(TextRange text) {
-        fRun = nullptr;
-        fScore = 0;
-        fText = text;
-    }
+        // First unresolved block
+        explicit RunBlock(TextRange text) : fRun(nullptr), fText(text) { }
 
-    RunBlock(Run* run, TextRange text, GlyphRange glyphs, size_t score) {
-        fRun = run;
-        fText = text;
-        fGlyphs = glyphs;
-        fScore = score;
-    }
+        RunBlock(std::shared_ptr<Run> run, TextRange text, GlyphRange glyphs, size_t score)
+            : fRun(std::move(run))
+            , fText(text)
+            , fGlyphs(glyphs) { }
 
-    // Entire run comes as one block fully resolved
-    RunBlock(Run* run) {
-        fRun = run;
-        fGlyphs = GlyphRange(0, run->size());
-        fScore = run->size();
-        fText = run->fTextRange;
-    }
+        // Entire run comes as one block fully resolved
+        explicit RunBlock(std::shared_ptr<Run> run)
+            : fRun(std::move(run))
+            , fText(run->fTextRange)
+            , fGlyphs(GlyphRange(0, run->size())) { }
 
-    Run* fRun;
-    TextRange fText;
-    GlyphRange fGlyphs;
-    size_t     fScore;
-    bool isFullyResolved() { return fRun != nullptr && fScore == fRun->size(); }
-};
+        std::shared_ptr<Run> fRun;
+        TextRange fText;
+        GlyphRange fGlyphs;
+        bool isFullyResolved() { return fRun != nullptr && fGlyphs.width() == fRun->size(); }
+    };
 
     using ShapeVisitor =
             std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, TextIndex)>;
-    bool iterateThroughShapingRegions(ShapeVisitor shape);
+    bool iterateThroughShapingRegions(const ShapeVisitor& shape);
 
     using ShapeSingleFontVisitor = std::function<void(Block)>;
-    void iterateThroughFontStyles(SkSpan<Block> styleSpan, ShapeSingleFontVisitor visitor);
+    void iterateThroughFontStyles(SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
 
     using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
-    void matchResolvedFonts(const TextStyle& textStyle, TypefaceVisitor visitor);
-
+    void matchResolvedFonts(const TextStyle& textStyle, const TypefaceVisitor& visitor);
+#ifdef SK_DEBUG
     void printState();
+#endif
     void dropUnresolved();
     void finish(TextRange text, SkScalar height, SkScalar& advanceX);
 
@@ -77,12 +71,12 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
-        fCurrentRun = new Run(fParagraph,
-                               info,
-                               fCurrentText.start,
-                               fHeight,
-                               fParagraph->fRuns.count(),
-                               fAdvance.fX);
+        fCurrentRun = std::make_shared<Run>(fParagraph,
+                                           info,
+                                           fCurrentText.start,
+                                           fHeight,
+                                           fParagraph->fRuns.count(),
+                                           fAdvance.fX);
         return fCurrentRun->newRunBuffer();
     }
 
@@ -104,8 +98,8 @@ private:
     SkScalar fHeight;
     SkVector fAdvance;
 
-    Run* fCurrentRun;
-    SkTArray<const Run*> fRuns;
+    // TODO: Something that is not thead-safe since we don't need it
+    std::shared_ptr<Run> fCurrentRun;
     std::queue<RunBlock> fUnresolvedBlocks;
     std::vector<RunBlock> fResolvedBlocks;
 };
