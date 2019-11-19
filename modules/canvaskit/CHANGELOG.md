@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - The returned values from `SkParagraph.getRectsForRange` now have direction set to 0 for RTL
+   or 1 for LTR.
+
 ## [0.9.0] - 2019-11-18
 ### Added
  - Experimental `CanvasKit.Malloc`, which can be used to create a
