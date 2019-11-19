@@ -61,9 +61,15 @@ private:
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
             SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
         }
+        if (!SUCCEEDED(fDWriteFont->QueryInterface(&fDWriteFont1))) {
+            SkASSERT_RELEASE(nullptr == fDWriteFont1.get());
+        }
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
+
+        if (fDWriteFont1)
+            setIsFixedPitch(fDWriteFont1->IsMonospacedFont());
     }
 
 public:
@@ -73,6 +79,7 @@ public:
     SkTScopedComPtr<IDWriteFontFileLoader> fDWriteFontFileLoader;
     SkTScopedComPtr<IDWriteFontFamily> fDWriteFontFamily;
     SkTScopedComPtr<IDWriteFont> fDWriteFont;
+    SkTScopedComPtr<IDWriteFont1> fDWriteFont1;
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
