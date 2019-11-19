@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "f1fb52a8_8fa8f608",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-19T19:27:59Z",
+      "side": 1,
+      "message": "This is kind of clunky, could we accept a GrAppliedClip\u0026\u0026 instead?",
+      "range": {
+        "startLine": 776,
+        "startChar": 51,
+        "endLine": 777,
+        "endChar": 80
+      },
+      "revId": "77e78a3bb996d27849a50f9d7a99528fbfc6c062",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8a2aeab2_fdbcaf0c",
         "filename": "src/gpu/ops/GrFillRRectOp.h",
         "patchSetId": 12
