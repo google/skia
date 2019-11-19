@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e446af8d_801f6ac6",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-11-19T20:16:08Z",
+      "side": 1,
+      "message": "One more interesting case: both text_style and paragraph_style have empty font family lists",
+      "range": {
+        "startLine": 420,
+        "startChar": 0,
+        "endLine": 420,
+        "endChar": 16
+      },
+      "revId": "086f7eb8e96065de78aeec5274123c7723d89383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
