@@ -7,11 +7,11 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "file.txt",
+      "[START_DIR]\\tmp\\file.txt",
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read file.txt",
+    "name": "read [START_DIR]\\tmp\\file.txt",
     "~followup_annotations": [
       "@@@STEP_LOG_END@file.txt@@@"
     ]
@@ -24,10 +24,10 @@
       "--json-output",
       "/path/to/tmp/json",
       "remove",
-      "file.txt"
+      "[START_DIR]\\tmp\\file.txt"
     ],
     "infra_step": true,
-    "name": "remove file.txt"
+    "name": "remove [START_DIR]\\tmp\\file.txt"
   },
   {
     "cmd": [
@@ -37,7 +37,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "results_dir"
+      "[START_DIR]\\tmp\\results_dir"
     ],
     "infra_step": true,
     "name": "rmtree results_dir"
@@ -52,7 +52,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "results_dir"
+      "[START_DIR]\\tmp\\results_dir"
     ],
     "infra_step": true,
     "name": "makedirs results_dir"
@@ -65,7 +65,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "device_results_dir"
+      "[START_DIR]\\tmp\\device_results_dir"
     ],
     "infra_step": true,
     "name": "rmtree device_results_dir"
@@ -80,7 +80,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "device_results_dir"
+      "[START_DIR]\\tmp\\device_results_dir"
     ],
     "infra_step": true,
     "name": "makedirs device_results_dir"

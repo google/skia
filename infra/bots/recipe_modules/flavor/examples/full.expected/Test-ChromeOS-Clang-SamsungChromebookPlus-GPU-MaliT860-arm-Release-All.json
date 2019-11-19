@@ -20,15 +20,15 @@
   {
     "cmd": [
       "scp",
-      "file.txt",
-      "foo@127.0.0.1:file.txt"
+      "[START_DIR]/tmp/file.txt",
+      "foo@127.0.0.1:/home/chronos/user/file.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "scp file.txt foo@127.0.0.1:file.txt"
+    "name": "scp [START_DIR]/tmp/file.txt foo@127.0.0.1:/home/chronos/user/file.txt"
   },
   {
     "cmd": [
@@ -39,14 +39,14 @@
       "-t",
       "foo@127.0.0.1",
       "cat",
-      "file.txt"
+      "/home/chronos/user/file.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read file.txt"
+    "name": "read /home/chronos/user/file.txt"
   },
   {
     "cmd": [
@@ -58,14 +58,14 @@
       "foo@127.0.0.1",
       "rm",
       "-f",
-      "file.txt"
+      "/home/chronos/user/file.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm file.txt"
+    "name": "rm /home/chronos/user/file.txt"
   },
   {
     "cmd": [
@@ -75,7 +75,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "results_dir"
+      "[START_DIR]/tmp/results_dir"
     ],
     "infra_step": true,
     "name": "rmtree results_dir"
@@ -90,7 +90,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "results_dir"
+      "[START_DIR]/tmp/results_dir"
     ],
     "infra_step": true,
     "name": "makedirs results_dir"
@@ -105,14 +105,14 @@
       "foo@127.0.0.1",
       "rm",
       "-rf",
-      "device_results_dir"
+      "/home/chronos/user/device_results_dir"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm device_results_dir"
+    "name": "rm /home/chronos/user/device_results_dir"
   },
   {
     "cmd": [
@@ -124,14 +124,14 @@
       "foo@127.0.0.1",
       "mkdir",
       "-p",
-      "device_results_dir"
+      "/home/chronos/user/device_results_dir"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "mkdir device_results_dir"
+    "name": "mkdir /home/chronos/user/device_results_dir"
   },
   {
     "cmd": [
