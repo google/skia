@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdf74fb2_40ce1438",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-19T16:31:19Z",
+      "side": 1,
+      "message": "I maybe should have accessed this earlier, but why not --volume?",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 9
+      },
+      "revId": "2cd4de082ffea62d3d4ec466b0291a5a8d76a871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
