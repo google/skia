@@ -16,6 +16,24 @@
       "revId": "c75bc031ef7b695bb363fa48f20edf9f973a4419",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba00ef8c_cb294cc5",
+        "filename": "resources/ducky.jpg",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-19T00:27:38Z",
+      "side": 1,
+      "message": "just ignorance. feel free to move it.",
+      "parentUuid": "8b16ffb4_31bba414",
+      "revId": "c75bc031ef7b695bb363fa48f20edf9f973a4419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
