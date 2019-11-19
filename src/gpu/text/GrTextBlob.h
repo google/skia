@@ -347,8 +347,6 @@ public:
         bool hasWCoord() const { return fFlags.hasWCoord; }
         void setNeedsTransform(bool needsTransform) { fFlags.needsTransform = needsTransform; }
         bool needsTransform() const { return fFlags.needsTransform; }
-        void setFallback() { fFlags.argbFallback = true; }
-        bool isFallback() { return fFlags.argbFallback; }
 
         const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
 
@@ -372,8 +370,7 @@ public:
             bool antiAliased:1;
             bool hasWCoord:1;
             bool needsTransform:1;
-            bool argbFallback:1;
-        } fFlags{false, false, false, false, false, false};
+        } fFlags{false, false, false, false, false};
         Run* const fRun;
         const SkStrikeSpec& fStrikeSpec;
     };  // SubRunInfo
@@ -421,7 +418,6 @@ public:
             // Push back a new subrun to fill and set the override descriptor
             SubRun* subRun = this->pushBackSubRun(*fFallbackStrikeSpec, fColor);
             subRun->setMaskFormat(kARGB_GrMaskFormat);
-            subRun->setFallback();
             return subRun;
         }
 
