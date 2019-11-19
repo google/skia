@@ -62,15 +62,6 @@ GrPipeline::GrPipeline(const InitArgs& args,
     for (int i = 0; i < appliedClip.numClipCoverageFragmentProcessors(); ++i, ++currFPIdx) {
         fFragmentProcessors[currFPIdx] = appliedClip.detachClipCoverageFragmentProcessor(i);
     }
-
-#ifdef SK_DEBUG
-    for (int i = 0; i < numTotalProcessors; ++i) {
-        if (!fFragmentProcessors[i]->isInstantiated()) {
-            this->markAsBad();
-            break;
-        }
-    }
-#endif
 }
 
 GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& caps) const {

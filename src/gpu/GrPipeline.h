@@ -192,7 +192,16 @@ public:
     bool isStencilEnabled() const {
         return SkToBool(fFlags & Flags::kStencilEnabled);
     }
-    SkDEBUGCODE(bool isBad() const { return SkToBool(fFlags & Flags::kIsBad); })
+#ifdef SK_DEBUG
+    bool allProxiesInstantiated() const {
+        for (int i = 0; i < fFragmentProcessors.count(); ++i) {
+            if (!fFragmentProcessors[i]->isInstantiated()) {
+                return false;
+            }
+        }
+        return true;
+    }
+#endif
 
     GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
 
@@ -202,9 +211,6 @@ public:
     const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 
 private:
-
-    SkDEBUGCODE(void markAsBad() { fFlags |= Flags::kIsBad; })
-
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
 
     /** This is a continuation of the public "InputFlags" enum. */
@@ -212,9 +218,6 @@ private:
         kHasStencilClip = (kLastInputFlag << 1),
         kStencilEnabled = (kLastInputFlag << 2),
         kScissorEnabled = (kLastInputFlag << 3),
-#ifdef SK_DEBUG
-        kIsBad = (kLastInputFlag << 4),
-#endif
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
