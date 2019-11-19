@@ -508,6 +508,8 @@ namespace skvm {
         Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
     };
 
+    // Maps Builder::Instructions to regions of JIT'd code, for debugging in VTune.
+    struct LineTableEntry { int line; size_t offset; };
 
     using Reg = int;
 
@@ -556,6 +558,7 @@ namespace skvm {
 
         bool jit(const std::vector<Builder::Instruction>&,
                  bool try_hoisting,
+                 std::vector<LineTableEntry>*,
                  Assembler*) const;
 
         // Dump jit-*.dump files for perf inject.
