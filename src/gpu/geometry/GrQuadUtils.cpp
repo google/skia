@@ -224,7 +224,7 @@ static bool is_simple_rect(const GrQuad& quad) {
 
 // Calculates barycentric coordinates for each point in (testX, testY) in the triangle formed by
 // (x0,y0) - (x1,y1) - (x2, y2) and stores them in u, v, w.
-static void barycentric_coords(float x0, float y0, float x1, float y1, float x2, float y2,
+static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2, float y2,
                                const V4f& testX, const V4f& testY,
                                V4f* u, V4f* v, V4f* w) {
     // Modeled after SkPathOpsQuad::pointInTriangle() but uses float instead of double, is
@@ -233,18 +233,41 @@ static void barycentric_coords(float x0, float y0, float x1, float y1, float x2,
     float v0y = y2 - y0;
     float v1x = x1 - x0;
     float v1y = y1 - y0;
-    V4f v2x = testX - x0;
-    V4f v2y = testY - y0;
 
     float dot00 = v0x * v0x + v0y * v0y;
     float dot01 = v0x * v1x + v0y * v1y;
-    V4f   dot02 = v0x * v2x + v0y * v2y;
     float dot11 = v1x * v1x + v1y * v1y;
-    V4f   dot12 = v1x * v2x + v1y * v2y;
-    float invDenom = sk_ieee_float_divide(1.f, dot00 * dot11 - dot01 * dot01);
+
+    // Not yet 1/d, first check d != 0 with a healthy tolerance (worst case is we end up not
+    // cropping something we could have, which is better than cropping something we shouldn't have).
+    // The tolerance is partly so large because these comparisons operate in device px^4 units,
+    // with plenty of subtractions thrown in. The SkPathOpsQuad code's use of doubles helped, and
+    // because it only needed to return "inside triangle", it could compare against [0, denom] and
+    // skip the normalization entirely.
+    float invDenom = dot00 * dot11 - dot01 * dot01;
+    static constexpr SkScalar kEmptyTriTolerance = SK_Scalar1 / (1 << 5);
+    if (SkScalarNearlyZero(invDenom, kEmptyTriTolerance)) {
+        // The triangle was degenerate/empty, which can cause the following UVW calculations to
+        // return (0,0,1) for every test point. This in turn makes the cropping code think that the
+        // empty triangle contains the crop rect and we turn the draw into a fullscreen clear, which
+        // is definitely the utter opposite of what we'd expect for an empty shape.
+        return false;
+    } else {
+        // Safe to divide
+        invDenom = sk_ieee_float_divide(1.f, invDenom);
+    }
+
+    V4f v2x = testX - x0;
+    V4f v2y = testY - y0;
+
+    V4f dot02 = v0x * v2x + v0y * v2y;
+    V4f dot12 = v1x * v2x + v1y * v2y;
+
     *u = (dot11 * dot02 - dot01 * dot12) * invDenom;
     *v = (dot00 * dot12 - dot01 * dot02) * invDenom;
     *w = 1.f - *u - *v;
+
+    return true;
 }
 
 static M4f inside_triangle(const V4f& u, const V4f& v, const V4f& w) {
@@ -342,11 +365,14 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
     // Calculate barycentric coordinates for the 4 rect corners in the 2 triangles that the quad
     // is tessellated into when drawn.
     V4f u1, v1, w1;
-    barycentric_coords(devX[0], devY[0], devX[1], devY[1], devX[2], devY[2], clipX, clipY,
-                       &u1, &v1, &w1);
     V4f u2, v2, w2;
-    barycentric_coords(devX[1], devY[1], devX[3], devY[3], devX[2], devY[2], clipX, clipY,
-                       &u2, &v2, &w2);
+    if (!barycentric_coords(devX[0], devY[0], devX[1], devY[1], devX[2], devY[2], clipX, clipY,
+                            &u1, &v1, &w1) ||
+        !barycentric_coords(devX[1], devY[1], devX[3], devY[3], devX[2], devY[2], clipX, clipY,
+                            &u2, &v2, &w2)) {
+        // Bad triangles, skip cropping
+        return false;
+    }
 
     // clipDevRect is completely inside this quad if each corner is in at least one of two triangles
     M4f inTri1 = inside_triangle(u1, v1, w1);
