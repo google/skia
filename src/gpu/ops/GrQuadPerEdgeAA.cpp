@@ -21,14 +21,14 @@
 
 namespace {
 
-// Writes four vertices in triangle strip order, including the additional data for local
-// coordinates, geometry + texture domains, color, and coverage as needed to satisfy the vertex spec
-static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
-                       GrQuadPerEdgeAA::CoverageMode mode, const skvx::Vec<4, float>& coverage,
-                       SkPMColor4f color4f, const SkRect& geomDomain, const SkRect& texDomain,
-                       const GrQuad& deviceQuad, const GrQuad& localQuad) {
+// Generic WriteQuadProc that can handle any VertexSpec. It writes the 4 vertices in triangle strip
+// order, although the data per-vertex is dependent on the VertexSpec.
+static void write_quad_generic(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                               const GrQuad& deviceQuad, const GrQuad& localQuad,
+                               const float coverage[4], const SkPMColor4f& color,
+                               const SkRect& geomDomain, const SkRect& texDomain) {
     static constexpr auto If = GrVertexWriter::If<float>;
-
+    GrQuadPerEdgeAA::CoverageMode mode = spec.coverageMode();
     for (int i = 0; i < 4; ++i) {
         // save position, this is a float2 or float3 or float4 depending on the combination of
         // perspective and coverage mode.
@@ -40,7 +40,7 @@ static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& sp
         if (spec.hasVertexColors()) {
             bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
             vb->write(GrVertexColor(
-                color4f * (mode == GrQuadPerEdgeAA::CoverageMode::kWithColor ? coverage[i] : 1.f),
+                color * (mode == GrQuadPerEdgeAA::CoverageMode::kWithColor ? coverage[i] : 1.f),
                 wide));
         }
 
@@ -59,6 +59,162 @@ static void write_quad(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& sp
         if (spec.hasDomain()) {
             vb->write(texDomain);
         }
+    }
+}
+
+// Specialized WriteQuadProcs for particular VertexSpecs that show up frequently (determined
+// experimentally through recorded GMs, SKPs, and SVGs, as well as SkiaRenderer's usage patterns):
+
+// 2D (XY), no explicit coverage, vertex color, no locals, no geometry domain, no texture domain
+// This represents simple, solid color or shader, non-AA (or AA with cov. as alpha) rects.
+static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                           const GrQuad& deviceQuad, const GrQuad& localQuad,
+                           const float coverage[4], const SkPMColor4f& color,
+                           const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(!spec.hasLocalCoords());
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone ||
+             spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor);
+    SkASSERT(spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(!spec.hasDomain());
+
+    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+    for (int i = 0; i < 4; ++i) {
+        // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
+        SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
+                 coverage[i] == 1.f);
+        // SkDebugf("w2dcolor: %d [%.2f %.2f] %.2fx[%.2f %.2f %.2f %.2f]\n",
+                // deviceQuad.x(i), deviceQuad.y(i), coverage[i], color[0], color[1], color[2], color[3]);
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), GrVertexColor(color * coverage[i], wide));
+    }
+}
+
+// 2D (XY), no explicit coverage, UV locals, no color, no geometry domain, no texture domain
+// This represents opaque, non AA, textured rects
+static void write_2d_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                        const GrQuad& deviceQuad, const GrQuad& localQuad,
+                        const float coverage[4], const SkPMColor4f& color,
+                        const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone);
+    SkASSERT(!spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(!spec.hasDomain());
+
+    for (int i = 0; i < 4; ++i) {
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), localQuad.x(i), localQuad.y(i));
+    }
+}
+
+// 2D (XY), no explicit coverage, UV locals, vertex color, no geometry or texture domains
+// This represents transparent, non AA (or AA with cov. as alpha), textured rects
+static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                              const GrQuad& deviceQuad, const GrQuad& localQuad,
+                              const float coverage[4], const SkPMColor4f& color,
+                              const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone ||
+             spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor);
+    SkASSERT(spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(!spec.hasDomain());
+
+    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+    for (int i = 0; i < 4; ++i) {
+        // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
+        SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
+                 coverage[i] == 1.f);
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), GrVertexColor(color * coverage[i], wide),
+                  localQuad.x(i), localQuad.y(i));
+    }
+}
+
+// 2D (XY), explicit coverage, UV locals, no color, no geometry domain, no texture domain
+// This represents opaque, AA, textured rects
+static void write_2d_cov_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                            const GrQuad& deviceQuad, const GrQuad& localQuad,
+                            const float coverage[4], const SkPMColor4f& color,
+                            const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithPosition);
+    SkASSERT(!spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(!spec.hasDomain());
+
+    for (int i = 0; i < 4; ++i) {
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), coverage[i], localQuad.x(i), localQuad.y(i));
+    }
+}
+
+// 2D (XY), no explicit coverage, UV locals, no color, tex domain but no geometry domain
+// This represents opaque, non AA, textured rects with strict uv sampling
+static void write_2d_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                               const GrQuad& deviceQuad, const GrQuad& localQuad,
+                               const float coverage[4], const SkPMColor4f& color,
+                               const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone);
+    SkASSERT(!spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(spec.hasDomain());
+
+    for (int i = 0; i < 4; ++i) {
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), localQuad.x(i), localQuad.y(i), texDomain);
+    }
+}
+
+// 2D (XY), no explicit coverage, UV locals, vertex color, tex domain but no geometry domain
+// This represents transparent, non AA (or AA with cov. as alpha), textured rects with strict sample
+static void write_2d_color_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                                     const GrQuad& deviceQuad, const GrQuad& localQuad,
+                                     const float coverage[4], const SkPMColor4f& color,
+                                     const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kNone ||
+             spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor);
+    SkASSERT(spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(spec.hasDomain());
+
+    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+    for (int i = 0; i < 4; ++i) {
+        // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
+        SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
+                 coverage[i] == 1.f);
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), GrVertexColor(color * coverage[i], wide),
+                  localQuad.x(i), localQuad.y(i), texDomain);
+    }
+}
+
+// 2D (XY), explicit coverage, UV locals, no color, tex domain but no geometry domain
+// This represents opaque, AA, textured rects with strict uv sampling
+static void write_2d_cov_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec& spec,
+                                   const GrQuad& deviceQuad, const GrQuad& localQuad,
+                                   const float coverage[4], const SkPMColor4f& color,
+                                   const SkRect& geomDomain, const SkRect& texDomain) {
+    // Assert assumptions about VertexSpec
+    SkASSERT(spec.deviceQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.hasLocalCoords() && spec.localQuadType() != GrQuad::Type::kPerspective);
+    SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithPosition);
+    SkASSERT(!spec.hasVertexColors());
+    SkASSERT(!spec.requiresGeometryDomain());
+    SkASSERT(spec.hasDomain());
+
+    for (int i = 0; i < 4; ++i) {
+        vb->write(deviceQuad.x(i), deviceQuad.y(i), coverage[i],
+                  localQuad.x(i), localQuad.y(i), texDomain);
     }
 }
 
@@ -86,40 +242,72 @@ ColorType MinColorType(SkPMColor4f color, GrClampType clampType, const GrCaps& c
     }
 }
 
-////////////////// Tessellate Implementation
+////////////////// Tessellator Implementation
 
-void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQuad,
-                 const SkPMColor4f& color4f, const GrQuad& localQuad, const SkRect& domain,
-                 GrQuadAAFlags aaFlags) {
-    SkASSERT(deviceQuad.quadType() <= spec.deviceQuadType());
-    SkASSERT(!spec.hasLocalCoords() || localQuad.quadType() <= spec.localQuadType());
+Tessellator::WriteQuadProc Tessellator::getWriteQuadProc(const VertexSpec& spec) {
+   if (false && spec.deviceQuadType() != GrQuad::Type::kPerspective && !spec.requiresGeometryDomain()) {
 
-    GrQuadPerEdgeAA::CoverageMode mode = spec.coverageMode();
+        if (spec.hasLocalCoords()) {
+            if (spec.coverageMode() == CoverageMode::kWithPosition && !spec.hasVertexColors()) {
+                // SkDebugf("write_2d_cov_uv, strict? %d\n", spec.hasDomain());
+                return spec.hasDomain() ? write_2d_cov_uv_strict : write_2d_cov_uv;
+            } else if (spec.coverageMode() != CoverageMode::kWithPosition && spec.hasVertexColors()) {
+                // SkDebugf("write_2d_color_uv, strict? %d\n", spec.hasDomain());
+                return spec.hasDomain() ? write_2d_color_uv_strict : write_2d_color_uv;
+            } else if (spec.coverageMode() == CoverageMode::kNone && !spec.hasVertexColors()) {
+                // SkDebugf("write_2d_uv, strict? %d\n", spec.hasDomain());
+                return spec.hasDomain() ? write_2d_uv_strict : write_2d_uv;
+            }
+
+            // Fall through to return generic function
+        } else if (spec.hasVertexColors() && spec.coverageMode() != CoverageMode::kWithPosition) {
+            // Non-UV with vertex colors (so coverage mode kNone or kWithColor)
+            // SkDebugf("write_2d_color\n");
+            return write_2d_color;
+        }
+    }
+
+    // Arbitrary spec hits the slow path
+    return write_quad_generic;
+}
+
+Tessellator::Tessellator(const VertexSpec& spec)
+        : fVertexSpec(spec)
+        , fWriteProc(Tessellator::getWriteQuadProc(spec)) {}
+
+void* Tessellator::append(void* vertices, const GrQuad& deviceQuad, const GrQuad& localQuad,
+                          const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
+    SkASSERT(deviceQuad.quadType() <= fVertexSpec.deviceQuadType());
+    SkASSERT(!fVertexSpec.hasLocalCoords() || localQuad.quadType() <= fVertexSpec.localQuadType());
+
+    static const float kFullCoverage[4] = {1.f, 1.f, 1.f, 1.f};
+    static const float kZeroCoverage[4] = {0.f, 0.f, 0.f, 0.f};
+    static const SkRect kIgnoredDomain = SkRect::MakeEmpty();
 
     GrVertexWriter vb{vertices};
-    if (spec.usesCoverageAA()) {
-        SkASSERT(mode == CoverageMode::kWithPosition || mode == CoverageMode::kWithColor);
+    if (fVertexSpec.usesCoverageAA()) {
+        SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kWithColor ||
+                 fVertexSpec.coverageMode() == CoverageMode::kWithPosition);
         // Must calculate inner and outer quadrilaterals for the vertex coverage ramps, and possibly
-        // a geometry domain
+        // a geometry domain if corners are not right angles
         SkRect geomDomain;
-        if (spec.requiresGeometryDomain()) {
+        if (fVertexSpec.requiresGeometryDomain()) {
             geomDomain = deviceQuad.bounds();
             geomDomain.outset(0.5f, 0.5f); // account for AA expansion
         }
 
-        GrQuadUtils::TessellationHelper helper;
         if (aaFlags == GrQuadAAFlags::kNone) {
             // Have to write the coverage AA vertex structure, but there's no math to be done for a
             // non-aa quad batched into a coverage AA op.
-            write_quad(&vb, spec, mode, 1.f, color4f, geomDomain, domain, deviceQuad, localQuad);
+            fWriteProc(&vb, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
+                       geomDomain, uvDomain);
             // Since we pass the same corners in, the outer vertex structure will have 0 area and
             // the coverage interpolation from 1 to 0 will not be visible.
-            write_quad(&vb, spec, mode, 0.f, color4f, geomDomain, domain, deviceQuad, localQuad);
+            fWriteProc(&vb, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
+                       geomDomain, uvDomain);
         } else {
-            // TODO(michaelludwig) - Update TessellateHelper to select processing functions based on
-            // the vertexspec once per op, and then burn through all quads with the selected
-            // function ptr.
-            helper.reset(deviceQuad, spec.hasLocalCoords() ? &localQuad : nullptr);
+            // Reset the tessellation helper to match the current geometry
+            fAAHelper.reset(deviceQuad, fVertexSpec.hasLocalCoords() ? &localQuad : nullptr);
 
             // Edge inset/outset distance ordered LBTR, set to 0.5 for a half pixel if the AA flag
             // is turned on, or 0.0 if the edge is not anti-aliased.
@@ -135,20 +323,24 @@ void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQua
 
             // Write inner vertices first
             GrQuad aaDeviceQuad, aaLocalQuad;
-            skvx::Vec<4, float> coverage = helper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
-            write_quad(&vb, spec, mode, coverage, color4f, geomDomain, domain,
-                       aaDeviceQuad, aaLocalQuad);
+            skvx::Vec<4, float> coverage = fAAHelper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
+
+            float unpacked_coverage[4];
+            coverage.store(unpacked_coverage);
+            fWriteProc(&vb, fVertexSpec, aaDeviceQuad, aaLocalQuad, unpacked_coverage, color,
+                       geomDomain, uvDomain);
 
             // Then outer vertices, which use 0.f for their coverage
-            helper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
-            write_quad(&vb, spec, mode, 0.f, color4f, geomDomain, domain,
-                       aaDeviceQuad, aaLocalQuad);
+            fAAHelper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
+            fWriteProc(&vb, fVertexSpec, aaDeviceQuad, aaLocalQuad, kZeroCoverage, color,
+                       geomDomain, uvDomain);
         }
     } else {
         // No outsetting needed, just write a single quad with full coverage
-        SkASSERT(mode == CoverageMode::kNone && !spec.requiresGeometryDomain());
-        write_quad(&vb, spec, mode, 1.f, color4f, SkRect::MakeEmpty(), domain,
-                   deviceQuad, localQuad);
+        SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kNone &&
+                 !fVertexSpec.requiresGeometryDomain());
+        fWriteProc(&vb, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
+                   kIgnoredDomain, uvDomain);
     }
 
     return vb.fPtr;
