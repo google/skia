@@ -1,7 +1,7 @@
 {
     "program": {
         "binary": "bin/skqp",
-        "args" : [ "/pkg/data", "data/logs" ]
+        "args" : [ "/pkg/data", "tmp/logs" ]
     },
     "sandbox": {
         "dev": [
@@ -9,7 +9,7 @@
         ],
         "features": [
             "vulkan",
-            "isolated-persistent-storage"
+            "system-temp"
         ],
         "services": [
             "fuchsia.sysmem.Allocator",
