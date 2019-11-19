@@ -233,13 +233,13 @@ GrGLSLPrimitiveProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&)
 GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, uint8_t coverage,
                              GrClipEdgeType edgeType, const SkMatrix& localMatrix,
                              bool usesLocalCoords)
-    : INHERITED(kGrConicEffect_ClassID)
-    , fColor(color)
-    , fViewMatrix(viewMatrix)
-    , fLocalMatrix(viewMatrix)
-    , fUsesLocalCoords(usesLocalCoords)
-    , fCoverageScale(coverage)
-    , fEdgeType(edgeType) {
+        : INHERITED(kGrConicEffect_ClassID, true)
+        , fColor(color)
+        , fViewMatrix(viewMatrix)
+        , fLocalMatrix(viewMatrix)
+        , fUsesLocalCoords(usesLocalCoords)
+        , fCoverageScale(coverage)
+        , fEdgeType(edgeType) {
     this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
 }
 
@@ -248,8 +248,8 @@ GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatri
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrConicEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> GrConicEffect::TestCreate(GrProcessorTestData* d) {
-    sk_sp<GrGeometryProcessor> gp;
+GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
+    GrGeometryProcessor* gp;
     do {
         GrClipEdgeType edgeType =
                 static_cast<GrClipEdgeType>(
@@ -433,7 +433,7 @@ GrGLSLPrimitiveProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) 
 GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, uint8_t coverage,
                            GrClipEdgeType edgeType, const SkMatrix& localMatrix,
                            bool usesLocalCoords)
-    : INHERITED(kGrQuadEffect_ClassID)
+    : INHERITED(kGrQuadEffect_ClassID, true)
     , fColor(color)
     , fViewMatrix(viewMatrix)
     , fLocalMatrix(localMatrix)
@@ -448,8 +448,8 @@ GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix,
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrQuadEffect);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> GrQuadEffect::TestCreate(GrProcessorTestData* d) {
-    sk_sp<GrGeometryProcessor> gp;
+GrGeometryProcessor* GrQuadEffect::TestCreate(GrProcessorTestData* d) {
+    GrGeometryProcessor* gp;
     do {
         GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
                 d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
