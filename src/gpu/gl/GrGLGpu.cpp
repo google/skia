@@ -3850,7 +3850,7 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-void GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess access,
+bool GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAccess access,
                             const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
     // If we inserted semaphores during the flush, we need to call GLFlush.
     bool insertedSemaphore = info.fNumSemaphores > 0 && this->caps()->semaphoreSupport();
@@ -3884,6 +3884,7 @@ void GrGLGpu::onFinishFlush(GrSurfaceProxy*[], int, SkSurface::BackendSurfaceAcc
         // See if any previously inserted finish procs are good to go.
         this->checkFinishProcs();
     }
+    return true;
 }
 
 void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
@@ -3963,6 +3964,7 @@ void GrGLGpu::insertEventMarker(const char* msg) {
 std::unique_ptr<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     // Set up a semaphore to be signaled once the data is ready, and flush GL
     std::unique_ptr<GrSemaphore> semaphore = this->makeSemaphore(true);
+    SkASSERT(semaphore);
     this->insertSemaphore(semaphore.get());
     // We must call flush here to make sure the GrGLSync object gets created and sent to the gpu.
     GL_CALL(Flush());

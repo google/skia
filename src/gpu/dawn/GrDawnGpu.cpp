@@ -464,9 +464,10 @@ void GrDawnGpu::flush() {
     fDevice.Tick();
 }
 
-void GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+bool GrDawnGpu::onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                               const GrFlushInfo& info, const GrPrepareForExternalIORequests&) {
     this->flush();
+    return true;
 }
 
 static wgpu::Texture get_dawn_texture_from_surface(GrSurface* src) {

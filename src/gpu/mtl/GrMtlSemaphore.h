@@ -33,6 +33,8 @@ public:
 private:
     GrMtlSemaphore(id<MTLEvent> event, uint64_t value) API_AVAILABLE(macos(10.14), ios(12.0));
 
+    void setIsOwned() override {}
+
     id<MTLEvent> fEvent API_AVAILABLE(macos(10.14), ios(12.0));
     uint64_t     fValue;
 
