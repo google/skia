@@ -42,7 +42,7 @@ public:
         }
         fRequestedFeatures |= fPipeline->getXferProcessor().requestedFeatures();
 
-        SkDEBUGCODE(this->validate();)
+        SkDEBUGCODE(this->validate(false);)
         (void) fNumDynamicStateArrays;  // touch this to quiet unused member warnings
     }
 
@@ -102,8 +102,12 @@ public:
     // create the stencil settings here.
     GrStencilSettings nonGLStencilSettings() const;
 
+    void visitProxies(const GrOp::VisitProxyFunc& fn) const {
+        fPipeline->visitProxies(fn);
+    }
+
 #ifdef SK_DEBUG
-    void validate() const;
+    void validate(bool flushTime) const;
     void checkAllInstantiated() const;
     void checkMSAAAndMIPSAreResolved() const;
     void compatibleWithMeshes(const GrMesh meshes[], int meshCount) const;
