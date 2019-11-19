@@ -1390,7 +1390,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     // If src is really a rect, call our specialty strokeRect() method
     {
         SkRect rect;
-        bool isClosed;
+        bool isClosed = false;
         SkPath::Direction dir;
         if (src.isRect(&rect, &isClosed, &dir) && isClosed) {
             this->strokeRect(rect, dst, dir);
