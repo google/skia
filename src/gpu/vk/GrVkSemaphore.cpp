@@ -23,7 +23,12 @@ std::unique_ptr<GrVkSemaphore> GrVkSemaphore::Make(GrVkGpu* gpu, bool isOwned) {
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
     VkSemaphore semaphore = VK_NULL_HANDLE;
-    GR_VK_CALL_ERRCHECK(gpu, CreateSemaphore(gpu->device(), &createInfo, nullptr, &semaphore));
+    VkResult result;
+    GR_VK_CALL_RESULT(gpu, result, CreateSemaphore(gpu->device(), &createInfo, nullptr,
+                                                   &semaphore));
+    if (result != VK_SUCCESS) {
+        return nullptr;
+    }
 
     return std::unique_ptr<GrVkSemaphore>(new GrVkSemaphore(gpu, semaphore, false, false, isOwned));
 }

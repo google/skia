@@ -126,11 +126,12 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect&, GrSurfaceOrigin,
                                ForExternalIO) override {}
 
-    void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override {
         if (info.fFinishedProc) {
             info.fFinishedProc(info.fFinishedContext);
         }
+        return true;
     }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(

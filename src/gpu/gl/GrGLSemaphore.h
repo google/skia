@@ -43,6 +43,10 @@ public:
 private:
     GrGLSemaphore(GrGLGpu* gpu, bool isOwned);
 
+    void setIsOwned() override {
+        fIsOwned = true;
+    }
+
     GrGLGpu* fGpu;
     GrGLsync fSync;
     bool     fIsOwned;
