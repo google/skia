@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a8529ef_d411afca",
+        "filename": "src/gpu/ccpr/GrCCClipPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-19T18:22:25Z",
+      "side": 1,
+      "message": "should there be a std::move here ?",
+      "range": {
+        "startLine": 50,
+        "startChar": 24,
+        "endLine": 50,
+        "endChar": 31
+      },
+      "revId": "cfd386ae024083a88f8ea47af80e5621e19a6526",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
