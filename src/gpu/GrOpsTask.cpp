@@ -408,7 +408,10 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
 
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
-            chain.head()->prePrepare(context, &fTargetView, chain.appliedClip());
+            chain.head()->prePrepare(context,
+                                     &fTargetView,
+                                     chain.appliedClip(),
+                                     chain.dstProxyView());
         }
     }
 }
@@ -437,7 +440,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           &fTargetView,
                                           chain.appliedClip(),
-                                          chain.dstProxyView());
+                                          chain.dstProxyView() /*$$*/);
 
             flushState->setOpArgs(&opArgs);
 
@@ -578,7 +581,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       &fTargetView,
                                       chain.appliedClip(),
-                                      chain.dstProxyView());
+                                      chain.dstProxyView() /*$$*/);
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());

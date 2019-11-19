@@ -159,8 +159,9 @@ public:
      * onPrePrepare must be prepared to handle both cases (when onPrePrepare has been called
      * ahead of time and when it has not been called).
      */
-    void prePrepare(GrRecordingContext* context, GrSurfaceProxyView* dstView, GrAppliedClip* clip) {
-        this->onPrePrepare(context, dstView, clip);
+    void prePrepare(GrRecordingContext* context, GrSurfaceProxyView* dstView, GrAppliedClip* clip,
+                    const GrXferProcessor::DstProxyView& dstProxyView) {
+        this->onPrePrepare(context, dstView, clip, dstProxyView);
     }
 
     /**
@@ -291,9 +292,11 @@ private:
         return CombineResult::kCannotCombine;
     }
 
-    // Only GrMeshDrawOp currently overrides this virtual
-    virtual void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*,
-                              const GrAppliedClip*) {}
+    // TODO: the parameters to onPrePrepare mirror GrOpFlushState::OpArgs - fuse the two?
+    virtual void onPrePrepare(GrRecordingContext*,
+                              const GrSurfaceProxyView*,
+                              GrAppliedClip*,
+                              const GrXferProcessor::DstProxyView&) {}
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.

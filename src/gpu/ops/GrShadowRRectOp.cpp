@@ -597,7 +597,7 @@ private:
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh, 1, fixedDynamicState, nullptr,
+        target->recordDraw1(std::move(gp), mesh, 1, fixedDynamicState, nullptr,
                            GrPrimitiveType::kTriangles);
     }
 
