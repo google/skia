@@ -46,6 +46,23 @@
       "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2f36132_7cac1976",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-19T19:20:46Z",
+      "side": 1,
+      "message": "Nice. I was looking to see where the reset of these copied-out semaphores went, and then realized that you moved the copying below the failure block, which makes this even better.",
+      "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
