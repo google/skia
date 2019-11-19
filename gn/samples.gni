@@ -8,6 +8,8 @@ _samplecode = get_path_info("../samplecode", "abspath")
 
 samples_sources = [
   "$_samplecode/PerlinPatch.cpp",
+  "$_samplecode/CloudPatch.cpp",
+  "$_samplecode/CloudPatchCF.cpp",
   "$_samplecode/Sample.cpp",
   "$_samplecode/Sample.h",
   "$_samplecode/Sample2PtRadial.cpp",

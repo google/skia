@@ -23,8 +23,7 @@ static TypeCategory type_category(const Type& type) {
                 return TypeCategory::kSigned;
             } else if (type.fName == "uint" || type.fName == "ushort") {
                 return TypeCategory::kUnsigned;
-            } else {
-                SkASSERT(type.fName == "float" || type.fName == "half");
+            } else if (type.fName == "float" || type.fName == "half") {
                 return TypeCategory::kFloat;
             }
             ABORT("unsupported type: %s\n", type.description().c_str());

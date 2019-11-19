@@ -215,10 +215,22 @@ static GrSLType glsltype(const Context& context, const Type& type) {
         return GrSLType::kFloat2_GrSLType;
     } else if (type == *context.fHalf2_Type) {
         return GrSLType::kHalf2_GrSLType;
+    } else if (type == *context.fFloat3_Type) {
+        return GrSLType::kFloat3_GrSLType;
+    } else if (type == *context.fHalf3_Type) {
+        return GrSLType::kHalf3_GrSLType;
     } else if (type == *context.fFloat4_Type) {
         return GrSLType::kFloat4_GrSLType;
     } else if (type == *context.fHalf4_Type) {
         return GrSLType::kHalf4_GrSLType;
+    } else if (type == *context.fFloat2x2_Type) {
+        return GrSLType::kFloat2x2_GrSLType;
+    } else if (type == *context.fHalf2x2_Type) {
+        return GrSLType::kHalf2x2_GrSLType;
+    } else if (type == *context.fFloat3x3_Type) {
+        return GrSLType::kFloat3x3_GrSLType;
+    } else if (type == *context.fHalf3x3_Type) {
+        return GrSLType::kHalf3x3_GrSLType;
     } else if (type == *context.fFloat4x4_Type) {
         return GrSLType::kFloat4x4_GrSLType;
     } else if (type == *context.fHalf4x4_Type) {
@@ -226,6 +238,7 @@ static GrSLType glsltype(const Context& context, const Type& type) {
     } else if (type == *context.fVoid_Type) {
         return GrSLType::kVoid_GrSLType;
     }
+    printf("unsupported type %s\n", type.description().c_str());
     SkASSERT(false);
     return GrSLType::kVoid_GrSLType;
 }
@@ -262,6 +275,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         fOut = oldOut;
         result.fBody = buffer.str();
+        result.fFormatArgs = std::move(*fFormatArgs);
         fFunctions->push_back(result);
     }
 }

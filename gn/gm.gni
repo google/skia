@@ -300,6 +300,8 @@ gm_sources = [
   "$_gm/runtimecolorfilter.cpp",
   "$_gm/runtimefunctions.cpp",
   "$_gm/runtimeshader.cpp",
+  "$_gm/runtimeshaderexample.cpp",
+  "$_gm/runtimeshadercrazy.cpp",
   "$_gm/samplelocations.cpp",
   "$_gm/samplerstress.cpp",
   "$_gm/savelayer.cpp",
@@ -386,4 +388,3 @@ gl_gm_sources = [
   "$_gm/atlastext.cpp",
   "$_gm/rectangletexture.cpp",
 ]
-
