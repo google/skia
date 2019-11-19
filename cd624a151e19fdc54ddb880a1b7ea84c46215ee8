@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "723808f5_f692e146",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-19T20:58:02Z",
+      "side": 1,
+      "message": "wdyt about one GrVertexWriter method that does this? One function call \u0026 no loop.",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 5
+      },
+      "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dce5b842_94c8d603",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-19T20:58:02Z",
+      "side": 1,
+      "message": "Maybe one entry point for this too ?",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 5
+      },
+      "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6e937d1_8c925d41",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-19T20:58:02Z",
+      "side": 1,
+      "message": "GetWriteQuadProc - since static.",
+      "range": {
+        "startLine": 154,
+        "startChar": 29,
+        "endLine": 154,
+        "endChar": 45
+      },
+      "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
