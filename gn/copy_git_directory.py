@@ -17,7 +17,8 @@ def copy_git_directory(src, dst, out=None):
   not tracked by git.  Also, if out is not None, write summary of actions to out.
   If `dst` is a top-level git directory, the `.git` directory will be removed.
   '''
-  assert os.path.isdir(src)
+  if not os.path.isdir(src):
+    raise Exception('Directory "%s" does not exist.' % src)
   if not os.path.isdir(dst):
     os.makedirs(dst)
   ls_files = subprocess.check_output(['git', 'ls-files', '-z', '.'], cwd=src)
