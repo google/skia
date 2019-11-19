@@ -155,7 +155,7 @@ private:
     bool onCopySurface(GrSurface* dst, GrSurface* src,
                        const SkIRect& srcRect, const SkIPoint& dstPoint) override;
 
-    void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                        const GrFlushInfo& info, const GrPrepareForExternalIORequests&) override;
 
     wgpu::Device                                    fDevice;

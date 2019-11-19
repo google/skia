@@ -641,25 +641,59 @@ GrSemaphoresSubmitted GrGpu::finishFlush(GrSurfaceProxy* proxies[],
     this->stats()->incNumFinishFlushes();
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();
 
-    if (this->caps()->semaphoreSupport()) {
-        for (int i = 0; i < info.fNumSemaphores; ++i) {
-            std::unique_ptr<GrSemaphore> semaphore;
+    struct SemaphoreInfo {
+        std::unique_ptr<GrSemaphore> fSemaphore;
+        bool fDidCreate = false;
+    };
+
+    bool failedSemaphoreCreation = false;
+    std::unique_ptr<SemaphoreInfo[]> semaphoreInfos(new SemaphoreInfo[info.fNumSemaphores]);
+    if (this->caps()->semaphoreSupport() && info.fNumSemaphores) {
+        for (int i = 0; i < info.fNumSemaphores && !failedSemaphoreCreation; ++i) {
             if (info.fSignalSemaphores[i].isInitialized()) {
-                semaphore = resourceProvider->wrapBackendSemaphore(
+                semaphoreInfos[i].fSemaphore = resourceProvider->wrapBackendSemaphore(
                         info.fSignalSemaphores[i],
                         GrResourceProvider::SemaphoreWrapType::kWillSignal,
                         kBorrow_GrWrapOwnership);
             } else {
-                semaphore = resourceProvider->makeSemaphore(false);
+                semaphoreInfos[i].fSemaphore = resourceProvider->makeSemaphore(false);
+                semaphoreInfos[i].fDidCreate = true;
             }
-            this->insertSemaphore(semaphore.get());
-
-            if (!info.fSignalSemaphores[i].isInitialized()) {
-                info.fSignalSemaphores[i] = semaphore->backendSemaphore();
+            if (!semaphoreInfos[i].fSemaphore) {
+                semaphoreInfos[i].fDidCreate = false;
+                failedSemaphoreCreation = true;
+            }
+        }
+        if (!failedSemaphoreCreation) {
+            for (int i = 0; i < info.fNumSemaphores && !failedSemaphoreCreation; ++i) {
+                this->insertSemaphore(semaphoreInfos[i].fSemaphore.get());
             }
         }
     }
-    this->onFinishFlush(proxies, n, access, info, externalRequests);
+
+    // We always want to try flushing, so do that before checking if we failed semaphore creation.
+    if (!this->onFinishFlush(proxies, n, access, info, externalRequests) ||
+        failedSemaphoreCreation) {
+        // If we didn't do the flush or failed semaphore creations then none of the semaphores were
+        // submitted. Therefore the client can't wait on any of the semaphores. Additionally any
+        // semaphores we created here the client is not responsible for deleting so we must make
+        // sure they get deleted. We do this by changing the ownership from borrowed to owned.
+        for (int i = 0; i < info.fNumSemaphores; ++i) {
+            if (semaphoreInfos[i].fDidCreate) {
+                SkASSERT(semaphoreInfos[i].fSemaphore);
+                semaphoreInfos[i].fSemaphore->setIsOwned();
+            }
+        }
+        return GrSemaphoresSubmitted::kNo;
+    }
+
+    for (int i = 0; i < info.fNumSemaphores; ++i) {
+        if (!info.fSignalSemaphores[i].isInitialized()) {
+            SkASSERT(semaphoreInfos[i].fSemaphore);
+            info.fSignalSemaphores[i] = semaphoreInfos[i].fSemaphore->backendSemaphore();
+        }
+    }
+
     return this->caps()->semaphoreSupport() ? GrSemaphoresSubmitted::kYes
                                             : GrSemaphoresSubmitted::kNo;
 }

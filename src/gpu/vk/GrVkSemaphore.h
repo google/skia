@@ -59,6 +59,10 @@ public:
             fHasBeenSubmittedToQueueForWait = true;
         }
 
+        void setIsOwned() {
+            fIsOwned = true;
+        }
+
 #ifdef SK_TRACE_VK_RESOURCES
         void dumpInfo() const override {
             SkDebugf("GrVkSemaphore: %d (%d refs)\n", fSemaphore, this->getRefCnt());
@@ -80,6 +84,10 @@ public:
 private:
     GrVkSemaphore(GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait,
                   bool isOwned);
+
+    void setIsOwned() override {
+        fResource->setIsOwned();
+    }
 
     Resource* fResource;
 

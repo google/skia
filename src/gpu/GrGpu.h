@@ -669,7 +669,7 @@ private:
     virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                const SkIPoint& dstPoint) = 0;
 
-    virtual void onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
+    virtual bool onFinishFlush(GrSurfaceProxy*[], int n, SkSurface::BackendSurfaceAccess access,
                                const GrFlushInfo&, const GrPrepareForExternalIORequests&) = 0;
 
 #ifdef SK_ENABLE_DUMP_GPU
