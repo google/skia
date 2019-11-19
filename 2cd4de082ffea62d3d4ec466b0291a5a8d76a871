@@ -46,6 +46,30 @@
       "revId": "2cd4de082ffea62d3d4ec466b0291a5a8d76a871",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61fd9ca0_422072bd",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-19T17:34:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "98c9ff3c_d13475c6",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 9
+      },
+      "revId": "2cd4de082ffea62d3d4ec466b0291a5a8d76a871",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
