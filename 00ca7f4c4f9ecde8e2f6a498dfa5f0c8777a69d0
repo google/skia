@@ -63,6 +63,24 @@
       "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86149b59_6176855d",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-19T19:25:49Z",
+      "side": 1,
+      "message": "Yeah I was a little worried where I was going to do that, then realized it actually makes it really simple to delay the copy with the new approach.",
+      "parentUuid": "d2f36132_7cac1976",
+      "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
