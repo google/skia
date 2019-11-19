@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6776d265_d0add649",
+        "filename": "infra/bots/recipe_modules/build/docker.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-19T17:29:28Z",
+      "side": 1,
+      "message": "I wonder if having these as \"constants\" at the top would aid in readability/updatability?",
+      "range": {
+        "startLine": 72,
+        "startChar": 5,
+        "endLine": 72,
+        "endChar": 11
+      },
+      "revId": "bb83e00ef9488a26c35e596661759f0b99b1a511",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
