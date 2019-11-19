@@ -65,7 +65,7 @@ public:
         SkUNREACHABLE;
     }
 
-    using LazyInstantiateAtlasCallback = std::function<sk_sp<GrTexture>(
+    using LazyInstantiateAtlasCallback = std::function<GrSurfaceProxy::LazyCallbackResult(
             GrResourceProvider*, GrPixelConfig, const GrBackendFormat&, int sampleCount)>;
 
     static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(const LazyInstantiateAtlasCallback&,
