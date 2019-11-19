@@ -764,10 +764,11 @@ class DashingCircleEffect : public GrGeometryProcessor {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f&,
-                                           AAMode aaMode,
-                                           const SkMatrix& localMatrix,
-                                           bool usesLocalCoords);
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const SkPMColor4f&,
+                                     AAMode aaMode,
+                                     const SkMatrix& localMatrix,
+                                     bool usesLocalCoords);
 
     const char* name() const override { return "DashingCircleEffect"; }
 
@@ -784,21 +785,23 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
+    friend class GLDashingCircleEffect;
+    friend class ::SkArenaAlloc; // for access to ctor
+
     DashingCircleEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
 
-    SkPMColor4f         fColor;
-    SkMatrix            fLocalMatrix;
-    bool                fUsesLocalCoords;
-    AAMode              fAAMode;
+    SkPMColor4f fColor;
+    SkMatrix    fLocalMatrix;
+    bool        fUsesLocalCoords;
+    AAMode      fAAMode;
 
-    Attribute fInPosition;
-    Attribute fInDashParams;
-    Attribute fInCircleParams;
+    Attribute   fInPosition;
+    Attribute   fInDashParams;
+    Attribute   fInCircleParams;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
-    friend class GLDashingCircleEffect;
     typedef GrGeometryProcessor INHERITED;
 };
 
@@ -969,10 +972,11 @@ class DashingLineEffect : public GrGeometryProcessor {
 public:
     typedef SkPathEffect::DashInfo DashInfo;
 
-    static sk_sp<GrGeometryProcessor> Make(const SkPMColor4f&,
-                                           AAMode aaMode,
-                                           const SkMatrix& localMatrix,
-                                           bool usesLocalCoords);
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const SkPMColor4f&,
+                                     AAMode aaMode,
+                                     const SkMatrix& localMatrix,
+                                     bool usesLocalCoords);
 
     const char* name() const override { return "DashingEffect"; }
 
@@ -980,7 +984,7 @@ public:
 
     const SkPMColor4f& color() const { return fColor; }
 
-     const SkMatrix& localMatrix() const { return fLocalMatrix; }
+    const SkMatrix& localMatrix() const { return fLocalMatrix; }
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
@@ -989,21 +993,22 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
+    friend class GLDashingLineEffect;
+    friend class ::SkArenaAlloc; // for access to ctor
+
     DashingLineEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);
 
-    SkPMColor4f         fColor;
-    SkMatrix            fLocalMatrix;
-    bool                fUsesLocalCoords;
-    AAMode              fAAMode;
+    SkPMColor4f fColor;
+    SkMatrix    fLocalMatrix;
+    bool        fUsesLocalCoords;
+    AAMode      fAAMode;
 
-    Attribute fInPosition;
-    Attribute fInDashParams;
-    Attribute fInRect;
+    Attribute   fInPosition;
+    Attribute   fInDashParams;
+    Attribute   fInRect;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
-
-    friend class GLDashingLineEffect;
 
     typedef GrGeometryProcessor INHERITED;
 };

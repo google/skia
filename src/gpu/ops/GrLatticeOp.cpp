@@ -28,13 +28,12 @@ namespace {
 
 class LatticeGP : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(GrGpu* gpu,
-                                           const GrTextureProxy* proxy,
-                                           sk_sp<GrColorSpaceXform> csxf,
-                                           GrSamplerState::Filter filter,
-                                           bool wideColor) {
-        return sk_sp<GrGeometryProcessor>(
-                new LatticeGP(gpu, proxy, std::move(csxf), filter, wideColor));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const GrTextureProxy* proxy,
+                                     sk_sp<GrColorSpaceXform> csxf,
+                                     GrSamplerState::Filter filter,
+                                     bool wideColor) {
+        return arena->make<LatticeGP>(proxy, std::move(csxf), filter, wideColor);
     }
 
     const char* name() const override { return "LatticeGP"; }
@@ -92,9 +91,12 @@ public:
     }
 
 private:
-    LatticeGP(GrGpu* gpu, const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    LatticeGP(const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter, bool wideColor)
-            : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
+            : INHERITED(kLatticeGP_ClassID, true)
+            , fColorSpaceXform(std::move(csxf)) {
 
         fSampler.reset(GrSamplerState(GrSamplerState::WrapMode::kClamp, filter),
                        proxy->backendFormat(), proxy->textureSwizzle());

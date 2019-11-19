@@ -34,17 +34,18 @@ enum GPFlag {
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps* shaderCaps,
-                                           uint32_t gpTypeFlags,
-                                           const SkPMColor4f& color,
-                                           sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                           const SkMatrix& viewMatrix,
-                                           const SkMatrix& localMatrix,
-                                           bool localCoordsWillBeRead,
-                                           uint8_t coverage) {
-        return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
-                shaderCaps, gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix, localMatrix,
-                coverage, localCoordsWillBeRead));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const GrShaderCaps* shaderCaps,
+                                     uint32_t gpTypeFlags,
+                                     const SkPMColor4f& color,
+                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                     const SkMatrix& viewMatrix,
+                                     const SkMatrix& localMatrix,
+                                     bool localCoordsWillBeRead,
+                                     uint8_t coverage) {
+        return arena->make<DefaultGeoProc>(shaderCaps, gpTypeFlags, color,
+                                           std::move(colorSpaceXform), viewMatrix, localMatrix,
+                                           coverage, localCoordsWillBeRead);
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -224,6 +225,8 @@ public:
     }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     DefaultGeoProc(const GrShaderCaps* shaderCaps,
                    uint32_t gpTypeFlags,
                    const SkPMColor4f& color,
@@ -232,7 +235,7 @@ private:
                    const SkMatrix& localMatrix,
                    uint8_t coverage,
                    bool localCoordsWillBeRead)
-            : INHERITED(kDefaultGeoProc_ClassID)
+            : INHERITED(kDefaultGeoProc_ClassID, true)
             , fColor(color)
             , fViewMatrix(viewMatrix)
             , fLocalMatrix(localMatrix)
