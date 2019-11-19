@@ -67,7 +67,7 @@ void DawnWindowContext::destroyContext() {
 
 sk_sp<SkSurface> DawnWindowContext::getBackbufferSurface() {
     GrDawnImageInfo imageInfo;
-    imageInfo.fTexture = fSwapChain.GetNextTexture();
+    imageInfo.fTextureView = fSwapChain.GetCurrentTextureView();
     imageInfo.fFormat = fSwapChainFormat;
     imageInfo.fLevelCount = 1; // FIXME
     GrBackendTexture backendTexture(fWidth, fHeight, imageInfo);
@@ -87,7 +87,7 @@ void DawnWindowContext::swapBuffers() {
     GrDawnImageInfo imageInfo;
     SkAssertResult(backendRT.getDawnImageInfo(&imageInfo));
 
-    fSwapChain.Present(imageInfo.fTexture);
+    fSwapChain.Present();
     this->onSwapBuffers();
 }
 

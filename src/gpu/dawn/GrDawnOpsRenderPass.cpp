@@ -56,16 +56,13 @@ GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrS
 
 wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorOp,
                                                              wgpu::LoadOp stencilOp) {
-    wgpu::Texture texture = static_cast<GrDawnRenderTarget*>(fRenderTarget)->texture();
+    wgpu::TextureView textureView = static_cast<GrDawnRenderTarget*>(fRenderTarget)->textureView();
     auto stencilAttachment = static_cast<GrDawnStencilAttachment*>(
         fRenderTarget->renderTargetPriv().getStencilAttachment());
-    wgpu::TextureViewDescriptor desc;
-    desc.mipLevelCount = 1;
-    wgpu::TextureView colorView = texture.CreateView(&desc);
     const float *c = fColorInfo.fClearColor.vec();
 
     wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
-    colorAttachment.attachment = colorView;
+    colorAttachment.attachment = textureView;
     colorAttachment.resolveTarget = nullptr;
     colorAttachment.clearColor = { c[0], c[1], c[2], c[3] };
     colorAttachment.loadOp = colorOp;
