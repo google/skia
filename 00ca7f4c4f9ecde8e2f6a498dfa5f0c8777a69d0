@@ -22,6 +22,30 @@
       "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "795f90c5_5817b0e7",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-19T19:13:35Z",
+      "side": 1,
+      "message": "Whole comment was removed.",
+      "parentUuid": "d9eef54c_48117a0a",
+      "range": {
+        "startLine": 673,
+        "startChar": 19,
+        "endLine": 673,
+        "endChar": 36
+      },
+      "revId": "00ca7f4c4f9ecde8e2f6a498dfa5f0c8777a69d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
