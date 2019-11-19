@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47059191_c164aa74",
+        "filename": "infra/cts/run_testlab.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-19T17:38:27Z",
+      "side": 1,
+      "message": "nit: skerr.Wrapf is probably better when wrapping an existing error",
+      "range": {
+        "startLine": 146,
+        "startChar": 25,
+        "endLine": 146,
+        "endChar": 28
+      },
+      "revId": "8a3987ead77bb56b2ff9cb539ce7f66bcbb3cbd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
