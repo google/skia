@@ -43,12 +43,11 @@ public:
                              args.fFPCoordTransformHandler);
 
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
-        fragBuilder->codeAppend("half distance = shadowParams.z * (1.0 - d);");
-
-        fragBuilder->codeAppend("half factor = 1.0 - clamp(distance, 0.0, shadowParams.w);");
-        fragBuilder->codeAppend("factor = exp(-factor * factor * 4.0) - 0.018;");
-        fragBuilder->codeAppendf("%s = half4(factor);",
-                                 args.fOutputCoverage);
+        fragBuilder->codeAppend("float2 uv = float2(shadowParams.z * (1.0 - d), 0.5);");
+        fragBuilder->codeAppend("half factor = ");
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kFloat2_GrSLType);
+        fragBuilder->codeAppend(".a;");
+        fragBuilder->codeAppendf("%s = half4(factor);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
@@ -62,11 +61,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc()
-: INHERITED(kGrRRectShadowGeoProc_ClassID) {
+GrRRectShadowGeoProc::GrRRectShadowGeoProc(sk_sp<GrTextureProxy> lut, GrSamplerState params)
+        : INHERITED(kGrRRectShadowGeoProc_ClassID) {
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
     fInColor = &this->addVertexAttrib("inColor", kUByte4_norm_GrVertexAttribType);
     fInShadowParams = &this->addVertexAttrib("inShadowParams", kHalf4_GrVertexAttribType);
+
+    fLUTTextureSampler.reset(std::move(lut), params);
+    this->addTextureSampler(&fLUTTextureSampler);
 }
 
 GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
@@ -79,6 +81,6 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 sk_sp<GrGeometryProcessor> GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make();
+    return GrRRectShadowGeoProc::Make(d->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx));
 }
 #endif

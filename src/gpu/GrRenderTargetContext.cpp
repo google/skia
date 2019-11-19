@@ -1028,7 +1028,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
         // which is just 1/umbraRecipAlpha.
         SkScalar blurClamp = SkScalarInvert(umbraRecipAlpha);
 
-        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(ambientColor, viewMatrix,
+        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(fContext, ambientColor, viewMatrix,
                                                              ambientRRect,
                                                              devSpaceAmbientBlur,
                                                              devSpaceInsetWidth,
@@ -1124,7 +1124,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
 
         GrColor spotColor = SkColorToPremulGrColor(rec.fSpotColor);
 
-        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(spotColor, viewMatrix,
+        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(fContext, spotColor, viewMatrix,
                                                              spotShadowRRect,
                                                              2.0f * devSpaceSpotBlur,
                                                              insetWidth);
