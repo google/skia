@@ -15,12 +15,14 @@
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
 
 class GrCaps;
 class GrColorSpaceXform;
 class GrShaderCaps;
+struct GrVertexWriter;
 
 namespace GrQuadPerEdgeAA {
     using Saturate = GrTextureOp::Saturate;
@@ -127,25 +129,41 @@ namespace GrQuadPerEdgeAA {
         unsigned fRequiresGeometryDomain: 1;
     };
 
+    // A Tessellator is responsible for processing a series of device+local GrQuads into a VBO,
+    // as specified by a VertexSpec. This vertex data can then be processed by a GP created with
+    // MakeProcessor and/or MakeTexturedProcessor.
+    class Tessellator {
+    public:
+        explicit Tessellator(const VertexSpec& spec);
+
+        // Calculates (as needed) inset and outset geometry for anti-aliasing, and writes all
+        // necessary position and vertex attributes required by this Tessellator's VertexSpec.
+        // After appending, this will return the pointer to the next vertex in the VBO.
+        void* append(void* vertices, const GrQuad& deviceQuad, const GrQuad& localQuad,
+                    const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags);
+
+    private:
+        // VertexSpec defines many unique ways to write vertex attributes, which can be handled
+        // generically by branching per-quad based on the VertexSpec. However, there are several
+        // specs that appear in the wild far more frequently, so they use explicit WriteQuadProcs
+        // that have no branches.
+        typedef void (*WriteQuadProc)(GrVertexWriter* vertices, const VertexSpec& spec,
+                                      const GrQuad& deviceQuad, const GrQuad& localQuad,
+                                      const float coverage[4], const SkPMColor4f& color,
+                                      const SkRect& geomDomain, const SkRect& texDomain);
+        static WriteQuadProc GetWriteQuadProc(const VertexSpec& spec);
+
+        GrQuadUtils::TessellationHelper fAAHelper;
+        VertexSpec                      fVertexSpec;
+        WriteQuadProc                   fWriteProc;
+    };
+
     sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec);
 
     sk_sp<GrGeometryProcessor> MakeTexturedProcessor(
             const VertexSpec& spec, const GrShaderCaps& caps, const GrBackendFormat&,
             const GrSamplerState& samplerState, const GrSwizzle& swizzle,
             sk_sp<GrColorSpaceXform> textureColorSpaceXform, Saturate saturate);
-
-    // Fill vertices with the vertex data needed to represent the given quad. The device position,
-    // local coords, vertex color, domain, and edge coefficients will be written and/or computed
-    // based on the configuration in the vertex spec; if that attribute is disabled in the spec,
-    // then its corresponding function argument is ignored.
-    //
-    // Tessellation is based on the quad type of the vertex spec, not the provided GrQuad's
-    // so that all quads in a batch are tessellated the same.
-    //
-    // Returns the advanced pointer in vertices.
-    void* Tessellate(void* vertices, const VertexSpec& spec, const GrQuad& deviceQuad,
-                     const SkPMColor4f& color, const GrQuad& localQuad, const SkRect& domain,
-                     GrQuadAAFlags aa);
 
     // This method will return the correct index buffer for the specified indexBufferOption.
     // It will, correctly, return nullptr if the indexBufferOption is kTriStrips.
