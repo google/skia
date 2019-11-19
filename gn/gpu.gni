@@ -629,9 +629,7 @@ skia_nvpr_sources = [
 skia_gpu_sources += skia_ccpr_sources
 skia_gpu_sources += skia_nvpr_sources
 
-skia_null_gpu_sources = [
-  "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
-]
+skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",
@@ -644,8 +642,6 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkAMDMemoryAllocator.h",
   "$_src/gpu/vk/GrVkBuffer.cpp",
   "$_src/gpu/vk/GrVkBuffer.h",
-  "$_src/gpu/vk/GrVkBufferView.cpp",
-  "$_src/gpu/vk/GrVkBufferView.h",
   "$_src/gpu/vk/GrVkCaps.cpp",
   "$_src/gpu/vk/GrVkCaps.h",
   "$_src/gpu/vk/GrVkCommandBuffer.cpp",
