@@ -421,8 +421,9 @@ private:
         GrQuad quad = GrQuad::MakeFromSkQuad(fCorners, SkMatrix::I());
 
         float vertices[56]; // 2 quads, with x, y, coverage, and geometry domain (7 floats x 8 vert)
-        GrQuadPerEdgeAA::Tessellate(vertices, kSpec, quad, {1.f, 1.f, 1.f, 1.f},
-                GrQuad(SkRect::MakeEmpty()), SkRect::MakeEmpty(), flags);
+        GrQuadPerEdgeAA::Tessellator tessellator(kSpec);
+        tessellator.append(vertices, quad, GrQuad(SkRect::MakeEmpty()), {1.f, 1.f, 1.f, 1.f},
+                           SkRect::MakeEmpty(), flags);
 
         // The first quad in vertices is the inset, then the outset, but they
         // are ordered TL, BL, TR, BR so un-interleave coverage and re-arrange

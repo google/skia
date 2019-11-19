@@ -218,14 +218,15 @@ private:
 
         // vertices pointer advances through vdata based on Tessellate's return value
         void* vertices = vdata;
+        GrQuadPerEdgeAA::Tessellator tessellator(vertexSpec);
         auto iter = fQuads.iterator();
         while(iter.next()) {
             // All entries should have local coords, or no entries should have local coords,
             // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
             SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
             auto info = iter.metadata();
-            vertices = GrQuadPerEdgeAA::Tessellate(vertices, vertexSpec, iter.deviceQuad(),
-                    info.fColor, iter.localQuad(), kEmptyDomain, info.fAAFlags);
+            vertices = tessellator.append(vertices, iter.deviceQuad(), iter.localQuad(),
+                                          info.fColor, kEmptyDomain, info.fAAFlags);
         }
 
         sk_sp<const GrBuffer> indexBuffer;
