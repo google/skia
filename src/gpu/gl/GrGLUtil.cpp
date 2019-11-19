@@ -121,7 +121,9 @@ void GrGLGetDriverInfo(GrGLStandard standard,
     }
 
     static const char kChromium[] = "Chromium";
-    char suffix[SK_ARRAY_COUNT(kChromium)];
+    char suffix[] = {0,0,0, 0,0,0, 0,0,0};
+    static_assert(sizeof(suffix) == sizeof(kChromium));
+
     if (0 == strcmp(rendererString, kChromium) ||
         (3 == sscanf(versionString, "OpenGL ES %d.%d %8s", &major, &minor, suffix) &&
          0 == strcmp(kChromium, suffix))) {
