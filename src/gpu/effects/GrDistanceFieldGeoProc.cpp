@@ -217,7 +217,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
 #endif
                                                            uint32_t flags,
                                                            const SkMatrix& localMatrix)
-        : INHERITED(kGrDistanceFieldA8TextGeoProc_ClassID)
+        : INHERITED(kGrDistanceFieldA8TextGeoProc_ClassID, true)
         , fLocalMatrix(localMatrix)
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask)
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -519,7 +519,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
                                                        int numProxies,
                                                        const GrSamplerState& params,
                                                        uint32_t flags)
-        : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
+        : INHERITED(kGrDistanceFieldPathGeoProc_ClassID, true)
         , fMatrix(matrix)
         , fFlags(flags & kNonLCD_DistanceFieldEffectMask) {
     SkASSERT(numProxies <= kMaxTextures);
@@ -840,7 +840,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
                                                              DistanceAdjust distanceAdjust,
                                                              uint32_t flags,
                                                              const SkMatrix& localMatrix)
-        : INHERITED(kGrDistanceFieldLCDTextGeoProc_ClassID)
+        : INHERITED(kGrDistanceFieldLCDTextGeoProc_ClassID, true)
         , fLocalMatrix(localMatrix)
         , fDistanceAdjust(distanceAdjust)
         , fFlags(flags & kLCD_DistanceFieldEffectMask) {

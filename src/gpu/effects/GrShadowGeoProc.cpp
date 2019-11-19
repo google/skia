@@ -62,7 +62,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrTextureProxy* lut)
-        : INHERITED(kGrRRectShadowGeoProc_ClassID) {
+        : INHERITED(kGrRRectShadowGeoProc_ClassID, true) {
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     fInShadowParams = {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};

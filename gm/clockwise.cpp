@@ -98,7 +98,7 @@ private:
     friend class ::SkArenaAlloc; // for access to ctor
 
     ClockwiseTestProcessor(bool readSkFragCoord)
-            : GrGeometryProcessor(kClockwiseTestProcessor_ClassID)
+            : GrGeometryProcessor(kClockwiseTestProcessor_ClassID, true)
             , fReadSkFragCoord(readSkFragCoord) {
         this->setVertexAttributes(&gVertex, 1);
     }

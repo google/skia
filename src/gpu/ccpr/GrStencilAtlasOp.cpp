@@ -19,9 +19,10 @@
 
 namespace {
 
+// This GP is only ever created on the stack
 class StencilResolveProcessor : public GrGeometryProcessor {
 public:
-    StencilResolveProcessor() : GrGeometryProcessor(kStencilResolveProcessor_ClassID) {
+    StencilResolveProcessor() : INHERITED(kStencilResolveProcessor_ClassID, false) {
         static constexpr Attribute kIBounds = {
                 "ibounds", kShort4_GrVertexAttribType, kShort4_GrSLType};
         this->setInstanceAttributes(&kIBounds, 1);
@@ -29,10 +30,12 @@ public:
     }
 
 private:
-    const char* name() const override { return "GrCCPathProcessor"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    const char* name() const final { return "GrCCPathProcessor"; }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
     class Impl;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 // This processor draws pixel-aligned rectangles directly on top of every path in the atlas.

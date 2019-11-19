@@ -35,25 +35,11 @@ enum Mode {
 
 class GP : public GrGeometryProcessor {
 public:
-    GP(Mode mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
-            : INHERITED(kVertexColorSpaceBenchGP_ClassID)
-            , fMode(mode)
-            , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-        switch (fMode) {
-            case kBaseline_Mode:
-            case kShader_Mode:
-                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-                break;
-            case kFloat_Mode:
-                fInColor = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
-                break;
-            case kHalf_Mode:
-                fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
-                break;
-        }
-        this->setVertexAttributes(&fInPosition, 2);
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, Mode mode,
+                                     sk_sp<GrColorSpaceXform> colorSpaceXform) {
+        return arena->make<GP>(mode, std::move(colorSpaceXform));
     }
+
     const char* name() const override { return "VertexColorXformGP"; }
 
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
@@ -109,6 +95,28 @@ public:
     }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GP(Mode mode, sk_sp<GrColorSpaceXform> colorSpaceXform)
+            : INHERITED(kVertexColorSpaceBenchGP_ClassID, true)
+            , fMode(mode)
+            , fColorSpaceXform(std::move(colorSpaceXform)) {
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+        switch (fMode) {
+            case kBaseline_Mode:
+            case kShader_Mode:
+                fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+                break;
+            case kFloat_Mode:
+                fInColor = {"inColor", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
+                break;
+            case kHalf_Mode:
+                fInColor = {"inColor", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+                break;
+        }
+        this->setVertexAttributes(&fInPosition, 2);
+    }
+
     Mode fMode;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
 
