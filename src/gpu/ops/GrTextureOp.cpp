@@ -480,9 +480,9 @@ private:
         fDomain = static_cast<unsigned>(netDomain);
     }
 
-    static void Tess(void* v, const VertexSpec& spec, const GrTextureProxy* proxy,
-                     GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt,
-                     GrSamplerState::Filter filter) {
+    static void Tess(void* v, GrQuadPerEdgeAA::Tessellator* tessellator,
+                     const GrTextureProxy* proxy, GrSamplerState::Filter filter,
+                     GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt) {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
         auto origin = proxy->origin();
         SkISize dimensions = proxy->backingStoreDimensions();
@@ -507,10 +507,9 @@ private:
             // Must correct the texture coordinates and domain now that the real texture size
             // is known
             compute_src_quad(origin, iter->localQuad(), iw, ih, h, &srcQuad);
-            compute_domain(info.domain(), filter, origin, info.fDomainRect, iw, ih, h,
-                           &domain);
-            v = GrQuadPerEdgeAA::Tessellate(v, spec, iter->deviceQuad(), info.fColor, srcQuad,
-                                            domain, info.aaFlags());
+            compute_domain(info.domain(), filter, origin, info.fDomainRect, iw, ih, h, &domain);
+            v = tessellator->append(v, iter->deviceQuad(), srcQuad, info.fColor,
+                                    domain, info.aaFlags());
             i++;
         }
     }
@@ -548,6 +547,7 @@ private:
         char* dst = pVertexData;
         const size_t vertexSize = desc->fVertexSpec.vertexSize();
 
+        GrQuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec);
         int meshIndex = 0;
         for (const auto& op : ChainRange<TextureOp>(texOp)) {
             auto iter = op.fQuads.iterator();
@@ -561,7 +561,7 @@ private:
                 SkASSERT(meshIndex < desc->fNumProxies);
 
                 if (dst) {
-                    Tess(dst, desc->fVertexSpec, proxy, &iter, quadCnt, op.filter());
+                    Tess(dst, &tessellator, proxy, op.filter(), &iter, quadCnt);
                     desc->setMeshProxy(meshIndex, proxy);
 
                     SkASSERT(totVerticesSeen * vertexSize == (size_t)(dst - pVertexData));
