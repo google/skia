@@ -20,24 +20,24 @@
   {
     "cmd": [
       "scp",
-      "file.txt",
-      "foo@127.0.0.1:file.txt"
+      "[START_DIR]/tmp/file.txt",
+      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\file.txt"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "scp file.txt foo@127.0.0.1:file.txt"
+    "name": "scp [START_DIR]/tmp/file.txt foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\file.txt"
   },
   {
     "cmd": [],
-    "name": "read file.txt"
+    "name": "read C:\\Users\\chrome-bot\\botdata\\file.txt"
   },
   {
     "cmd": [
       "scp",
-      "foo@127.0.0.1:file.txt",
+      "foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\file.txt",
       "[CLEANUP]/read_file_on_device_tmp_1/file.txt"
     ],
     "env": {
@@ -45,7 +45,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read file.txt.scp foo@127.0.0.1:file.txt [CLEANUP]/read_file_on_device_tmp_1/file.txt",
+    "name": "read C:\\Users\\chrome-bot\\botdata\\file.txt.scp foo@127.0.0.1:C:\\Users\\chrome-bot\\botdata\\file.txt [CLEANUP]/read_file_on_device_tmp_1/file.txt",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -62,7 +62,7 @@
       "/path/to/tmp/"
     ],
     "infra_step": true,
-    "name": "read file.txt.read file.txt",
+    "name": "read C:\\Users\\chrome-bot\\botdata\\file.txt.read file.txt",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_END@file.txt@@@"
@@ -74,7 +74,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
-      "if exist \"file.txt\" del \"file.txt\"",
+      "if exist \"C:\\Users\\chrome-bot\\botdata\\file.txt\" del \"C:\\Users\\chrome-bot\\botdata\\file.txt\"",
       "1"
     ],
     "env": {
@@ -82,7 +82,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm file.txt"
+    "name": "rm C:\\Users\\chrome-bot\\botdata\\file.txt"
   },
   {
     "cmd": [
@@ -92,7 +92,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "results_dir"
+      "[START_DIR]/tmp/results_dir"
     ],
     "infra_step": true,
     "name": "rmtree results_dir"
@@ -107,7 +107,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "results_dir"
+      "[START_DIR]/tmp/results_dir"
     ],
     "infra_step": true,
     "name": "makedirs results_dir"
@@ -118,7 +118,7 @@
       "-u",
       "RECIPE_MODULE[skia::flavor]/resources/win_ssh_cmd.py",
       "foo@127.0.0.1",
-      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"device_results_dir\"",
+      "robocopy /mir \"C:\\Users\\chrome-bot\\botdata\\empty\" \"C:\\Users\\chrome-bot\\botdata\\device_results_dir\"",
       "8"
     ],
     "env": {
@@ -126,7 +126,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "clean device_results_dir"
+    "name": "clean C:\\Users\\chrome-bot\\botdata\\device_results_dir"
   },
   {
     "cmd": [

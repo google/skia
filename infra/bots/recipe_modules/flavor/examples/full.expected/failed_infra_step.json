@@ -16,8 +16,8 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "file.txt",
-      "file.txt"
+      "[START_DIR]/tmp/file.txt",
+      "/sdcard/revenge_of_the_skiabot/file.txt"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -26,14 +26,14 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push file.txt file.txt"
+    "name": "push [START_DIR]/tmp/file.txt /sdcard/revenge_of_the_skiabot/file.txt"
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
       "cat",
-      "file.txt"
+      "/sdcard/revenge_of_the_skiabot/file.txt"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -42,7 +42,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read file.txt"
+    "name": "read /sdcard/revenge_of_the_skiabot/file.txt"
   },
   {
     "cmd": [
@@ -50,7 +50,7 @@
       "shell",
       "rm",
       "-f",
-      "file.txt"
+      "/sdcard/revenge_of_the_skiabot/file.txt"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -59,7 +59,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm file.txt"
+    "name": "rm /sdcard/revenge_of_the_skiabot/file.txt"
   },
   {
     "cmd": [
@@ -69,7 +69,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "results_dir"
+      "[START_DIR]/tmp/results_dir"
     ],
     "infra_step": true,
     "name": "rmtree results_dir"
@@ -84,7 +84,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "results_dir"
+      "[START_DIR]/tmp/results_dir"
     ],
     "infra_step": true,
     "name": "makedirs results_dir"
@@ -95,7 +95,7 @@
       "shell",
       "rm",
       "-rf",
-      "device_results_dir"
+      "/sdcard/revenge_of_the_skiabot/device_results_dir"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -104,7 +104,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm device_results_dir"
+    "name": "rm /sdcard/revenge_of_the_skiabot/device_results_dir"
   },
   {
     "cmd": [
@@ -112,7 +112,7 @@
       "shell",
       "mkdir",
       "-p",
-      "device_results_dir"
+      "/sdcard/revenge_of_the_skiabot/device_results_dir"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -121,7 +121,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "mkdir device_results_dir"
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/device_results_dir"
   },
   {
     "cmd": [
