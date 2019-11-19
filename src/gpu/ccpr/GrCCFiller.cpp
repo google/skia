@@ -204,12 +204,20 @@ void GrCCFiller::PathInfo::tessellateFan(
         }
 
         int weight = abs(tessWinding);
-        SkASSERT(SkPath::kEvenOdd_FillType != fan.getFillType() || weight == 1);
+        if (SkPath::kEvenOdd_FillType == fan.getFillType()) {
+            SkASSERT(Algorithm::kCoverageCount != algorithm);  // Covg. count always uses winding.
+            if (weight != 1) {
+                // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.
+                SkASSERT(weight & 1);  // Even wind regions are empty and should have been omitted.
+                weight = 1;
+            }
+        }
         if (weight > 1 && Algorithm::kCoverageCount == algorithm) {
             ++newTriangleCounts->fWeightedTriangles;
         } else {
             newTriangleCounts->fTriangles += weight;
         }
+        vertices[i].fWinding = weight;
     }
 
     fFanTessellation.reset(vertices);
@@ -286,7 +294,7 @@ void GrCCFiller::emitTessellatedFan(
         TriPointInstance::Ordering ordering, TriPointInstance* triPointInstanceData,
         QuadPointInstance* quadPointInstanceData, GrCCFillGeometry::PrimitiveTallies* indices) {
     for (int i = 0; i < numVertices; i += 3) {
-        int weight = abs(vertices[i].fWinding);
+        int weight = vertices[i].fWinding;
         SkASSERT(weight >= 1);
         if (weight > 1 && Algorithm::kStencilWindingCount != fAlgorithm) {
             quadPointInstanceData[indices->fWeightedTriangles++].setW(
