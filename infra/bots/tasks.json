@@ -1256,6 +1256,12 @@
         "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN"
       ]
     },
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
+      "tasks": [
+        "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
+      ]
+    },
     "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "tasks": [
         "Upload-Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
@@ -1264,12 +1270,6 @@
     "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM": {
       "tasks": [
         "Upload-Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM"
-      ]
-    },
-    "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind": {
-      "priority": 0.085,
-      "tasks": [
-        "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind"
       ]
     },
     "Perf-Ubuntu18-none-Golo-GPU-QuadroP400-x86_64-Release-All-LottieWeb": {
@@ -2511,27 +2511,27 @@
         "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"
       ]
     },
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
+      "tasks": [
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"
+      ]
+    },
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
+      "tasks": [
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41"
+      ]
+    },
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+      "priority": 0.085,
+      "tasks": [
+        "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41"
+      ]
+    },
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "tasks": [
         "Upload-Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-      ]
-    },
-    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind": {
-      "priority": 0.085,
-      "tasks": [
-        "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind"
-      ]
-    },
-    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext": {
-      "priority": 0.085,
-      "tasks": [
-        "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext"
-      ]
-    },
-    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext": {
-      "priority": 0.085,
-      "tasks": [
-        "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext"
       ]
     },
     "Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All": {
@@ -21131,6 +21131,89 @@
         "perf"
       ]
     },
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:40"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:214"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-430.14",
+        "os:Ubuntu-18.04",
+        "pool:Skia",
+        "valgrind:1"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 32400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
     "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "caches": [
         {
@@ -21296,89 +21379,6 @@
       "io_timeout_ns": 14400000000000,
       "isolate": "skottie_wasm.isolate",
       "max_attempts": 2,
-      "outputs": [
-        "perf"
-      ]
-    },
-    "Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:214"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "perf",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-430.14",
-        "os:Ubuntu-18.04",
-        "pool:Skia",
-        "valgrind:1"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "isolate": "perf_skia_bundled.isolate",
-      "max_attempts": 1,
       "outputs": [
         "perf"
       ]
@@ -39698,6 +39698,255 @@
         "test"
       ]
     },
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:40"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:214"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-430.14",
+        "os:Ubuntu-18.04",
+        "pool:Skia",
+        "valgrind:1"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 32400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:40"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:214"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-430.14",
+        "os:Ubuntu-18.04",
+        "pool:Skia",
+        "valgrind:1"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 32400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:40"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:214"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        },
+        {
+          "name": "skia/bots/valgrind",
+          "path": "valgrind",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-SK_CPU_LIMIT_SSE41"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-430.14",
+        "os:Ubuntu-18.04",
+        "pool:Skia",
+        "valgrind:1"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 32400000000000,
+      "expiration_ns": 172800000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 32400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan": {
       "caches": [
         {
@@ -39776,255 +40025,6 @@
       "io_timeout_ns": 14400000000000,
       "isolate": "test_skia_bundled.isolate",
       "max_attempts": 2,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:214"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-430.14",
-        "os:Ubuntu-18.04",
-        "pool:Skia",
-        "valgrind:1"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:214"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-430.14",
-        "os:Ubuntu-18.04",
-        "pool:Skia",
-        "valgrind:1"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
-      "outputs": [
-        "test"
-      ]
-    },
-    "Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:40"
-        },
-        {
-          "name": "skia/bots/skp",
-          "path": "skp",
-          "version": "version:214"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:9"
-        },
-        {
-          "name": "skia/bots/valgrind",
-          "path": "valgrind",
-          "version": "version:9"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Ubuntu18-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes",
-        "Build-Debian9-GCC-x86_64-Release"
-      ],
-      "dimensions": [
-        "gpu:10de:1cb3-430.14",
-        "os:Ubuntu-18.04",
-        "pool:Skia",
-        "valgrind:1"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 32400000000000,
-      "expiration_ns": 172800000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 32400000000000,
-      "isolate": "test_skia_bundled.isolate",
-      "max_attempts": 1,
       "outputs": [
         "test"
       ]
