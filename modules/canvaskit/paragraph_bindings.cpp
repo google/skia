@@ -123,21 +123,34 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     return ps;
 }
 
+struct SimpleTextBox {
+    SkRect rect;
+    // This isn't the most efficient way to represent this, but it is much easier to keep
+    // everything as floats when unpacking on the JS side.
+    // 0.0 = RTL, 1.0 = LTr
+    SkScalar direction;
+};
+
 Float32Array GetRectsForRange(para::ParagraphImpl& self, unsigned start, unsigned end,
                             para::RectHeightStyle heightStyle, para::RectWidthStyle widthStyle) {
     std::vector<para::TextBox> boxes = self.getRectsForRange(start, end, heightStyle, widthStyle);
-    // Pack these text boxes into an array of n groups of 4 SkScalar (floats)
+    // Pack these text boxes into an array of n groups of 5 SkScalar (floats)
     if (!boxes.size()) {
         return emscripten::val::null();
     }
-    SkRect* rects = new SkRect[boxes.size()];
+    SimpleTextBox* rects = new SimpleTextBox[boxes.size()];
     for (int i = 0; i< boxes.size(); i++) {
-        rects[i] = boxes[i].rect;
+        rects[i].rect = boxes[i].rect;
+        if (boxes[i].direction == para::TextDirection::kRtl) {
+            rects[i].direction = 0;
+        } else {
+            rects[i].direction = 1;
+        }
     }
     float* fPtr = reinterpret_cast<float*>(rects);
     // Of note: now that we have cast rects to float*, emscripten is smart enough to wrap this
     // into a Float32Array for us.
-    return Float32Array(typed_memory_view(boxes.size()*4, fPtr));
+    return Float32Array(typed_memory_view(boxes.size()*5, fPtr));
 }
 
 EMSCRIPTEN_BINDINGS(Paragraph) {
@@ -216,8 +229,11 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("UltraExpanded",        SkFontStyle::Width::kUltraExpanded_Width);
 
     enum_<para::RectHeightStyle>("RectHeightStyle")
-        .value("Tight",  para::RectHeightStyle::kTight)
-        .value("Max",    para::RectHeightStyle::kMax);
+        .value("Tight",                     para::RectHeightStyle::kTight)
+        .value("Max",                       para::RectHeightStyle::kMax)
+        .value("IncludeLineSpacingMiddle",  para::RectHeightStyle::kIncludeLineSpacingMiddle)
+        .value("IncludeLineSpacingTop",     para::RectHeightStyle::kIncludeLineSpacingTop)
+        .value("IncludeLineSpacingBottom",  para::RectHeightStyle::kIncludeLineSpacingBottom);
 
     enum_<para::RectWidthStyle>("RectWidthStyle")
         .value("Tight",  para::RectWidthStyle::kTight)

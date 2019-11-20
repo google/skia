@@ -13,8 +13,14 @@
         return [];
       }
       var ret = [];
-      for (var i = 0; i < floatArray.length; i+=4) {
-        ret.push(CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]))
+      for (var i = 0; i < floatArray.length; i+=5) {
+        var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
+        if (floatArray[i+4] === 1) {
+          r['direction'] = CanvasKit.TextDirection.RTL;
+        } else {
+          r['direction'] = CanvasKit.TextDirection.LTR;
+        }
+        ret.push(r);
       }
       CanvasKit._free(floatArray.byteOffset);
       return ret;

@@ -192,6 +192,7 @@ describe('CanvasKit\'s Path Behavior', function() {
                 expect(rects.length).toEqual(test.expectedNum);
 
                 for (const rect of rects) {
+                    expect(rect.direction).toEqual(CanvasKit.TextDirection.LTR);
                     const p = new CanvasKit.SkPaint();
                     p.setColor(test.color);
                     p.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -394,6 +395,119 @@ describe('CanvasKit\'s Path Behavior', function() {
             paint.delete();
             fontMgr.delete();
             reportSurface(surface, 'paragraph_styles', done);
+        }));
+    });
+
+    it('should not crash if we omit font family on pushed textStyle', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded, notoSerifBoldItalicFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+            const wrapTo = 250;
+
+            const paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    fontFamilies: ['Noto Serif'],
+                    fontSize: 20,
+                },
+                textDirection: CanvasKit.TextDirection.RTL,
+                disableHinting: true,
+            });
+
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('Default text\n');
+
+            const boldItalic = new CanvasKit.TextStyle({
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Bold,
+                    slant: CanvasKit.FontSlant.Italic,
+                }
+            });
+            builder.pushStyle(boldItalic)
+            builder.addText(`Bold, Italic\n`); // doesn't show up, but we don't crash
+            builder.pop();
+            builder.addText(`back to normal`);
+            const paragraph = builder.build();
+
+            paragraph.layout(wrapTo);
+
+            canvas.clear(CanvasKit.Color(250, 250, 250));
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            canvas.drawParagraph(paragraph, 10, 10);
+
+            surface.flush();
+
+            paragraph.delete();
+            paint.delete();
+            fontMgr.delete();
+            done();
+        }));
+    });
+
+    it('should not crash if we omit font family on paragraph style', function(done) {
+        Promise.all([LoadCanvasKit, notoSerifFontLoaded, notoSerifBoldItalicFontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            const paint = new CanvasKit.SkPaint();
+
+            paint.setColor(CanvasKit.RED);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+            const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+            const wrapTo = 250;
+
+            const paraStyle = new CanvasKit.ParagraphStyle({
+                textStyle: {
+                    fontSize: 20,
+                },
+                textDirection: CanvasKit.TextDirection.RTL,
+                disableHinting: true,
+            });
+
+            const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+            builder.addText('Default text\n');
+
+            const boldItalic = new CanvasKit.TextStyle({
+                fontStyle: {
+                    weight: CanvasKit.FontWeight.Bold,
+                    slant: CanvasKit.FontSlant.Italic,
+                }
+            });
+            builder.pushStyle(boldItalic)
+            builder.addText(`Bold, Italic\n`);
+            builder.pop();
+            builder.addText(`back to normal`);
+            const paragraph = builder.build();
+
+            paragraph.layout(wrapTo);
+
+            canvas.clear(CanvasKit.Color(250, 250, 250));
+            canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+            canvas.drawParagraph(paragraph, 10, 10);
+
+            surface.flush();
+
+            paragraph.delete();
+            paint.delete();
+            fontMgr.delete();
+            done();
         }));
     });
 
