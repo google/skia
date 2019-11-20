@@ -452,10 +452,20 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
     if (!fPixbufZeroed) {
         wuffs_base__rect_ie_u32 frame_rect = fFrameConfigs[WhichDecoder::kIncrDecode].bounds();
         wuffs_base__table_u8    pixels = fPixelBuffer.plane(0);
-        for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
-            sk_bzero(
-                pixels.ptr + (y * pixels.stride) + (frame_rect.min_incl_x * src_bytes_per_pixel),
-                frame_rect.width() * src_bytes_per_pixel);
+
+        uint8_t* ptr = pixels.ptr + (frame_rect.min_incl_y * pixels.stride) +
+                       (frame_rect.min_incl_x * src_bytes_per_pixel);
+        size_t len = frame_rect.width() * src_bytes_per_pixel;
+
+        // As an optimization, issue a single sk_bzero call, if possible.
+        // Otherwise, zero out each row separately.
+        if ((len == pixels.stride) && (frame_rect.min_incl_y < frame_rect.max_excl_y)) {
+            sk_bzero(ptr, len * (frame_rect.max_excl_y - frame_rect.min_incl_y));
+        } else {
+            for (uint32_t y = frame_rect.min_incl_y; y < frame_rect.max_excl_y; y++) {
+                sk_bzero(ptr, len);
+                ptr += pixels.stride;
+            }
         }
     }
     // The buffer is zeroed now, but this onStartIncrementalDecode call will
