@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "694296d5_38195c0a",
+        "filename": "src/gpu/GrOpFlushState.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "Does this deserve a comment about the lifetime of the GP and dynamic state, e.g. allocated in an arena or at least owned outside the Draw and will outlive it?",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 63
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05f5ab8e_c04c5bc3",
+        "filename": "src/gpu/ops/GrFillRRectOp.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "Extra newline",
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3346bf39_e283a281",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "Do we need this?",
+      "range": {
+        "startLine": 73,
+        "startChar": 3,
+        "endLine": 73,
+        "endChar": 42
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca084879_4e3346e6",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "Better name, to match some of the other GPs you\u0027ve revised?",
+      "range": {
+        "startLine": 75,
+        "startChar": 48,
+        "endLine": 75,
+        "endChar": 58
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6b2d465_581bff31",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "New name :)",
+      "range": {
+        "startLine": 534,
+        "startChar": 48,
+        "endLine": 534,
+        "endChar": 59
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77c98e4a_ba3c024a",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "DIEllipseGeometryProcessor?",
+      "range": {
+        "startLine": 732,
+        "startChar": 48,
+        "endLine": 732,
+        "endChar": 61
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f94055b3_27633fdc",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "GrColorSpaceXforms are going to complicate our POD attempts, aren\u0027t they?",
+      "range": {
+        "startLine": 516,
+        "startChar": 16,
+        "endLine": 516,
+        "endChar": 49
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f46d3770_f703e500",
+        "filename": "tests/GrMeshTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T20:39:07Z",
+      "side": 1,
+      "message": "rm",
+      "range": {
+        "startLine": 328,
+        "startChar": 58,
+        "endLine": 328,
+        "endChar": 59
+      },
+      "revId": "04f51008f90a6227cfd7879145fe933437106286",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
