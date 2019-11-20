@@ -13,7 +13,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-x86_64-Release-Docker/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-loongson3a-Release-Docker/Release"
     ],
     "infra_step": true,
     "name": "Docker setup.mkdirs out_dir",
@@ -25,10 +25,10 @@
     "cmd": [
       "chmod",
       "777",
-      "[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-x86_64-Release-Docker/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-loongson3a-Release-Docker/Release"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 777 [START_DIR]/cache/work/skia/out/Build-Debian10-GCC-x86_64-Release-Docker/Release",
+    "name": "Docker setup.chmod 777 [START_DIR]/cache/work/skia/out/Build-Debian10-GCC-loongson3a-Release-Docker/Release",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -66,10 +66,10 @@
       "--mount",
       "type=bind,source=[START_DIR]/cache/work,target=/SRC",
       "--mount",
-      "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-x86_64-Release-Docker/Release,target=/OUT",
-      "gcr.io/skia-public/gcc-debian10@sha256:89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c",
+      "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-loongson3a-Release-Docker/Release,target=/OUT",
+      "gcr.io/skia-public/gcc-debian10-mips64el@sha256:c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540",
       "/SRC/recipe_bundle/skia/infra/bots/recipe_modules/build/resources/docker-compile.sh",
-      "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-debian10@sha256:89a72df1e2fdea6f774a3fa4199bb9aaa4a0526a3ac1f233e604d689b694f95c\"] is_debug=false target_cpu=\"x86_64\" werror=true"
+      "cc=\"/usr/bin/mips64el-linux-gnuabi64-gcc-8\" cxx=\"/usr/bin/mips64el-linux-gnuabi64-g++-8\" extra_cflags=[\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-debian10-mips64el@sha256:c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540\"] extra_ldflags=[] is_debug=false target_cpu=\"loongson3a\" werror=true"
     ],
     "env": {
       "DOCKER_CONFIG": "/home/chrome-bot/.docker"
@@ -81,7 +81,7 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-x86_64-Release-Docker/Release",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-loongson3a-Release-Docker/Release",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
     ],
     "infra_step": true,

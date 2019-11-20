@@ -2344,7 +2344,8 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_linux || is_mac || is_ios) {
+  if ((is_linux || is_mac || is_ios) && target_cpu != "mips64el" &&
+      target_cpu != "loongson3a") {
     test_app("SkiaSDLExample") {
       sources = [
         "example/SkiaSDLExample.cpp",
