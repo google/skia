@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49ca13be_3eafde80",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-20T18:58:50Z",
+      "side": 1,
+      "message": "AFAIK it should always be \"skia/skia.primary\"",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b15ae03_4353153b",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-20T18:58:50Z",
+      "side": 1,
+      "message": "I don\u0027t think this has any effect.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 19
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
