@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "59c5a571_f90034ac",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2019-11-20T20:47:20Z",
+      "side": 1,
+      "message": "CQ include trybots today doesn\u0027t support new syntax \"project/short_bucket/builder_name\" syntax, but I think it makes sense to add such support (will send a CL)\n\nYou can make it simpler for users, if you rename your (short)bucket name to just \"primary\" s.t. full bucket name becomes either   skia/primary (aka luci.skia.primary).",
+      "parentUuid": "82bd25f8_ccfc0441",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55d711d0_056a9ec8",
         "filename": "site/dev/contrib/cqkeywords.md",
         "patchSetId": 4
