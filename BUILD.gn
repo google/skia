@@ -211,6 +211,9 @@ template("optional") {
       if (defined(invoker.public_configs)) {
         configs = invoker.public_configs
       }
+      if (defined(invoker.public_include_dirs)) {
+        include_dirs = invoker.public_include_dirs
+      }
     }
     source_set(target_name) {
       check_includes = false
@@ -608,7 +611,8 @@ optional("gpu") {
 }
 
 optional("gif") {
-  enabled = !skia_use_wuffs
+  enabled = !skia_use_wuffs && skia_use_libgifcodec
+  public_defines = [ "SK_USE_LIBGIFCODEC" ]
   sources = [
     "src/codec/SkGifCodec.cpp",
     "third_party/gif/SkGifImageReader.cpp",
