@@ -87,7 +87,7 @@ public:
 
     // Add a usage interval from 'start' to 'end' inclusive. This is usually used for renderTargets.
     // If an existing interval already exists it will be expanded to include the new range.
-    void addInterval(GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
+    void addInterval(const GrSurfaceProxy*, unsigned int start, unsigned int end, ActualUse actualUse
                      SkDEBUGCODE(, bool isDirectDstRead = false));
 
     enum class AssignError {
@@ -137,7 +137,7 @@ private:
 
     class Interval {
     public:
-        Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
+        Interval(const GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
             : fProxy(proxy)
             , fProxyID(proxy->uniqueID().asUInt())
             , fStart(start)
@@ -152,12 +152,12 @@ private:
         }
 
         // Used when recycling an interval
-        void resetTo(GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
+        void resetTo(const GrSurfaceProxy* proxy, unsigned int start, unsigned int end) {
             SkASSERT(proxy);
             SkASSERT(!fProxy && !fNext);
 
             fUses = 0;
-            fProxy = proxy;
+            fProxy = (GrSurfaceProxy*) proxy;
             fProxyID = proxy->uniqueID().asUInt();
             fStart = start;
             fEnd = end;
@@ -174,7 +174,7 @@ private:
         }
 
         const GrSurfaceProxy* proxy() const { return fProxy; }
-        GrSurfaceProxy* proxy() { return fProxy; }
+        //GrSurfaceProxy* proxy() { return fProxy; }
 
         unsigned int start() const { return fStart; }
         unsigned int end() const { return fEnd; }
@@ -210,7 +210,7 @@ private:
 
     private:
         sk_sp<GrSurface> fAssignedSurface;
-        GrSurfaceProxy*  fProxy;
+        const GrSurfaceProxy*  fProxy;
         uint32_t         fProxyID; // This is here b.c. DynamicHash requires a ref to the key
         unsigned int     fStart;
         unsigned int     fEnd;

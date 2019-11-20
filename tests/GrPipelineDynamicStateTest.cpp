@@ -143,7 +143,7 @@ private:
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().outputSwizzle());
+                            flushState->drawOpArgsC().outputSwizzle());
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);
@@ -157,7 +157,7 @@ private:
 
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
-                                  flushState->drawOpArgs().origin(),
+                                  flushState->drawOpArgsC().origin(),
                                   &pipeline,
                                   &primProc,
                                   nullptr,

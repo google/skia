@@ -253,7 +253,7 @@ void GrRenderTask::closeThoseWhoDependOnMe(const GrCaps& caps) {
 
 bool GrRenderTask::isInstantiated() const {
     // Some renderTasks (e.g. GrTransferFromRenderTask) don't have a target.
-    GrSurfaceProxy* proxy = fTargetView.proxy();
+    const GrSurfaceProxy* proxy = fTargetView.proxy();
     if (!proxy) {
         return true;
     }
@@ -262,7 +262,7 @@ bool GrRenderTask::isInstantiated() const {
         return false;
     }
 
-    GrSurface* surface = proxy->peekSurface();
+    const GrSurface* surface = proxy->peekSurface();
     if (surface->wasDestroyed()) {
         return false;
     }
@@ -273,7 +273,7 @@ bool GrRenderTask::isInstantiated() const {
 #ifdef SK_DEBUG
 void GrRenderTask::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
-    GrSurfaceProxy* proxy = fTargetView.proxy();
+    const GrSurfaceProxy* proxy = fTargetView.proxy();
     SkDebugf("renderTaskID: %d - proxyID: %d - surfaceID: %d\n", fUniqueID,
              proxy ? proxy->uniqueID().asUInt() : -1,
              proxy && proxy->peekSurface()

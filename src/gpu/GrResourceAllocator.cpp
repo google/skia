@@ -32,7 +32,7 @@
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
     fAssignedSurface = s;
-    fProxy->priv().assign(std::move(s));
+    ((GrSurfaceProxy*)fProxy)->priv().assign(std::move(s));
 }
 
 void GrResourceAllocator::determineRecyclability() {
@@ -69,7 +69,7 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
+void GrResourceAllocator::addInterval(const GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
                                       ActualUse actualUse
                                       SkDEBUGCODE(, bool isDirectDstRead)) {
     SkASSERT(start <= end);
@@ -83,7 +83,7 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
     // recycled. We don't need to assign a texture to it and no other proxy can be instantiated
     // with the same texture.
     if (proxy->readOnly()) {
-        if (proxy->isLazy() && !proxy->priv().doLazyInstantiation(fResourceProvider)) {
+        if (proxy->isLazy() && !((GrSurfaceProxy*)proxy)->priv().doLazyInstantiation(fResourceProvider)) {
             fLazyInstantiationError = true;
         } else {
             // Since we aren't going to add an interval we won't revisit this proxy in assign(). So
@@ -394,12 +394,12 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex, AssignError* o
         }
 
         if (cur->proxy()->isLazy()) {
-            if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
+            if (!((GrSurfaceProxy*)cur->proxy())->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy())) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
-            GrTextureProxy* texProxy = cur->proxy()->asTextureProxy();
+            GrTextureProxy* texProxy = (GrTextureProxy*)cur->proxy()->asTextureProxy();
 
             if (texProxy && texProxy->getUniqueKey().isValid()) {
                 if (!surface->getUniqueKey().isValid()) {

@@ -743,7 +743,7 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         alloc->addInterval(fDeferredProxies[i], 0, 0, GrResourceAllocator::ActualUse::kNo);
     }
 
-    GrSurfaceProxy* targetProxy = fTargetView.proxy();
+    const GrSurfaceProxy* targetProxy = fTargetView.proxy();
 
     // Add the interval for all the writes to this GrOpsTasks's target
     if (fOpChains.count()) {

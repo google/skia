@@ -300,7 +300,7 @@ GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy* proxies[], int num
             // OnFlush callbacks are invoked during flush, and are therefore expected to handle
             // resource allocation & usage on their own. (No deferred or lazy proxies!)
             onFlushRenderTask->visitTargetAndSrcProxies_debugOnly(
-                    [](GrSurfaceProxy* p, GrMipMapped mipMapped) {
+                    [](const GrSurfaceProxy* p, GrMipMapped mipMapped) {
                 SkASSERT(!p->asTextureProxy() || !p->asTextureProxy()->texPriv().isDeferred());
                 SkASSERT(!p->isLazy());
                 if (p->requiresManualMSAAResolve()) {

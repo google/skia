@@ -36,7 +36,8 @@ public:
     }
     bool operator!=(const GrSurfaceProxyView& other) const { return !(*this == other); }
 
-    GrSurfaceProxy* proxy() const { return fProxy.get(); }
+    GrSurfaceProxy* proxy() { return fProxy.get(); }
+    const GrSurfaceProxy* proxy() const { return fProxy.get(); }
     GrTextureProxy* asTextureProxy() const {
         if (!fProxy) {
             return nullptr;

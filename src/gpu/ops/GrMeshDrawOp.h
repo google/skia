@@ -180,13 +180,15 @@ public:
 
 
     GrPipeline::FixedDynamicState* makeFixedDynamicState(int numPrimitiveProcessorTextures) {
-        return MakeFixedDynamicState(this->allocator(), this->appliedClip(),
+        return MakeFixedDynamicState(this->allocator(), this->appliedClipC(),
                                      numPrimitiveProcessorTextures);
     }
 
-    virtual GrRenderTargetProxy* proxy() const = 0;
+    virtual GrRenderTargetProxy* proxy() = 0;
+    virtual const GrRenderTargetProxy* proxy() const = 0;
 
-    virtual const GrAppliedClip* appliedClip() = 0;
+    virtual const GrAppliedClip* appliedClipC() const = 0;
+//    virtual GrAppliedClip* appliedClipNC() = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;
 
     virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;

@@ -73,9 +73,13 @@ public:
 
         GrOp* op() { return fOp; }
         const GrSurfaceProxyView* view() const { return fSurfaceView; }
-        GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
-        GrAppliedClip* appliedClip() { return fAppliedClip; }
-        const GrAppliedClip* appliedClip() const { return fAppliedClip; }
+
+        GrRenderTargetProxy* proxy() { return fRenderTargetProxy; }
+        const GrRenderTargetProxy* proxy() const { return fRenderTargetProxy; }
+
+        GrAppliedClip* appliedClipNC() { return fAppliedClip; }
+        const GrAppliedClip* appliedClipC() const { return fAppliedClip; }
+
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
 
 #ifdef SK_DEBUG
@@ -93,12 +97,18 @@ public:
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
     };
 
-    void setOpArgs(OpArgs* opArgs) { fOpArgs = opArgs; }
+    void setOpArgs(OpArgs* opArgs) { fOpArgs1 = opArgs; }
 
-    const OpArgs& drawOpArgs() const {
-        SkASSERT(fOpArgs);
-        SkDEBUGCODE(fOpArgs->validate());
-        return *fOpArgs;
+    const OpArgs& drawOpArgsC() const {
+        SkASSERT(fOpArgs1);
+        SkDEBUGCODE(fOpArgs1->validate());
+        return *fOpArgs1;
+    }
+
+    OpArgs& drawOpArgsNC() {
+        SkASSERT(fOpArgs1);
+        SkDEBUGCODE(fOpArgs1->validate());
+        return *fOpArgs1;
     }
 
     void setSampledProxyArray(SkTArray<GrTextureProxy*, true>* sampledProxies) {
@@ -130,12 +140,14 @@ public:
                                     int* actualIndexCount) final;
     void putBackIndices(int indexCount) final;
     void putBackVertices(int vertices, size_t vertexStride) final;
-    const GrSurfaceProxyView* view() const { return this->drawOpArgs().view(); }
-    GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
-    const GrAppliedClip* appliedClip() final { return this->drawOpArgs().appliedClip(); }
+    const GrSurfaceProxyView* view() const { return this->drawOpArgsC().view(); }
+    GrRenderTargetProxy* proxy() final { return this->drawOpArgsNC().proxy(); }
+    const GrRenderTargetProxy* proxy() const final { return this->drawOpArgsC().proxy(); }
+    const GrAppliedClip* appliedClipC() const final { return this->drawOpArgsC().appliedClipC(); }
+//    GrAppliedClip* appliedClipNC() final { return this->drawOpArgs().appliedClipNC(); }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
-        return this->drawOpArgs().dstProxyView();
+        return this->drawOpArgsC().dstProxyView();
     }
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
     const GrCaps& caps() const final;
@@ -191,7 +203,7 @@ private:
 
     // Info about the op that is currently preparing or executing using the flush state or null if
     // an op is not currently preparing of executing.
-    OpArgs* fOpArgs = nullptr;
+    OpArgs* fOpArgs1 = nullptr;
 
     // This field is only transiently set during flush. Each GrOpsTask will set it to point to an
     // array of proxies it uses before call onPrepare and onExecute.

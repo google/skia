@@ -15,7 +15,7 @@
 #include "src/gpu/GrTexturePriv.h"
 
 GrTextureResolveRenderTask::~GrTextureResolveRenderTask() {
-    for (const auto& resolve : fResolves) {
+    for (auto& resolve : fResolves) {
         // Ensure the proxy doesn't keep hold of a dangling back pointer.
         resolve.fProxyView.proxy()->setLastRenderTask(nullptr);
     }
@@ -57,7 +57,7 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
     // fEndOfOpsTaskOpIndices will remain in sync. We create fake op#'s to capture the fact that we
     // manipulate the resolve proxies.
     auto fakeOp = alloc->curOp();
-    for (const auto& resolve : fResolves) {
+    for (auto& resolve : fResolves) {
         alloc->addInterval(resolve.fProxyView.proxy(), fakeOp, fakeOp,
                            GrResourceAllocator::ActualUse::kYes);
     }
@@ -66,7 +66,7 @@ void GrTextureResolveRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc
 
 bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
     // Resolve all msaa back-to-back, before regenerating mipmaps.
-    for (const auto& resolve : fResolves) {
+    for (auto& resolve : fResolves) {
         if (GrSurfaceProxy::ResolveFlags::kMSAA & resolve.fFlags) {
             GrSurfaceProxy* proxy = resolve.fProxyView.proxy();
             // peekRenderTarget might be null if there was an instantiation error.
@@ -78,7 +78,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
         }
     }
     // Regenerate all mipmaps back-to-back.
-    for (const auto& resolve : fResolves) {
+    for (auto& resolve : fResolves) {
         if (GrSurfaceProxy::ResolveFlags::kMipMaps & resolve.fFlags) {
             // peekTexture might be null if there was an instantiation error.
             GrTexture* texture = resolve.fProxyView.proxy()->peekTexture();

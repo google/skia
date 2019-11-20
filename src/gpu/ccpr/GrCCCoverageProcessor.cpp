@@ -207,7 +207,7 @@ void GrCCCoverageProcessor::draw(
 
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
-                              flushState->drawOpArgs().origin(),
+                              flushState->drawOpArgsC().origin(),
                               &pipeline,
                               this,
                               nullptr,

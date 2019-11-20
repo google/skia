@@ -50,8 +50,8 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
     }
     args.fUserStencil = &kCoverPass;
     args.fCaps = &state.caps();
-    args.fDstProxyView = state.drawOpArgs().dstProxyView();
-    args.fOutputSwizzle = state.drawOpArgs().outputSwizzle();
+    args.fDstProxyView = state.drawOpArgsC().dstProxyView();
+    args.fOutputSwizzle = state.drawOpArgsC().outputSwizzle();
     return args;
 }
 
@@ -68,9 +68,9 @@ const GrProcessorSet::Analysis& GrDrawPathOpBase::doProcessorAnalysis(
 
 void init_stencil_pass_settings(const GrOpFlushState& flushState,
                                 GrPathRendering::FillType fillType, GrStencilSettings* stencil) {
-    const GrAppliedClip* appliedClip = flushState.drawOpArgs().appliedClip();
+    const GrAppliedClip* appliedClip = flushState.drawOpArgsC().appliedClipC();
     bool stencilClip = appliedClip && appliedClip->hasStencilClip();
-    GrRenderTarget* rt = flushState.drawOpArgs().proxy()->peekRenderTarget();
+    GrRenderTarget* rt = flushState.drawOpArgsC().proxy()->peekRenderTarget();
     stencil->reset(GrPathRendering::GetStencilPassSettings(fillType), stencilClip,
                    rt->renderTargetPriv().numStencilBits());
 }
@@ -103,7 +103,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
 
     GrProgramInfo programInfo(state->proxy()->numSamples(),
                               state->proxy()->numStencilSamples(),
-                              state->drawOpArgs().origin(),
+                              state->drawOpArgsC().origin(),
                               &pipeline,
                               pathProc.get(),
                               fixedDynamicState,
@@ -112,7 +112,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
 
     GrStencilSettings stencil;
     init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(state->drawOpArgs().proxy()->peekRenderTarget(),
+    state->gpu()->pathRendering()->drawPath(state->drawOpArgsNC().proxy()->peekRenderTarget(),
                                             programInfo, stencil, fPath.get());
 }
 

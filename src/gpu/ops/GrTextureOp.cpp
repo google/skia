@@ -714,7 +714,7 @@ private:
             SkArenaAlloc* arena = target->allocator();
 
             this->characterize(&desc);
-            desc.allocateCommon(arena, target->appliedClip());
+            desc.allocateCommon(arena, target->appliedClipC());
 
             SkASSERT(!desc.fVertices);
         }
