@@ -200,7 +200,7 @@ private:
         // local coords.
         SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
 
-        sk_sp<GrGeometryProcessor> gp = GrQuadPerEdgeAA::MakeProcessor(vertexSpec);
+        GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(target->allocator(), vertexSpec);
         size_t vertexSize = gp->vertexStride();
 
         sk_sp<const GrBuffer> vertexBuffer;
@@ -243,7 +243,7 @@ private:
         GrQuadPerEdgeAA::ConfigureMesh(mesh, vertexSpec, 0, fQuads.count(), totalNumVertices,
                                        std::move(vertexBuffer), std::move(indexBuffer),
                                        vertexOffsetInBuffer);
-        target->recordDraw(std::move(gp), mesh, 1, vertexSpec.primitiveType());
+        target->recordDraw(gp, mesh, 1, vertexSpec.primitiveType());
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

@@ -116,7 +116,7 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void recordDraw(sk_sp<const GrGeometryProcessor>, const GrMesh[], int meshCnt,
+    void recordDraw(const GrGeometryProcessor*, const GrMesh[], int meshCnt,
                     const GrPipeline::FixedDynamicState*,
                     const GrPipeline::DynamicStateArrays*, GrPrimitiveType) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, sk_sp<const GrBuffer>*,
@@ -164,9 +164,12 @@ private:
     // the shared state once and then issue draws for each mesh.
     struct Draw {
         ~Draw();
-        sk_sp<const GrGeometryProcessor> fGeometryProcessor;
-        const GrPipeline::FixedDynamicState* fFixedDynamicState;
-        const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
+        // The geometry processor is always forced to be in an arena allocation or appears on
+        // the stack (for CCPR). In either case this object does not need to manage its
+        // lifetime.
+        const GrGeometryProcessor* fGeometryProcessor = nullptr;
+        const GrPipeline::FixedDynamicState* fFixedDynamicState = nullptr;
+        const GrPipeline::DynamicStateArrays* fDynamicStateArrays = nullptr;
         const GrMesh* fMeshes = nullptr;
         const GrOp* fOp = nullptr;
         int fMeshCnt = 0;
