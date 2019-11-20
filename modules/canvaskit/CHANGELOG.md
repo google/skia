@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `SkContourMeasureIter` and `SkContourMeasure` as an alternative to `SkPathMeasure`.
+
 ### Changed
  - The returned values from `SkParagraph.getRectsForRange` now have direction with value
    `CanvasKit.TextDirection`.
