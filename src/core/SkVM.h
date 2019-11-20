@@ -480,7 +480,11 @@ namespace skvm {
         };
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
-        bool isSplat(Val, int* imm) const;
+        bool isSplat(Val id, int* imm) const;
+        bool isSplat(Val id, int  imm) const {
+            int k = 0;
+            return this->isSplat(id, &k) && k == imm;
+        }
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
