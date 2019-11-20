@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7c787027_b98ff3a8",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T16:36:07Z",
+      "side": 1,
+      "message": "As discussed, going to avoid specializing GrVertexWriter too much for now.",
+      "parentUuid": "723808f5_f692e146",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 5
+      },
+      "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dce5b842_94c8d603",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8dca5a6c_e3f6ebc6",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T16:36:07Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dce5b842_94c8d603",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 5
+      },
+      "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c6e937d1_8c925d41",
         "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c22090bb_1709cfc2",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-20T16:36:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6e937d1_8c925d41",
+      "range": {
+        "startLine": 154,
+        "startChar": 29,
+        "endLine": 154,
+        "endChar": 45
+      },
+      "revId": "cd624a151e19fdc54ddb880a1b7ea84c46215ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
