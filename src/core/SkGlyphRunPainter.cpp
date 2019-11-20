@@ -572,7 +572,7 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
     for (auto t : drawables) {
         const SkPath* path; SkPoint pos;
         std::tie(path, pos) = t;
-        run->appendPathGlyph(*path, pos, strikeSpec.strikeToSourceRatio(), false);
+        run->appendPathGlyph(*path, pos, strikeSpec.strikeToSourceRatio());
     }
 }
 

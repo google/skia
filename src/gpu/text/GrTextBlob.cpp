@@ -68,9 +68,8 @@ void GrTextBlob::Run::setupFont(const SkStrikeSpec& strikeSpec) {
     }
 }
 
-void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position,
-                                      SkScalar scale, bool preTransformed) {
-    fPathGlyphs.push_back(PathGlyph(path, position.x(), position.y(), scale, preTransformed));
+void GrTextBlob::Run::appendPathGlyph(const SkPath& path, SkPoint position, SkScalar scale) {
+    fPathGlyphs.emplace_back(path, position.x(), position.y(), scale);
 }
 
 bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosition,
@@ -242,62 +241,39 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 // TmpPath must be in the same scope as GrShape shape below.
                 SkTLazy<SkPath> tmpPath;
 
-                // The glyph positions and glyph outlines are either in device space or in source
-                // space based on fPreTransformed.
-                if (!pathGlyph.fPreTransformed) {
-                    // Positions and outlines are in source space.
+                // Positions and outlines are in source space.
+                ctm = viewMatrix;
 
-                    ctm = viewMatrix;
+                SkMatrix pathMatrix = SkMatrix::MakeScale(pathGlyph.fScale, pathGlyph.fScale);
 
-                    SkMatrix pathMatrix = SkMatrix::MakeScale(pathGlyph.fScale, pathGlyph.fScale);
+                // The origin for the blob may have changed, so figure out the delta.
+                SkVector originShift = SkPoint{x, y} - SkPoint{fInitialX, fInitialY};
 
-                    // The origin for the blob may have changed, so figure out the delta.
-                    SkVector originShift = SkPoint{x, y} - SkPoint{fInitialX, fInitialY};
+                // Shift the original glyph location in source space to the position of the new
+                // blob.
+                pathMatrix.postTranslate(originShift.x() + pathGlyph.fX,
+                                         originShift.y() + pathGlyph.fY);
 
-                    // Shift the original glyph location in source space to the position of the new
-                    // blob.
-                    pathMatrix.postTranslate(originShift.x() + pathGlyph.fX,
-                                             originShift.y() + pathGlyph.fY);
+                // If there are shaders, blurs or styles, the path must be scaled into source
+                // space independently of the CTM. This allows the CTM to be correct for the
+                // different effects.
+                GrStyle style(runPaint);
+                bool scalePath = runPaint.getShader()
+                                 || style.applies()
+                                 || runPaint.getMaskFilter();
+                if (!scalePath) {
+                    // Scale can be applied to CTM -- no effects.
 
-                    // If there are shaders, blurs or styles, the path must be scaled into source
-                    // space independently of the CTM. This allows the CTM to be correct for the
-                    // different effects.
-                    GrStyle style(runPaint);
-                    bool scalePath = runPaint.getShader()
-                                     || style.applies()
-                                     || runPaint.getMaskFilter();
-                    if (!scalePath) {
-                        // Scale can be applied to CTM -- no effects.
-
-                        ctm.preConcat(pathMatrix);
-                    } else {
-                        // Scale the outline into source space.
-
-                        // Transform the path form the normalized outline to source space. This
-                        // way the CTM will remain the same so it can be used by the effects.
-                        SkPath* sourceOutline = tmpPath.init();
-                        path->transform(pathMatrix, sourceOutline);
-                        sourceOutline->setIsVolatile(true);
-                        path = sourceOutline;
-                    }
-
-
+                    ctm.preConcat(pathMatrix);
                 } else {
-                    // Positions and outlines are in device space.
+                    // Scale the outline into source space.
 
-                    SkPoint originalOrigin = {fInitialX, fInitialY};
-                    fInitialViewMatrix.mapPoints(&originalOrigin, 1);
-
-                    SkPoint newOrigin = {x, y};
-                    viewMatrix.mapPoints(&newOrigin, 1);
-
-                    // The origin shift in device space.
-                    SkPoint originShift = newOrigin - originalOrigin;
-
-                    // Shift the original glyph location in device space to the position of the
-                    // new blob.
-                    ctm = SkMatrix::MakeTrans(originShift.x() + pathGlyph.fX,
-                                              originShift.y() + pathGlyph.fY);
+                    // Transform the path form the normalized outline to source space. This
+                    // way the CTM will remain the same so it can be used by the effects.
+                    SkPath* sourceOutline = tmpPath.init();
+                    path->transform(pathMatrix, sourceOutline);
+                    sourceOutline->setIsVolatile(true);
+                    path = sourceOutline;
                 }
 
                 // TODO: we are losing the mutability of the path here
