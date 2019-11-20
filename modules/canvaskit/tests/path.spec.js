@@ -293,6 +293,44 @@ describe('CanvasKit\'s Path Behavior', function() {
         }));
     });
 
+    it('can measure the contours of a path', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+
+            const path = new CanvasKit.SkPath();
+            path.moveTo(10, 10)
+                .lineTo(40, 50); // should be length 50 because of the 3/4/5 triangle rule
+
+            path.moveTo(80, 0)
+                .lineTo(80, 10)
+                .lineTo(100, 5)
+                .lineTo(80, 0);
+
+            const meas = new CanvasKit.SkContourMeasureIter(path, false, 1);
+            let cont = meas.next();
+            expect(cont).toBeTruthy();
+
+            expect(cont.length()).toBeCloseTo(50.0, 3);
+            const pt = cont.getPosTan(28.7); // arbitrary point
+            expect(pt[0]).toBeCloseTo(27.22, 3); // x
+            expect(pt[1]).toBeCloseTo(32.96, 3); // y
+            expect(pt[2]).toBeCloseTo(0.6, 3);   // dy
+            expect(pt[3]).toBeCloseTo(0.8, 3);   // dy
+            const subpath = cont.getSegment(20, 40, true); // make sure this doesn't crash
+
+            cont.delete();
+            cont = meas.next();
+            expect(cont).toBeTruthy()
+            expect(cont.length()).toBeCloseTo(51.231, 3);
+
+            cont.delete();
+            expect(meas.next()).toBeFalsy();
+
+            meas.delete();
+            path.delete();
+            done();
+        }));
+    });
+
     it('can draw a polygon', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             // This is taken from example.html

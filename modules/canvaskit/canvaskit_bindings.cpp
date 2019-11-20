@@ -652,6 +652,10 @@ namespace emscripten {
         void raw_destructor(ClassType *);
 
         template<>
+        void raw_destructor<SkContourMeasure>(SkContourMeasure *ptr) {
+        }
+
+        template<>
         void raw_destructor<SkData>(SkData *ptr) {
         }
 
@@ -1006,6 +1010,33 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkColorFilters::Matrix(twentyFloats);
         }))
         .class_function("MakeSRGBToLinearGamma", &SkColorFilters::SRGBToLinearGamma);
+
+    class_<SkContourMeasureIter>("SkContourMeasureIter")
+        .constructor<const SkPath&, bool, SkScalar>()
+        .function("next", &SkContourMeasureIter::next);
+
+    class_<SkContourMeasure>("SkContourMeasure")
+        .smart_ptr<sk_sp<SkContourMeasure>>("sk_sp<SkContourMeasure>>")
+        .function("getPosTan", optional_override([](SkContourMeasure& self,
+                                                    SkScalar distance) -> PosTan {
+            SkPoint p{0, 0};
+            SkVector v{0, 0};
+            if (!self.getPosTan(distance, &p, &v)) {
+                SkDebugf("zero-length path in getPosTan\n");
+            }
+            return PosTan{p.x(), p.y(), v.x(), v.y()};
+        }))
+        .function("getSegment", optional_override([](SkContourMeasure& self, SkScalar startD,
+                                                     SkScalar stopD, bool startWithMoveTo) -> SkPath {
+            SkPath p;
+            bool ok = self.getSegment(startD, stopD, &p, startWithMoveTo);
+            if (ok) {
+                return p;
+            }
+            return SkPath();
+        }))
+        .function("isClosed", &SkContourMeasure::isClosed)
+        .function("length", &SkContourMeasure::length);
 
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")

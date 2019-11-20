@@ -207,6 +207,17 @@ var CanvasKit = {
 		scaled: function() {},
 	},
 
+	SkContourMeasureIter: {
+		next: function() {},
+	},
+
+	SkContourMeasure: {
+		getPosTan: function() {},
+		getSegment: function() {},
+		isClosed: function() {},
+		length: function() {},
+	},
+
 	SkFont: {
 		// public API (from C++ bindings)
 		getScaleX: function() {},
