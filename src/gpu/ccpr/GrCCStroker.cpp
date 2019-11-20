@@ -68,9 +68,10 @@ inline void CubicStrokeInstance::set(const Sk4f& X, const Sk4f& Y, float dx, flo
 //
 // Corner coverage is AA-correct, meaning, n^2 attenuation along the diagonals. This is important
 // for seamless integration with the connecting geometry.
+// This GP is only ever created on the stack
 class LinearStrokeProcessor : public GrGeometryProcessor {
 public:
-    LinearStrokeProcessor() : GrGeometryProcessor(kLinearStrokeProcessor_ClassID) {
+    LinearStrokeProcessor() : INHERITED(kLinearStrokeProcessor_ClassID, false) {
         this->setInstanceAttributes(kInstanceAttribs, 2);
 #ifdef SK_DEBUG
         using Instance = LinearStrokeInstance;
@@ -96,6 +97,8 @@ private:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new Impl();
     }
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
@@ -158,9 +161,10 @@ constexpr GrPrimitiveProcessor::Attribute LinearStrokeProcessor::kInstanceAttrib
 // sense). It then connects the segments with a triangle strip. As for common in CCPR, clockwise-
 // winding triangles from the strip emit positive coverage, counter-clockwise triangles emit
 // negative, and we use SkBlendMode::kPlus.
+// only ever created on the stack
 class CubicStrokeProcessor : public GrGeometryProcessor {
 public:
-    CubicStrokeProcessor() : GrGeometryProcessor(kCubicStrokeProcessor_ClassID) {
+    CubicStrokeProcessor() : GrGeometryProcessor(kCubicStrokeProcessor_ClassID, true) {
         this->setInstanceAttributes(kInstanceAttribs, 3);
 #ifdef SK_DEBUG
         using Instance = CubicStrokeInstance;

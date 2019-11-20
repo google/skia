@@ -96,11 +96,12 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shaderCaps,
-                                                       bool tweakAlphaForCoverage,
-                                                       const SkMatrix& viewMatrix,
-                                                       bool usesLocalCoords,
-                                                       bool wideColor) {
+static GrGeometryProcessor* create_lines_only_gp(SkArenaAlloc* arena,
+                                                 const GrShaderCaps* shaderCaps,
+                                                 bool tweakAlphaForCoverage,
+                                                 const SkMatrix& viewMatrix,
+                                                 bool usesLocalCoords,
+                                                 bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
 
     Coverage::Type coverageType =
@@ -110,7 +111,8 @@ static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shade
     Color::Type colorType =
         wideColor ? Color::kPremulWideColorAttribute_Type : Color::kPremulGrColorAttribute_Type;
 
-    return MakeForDeviceSpace(shaderCaps, colorType, coverageType, localCoordsType, viewMatrix);
+    return MakeForDeviceSpace(arena, shaderCaps, colorType, coverageType,
+                              localCoordsType, viewMatrix);
 }
 
 namespace {

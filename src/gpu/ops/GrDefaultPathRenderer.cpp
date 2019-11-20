@@ -402,14 +402,15 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp;
+        GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
             Coverage coverage(this->coverage());
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+            gp = GrDefaultGeoProcFactory::Make(target->allocator(),
+                                               target->caps().shaderCaps(),
                                                color,
                                                coverage,
                                                localCoords,
@@ -431,7 +432,7 @@ private:
         } else {
             primitiveType = GrPrimitiveType::kTriangles;
         }
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp));
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp);
 
         // fill buffers
         for (int i = 0; i < instanceCount; i++) {

@@ -79,7 +79,7 @@ private:
     friend class ::SkArenaAlloc; // for access to ctor
 
     FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
-            : GrGeometryProcessor(kFwidthSquircleTestProcessor_ClassID)
+            : GrGeometryProcessor(kFwidthSquircleTestProcessor_ClassID, true)
             , fViewMatrix(viewMatrix) {
         this->setVertexAttributes(&gVertex, 1);
     }

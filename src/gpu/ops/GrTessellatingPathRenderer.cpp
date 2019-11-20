@@ -255,7 +255,7 @@ private:
         return path;
     }
 
-    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
+    void draw(Target* target, const GrGeometryProcessor* gp, size_t vertexStride) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
@@ -279,8 +279,7 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
         if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, std::move(gp), std::move(cachedVertexBuffer), 0,
-                               actualCount);
+            this->drawVertices(target, gp, std::move(cachedVertexBuffer), 0, actualCount);
             return;
         }
 
@@ -307,10 +306,10 @@ private:
         key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
         rp->assignUniqueKeyToResource(key, vb.get());
 
-        this->drawVertices(target, std::move(gp), std::move(vb), 0, count);
+        this->drawVertices(target, gp, std::move(vb), 0, count);
     }
 
-    void drawAA(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
+    void drawAA(Target* target, const GrGeometryProcessor* gp, size_t vertexStride) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -326,12 +325,12 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, std::move(gp), allocator.detachVertexBuffer(),
+        this->drawVertices(target, gp, allocator.detachVertexBuffer(),
                            allocator.firstVertex(), count);
     }
 
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp;
+        GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -350,23 +349,24 @@ private:
                 coverageType = Coverage::kSolid_Type;
             }
             if (fAntiAlias) {
-                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(target->caps().shaderCaps(),
+                gp = GrDefaultGeoProcFactory::MakeForDeviceSpace(target->allocator(),
+                                                                 target->caps().shaderCaps(),
                                                                  color, coverageType,
                                                                  localCoordsType, fViewMatrix);
             } else {
-                gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+                gp = GrDefaultGeoProcFactory::Make(target->allocator(), target->caps().shaderCaps(),
                                                    color, coverageType, localCoordsType,
                                                    fViewMatrix);
             }
         }
-        if (!gp.get()) {
+        if (!gp) {
             return;
         }
         size_t vertexStride = gp->vertexStride();
         if (fAntiAlias) {
-            this->drawAA(target, std::move(gp), vertexStride);
+            this->drawAA(target, gp, vertexStride);
         } else {
-            this->draw(target, std::move(gp), vertexStride);
+            this->draw(target, gp, vertexStride);
         }
     }
 

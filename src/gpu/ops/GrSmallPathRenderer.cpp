@@ -353,7 +353,7 @@ private:
             } else {
                 matrix = &SkMatrix::I();
             }
-            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
+            flushInfo.fGeometryProcessor1 = GrDistanceFieldPathGeoProc::Make(target->allocator(),
                     *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getProxies(),
                     fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
         } else {
@@ -364,7 +364,7 @@ private:
                 }
             }
 
-            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+            flushInfo.fGeometryProcessor1 = GrBitmapTextGeoProc::Make(target->allocator(),
                     *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getProxies(),
                     fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
                     invert, false);
