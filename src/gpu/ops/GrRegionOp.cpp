@@ -18,13 +18,14 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
-                                          const SkMatrix& viewMatrix,
-                                          bool wideColor) {
+static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
+                                    const GrShaderCaps* shaderCaps,
+                                    const SkMatrix& viewMatrix,
+                                    bool wideColor) {
     using namespace GrDefaultGeoProcFactory;
-    Color::Type colorType =
-        wideColor ? Color::kPremulWideColorAttribute_Type : Color::kPremulGrColorAttribute_Type;
-    return GrDefaultGeoProcFactory::Make(shaderCaps, colorType, Coverage::kSolid_Type,
+    Color::Type colorType = wideColor ? Color::kPremulWideColorAttribute_Type
+                                      : Color::kPremulGrColorAttribute_Type;
+    return GrDefaultGeoProcFactory::Make(arena, shaderCaps, colorType, Coverage::kSolid_Type,
                                          LocalCoords::kUsePosition_Type, viewMatrix);
 }
 
@@ -94,8 +95,8 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps(), fViewMatrix,
-                                                fWideColor);
+        GrGeometryProcessor* gp = make_gp(target->allocator(), target->caps().shaderCaps(),
+                                          fViewMatrix, fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -128,7 +129,7 @@ private:
                 iter.next();
             }
         }
-        helper.recordDraw(target, std::move(gp));
+        helper.recordDraw(target, gp);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

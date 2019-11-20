@@ -761,7 +761,7 @@ private:
             return;
         }
 
-        sk_sp<GrGeometryProcessor> gp;
+        GrGeometryProcessor* gp;
 
         {
             const GrBackendFormat& backendFormat =
@@ -773,14 +773,14 @@ private:
 
             auto saturate = static_cast<GrTextureOp::Saturate>(fSaturate);
 
-            gp = GrQuadPerEdgeAA::MakeTexturedProcessor(
+            gp = GrQuadPerEdgeAA::MakeTexturedProcessor(target->allocator(),
                 desc.fVertexSpec, *target->caps().shaderCaps(), backendFormat,
                 samplerState, swizzle, std::move(fTextureColorSpaceXform), saturate);
 
             SkASSERT(vertexSize == gp->vertexStride());
         }
 
-        target->recordDraw(std::move(gp), meshes, desc.fNumProxies,
+        target->recordDraw(gp, meshes, desc.fNumProxies,
                            desc.fFixedDynamicState, desc.fDynamicStateArrays,
                            desc.fVertexSpec.primitiveType());
     }

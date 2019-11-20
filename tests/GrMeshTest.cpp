@@ -321,6 +321,27 @@ private:
 
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, bool instanced, bool hasVertexBuffer) {
+        return arena->make<GrMeshTestProcessor>(instanced, hasVertexBuffer);
+    }
+
+    const char* name() const override { return "GrMeshTestProcessor"; }
+
+    const Attribute& inColor() const {
+        return fVertexColor.isInitialized() ? fVertexColor : fInstanceColor;
+    }
+
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
+        b->add32(fInstanceLocation.isInitialized());
+        b->add32(fVertexPosition.isInitialized());
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+
+private:
+    friend class GLSLMeshTestProcessor;
+    friend class ::SkArenaAlloc; // for access to ctor
+
     GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
             : INHERITED(kGrMeshTestProcessor_ClassID) {
         if (instanced) {
@@ -338,27 +359,12 @@ public:
         }
     }
 
-    const char* name() const override { return "GrMeshTest Processor"; }
-
-    const Attribute& inColor() const {
-        return fVertexColor.isInitialized() ? fVertexColor : fInstanceColor;
-    }
-
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
-        b->add32(fInstanceLocation.isInitialized());
-        b->add32(fVertexPosition.isInitialized());
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
-
-private:
     Attribute fVertexPosition;
     Attribute fVertexColor;
 
     Attribute fInstanceLocation;
     Attribute fInstanceColor;
 
-    friend class GLSLMeshTestProcessor;
     typedef GrGeometryProcessor INHERITED;
 };
 
@@ -412,13 +418,15 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 
 void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType) {
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
-    GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
+
+    GrGeometryProcessor* mtp = GrMeshTestProcessor::Make(fState->allocator(),
+                                                         mesh.isInstanced(), mesh.hasVertexData());
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(),
                               fState->proxy()->numStencilSamples(),
                               fState->drawOpArgs().origin(),
                               &pipeline,
-                              &mtp,
+                              mtp,
                               nullptr, nullptr, 0, primitiveType);
 
     fState->opsRenderPass()->draw(programInfo, &mesh, 1,

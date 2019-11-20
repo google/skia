@@ -70,7 +70,7 @@ inline void CubicStrokeInstance::set(const Sk4f& X, const Sk4f& Y, float dx, flo
 // for seamless integration with the connecting geometry.
 class LinearStrokeProcessor : public GrGeometryProcessor {
 public:
-    LinearStrokeProcessor() : GrGeometryProcessor(kLinearStrokeProcessor_ClassID) {
+    LinearStrokeProcessor() : INHERITED(kLinearStrokeProcessor_ClassID) {
         this->setInstanceAttributes(kInstanceAttribs, 2);
 #ifdef SK_DEBUG
         using Instance = LinearStrokeInstance;
@@ -96,6 +96,8 @@ private:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override {
         return new Impl();
     }
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 void LinearStrokeProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {

@@ -13,6 +13,7 @@
 #if GR_TEST_UTILS
 
 #include "include/private/SkTArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrTestUtils.h"
 #include "src/gpu/GrTextureProxy.h"
 
@@ -61,7 +62,10 @@ struct GrProcessorTestData {
         fProxies[1] = proxies[1];
         fProxyColorTypes[0] = proxyColorTypes[0];
         fProxyColorTypes[1] = proxyColorTypes[1];
+
+        fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
     }
+
     SkRandom* fRandom;
     const GrRenderTargetContext* fRenderTargetContext;
 
@@ -71,11 +75,14 @@ struct GrProcessorTestData {
     const GrCaps* caps();
     sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
     GrColorType textureProxyColorType(int index) { return fProxyColorTypes[index]; }
+    SkArenaAlloc* allocator() { return fArena.get(); }
 
 private:
     GrContext* fContext;
     sk_sp<GrTextureProxy> fProxies[2];
     GrColorType fProxyColorTypes[2];
+
+    std::unique_ptr<SkArenaAlloc> fArena;
 };
 
 class GrProcessor;
@@ -84,7 +91,6 @@ class GrTexture;
 template <class ProcessorSmartPtr>
 class GrProcessorTestFactory : private SkNoncopyable {
 public:
-    using Processor = typename ProcessorSmartPtr::element_type;
     using MakeProc = ProcessorSmartPtr (*)(GrProcessorTestData*);
 
     GrProcessorTestFactory(MakeProc makeProc) {
@@ -126,7 +132,7 @@ private:
 };
 
 using GrFragmentProcessorTestFactory = GrProcessorTestFactory<std::unique_ptr<GrFragmentProcessor>>;
-using GrGeometryProcessorTestFactory = GrProcessorTestFactory<sk_sp<GrGeometryProcessor>>;
+using GrGeometryProcessorTestFactory = GrProcessorTestFactory<GrGeometryProcessor*>;
 
 class GrXPFactoryTestFactory : private SkNoncopyable {
 public:
@@ -159,7 +165,7 @@ private:
  */
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                        \
     static GrGeometryProcessorTestFactory gTestFactory SK_UNUSED; \
-    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*);
+    static GrGeometryProcessor* TestCreate(GrProcessorTestData*);
 
 #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST                        \
     static GrFragmentProcessorTestFactory gTestFactory SK_UNUSED; \
@@ -193,7 +199,7 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST                                                         \
-    static sk_sp<GrGeometryProcessor> TestCreate(GrProcessorTestData*);
+    static GrGeometryProcessor* TestCreate(GrProcessorTestData*);
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(X)
 
 // The unit test relies on static initializers. Just declare the TestGet function so that

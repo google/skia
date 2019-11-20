@@ -99,8 +99,9 @@ private:
         static const int kColorOffset = sizeof(SkPoint);
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
 
-        sk_sp<GrGeometryProcessor> gp =
-                GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+        GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Make(
+                                              target->allocator(),
+                                              target->caps().shaderCaps(),
                                               Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,
                                               fHasLocalRect ? LocalCoords::kHasExplicit_Type
@@ -161,7 +162,7 @@ private:
         mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
         mesh->setVertexData(vertexBuffer, firstVertex);
 
-        target->recordDraw(std::move(gp), mesh, 1, GrPrimitiveType::kTriangles);
+        target->recordDraw(gp, mesh, 1, GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {

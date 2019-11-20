@@ -175,8 +175,23 @@ GrDrawOp::CombineResult GrFillRRectOp::onCombineIfPossible(GrOp* op, const GrCap
 
 class GrFillRRectOp::Processor : public GrGeometryProcessor {
 public:
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, Flags flags) {
+        return arena->make<Processor>(aaType, flags);
+    }
+
+    const char* name() const override { return "GrFillRRectOp::Processor"; }
+
+    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
+    }
+
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+
+private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     Processor(GrAAType aaType, Flags flags)
-            : GrGeometryProcessor(kGrFillRRectOp_Processor_ClassID)
+            : INHERITED(kGrFillRRectOp_Processor_ClassID)
             , fAAType(aaType)
             , fFlags(flags) {
         int numVertexAttribs = (GrAAType::kCoverage == fAAType) ? 3 : 2;
@@ -208,15 +223,6 @@ public:
         }
     }
 
-    const char* name() const override { return "GrFillRRectOp::Processor"; }
-
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        b->add32(((uint32_t)fFlags << 16) | (uint32_t)fAAType);
-    }
-
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
-
-private:
     static constexpr Attribute kVertexAttribs[] = {
             {"radii_selector", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
             {"corner_and_radius_outsets", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
@@ -231,6 +237,8 @@ private:
 
     class CoverageImpl;
     class MSAAImpl;
+
+    typedef GrGeometryProcessor INHERITED;
 };
 
 constexpr GrPrimitiveProcessor::Attribute GrFillRRectOp::Processor::kVertexAttribs[];

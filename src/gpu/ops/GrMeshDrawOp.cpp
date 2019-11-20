@@ -52,15 +52,14 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
     fMesh->setVertexData(std::move(vertexBuffer), firstVertex);
 }
 
-void GrMeshDrawOp::PatternHelper::recordDraw(
-        Target* target, sk_sp<const GrGeometryProcessor> gp) const {
-    target->recordDraw(std::move(gp), fMesh, 1, fPrimitiveType);
+void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryProcessor* gp) const {
+    target->recordDraw(gp, fMesh, 1, fPrimitiveType);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
-        Target* target, sk_sp<const GrGeometryProcessor> gp,
+        Target* target, const GrGeometryProcessor* gp,
         const GrPipeline::FixedDynamicState* fixedDynamicState) const {
-    target->recordDraw(std::move(gp), fMesh, 1, fixedDynamicState, nullptr, fPrimitiveType);
+    target->recordDraw(gp, fMesh, 1, fixedDynamicState, nullptr, fPrimitiveType);
 }
 
 //////////////////////////////////////////////////////////////////////////////

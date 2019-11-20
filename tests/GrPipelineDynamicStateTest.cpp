@@ -60,9 +60,8 @@ struct Vertex {
 
 class GrPipelineDynamicStateTestProcessor : public GrGeometryProcessor {
 public:
-    GrPipelineDynamicStateTestProcessor()
-            : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
-        this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena) {
+        return arena->make<GrPipelineDynamicStateTestProcessor>();
     }
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
@@ -75,6 +74,13 @@ public:
     const Attribute& inColor() const { return kAttributes[1]; }
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GrPipelineDynamicStateTestProcessor()
+            : INHERITED(kGrPipelineDynamicStateTestProcessor_ClassID) {
+        this->setVertexAttributes(kAttributes, SK_ARRAY_COUNT(kAttributes));
+    }
+
     static constexpr Attribute kAttributes[] = {
         {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType},
         {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType},
@@ -153,13 +159,13 @@ private:
         GrPipeline::DynamicStateArrays dynamicState;
         dynamicState.fScissorRects = kDynamicScissors;
 
-        GrPipelineDynamicStateTestProcessor primProc;
+        auto geomProc = GrPipelineDynamicStateTestProcessor::Make(flushState->allocator());
 
         GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                                   flushState->proxy()->numStencilSamples(),
                                   flushState->drawOpArgs().origin(),
                                   &pipeline,
-                                  &primProc,
+                                  geomProc,
                                   nullptr,
                                   &dynamicState, 0, GrPrimitiveType::kTriangleStrip);
 

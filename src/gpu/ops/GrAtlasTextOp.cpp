@@ -315,12 +315,13 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor = this->setupDfProcessor(*target->caps().shaderCaps(),
+        flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
+                                                              *target->caps().shaderCaps(),
                                                               proxies, numActiveProxies);
     } else {
         GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
                                                            : GrSamplerState::ClampNearest();
-        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
             *target->caps().shaderCaps(), this->color(), false, proxies, numActiveProxies,
             samplerState, maskFormat, localMatrix, vmPerspective);
     }
@@ -404,7 +405,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
 
     auto atlasManager = target->atlasManager();
 
-    GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
+    GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveProxies;
@@ -524,9 +525,10 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
 
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrTextContext::ComputeCanonicalColor)
-sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const GrShaderCaps& caps,
-                                                           const sk_sp<GrTextureProxy>* proxies,
-                                                           unsigned int numActiveProxies) const {
+GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
+                                                     const GrShaderCaps& caps,
+                                                     const sk_sp<GrTextureProxy>* proxies,
+                                                     unsigned int numActiveProxies) const {
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
@@ -550,7 +552,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const GrShaderCaps& c
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(caps, proxies, numActiveProxies,
+        return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, proxies, numActiveProxies,
                                                    GrSamplerState::ClampBilerp(), widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
@@ -562,11 +564,11 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const GrShaderCaps& c
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(caps, proxies, numActiveProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, proxies, numActiveProxies,
                                                   GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(caps, proxies, numActiveProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, proxies, numActiveProxies,
                                                   GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif

@@ -58,7 +58,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   this->proxy()->numStencilSamples(),
                                   this->proxy()->origin(),
                                   pipeline,
-                                  fCurrDraw->fGeometryProcessor.get(),
+                                  fCurrDraw->fGeometryProcessor,
                                   fCurrDraw->fFixedDynamicState,
                                   fCurrDraw->fDynamicStateArrays,
                                   fCurrDraw->fMeshCnt,
@@ -140,7 +140,7 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
 }
 
 void GrOpFlushState::recordDraw(
-        sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
+        const GrGeometryProcessor* gp, const GrMesh meshes[], int meshCnt,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
         GrPrimitiveType primitiveType) {
@@ -160,7 +160,7 @@ void GrOpFlushState::recordDraw(
             dynamicStateArrays->fPrimitiveProcessorTextures[i]->ref();
         }
     }
-    draw.fGeometryProcessor = std::move(gp);
+    draw.fGeometryProcessor = gp;
     draw.fFixedDynamicState = fixedDynamicState;
     draw.fDynamicStateArrays = dynamicStateArrays;
     draw.fMeshes = meshes;

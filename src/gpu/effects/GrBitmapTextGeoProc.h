@@ -8,6 +8,7 @@
 #ifndef GrBitmapTextGeoProc_DEFINED
 #define GrBitmapTextGeoProc_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessor.h"
 
@@ -23,15 +24,15 @@ class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
     static constexpr int kMaxTextures = 4;
 
-    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps& caps,
-                                           const SkPMColor4f& color, bool wideColor,
-                                           const sk_sp<GrTextureProxy>* proxies,
-                                           int numActiveProxies,
-                                           const GrSamplerState& p, GrMaskFormat format,
-                                           const SkMatrix& localMatrix, bool usesW) {
-        return sk_sp<GrGeometryProcessor>(
-            new GrBitmapTextGeoProc(caps, color, wideColor, proxies, numActiveProxies, p, format,
-                                    localMatrix, usesW));
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena,
+                                     const GrShaderCaps& caps,
+                                     const SkPMColor4f& color, bool wideColor,
+                                     const sk_sp<GrTextureProxy>* proxies,
+                                     int numActiveProxies,
+                                     const GrSamplerState& p, GrMaskFormat format,
+                                     const SkMatrix& localMatrix, bool usesW) {
+        return arena->make<GrBitmapTextGeoProc>(caps, color, wideColor, proxies, numActiveProxies,
+                                                p, format, localMatrix, usesW);
     }
 
     ~GrBitmapTextGeoProc() override {}
@@ -55,6 +56,8 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
+    friend class ::SkArenaAlloc; // for access to ctor
+
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
                         const sk_sp<GrTextureProxy>* proxies, int numProxies,
                         const GrSamplerState& params, GrMaskFormat format,
