@@ -19,14 +19,14 @@ namespace GrVkMemory {
     * Allocates vulkan device memory and binds it to the gpu's device for the given object.
     * Returns true if allocation succeeded.
     */
-    bool AllocAndBindBufferMemory(const GrVkGpu* gpu,
+    bool AllocAndBindBufferMemory(GrVkGpu* gpu,
                                   VkBuffer buffer,
                                   GrVkBuffer::Type type,
                                   bool dynamic,
                                   GrVkAlloc* alloc);
     void FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type, const GrVkAlloc& alloc);
 
-    bool AllocAndBindImageMemory(const GrVkGpu* gpu,
+    bool AllocAndBindImageMemory(GrVkGpu* gpu,
                                  VkImage image,
                                  bool linearTiling,
                                  GrVkAlloc* alloc);
@@ -36,7 +36,7 @@ namespace GrVkMemory {
     // the hood, we may map more than the range of the GrVkAlloc (e.g. the entire VkDeviceMemory),
     // but the pointer returned will always be to the start of the GrVkAlloc. The caller should also
     // never assume more than the GrVkAlloc block has been mapped.
-    void* MapAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
+    void* MapAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc);
     void UnmapAlloc(const GrVkGpu* gpu, const GrVkAlloc& alloc);
 
     // For the Flush and Invalidate calls, the offset should be relative to the GrVkAlloc. Thus this

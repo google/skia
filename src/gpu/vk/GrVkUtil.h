@@ -50,7 +50,7 @@ bool GrVkFormatColorTypePairIsValid(VkFormat, GrColorType);
 
 bool GrSampleCountToVkSampleCount(uint32_t samples, VkSampleCountFlagBits* vkSamples);
 
-bool GrCompileVkShaderModule(const GrVkGpu* gpu,
+bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& shaderString,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
@@ -59,7 +59,7 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
                              SkSL::String* outSPIRV,
                              SkSL::Program::Inputs* outInputs);
 
-bool GrInstallVkShaderModule(const GrVkGpu* gpu,
+bool GrInstallVkShaderModule(GrVkGpu* gpu,
                              const SkSL::String& spirv,
                              VkShaderStageFlagBits stage,
                              VkShaderModule* shaderModule,
