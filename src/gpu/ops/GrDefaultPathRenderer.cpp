@@ -67,11 +67,11 @@ namespace {
 class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
-                   sk_sp<const GrGeometryProcessor> geometryProcessor)
+                   const GrGeometryProcessor* geometryProcessor)
             : fPrimitiveType(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
-            , fGeometryProcessor(std::move(geometryProcessor))
+            , fGeometryProcessor1(geometryProcessor)
             , fFirstIndex(0)
             , fIndicesInChunk(0)
             , fIndices(nullptr) {
@@ -277,7 +277,7 @@ private:
                                  vertexCount - 1, GrPrimitiveRestart::kNo);
             }
             mesh->setVertexData(std::move(fVertexBuffer), fFirstVertex);
-            fTarget->recordDraw(fGeometryProcessor, mesh, 1, fPrimitiveType);
+            fTarget->recordDraw(fGeometryProcessor1, mesh, 1, fPrimitiveType);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -313,7 +313,7 @@ private:
     GrPrimitiveType fPrimitiveType;
     GrMeshDrawOp::Target* fTarget;
     size_t fVertexStride;
-    sk_sp<const GrGeometryProcessor> fGeometryProcessor;
+    const GrGeometryProcessor* fGeometryProcessor1;
 
     sk_sp<const GrBuffer> fVertexBuffer;
     int fFirstVertex;
@@ -402,14 +402,15 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp;
+        GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
             Color color(this->color());
             Coverage coverage(this->coverage());
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+            gp = GrDefaultGeoProcFactory::Make(target->allocator(),
+                                               target->caps().shaderCaps(),
                                                color,
                                                coverage,
                                                localCoords,
@@ -431,7 +432,7 @@ private:
         } else {
             primitiveType = GrPrimitiveType::kTriangles;
         }
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp));
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp);
 
         // fill buffers
         for (int i = 0; i < instanceCount; i++) {

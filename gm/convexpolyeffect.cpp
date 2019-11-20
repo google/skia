@@ -109,12 +109,12 @@ private:
         using namespace GrDefaultGeoProcFactory;
 
         Color color(fColor);
-        sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
-                target->caps().shaderCaps(),
-                color,
-                Coverage::kSolid_Type,
-                LocalCoords::kUnused_Type,
-                SkMatrix::I()));
+        GrGeometryProcessor* gp = GrDefaultGeoProcFactory::Make(target->allocator(),
+                                                                target->caps().shaderCaps(),
+                                                                color,
+                                                                Coverage::kSolid_Type,
+                                                                LocalCoords::kUnused_Type,
+                                                                SkMatrix::I());
 
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
         QuadHelper helper(target, sizeof(SkPoint), 1);
@@ -124,7 +124,7 @@ private:
         }
 
         SkPointPriv::SetRectTriStrip(verts, fRect, sizeof(SkPoint));
-        helper.recordDraw(target, std::move(gp));
+        helper.recordDraw(target, gp);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
