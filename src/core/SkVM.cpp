@@ -138,32 +138,33 @@ namespace skvm {
             Val  x = inst.x,
                  y = inst.y,
                  z = inst.z;
-            int imm = inst.imm;
+            int immy = inst.immy,
+                immz = inst.immz;
             write(o, !inst.can_hoist    ? "  " :
                       inst.used_in_loop ? "↑ " :
                                           "↟ ");
             switch (op) {
                 case Op::assert_true:  write(o, "assert_true" , V{x}); break;
 
-                case Op::store8:  write(o, "store8" , Arg{imm}, V{x}); break;
-                case Op::store16: write(o, "store16", Arg{imm}, V{x}); break;
-                case Op::store32: write(o, "store32", Arg{imm}, V{x}); break;
+                case Op::store8:  write(o, "store8" , Arg{immy}, V{x}); break;
+                case Op::store16: write(o, "store16", Arg{immy}, V{x}); break;
+                case Op::store32: write(o, "store32", Arg{immy}, V{x}); break;
 
                 case Op::index: write(o, V{id}, "= index"); break;
 
-                case Op::load8:  write(o, V{id}, "= load8" , Arg{imm}); break;
-                case Op::load16: write(o, V{id}, "= load16", Arg{imm}); break;
-                case Op::load32: write(o, V{id}, "= load32", Arg{imm}); break;
+                case Op::load8:  write(o, V{id}, "= load8" , Arg{immy}); break;
+                case Op::load16: write(o, V{id}, "= load16", Arg{immy}); break;
+                case Op::load32: write(o, V{id}, "= load32", Arg{immy}); break;
 
-                case Op::gather8:  write(o, V{id}, "= gather8" , Arg{imm}, V{x}); break;
-                case Op::gather16: write(o, V{id}, "= gather16", Arg{imm}, V{x}); break;
-                case Op::gather32: write(o, V{id}, "= gather32", Arg{imm}, V{x}); break;
+                case Op::gather8:  write(o, V{id}, "= gather8" , Arg{immy}, V{x}); break;
+                case Op::gather16: write(o, V{id}, "= gather16", Arg{immy}, V{x}); break;
+                case Op::gather32: write(o, V{id}, "= gather32", Arg{immy}, V{x}); break;
 
-                case Op::uniform8:  write(o, V{id}, "= uniform8" , Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform16: write(o, V{id}, "= uniform16", Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform32: write(o, V{id}, "= uniform32", Arg{imm & 0xffff}, Hex{imm>>16}); break;
+                case Op::uniform8:  write(o, V{id}, "= uniform8" , Arg{immy}, Hex{immz}); break;
+                case Op::uniform16: write(o, V{id}, "= uniform16", Arg{immy}, Hex{immz}); break;
+                case Op::uniform32: write(o, V{id}, "= uniform32", Arg{immy}, Hex{immz}); break;
 
-                case Op::splat:  write(o, V{id}, "= splat", Splat{imm}); break;
+                case Op::splat:  write(o, V{id}, "= splat", Splat{immy}); break;
 
 
                 case Op::add_f32: write(o, V{id}, "= add_f32", V{x}, V{y}      ); break;
@@ -174,7 +175,7 @@ namespace skvm {
                 case Op::max_f32: write(o, V{id}, "= max_f32", V{x}, V{y}      ); break;
                 case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
 
-                case Op::mul_f32_imm: write(o, V{id}, "= mul_f32", V{x}, Splat{imm}); break;
+                case Op::mul_f32_imm: write(o, V{id}, "= mul_f32", V{x}, Splat{immy}); break;
 
                 case Op:: eq_f32: write(o, V{id}, "= eq_f32", V{x}, V{y}); break;
                 case Op::neq_f32: write(o, V{id}, "= neq_f32", V{x}, V{y}); break;
@@ -186,9 +187,9 @@ namespace skvm {
                 case Op::sub_i32: write(o, V{id}, "= sub_i32", V{x}, V{y}); break;
                 case Op::mul_i32: write(o, V{id}, "= mul_i32", V{x}, V{y}); break;
 
-                case Op::shl_i32: write(o, V{id}, "= shl_i32", V{x}, Shift{imm}); break;
-                case Op::shr_i32: write(o, V{id}, "= shr_i32", V{x}, Shift{imm}); break;
-                case Op::sra_i32: write(o, V{id}, "= sra_i32", V{x}, Shift{imm}); break;
+                case Op::shl_i32: write(o, V{id}, "= shl_i32", V{x}, Shift{immy}); break;
+                case Op::shr_i32: write(o, V{id}, "= shr_i32", V{x}, Shift{immy}); break;
+                case Op::sra_i32: write(o, V{id}, "= sra_i32", V{x}, Shift{immy}); break;
 
                 case Op:: eq_i32: write(o, V{id}, "= eq_i32", V{x}, V{y}); break;
                 case Op::neq_i32: write(o, V{id}, "= neq_i32", V{x}, V{y}); break;
@@ -199,9 +200,9 @@ namespace skvm {
                 case Op::sub_i16x2: write(o, V{id}, "= sub_i16x2", V{x}, V{y}); break;
                 case Op::mul_i16x2: write(o, V{id}, "= mul_i16x2", V{x}, V{y}); break;
 
-                case Op::shl_i16x2: write(o, V{id}, "= shl_i16x2", V{x}, Shift{imm}); break;
-                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{imm}); break;
-                case Op::sra_i16x2: write(o, V{id}, "= sra_i16x2", V{x}, Shift{imm}); break;
+                case Op::shl_i16x2: write(o, V{id}, "= shl_i16x2", V{x}, Shift{immy}); break;
+                case Op::shr_i16x2: write(o, V{id}, "= shr_i16x2", V{x}, Shift{immy}); break;
+                case Op::sra_i16x2: write(o, V{id}, "= sra_i16x2", V{x}, Shift{immy}); break;
 
                 case Op:: eq_i16x2: write(o, V{id}, "= eq_i16x2", V{x}, V{y}); break;
                 case Op::neq_i16x2: write(o, V{id}, "= neq_i16x2", V{x}, V{y}); break;
@@ -214,9 +215,9 @@ namespace skvm {
                 case Op::bit_clear: write(o, V{id}, "= bit_clear", V{x}, V{y}      ); break;
                 case Op::select   : write(o, V{id}, "= select"   , V{x}, V{y}, V{z}); break;
 
-                case Op::bytes:   write(o, V{id}, "= bytes",   V{x}, Hex{imm}); break;
-                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{imm}, V{y}); break;
-                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{imm}); break;
+                case Op::bytes:   write(o, V{id}, "= bytes",   V{x}, Hex{immy}); break;
+                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
+                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
 
                 case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
                 case Op::trunc:  write(o, V{id}, "= trunc",  V{x}); break;
@@ -253,29 +254,30 @@ namespace skvm {
                   x = inst.x,
                   y = inst.y,
                   z = inst.z;
-            int imm = inst.imm;
+            int immy = inst.immy,
+                immz = inst.immz;
             switch (op) {
                 case Op::assert_true:  write(o, "assert_true" , R{x}); break;
 
-                case Op::store8:  write(o, "store8" , Arg{imm}, R{x}); break;
-                case Op::store16: write(o, "store16", Arg{imm}, R{x}); break;
-                case Op::store32: write(o, "store32", Arg{imm}, R{x}); break;
+                case Op::store8:  write(o, "store8" , Arg{immy}, R{x}); break;
+                case Op::store16: write(o, "store16", Arg{immy}, R{x}); break;
+                case Op::store32: write(o, "store32", Arg{immy}, R{x}); break;
 
                 case Op::index: write(o, R{d}, "= index"); break;
 
-                case Op::load8:  write(o, R{d}, "= load8" , Arg{imm}); break;
-                case Op::load16: write(o, R{d}, "= load16", Arg{imm}); break;
-                case Op::load32: write(o, R{d}, "= load32", Arg{imm}); break;
+                case Op::load8:  write(o, R{d}, "= load8" , Arg{immy}); break;
+                case Op::load16: write(o, R{d}, "= load16", Arg{immy}); break;
+                case Op::load32: write(o, R{d}, "= load32", Arg{immy}); break;
 
-                case Op::gather8:  write(o, R{d}, "= gather8" , Arg{imm}, R{x}); break;
-                case Op::gather16: write(o, R{d}, "= gather16", Arg{imm}, R{x}); break;
-                case Op::gather32: write(o, R{d}, "= gather32", Arg{imm}, R{x}); break;
+                case Op::gather8:  write(o, R{d}, "= gather8" , Arg{immy}, R{x}); break;
+                case Op::gather16: write(o, R{d}, "= gather16", Arg{immy}, R{x}); break;
+                case Op::gather32: write(o, R{d}, "= gather32", Arg{immy}, R{x}); break;
 
-                case Op::uniform8:  write(o, R{d}, "= uniform8" , Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform16: write(o, R{d}, "= uniform16", Arg{imm & 0xffff}, Hex{imm>>16}); break;
-                case Op::uniform32: write(o, R{d}, "= uniform32", Arg{imm & 0xffff}, Hex{imm>>16}); break;
+                case Op::uniform8:  write(o, R{d}, "= uniform8" , Arg{immy}, Hex{immz}); break;
+                case Op::uniform16: write(o, R{d}, "= uniform16", Arg{immy}, Hex{immz}); break;
+                case Op::uniform32: write(o, R{d}, "= uniform32", Arg{immy}, Hex{immz}); break;
 
-                case Op::splat:  write(o, R{d}, "= splat", Splat{imm}); break;
+                case Op::splat:  write(o, R{d}, "= splat", Splat{immy}); break;
 
 
                 case Op::add_f32: write(o, R{d}, "= add_f32", R{x}, R{y}      ); break;
@@ -286,7 +288,7 @@ namespace skvm {
                 case Op::max_f32: write(o, R{d}, "= max_f32", R{x}, R{y}      ); break;
                 case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y}, R{z}); break;
 
-                case Op::mul_f32_imm: write(o, R{d}, "= mul_f32", R{x}, Splat{imm}); break;
+                case Op::mul_f32_imm: write(o, R{d}, "= mul_f32", R{x}, Splat{immy}); break;
 
                 case Op:: eq_f32: write(o, R{d}, "= eq_f32", R{x}, R{y}); break;
                 case Op::neq_f32: write(o, R{d}, "= neq_f32", R{x}, R{y}); break;
@@ -298,9 +300,9 @@ namespace skvm {
                 case Op::sub_i32: write(o, R{d}, "= sub_i32", R{x}, R{y}); break;
                 case Op::mul_i32: write(o, R{d}, "= mul_i32", R{x}, R{y}); break;
 
-                case Op::shl_i32: write(o, R{d}, "= shl_i32", R{x}, Shift{imm}); break;
-                case Op::shr_i32: write(o, R{d}, "= shr_i32", R{x}, Shift{imm}); break;
-                case Op::sra_i32: write(o, R{d}, "= sra_i32", R{x}, Shift{imm}); break;
+                case Op::shl_i32: write(o, R{d}, "= shl_i32", R{x}, Shift{immy}); break;
+                case Op::shr_i32: write(o, R{d}, "= shr_i32", R{x}, Shift{immy}); break;
+                case Op::sra_i32: write(o, R{d}, "= sra_i32", R{x}, Shift{immy}); break;
 
                 case Op:: eq_i32: write(o, R{d}, "= eq_i32", R{x}, R{y}); break;
                 case Op::neq_i32: write(o, R{d}, "= neq_i32", R{x}, R{y}); break;
@@ -312,9 +314,9 @@ namespace skvm {
                 case Op::sub_i16x2: write(o, R{d}, "= sub_i16x2", R{x}, R{y}); break;
                 case Op::mul_i16x2: write(o, R{d}, "= mul_i16x2", R{x}, R{y}); break;
 
-                case Op::shl_i16x2: write(o, R{d}, "= shl_i16x2", R{x}, Shift{imm}); break;
-                case Op::shr_i16x2: write(o, R{d}, "= shr_i16x2", R{x}, Shift{imm}); break;
-                case Op::sra_i16x2: write(o, R{d}, "= sra_i16x2", R{x}, Shift{imm}); break;
+                case Op::shl_i16x2: write(o, R{d}, "= shl_i16x2", R{x}, Shift{immy}); break;
+                case Op::shr_i16x2: write(o, R{d}, "= shr_i16x2", R{x}, Shift{immy}); break;
+                case Op::sra_i16x2: write(o, R{d}, "= sra_i16x2", R{x}, Shift{immy}); break;
 
                 case Op:: eq_i16x2: write(o, R{d}, "= eq_i16x2", R{x}, R{y}); break;
                 case Op::neq_i16x2: write(o, R{d}, "= neq_i16x2", R{x}, R{y}); break;
@@ -328,9 +330,9 @@ namespace skvm {
                 case Op::bit_clear: write(o, R{d}, "= bit_clear", R{x}, R{y}      ); break;
                 case Op::select   : write(o, R{d}, "= select"   , R{x}, R{y}, R{z}); break;
 
-                case Op::bytes:   write(o, R{d}, "= bytes", R{x}, Hex{imm}); break;
-                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{imm}, R{y}); break;
-                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y}, Shift{imm}); break;
+                case Op::bytes:   write(o, R{d}, "= bytes", R{x}, Hex{immy}); break;
+                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{immy}, R{z}); break;
+                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y}, Shift{immz}); break;
 
                 case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
                 case Op::trunc:  write(o, R{d}, "= trunc",  R{x}); break;
@@ -450,7 +452,8 @@ namespace skvm {
             && a.x            == b.x
             && a.y            == b.y
             && a.z            == b.z
-            && a.imm          == b.imm
+            && a.immy         == b.immy
+            && a.immz         == b.immz
             && a.death        == b.death
             && a.can_hoist    == b.can_hoist
             && a.used_in_loop == b.used_in_loop;
@@ -465,7 +468,8 @@ namespace skvm {
              ^ hash(inst.x)
              ^ hash(inst.y)
              ^ hash(inst.z)
-             ^ hash(inst.imm)
+             ^ hash(inst.immy)
+             ^ hash(inst.immz)
              ^ hash(inst.death)
              ^ hash(inst.can_hoist)
              ^ hash(inst.used_in_loop);
@@ -475,8 +479,8 @@ namespace skvm {
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
-    Val Builder::push(Op op, Val x, Val y, Val z, int imm) {
-        Instruction inst{op, x, y, z, imm,
+    Val Builder::push(Op op, Val x, Val y, Val z, int immy, int immz) {
+        Instruction inst{op, x, y, z, immy, immz,
                          /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
 
         // This InstructionHash{}() call should be free given we're about to use fIndex below.
@@ -494,9 +498,9 @@ namespace skvm {
         return id;
     }
 
-    bool Builder::isImm(Val id, int* imm) const {
+    bool Builder::isSplat(Val id, int* imm) const {
         if (fProgram[id].op == Op::splat) {
-            *imm = fProgram[id].imm;
+            *imm = fProgram[id].immy;
             return true;
         }
         return false;
@@ -535,13 +539,13 @@ namespace skvm {
     }
 
     I32 Builder::uniform8(Arg ptr, int offset) {
-        return {this->push(Op::uniform8, NA,NA,NA, ptr.ix | (offset<<16))};
+        return {this->push(Op::uniform8, NA,NA,NA, ptr.ix, offset)};
     }
     I32 Builder::uniform16(Arg ptr, int offset) {
-        return {this->push(Op::uniform16, NA,NA,NA, ptr.ix | (offset<<16))};
+        return {this->push(Op::uniform16, NA,NA,NA, ptr.ix, offset)};
     }
     I32 Builder::uniform32(Arg ptr, int offset) {
-        return {this->push(Op::uniform32, NA,NA,NA, ptr.ix | (offset<<16))};
+        return {this->push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
     }
 
     // The two splat() functions are just syntax sugar over splatting a 4-byte bit pattern.
@@ -559,7 +563,7 @@ namespace skvm {
     F32 Builder::max(F32 x, F32 y       ) { return {this->push(Op::max_f32, x.id, y.id)}; }
     F32 Builder::mad(F32 x, F32 y, F32 z) {
         int imm;
-        if (this->isImm(z.id, &imm) && imm == 0) {
+        if (this->isSplat(z.id, &imm) && imm == 0) {
             return this->mul(x,y);
         }
         return {this->push(Op::mad_f32, x.id, y.id, z.id)};
@@ -568,8 +572,8 @@ namespace skvm {
     F32 Builder::mul(F32 x, F32 y) {
     #if defined(SK_CPU_X86)
         int imm;
-        if (this->isImm(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->isImm(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
+        if (this->isSplat(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
+        if (this->isSplat(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
     #endif
         return {this->push(Op::mul_f32, x.id, y.id)};
     }
@@ -618,12 +622,12 @@ namespace skvm {
     I32 Builder::select(I32 x, I32 y, I32 z) { return {this->push(Op::select, x.id, y.id, z.id)}; }
 
 
-    I32 Builder::extract(I32 x, int bits, I32 y) {
-        return {this->push(Op::extract, x.id,y.id,NA, bits)};
+    I32 Builder::extract(I32 x, int bits, I32 z) {
+        return {this->push(Op::extract, x.id,NA,z.id, bits,0)};
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
-        return {this->push(Op::pack, x.id,y.id,NA, bits)};
+        return {this->push(Op::pack, x.id,y.id,NA, 0,bits)};
     }
 
     I32 Builder::bytes(I32 x, int control) {
@@ -1380,12 +1384,13 @@ namespace skvm {
             for (int i = start; i < (int)fInstructions.size(); i++) {
                 Instruction inst = fInstructions[i];
 
-                // d = op(x,y,z/imm)
+                // d = op(x,y/imm,z/imm)
                 Reg   d = inst.d,
                       x = inst.x,
                       y = inst.y,
                       z = inst.z;
-                int imm = inst.imm;
+                int immy = inst.immy,
+                    immz = inst.immz;
 
                 // Ops that interact with memory need to know whether we're stride=1 or K,
                 // but all non-memory ops can run the same code no matter the stride.
@@ -1394,46 +1399,46 @@ namespace skvm {
 
                 #define STRIDE_1(op) case 2*(int)op
                 #define STRIDE_K(op) case 2*(int)op + 1
-                    STRIDE_1(Op::store8 ): memcpy(arg(imm), &r(x).i32, 1); break;
-                    STRIDE_1(Op::store16): memcpy(arg(imm), &r(x).i32, 2); break;
-                    STRIDE_1(Op::store32): memcpy(arg(imm), &r(x).i32, 4); break;
+                    STRIDE_1(Op::store8 ): memcpy(arg(immy), &r(x).i32, 1); break;
+                    STRIDE_1(Op::store16): memcpy(arg(immy), &r(x).i32, 2); break;
+                    STRIDE_1(Op::store32): memcpy(arg(immy), &r(x).i32, 4); break;
 
-                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t> (r(x).i32).store(arg(imm)); break;
-                    STRIDE_K(Op::store16): skvx::cast<uint16_t>(r(x).i32).store(arg(imm)); break;
-                    STRIDE_K(Op::store32):                     (r(x).i32).store(arg(imm)); break;
+                    STRIDE_K(Op::store8 ): skvx::cast<uint8_t> (r(x).i32).store(arg(immy)); break;
+                    STRIDE_K(Op::store16): skvx::cast<uint16_t>(r(x).i32).store(arg(immy)); break;
+                    STRIDE_K(Op::store32):                     (r(x).i32).store(arg(immy)); break;
 
-                    STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 1); break;
-                    STRIDE_1(Op::load16): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 2); break;
-                    STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(imm), 4); break;
+                    STRIDE_1(Op::load8 ): r(d).i32 = 0; memcpy(&r(d).i32, arg(immy), 1); break;
+                    STRIDE_1(Op::load16): r(d).i32 = 0; memcpy(&r(d).i32, arg(immy), 2); break;
+                    STRIDE_1(Op::load32): r(d).i32 = 0; memcpy(&r(d).i32, arg(immy), 4); break;
 
-                    STRIDE_K(Op::load8 ): r(d).i32= skvx::cast<int>(U8 ::Load(arg(imm))); break;
-                    STRIDE_K(Op::load16): r(d).i32= skvx::cast<int>(U16::Load(arg(imm))); break;
-                    STRIDE_K(Op::load32): r(d).i32=                 I32::Load(arg(imm)) ; break;
+                    STRIDE_K(Op::load8 ): r(d).i32= skvx::cast<int>(U8 ::Load(arg(immy))); break;
+                    STRIDE_K(Op::load16): r(d).i32= skvx::cast<int>(U16::Load(arg(immy))); break;
+                    STRIDE_K(Op::load32): r(d).i32=                 I32::Load(arg(immy)) ; break;
 
                     STRIDE_1(Op::gather8):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = (i == 0) ? ((const uint8_t* )arg(imm))[ r(x).i32[i] ] : 0;
+                            r(d).i32[i] = (i==0) ? ((const uint8_t* )arg(immy))[ r(x).i32[i] ] : 0;
                         } break;
                     STRIDE_1(Op::gather16):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = (i == 0) ? ((const uint16_t*)arg(imm))[ r(x).i32[i] ] : 0;
+                            r(d).i32[i] = (i==0) ? ((const uint16_t*)arg(immy))[ r(x).i32[i] ] : 0;
                         } break;
                     STRIDE_1(Op::gather32):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = (i == 0) ? ((const int*     )arg(imm))[ r(x).i32[i] ] : 0;
+                            r(d).i32[i] = (i==0) ? ((const int*     )arg(immy))[ r(x).i32[i] ] : 0;
                         } break;
 
                     STRIDE_K(Op::gather8):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = ((const uint8_t* )arg(imm))[ r(x).i32[i] ];
+                            r(d).i32[i] = ((const uint8_t* )arg(immy))[ r(x).i32[i] ];
                         } break;
                     STRIDE_K(Op::gather16):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = ((const uint16_t*)arg(imm))[ r(x).i32[i] ];
+                            r(d).i32[i] = ((const uint16_t*)arg(immy))[ r(x).i32[i] ];
                         } break;
                     STRIDE_K(Op::gather32):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = ((const int*     )arg(imm))[ r(x).i32[i] ];
+                            r(d).i32[i] = ((const int*     )arg(immy))[ r(x).i32[i] ];
                         } break;
 
                 #undef STRIDE_1
@@ -1449,16 +1454,16 @@ namespace skvm {
                                      break;
 
                     CASE(Op::uniform8):
-                        r(d).i32 = *(const uint8_t* )( (const char*)arg(imm&0xffff) + (imm>>16) );
+                        r(d).i32 = *(const uint8_t* )( (const char*)arg(immy) + immz );
                         break;
                     CASE(Op::uniform16):
-                        r(d).i32 = *(const uint16_t*)( (const char*)arg(imm&0xffff) + (imm>>16) );
+                        r(d).i32 = *(const uint16_t*)( (const char*)arg(immy) + immz );
                         break;
                     CASE(Op::uniform32):
-                        r(d).i32 = *(const int*     )( (const char*)arg(imm&0xffff) + (imm>>16) );
+                        r(d).i32 = *(const int*     )( (const char*)arg(immy) + immz );
                         break;
 
-                    CASE(Op::splat): r(d).i32 = imm; break;
+                    CASE(Op::splat): r(d).i32 = immy; break;
 
                     CASE(Op::add_f32): r(d).f32 = r(x).f32 + r(y).f32; break;
                     CASE(Op::sub_f32): r(d).f32 = r(x).f32 - r(y).f32; break;
@@ -1469,7 +1474,7 @@ namespace skvm {
 
                     CASE(Op::mul_f32_imm): {
                         Slot tmp;
-                        tmp.i32 = imm;
+                        tmp.i32 = immy;
                         r(d).f32 = r(x).f32 * tmp.f32;
                     } break;
 
@@ -1483,13 +1488,13 @@ namespace skvm {
                     CASE(Op::sub_i16x2): r(d).i16x2 = r(x).i16x2 - r(y).i16x2; break;
                     CASE(Op::mul_i16x2): r(d).i16x2 = r(x).i16x2 * r(y).i16x2; break;
 
-                    CASE(Op::shl_i32): r(d).i32 = r(x).i32 << imm; break;
-                    CASE(Op::sra_i32): r(d).i32 = r(x).i32 >> imm; break;
-                    CASE(Op::shr_i32): r(d).u32 = r(x).u32 >> imm; break;
+                    CASE(Op::shl_i32): r(d).i32 = r(x).i32 << immy; break;
+                    CASE(Op::sra_i32): r(d).i32 = r(x).i32 >> immy; break;
+                    CASE(Op::shr_i32): r(d).u32 = r(x).u32 >> immy; break;
 
-                    CASE(Op::shl_i16x2): r(d).i16x2 = r(x).i16x2 << imm; break;
-                    CASE(Op::sra_i16x2): r(d).i16x2 = r(x).i16x2 >> imm; break;
-                    CASE(Op::shr_i16x2): r(d).u16x2 = r(x).u16x2 >> imm; break;
+                    CASE(Op::shl_i16x2): r(d).i16x2 = r(x).i16x2 << immy; break;
+                    CASE(Op::sra_i16x2): r(d).i16x2 = r(x).i16x2 >> immy; break;
+                    CASE(Op::shr_i16x2): r(d).u16x2 = r(x).u16x2 >> immy; break;
 
                     CASE(Op:: eq_f32): r(d).i32 = r(x).f32 == r(y).f32; break;
                     CASE(Op::neq_f32): r(d).i32 = r(x).f32 != r(y).f32; break;
@@ -1515,8 +1520,8 @@ namespace skvm {
                                       break;
 
 
-                    CASE(Op::extract): r(d).u32 = (r(x).u32 >> imm) & r(y).u32; break;
-                    CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << imm); break;
+                    CASE(Op::extract): r(d).u32 = (r(x).u32 >> immy) & r(z).u32; break;
+                    CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << immz); break;
 
                     CASE(Op::bytes): {
                         const U32 table[] = {
@@ -1526,10 +1531,10 @@ namespace skvm {
                             (r(x).u32 >> 16) & 0xff,
                             (r(x).u32 >> 24) & 0xff,
                         };
-                        r(d).u32 = table[(imm >>  0) & 0xf] <<  0
-                                 | table[(imm >>  4) & 0xf] <<  8
-                                 | table[(imm >>  8) & 0xf] << 16
-                                 | table[(imm >> 12) & 0xf] << 24;
+                        r(d).u32 = table[(immy >>  0) & 0xf] <<  0
+                                 | table[(immy >>  4) & 0xf] <<  8
+                                 | table[(immy >>  8) & 0xf] << 16
+                                 | table[(immy >> 12) & 0xf] << 24;
                     } break;
 
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
@@ -1673,10 +1678,11 @@ namespace skvm {
                 inst.op,
                 lookup_register(id),
                 lookup_register(inst.x),
-                lookup_register(inst.y),
+               {lookup_register(inst.y)},
                {lookup_register(inst.z)},
             };
-            if (inst.z == NA) { pinst.imm = inst.imm; }
+            if (inst.y == NA) { pinst.immy = inst.immy; }
+            if (inst.z == NA) { pinst.immz = inst.immz; }
             fInstructions.push_back(pinst);
         };
 
@@ -1794,19 +1800,16 @@ namespace skvm {
         auto warmup = [&](Val id) {
             const Builder::Instruction& inst = instructions[id];
 
-            Op op = inst.op;
-            int imm = inst.imm;
-
-            switch (op) {
+            switch (inst.op) {
                 default: break;
 
-                case Op::bytes: if (!bytes_masks.find(imm)) {
-                                    bytes_masks.set(imm, {});
+                case Op::bytes: if (!bytes_masks.find(inst.immy)) {
+                                    bytes_masks.set(inst.immy, {});
                                     if (try_hoisting) {
                                         // vpshufb can always work with the mask from memory,
                                         // but it helps to hoist the mask to a register for tbl.
                                     #if defined(__aarch64__)
-                                        LabelAndReg* entry = bytes_masks.find(imm);
+                                        LabelAndReg* entry = bytes_masks.find(inst.immy);
                                         if (int found = __builtin_ffs(avail)) {
                                             entry->reg = (Reg)(found-1);
                                             avail ^= 1 << entry->reg;
@@ -1829,7 +1832,8 @@ namespace skvm {
             Val x = inst.x,
                 y = inst.y,
                 z = inst.z;
-            int imm = inst.imm;
+            int immy = inst.immy,
+                immz = inst.immz;
 
             // Most (but not all) ops create an output value and need a register to hold it, dst.
             // We track each instruction's dst in r[] so we can thread it through as an input
@@ -1936,47 +1940,47 @@ namespace skvm {
                     a->label(&all_true);
                 } break;
 
-                case Op::store8: if (scalar) { a->vpextrb  (arg[imm], (A::Xmm)r[x], 0); }
+                case Op::store8: if (scalar) { a->vpextrb  (arg[immy], (A::Xmm)r[x], 0); }
                                  else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                a->vpermq   (tmp(), tmp(), 0xd8);
                                                a->vpackuswb(tmp(), tmp(), tmp());
-                                               a->vmovq    (arg[imm], (A::Xmm)tmp()); }
+                                               a->vmovq    (arg[immy], (A::Xmm)tmp()); }
                                                break;
 
-                case Op::store16: if (scalar) { a->vpextrw  (arg[imm], (A::Xmm)r[x], 0); }
+                case Op::store16: if (scalar) { a->vpextrw  (arg[immy], (A::Xmm)r[x], 0); }
                                   else        { a->vpackusdw(tmp(), r[x], r[x]);
                                                 a->vpermq   (tmp(), tmp(), 0xd8);
-                                                a->vmovups  (arg[imm], (A::Xmm)tmp()); }
+                                                a->vmovups  (arg[immy], (A::Xmm)tmp()); }
                                                 break;
 
-                case Op::store32: if (scalar) { a->vmovd  (arg[imm], (A::Xmm)r[x]); }
-                                  else        { a->vmovups(arg[imm],         r[x]); }
+                case Op::store32: if (scalar) { a->vmovd  (arg[immy], (A::Xmm)r[x]); }
+                                  else        { a->vmovups(arg[immy],         r[x]); }
                                                 break;
 
                 case Op::load8:  if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), arg[imm], 0);
+                                     a->vpinsrb((A::Xmm)dst(), (A::Xmm)dst(), arg[immy], 0);
                                  } else {
-                                     a->vpmovzxbd(dst(), arg[imm]);
+                                     a->vpmovzxbd(dst(), arg[immy]);
                                  } break;
 
                 case Op::load16: if (scalar) {
                                      a->vpxor  (dst(), dst(), dst());
-                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), arg[imm], 0);
+                                     a->vpinsrw((A::Xmm)dst(), (A::Xmm)dst(), arg[immy], 0);
                                  } else {
-                                     a->vpmovzxwd(dst(), arg[imm]);
+                                     a->vpmovzxwd(dst(), arg[immy]);
                                  } break;
 
-                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[imm]); }
-                                 else        { a->vmovups(        dst(), arg[imm]); }
+                case Op::load32: if (scalar) { a->vmovd  ((A::Xmm)dst(), arg[immy]); }
+                                 else        { a->vmovups(        dst(), arg[immy]); }
                                  break;
 
-                case Op::uniform8: a->movzbl(scratch, arg[imm&0xffff], imm>>16);
+                case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
                                    a->vmovd_direct((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), (A::Xmm)dst());
                                    break;
 
-                case Op::uniform32: a->vbroadcastss(dst(), arg[imm&0xffff], imm>>16);
+                case Op::uniform32: a->vbroadcastss(dst(), arg[immy], immz);
                                     break;
 
                 case Op::index: a->vmovd_direct((A::Xmm)tmp(), N);
@@ -1984,8 +1988,8 @@ namespace skvm {
                                 a->vpsubd(dst(), tmp(), &iota.label);
                                 break;
 
-                case Op::splat: if (imm) { a->vbroadcastss(dst(), &constants[imm].label); }
-                                else     { a->vpxor(dst(), dst(), dst()); }
+                case Op::splat: if (immy) { a->vbroadcastss(dst(), &constants[immy].label); }
+                                else      { a->vpxor(dst(), dst(), dst()); }
                                 break;
 
                 case Op::add_f32: a->vaddps(dst(), r[x], r[y]); break;
@@ -2004,7 +2008,7 @@ namespace skvm {
                                                                  a->vfmadd132ps(dst(),r[z], r[y]); }
                                                                  break;
 
-                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[imm].label); break;
+                case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[immy].label); break;
 
                 case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
                 case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
@@ -2012,7 +2016,7 @@ namespace skvm {
 
                 case Op::sub_i16x2: a->vpsubw (dst(), r[x], r[y]); break;
                 case Op::mul_i16x2: a->vpmullw(dst(), r[x], r[y]); break;
-                case Op::shr_i16x2: a->vpsrlw (dst(), r[x],  imm); break;
+                case Op::shr_i16x2: a->vpsrlw (dst(), r[x], immy); break;
 
                 case Op::bit_and  : a->vpand (dst(), r[x], r[y]); break;
                 case Op::bit_or   : a->vpor  (dst(), r[x], r[y]); break;
@@ -2020,9 +2024,9 @@ namespace skvm {
                 case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // N.B. Y then X.
                 case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
 
-                case Op::shl_i32: a->vpslld(dst(), r[x], imm); break;
-                case Op::shr_i32: a->vpsrld(dst(), r[x], imm); break;
-                case Op::sra_i32: a->vpsrad(dst(), r[x], imm); break;
+                case Op::shl_i32: a->vpslld(dst(), r[x], immy); break;
+                case Op::shr_i32: a->vpsrld(dst(), r[x], immy); break;
+                case Op::sra_i32: a->vpsrad(dst(), r[x], immy); break;
 
                 case Op::eq_i32: a->vpcmpeqd(dst(), r[x], r[y]); break;
                 case Op::gt_i32: a->vpcmpgtd(dst(), r[x], r[y]); break;
@@ -2032,12 +2036,12 @@ namespace skvm {
                 case Op:: gt_f32: a->vcmpltps (dst(), r[y], r[x]); break;
                 case Op::gte_f32: a->vcmpleps (dst(), r[y], r[x]); break;
 
-                case Op::extract: if (imm == 0) { a->vpand (dst(),  r[x], r[y]); }
-                                  else          { a->vpsrld(tmp(),  r[x], imm);
-                                                  a->vpand (dst(), tmp(), r[y]); }
+                case Op::extract: if (immy == 0) { a->vpand (dst(),  r[x], r[z]); }
+                                  else           { a->vpsrld(tmp(),  r[x], immy);
+                                                   a->vpand (dst(), tmp(), r[z]); }
                                   break;
 
-                case Op::pack: a->vpslld(tmp(),  r[y], imm);
+                case Op::pack: a->vpslld(tmp(),  r[y], immz);
                                a->vpor  (dst(), tmp(), r[x]);
                                break;
 
@@ -2045,7 +2049,7 @@ namespace skvm {
                 case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
 
-                case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks.find(imm)->label);
+                case Op::bytes: a->vpshufb(dst(), r[x], &bytes_masks.find(immy)->label);
                                 break;
 
             #elif defined(__aarch64__)
@@ -2060,27 +2064,27 @@ namespace skvm {
 
                 case Op::store8: a->xtns2h(tmp(), r[x]);
                                  a->xtnh2b(tmp(), tmp());
-                   if (scalar) { a->strb  (tmp(), arg[imm]); }
-                   else        { a->strs  (tmp(), arg[imm]); }
+                   if (scalar) { a->strb  (tmp(), arg[immy]); }
+                   else        { a->strs  (tmp(), arg[immy]); }
                                  break;
                 // TODO: another case where it'd be okay to alias r[x] and tmp if r[x] dies here.
 
-                case Op::store32: if (scalar) { a->strs(r[x], arg[imm]); }
-                                  else        { a->strq(r[x], arg[imm]); }
+                case Op::store32: if (scalar) { a->strs(r[x], arg[immy]); }
+                                  else        { a->strq(r[x], arg[immy]); }
                                                 break;
 
-                case Op::load8: if (scalar) { a->ldrb(tmp(), arg[imm]); }
-                                else        { a->ldrs(tmp(), arg[imm]); }
+                case Op::load8: if (scalar) { a->ldrb(tmp(), arg[immy]); }
+                                else        { a->ldrs(tmp(), arg[immy]); }
                                               a->uxtlb2h(tmp(), tmp());
                                               a->uxtlh2s(dst(), tmp());
                                               break;
 
-                case Op::load32: if (scalar) { a->ldrs(dst(), arg[imm]); }
-                                 else        { a->ldrq(dst(), arg[imm]); }
+                case Op::load32: if (scalar) { a->ldrs(dst(), arg[immy]); }
+                                 else        { a->ldrq(dst(), arg[immy]); }
                                                break;
 
-                case Op::splat: if (imm) { a->ldrq(dst(), &constants[imm].label); }
-                                else     { a->eor16b(dst(), dst(), dst()); }
+                case Op::splat: if (immy) { a->ldrq(dst(), &constants[immy].label); }
+                                else      { a->eor16b(dst(), dst(), dst()); }
                                 break;
                                 // TODO: If we hoist these, pack 4 values in each register
                                 // and use vector/lane operations, cutting the register
@@ -2116,7 +2120,7 @@ namespace skvm {
 
                 case Op::sub_i16x2: a->sub8h (dst(), r[x], r[y]); break;
                 case Op::mul_i16x2: a->mul8h (dst(), r[x], r[y]); break;
-                case Op::shr_i16x2: a->ushr8h(dst(), r[x],  imm); break;
+                case Op::shr_i16x2: a->ushr8h(dst(), r[x], immy); break;
 
                 case Op::bit_and  : a->and16b(dst(), r[x], r[y]); break;
                 case Op::bit_or   : a->orr16b(dst(), r[x], r[y]); break;
@@ -2130,22 +2134,22 @@ namespace skvm {
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
 
-                case Op::shl_i32: a-> shl4s(dst(), r[x], imm); break;
-                case Op::shr_i32: a->ushr4s(dst(), r[x], imm); break;
-                case Op::sra_i32: a->sshr4s(dst(), r[x], imm); break;
+                case Op::shl_i32: a-> shl4s(dst(), r[x], immy); break;
+                case Op::shr_i32: a->ushr4s(dst(), r[x], immy); break;
+                case Op::sra_i32: a->sshr4s(dst(), r[x], immy); break;
 
                 case Op::eq_i32: a->cmeq4s(dst(), r[x], r[y]); break;
                 case Op::gt_i32: a->cmgt4s(dst(), r[x], r[y]); break;
 
-                case Op::extract: if (imm) { a->ushr4s(tmp(), r[x], imm);
-                                             a->and16b(dst(), tmp(), r[y]); }
-                                  else     { a->and16b(dst(), r[x], r[y]); }
-                                             break;
+                case Op::extract: if (immy) { a->ushr4s(tmp(),  r[x], immy);
+                                              a->and16b(dst(), tmp(), r[z]); }
+                                  else      { a->and16b(dst(),  r[x], r[z]); }
+                                              break;
 
                 case Op::pack:
-                    if (avail & (1<<r[x])) { set_dst(r[x]); a->sli4s ( r[x],  r[y],  imm); }
-                    else                   {                a->shl4s (tmp(),  r[y],  imm);
-                                                            a->orr16b(dst(), tmp(), r[x]); }
+                    if (avail & (1<<r[x])) { set_dst(r[x]); a->sli4s ( r[x],  r[y],  immz); }
+                    else                   {                a->shl4s (tmp(),  r[y],  immz);
+                                                            a->orr16b(dst(), tmp(),  r[x]); }
                                                             break;
 
                 case Op::to_f32: a->scvtf4s (dst(), r[x]); break;
@@ -2153,8 +2157,8 @@ namespace skvm {
                 case Op::round:  a->fcvtns4s(dst(), r[x]); break;
 
                 case Op::bytes:
-                    if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(imm)->reg); }
-                    else              { a->ldrq(tmp(), &bytes_masks.find(imm)->label);
+                    if (try_hoisting) { a->tbl (dst(), r[x], bytes_masks.find(immy)->reg); }
+                    else              { a->ldrq(tmp(), &bytes_masks.find(immy)->label);
                                         a->tbl (dst(), r[x], tmp()); }
                                         break;
             #endif
