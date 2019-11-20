@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b45a3220_53f7ba54",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-20T15:29:49Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "4c0c7674_e895dfb9",
+      "range": {
+        "startLine": 9,
+        "startChar": 43,
+        "endLine": 9,
+        "endChar": 70
+      },
+      "revId": "2163a0f6bfe339c449a7a44049ce94374278d4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6eeeee58_9be4fb4c",
         "filename": "public.bzl",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "2163a0f6bfe339c449a7a44049ce94374278d4de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5421617_988114ae",
+        "filename": "public.bzl",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-20T15:29:49Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "6eeeee58_9be4fb4c",
+      "range": {
+        "startLine": 268,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 18
+      },
+      "revId": "2163a0f6bfe339c449a7a44049ce94374278d4de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
