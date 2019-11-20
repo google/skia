@@ -83,7 +83,8 @@ GrGLSLPrimitiveProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShade
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
-sk_sp<GrGeometryProcessor> GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make(d->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx).get());
+GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
+    return GrRRectShadowGeoProc::Make(d->allocator(),
+                                      d->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx).get());
 }
 #endif

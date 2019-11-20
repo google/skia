@@ -539,7 +539,8 @@ private:
 
     void onPrepareDraws(Target* target) override {
         // Setup geometry processor
-        sk_sp<GrGeometryProcessor> gp = GrRRectShadowGeoProc::Make(fFalloffProxy.get());
+        GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(target->allocator(),
+                                                             fFalloffProxy.get());
 
         int instanceCount = fGeoData.count();
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
@@ -597,8 +598,7 @@ private:
         mesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
                          GrPrimitiveRestart::kNo);
         mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-        target->recordDraw(std::move(gp), mesh, 1, fixedDynamicState, nullptr,
-                           GrPrimitiveType::kTriangles);
+        target->recordDraw(gp, mesh, 1, fixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
