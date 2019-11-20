@@ -8,6 +8,7 @@ DEPS = [
   'depot_tools/cipd',
   'depot_tools/gclient',
   'depot_tools/git',
+  'docker',
   'env',
   'infra',
   'recipe_engine/context',
