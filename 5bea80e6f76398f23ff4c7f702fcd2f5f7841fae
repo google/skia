@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ea578878_8845a24c",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-20T19:01:15Z",
+      "side": 1,
+      "message": "According to https://bugs.chromium.org/p/chromium/issues/detail?id\u003d1024947#c3 it should always be luci.skia.skia.primary",
+      "parentUuid": "49ca13be_3eafde80",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7b15ae03_4353153b",
         "filename": "site/dev/contrib/cqkeywords.md",
         "patchSetId": 4
