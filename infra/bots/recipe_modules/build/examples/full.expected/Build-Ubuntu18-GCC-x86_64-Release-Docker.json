@@ -49,10 +49,10 @@
     "cmd": [
       "chmod",
       "0755",
-      "recipe_bundle/skia/infra/bots/recipe_modules/build/resources/docker-compile.sh"
+      "RECIPE_MODULE[skia::build]/resources/docker-compile.sh"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 0755 recipe_bundle/skia/infra/bots/recipe_modules/build/resources/docker-compile.sh",
+    "name": "Docker setup.chmod 0755 RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -68,7 +68,7 @@
       "--mount",
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Ubuntu18-GCC-x86_64-Release-Docker/Release,target=/OUT",
       "gcr.io/skia-public/gcc-ubuntu18@sha256:3439bba135be1593de385f89b59e503ab28ef637ba634e2ecec43559dd928c69",
-      "/SRC/recipe_bundle/skia/infra/bots/recipe_modules/build/resources/docker-compile.sh",
+      "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
       "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-ubuntu18@sha256:3439bba135be1593de385f89b59e503ab28ef637ba634e2ecec43559dd928c69\"] extra_ldflags=[] is_debug=false target_cpu=\"x86_64\" werror=true"
     ],
     "env": {

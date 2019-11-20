@@ -75,10 +75,10 @@
     "cmd": [
       "chmod",
       "0755",
-      "skia/infra/pathkit/test_pathkit.sh"
+      "[START_DIR]/skia/infra/pathkit/test_pathkit.sh"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 0755 skia/infra/pathkit/test_pathkit.sh",
+    "name": "Docker setup.chmod 0755 [START_DIR]/skia/infra/pathkit/test_pathkit.sh",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]

@@ -75,10 +75,10 @@
     "cmd": [
       "chmod",
       "0755",
-      "skia/infra/canvaskit/perf_canvaskit.sh"
+      "[START_DIR]/skia/infra/canvaskit/perf_canvaskit.sh"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 0755 skia/infra/canvaskit/perf_canvaskit.sh",
+    "name": "Docker setup.chmod 0755 [START_DIR]/skia/infra/canvaskit/perf_canvaskit.sh",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
