@@ -14,6 +14,13 @@ To do a dry run through the CQ please use Gerrit's [CQ Dry Run](https://groups.g
 The CQ will run through its list of verifiers (reviewer check, trybots, tree check,
 presubmit check), and will close the issue instead of committing it.
 
+Commit
+------
+
+An alternate form for `COMMIT`.
+
+    Commit: false
+
 No-Dependency-Checks
 --------------------
 
@@ -22,8 +29,8 @@ No-Dependency-Checks
 The CQ rejects patchsets with open dependencies. An open dependency exists when a CL
 depends on another CL that is not yet closed. You can skip this check with this keyword.
 
-CQ_INCLUDE_TRYBOTS
-------------------
+CQ\_INCLUDE\_TRYBOTS
+--------------------
 
 Allows you to add arbitrary trybots to the CQ's list of default trybots.
 The CQ will block till these tryjobs pass just like the default list of tryjobs.
@@ -38,6 +45,19 @@ Here are some real world examples:
 
     CQ_INCLUDE_TRYBOTS=skia.primary:Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE
 
+Cq-Include-Trybots
+------------------
+
+An alternative form for `CQ_INCLUDE_TRYBOTS`.  This is the format of the values of this keyword:
+
+    Cq-Include-Trybots: bucket1:bot1,bot2;bucket2:bot3,bot4
+
+Multiple lines are allowed:
+
+    Cq-Include-Trybots: bucket1:bot1
+    Cq-Include-Trybots: bucket1:bot2
+    Cq-Include-Trybots: bucket2:bot3
+    Cq-Include-Trybots: bucket2:bot4
 
 No-Tree-Checks
 --------------
@@ -66,8 +86,8 @@ If you cannot wait for the try job results, you can add the following line to th
 
 The CQ will then not run any try jobs for your change and will commit the CL as soon as the tree is open, assuming the presubmit check passes.
 
-NO_MERGE_BUILDS
----------------
+NO\_MERGE\_BUILDS
+-----------------
 
 This keyword prevents the Skia build masters from building this commit with others. Use it when your
 commit may have effects that you don't want mis-attributed to other commits. Just include the keyword
