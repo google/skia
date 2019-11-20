@@ -58,7 +58,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   this->proxy()->numStencilSamples(),
                                   this->proxy()->origin(),
                                   pipeline,
-                                  fCurrDraw->fGeometryProcessor.get(),
+                                  fCurrDraw->fGeometryProcessor1,
                                   fCurrDraw->fFixedDynamicState,
                                   fCurrDraw->fDynamicStateArrays,
                                   fCurrDraw->fMeshCnt,
@@ -140,7 +140,7 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
 }
 
 void GrOpFlushState::recordDraw(
-        sk_sp<const GrGeometryProcessor> gp, const GrMesh meshes[], int meshCnt,
+        const GrGeometryProcessor* gp, const GrMesh meshes[], int meshCnt,
         const GrPipeline::FixedDynamicState* fixedDynamicState,
         const GrPipeline::DynamicStateArrays* dynamicStateArrays,
         GrPrimitiveType primitiveType) {
@@ -160,7 +160,7 @@ void GrOpFlushState::recordDraw(
             dynamicStateArrays->fPrimitiveProcessorTextures[i]->ref();
         }
     }
-    draw.fGeometryProcessor = std::move(gp);
+    draw.fGeometryProcessor1 = gp;
     draw.fFixedDynamicState = fixedDynamicState;
     draw.fDynamicStateArrays = dynamicStateArrays;
     draw.fMeshes = meshes;
@@ -220,12 +220,12 @@ GrAtlasManager* GrOpFlushState::atlasManager() const {
 
 GrOpFlushState::Draw::~Draw() {
     if (fFixedDynamicState && fFixedDynamicState->fPrimitiveProcessorTextures) {
-        for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
+        for (int i = 0; i < fGeometryProcessor1->numTextureSamplers(); ++i) {
             fFixedDynamicState->fPrimitiveProcessorTextures[i]->unref();
         }
     }
     if (fDynamicStateArrays && fDynamicStateArrays->fPrimitiveProcessorTextures) {
-        int n = fGeometryProcessor->numTextureSamplers() * fMeshCnt;
+        int n = fGeometryProcessor1->numTextureSamplers() * fMeshCnt;
         const auto* textures = fDynamicStateArrays->fPrimitiveProcessorTextures;
         for (int i = 0; i < n; ++i) {
             textures[i]->unref();

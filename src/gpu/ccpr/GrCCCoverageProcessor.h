@@ -218,7 +218,7 @@ protected:
     // accidentally bleed into neighbor pixels.
     static constexpr float kAABloatRadius = 0.491111f;
 
-    GrCCCoverageProcessor(ClassID classID) : INHERITED(classID) {}
+    GrCCCoverageProcessor(ClassID classID) : INHERITED(classID, false) {}
 
     virtual GrGLSLPrimitiveProcessor* onCreateGLSLInstance(std::unique_ptr<Shader>) const = 0;
 

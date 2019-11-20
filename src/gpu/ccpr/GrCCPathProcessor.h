@@ -62,7 +62,7 @@ public:
 
     GrCCPathProcessor(
             CoverageMode, const GrTexture* atlasTexture, const GrSwizzle&,
-            GrSurfaceOrigin atlasOrigin,
+            GrSurfaceOrigin atlasOrigin, bool foo,
             const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }

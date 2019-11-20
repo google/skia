@@ -309,7 +309,7 @@ private:
     struct FlushInfo {
         sk_sp<const GrBuffer> fVertexBuffer;
         sk_sp<const GrBuffer> fIndexBuffer;
-        sk_sp<GrGeometryProcessor>   fGeometryProcessor;
+        GrGeometryProcessor*  fGeometryProcessor1;
         GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fVertexOffset;
         int fInstancesToFlush;
@@ -353,7 +353,7 @@ private:
             } else {
                 matrix = &SkMatrix::I();
             }
-            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
+            flushInfo.fGeometryProcessor1 = GrDistanceFieldPathGeoProc::Make(target->allocator(),
                     *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getProxies(),
                     fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
         } else {
@@ -364,14 +364,14 @@ private:
                 }
             }
 
-            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+            flushInfo.fGeometryProcessor1 = GrBitmapTextGeoProc::Make(target->allocator(),
                     *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getProxies(),
                     fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
                     invert, false);
         }
 
         // allocate vertices
-        const size_t kVertexStride = flushInfo.fGeometryProcessor->vertexStride();
+        const size_t kVertexStride = flushInfo.fGeometryProcessor1->vertexStride();
 
         // We need to make sure we don't overflow a 32 bit int when we request space in the
         // makeVertexSpace call below.
@@ -774,7 +774,7 @@ private:
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
-        GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
+        GrGeometryProcessor* gp = flushInfo->fGeometryProcessor1;
         int numAtlasTextures = SkToInt(fAtlas->numActivePages());
         auto proxies = fAtlas->getProxies();
         if (gp->numTextureSamplers() != numAtlasTextures) {
@@ -803,7 +803,7 @@ private:
                                       flushInfo->fInstancesToFlush,
                                       GrResourceProvider::MaxNumNonAAQuads());
             mesh->setVertexData(flushInfo->fVertexBuffer, flushInfo->fVertexOffset);
-            target->recordDraw(flushInfo->fGeometryProcessor, mesh, 1,
+            target->recordDraw(flushInfo->fGeometryProcessor1, mesh, 1,
                                flushInfo->fFixedDynamicState, nullptr, GrPrimitiveType::kTriangles);
             flushInfo->fVertexOffset += GrResourceProvider::NumVertsPerNonAAQuad() *
                                         flushInfo->fInstancesToFlush;

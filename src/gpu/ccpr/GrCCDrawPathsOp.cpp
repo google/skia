@@ -451,7 +451,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
         const GrTextureProxy* atlas = range.fAtlasProxy;
         if (atlas->isInstantiated()) {  // Instantiation can fail in exceptional circumstances.
             GrCCPathProcessor pathProc(range.fCoverageMode, atlas->peekTexture(),
-                                       atlas->textureSwizzle(), atlas->origin(),
+                                       atlas->textureSwizzle(), atlas->origin(), true,
                                        fViewMatrixIfUsingLocalCoords);
             GrTextureProxy* atlasProxy = range.fAtlasProxy;
             fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;

@@ -127,10 +127,10 @@ namespace GrQuadPerEdgeAA {
         unsigned fRequiresGeometryDomain: 1;
     };
 
-    sk_sp<GrGeometryProcessor> MakeProcessor(const VertexSpec& spec);
+    GrGeometryProcessor* MakeProcessor(SkArenaAlloc*, const VertexSpec& spec);
 
-    sk_sp<GrGeometryProcessor> MakeTexturedProcessor(
-            const VertexSpec& spec, const GrShaderCaps& caps, const GrBackendFormat&,
+    GrGeometryProcessor* MakeTexturedProcessor(
+            SkArenaAlloc*, const VertexSpec& spec, const GrShaderCaps& caps, const GrBackendFormat&,
             const GrSamplerState& samplerState, const GrSwizzle& swizzle,
             sk_sp<GrColorSpaceXform> textureColorSpaceXform, Saturate saturate);
 

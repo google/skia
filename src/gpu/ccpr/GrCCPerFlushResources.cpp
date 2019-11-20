@@ -87,7 +87,7 @@ public:
         auto coverageMode = GrCCPathProcessor::GetCoverageMode(
                 fResources->renderedPathCoverageType());
         GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(),
-                                   srcProxy->textureSwizzle(), srcProxy->origin());
+                                   srcProxy->textureSwizzle(), srcProxy->origin(), true);
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             flushState->drawOpArgs().outputSwizzle());

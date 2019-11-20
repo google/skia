@@ -321,21 +321,8 @@ private:
 
 class GrMeshTestProcessor : public GrGeometryProcessor {
 public:
-    GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
-            : INHERITED(kGrMeshTestProcessor_ClassID) {
-        if (instanced) {
-            fInstanceLocation = {"location", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-            fInstanceColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            this->setInstanceAttributes(&fInstanceLocation, 2);
-            if (hasVertexBuffer) {
-                fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-                this->setVertexAttributes(&fVertexPosition, 1);
-            }
-        } else {
-            fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
-            fVertexColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-            this->setVertexAttributes(&fVertexPosition, 2);
-        }
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, bool instanced, bool hasVertexBuffer) {
+        return arena->make<GrMeshTestProcessor>(instanced, hasVertexBuffer);
     }
 
     const char* name() const override { return "GrMeshTest Processor"; }
@@ -352,13 +339,32 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
+    friend class GLSLMeshTestProcessor;
+    friend class ::SkArenaAlloc; // for access to ctor
+
+    GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
+            : INHERITED(kGrMeshTestProcessor_ClassID, true) {
+        if (instanced) {
+            fInstanceLocation = {"location", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+            fInstanceColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            this->setInstanceAttributes(&fInstanceLocation, 2);
+            if (hasVertexBuffer) {
+                fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+                this->setVertexAttributes(&fVertexPosition, 1);
+            }
+        } else {
+            fVertexPosition = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+            fVertexColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+            this->setVertexAttributes(&fVertexPosition, 2);
+        }
+    }
+
     Attribute fVertexPosition;
     Attribute fVertexColor;
 
     Attribute fInstanceLocation;
     Attribute fInstanceColor;
 
-    friend class GLSLMeshTestProcessor;
     typedef GrGeometryProcessor INHERITED;
 };
 
@@ -412,13 +418,15 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 
 void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType) {
     GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
-    GrMeshTestProcessor mtp(mesh.isInstanced(), mesh.hasVertexData());
+
+    GrGeometryProcessor* mtp = GrMeshTestProcessor::Make(fState->allocator(),
+                                                         mesh.isInstanced(), mesh.hasVertexData());
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(),
                               fState->proxy()->numStencilSamples(),
                               fState->drawOpArgs().origin(),
                               &pipeline,
-                              &mtp,
+                              mtp,
                               nullptr, nullptr, 0, primitiveType);
 
     fState->opsRenderPass()->draw(programInfo, &mesh, 1,

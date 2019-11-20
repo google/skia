@@ -80,9 +80,9 @@ sk_sp<const GrGpuBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourcePro
 }
 
 GrCCPathProcessor::GrCCPathProcessor(CoverageMode coverageMode, const GrTexture* atlasTexture,
-                                     const GrSwizzle& swizzle, GrSurfaceOrigin atlasOrigin,
+                                     const GrSwizzle& swizzle, GrSurfaceOrigin atlasOrigin, bool foo,
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
-        : INHERITED(kGrCCPathProcessor_ClassID)
+        : INHERITED(kGrCCPathProcessor_ClassID, foo)
         , fCoverageMode(coverageMode)
         , fAtlasAccess(GrSamplerState::ClampNearest(), atlasTexture->backendFormat(), swizzle)
         , fAtlasDimensions(atlasTexture->dimensions())
