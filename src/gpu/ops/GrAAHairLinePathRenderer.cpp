@@ -962,7 +962,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
 
     // do lines first
     if (lineCount) {
-        sk_sp<GrGeometryProcessor> lineGP;
+        GrGeometryProcessor* lineGP;
         {
             using namespace GrDefaultGeoProcFactory;
 
@@ -970,7 +970,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
             localCoords.fMatrix = geometryProcessorLocalM;
-            lineGP = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+            lineGP = GrDefaultGeoProcFactory::Make(target->allocator(), target->caps().shaderCaps(),
                                                    color, Coverage::kAttribute_Type, localCoords,
                                                    *geometryProcessorViewM);
         }
@@ -993,25 +993,25 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
         }
 
-        helper.recordDraw(target, std::move(lineGP));
+        helper.recordDraw(target, lineGP);
     }
 
     if (quadCount || conicCount) {
-        sk_sp<GrGeometryProcessor> quadGP(GrQuadEffect::Make(this->color(),
-                                                             *geometryProcessorViewM,
-                                                             GrClipEdgeType::kHairlineAA,
-                                                             target->caps(),
-                                                             *geometryProcessorLocalM,
-                                                             fHelper.usesLocalCoords(),
-                                                             this->coverage()));
+        GrGeometryProcessor* quadGP = GrQuadEffect::Make(target->allocator(), this->color(),
+                                                         *geometryProcessorViewM,
+                                                         GrClipEdgeType::kHairlineAA,
+                                                         target->caps(),
+                                                         *geometryProcessorLocalM,
+                                                         fHelper.usesLocalCoords(),
+                                                         this->coverage());
 
-        sk_sp<GrGeometryProcessor> conicGP(GrConicEffect::Make(this->color(),
-                                                               *geometryProcessorViewM,
-                                                               GrClipEdgeType::kHairlineAA,
-                                                               target->caps(),
-                                                               *geometryProcessorLocalM,
-                                                               fHelper.usesLocalCoords(),
-                                                               this->coverage()));
+        GrGeometryProcessor* conicGP = GrConicEffect::Make(target->allocator(), this->color(),
+                                                           *geometryProcessorViewM,
+                                                           GrClipEdgeType::kHairlineAA,
+                                                           target->caps(),
+                                                           *geometryProcessorLocalM,
+                                                           fHelper.usesLocalCoords(),
+                                                           this->coverage());
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
@@ -1048,7 +1048,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, kQuadNumVertices, quadCount,
                                       kQuadsNumInIdxBuffer);
             mesh->setVertexData(vertexBuffer, firstVertex);
-            target->recordDraw(std::move(quadGP), mesh, 1, GrPrimitiveType::kTriangles);
+            target->recordDraw(quadGP, mesh, 1, GrPrimitiveType::kTriangles);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
@@ -1057,7 +1057,7 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, kQuadNumVertices,
                                       conicCount, kQuadsNumInIdxBuffer);
             mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-            target->recordDraw(std::move(conicGP), mesh, 1, GrPrimitiveType::kTriangles);
+            target->recordDraw(conicGP, mesh, 1, GrPrimitiveType::kTriangles);
         }
     }
 }
