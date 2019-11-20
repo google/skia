@@ -385,14 +385,13 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initStencilFormat(vkInterface, physDev);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        this->applyDriverCorrectnessWorkarounds(properties, extensions);
+        this->applyDriverCorrectnessWorkarounds(properties);
     }
 
     this->finishInitialization(contextOptions);
 }
 
-void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties,
-                                                 const GrVkExtensions& extensions) {
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
         // Transfer doesn't support this workaround.
@@ -442,17 +441,9 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
-    // The GTX660 bot experiences crashes when running msaa ccpr with 8k textures.
-    // (We get VK_ERROR_DEVICE_LOST when calling vkGetFenceStatus.)
-    // ((Checking for mixed samples is an easy way to detect pre-maxwell architectures.))
-    bool isNVIDIAPreMaxwell = (kNvidia_VkVendor == properties.vendorID) &&
-            !extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1);
-
-    if (isNVIDIAPreMaxwell || fDriverBugWorkarounds.max_texture_size_limit_4096) {
-        fMaxTextureSize = SkTMin(fMaxTextureSize, 4096);
-        fMaxRenderTargetSize = SkTMin(fMaxRenderTargetSize, fMaxTextureSize);
-        fMaxPreferredRenderTargetSize = SkTMin(fMaxPreferredRenderTargetSize, fMaxRenderTargetSize);
-    }
+    // Temporarily disable the MSAA implementation of CCPR while we work out a crash on Win10
+    // GTX660 and incorrect rendring on Adreno.
+    fDriverBlacklistMSAACCPR = true;
 
     if (kARM_VkVendor == properties.vendorID) {
         fInstanceAttribSupport = false;
@@ -509,6 +500,9 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
     // give the minimum max size across all configs. So for simplicity we will use that for now.
     fMaxRenderTargetSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
     fMaxTextureSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
+    if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
+        fMaxTextureSize = SkTMin(fMaxTextureSize, 4096);
+    }
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
