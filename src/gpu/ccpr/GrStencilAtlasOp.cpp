@@ -90,13 +90,11 @@ static constexpr GrUserStencilSettings kIncrDecrStencil(
 );
 
 // Resolves stencil winding counts to A8 coverage. Leaves stencil values untouched.
-// NOTE: For the CCW face we intentionally use "1 == (stencil & 1)" because the contrapositive logic
-// (i.e. 0 != ...) causes bugs on Adreno Vulkan. http://skbug.com/9643
 static constexpr GrUserStencilSettings kResolveStencilCoverage(
     GrUserStencilSettings::StaticInitSeparate<
-        0x0000,                           0x0001,
-        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kEqual,
-        0xffff,                           0x0001,
+        0x0000,                           0x0000,
+        GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
+        0xffff,                           0x1,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         0xffff,                           0xffff>()
@@ -108,7 +106,7 @@ static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
     GrUserStencilSettings::StaticInitSeparate<
         0x0000,                           0x0000,
         GrUserStencilTest::kNotEqual,     GrUserStencilTest::kNotEqual,
-        0xffff,                           0x0001,
+        0xffff,                           0x1,
         GrUserStencilOp::kZero,           GrUserStencilOp::kZero,
         GrUserStencilOp::kKeep,           GrUserStencilOp::kKeep,
         0xffff,                           0xffff>()
