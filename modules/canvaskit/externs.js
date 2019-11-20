@@ -602,6 +602,9 @@ var CanvasKit = {
 	RectHeightStyle: {
 		Tight: {},
 		Max: {},
+		IncludeLineSpacingMiddle: {},
+		IncludeLineSpacingTop: {},
+		IncludeLineSpacingBottom: {},
 	},
 
 	RectWidthStyle: {
