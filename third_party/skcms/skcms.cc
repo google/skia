@@ -230,7 +230,7 @@ static float eval_curve(const skcms_Curve* curve, float x) {
     return l + (h-l)*t;
 }
 
-static float max_roundtrip_error(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
+float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
     uint32_t N = curve->table_entries > 256 ? curve->table_entries : 256;
     const float dx = 1.0f / (N - 1);
     float err = 0;
@@ -243,7 +243,7 @@ static float max_roundtrip_error(const skcms_Curve* curve, const skcms_TransferF
 }
 
 bool skcms_AreApproximateInverses(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
-    return max_roundtrip_error(curve, inv_tf) < (1/512.0f);
+    return skcms_MaxRoundtripError(curve, inv_tf) < (1/512.0f);
 }
 
 // Additional ICC signature values that are only used internally
@@ -1897,7 +1897,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             continue;
         }
 
-        float err = max_roundtrip_error(curve, &tf_inv);
+        float err = skcms_MaxRoundtripError(curve, &tf_inv);
         if (*max_error > err) {
             *max_error = err;
             *approx    = tf;
@@ -2559,7 +2559,7 @@ bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile) {
 
         float err = 0;
         for (int j = 0; j < 3; ++j) {
-            err = fmaxf_(err, max_roundtrip_error(&profile->trc[j], &inv));
+            err = fmaxf_(err, skcms_MaxRoundtripError(&profile->trc[j], &inv));
         }
         if (min_max_error > err) {
             min_max_error = err;
