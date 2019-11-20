@@ -422,8 +422,7 @@ public:
         }
 
         // Appends a glyph to the blob as a path only.
-        void appendPathGlyph(
-                const SkPath& path, SkPoint position, SkScalar scale, bool preTransformed);
+        void appendPathGlyph(const SkPath& path, SkPoint position, SkScalar scale);
 
         // Append a glyph to the sub run taking care to switch the glyph if needed.
         void switchSubRunIfNeededAndAppendGlyph(GrGlyph* glyph,
@@ -472,17 +471,15 @@ public:
         // Any glyphs that can't be rendered with the base or override descriptor
         // are rendered as paths
         struct PathGlyph {
-            PathGlyph(const SkPath& path, SkScalar x, SkScalar y, SkScalar scale, bool preXformed)
+            PathGlyph(const SkPath& path, SkScalar x, SkScalar y, SkScalar scale)
                 : fPath(path)
                 , fX(x)
                 , fY(y)
-                , fScale(scale)
-                , fPreTransformed(preXformed) {}
+                , fScale(scale) { }
             SkPath fPath;
             SkScalar fX;
             SkScalar fY;
             SkScalar fScale;
-            bool fPreTransformed;
         };
 
         SkSTArray<1, SubRun> fSubRunInfo;
