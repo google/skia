@@ -16,6 +16,24 @@
       "revId": "a58e0dc16a06b4d8484c5976c4fa13d4a7b7d506",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0f119ce_2a3bf283",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-20T19:51:58Z",
+      "side": 0,
+      "message": "Done... took the coward\u0027s way out and restored it.",
+      "parentUuid": "fa6b9efe_1d4791fa",
+      "revId": "a58e0dc16a06b4d8484c5976c4fa13d4a7b7d506",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
