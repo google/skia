@@ -438,24 +438,13 @@ void ParagraphImpl::resolveStrut() {
         return;
     }
 
-    sk_sp<SkTypeface> typeface;
-    if (strutStyle.getFontFamilies().empty()) {
-        typeface = fFontCollection->matchTypeface("", strutStyle.getFontStyle(), SkString(""));
-    } else {
-        for (auto& fontFamily : strutStyle.getFontFamilies()) {
-            typeface = fFontCollection->matchTypeface(fontFamily.c_str(), strutStyle.getFontStyle(), SkString(""));
-            if (typeface.get() != nullptr) {
-                break;
-            }
-        }
-    }
-
-    if (typeface.get() == nullptr) {
+    std::vector<sk_sp<SkTypeface>> typefaces = fFontCollection->findTypefaces(strutStyle.getFontFamilies(), strutStyle.getFontStyle());
+    if (typefaces.empty()) {
         SkDEBUGF("Could not resolve strut font\n");
         return;
     }
 
-    SkFont font(typeface, strutStyle.getFontSize());
+    SkFont font(typefaces.front(), strutStyle.getFontSize());
     SkFontMetrics metrics;
     font.getMetrics(&metrics);
 
@@ -1098,9 +1087,9 @@ InternalLineMetrics ParagraphImpl::computeEmptyMetrics() {
 
   auto defaultTextStyle = paragraphStyle().getTextStyle();
 
-  auto typeface = fontCollection()->matchTypeface(
-          defaultTextStyle.getFontFamilies().front().c_str(), defaultTextStyle.getFontStyle(),
-          defaultTextStyle.getLocale());
+  auto typefaces = fontCollection()->findTypefaces(
+      defaultTextStyle.getFontFamilies(), defaultTextStyle.getFontStyle());
+  auto typeface = typefaces.size() ? typefaces.front() : nullptr;
 
   SkFont font(typeface, defaultTextStyle.getFontSize());
   InternalLineMetrics metrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
