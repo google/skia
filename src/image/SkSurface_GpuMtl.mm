@@ -68,7 +68,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
-                if (metalLayer.framebufferOnly && sampleCnt <= 1) {
+                if (metalLayer.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
                                       mtlGpu, desc, sampleCnt, currentDrawable.texture);
                 } else {
@@ -89,7 +89,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             origin,
             sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
                           : GrInternalSurfaceFlags::kNone,
-            metalLayer.framebufferOnly && sampleCnt <= 1 ? nullptr : &texInfo,
+            metalLayer.framebufferOnly ? nullptr : &texInfo,
             GrMipMapsStatus::kNotAllocated,
             SkBackingFit::kExact,
             SkBudgeted::kYes,
