@@ -92,11 +92,9 @@ def compile_fn(api, checkout_root, out_dir):
   # anytime the image changes.
   args['extra_cflags'].append('-DDUMMY_docker_image=%s' % image_hash)
 
+  script = api.build.resource('docker-compile.sh')
   api.docker.run('Run build script in Docker', image_hash,
-                 checkout_root, out_dir,
-                 'recipe_bundle/skia/infra/bots/recipe_modules'
-                 '/build/resources/docker-compile.sh',
-                 args=[py_to_gn(args)])
+                 checkout_root, out_dir, script, args=[py_to_gn(args)])
 
 def copy_build_products(api, src, dst):
   util.copy_listed_files(api, src, dst, util.DEFAULT_BUILD_PRODUCTS)
