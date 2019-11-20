@@ -72,10 +72,10 @@ VkPipelineCache GrVkResourceProvider::pipelineCache() {
             createInfo.initialDataSize = 0;
             createInfo.pInitialData = nullptr;
         }
-        VkResult result = GR_VK_CALL(fGpu->vkInterface(),
-                                     CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
-                                                         &fPipelineCache));
-        SkASSERT(VK_SUCCESS == result);
+
+        VkResult result;
+        GR_VK_CALL_RESULT(fGpu, result, CreatePipelineCache(fGpu->device(), &createInfo, nullptr,
+                                                            &fPipelineCache));
         if (VK_SUCCESS != result) {
             fPipelineCache = VK_NULL_HANDLE;
         }
@@ -515,19 +515,24 @@ void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
 }
 
 void GrVkResourceProvider::storePipelineCacheData() {
+    if (this->pipelineCache() == VK_NULL_HANDLE) {
+        return;
+    }
     size_t dataSize = 0;
-    VkResult result = GR_VK_CALL(fGpu->vkInterface(), GetPipelineCacheData(fGpu->device(),
-                                                                           this->pipelineCache(),
-                                                                           &dataSize, nullptr));
-    SkASSERT(result == VK_SUCCESS);
+    VkResult result;
+    GR_VK_CALL_RESULT(fGpu, result, GetPipelineCacheData(fGpu->device(), this->pipelineCache(),
+                                                         &dataSize, nullptr));
+    if (result != VK_SUCCESS) {
+        return;
+    }
 
     std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
 
-    result = GR_VK_CALL(fGpu->vkInterface(), GetPipelineCacheData(fGpu->device(),
-                                                                  this->pipelineCache(),
-                                                                  &dataSize,
-                                                                  (void*)data.get()));
-    SkASSERT(result == VK_SUCCESS);
+    GR_VK_CALL_RESULT(fGpu, result, GetPipelineCacheData(fGpu->device(), this->pipelineCache(),
+                                                         &dataSize, (void*)data.get()));
+    if (result != VK_SUCCESS) {
+        return;
+    }
 
     uint32_t key = GrVkGpu::kPipelineCache_PersistentCacheKeyType;
     sk_sp<SkData> keyData = SkData::MakeWithoutCopy(&key, sizeof(uint32_t));

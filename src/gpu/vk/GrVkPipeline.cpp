@@ -621,10 +621,9 @@ GrVkPipeline* GrVkPipeline::Create(
         // skia:8712
         __lsan::ScopedDisabler lsanDisabler;
 #endif
-        err = GR_VK_CALL(gpu->vkInterface(), CreateGraphicsPipelines(gpu->device(),
-                                                                     cache, 1,
-                                                                     &pipelineCreateInfo,
-                                                                     nullptr, &vkPipeline));
+        GR_VK_CALL_RESULT(gpu, err, CreateGraphicsPipelines(gpu->device(), cache, 1,
+                                                            &pipelineCreateInfo, nullptr,
+                                                            &vkPipeline));
     }
     if (err) {
         SkDebugf("Failed to create pipeline. Error: %d\n", err);
