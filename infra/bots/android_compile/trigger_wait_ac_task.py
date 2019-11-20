@@ -11,7 +11,6 @@ import json
 import math
 import optparse
 import os
-import requests
 import subprocess
 import sys
 import time
