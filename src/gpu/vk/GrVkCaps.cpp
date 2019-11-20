@@ -385,13 +385,14 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initStencilFormat(vkInterface, physDev);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        this->applyDriverCorrectnessWorkarounds(properties);
+        this->applyDriverCorrectnessWorkarounds(properties, extensions);
     }
 
     this->finishInitialization(contextOptions);
 }
 
-void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
+void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties,
+                                                 const GrVkExtensions& extensions) {
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
         // Transfer doesn't support this workaround.
@@ -441,16 +442,13 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
-    // The GTX660 bot experiences crashes and incorrect rendering with MSAA CCPR. Block this path
-    // renderer on non-mixed-sampled NVIDIA.
-    // NOTE: We may lose mixed samples support later if the context options suppress dual source
-    // blending, but that shouldn't be an issue because MSAA CCPR seems to work fine (even without
-    // mixed samples) on later NVIDIA hardware where mixed samples would be supported.
-    if ((kNvidia_VkVendor == properties.vendorID) && !fMixedSamplesSupport) {
-        fDriverBlacklistMSAACCPR = true;
-    }
+    // The GTX660 bot experiences crashes when running msaa ccpr with 8k textures.
+    // (We get VK_ERROR_DEVICE_LOST when calling vkGetFenceStatus.)
+    // ((Checking for mixed samples is an easy way to detect pre-maxwell architectures.))
+    bool isNVIDIAPreMaxwell = (kNvidia_VkVendor == properties.vendorID) &&
+            !extensions.hasExtension(VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME, 1);
 
-    if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
+    if (isNVIDIAPreMaxwell || fDriverBugWorkarounds.max_texture_size_limit_4096) {
         fMaxTextureSize = SkTMin(fMaxTextureSize, 4096);
         fMaxRenderTargetSize = SkTMin(fMaxRenderTargetSize, fMaxTextureSize);
         fMaxPreferredRenderTargetSize = SkTMin(fMaxPreferredRenderTargetSize, fMaxRenderTargetSize);
