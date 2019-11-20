@@ -19,7 +19,7 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-const GrVkBuffer::Resource* GrVkBuffer::Create(const GrVkGpu* gpu, const Desc& desc) {
+const GrVkBuffer::Resource* GrVkBuffer::Create(GrVkGpu* gpu, const Desc& desc) {
     SkASSERT(!gpu->protectedContext() || (gpu->protectedContext() == desc.fDynamic));
     VkBuffer       buffer;
     GrVkAlloc      alloc;
