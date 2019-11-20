@@ -2409,6 +2409,8 @@ namespace skvm {
             return f;
         }();
 
+        static uint64_t next_id = 1;
+
         struct CodeLoad {
             uint32_t event_type, event_size;
             uint64_t timestamp_ns;
@@ -2420,7 +2422,7 @@ namespace skvm {
             timestamp_ns(),
 
             (uint32_t)getpid(), (uint32_t)SkGetThreadID(),
-            (uint64_t)fJITBuf, (uint64_t)fJITBuf, size, hash,
+            (uint64_t)fJITBuf, (uint64_t)fJITBuf, size, next_id++,
         };
 
         // Write the header, the JIT'd function name, and the JIT'd code itself.
