@@ -556,20 +556,35 @@ namespace skvm {
         return {this->push(Op::splat, NA,NA,NA, bits)};
     }
 
-    F32 Builder::add(F32 x, F32 y       ) { return {this->push(Op::add_f32, x.id, y.id)}; }
-    F32 Builder::sub(F32 x, F32 y       ) { return {this->push(Op::sub_f32, x.id, y.id)}; }
-    F32 Builder::div(F32 x, F32 y       ) { return {this->push(Op::div_f32, x.id, y.id)}; }
-    F32 Builder::min(F32 x, F32 y       ) { return {this->push(Op::min_f32, x.id, y.id)}; }
-    F32 Builder::max(F32 x, F32 y       ) { return {this->push(Op::max_f32, x.id, y.id)}; }
-    F32 Builder::mad(F32 x, F32 y, F32 z) {
-        int imm;
-        if (this->isSplat(z.id, &imm) && imm == 0) {
-            return this->mul(x,y);
-        }
-        return {this->push(Op::mad_f32, x.id, y.id, z.id)};
+    // Be careful peepholing float math!  Transformations you might expect to
+    // be legal can fail in the face of NaN/Inf, e.g. 0*x is not always 0.
+    // Float peepholes must pass this equivalence test for all ~4B floats:
+    //
+    //     bool equiv(float x, float y) { return (x == y) || (isnanf(x) && isnanf(y)); }
+    //
+    //     unsigned bits = 0;
+    //     do {
+    //        float f;
+    //        memcpy(&f, &bits, 4);
+    //        if (!equiv(f, ...)) {
+    //           abort();
+    //        }
+    //     } while (++bits != 0);
+
+    F32 Builder::add(F32 x, F32 y) {
+        if (this->isSplat(y.id, 0)) { return x; }   // x+0 == x
+        if (this->isSplat(x.id, 0)) { return y; }   // 0+y == y
+        return {this->push(Op::add_f32, x.id, y.id)};
+    }
+
+    F32 Builder::sub(F32 x, F32 y) {
+        if (this->isSplat(y.id, 0)) { return x; }   // x-0 == x
+        return {this->push(Op::sub_f32, x.id, y.id)};
     }
 
     F32 Builder::mul(F32 x, F32 y) {
+        if (this->isSplat(y.id, 0x3f800000)) { return x; }  // x*1 == x
+        if (this->isSplat(x.id, 0x3f800000)) { return y; }  // 1*y == y
     #if defined(SK_CPU_X86)
         int imm;
         if (this->isSplat(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
@@ -577,6 +592,19 @@ namespace skvm {
     #endif
         return {this->push(Op::mul_f32, x.id, y.id)};
     }
+
+    F32 Builder::div(F32 x, F32 y) {
+        if (this->isSplat(y.id, 0x3f800000)) { return x; }  // x/1 == x
+        return {this->push(Op::div_f32, x.id, y.id)};
+    }
+
+    F32 Builder::mad(F32 x, F32 y, F32 z) {
+        if (this->isSplat(z.id, 0)) { return this->mul(x,y); }  // x*y+0 == x*y
+        return {this->push(Op::mad_f32, x.id, y.id, z.id)};
+    }
+
+    F32 Builder::min(F32 x, F32 y) { return {this->push(Op::min_f32, x.id, y.id)}; }
+    F32 Builder::max(F32 x, F32 y) { return {this->push(Op::max_f32, x.id, y.id)}; }
 
     I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
     I32 Builder::sub(I32 x, I32 y) { return {this->push(Op::sub_i32, x.id, y.id)}; }
