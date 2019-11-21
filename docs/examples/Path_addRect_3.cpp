@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     float intervals[] = { 5, 21.75f };
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
-    for (auto direction : { SkPath::kCW_Direction, SkPath::kCCW_Direction } ) {
+    for (auto direction : { SkPathDirection::kCW, SkPathDirection::kCCW } ) {
         SkPath path;
         path.addRect(20, 20, 100, 100, direction);
         canvas->drawPath(path, paint);
