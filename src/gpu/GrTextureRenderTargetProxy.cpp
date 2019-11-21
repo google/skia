@@ -89,8 +89,8 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
 }
 
 void GrTextureRenderTargetProxy::initSurfaceFlags(const GrCaps& caps) {
-    // FBO 0 should never be wrapped as a texture render target.
-    SkASSERT(!this->rtPriv().glRTFBOIDIs0());
+    // A swapchain surface should never be wrapped as a texture render target.
+    SkASSERT(!this->rtPriv().wrapsSwapchainSurface());
     if (this->numSamples() > 1 && !caps.msaaResolvesAutomatically())  {
         // MSAA texture-render-targets always require manual resolve if we are not using a
         // multisampled-render-to-texture extension.
