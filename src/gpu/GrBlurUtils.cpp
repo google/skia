@@ -38,8 +38,7 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
                       const SkMatrix& viewMatrix,
                       const SkIRect& maskRect,
                       GrPaint&& paint,
-                      sk_sp<GrTextureProxy> mask,
-                      GrColorType maskColorType) {
+                      sk_sp<GrTextureProxy> mask) {
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
         return false;
@@ -48,8 +47,8 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
     SkMatrix matrix = SkMatrix::MakeTrans(-SkIntToScalar(maskRect.fLeft),
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(std::move(mask), maskColorType,
-                                                                   matrix));
+    paint.addCoverageFragmentProcessor(
+            GrSimpleTextureEffect::Make(std::move(mask), kUnknown_SkAlphaType, matrix));
 
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(maskRect), inverse);
@@ -166,8 +165,8 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
         }
     }
 
-    return draw_mask(renderTargetContext, clipData, viewMatrix, drawRect,
-                     std::move(paint), std::move(filteredMask), GrColorType::kAlpha_8);
+    return draw_mask(renderTargetContext, clipData, viewMatrix, drawRect, std::move(paint),
+                     std::move(filteredMask));
 }
 
 // Create a mask of 'shape' and return the resulting renderTargetContext
@@ -426,9 +425,8 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
         }
 
         if (filteredMask) {
-            if (draw_mask(renderTargetContext, clip, viewMatrix,
-                          maskRect, std::move(paint), std::move(filteredMask),
-                          GrColorType::kAlpha_8)) {
+            if (draw_mask(renderTargetContext, clip, viewMatrix, maskRect, std::move(paint),
+                          std::move(filteredMask))) {
                 // This path is completely drawn
                 return;
             }

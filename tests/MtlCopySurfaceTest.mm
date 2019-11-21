@@ -46,7 +46,6 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
                                              kTopLeft_GrSurfaceOrigin);
 
     sk_sp<GrTextureProxy> dstProxy = GrSurfaceProxy::Copy(context, srcProxy.get(),
-                                                          GrColorType::kBGRA_8888,
                                                           GrMipMapped::kNo,
                                                           SkBackingFit::kExact,
                                                           SkBudgeted::kYes);
