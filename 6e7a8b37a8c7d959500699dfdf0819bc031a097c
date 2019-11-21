@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b8d19d0_f289cccd",
+        "filename": "infra/bots/recipe_modules/docker/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-21T17:41:35Z",
+      "side": 1,
+      "message": "Do we want this for every caller? We have a few non-CanvasKit bots which also use this code.",
+      "range": {
+        "startLine": 72,
+        "startChar": 13,
+        "endLine": 73,
+        "endChar": 18
+      },
+      "revId": "6e7a8b37a8c7d959500699dfdf0819bc031a097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8982269b_fa9955e0",
+        "filename": "modules/canvaskit/karma.bench.conf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-21T17:41:35Z",
+      "side": 1,
+      "message": "nit: inconsistent indent",
+      "range": {
+        "startLine": 68,
+        "startChar": 14,
+        "endLine": 69,
+        "endChar": 16
+      },
+      "revId": "6e7a8b37a8c7d959500699dfdf0819bc031a097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
