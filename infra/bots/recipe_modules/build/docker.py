@@ -17,9 +17,6 @@ IMAGES = {
     'gcc-debian10-mips64el': (
         'gcr.io/skia-public/gcc-debian10-mips64el@sha256:'
         'c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540'),
-    'gcc-ubuntu18': (
-        'gcr.io/skia-public/gcc-ubuntu18@sha256:'
-        '3439bba135be1593de385f89b59e503ab28ef637ba634e2ecec43559dd928c69'),
 }
 
 
@@ -76,11 +73,6 @@ def compile_fn(api, checkout_root, out_dir):
       image_name = 'gcc-debian10-mips64el'
       args['cc'] = '/usr/bin/mips64el-linux-gnuabi64-gcc-8'
       args['cxx'] = '/usr/bin/mips64el-linux-gnuabi64-g++-8'
-  if (os == 'Ubuntu18' and compiler == 'GCC' and target_arch == 'x86_64' and
-      not extra_tokens):
-    args['cc'] = 'gcc'
-    args['cxx'] = 'g++'
-    image_name = 'gcc-ubuntu18'
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)
