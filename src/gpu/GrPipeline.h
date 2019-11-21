@@ -107,7 +107,7 @@ public:
                InputFlags = InputFlags::kNone,
                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
-    GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
+    GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip*);
 
     GrPipeline(const GrPipeline&) = delete;
     GrPipeline& operator=(const GrPipeline&) = delete;

@@ -435,12 +435,12 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     initArgs.fCaps = &flushState->caps();
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
     initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
-    auto clip = flushState->detachAppliedClip();
+    GrAppliedClip* clip = flushState->appliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState;
-    if (clip.scissorState().enabled()) {
-        fixedDynamicState.fScissorRect = clip.scissorState().rect();
+    if (clip && clip->scissorState().enabled()) {
+        fixedDynamicState.fScissorRect = clip->scissorState().rect();
     }
-    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
+    GrPipeline pipeline(initArgs, std::move(fProcessors), clip);
 
     int baseInstance = fBaseInstance;
     SkASSERT(baseInstance >= 0);  // Make sure setupResources() has been called.

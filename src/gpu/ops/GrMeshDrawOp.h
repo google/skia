@@ -186,8 +186,9 @@ public:
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 
-    virtual const GrAppliedClip* appliedClip() = 0;
-    virtual GrAppliedClip detachAppliedClip() = 0;
+    virtual const GrAppliedClip* appliedClip() const = 0;
+    virtual GrAppliedClip* appliedClip() = 0;
+    //    virtual GrAppliedClip detachAppliedClip() = 0;
 
     virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
 

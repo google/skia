@@ -132,8 +132,9 @@ public:
     void putBackVertices(int vertices, size_t vertexStride) final;
     const GrSurfaceProxyView* view() const { return this->drawOpArgs().view(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
-    const GrAppliedClip* appliedClip() final { return this->drawOpArgs().appliedClip(); }
-    GrAppliedClip detachAppliedClip() final;
+    const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
+    GrAppliedClip* appliedClip() final { return fOpArgs->appliedClip(); }
+//    GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
         return this->drawOpArgs().dstProxyView();
     }

@@ -44,7 +44,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
     GrPipeline* pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
                                                                std::move(processorSet),
-                                                               this->detachAppliedClip());
+                                                               this->appliedClip());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
@@ -204,9 +204,11 @@ void GrOpFlushState::putBackVertices(int vertices, size_t vertexStride) {
     fVertexPool.putBack(vertices * vertexStride);
 }
 
+#if 0
 GrAppliedClip GrOpFlushState::detachAppliedClip() {
     return fOpArgs->appliedClip() ? std::move(*fOpArgs->appliedClip()) : GrAppliedClip();
 }
+#endif
 
 GrStrikeCache* GrOpFlushState::glyphCache() const {
     return fGpu->getContext()->priv().getGrStrikeCache();

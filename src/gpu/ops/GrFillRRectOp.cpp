@@ -753,17 +753,17 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     initArgs.fCaps = &flushState->caps();
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
     initArgs.fOutputSwizzle = flushState->drawOpArgs().outputSwizzle();
-    auto clip = flushState->detachAppliedClip();
+    GrAppliedClip* clip = flushState->appliedClip();
     GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
 
-    if (clip.scissorState().enabled()) {
+    if (clip && clip->scissorState().enabled()) {
         fixedDynamicState = flushState->allocator()->make<GrPipeline::FixedDynamicState>(
-                                                                    clip.scissorState().rect());
+                                                                    clip->scissorState().rect());
     }
 
     GrPipeline* pipeline = flushState->allocator()->make<GrPipeline>(initArgs,
                                                                      std::move(fProcessors),
-                                                                     std::move(clip));
+                                                                     clip);
 
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
