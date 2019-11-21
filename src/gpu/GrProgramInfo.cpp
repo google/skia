@@ -25,8 +25,10 @@ GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
 #include "src/gpu/GrMesh.h"
 #include "src/gpu/GrTexturePriv.h"
 
-void GrProgramInfo::validate() const {
-    SkASSERT(!fPipeline->isBad());
+void GrProgramInfo::validate(bool flushTime) const {
+    if (flushTime) {
+        SkASSERT(fPipeline->allProxiesInstantiated());
+    }
 
     if (this->hasDynamicPrimProcTextures()) {
         SkASSERT(!this->hasFixedPrimProcTextures());

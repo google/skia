@@ -42,9 +42,9 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fUserStencil = stencilSettings;
     pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
-    GrPipeline* pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
-                                                               std::move(processorSet),
-                                                               this->detachAppliedClip());
+    auto pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
+                                                        std::move(processorSet),
+                                                        this->detachAppliedClip());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
