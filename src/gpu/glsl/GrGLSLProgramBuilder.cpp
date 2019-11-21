@@ -68,7 +68,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
     // Because all the texture properties must be consistent between all the dynamic and fixed
     // primProc proxies, we just deal w/ the first set of dynamic proxies or the set of fixed
     // proxies here.
-    const GrTextureProxy* const* primProcProxies = nullptr;
+    const GrSurfaceProxy* const* primProcProxies = nullptr;
     if (fProgramInfo.hasDynamicPrimProcTextures()) {
         primProcProxies = fProgramInfo.dynamicPrimProcTextures(0);
     } else if (fProgramInfo.hasFixedPrimProcTextures()) {
@@ -108,7 +108,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
         SkString name;
         name.printf("TextureSampler_%d", i);
         const auto& sampler = proc.textureSampler(i);
-        SkASSERT(sampler.textureType() == primProcProxies[i]->textureType());
+        SkASSERT(sampler.textureType() == primProcProxies[i]->backendFormat().textureType());
         texSamplers[i] = this->emitSampler(primProcProxies[i],
                                            sampler.samplerState(),
                                            sampler.swizzle(),
@@ -279,7 +279,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     fFS.codeAppend("}");
 }
 
-GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrTextureProxy* texture,
+GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrSurfaceProxy* texture,
                                                                       const GrSamplerState& state,
                                                                       const GrSwizzle& swizzle,
                                                                       const char* name) {

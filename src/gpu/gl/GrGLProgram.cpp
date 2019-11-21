@@ -108,7 +108,7 @@ void GrGLProgram::updateUniformsAndTextureBindings(const GrRenderTarget* renderT
 }
 
 void GrGLProgram::updatePrimitiveProcessorTextureBindings(const GrPrimitiveProcessor& primProc,
-                                                          const GrTextureProxy* const proxies[]) {
+                                                          const GrSurfaceProxy* const proxies[]) {
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         auto* tex = static_cast<GrGLTexture*>(proxies[i]->peekTexture());
         fGpu->bindTexture(i, primProc.textureSampler(i).samplerState(),
