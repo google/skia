@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1deae97c_1b60ec7f",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-21T21:13:58Z",
+      "side": 1,
+      "message": "-y for 0 - y?",
+      "range": {
+        "startLine": 591,
+        "startChar": 8,
+        "endLine": 591,
+        "endChar": 64
+      },
+      "revId": "63594605581012c4ce11fe343afaa4fd940074ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f1ab755_83463aa6",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-21T21:13:58Z",
+      "side": 1,
+      "message": "X or Y \u003d\u003d 0?",
+      "range": {
+        "startLine": 621,
+        "startChar": 8,
+        "endLine": 621,
+        "endChar": 59
+      },
+      "revId": "63594605581012c4ce11fe343afaa4fd940074ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
