@@ -9,39 +9,29 @@
 
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrContext.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
-#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
-#include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "tools/gpu/TestRectOp.h"
 
 #include <memory>
 #include <utility>
+
+using sk_gpu_test::TestRectOp;
 
 namespace skiagm {
 /**
@@ -49,8 +39,7 @@ namespace skiagm {
  */
 class TextureDomainEffect : public GpuGM {
 public:
-    TextureDomainEffect(GrSamplerState::Filter filter)
-            : fFilter(filter) {
+    TextureDomainEffect(GrSamplerState::Filter filter) : fFilter(filter) {
         this->setBGColor(0xFFFFFFFF);
     }
 
@@ -67,8 +56,8 @@ protected:
 
     SkISize onISize() override {
         const SkScalar canvasWidth = kDrawPad +
-                (kTargetWidth + 2 * kDrawPad) * GrTextureDomain::kModeCount +
-                kTestPad * GrTextureDomain::kModeCount;
+                2 * ((kTargetWidth + 2 * kDrawPad) * GrTextureDomain::kModeCount +
+                     kTestPad * GrTextureDomain::kModeCount);
         return SkISize::Make(SkScalarCeilToInt(canvasWidth), 800);
     }
 
@@ -124,8 +113,7 @@ protected:
                               fBitmap.width() / 2 + 2, fBitmap.height() / 2 + 2),
         };
 
-        SkRect renderRect = SkRect::Make(fBitmap.bounds());
-        renderRect.outset(kDrawPad, kDrawPad);
+        SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);
 
         SkScalar y = kDrawPad + kTestPad;
         for (int tm = 0; tm < textureMatrices.count(); ++tm) {
@@ -139,25 +127,33 @@ protected:
                         continue;
                     }
 
-                    GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
-                    auto fp = GrTextureDomainEffect::Make(
+                    if (auto fp = GrTextureDomainEffect::Make(
+                                proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
+                                textureMatrices[tm],
+                                GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
+                                mode, fFilter)) {
+                        auto drawRect = localRect.makeOffset(x , y);
+                        if (auto op =
+                                    TestRectOp::Make(context, std::move(fp), drawRect, localRect)) {
+                            renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                        }
+                    }
+                    x += localRect.width() + kTestPad;
+                    // Draw again with a translated local rect and compensating translate matrix.
+                    if (auto fp = GrTextureDomainEffect::Make(
                             proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
                             textureMatrices[tm],
                             GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
-
-                    if (!fp) {
-                        continue;
+                            mode, fFilter)) {
+                        auto drawRect = localRect.makeOffset(x , y);
+                        static constexpr SkVector t = {-100, 300};
+                        if (auto op = TestRectOp::Make(context, std::move(fp), drawRect, localRect.makeOffset(t), SkMatrix::MakeTrans(-t))) {
+                            renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                        }
                     }
-                    const SkMatrix viewMatrix = SkMatrix::MakeTrans(x, y);
-                    grPaint.addColorFragmentProcessor(std::move(fp));
-                    renderTargetContext->priv().testingOnly_addDrawOp(
-                            GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
-                                                        viewMatrix, renderRect));
-                    x += renderRect.width() + kTestPad;
+                    x += localRect.width() + kTestPad;
                 }
-                y += renderRect.height() + kTestPad;
+                y += localRect.height() + kTestPad;
             }
         }
         return DrawResult::kOk;

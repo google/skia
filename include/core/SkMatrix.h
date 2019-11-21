@@ -88,6 +88,7 @@ public:
         m.setTranslate(dx, dy);
         return m;
     }
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkVector t) { return MakeTrans(t.fX, t.fY); }
 
     /** Sets SkMatrix to:
 
