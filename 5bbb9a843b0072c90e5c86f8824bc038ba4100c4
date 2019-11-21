@@ -46,6 +46,30 @@
       "revId": "5bbb9a843b0072c90e5c86f8824bc038ba4100c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2550ad9_c0377df3",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-21T13:50:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "66bf0623_2c2761d8",
+      "range": {
+        "startLine": 462,
+        "startChar": 38,
+        "endLine": 462,
+        "endChar": 85
+      },
+      "revId": "5bbb9a843b0072c90e5c86f8824bc038ba4100c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
