@@ -223,9 +223,34 @@ Compiler::Compiler(Flags flags)
                                     *fContext->fSkArgs_Type, Variable::kGlobal_Storage);
     fIRGenerator->fSymbolTable->add(skArgsName, std::unique_ptr<Symbol>(skArgs));
 
-    std::vector<std::unique_ptr<ProgramElement>> ignored;
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
-                             symbols, &ignored, &fGpuSymbolTable);
+                             symbols, &fIntrinsics, &fGpuSymbolTable);
+    for (auto& element : fIntrinsics) {
+        switch (element->fKind) {
+            case ProgramElement::kFunction_Kind: {
+                FunctionDefinition& f = (FunctionDefinition&) *element;
+                StringFragment name = f.fDeclaration.fName;
+                SkASSERT(fIRGenerator->fIntrinsics.find(name) == fIRGenerator->fIntrinsics.end());
+                fIRGenerator->fIntrinsics[name] = std::pair<std::unique_ptr<ProgramElement>, bool>(
+                                                                         std::move(element), false);
+                break;
+            }
+            case ProgramElement::kEnum_Kind: {
+                Enum& e = (Enum&) *element;
+                StringFragment name = e.fTypeName;
+                SkASSERT(fIRGenerator->fIntrinsics.find(name) == fIRGenerator->fIntrinsics.end());
+                fIRGenerator->fIntrinsics[name] = std::pair<std::unique_ptr<ProgramElement>, bool>(
+                                                                         std::move(element), false);
+                break;
+            }
+            default:
+                printf("unsupported include file element\n");
+                SkASSERT(false);
+        }
+    }
+    // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
+    // remain valid
+    fGpuIncludeSource = std::move(fIRGenerator->fFile);
     this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, strlen(SKSL_VERT_INCLUDE),
                              fGpuSymbolTable, &fVertexInclude, &fVertexSymbolTable);
     this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, strlen(SKSL_FRAG_INCLUDE),
@@ -1290,7 +1315,8 @@ void Compiler::scanCFG(FunctionDefinition& f) {
     // check for missing return
     if (f.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
-            this->error(f.fOffset, String("function can exit without returning a value"));
+            this->error(f.fOffset, String("function '" + String(f.fDeclaration.fName) +
+                                          "' can exit without returning a value"));
         }
     }
 }

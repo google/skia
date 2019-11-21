@@ -11,6 +11,7 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
+#include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -214,6 +215,8 @@ private:
 
     Position position(int offset);
 
+    std::vector<std::unique_ptr<ProgramElement>> fIntrinsics;
+    std::unique_ptr<ASTFile> fGpuIncludeSource;
     std::shared_ptr<SymbolTable> fGpuSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
