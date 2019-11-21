@@ -45,6 +45,52 @@
       "revId": "6e7a8b37a8c7d959500699dfdf0819bc031a097c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "605bff81_0a23853b",
+        "filename": "modules/canvaskit/karma.bench.conf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2019-11-21T17:42:54Z",
+      "side": 1,
+      "message": "Add a comment explaining what this does? x4",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 31
+      },
+      "revId": "6e7a8b37a8c7d959500699dfdf0819bc031a097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33032d91_5de625fe",
+        "filename": "modules/canvaskit/karma.bench.conf.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2019-11-21T17:42:54Z",
+      "side": 1,
+      "message": "Nit: indentation.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 0
+      },
+      "revId": "6e7a8b37a8c7d959500699dfdf0819bc031a097c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
