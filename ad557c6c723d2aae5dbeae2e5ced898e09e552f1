@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd631dd1_7bd2b7fd",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-21T14:51:55Z",
+      "side": 1,
+      "message": "nit 100 chars.",
+      "range": {
+        "startLine": 377,
+        "startChar": 2,
+        "endLine": 377,
+        "endChar": 105
+      },
+      "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07b7e1ae_8f0e90b2",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-21T14:51:55Z",
+      "side": 1,
+      "message": "||",
+      "range": {
+        "startLine": 264,
+        "startChar": 43,
+        "endLine": 264,
+        "endChar": 45
+      },
+      "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28fe20f0_a6198daa",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-21T14:51:55Z",
+      "side": 1,
+      "message": "I forget, does creating a view in dawn keep a ref on the texture? In other words we don\u0027t need to hold onto the texture at all?",
+      "range": {
+        "startLine": 439,
+        "startChar": 24,
+        "endLine": 439,
+        "endChar": 41
+      },
+      "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
