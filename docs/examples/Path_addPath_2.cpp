@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     SkPath dest, path;
-    path.addOval({-80, 20, 0, 60}, SkPath::kCW_Direction, 1);
+    path.addOval({-80, 20, 0, 60}, SkPathDirection::kCW, 1);
     for (int i = 0; i < 2; i++) {
         dest.addPath(path, SkPath::kExtend_AddPathMode);
         dest.offset(100, 0);
