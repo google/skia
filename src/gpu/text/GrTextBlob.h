@@ -247,7 +247,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal test methods
-    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
+    std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                                           const SkPaint& paint, const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
@@ -502,7 +502,7 @@ public:
 
 private:
     std::unique_ptr<GrAtlasTextOp> makeOp(
-            SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
+            SubRun& info, int glyphCount,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
