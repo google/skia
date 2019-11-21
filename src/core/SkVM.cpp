@@ -498,10 +498,14 @@ namespace skvm {
         return id;
     }
 
-    bool Builder::isSplat(Val id, int* imm) const {
+    bool Builder::allImm() const { return true; }
+
+    template <typename T, typename... Rest>
+    bool Builder::allImm(Val id, T* imm, Rest... rest) const {
         if (fProgram[id].op == Op::splat) {
-            *imm = fProgram[id].immy;
-            return true;
+            static_assert(sizeof(T) == 4);
+            memcpy(imm, &fProgram[id].immy, 4);
+            return this->allImm(rest...);
         }
         return false;
     }
@@ -514,6 +518,8 @@ namespace skvm {
 
     void Builder::assert_true(I32 val) {
     #ifdef SK_DEBUG
+        int imm;
+        if (this->allImm(val.id,&imm)) { SkASSERT(imm); return; }
         (void)this->push(Op::assert_true, val.id,NA,NA);
     #endif
     }
@@ -572,39 +578,59 @@ namespace skvm {
     //     } while (++bits != 0);
 
     F32 Builder::add(F32 x, F32 y) {
-        if (this->isSplat(y.id, 0)) { return x; }   // x+0 == x
-        if (this->isSplat(x.id, 0)) { return y; }   // 0+y == y
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X+Y); }
+        if (this->isImm(y.id, 0.0f)) { return x; }   // x+0 == x
+        if (this->isImm(x.id, 0.0f)) { return y; }   // 0+y == y
         return {this->push(Op::add_f32, x.id, y.id)};
     }
 
     F32 Builder::sub(F32 x, F32 y) {
-        if (this->isSplat(y.id, 0)) { return x; }   // x-0 == x
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X-Y); }
+        if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
         return {this->push(Op::sub_f32, x.id, y.id)};
     }
 
     F32 Builder::mul(F32 x, F32 y) {
-        if (this->isSplat(y.id, 0x3f800000)) { return x; }  // x*1 == x
-        if (this->isSplat(x.id, 0x3f800000)) { return y; }  // 1*y == y
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X*Y); }
+        if (this->isImm(y.id, 1.0f)) { return x; }  // x*1 == x
+        if (this->isImm(x.id, 1.0f)) { return y; }  // 1*y == y
     #if defined(SK_CPU_X86)
         int imm;
-        if (this->isSplat(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->isSplat(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
     #endif
         return {this->push(Op::mul_f32, x.id, y.id)};
     }
 
     F32 Builder::div(F32 x, F32 y) {
-        if (this->isSplat(y.id, 0x3f800000)) { return x; }  // x/1 == x
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X/Y); }
+        if (this->isImm(y.id, 1.0f)) { return x; }  // x/1 == x
         return {this->push(Op::div_f32, x.id, y.id)};
     }
 
     F32 Builder::mad(F32 x, F32 y, F32 z) {
-        if (this->isSplat(z.id, 0)) { return this->mul(x,y); }  // x*y+0 == x*y
+        float X,Y,Z;
+        if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X*Y+Z); }
+        if (this->isImm(y.id, 1.0f)) { return this->add(x,z); }  // x*1+z == x+z
+        if (this->isImm(x.id, 1.0f)) { return this->add(y,z); }  // 1*y+z == y+z
+        if (this->isImm(z.id, 0.0f)) { return this->mul(x,y); }  // x*y+0 == x*y
         return {this->push(Op::mad_f32, x.id, y.id, z.id)};
     }
 
-    F32 Builder::min(F32 x, F32 y) { return {this->push(Op::min_f32, x.id, y.id)}; }
-    F32 Builder::max(F32 x, F32 y) { return {this->push(Op::max_f32, x.id, y.id)}; }
+    F32 Builder::min(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::min(X,Y)); }
+        return {this->push(Op::min_f32, x.id, y.id)};
+    }
+    F32 Builder::max(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::max(X,Y)); }
+        return {this->push(Op::max_f32, x.id, y.id)};
+    }
 
     I32 Builder::add(I32 x, I32 y) { return {this->push(Op::add_i32, x.id, y.id)}; }
     I32 Builder::sub(I32 x, I32 y) { return {this->push(Op::sub_i32, x.id, y.id)}; }
@@ -614,20 +640,56 @@ namespace skvm {
     I32 Builder::sub_16x2(I32 x, I32 y) { return {this->push(Op::sub_i16x2, x.id, y.id)}; }
     I32 Builder::mul_16x2(I32 x, I32 y) { return {this->push(Op::mul_i16x2, x.id, y.id)}; }
 
-    I32 Builder::shl(I32 x, int bits) { return {this->push(Op::shl_i32, x.id,NA,NA, bits)}; }
-    I32 Builder::shr(I32 x, int bits) { return {this->push(Op::shr_i32, x.id,NA,NA, bits)}; }
-    I32 Builder::sra(I32 x, int bits) { return {this->push(Op::sra_i32, x.id,NA,NA, bits)}; }
+    I32 Builder::shl(I32 x, int bits) {
+        int X;
+        if (this->allImm(x.id,&X)) { return this->splat(X << bits); }
+        return {this->push(Op::shl_i32, x.id,NA,NA, bits)};
+    }
+    I32 Builder::shr(I32 x, int bits) {
+        int X;
+        if (this->allImm(x.id,&X)) { return this->splat(unsigned(X) >> bits); }
+        return {this->push(Op::shr_i32, x.id,NA,NA, bits)};
+    }
+    I32 Builder::sra(I32 x, int bits) {
+        int X;
+        if (this->allImm(x.id,&X)) { return this->splat(X >> bits); }
+        return {this->push(Op::sra_i32, x.id,NA,NA, bits)};
+    }
 
     I32 Builder::shl_16x2(I32 x, int bits) { return {this->push(Op::shl_i16x2, x.id,NA,NA, bits)}; }
     I32 Builder::shr_16x2(I32 x, int bits) { return {this->push(Op::shr_i16x2, x.id,NA,NA, bits)}; }
     I32 Builder::sra_16x2(I32 x, int bits) { return {this->push(Op::sra_i16x2, x.id,NA,NA, bits)}; }
 
-    I32 Builder:: eq(F32 x, F32 y) { return {this->push(Op:: eq_f32, x.id, y.id)}; }
-    I32 Builder::neq(F32 x, F32 y) { return {this->push(Op::neq_f32, x.id, y.id)}; }
-    I32 Builder:: lt(F32 x, F32 y) { return {this->push(Op:: gt_f32, y.id, x.id)}; }
-    I32 Builder::lte(F32 x, F32 y) { return {this->push(Op::gte_f32, y.id, x.id)}; }
-    I32 Builder:: gt(F32 x, F32 y) { return {this->push(Op:: gt_f32, x.id, y.id)}; }
-    I32 Builder::gte(F32 x, F32 y) { return {this->push(Op::gte_f32, x.id, y.id)}; }
+    I32 Builder:: eq(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X==Y ? ~0 : 0); }
+        return {this->push(Op::eq_f32, x.id, y.id)};
+    }
+    I32 Builder::neq(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X!=Y ? ~0 : 0); }
+        return {this->push(Op::neq_f32, x.id, y.id)};
+    }
+    I32 Builder::lt(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(Y> X ? ~0 : 0); }
+        return {this->push(Op::gt_f32, y.id, x.id)};
+    }
+    I32 Builder::lte(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(Y>=X ? ~0 : 0); }
+        return {this->push(Op::gte_f32, y.id, x.id)};
+    }
+    I32 Builder::gt(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X> Y ? ~0 : 0); }
+        return {this->push(Op::gt_f32, x.id, y.id)};
+    }
+    I32 Builder::gte(F32 x, F32 y) {
+        float X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X>=Y ? ~0 : 0); }
+        return {this->push(Op::gte_f32, x.id, y.id)};
+    }
 
     I32 Builder:: eq(I32 x, I32 y) { return {this->push(Op:: eq_i32, x.id, y.id)}; }
     I32 Builder::neq(I32 x, I32 y) { return {this->push(Op::neq_i32, x.id, y.id)}; }
@@ -643,18 +705,42 @@ namespace skvm {
     I32 Builder:: gt_16x2(I32 x, I32 y) { return {this->push(Op:: gt_i16x2, x.id, y.id)}; }
     I32 Builder::gte_16x2(I32 x, I32 y) { return {this->push(Op::gte_i16x2, x.id, y.id)}; }
 
-    I32 Builder::bit_and  (I32 x, I32 y) { return {this->push(Op::bit_and  , x.id, y.id)}; }
-    I32 Builder::bit_or   (I32 x, I32 y) { return {this->push(Op::bit_or   , x.id, y.id)}; }
-    I32 Builder::bit_xor  (I32 x, I32 y) { return {this->push(Op::bit_xor  , x.id, y.id)}; }
-    I32 Builder::bit_clear(I32 x, I32 y) { return {this->push(Op::bit_clear, x.id, y.id)}; }
-    I32 Builder::select(I32 x, I32 y, I32 z) { return {this->push(Op::select, x.id, y.id, z.id)}; }
+    I32 Builder::bit_and(I32 x, I32 y) {
+        int X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&Y); }
+        return {this->push(Op::bit_and, x.id, y.id)};
+    }
+    I32 Builder::bit_or(I32 x, I32 y) {
+        int X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|Y); }
+        return {this->push(Op::bit_or, x.id, y.id)};
+    }
+    I32 Builder::bit_xor(I32 x, I32 y) {
+        int X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X^Y); }
+        return {this->push(Op::bit_xor, x.id, y.id)};
+    }
+    I32 Builder::bit_clear(I32 x, I32 y) {
+        int X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&~Y); }
+        return {this->push(Op::bit_clear, x.id, y.id)};
+    }
+    I32 Builder::select(I32 x, I32 y, I32 z) {
+        int X,Y,Z;
+        if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X?Y:Z); }
+        return {this->push(Op::select, x.id, y.id, z.id)};
+    }
 
 
     I32 Builder::extract(I32 x, int bits, I32 z) {
+        int X,Z;
+        if (this->allImm(x.id,&X, z.id,&Z)) { return this->splat( (unsigned(X)>>bits)&Z ); }
         return {this->push(Op::extract, x.id,NA,z.id, bits,0)};
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
+        int X,Y;
+        if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|(Y<<bits)); }
         return {this->push(Op::pack, x.id,y.id,NA, 0,bits)};
     }
 
@@ -662,9 +748,21 @@ namespace skvm {
         return {this->push(Op::bytes, x.id,NA,NA, control)};
     }
 
-    F32 Builder::to_f32(I32 x) { return {this->push(Op::to_f32, x.id)}; }
-    I32 Builder::trunc (F32 x) { return {this->push(Op::trunc,  x.id)}; }
-    I32 Builder::round (F32 x) { return {this->push(Op::round,  x.id)}; }
+    F32 Builder::to_f32(I32 x) {
+        int X;
+        if (this->allImm(x.id,&X)) { return this->splat((float)X); }
+        return {this->push(Op::to_f32, x.id)};
+    }
+    I32 Builder::trunc(F32 x) {
+        float X;
+        if (this->allImm(x.id,&X)) { return this->splat((int)X); }
+        return {this->push(Op::trunc, x.id)};
+    }
+    I32 Builder::round(F32 x) {
+        float X;
+        if (this->allImm(x.id,&X)) { return this->splat((int)lrintf(X)); }
+        return {this->push(Op::round, x.id)};
+    }
 
     // ~~~~ Program::eval() and co. ~~~~ //
 
