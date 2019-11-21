@@ -21,58 +21,56 @@
 
 GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLContextInfo& ctxInfo,
-                   const GrGLInterface* glInterface) : INHERITED(contextOptions) {
-    fStandard = ctxInfo.standard();
-
+                   const GrGLInterface* glInterface)
+    : INHERITED(contextOptions)
+    , fStandard(ctxInfo.standard())
+    , fMaxFragmentUniformVectors(0)
+    , fMSFBOType(kNone_MSFBOType)
+    , fInvalidateFBType(kNone_InvalidateFBType)
+    , fMapBufferType(kNone_MapBufferType)
+    , fTransferBufferType(kNone_TransferBufferType)
+    , fPackFlipYSupport(false)
+    , fTextureUsageSupport(false)
+    , fImagingSupport(false)
+    , fVertexArrayObjectSupport(false)
+    , fDebugSupport(false)
+    , fES2CompatibilitySupport(false)
+    , fDrawInstancedSupport(false)
+    , fDrawIndirectSupport(false)
+    , fDrawRangeElementsSupport(false)
+    , fMultiDrawIndirectSupport(false)
+    , fBaseInstanceSupport(false)
+    , fUseNonVBOVertexAndIndexDynamicData(false)
+    , fIsCoreProfile(false)
+    , fBindFragDataLocationSupport(false)
+    , fRGBA8888PixelsOpsAreSlow(false)
+    , fPartialFBOReadIsSlow(false)
+    , fBindUniformLocationSupport(false)
+    , fRectangleTextureSupport(false)
+    , fMipMapLevelAndLodControlSupport(false)
+    , fRGBAToBGRAReadbackConversionsAreSlow(false)
+    , fUseBufferDataNullHint(false)
+    , fClearTextureSupport(false)
+    , fProgramBinarySupport(false)
+    , fProgramParameterSupport(false)
+    , fSamplerObjectSupport(false)
+    , fTiledRenderingSupport(false)
+    , fFBFetchRequiresEnablePerSample(false)
+    , fSRGBWriteControl(false)
+    , fDoManualMipmapping(false)
+    , fClearToBoundaryValuesIsBroken(false)
+    , fDrawArraysBaseVertexIsBroken(false)
+    , fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO(false)
+    , fUseDrawInsteadOfAllRenderTargetWrites(false)
+    , fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines(false)
+    , fDetachStencilFromMSAABuffersBeforeReadPixels(false)
+    , fDontSetBaseOrMaxLevelForExternalTextures(false)
+    , fNeverDisableColorWrites(false)
+    , fMaxInstancesPerDrawWithoutCrashing(0)
+    , fBlitFramebufferFlags(kNoSupport_BlitFramebufferFlag)
+{
     fStencilFormats.reset();
-    fMSFBOType = kNone_MSFBOType;
-    fInvalidateFBType = kNone_InvalidateFBType;
-    fMapBufferType = kNone_MapBufferType;
-    fTransferBufferType = kNone_TransferBufferType;
-    fMaxFragmentUniformVectors = 0;
-    fPackFlipYSupport = false;
-    fTextureUsageSupport = false;
-    fImagingSupport = false;
-    fVertexArrayObjectSupport = false;
-    fDebugSupport = false;
-    fES2CompatibilitySupport = false;
-    fDrawInstancedSupport = false;
-    fDrawIndirectSupport = false;
-    fDrawRangeElementsSupport = false;
-    fMultiDrawIndirectSupport = false;
-    fBaseInstanceSupport = false;
-    fUseNonVBOVertexAndIndexDynamicData = false;
-    fIsCoreProfile = false;
-    fBindFragDataLocationSupport = false;
-    fRectangleTextureSupport = false;
-    fRGBA8888PixelsOpsAreSlow = false;
-    fPartialFBOReadIsSlow = false;
-    fBindUniformLocationSupport = false;
-    fMipMapLevelAndLodControlSupport = false;
-    fRGBAToBGRAReadbackConversionsAreSlow = false;
-    fUseBufferDataNullHint = false;
-    fDoManualMipmapping = false;
-    fClearToBoundaryValuesIsBroken = false;
-    fClearTextureSupport = false;
-    fDrawArraysBaseVertexIsBroken = false;
-    fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = false;
-    fUseDrawInsteadOfAllRenderTargetWrites = false;
-    fRequiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines = false;
-    fDetachStencilFromMSAABuffersBeforeReadPixels = false;
-    fDontSetBaseOrMaxLevelForExternalTextures = false;
-    fNeverDisableColorWrites = false;
-    fProgramBinarySupport = false;
-    fProgramParameterSupport = false;
-    fSamplerObjectSupport = false;
-    fTiledRenderingSupport = false;
-    fFBFetchRequiresEnablePerSample = false;
-    fSRGBWriteControl = false;
-
-    fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
-    fMaxInstancesPerDrawWithoutCrashing = 0;
-
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
-
     this->init(contextOptions, ctxInfo, glInterface);
 }
 
