@@ -34,7 +34,7 @@ static SkPath generate_rect_line(SkScalar cx, SkScalar cy, SkScalar l) {
 
 static SkPath generate_circle(SkScalar cx, SkScalar cy, SkScalar d) {
     SkPath path;
-    path.addCircle(cx, cy, d/2, SkPath::kCW_Direction);
+    path.addCircle(cx, cy, d/2, SkPathDirection::kCW);
     return path;
 }
 
