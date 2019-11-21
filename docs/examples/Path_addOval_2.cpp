@@ -16,7 +16,7 @@ void draw(SkCanvas* canvas) {
     arrowPath.addPoly(arrow, SK_ARRAY_COUNT(arrow), true);
     arrowPaint.setPathEffect(SkPath1DPathEffect::Make(arrowPath, 176, 0,
                              SkPath1DPathEffect::kRotate_Style));
-    for (auto direction : { SkPath::kCW_Direction, SkPath::kCCW_Direction } ) {
+    for (auto direction : { SkPathDirection::kCW, SkPathDirection::kCCW } ) {
         for (unsigned start : { 0, 1, 2, 3 } ) {
            SkPath path;
            path.addOval(rect, direction, start);
@@ -26,7 +26,7 @@ void draw(SkCanvas* canvas) {
            canvas->translate(64, 0);
        }
        canvas->translate(-256, 72);
-       canvas->drawString(SkPath::kCW_Direction == direction ? "clockwise" : "counterclockwise",
+       canvas->drawString(SkPathDirection::kCW == direction ? "clockwise" : "counterclockwise",
                           128, 0, textPaint);
     }
 }

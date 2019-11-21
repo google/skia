@@ -6,8 +6,8 @@
 REG_FIDDLE(Path_FillType_b, 256, 230, false, 0) {
 void draw(SkCanvas* canvas) {
    SkPath path;
-   path.addRect({20, 10, 80, 70}, SkPath::kCW_Direction);
-   path.addRect({40, 30, 100, 90}, SkPath::kCW_Direction);
+   path.addRect({20, 10, 80, 70}, SkPathDirection::kCW);
+   path.addRect({40, 30, 100, 90}, SkPathDirection::kCW);
    SkPaint strokePaint;
    strokePaint.setStyle(SkPaint::kStroke_Style);
    SkRect clipRect = {0, 0, 128, 128};
