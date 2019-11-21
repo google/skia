@@ -208,8 +208,8 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
     SkPath path;
     const float baseline_offset = -5;
 
-    const SkPathDirection dirs[] = {
-        SkPathDirection::kCW, SkPathDirection::kCCW,
+    const SkPath::Direction dirs[] = {
+        SkPath::kCW_Direction, SkPath::kCCW_Direction,
     };
     for (auto d : dirs) {
         path.reset();

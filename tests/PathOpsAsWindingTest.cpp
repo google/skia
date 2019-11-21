@@ -9,9 +9,9 @@
 #include "tests/PathOpsThreadedCommon.h"
 #include "tests/Test.h"
 
-static SkPath build_squircle(SkPath::Verb verb, const SkRect& rect, SkPathDirection dir) {
+static SkPath build_squircle(SkPath::Verb verb, const SkRect& rect, SkPath::Direction dir) {
     SkPath path;
-    bool reverse = SkPathDirection::kCCW == dir;
+    bool reverse = SkPath::kCCW_Direction == dir;
     switch (verb) {
         case SkPath::kLine_Verb:
             path.addRect(rect, dir);
@@ -119,8 +119,8 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     const std::initializer_list<SkPoint> revBccw = {{1, 2}, {2, 2}, {2, 1}, {1, 1}};
     const std::initializer_list<SkPoint> revBcw  = {{2, 1}, {2, 2}, {1, 2}, {1, 1}};
     for (bool aFirst : {false, true}) {
-        for (auto dirA : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
-            for (auto dirB : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+        for (auto dirA : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
+            for (auto dirB : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
                 test.reset();
                 test.setFillType(SkPath::kEvenOdd_FillType);
                 if (aFirst) {
@@ -140,7 +140,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                 if (dirA != dirB) {
                     test.addRect(rectB, dirB);
                 } else {
-                    test.addPoly(SkPathDirection::kCW == dirA ? revBccw : revBcw, true);
+                    test.addPoly(SkPath::kCW_Direction == dirA ? revBccw : revBcw, true);
                 }
                 if (!aFirst) {
                     test.addRect(rectA, dirA);
@@ -156,8 +156,8 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     // Test curve types with donuts. Create a donut with outer and hole in all directions.
     // After converting to winding, all donuts should have a hole in the middle.
     for (bool aFirst : {false, true}) {
-        for (auto dirA : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
-            for (auto dirB : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
+        for (auto dirA : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
+            for (auto dirB : {SkPath::kCW_Direction, SkPath::kCCW_Direction}) {
                 for (auto curveA : { SkPath::kLine_Verb, SkPath::kQuad_Verb,
                                      SkPath::kConic_Verb, SkPath::kCubic_Verb } ) {
                     SkPath pathA = build_squircle(curveA, rectA, dirA);

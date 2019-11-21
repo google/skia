@@ -34,8 +34,8 @@ public:
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, fRadius));
 
         SkPath path;
-        path.addRect(fOuter, SkPathDirection::kCW);
-        path.addRect(fInner, SkPathDirection::kCW);
+        path.addRect(fOuter, SkPath::kCW_Direction);
+        path.addRect(fInner, SkPath::kCW_Direction);
 
         for (int i = 0; i < loops; i++) {
             canvas->drawPath(path, paint);

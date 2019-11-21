@@ -2914,15 +2914,15 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
     int rectCount = path.isRectContours() ? path.rectContours(nullptr, nullptr) : 0;
     if (rectCount > 0) {
         SkTDArray<SkRect> rects;
-        SkTDArray<SkPathDirection> directions;
+        SkTDArray<SkPath::Direction> directions;
         rects.setCount(rectCount);
         directions.setCount(rectCount);
         path.rectContours(rects.begin(), directions.begin());
         for (int contour = 0; contour < rectCount; ++contour) {
             const SkRect& rect = rects[contour];
             SkDebugf("path.addRect(%1.9g, %1.9g, %1.9g, %1.9g, %s);\n", rect.fLeft, rect.fTop,
-                    rect.fRight, rect.fBottom, directions[contour] == SkPathDirection::kCCW
-                    ? "SkPathDirection::kCCW" : "SkPathDirection::kCW");
+                    rect.fRight, rect.fBottom, directions[contour] == SkPath::kCCW_Direction
+                    ? "SkPath::kCCW_Direction" : "SkPath::kCW_Direction");
         }
         return;
     }
