@@ -606,7 +606,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
-                rtc->drawTexture(GrNoClip(), proxy, GrColorType::kRGBA_8888,
+                rtc->drawTexture(GrNoClip(), proxy, kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                  SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                  GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
@@ -620,7 +620,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
-                rtc->drawTexture(GrNoClip(), std::move(proxy), GrColorType::kRGBA_8888,
+                rtc->drawTexture(GrNoClip(), std::move(proxy), kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                  SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                  GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
@@ -667,7 +667,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
                                     texture, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin);
                             rtc->drawTexture(
-                                    GrNoClip(), proxy, GrColorType::kRGBA_8888,
+                                    GrNoClip(), proxy, kPremul_SkAlphaType,
                                     GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                     SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                     GrAA::kNo, GrQuadAAFlags::kNone,

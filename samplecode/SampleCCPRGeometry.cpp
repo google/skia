@@ -196,7 +196,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         GrPaint paint;
         paint.addColorFragmentProcessor(
                 GrSimpleTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()),
-                                            ccbuff->colorInfo().colorType(), SkMatrix::I()));
+                                            ccbuff->colorInfo().alphaType(), SkMatrix::I()));
         paint.addColorFragmentProcessor(
                 skstd::make_unique<VisualizeCoverageCountFP>());
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);

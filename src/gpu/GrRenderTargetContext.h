@@ -195,7 +195,7 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy, SkAlphaType srcAlphaType,
                      GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
                      const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
                      SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
@@ -205,7 +205,7 @@ public:
         GrSurfaceOrigin origin = proxy->origin();
         const GrSwizzle& swizzle = proxy->textureSwizzle();
         GrSurfaceProxyView proxyView(std::move(proxy), origin, swizzle);
-        this->drawTexturedQuad(clip, std::move(proxyView), srcColorType, std::move(texXform),
+        this->drawTexturedQuad(clip, std::move(proxyView), srcAlphaType, std::move(texXform),
                                filter, color, mode, aa, edgeAA,
                                GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), domain);
     }
@@ -216,7 +216,7 @@ public:
      * 'domain' is null, it's equivalent to using the fast src rect constraint. If 'domain' is
      * provided, the strict src rect constraint is applied using 'domain'.
      */
-    void drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+    void drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy, SkAlphaType srcAlphaType,
                          GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
                          const SkPoint srcQuad[4], const SkPoint dstQuad[4], GrAA aa,
                          GrQuadAAFlags edgeAA, const SkRect* domain, const SkMatrix& viewMatrix,
@@ -224,7 +224,7 @@ public:
         GrSurfaceOrigin origin = proxy->origin();
         const GrSwizzle& swizzle = proxy->textureSwizzle();
         GrSurfaceProxyView proxyView(std::move(proxy), origin, swizzle);
-        this->drawTexturedQuad(clip, std::move(proxyView), srcColorType, std::move(texXform),
+        this->drawTexturedQuad(clip, std::move(proxyView), srcAlphaType, std::move(texXform),
                                filter, color, mode, aa, edgeAA,
                                GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                                GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), domain);
@@ -233,7 +233,7 @@ public:
     /** Used with drawTextureSet */
     struct TextureSetEntry {
         GrSurfaceProxyView fProxyView;
-        GrColorType fSrcColorType;
+        SkAlphaType fSrcAlphaType;
         SkRect fSrcRect;
         SkRect fDstRect;
         const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
@@ -442,8 +442,7 @@ public:
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.
      */
-    bool blitTexture(GrTextureProxy* src, GrColorType srcColorType, const SkIRect& srcRect,
-                     const SkIPoint& dstPoint);
+    bool blitTexture(GrTextureProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
@@ -552,15 +551,6 @@ private:
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
 
-#if GR_TEST_UTILS
-    // for a unit test
-    friend void test_draw_op(GrContext*,
-                             GrRenderTargetContext*,
-                             std::unique_ptr<GrFragmentProcessor>,
-                             sk_sp<GrTextureProxy>,
-                             GrColorType);
-#endif
-
     GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
                           GrSurfaceOrigin, GrSwizzle texSwizzle, GrSwizzle outSwizzle,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
@@ -614,7 +604,7 @@ private:
     // Like drawFilledQuad but does not require using a GrPaint or FP for texturing
     void drawTexturedQuad(const GrClip& clip,
                           GrSurfaceProxyView proxyView,
-                          GrColorType srcColorType,
+                          SkAlphaType alphaType,
                           sk_sp<GrColorSpaceXform> textureXform,
                           GrSamplerState::Filter filter,
                           const SkPMColor4f& color,
