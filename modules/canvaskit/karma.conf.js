@@ -64,9 +64,14 @@ module.exports = function(config) {
         ChromeHeadlessNoSandbox: {
             base: 'ChromeHeadless',
             flags: [
-            // Without this flag, we see an error:
-            // Failed to move to new namespace: PID namespaces supported, Network namespace supported, but failed: errno = Operation not permitted
-                '--no-sandbox'
+              // Without this flag, we see an error:
+              // Failed to move to new namespace: PID namespaces supported, Network namespace supported, but failed: errno = Operation not permitted
+              '--no-sandbox',
+              // may help tests be less flaky
+              '--browser-test',
+              // This can also help avoid crashes/timeouts:
+              // https://github.com/GoogleChrome/puppeteer/issues/1834
+              '--disable-dev-shm-usage',
             ],
         },
     };
