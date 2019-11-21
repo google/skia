@@ -41,8 +41,8 @@ sk_sp<sksg::GeometryNode> AttachPathGeometry(const skjson::ObjectValue& jpath,
 sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
                                               const AnimationBuilder* abuilder) {
     auto rect_node = sksg::RRect::Make();
-    rect_node->setDirection(ParseDefault(jrect["d"], -1) == 3 ? SkPath::kCCW_Direction
-                                                              : SkPath::kCW_Direction);
+    rect_node->setDirection(ParseDefault(jrect["d"], -1) == 3 ? SkPathDirection::kCCW
+                                                              : SkPathDirection::kCW);
     rect_node->setInitialPointIndex(2); // starting point: (Right, Top - radius.y)
 
     auto adapter = sk_make_sp<RRectAdapter>(rect_node);
@@ -70,8 +70,8 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
 sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jellipse,
                                                 const AnimationBuilder* abuilder) {
     auto rect_node = sksg::RRect::Make();
-    rect_node->setDirection(ParseDefault(jellipse["d"], -1) == 3 ? SkPath::kCCW_Direction
-                                                                 : SkPath::kCW_Direction);
+    rect_node->setDirection(ParseDefault(jellipse["d"], -1) == 3 ? SkPathDirection::kCCW
+                                                                 : SkPathDirection::kCW);
     rect_node->setInitialPointIndex(1); // starting point: (Center, Top)
 
     auto adapter = sk_make_sp<RRectAdapter>(rect_node);
