@@ -873,47 +873,15 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, const TextureSetE
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureSet", fContext);
 
-    if (mode != SkBlendMode::kSrcOver ||
-        !fContext->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
-        // Draw one at a time since the bulk API doesn't support non src-over blending, or the
-        // backend can't support the bulk geometry processor yet.
-        SkMatrix ctm;
-        for (int i = 0; i < cnt; ++i) {
-            float alpha = set[i].fAlpha;
-            ctm = viewMatrix;
-            if (set[i].fPreViewMatrix) {
-                ctm.preConcat(*set[i].fPreViewMatrix);
-            }
-
-            GrQuad quad, srcQuad;
-            if (set[i].fDstClipQuad) {
-                quad = GrQuad::MakeFromSkQuad(set[i].fDstClipQuad, ctm);
-
-                SkPoint srcPts[4];
-                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcPts, 4);
-                srcQuad = GrQuad::MakeFromSkQuad(srcPts, SkMatrix::I());
-            } else {
-                quad = GrQuad::MakeFromRect(set[i].fDstRect, ctm);
-                srcQuad = GrQuad(set[i].fSrcRect);
-            }
-
-            const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
-                    ? &set[i].fSrcRect : nullptr;
-            this->drawTexturedQuad(clip, set[i].fProxyView, set[i].fSrcColorType, texXform, filter,
-                                   {alpha, alpha, alpha, alpha}, mode, aa, set[i].fAAFlags, quad,
-                                   srcQuad, domain);
-        }
-    } else {
-        // Create the minimum number of GrTextureOps needed to draw this set. Individual
-        // GrTextureOps can rebind the texture between draws thus avoiding GrPaint (re)creation.
-        AutoCheckFlush acf(this->drawingManager());
-        GrAAType aaType = this->chooseAAType(aa);
-        auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
-        auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
-                                                          : GrTextureOp::Saturate::kNo;
-        GrTextureOp::CreateTextureSetOps(this, clip, fContext, set, cnt, filter, saturate, aaType,
-                                         constraint, viewMatrix, std::move(texXform));
-    }
+    // Create the minimum number of GrTextureOps needed to draw this set. Individual
+    // GrTextureOps can rebind the texture between draws thus avoiding GrPaint (re)creation.
+    AutoCheckFlush acf(this->drawingManager());
+    GrAAType aaType = this->chooseAAType(aa);
+    auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
+    auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
+                                                      : GrTextureOp::Saturate::kNo;
+    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, filter, saturate, mode, aaType,
+                                  constraint, viewMatrix, std::move(texXform));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
