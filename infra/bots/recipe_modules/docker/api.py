@@ -21,7 +21,7 @@ class DockerApi(recipe_api.RecipeApi):
     name = ' '.join([str(elem) for elem in cmd])
     self.m.step(name, cmd=cmd, infra_step=True)
 
-  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None):
+  def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
     with self.m.step.nest('Docker setup'):
@@ -69,4 +69,4 @@ class DockerApi(recipe_api.RecipeApi):
 
     env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
     with self.m.env(env):
-      self.m.step(name, cmd=cmd)
+      self.m.run.with_retry(self.m.step, name, attempts, cmd=cmd)

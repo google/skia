@@ -66,6 +66,7 @@ def RunSteps(api):
       docker_args=None,
       copies=copies,
       recursive_read=recursive_read,
+      attempts=3,
   )
 
 
