@@ -102,7 +102,6 @@ private:
 /**
  * This GM directly exercises effects that draw Bezier curves in the GPU backend.
  */
-
 class BezierConicTestOp : public BezierTestOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -175,69 +174,78 @@ public:
     }
 
 protected:
+    static const int kNumConics = 10;
+    static const int kCellWidth = 128;
+    static const int kCellHeight = 128;
+
     SkString onShortName() override {
         return SkString("bezier_conic_effects");
     }
 
     SkISize onISize() override {
-        return SkISize::Make(800, 800);
+        return SkISize::Make(kGrClipEdgeTypeCnt*kCellWidth, kNumConics*kCellHeight);
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
-        struct Vertex {
-            SkPoint fPosition;
-            float   fKLM[4]; // The last value is ignored. The effect expects a vec4f.
+
+        const SkScalar w = kCellWidth, h = kCellHeight;
+        const SkPMColor4f kOpaqueBlack = SkPMColor4f::FromBytes_RGBA(0xff000000);
+
+        const SkPoint baseControlPts[kNumConics][3] = {
+            { { 0.31f * w, 0.01f * h}, { 0.48f * w, 0.74f * h }, { 0.19f * w, 0.33f * h } },
+            { { 0.00f * w, 0.07f * h}, { 0.30f * w, 0.70f * h }, { 0.47f * w, 0.37f * h } },
+            { { 0.15f * w, 0.23f * h}, { 0.49f * w, 0.87f * h }, { 0.85f * w, 0.66f * h } },
+            { { 0.09f * w, 0.15f * h}, { 0.42f * w, 0.33f * h }, { 0.17f * w, 0.38f * h } },
+            { { 0.98f * w, 0.54f * h}, { 0.83f * w, 0.91f * h }, { 0.62f * w, 0.40f * h } },
+            { { 0.96f * w, 0.65f * h}, { 0.03f * w, 0.79f * h }, { 0.24f * w, 0.56f * h } },
+            { { 0.57f * w, 0.12f * h}, { 0.33f * w, 0.67f * h }, { 0.59f * w, 0.33f * h } },
+            { { 0.12f * w, 0.72f * h}, { 0.69f * w, 0.85f * h }, { 0.46f * w, 0.32f * h } },
+            { { 0.27f * w, 0.49f * h}, { 0.41f * w, 0.02f * h }, { 0.11f * w, 0.42f * h } },
+            { { 0.40f * w, 0.13f * h}, { 0.83f * w, 0.30f * h }, { 0.31f * w, 0.68f * h } },
         };
+        const SkScalar weights[kNumConics] = { 0.62f, 0.01f, 0.95f, 1.48f, 0.37f,
+                                               0.66f, 0.15f, 0.14f, 0.61f, 1.4f };
 
-        constexpr int kNumConics = 10;
-        SkRandom rand;
+        SkPaint ctrlPtPaint;
+        ctrlPtPaint.setColor(SK_ColorRED);
 
-        // Mult by 3 for each edge effect type
-        int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumConics*3)));
-        int numRows = SkScalarCeilToInt(SkIntToScalar(kNumConics*3) / numCols);
-        SkScalar w = SkIntToScalar(renderTargetContext->width()) / numCols;
-        SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
-        int row = 0;
-        int col = 0;
-        SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(0xff000000);
+        SkPaint choppedPtPaint;
+        choppedPtPaint.setColor(~ctrlPtPaint.getColor() | 0xFF000000);
 
-        for (int i = 0; i < kNumConics; ++i) {
-            SkPoint baseControlPts[] = {
-                {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
-                {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
-                {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
-            };
-            SkScalar weight = rand.nextRangeF(0.f, 2.f);
-            for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
-                GrClipEdgeType et = (GrClipEdgeType)edgeType;
+        SkPaint polyPaint;
+        polyPaint.setColor(0xffA0A0A0);
+        polyPaint.setStrokeWidth(0);
+        polyPaint.setStyle(SkPaint::kStroke_Style);
+
+        SkPaint boundsPaint;
+        boundsPaint.setColor(0xff808080);
+        boundsPaint.setStrokeWidth(0);
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
+
+
+        for (int row = 0; row < kNumConics; ++row) {
+            for(int col = 0; col < kGrClipEdgeTypeCnt; ++col) {
+                GrClipEdgeType et = (GrClipEdgeType) col;
 
                 SkScalar x = col * w;
                 SkScalar y = row * h;
                 SkPoint controlPts[] = {
-                    {x + baseControlPts[0].fX, y + baseControlPts[0].fY},
-                    {x + baseControlPts[1].fX, y + baseControlPts[1].fY},
-                    {x + baseControlPts[2].fX, y + baseControlPts[2].fY}
+                    {x + baseControlPts[row][0].fX, y + baseControlPts[row][0].fY},
+                    {x + baseControlPts[row][1].fX, y + baseControlPts[row][1].fY},
+                    {x + baseControlPts[row][2].fX, y + baseControlPts[row][2].fY}
                 };
-                SkConic dst[4];
-                SkMatrix klm;
-                int cnt = chop_conic(controlPts, dst, weight);
-                GrPathUtils::getConicKLM(controlPts, weight, &klm);
 
-                SkPaint ctrlPtPaint;
-                ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
                 for (int i = 0; i < 3; ++i) {
                     canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
                 }
 
-                SkPaint polyPaint;
-                polyPaint.setColor(0xffA0A0A0);
-                polyPaint.setStrokeWidth(0);
-                polyPaint.setStyle(SkPaint::kStroke_Style);
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, controlPts, polyPaint);
 
-                SkPaint choppedPtPaint;
-                choppedPtPaint.setColor(~ctrlPtPaint.getColor() | 0xFF000000);
+                SkConic dst[4];
+                SkMatrix klm;
+                int cnt = ChopConic(controlPts, dst, weights[row]);
+                GrPathUtils::getConicKLM(controlPts, weights[row], &klm);
 
                 for (int c = 0; c < cnt; ++c) {
                     SkPoint* pts = dst[c].fPts;
@@ -246,24 +254,13 @@ protected:
                     }
 
                     SkRect bounds;
-                    //SkPoint bPts[] = {{0.f, 0.f}, {800.f, 800.f}};
-                    //bounds.set(bPts, 2);
                     bounds.setBounds(pts, 3);
 
-                    SkPaint boundsPaint;
-                    boundsPaint.setColor(0xff808080);
-                    boundsPaint.setStrokeWidth(0);
-                    boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
 
                     std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(context, et, bounds,
-                                                                           color, klm);
+                                                                           kOpaqueBlack, klm);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
-                }
-                ++col;
-                if (numCols == col) {
-                    col = 0;
-                    ++row;
                 }
             }
         }
@@ -275,7 +272,7 @@ private:
     // found along the curve segment it will return 1 and
     // dst[0] is the original conic. If it returns 2 the dst[0]
     // and dst[1] are the two new conics.
-    int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
+    static int SplitConic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
         SkScalar t = SkFindQuadMaxCurvature(src);
         if (t == 0 || t == 1) {
             if (dst) {
@@ -295,15 +292,15 @@ private:
         }
     }
 
-    // Calls split_conic on the entire conic and then once more on each subsection.
+    // Calls SplitConic on the entire conic and then once more on each subsection.
     // Most cases will result in either 1 conic (chop point is not within t range)
     // or 3 points (split once and then one subsection is split again).
-    int chop_conic(const SkPoint src[3], SkConic dst[4], const SkScalar weight) {
+    static int ChopConic(const SkPoint src[3], SkConic dst[4], const SkScalar weight) {
         SkConic dstTemp[2];
-        int conicCnt = split_conic(src, dstTemp, weight);
+        int conicCnt = SplitConic(src, dstTemp, weight);
         if (2 == conicCnt) {
-            int conicCnt2 = split_conic(dstTemp[0].fPts, dst, dstTemp[0].fW);
-            conicCnt = conicCnt2 + split_conic(dstTemp[1].fPts, &dst[conicCnt2], dstTemp[1].fW);
+            int conicCnt2 = SplitConic(dstTemp[0].fPts, dst, dstTemp[0].fW);
+            conicCnt = conicCnt2 + SplitConic(dstTemp[1].fPts, &dst[conicCnt2], dstTemp[1].fW);
         } else {
             dst[0] = dstTemp[0];
         }
@@ -380,66 +377,68 @@ public:
     }
 
 protected:
+    static const int kNumQuads = 5;
+    static const int kCellWidth = 128;
+    static const int kCellHeight = 128;
+
     SkString onShortName() override {
         return SkString("bezier_quad_effects");
     }
 
     SkISize onISize() override {
-        return SkISize::Make(800, 800);
+        return SkISize::Make(kGrClipEdgeTypeCnt*kCellWidth, kNumQuads*kCellHeight);
     }
-
 
     void onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
-        struct Vertex {
-            SkPoint fPosition;
-            float   fUV[4]; // The last two values are ignored. The effect expects a vec4f.
+
+        const SkScalar w = kCellWidth, h = kCellHeight;
+        const SkPMColor4f kOpaqueBlack = SkPMColor4f::FromBytes_RGBA(0xff000000);
+
+        const SkPoint baseControlPts[kNumQuads][3] = {
+            { { 0.31f * w, 0.01f * h}, { 0.48f * w, 0.74f * h }, { 0.19f * w, 0.33f * h } },
+            { { 0.00f * w, 0.07f * h}, { 0.30f * w, 0.70f * h }, { 0.47f * w, 0.37f * h } },
+            { { 0.15f * w, 0.23f * h}, { 0.49f * w, 0.87f * h }, { 0.85f * w, 0.66f * h } },
+            { { 0.09f * w, 0.15f * h}, { 0.42f * w, 0.33f * h }, { 0.17f * w, 0.38f * h } },
+            { { 0.98f * w, 0.54f * h}, { 0.83f * w, 0.91f * h }, { 0.62f * w, 0.40f * h } },
         };
 
-        constexpr int kNumQuads = 5;
-        SkRandom rand;
+        SkPaint ctrlPtPaint;
+        ctrlPtPaint.setColor(SK_ColorRED);
 
-        int numCols = SkScalarCeilToInt(SkScalarSqrt(SkIntToScalar(kNumQuads*3)));
-        int numRows = SkScalarCeilToInt(SkIntToScalar(kNumQuads*3) / numCols);
-        SkScalar w = SkIntToScalar(renderTargetContext->width()) / numCols;
-        SkScalar h = SkIntToScalar(renderTargetContext->height()) / numRows;
-        int row = 0;
-        int col = 0;
-        SkPMColor4f color = SkPMColor4f::FromBytes_RGBA(0xff000000);
+        SkPaint choppedPtPaint;
+        choppedPtPaint.setColor(~ctrlPtPaint.getColor() | 0xFF000000);
 
-        for (int i = 0; i < kNumQuads; ++i) {
-            SkPoint baseControlPts[] = {
-                {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
-                {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
-                {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
-            };
-            for(int edgeType = 0; edgeType < kGrClipEdgeTypeCnt; ++edgeType) {
-                GrClipEdgeType et = (GrClipEdgeType)edgeType;
+        SkPaint polyPaint;
+        polyPaint.setColor(0xffA0A0A0);
+        polyPaint.setStrokeWidth(0);
+        polyPaint.setStyle(SkPaint::kStroke_Style);
+
+        SkPaint boundsPaint;
+        boundsPaint.setColor(0xff808080);
+        boundsPaint.setStrokeWidth(0);
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
+
+        for (int row = 0; row < kNumQuads; ++row) {
+            for(int col = 0; col < kGrClipEdgeTypeCnt; ++col) {
+                GrClipEdgeType et = (GrClipEdgeType) col;
 
                 SkScalar x = col * w;
                 SkScalar y = row * h;
                 SkPoint controlPts[] = {
-                    {x + baseControlPts[0].fX, y + baseControlPts[0].fY},
-                    {x + baseControlPts[1].fX, y + baseControlPts[1].fY},
-                    {x + baseControlPts[2].fX, y + baseControlPts[2].fY}
+                    {x + baseControlPts[row][0].fX, y + baseControlPts[row][0].fY},
+                    {x + baseControlPts[row][1].fX, y + baseControlPts[row][1].fY},
+                    {x + baseControlPts[row][2].fX, y + baseControlPts[row][2].fY}
                 };
-                SkPoint chopped[5];
-                int cnt = SkChopQuadAtMaxCurvature(controlPts, chopped);
 
-                SkPaint ctrlPtPaint;
-                ctrlPtPaint.setColor(rand.nextU() | 0xFF000000);
                 for (int i = 0; i < 3; ++i) {
                     canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
                 }
 
-                SkPaint polyPaint;
-                polyPaint.setColor(0xffA0A0A0);
-                polyPaint.setStrokeWidth(0);
-                polyPaint.setStyle(SkPaint::kStroke_Style);
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, controlPts, polyPaint);
 
-                SkPaint choppedPtPaint;
-                choppedPtPaint.setColor(~ctrlPtPaint.getColor() | 0xFF000000);
+                SkPoint chopped[5];
+                int cnt = SkChopQuadAtMaxCurvature(controlPts, chopped);
 
                 for (int c = 0; c < cnt; ++c) {
                     SkPoint* pts = chopped + 2 * c;
@@ -451,25 +450,13 @@ protected:
                     SkRect bounds;
                     bounds.setBounds(pts, 3);
 
-                    SkPaint boundsPaint;
-                    boundsPaint.setColor(0xff808080);
-                    boundsPaint.setStrokeWidth(0);
-                    boundsPaint.setStyle(SkPaint::kStroke_Style);
                     canvas->drawRect(bounds, boundsPaint);
-
-                    GrPaint grPaint;
-                    grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                    std::unique_ptr<GrDrawOp> op = BezierQuadTestOp::Make(context, et,
-                                                                          bounds, color, DevToUV);
+                    std::unique_ptr<GrDrawOp> op = BezierQuadTestOp::Make(context, et, bounds,
+                                                                          kOpaqueBlack, DevToUV);
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
-                }
-                ++col;
-                if (numCols == col) {
-                    col = 0;
-                    ++row;
                 }
             }
         }
