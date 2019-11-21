@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35f506bf_71a04bfd",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-21T16:21:34Z",
+      "side": 1,
+      "message": "This is essentially cut-n-pasted from GrRTC::drawTextureSet except that Make() is used instead of drawTexturedQuad()",
+      "range": {
+        "startLine": 1068,
+        "startChar": 4,
+        "endLine": 1102,
+        "endChar": 15
+      },
+      "revId": "5a6803f436ce92a9ebb30b09de323376740be927",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
