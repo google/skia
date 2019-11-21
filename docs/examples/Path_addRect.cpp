@@ -11,10 +11,10 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     SkPath path;
-    path.addRect({20, 20, 100, 100}, SkPath::kCW_Direction);
+    path.addRect({20, 20, 100, 100}, SkPathDirection::kCW);
     canvas->drawPath(path, paint);
     path.rewind();
-    path.addRect({140, 20, 220, 100}, SkPath::kCCW_Direction);
+    path.addRect({140, 20, 220, 100}, SkPathDirection::kCCW);
     canvas->drawPath(path, paint);
 }
 }  // END FIDDLE
