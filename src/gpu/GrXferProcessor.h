@@ -186,9 +186,9 @@ public:
     }
 
 protected:
-    GrXferProcessor(ClassID classID);
+    GrXferProcessor(ClassID classID, bool foo);
     GrXferProcessor(ClassID classID, bool willReadDstColor, bool hasMixedSamples,
-                    GrProcessorAnalysisCoverage);
+                    GrProcessorAnalysisCoverage, bool foo);
 
 private:
     /**

@@ -19,10 +19,14 @@
  */
 class DisableColorXP : public GrXferProcessor {
 public:
-    DisableColorXP() : INHERITED(kDisableColorXP_ClassID) {}
+    static const GrXferProcessor* Make(SkArenaAlloc* arena) {
+        return arena->make<DisableColorXP>();
+    }
 
 private:
-    const char* name() const override { return "Disable Color"; }
+    DisableColorXP() : INHERITED(kDisableColorXP_ClassID, true) {}
+
+    const char* name() const override { return "DisableColorXP"; }
     bool onIsEqual(const GrXferProcessor& xpBase) const override { return true; }
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         return;  // No key.

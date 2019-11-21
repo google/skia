@@ -74,15 +74,17 @@ static bool can_use_hw_blend_equation(GrBlendEquation equation,
 
 class CustomXP : public GrXferProcessor {
 public:
-    CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
-        : INHERITED(kCustomXP_ClassID)
-        , fMode(mode)
-        , fHWBlendEquation(hwBlendEquation) {}
+    static GrXferProcessor* Make(SkArenaAlloc* arena,
+                                 SkBlendMode mode,
+                                 GrBlendEquation hwBlendEquation) {
+        return arena->make<CustomXP>(mode, hwBlendEquation);
+    }
 
-    CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage)
-            , fMode(mode)
-            , fHWBlendEquation(kIllegal_GrBlendEquation) {
+    static GrXferProcessor* Make(SkArenaAlloc* arena,
+                                 bool hasMixedSamples,
+                                 SkBlendMode mode,
+                                 GrProcessorAnalysisCoverage coverage) {
+        return arena->make<CustomXP>(hasMixedSamples, mode, coverage);
     }
 
     const char* name() const override { return "Custom Xfermode"; }
@@ -100,6 +102,17 @@ public:
     GrXferBarrierType xferBarrierType(const GrCaps&) const override;
 
 private:
+    CustomXP(SkBlendMode mode, GrBlendEquation hwBlendEquation)
+        : INHERITED(kCustomXP_ClassID, true)
+        , fMode(mode)
+        , fHWBlendEquation(hwBlendEquation) {}
+
+    CustomXP(bool hasMixedSamples, SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
+        : INHERITED(kCustomXP_ClassID, true, hasMixedSamples, coverage, true)
+        , fMode(mode)
+        , fHWBlendEquation(kIllegal_GrBlendEquation) {
+    }
+
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
@@ -217,11 +230,12 @@ public:
             : fMode(mode), fHWBlendEquation(hw_blend_equation(mode)) {}
 
 private:
-    sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
-                                                   GrProcessorAnalysisCoverage,
-                                                   bool hasMixedSamples,
-                                                   const GrCaps&,
-                                                   GrClampType) const override;
+    const GrXferProcessor* makeXferProcessor(SkArenaAlloc* arena,
+                                             const GrProcessorAnalysisColor&,
+                                             GrProcessorAnalysisCoverage,
+                                             bool hasMixedSamples,
+                                             const GrCaps&,
+                                             GrClampType) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
@@ -242,7 +256,8 @@ private:
 #pragma clang diagnostic pop
 #endif
 
-sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
+const GrXferProcessor* CustomXPFactory::makeXferProcessor(
+        SkArenaAlloc* arena,
         const GrProcessorAnalysisColor&,
         GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
@@ -250,9 +265,9 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         GrClampType clampType) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
-        return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
+        return CustomXP::Make(arena, fMode, fHWBlendEquation);
     }
-    return sk_sp<GrXferProcessor>(new CustomXP(hasMixedSamples, fMode, coverage));
+    return CustomXP::Make(arena, hasMixedSamples, fMode, coverage);
 }
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
