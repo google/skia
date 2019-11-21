@@ -480,10 +480,14 @@ namespace skvm {
         };
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
-        bool isSplat(Val id, int* imm) const;
-        bool isSplat(Val id, int  imm) const {
-            int k = 0;
-            return this->isSplat(id, &k) && k == imm;
+
+        template <typename T, typename... Rest>
+        bool isImm(Val, T* imm, Rest...) const;
+
+        template <typename T>
+        bool isImm(Val id, T want) const {
+            T imm = 0;
+            return this->isImm(id, &imm) && imm == want;
         }
 
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
