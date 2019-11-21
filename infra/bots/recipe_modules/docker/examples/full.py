@@ -20,7 +20,7 @@ def RunSteps(api):
       src_dir='/host-src',
       out_dir='/host-out',
       script='./do-stuff.sh',
-      args=['--key', 'value'],
+      args=['--src', api.docker.mount_src(), '--out', api.docker.mount_out()],
       docker_args=['--cpus', '2'],
       copies={'/copy-src/myfile': '/copy-dst/myfile'},
       recursive_read=['/host-src'],
