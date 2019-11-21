@@ -14,6 +14,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrSamplerState.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -134,13 +135,15 @@ namespace GrQuadPerEdgeAA {
     // MakeProcessor and/or MakeTexturedProcessor.
     class Tessellator {
     public:
-        explicit Tessellator(const VertexSpec& spec);
+        explicit Tessellator(const VertexSpec& spec, char* vertices);
 
-        // Calculates (as needed) inset and outset geometry for anti-aliasing, and writes all
-        // necessary position and vertex attributes required by this Tessellator's VertexSpec.
-        // After appending, this will return the pointer to the next vertex in the VBO.
-        void* append(void* vertices, const GrQuad& deviceQuad, const GrQuad& localQuad,
+        // Calculates (as needed) inset and outset geometry for anti-aliasing, and appends all
+        // necessary position and vertex attributes required by this Tessellator's VertexSpec into
+        // the 'vertices' the Tessellator was called with.
+        void append(const GrQuad& deviceQuad, const GrQuad& localQuad,
                     const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags);
+
+        SkDEBUGCODE(char* vertices() const { return (char*) fVertexWriter.fPtr; })
 
     private:
         // VertexSpec defines many unique ways to write vertex attributes, which can be handled
@@ -155,6 +158,7 @@ namespace GrQuadPerEdgeAA {
 
         GrQuadUtils::TessellationHelper fAAHelper;
         VertexSpec                      fVertexSpec;
+        GrVertexWriter                  fVertexWriter;
         WriteQuadProc                   fWriteProc;
     };
 

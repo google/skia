@@ -584,36 +584,30 @@ private:
                            sk_sp<const GrBuffer> indexBuffer) {
         int totQuadsSeen = 0;
         SkDEBUGCODE(int totVerticesSeen = 0;)
-        char* dst = pVertexData;
-        const size_t vertexSize = desc->fVertexSpec.vertexSize();
+        SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize());
 
-        GrQuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec);
+        GrQuadPerEdgeAA::Tessellator tessellator(desc->fVertexSpec, pVertexData);
         int meshIndex = 0;
         for (const auto& op : ChainRange<TextureOp>(texOp)) {
             auto iter = op.fQuads.iterator();
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
                 GrTextureProxy* proxy = op.fViewCountPairs[p].fProxyView.asTextureProxy();
 
-                int quadCnt = op.fViewCountPairs[p].fQuadCnt;
-
-                const int meshVertexCnt = quadCnt * desc->fVertexSpec.verticesPerQuad();
-
+                const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
+                SkDEBUGCODE(int meshVertexCnt = quadCnt * desc->fVertexSpec.verticesPerQuad());
                 SkASSERT(meshIndex < desc->fNumProxies);
 
-                if (dst) {
-                    int i = 0;
-                    void* v = dst;
-                    while(i < quadCnt && iter.next()) {
+                if (pVertexData) {
+                    for (int i = 0; i < quadCnt && iter.next(); ++i) {
                         SkASSERT(iter.isLocalValid());
                         const ColorDomainAndAA& info = iter.metadata();
-                        v = tessellator.append(v, iter.deviceQuad(), iter.localQuad(),
-                                               info.fColor, info.fDomainRect, info.aaFlags());
-                        i++;
+                        tessellator.append(iter.deviceQuad(), iter.localQuad(),
+                                           info.fColor, info.fDomainRect, info.aaFlags());
                     }
                     desc->setMeshProxy(meshIndex, proxy);
 
-                    SkASSERT(totVerticesSeen * vertexSize == (size_t)(dst - pVertexData));
-                    dst += vertexSize * meshVertexCnt;
+                    SkASSERT((totVerticesSeen + meshVertexCnt) * vertexSize
+                             == (size_t)(tessellator.vertices() - pVertexData));
                 }
 
                 if (meshes) {
@@ -631,10 +625,11 @@ private:
 
             // If quad counts per proxy were calculated correctly, the entire iterator
             // should have been consumed.
-            SkASSERT(!dst || !iter.next());
+            SkASSERT(!pVertexData || !iter.next());
         }
 
-        SkASSERT(!dst || (desc->totalSizeInBytes() == (size_t)(dst - pVertexData)));
+        SkASSERT(!pVertexData ||
+                 (desc->totalSizeInBytes() == (size_t)(tessellator.vertices() - pVertexData)));
         SkASSERT(meshIndex == desc->fNumProxies);
         SkASSERT(totQuadsSeen == desc->fNumTotalQuads);
         SkASSERT(totVerticesSeen == desc->totalNumVertices());
