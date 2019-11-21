@@ -22,13 +22,13 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
     SkASSERT(data);
     PathOpsThreadState& state = *data;
     int aShape = state.fA & 0x03;
-    SkPathDirection aCW = state.fA >> 2 ? SkPathDirection::kCCW : SkPathDirection::kCW;
+    SkPath::Direction aCW = state.fA >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
     int bShape = state.fB & 0x03;
-    SkPathDirection bCW = state.fB >> 2 ? SkPathDirection::kCCW : SkPathDirection::kCW;
+    SkPath::Direction bCW = state.fB >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
     int cShape = state.fC & 0x03;
-    SkPathDirection cCW = state.fC >> 2 ? SkPathDirection::kCCW : SkPathDirection::kCW;
+    SkPath::Direction cCW = state.fC >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
     int dShape = state.fD & 0x03;
-    SkPathDirection dCW = state.fD >> 2 ? SkPathDirection::kCCW : SkPathDirection::kCW;
+    SkPath::Direction dCW = state.fD >> 2 ? SkPath::kCCW_Direction : SkPath::kCW_Direction;
     for (int aXAlign = 0; aXAlign < 5; ++aXAlign) {
         for (int aYAlign = 0; aYAlign < 5; ++aYAlign) {
             for (int bXAlign = 0; bXAlign < 5; ++bXAlign) {
@@ -67,8 +67,7 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
                     aCW);
             if (state.fReporter->verbose()) {
                 pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kC%sW);\n", l, t, r, b,
-                                aCW == SkPathDirection::kCCW ? "C" : "");
+                        " SkPath::kC%sW_Direction);\n", l, t, r, b, aCW ? "C" : "");
             }
         } else {
             aXAlign = 5;
@@ -99,8 +98,7 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
                     bCW);
             if (state.fReporter->verbose()) {
                 pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kC%sW);\n", l, t, r, b,
-                                bCW == SkPathDirection::kCCW ? "C" : "");
+                        " SkPath::kC%sW_Direction);\n", l, t, r, b, bCW ? "C" : "");
             }
         } else {
             bXAlign = 5;
@@ -131,8 +129,7 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
                     cCW);
             if (state.fReporter->verbose()) {
                 pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kC%sW);\n", l, t, r, b,
-                                cCW == SkPathDirection::kCCW ? "C" : "");
+                        " SkPath::kC%sW_Direction);\n", l, t, r, b, cCW ? "C" : "");
             }
         } else {
             cXAlign = 5;
@@ -163,8 +160,7 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
                     dCW);
             if (state.fReporter->verbose()) {
                 pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kC%sW);\n", l, t, r, b,
-                                dCW == SkPathDirection::kCCW ? "C" : "");
+                        " SkPath::kC%sW_Direction);\n", l, t, r, b, dCW ? "C" : "");
             }
         } else {
             dXAlign = 5;

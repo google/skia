@@ -646,9 +646,9 @@ protected:
             path.reset();
             SkRRect rr2;
             rr.inset(width/2, width/2, &rr2);
-            path.addRRect(rr2, SkPathDirection::kCCW);
+            path.addRRect(rr2, SkPath::kCCW_Direction);
             rr.inset(-width/2, -width/2, &rr2);
-            path.addRRect(rr2, SkPathDirection::kCW);
+            path.addRRect(rr2, SkPath::kCW_Direction);
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setColor(0x40FF8844);

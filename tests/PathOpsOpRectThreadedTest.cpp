@@ -34,15 +34,15 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
         SkPath pathA, pathB;
         pathA.setFillType((SkPath::FillType) e);
         pathA.addRect(SkIntToScalar(state.fA), SkIntToScalar(state.fA), SkIntToScalar(state.fB),
-                SkIntToScalar(state.fB), SkPathDirection::kCW);
+                SkIntToScalar(state.fB), SkPath::kCW_Direction);
         pathA.addRect(SkIntToScalar(state.fC), SkIntToScalar(state.fC), SkIntToScalar(state.fD),
-                SkIntToScalar(state.fD), SkPathDirection::kCW);
+                SkIntToScalar(state.fD), SkPath::kCW_Direction);
         pathA.close();
         pathB.setFillType((SkPath::FillType) f);
         pathB.addRect(SkIntToScalar(a), SkIntToScalar(a), SkIntToScalar(b),
-                SkIntToScalar(b), SkPathDirection::kCW);
+                SkIntToScalar(b), SkPath::kCW_Direction);
         pathB.addRect(SkIntToScalar(c), SkIntToScalar(c), SkIntToScalar(d),
-                SkIntToScalar(d), SkPathDirection::kCW);
+                SkIntToScalar(d), SkPath::kCW_Direction);
         pathB.close();
         for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
             if (state.fReporter->verbose()) {
@@ -54,16 +54,16 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
                         e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
                         ? "EvenOdd" : "?UNDEFINED");
                 pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kCW);\n", state.fA, state.fA, state.fB, state.fB);
+                        " SkPath::kCW_Direction);\n", state.fA, state.fA, state.fB, state.fB);
                 pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kCW);\n", state.fC, state.fC, state.fD, state.fD);
+                        " SkPath::kCW_Direction);\n", state.fC, state.fC, state.fD, state.fD);
                 pathStr.appendf("    pathB.setFillType(SkPath::k%s_FillType);\n",
                         f == SkPath::kWinding_FillType ? "Winding" : f == SkPath::kEvenOdd_FillType
                         ? "EvenOdd" : "?UNDEFINED");
                 pathStr.appendf("    pathB.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kCW);\n", a, a, b, b);
+                        " SkPath::kCW_Direction);\n", a, a, b, b);
                 pathStr.appendf("    pathB.addRect(%d, %d, %d, %d,"
-                        " SkPathDirection::kCW);\n", c, c, d, d);
+                        " SkPath::kCW_Direction);\n", c, c, d, d);
                 pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
                         SkPathOpsDebug::OpStr((SkPathOp) op));
                 pathStr.appendf("}\n\n");
@@ -124,13 +124,13 @@ static void testPathOpsFastMain(PathOpsThreadState* data)
         pathA.setFillType((SkPath::FillType) e);
         if (a) {
         pathA.addRect(SkIntToScalar(state.fA), SkIntToScalar(state.fA), SkIntToScalar(state.fB) + c,
-                SkIntToScalar(state.fB), SkPathDirection::kCW);
+                SkIntToScalar(state.fB), SkPath::kCW_Direction);
         }
         pathA.close();
         pathB.setFillType((SkPath::FillType) f);
         if (b) {
         pathB.addRect(SkIntToScalar(state.fC), SkIntToScalar(state.fC), SkIntToScalar(state.fD) + d,
-                SkIntToScalar(state.fD), SkPathDirection::kCW);
+                SkIntToScalar(state.fD), SkPath::kCW_Direction);
         }
         pathB.close();
         const char* fillTypeStr[] = { "Winding", "EvenOdd", "InverseWinding", "InverseEvenOdd" };
@@ -143,12 +143,12 @@ static void testPathOpsFastMain(PathOpsThreadState* data)
                 pathStr.appendf("    path.setFillType(SkPath::k%s_FillType);\n", fillTypeStr[e]);
                 if (a) {
                     pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                          " SkPathDirection::kCW);\n", state.fA, state.fA, state.fB + c, state.fB);
+                          " SkPath::kCW_Direction);\n", state.fA, state.fA, state.fB + c, state.fB);
                 }
                 pathStr.appendf("    path.setFillType(SkPath::k%s_FillType);\n", fillTypeStr[f]);
                 if (b) {
                     pathStr.appendf("    path.addRect(%d, %d, %d, %d,"
-                          " SkPathDirection::kCW);\n", state.fC, state.fC, state.fD + d, state.fD);
+                          " SkPath::kCW_Direction);\n", state.fC, state.fC, state.fD + d, state.fD);
                 }
                 pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
                         SkPathOpsDebug::OpStr((SkPathOp) op));

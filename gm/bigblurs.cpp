@@ -52,7 +52,7 @@ protected:
         SkPath rectori;
 
         rectori.addRect(bigRect);
-        rectori.addRect(insetRect, SkPathDirection::kCCW);
+        rectori.addRect(insetRect, SkPath::kCCW_Direction);
 
         // The blur extends 3*kSigma out from the big rect.
         // Offset the close-up windows so we get the entire blur
