@@ -16,6 +16,24 @@
       "revId": "0421b618103aab27b59fbaeb49c23d5650ac9055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98d5833b_602ac8ae",
+        "filename": "src/ports/SkFontConfigInterface_direct.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-21T14:58:51Z",
+      "side": 1,
+      "message": "Oh, yes, very true. But now it is obviously a bug in FontConfig to be fixed. (I think the newest FontConfig may have tried to make this work? At the very least this means we won\u0027t accidentally use different instances inside this one call.)",
+      "parentUuid": "c52a4d9b_ca749a47",
+      "revId": "0421b618103aab27b59fbaeb49c23d5650ac9055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
