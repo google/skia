@@ -678,7 +678,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 glyphRunList, rtc->textTarget()->glyphPainter());
     }
 
-    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, skPaint, filteredColor, surfaceProps,
+    return blob->test_makeOp(textLen, viewMatrix, x, y, skPaint, filteredColor, surfaceProps,
                              textContext->dfAdjustTable(), rtc->textTarget());
 }
 
