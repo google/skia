@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9cdf2cfa_32fca62e",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-21T21:50:20Z",
+      "side": 1,
+      "message": "That\u0027d be fine, but we don\u0027t have negate(F32) / Op::negate_f32.\n\nI haven\u0027t added it yet since it\u0027d either be implemented in the backends as a compound anyway, either 0-y or y ^ 0x80000000... kind of all the same to just ignore it and leave this as sub_f32 of 0-y.",
+      "parentUuid": "1deae97c_1b60ec7f",
+      "range": {
+        "startLine": 591,
+        "startChar": 8,
+        "endLine": 591,
+        "endChar": 64
+      },
+      "revId": "63594605581012c4ce11fe343afaa4fd940074ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f1ab755_83463aa6",
         "filename": "src/core/SkVM.cpp",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2019-11-21T21:13:58Z",
       "side": 1,
       "message": "X or Y \u003d\u003d 0?",
+      "range": {
+        "startLine": 621,
+        "startChar": 8,
+        "endLine": 621,
+        "endChar": 59
+      },
+      "revId": "63594605581012c4ce11fe343afaa4fd940074ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46e713bc_e3540250",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-11-21T21:50:20Z",
+      "side": 1,
+      "message": "Sadly, we can\u0027t do that without knowing the other is finite.  x\u003d0 * y\u003dinf -\u003e NaN.\n\nI\u0027m not sure how often multiplication by zero comes up in practice.  I think it\u0027s currently over-represented in SkVMTest.expected because all those examples are written around doing SrcOver math and multiplication by (1-sa) with an opaque source comes up often.  Outside unit tests we\u0027d generally have noticed that the source was opaque at a higher level and swapped SrcOver to Src blend mode, never issuing those multiplies.\n\nAs usual, I think you can make the argument that with enough data flow anlaysis we could eventually avoid the need to convert SrcOver to Src, instead just letting the program optimizer work it all out.  I guess we\u0027d just add a `bool finite` field to `struct F32` and see if we can maintain it correctly (conservatively) for all ops, and then see if it\u0027s ever true?  Might be a fun little side project.",
+      "parentUuid": "5f1ab755_83463aa6",
       "range": {
         "startLine": 621,
         "startChar": 8,
