@@ -169,6 +169,30 @@
     },
     {
       "key": {
+        "uuid": "f33215ac_2e6fd303",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2019-11-21T18:43:20Z",
+      "side": 1,
+      "message": "Buildbucket doesn\u0027t support renaming.\nIf you just change cr-buildbucket.cfg with s/skia.primary/primary, buildbucket will effectively delete (disable) old bucket and create new buckets. So, this is a disruptive operation.\n\nHence, I recommend:\n1. create new bucket. You can keep \"primary\" name here,\n   (canonical LUCI naming is \"try\" for CQ and \"ci\" for post-commit ones, but your use is special)\n2. migrate your CQ and other workloads to new bucket.\n3. remove write ACL to old bucket\n4. in 1.5 years: delete old bucket, since bb build retention policy would have deleted all builds in it.",
+      "parentUuid": "74e80998_073f8439",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55d711d0_056a9ec8",
         "filename": "site/dev/contrib/cqkeywords.md",
         "patchSetId": 4
