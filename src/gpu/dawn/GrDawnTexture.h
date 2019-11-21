@@ -22,7 +22,7 @@ public:
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
                                             GrPixelConfig config, GrRenderable, int sampleCnt,
-                                            GrMipMapsStatus, GrWrapCacheable,
+                                            GrMipMapsStatus, GrWrapCacheable, GrIOType,
                                             const GrDawnImageInfo&);
 
     ~GrDawnTexture() override;

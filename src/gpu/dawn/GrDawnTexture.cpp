@@ -88,6 +88,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& d
                                                 GrPixelConfig config, GrRenderable renderable,
                                                 int sampleCnt, GrMipMapsStatus status,
                                                 GrWrapCacheable cacheable,
+                                                GrIOType ioType,
                                                 const GrDawnImageInfo& info) {
     wgpu::TextureView textureView = info.fTexture.CreateView();
     if (!textureView) {
@@ -103,6 +104,9 @@ sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, const SkISize& d
                 new GrDawnTexture(gpu, dimensions, config, textureView, info, status));
     }
     tex->registerWithCacheWrapped(cacheable);
+    if (ioType == kRead_GrIOType) {
+      tex->setReadOnly();
+    }
     return tex;
 }
 
