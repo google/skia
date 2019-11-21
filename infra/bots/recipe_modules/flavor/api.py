@@ -12,6 +12,7 @@ from . import android
 from . import chromebook
 from . import chromecast
 from . import default
+from . import docker
 from . import ios
 from . import valgrind
 from . import win_ssh
@@ -50,6 +51,9 @@ def is_chromebook(vars_api):
   return ('Chromebook' in vars_api.extra_tokens or
           'ChromeOS' in vars_api.builder_cfg.get('os', ''))
 
+def is_docker(vars_api):
+  return 'Docker' in vars_api.extra_tokens
+
 def is_ios(vars_api):
   return ('iOS' in vars_api.extra_tokens or
           'iOS' == vars_api.builder_cfg.get('os', ''))
@@ -74,6 +78,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       return chromebook.ChromebookFlavor(self)
     if is_android(vars_api) and not is_test_skqp(vars_api):
       return android.AndroidFlavor(self)
+    elif is_docker(vars_api):
+      return docker.DockerFlavor(self)
     elif is_ios(vars_api):
       return ios.iOSFlavor(self)
     elif is_valgrind(vars_api):
