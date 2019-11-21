@@ -193,6 +193,30 @@
     },
     {
       "key": {
+        "uuid": "e12c3aeb_49b56c15",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-21T22:24:23Z",
+      "side": 1,
+      "message": "So what should the documentation say?",
+      "parentUuid": "f33215ac_2e6fd303",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55d711d0_056a9ec8",
         "filename": "site/dev/contrib/cqkeywords.md",
         "patchSetId": 4
@@ -230,6 +254,24 @@
       "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dd0ade1_9d2605c5",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2019-11-21T22:24:23Z",
+      "side": 1,
+      "message": "The git commit-message hook script that adds the `Change-Id:` line to your commit message will get confused if there is a line in your footer that is not in the `Key: Value` format.  It will then add a new footer with a new Change-Id.",
+      "parentUuid": "83d6a8a9_f475f009",
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
