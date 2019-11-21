@@ -22,6 +22,30 @@
       "revId": "9f25abbc3d604ed0ca25308d30d202b265dede0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "404b7d3e_8ae36243",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-21T17:31:00Z",
+      "side": 1,
+      "message": "It is, just there\u0027s enough already in that namespace Gerrit cut it off.",
+      "parentUuid": "14c79c7d_04e63cc3",
+      "range": {
+        "startLine": 96,
+        "startChar": 7,
+        "endLine": 96,
+        "endChar": 26
+      },
+      "revId": "9f25abbc3d604ed0ca25308d30d202b265dede0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
