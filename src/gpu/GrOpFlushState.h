@@ -58,6 +58,7 @@ public:
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
+        // TODO: why does OpArgs have the op we're going to pass it to as a member? Remove it.
         explicit OpArgs(GrOp* op, GrSurfaceProxyView* surfaceView, GrAppliedClip* appliedClip,
                         const GrXferProcessor::DstProxyView& dstProxyView)
                 : fOp(op)
@@ -132,7 +133,7 @@ public:
     void putBackVertices(int vertices, size_t vertexStride) final;
     const GrSurfaceProxyView* view() const { return this->drawOpArgs().view(); }
     GrRenderTargetProxy* proxy() const final { return this->drawOpArgs().proxy(); }
-    const GrAppliedClip* appliedClip() final { return this->drawOpArgs().appliedClip(); }
+    const GrAppliedClip* appliedClip() const final { return this->drawOpArgs().appliedClip(); }
     GrAppliedClip detachAppliedClip() final;
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
         return this->drawOpArgs().dstProxyView();
