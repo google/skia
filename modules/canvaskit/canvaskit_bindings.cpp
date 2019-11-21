@@ -193,8 +193,7 @@ void ApplyAddArc(SkPath& orig, const SkRect& oval, SkScalar startAngle, SkScalar
 }
 
 void ApplyAddOval(SkPath& orig, const SkRect& oval, bool ccw, unsigned start) {
-    orig.addOval(oval, ccw ? SkPath::Direction::kCCW_Direction :
-                             SkPath::Direction::kCW_Direction, start);
+    orig.addOval(oval, ccw ? SkPathDirection::kCCW : SkPathDirection::kCW, start);
 }
 
 void ApplyAddPath(SkPath& orig, const SkPath& newPath,
@@ -211,9 +210,7 @@ void ApplyAddPath(SkPath& orig, const SkPath& newPath,
 
 void ApplyAddRect(SkPath& path, SkScalar left, SkScalar top,
                   SkScalar right, SkScalar bottom, bool ccw) {
-    path.addRect(left, top, right, bottom,
-                 ccw ? SkPath::Direction::kCCW_Direction :
-                 SkPath::Direction::kCW_Direction);
+    path.addRect(left, top, right, bottom, ccw ? SkPathDirection::kCCW : SkPathDirection::kCW);
 }
 
 void ApplyAddRoundRect(SkPath& path, SkScalar left, SkScalar top,
@@ -222,7 +219,7 @@ void ApplyAddRoundRect(SkPath& path, SkScalar left, SkScalar top,
     // See comment below for uintptr_t explanation
     const SkScalar* radii = reinterpret_cast<const SkScalar*>(rPtr);
     path.addRoundRect(SkRect::MakeLTRB(left, top, right, bottom), radii,
-                      ccw ? SkPath::Direction::kCCW_Direction : SkPath::Direction::kCW_Direction);
+                      ccw ? SkPathDirection::kCCW : SkPathDirection::kCW);
 }
 
 
@@ -238,14 +235,14 @@ void ApplyArcToAngle(SkPath& p, SkRect& oval, SkScalar startAngle, SkScalar swee
 void ApplyArcToArcSize(SkPath& orig, SkScalar rx, SkScalar ry, SkScalar xAxisRotate,
                        bool useSmallArc, bool ccw, SkScalar x, SkScalar y) {
     auto arcSize = useSmallArc ? SkPath::ArcSize::kSmall_ArcSize : SkPath::ArcSize::kLarge_ArcSize;
-    auto sweep = ccw ? SkPath::Direction::kCCW_Direction : SkPath::Direction::kCW_Direction;
+    auto sweep = ccw ? SkPathDirection::kCCW : SkPathDirection::kCW;
     orig.arcTo(rx, ry, xAxisRotate, arcSize, sweep, x, y);
 }
 
 void ApplyRArcToArcSize(SkPath& orig, SkScalar rx, SkScalar ry, SkScalar xAxisRotate,
                         bool useSmallArc, bool ccw, SkScalar dx, SkScalar dy) {
     auto arcSize = useSmallArc ? SkPath::ArcSize::kSmall_ArcSize : SkPath::ArcSize::kLarge_ArcSize;
-    auto sweep = ccw ? SkPath::Direction::kCCW_Direction : SkPath::Direction::kCW_Direction;
+    auto sweep = ccw ? SkPathDirection::kCCW : SkPathDirection::kCW;
     orig.rArcTo(rx, ry, xAxisRotate, arcSize, sweep, dx, dy);
 }
 

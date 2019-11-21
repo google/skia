@@ -27,10 +27,10 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
         SkPath pathA, pathB;
         pathA.setFillType((SkPath::FillType) e);
         pathA.addCircle(SkIntToScalar(state.fA), SkIntToScalar(state.fB), SkIntToScalar(state.fC),
-                state.fD ? SkPath::kCW_Direction : SkPath::kCCW_Direction);
+                state.fD ? SkPathDirection::kCW : SkPathDirection::kCCW);
         pathB.setFillType((SkPath::FillType) f);
         pathB.addCircle(SkIntToScalar(a), SkIntToScalar(b), SkIntToScalar(c),
-                d ? SkPath::kCW_Direction : SkPath::kCCW_Direction);
+                d ? SkPathDirection::kCW : SkPathDirection::kCCW);
         for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
             if (state.fReporter->verbose()) {
                 pathStr.printf("static void circlesOp%d(skiatest::Reporter* reporter,"
@@ -40,12 +40,12 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
                         e == SkPath::kWinding_FillType ? "Winding" : e == SkPath::kEvenOdd_FillType
                         ? "EvenOdd" : "?UNDEFINED");
                 pathStr.appendf("    path.addCircle(%d, %d, %d, %s);\n", state.fA, state.fB,
-                        state.fC, state.fD ? "SkPath::kCW_Direction" : "SkPath::kCCW_Direction");
+                        state.fC, state.fD ? "SkPathDirection::kCW" : "SkPathDirection::kCCW");
                 pathStr.appendf("    pathB.setFillType(SkPath::k%s_FillType);\n",
                         f == SkPath::kWinding_FillType ? "Winding" : f == SkPath::kEvenOdd_FillType
                         ? "EvenOdd" : "?UNDEFINED");
                 pathStr.appendf("    pathB.addCircle(%d, %d, %d, %s);\n", a, b,
-                        c, d ? "SkPath::kCW_Direction" : "SkPath::kCCW_Direction");
+                        c, d ? "SkPathDirection::kCW" : "SkPathDirection::kCCW");
                 pathStr.appendf("    testPathOp(reporter, path, pathB, %s, filename);\n",
                         SkPathOpsDebug::OpStr((SkPathOp) op));
                 pathStr.appendf("}\n");
