@@ -147,18 +147,18 @@ loop:
 G8 over A8
 9 values:
 ↑ v0 = splat 3F800000 (1)
-  v1 = load8 arg(1)
-  v2 = to_f32 v1
-  v3 = mul_f32 v2 3B808081 (0.0039215689)
-↑ v4 = sub_f32 v0 v0
-  v5 = mad_f32 v3 v4 v0
+↑ v1 = splat 0 (0)
+  v2 = load8 arg(1)
+  v3 = to_f32 v2
+  v4 = mul_f32 v3 3B808081 (0.0039215689)
+  v5 = mad_f32 v4 v1 v0
   v6 = mul_f32 v5 437F0000 (255)
   v7 = round v6
   store8 arg(1) v7
 
 3 registers, 9 instructions:
 r0 = splat 3F800000 (1)
-r1 = sub_f32 r0 r0
+r1 = splat 0 (0)
 loop:
     r2 = load8 arg(1)
     r2 = to_f32 r2
@@ -169,28 +169,26 @@ loop:
     store8 arg(1) r2
 
 G8 over G8
-17 values:
+16 values:
   v0 = load8 arg(0)
   v1 = to_f32 v0
   v2 = mul_f32 v1 3B808081 (0.0039215689)
   v3 = load8 arg(1)
   v4 = to_f32 v3
   v5 = mul_f32 v4 3B808081 (0.0039215689)
-↟ v6 = splat 3F800000 (1)
-↑ v7 = sub_f32 v6 v6
-  v8 = mad_f32 v5 v7 v2
-↑ v9 = splat 3E59B3D0 (0.21259999)
-↑ v10 = splat 3F371759 (0.71520001)
-  v11 = mul_f32 v8 3D93DD98 (0.0722)
-  v12 = mad_f32 v8 v10 v11
-  v13 = mad_f32 v8 v9 v12
-  v14 = mul_f32 v13 437F0000 (255)
-  v15 = round v14
-  store8 arg(1) v15
+↑ v6 = splat 0 (0)
+  v7 = mad_f32 v5 v6 v2
+↑ v8 = splat 3E59B3D0 (0.21259999)
+↑ v9 = splat 3F371759 (0.71520001)
+  v10 = mul_f32 v7 3D93DD98 (0.0722)
+  v11 = mad_f32 v7 v9 v10
+  v12 = mad_f32 v7 v8 v11
+  v13 = mul_f32 v12 437F0000 (255)
+  v14 = round v13
+  store8 arg(1) v14
 
-5 registers, 17 instructions:
-r0 = splat 3F800000 (1)
-r0 = sub_f32 r0 r0
+5 registers, 16 instructions:
+r0 = splat 0 (0)
 r1 = splat 3E59B3D0 (0.21259999)
 r2 = splat 3F371759 (0.71520001)
 loop:
@@ -218,38 +216,38 @@ G8 over RGBA_8888
   v5 = extract v3 0 v4
   v6 = to_f32 v5
   v7 = mul_f32 v6 3B808081 (0.0039215689)
-↑ v8 = splat 3F800000 (1)
-↑ v9 = sub_f32 v8 v8
-  v10 = mad_f32 v7 v9 v2
-  v11 = mul_f32 v10 437F0000 (255)
-  v12 = round v11
-  v13 = extract v3 8 v4
-  v14 = to_f32 v13
-  v15 = mul_f32 v14 3B808081 (0.0039215689)
-  v16 = mad_f32 v15 v9 v2
-  v17 = mul_f32 v16 437F0000 (255)
-  v18 = round v17
-  v19 = pack v12 v18 8
-  v20 = extract v3 16 v4
-  v21 = to_f32 v20
-  v22 = mul_f32 v21 3B808081 (0.0039215689)
-  v23 = mad_f32 v22 v9 v2
-  v24 = mul_f32 v23 437F0000 (255)
-  v25 = round v24
+↑ v8 = splat 0 (0)
+  v9 = mad_f32 v7 v8 v2
+  v10 = mul_f32 v9 437F0000 (255)
+  v11 = round v10
+  v12 = extract v3 8 v4
+  v13 = to_f32 v12
+  v14 = mul_f32 v13 3B808081 (0.0039215689)
+  v15 = mad_f32 v14 v8 v2
+  v16 = mul_f32 v15 437F0000 (255)
+  v17 = round v16
+  v18 = pack v11 v17 8
+  v19 = extract v3 16 v4
+  v20 = to_f32 v19
+  v21 = mul_f32 v20 3B808081 (0.0039215689)
+  v22 = mad_f32 v21 v8 v2
+  v23 = mul_f32 v22 437F0000 (255)
+  v24 = round v23
+↑ v25 = splat 3F800000 (1)
   v26 = extract v3 24 v4
   v27 = to_f32 v26
   v28 = mul_f32 v27 3B808081 (0.0039215689)
-  v29 = mad_f32 v28 v9 v8
+  v29 = mad_f32 v28 v8 v25
   v30 = mul_f32 v29 437F0000 (255)
   v31 = round v30
-  v32 = pack v25 v31 8
-  v33 = pack v19 v32 16
+  v32 = pack v24 v31 8
+  v33 = pack v18 v32 16
   store32 arg(1) v33
 
 7 registers, 35 instructions:
 r0 = splat FF (3.5733111e-43)
-r1 = splat 3F800000 (1)
-r2 = sub_f32 r1 r1
+r1 = splat 0 (0)
+r2 = splat 3F800000 (1)
 loop:
     r3 = load8 arg(0)
     r3 = to_f32 r3
@@ -258,26 +256,26 @@ loop:
     r5 = extract r4 0 r0
     r5 = to_f32 r5
     r5 = mul_f32 r5 3B808081 (0.0039215689)
-    r5 = mad_f32 r5 r2 r3
+    r5 = mad_f32 r5 r1 r3
     r5 = mul_f32 r5 437F0000 (255)
     r5 = round r5
     r6 = extract r4 8 r0
     r6 = to_f32 r6
     r6 = mul_f32 r6 3B808081 (0.0039215689)
-    r6 = mad_f32 r6 r2 r3
+    r6 = mad_f32 r6 r1 r3
     r6 = mul_f32 r6 437F0000 (255)
     r6 = round r6
     r6 = pack r5 r6 8
     r5 = extract r4 16 r0
     r5 = to_f32 r5
     r5 = mul_f32 r5 3B808081 (0.0039215689)
-    r3 = mad_f32 r5 r2 r3
+    r3 = mad_f32 r5 r1 r3
     r3 = mul_f32 r3 437F0000 (255)
     r3 = round r3
     r4 = extract r4 24 r0
     r4 = to_f32 r4
     r4 = mul_f32 r4 3B808081 (0.0039215689)
-    r4 = mad_f32 r4 r2 r1
+    r4 = mad_f32 r4 r1 r2
     r4 = mul_f32 r4 437F0000 (255)
     r4 = round r4
     r4 = pack r3 r4 8
