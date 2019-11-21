@@ -131,8 +131,10 @@
       "2",
       "my.docker.image",
       "/SRC/../do-stuff.sh",
-      "--key",
-      "value"
+      "--src",
+      "/SRC",
+      "--out",
+      "/OUT"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

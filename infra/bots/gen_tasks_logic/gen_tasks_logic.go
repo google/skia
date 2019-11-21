@@ -463,7 +463,7 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
-				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp"}
+				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp", "Docker"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -488,6 +488,11 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
+		} else if parts["compiler"] == "GCC" && task_os == "Debian10" {
+			// GCC compiles are now on a Docker container. We use the same OS and
+			// version to compile as to test.
+			// TODO(dogben): Remove Debian10 criteria above.
+			ec = append(ec, "Docker")
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
 			task_os = "Debian9"
 		} else if strings.Contains(task_os, "Mac") {
@@ -542,7 +547,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	d := map[string]string{
 		"pool": b.cfg.Pool,
 	}
-	if strings.Contains(parts["extra_config"], "Docker") && parts["role"] == "Build" {
+	if strings.Contains(parts["extra_config"], "Docker") && (parts["role"] == "Build" || (parts["cpu_or_gpu"] == "CPU" && parts["model"] == "GCE")) {
 		return b.dockerGceDimensions()
 	}
 	if os, ok := parts["os"]; ok {

@@ -21,6 +21,12 @@ class DockerApi(recipe_api.RecipeApi):
     name = ' '.join([str(elem) for elem in cmd])
     self.m.step(name, cmd=cmd, infra_step=True)
 
+  def mount_src(self):
+    return MOUNT_SRC
+
+  def mount_out(self):
+    return MOUNT_OUT
+
   def run(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1):
     # Setup. Docker runs as a different user, so we need to give it access to
     # read, write, and execute certain files.
