@@ -91,50 +91,85 @@ static bool filter_has_effect(const GrQuad& srcQuad, const GrQuad& dstQuad) {
     }
 }
 
-// if normalizing the domain then pass 1/width, 1/height, 1 for iw, ih, h. Otherwise pass
-// 1, 1, and height.
-static void compute_domain(Domain domain, GrSamplerState::Filter filter, GrSurfaceOrigin origin,
-                           const SkRect& domainRect, float iw, float ih, float h, SkRect* out) {
+// Describes function for normalizing src coords: [x * iw, y * ih + yOffset] can represent
+// regular and rectangular textures, w/ or w/o origin correction.
+struct NormalizationParams {
+    float fIW; // 1 / width of texture, or 1.0 for texture rectangles
+    float fIH; // 1 / height of texture, or 1.0 for tex rects, X -1 if bottom-left origin
+    float fYOffset; // 0 for top-left origin, height of [normalized] tex if bottom-left
+};
+static NormalizationParams proxy_normalization_params(const GrSurfaceProxyView& proxyView) {
+    // Whether or not the proxy is instantiated, this is the size its texture will be, so we can
+    // normalize the src coordinates up front.
+    SkISize dimensions = proxyView.proxy()->backingStoreDimensions();
+    float iw, ih, h;
+    if (proxyView.proxy()->backendFormat().textureType() == GrTextureType::kRectangle) {
+        iw = ih = 1.f;
+        h = dimensions.height();
+    } else {
+        iw = 1.f / dimensions.width();
+        ih = 1.f / dimensions.height();
+        h = 1.f;
+    }
+
+    if (proxyView.origin() == kBottomLeft_GrSurfaceOrigin) {
+        return {iw, -ih, h};
+    } else {
+        return {iw, ih, 0.0f};
+    }
+}
+
+static void correct_domain_for_bilerp(const NormalizationParams& params,
+                                      SkRect* domainRect) {
+    // Normalized pixel size is also equal to iw and ih, so the insets for bilerp are just
+    // in those units and can be applied safely after normalization. However, if the domain is
+    // smaller than a texel, it should clamp to the center of that axis.
+    float dw = domainRect->width() < params.fIW ? domainRect->width() : params.fIW;
+    float dh = domainRect->height() < params.fIH ? domainRect->height() : params.fIH;
+    domainRect->inset(0.5f * dw, 0.5f * dh);
+}
+
+// Normalize the domain and inset for bilerp as necessary. If 'domainRect' is null, it is assumed
+// no domain constraint is desired, so a sufficiently large rect is returned even if the quad
+// ends up batched with an op that uses domains overall.
+static SkRect normalize_domain(GrSamplerState::Filter filter,
+                               const NormalizationParams& params,
+                               const SkRect* domainRect) {
     static constexpr SkRect kLargeRect = {-100000, -100000, 1000000, 1000000};
-    if (domain == Domain::kNo) {
+    if (!domainRect) {
         // Either the quad has no domain constraint and is batched with a domain constrained op
         // (in which case we want a domain that doesn't restrict normalized tex coords), or the
         // entire op doesn't use the domain, in which case the returned value is ignored.
-        *out = kLargeRect;
-        return;
+        return kLargeRect;
     }
 
-    auto ltrb = Sk4f::Load(&domainRect);
-    if (filter == GrSamplerState::Filter::kBilerp) {
-        auto rblt = SkNx_shuffle<2, 3, 0, 1>(ltrb);
-        auto whwh = (rblt - ltrb).abs();
-        auto c = (rblt + ltrb) * 0.5f;
-        static const Sk4f kOffsets = {0.5f, 0.5f, -0.5f, -0.5f};
-        ltrb = (whwh < 1.f).thenElse(c, ltrb + kOffsets);
-    }
-    ltrb *= Sk4f(iw, ih, iw, ih);
-    if (origin == kBottomLeft_GrSurfaceOrigin) {
-        static const Sk4f kMul = {1.f, -1.f, 1.f, -1.f};
-        const Sk4f kAdd = {0.f, h, 0.f, h};
-        ltrb = SkNx_shuffle<0, 3, 2, 1>(kMul * ltrb + kAdd);
+    auto ltrb = skvx::Vec<4, float>::Load(domainRect);
+    // Normalize and offset
+    ltrb = mad(ltrb, {params.fIW, params.fIH, params.fIW, params.fIH},
+               {0.f, params.fYOffset, 0.f, params.fYOffset});
+    if (params.fIH < 0.f) {
+        // Flip top and bottom to keep the rect sorted when loaded back to SkRect.
+        ltrb = skvx::shuffle<0, 3, 2, 1>(ltrb);
     }
 
-    ltrb.store(out);
+    SkRect out;
+    ltrb.store(&out);
+
+    if (filter != GrSamplerState::Filter::kNearest) {
+        correct_domain_for_bilerp(params, &out);
+    }
+    return out;
 }
 
 // Normalizes logical src coords and corrects for origin
-static void compute_src_quad(GrSurfaceOrigin origin, const GrQuad& srcQuad,
-                               float iw, float ih, float h, GrQuad* out) {
+static void normalize_src_quad(const NormalizationParams& params,
+                               GrQuad* srcQuad) {
     // The src quad should not have any perspective
-    SkASSERT(!srcQuad.hasPerspective() && !out->hasPerspective());
-    skvx::Vec<4, float> xs = srcQuad.x4f() * iw;
-    skvx::Vec<4, float> ys = srcQuad.y4f() * ih;
-    if (origin == kBottomLeft_GrSurfaceOrigin) {
-        ys = h - ys;
-    }
-    xs.store(out->xs());
-    ys.store(out->ys());
-    out->setQuadType(srcQuad.quadType());
+    SkASSERT(!srcQuad->hasPerspective());
+    skvx::Vec<4, float> xs = srcQuad->x4f() * params.fIW;
+    skvx::Vec<4, float> ys = mad(srcQuad->y4f(), params.fIH, params.fYOffset);
+    xs.store(srcQuad->xs());
+    ys.store(srcQuad->ys());
 }
 
 /**
@@ -210,7 +245,7 @@ public:
                         "%d: Color: 0x%08x, Domain(%d): [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n"
                         "  UVs  [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n"
                         "  Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
-                        i, info.fColor.toBytes_RGBA(), info.fHasDomain, info.fDomainRect.fLeft,
+                        i, info.fColor.toBytes_RGBA(), fDomain, info.fDomainRect.fLeft,
                         info.fDomainRect.fTop, info.fDomainRect.fRight, info.fDomainRect.fBottom,
                         quad.point(0).fX, quad.point(0).fY, quad.point(1).fX, quad.point(1).fY,
                         quad.point(2).fX, quad.point(2).fY, quad.point(3).fX, quad.point(3).fY,
@@ -248,20 +283,19 @@ private:
     friend class ::GrOpMemoryPool;
 
     struct ColorDomainAndAA {
-        ColorDomainAndAA(const SkPMColor4f& color, const SkRect* domainRect, GrQuadAAFlags aaFlags)
+        ColorDomainAndAA(const SkPMColor4f& color, const SkRect& domainRect, GrQuadAAFlags aaFlags)
                 : fColor(color)
-                , fDomainRect(domainRect ? *domainRect : SkRect::MakeEmpty())
-                , fHasDomain(static_cast<unsigned>(domainRect ? Domain::kYes : Domain::kNo))
+                , fDomainRect(domainRect)
                 , fAAFlags(static_cast<unsigned>(aaFlags)) {
             SkASSERT(fAAFlags == static_cast<unsigned>(aaFlags));
         }
 
         SkPMColor4f fColor;
+        // If the op doesn't use domains, this is ignored. If the op uses domains and the specific
+        // entry does not, this rect will equal kLargeRect, so it automatically has no effect.
         SkRect fDomainRect;
-        unsigned fHasDomain : 1;
         unsigned fAAFlags : 4;
 
-        Domain domain() const { return Domain(fHasDomain); }
         GrQuadAAFlags aaFlags() const { return static_cast<GrQuadAAFlags>(fAAFlags); }
     };
     struct ViewCountPair {
@@ -371,7 +405,13 @@ private:
             domainRect = nullptr;
         }
 
-        fQuads.append(dstQuad, {color, domainRect, aaFlags}, &srcQuad);
+        // Normalize src coordinates and the domain (if set)
+        NormalizationParams params = proxy_normalization_params(proxyView);
+        GrQuad normalizedSrcQuad = srcQuad;
+        normalize_src_quad(params, &normalizedSrcQuad);
+        SkRect domain = normalize_domain(filter, params, domainRect);
+
+        fQuads.append(dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
 
         fProxyCnt = 1;
         fViewCountPairs[0] = {std::move(proxyView), 1};
@@ -393,15 +433,20 @@ private:
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
-            , fSaturate(static_cast<unsigned>(saturate))
-            , fFilter(static_cast<unsigned>(filter)) {
+            , fSaturate(static_cast<unsigned>(saturate)) {
         fProxyCnt = SkToUInt(cnt);
         SkRect bounds = SkRectPriv::MakeLargestInverted();
-        GrAAType overallAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
-        bool mustFilter = false;
-        bool allOpaque = true;
+
+        GrAAType netAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         Domain netDomain = Domain::kNo;
-        GrTextureProxy* curProxy = nullptr;
+        GrSamplerState::Filter netFilter = GrSamplerState::Filter::kNearest;
+
+        // Net domain and filter quality are being determined simultaneously while iterating through
+        // the entry set. When filter changes to bilerp, all prior normalized domains in the
+        // GrQuadBuffer must be updated to reflect the 1/2px inset required. All quads appended
+        // afterwards will properly take that into account.
+        int correctDomainUpToIndex = 0;
+        const GrSurfaceProxy* curProxy;
 
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             if (p == 0) {
@@ -415,8 +460,8 @@ private:
                 new(&fViewCountPairs[p])ViewCountPair({std::move(set[p].fProxyView), 1});
             }
             fTotNumQuads += 1;
-            curProxy = fViewCountPairs[p].fProxyView.asTextureProxy();
-            SkASSERT(curProxy->textureType() ==
+            curProxy = fViewCountPairs[p].fProxyView.proxy();
+            SkASSERT(curProxy->backendFormat().textureType() ==
                      fViewCountPairs[0].fProxyView.asTextureProxy()->textureType());
             SkASSERT(curProxy->config() == fViewCountPairs[0].fProxyView.proxy()->config());
 
@@ -439,19 +484,34 @@ private:
                 srcQuad = GrQuad(set[p].fSrcRect);
             }
 
-            if (!mustFilter && this->filter() != GrSamplerState::Filter::kNearest) {
-                mustFilter = filter_has_effect(srcQuad, quad);
+            // Before normalizing the source coordinates, determine if bilerp is actually needed
+            if (netFilter != filter && filter_has_effect(srcQuad, quad)) {
+                // The only way netFilter != filter is if bilerp is requested and we haven't yet
+                // found a quad that requires bilerp (so net is still nearest).
+                SkASSERT(netFilter == GrSamplerState::Filter::kNearest &&
+                         filter == GrSamplerState::Filter::kBilerp);
+                netFilter = GrSamplerState::Filter::kBilerp;
+                // All quads index < p with domains were calculated as if there was no filtering,
+                // which is no longer true.
+                correctDomainUpToIndex = p;
             }
 
+            // Normalize the src quads and apply origin
+            NormalizationParams proxyParams =
+                    proxy_normalization_params(fViewCountPairs[p].fProxyView);
+            normalize_src_quad(proxyParams, &srcQuad);
+
+            // Update overall bounds of the op as the union of all quads
             bounds.joinPossiblyEmptyRect(quad.bounds());
+
+            // Determine the AA type for the quad, then merge with net AA type
             GrQuadAAFlags aaFlags;
-            // Don't update the overall aaType, might be inappropriate for some of the quads
             GrAAType aaForQuad;
             GrQuadUtils::ResolveAAType(aaType, set[p].fAAFlags, quad, &aaForQuad, &aaFlags);
             // Resolve sets aaForQuad to aaType or None, there is never a change between aa methods
             SkASSERT(aaForQuad == GrAAType::kNone || aaForQuad == aaType);
-            if (overallAAType == GrAAType::kNone && aaForQuad != GrAAType::kNone) {
-                overallAAType = aaType;
+            if (netAAType == GrAAType::kNone && aaForQuad != GrAAType::kNone) {
+                netAAType = aaType;
             }
 
             // Calculate metadata for the entry
@@ -459,59 +519,38 @@ private:
             if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
                 // Check (briefly) if the strict constraint is needed for this set entry
                 if (!set[p].fSrcRect.contains(curProxy->backingStoreBoundsRect()) &&
-                    (mustFilter || aaForQuad == GrAAType::kCoverage)) {
+                    (netFilter == GrSamplerState::Filter::kBilerp ||
+                     aaForQuad == GrAAType::kCoverage)) {
                     // Can't rely on hardware clamping and the draw will access outer texels
-                    // for AA and/or bilerp
+                    // for AA and/or bilerp. Unlike filter quality, this op still has per-quad
+                    // control over AA so that can check aaForQuad, not netAAType.
                     netDomain = Domain::kYes;
                     domainForQuad = &set[p].fSrcRect;
                 }
             }
+
+            SkRect domain = normalize_domain(filter, proxyParams, domainForQuad);
             float alpha = SkTPin(set[p].fAlpha, 0.f, 1.f);
-            allOpaque &= (1.f == alpha);
-            SkPMColor4f color{alpha, alpha, alpha, alpha};
-            fQuads.append(quad, {color, domainForQuad, aaFlags}, &srcQuad);
+            fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
         }
-        fAAType = static_cast<unsigned>(overallAAType);
-        if (!mustFilter) {
-            fFilter = static_cast<unsigned>(GrSamplerState::Filter::kNearest);
+
+        // All the quads have been recorded, but some domains need to be fixed
+        if (netDomain == Domain::kYes && correctDomainUpToIndex > 0) {
+            int p = 0;
+            auto iter = fQuads.metadata();
+            while(p < correctDomainUpToIndex && iter.next()) {
+                NormalizationParams proxyParams =
+                    proxy_normalization_params(fViewCountPairs[p].fProxyView);
+                correct_domain_for_bilerp(proxyParams, &(iter->fDomainRect));
+                p++;
+            }
         }
-        this->setBounds(bounds, HasAABloat(this->aaType() == GrAAType::kCoverage),
-                        IsHairline::kNo);
+
+        fAAType = static_cast<unsigned>(netAAType);
+        fFilter = static_cast<unsigned>(netFilter);
         fDomain = static_cast<unsigned>(netDomain);
-    }
 
-    static void Tess(void* v, GrQuadPerEdgeAA::Tessellator* tessellator,
-                     const GrTextureProxy* proxy, GrSamplerState::Filter filter,
-                     GrQuadBuffer<ColorDomainAndAA>::Iter* iter, int cnt) {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        auto origin = proxy->origin();
-        SkISize dimensions = proxy->backingStoreDimensions();
-
-        float iw, ih, h;
-        if (proxy->textureType() == GrTextureType::kRectangle) {
-            iw = ih = 1.f;
-            h = dimensions.height();
-        } else {
-            iw = 1.f / dimensions.width();
-            ih = 1.f / dimensions.height();
-            h = 1.f;
-        }
-
-        int i = 0;
-        // Explicit ctor ensures ws are 1s, which compute_src_quad requires
-        GrQuad srcQuad(SkRect::MakeEmpty());
-        SkRect domain;
-        while(i < cnt && iter->next()) {
-            SkASSERT(iter->isLocalValid());
-            const ColorDomainAndAA& info = iter->metadata();
-            // Must correct the texture coordinates and domain now that the real texture size
-            // is known
-            compute_src_quad(origin, iter->localQuad(), iw, ih, h, &srcQuad);
-            compute_domain(info.domain(), filter, origin, info.fDomainRect, iw, ih, h, &domain);
-            v = tessellator->append(v, iter->deviceQuad(), srcQuad, info.fColor,
-                                    domain, info.aaFlags());
-            i++;
-        }
+        this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
@@ -562,7 +601,15 @@ private:
                 SkASSERT(meshIndex < desc->fNumProxies);
 
                 if (dst) {
-                    Tess(dst, &tessellator, proxy, op.filter(), &iter, quadCnt);
+                    int i = 0;
+                    void* v = dst;
+                    while(i < quadCnt && iter.next()) {
+                        SkASSERT(iter.isLocalValid());
+                        const ColorDomainAndAA& info = iter.metadata();
+                        v = tessellator.append(v, iter.deviceQuad(), iter.localQuad(),
+                                               info.fColor, info.fDomainRect, info.aaFlags());
+                        i++;
+                    }
                     desc->setMeshProxy(meshIndex, proxy);
 
                     SkASSERT(totVerticesSeen * vertexSize == (size_t)(dst - pVertexData));
@@ -934,12 +981,9 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
 
         std::unique_ptr<GrFragmentProcessor> fp;
         if (domain) {
-            // Update domain to match what GrTextureOp computes during tessellation, using top-left
-            // as the origin so that it doesn't depend on final texture size (which the FP handles
-            // later, as well as accounting for the true origin).
-            SkRect correctedDomain;
-            compute_domain(Domain::kYes, filter, kTopLeft_GrSurfaceOrigin, *domain,
-                           1.f, 1.f, proxy->height(), &correctedDomain);
+            // Update domain to match what GrTextureOp would do for bilerp, but don't do any
+            // normalization since GrTextureDomainEffect handles that and the origin.
+            SkRect correctedDomain = normalize_domain(filter, {1.f, 1.f, 0.f}, domain);
             fp = GrTextureDomainEffect::Make(sk_ref_sp(proxy), srcColorType, SkMatrix::I(),
                                              correctedDomain, GrTextureDomain::kClamp_Mode, filter);
         } else {
