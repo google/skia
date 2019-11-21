@@ -576,11 +576,6 @@
         "Build-Mac-Clang-x86_64-Release-TSAN_Metal"
       ]
     },
-    "Build-Ubuntu18-GCC-x86_64-Release-Docker": {
-      "tasks": [
-        "Build-Ubuntu18-GCC-x86_64-Release-Docker"
-      ]
-    },
     "Build-Win-Clang-arm64-Debug": {
       "tasks": [
         "Build-Win-Clang-arm64-Debug"
@@ -11228,75 +11223,6 @@
         "gpu:none",
         "os:Mac-10.14.6",
         "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
-        ]
-      },
-      "execution_timeout_ns": 3600000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "idempotent": true,
-      "io_timeout_ns": 3600000000000,
-      "isolate": "compile.isolate",
-      "max_attempts": 2,
-      "outputs": [
-        "build"
-      ],
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Build-Ubuntu18-GCC-x86_64-Release-Docker": {
-      "caches": [
-        {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
-          "name": "docker",
-          "path": "cache/docker"
-        }
-      ],
-      "cipd_packages": [
-        {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
-        }
-      ],
-      "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Ubuntu18-GCC-x86_64-Release-Docker\",\"swarm_out_dir\":\"build\"}",
-        "skia"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-9.8",
-        "pool:Skia",
-        "docker_installed:true"
       ],
       "env_prefixes": {
         "PATH": [
