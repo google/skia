@@ -46,6 +46,30 @@
       "revId": "9f25abbc3d604ed0ca25308d30d202b265dede0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc3e257d_0f0d2fc9",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-21T17:42:27Z",
+      "side": 1,
+      "message": "ha. FWIW that makes all the statics on the nonmember functions redundant, but I don\u0027t know that I\u0027d advocate for removing them.",
+      "parentUuid": "404b7d3e_8ae36243",
+      "range": {
+        "startLine": 96,
+        "startChar": 7,
+        "endLine": 96,
+        "endChar": 26
+      },
+      "revId": "9f25abbc3d604ed0ca25308d30d202b265dede0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
