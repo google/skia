@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "74e80998_073f8439",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-11-21T11:20:41Z",
+      "side": 1,
+      "message": "What is the process for renaming a bucket?  In one of the bugs linked above you mentioned that we should create new buckets to get out of legacy mode; should we just do that instead?",
+      "parentUuid": "59c5a571_f90034ac",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55d711d0_056a9ec8",
         "filename": "site/dev/contrib/cqkeywords.md",
         "patchSetId": 4
