@@ -66,36 +66,36 @@ class ConvexPathsGM : public skiagm::GM {
 
         fPaths.push_back().addRect(0, 0,
                                    100 * SK_Scalar1, 100 * SK_Scalar1,
-                                   SkPath::kCW_Direction);
+                                   SkPathDirection::kCW);
 
         fPaths.push_back().addRect(0, 0,
                                    100 * SK_Scalar1, 100 * SK_Scalar1,
-                                   SkPath::kCCW_Direction);
+                                   SkPathDirection::kCCW);
 
         fPaths.push_back().addCircle(50  * SK_Scalar1, 50  * SK_Scalar1,
-                                     50  * SK_Scalar1, SkPath::kCW_Direction);
+                                     50  * SK_Scalar1, SkPathDirection::kCW);
 
 
         fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
                                                     50 * SK_Scalar1,
                                                     100 * SK_Scalar1),
-                                   SkPath::kCW_Direction);
+                                   SkPathDirection::kCW);
 
         fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
                                                     100 * SK_Scalar1,
                                                     5 * SK_Scalar1),
-                                   SkPath::kCCW_Direction);
+                                   SkPathDirection::kCCW);
 
         fPaths.push_back().addOval(SkRect::MakeXYWH(0, 0,
                                                     SK_Scalar1,
                                                     100 * SK_Scalar1),
-                                                    SkPath::kCCW_Direction);
+                                                    SkPathDirection::kCCW);
 
         fPaths.push_back().addRoundRect(SkRect::MakeXYWH(0, 0,
                                                          SK_Scalar1 * 100,
                                                          SK_Scalar1 * 100),
                                         40 * SK_Scalar1, 20 * SK_Scalar1,
-                                        SkPath::kCW_Direction);
+                                        SkPathDirection::kCW);
 
         // large number of points
         enum {

@@ -32,7 +32,7 @@ static void test_strokerect(SkCanvas* canvas) {
     SkPath path;
     path.addRect(0.0f, 0.0f,
                  SkIntToScalar(width), SkIntToScalar(height),
-                 SkPath::kCW_Direction);
+                 SkPathDirection::kCW);
     SkRect r = SkRect::MakeWH(SkIntToScalar(width), SkIntToScalar(height));
 
     SkCanvas c(bitmap);
