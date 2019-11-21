@@ -10,14 +10,14 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPipeline.h"
 
-GrXferProcessor::GrXferProcessor(ClassID classID)
+GrXferProcessor::GrXferProcessor(ClassID classID, bool foo)
         : INHERITED(classID)
         , fWillReadDstColor(false)
         , fDstReadUsesMixedSamples(false)
         , fIsLCD(false) {}
 
 GrXferProcessor::GrXferProcessor(ClassID classID, bool willReadDstColor, bool hasMixedSamples,
-                                 GrProcessorAnalysisCoverage coverage)
+                                 GrProcessorAnalysisCoverage coverage, bool foo)
         : INHERITED(classID)
         , fWillReadDstColor(willReadDstColor)
         , fDstReadUsesMixedSamples(willReadDstColor && hasMixedSamples)

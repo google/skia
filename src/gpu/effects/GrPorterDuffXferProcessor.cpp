@@ -397,9 +397,10 @@ static BlendFormula get_lcd_blend_formula(SkBlendMode xfermode) {
 
 class PorterDuffXferProcessor : public GrXferProcessor {
 public:
-    PorterDuffXferProcessor(BlendFormula blendFormula, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kPorterDuffXferProcessor_ClassID, false, false, coverage)
-            , fBlendFormula(blendFormula) {
+    static GrXferProcessor* Make(SkArenaAlloc* arena,
+                                 BlendFormula blendFormula,
+                                 GrProcessorAnalysisCoverage coverage) {
+        return arena->make<PorterDuffXferProcessor>(blendFormula, coverage);
     }
 
     const char* name() const override { return "Porter Duff"; }
@@ -409,6 +410,11 @@ public:
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
 private:
+    PorterDuffXferProcessor(BlendFormula blendFormula, GrProcessorAnalysisCoverage coverage)
+        : INHERITED(kPorterDuffXferProcessor_ClassID, false, false, coverage, true)
+        , fBlendFormula(blendFormula) {
+    }
+
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onHasSecondaryOutput() const override { return fBlendFormula.hasSecondaryOutput(); }
@@ -507,10 +513,10 @@ GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
 
 class ShaderPDXferProcessor : public GrXferProcessor {
 public:
-    ShaderPDXferProcessor(bool hasMixedSamples, SkBlendMode xfermode,
-                          GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kShaderPDXferProcessor_ClassID, true, hasMixedSamples, coverage)
-            , fXfermode(xfermode) {
+    static GrXferProcessor* Make(SkArenaAlloc* arena,
+                                 bool hasMixedSamples, SkBlendMode xfermode,
+                                 GrProcessorAnalysisCoverage coverage) {
+        return arena->make<ShaderPDXferProcessor>(hasMixedSamples, xfermode, coverage);
     }
 
     const char* name() const override { return "Porter Duff Shader"; }
@@ -520,6 +526,12 @@ public:
     SkBlendMode getXfermode() const { return fXfermode; }
 
 private:
+    ShaderPDXferProcessor(bool hasMixedSamples, SkBlendMode xfermode,
+                          GrProcessorAnalysisCoverage coverage)
+        : INHERITED(kShaderPDXferProcessor_ClassID, true, hasMixedSamples, coverage, true)
+        , fXfermode(xfermode) {
+    }
+
     void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
@@ -579,8 +591,9 @@ GrGLSLXferProcessor* ShaderPDXferProcessor::createGLSLInstance() const {
 
 class PDLCDXferProcessor : public GrXferProcessor {
 public:
-    static sk_sp<const GrXferProcessor> Make(SkBlendMode mode,
-                                             const GrProcessorAnalysisColor& inputColor);
+    static const GrXferProcessor* Make(SkArenaAlloc* arena,
+                                       SkBlendMode mode,
+                                       const GrProcessorAnalysisColor& inputColor);
 
     ~PDLCDXferProcessor() override;
 
@@ -656,13 +669,14 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 PDLCDXferProcessor::PDLCDXferProcessor(const SkPMColor4f& blendConstant, float alpha)
-    : INHERITED(kPDLCDXferProcessor_ClassID, false, false, GrProcessorAnalysisCoverage::kLCD)
+    : INHERITED(kPDLCDXferProcessor_ClassID, false, false, GrProcessorAnalysisCoverage::kLCD, true)
     , fBlendConstant(blendConstant)
     , fAlpha(alpha) {
 }
 
-sk_sp<const GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode mode,
-                                                      const GrProcessorAnalysisColor& color) {
+const GrXferProcessor* PDLCDXferProcessor::Make(SkArenaAlloc* arena,
+                                                SkBlendMode mode,
+                                                const GrProcessorAnalysisColor& color) {
     if (SkBlendMode::kSrcOver != mode) {
         return nullptr;
     }
@@ -673,7 +687,7 @@ sk_sp<const GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode mode,
     SkColor4f blendConstantUPM = blendConstantPM.unpremul();
     float alpha = blendConstantUPM.fA;
     blendConstantPM = { blendConstantUPM.fR, blendConstantUPM.fG, blendConstantUPM.fB, 1 };
-    return sk_sp<GrXferProcessor>(new PDLCDXferProcessor(blendConstantPM, alpha));
+    return arena->make<PDLCDXferProcessor>(blendConstantPM, alpha);
 }
 
 PDLCDXferProcessor::~PDLCDXferProcessor() {
