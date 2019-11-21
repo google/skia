@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "121055bf_00748d30",
+        "filename": "include/gpu/GrSurface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-21T21:21:38Z",
+      "side": 1,
+      "message": "Is this an appropriate name for the GL case?",
+      "revId": "b65fb75b3cef5a1a9ff8960c3303fc6af46b2572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b544780_a04d3725",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-21T21:21:38Z",
+      "side": 1,
+      "message": "A swap chain surface... ?",
+      "range": {
+        "startLine": 19,
+        "startChar": 11,
+        "endLine": 19,
+        "endChar": 15
+      },
+      "revId": "b65fb75b3cef5a1a9ff8960c3303fc6af46b2572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6c56b4d_56e5cb31",
+        "filename": "src/gpu/GrRenderTargetProxyPriv.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-21T21:21:38Z",
+      "side": 1,
+      "message": "Is this true ?",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 67
+      },
+      "revId": "b65fb75b3cef5a1a9ff8960c3303fc6af46b2572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de8b9a58_1dd0f1c9",
+        "filename": "src/gpu/GrTextureRenderTargetProxy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-21T21:21:38Z",
+      "side": 1,
+      "message": "A swap chain surface... ?",
+      "range": {
+        "startLine": 92,
+        "startChar": 7,
+        "endLine": 92,
+        "endChar": 12
+      },
+      "revId": "b65fb75b3cef5a1a9ff8960c3303fc6af46b2572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8d2c78d_afafbeea",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-21T21:21:38Z",
+      "side": 1,
+      "message": "wrapsSwapchainSurface ?",
+      "range": {
+        "startLine": 212,
+        "startChar": 9,
+        "endLine": 212,
+        "endChar": 19
+      },
+      "revId": "b65fb75b3cef5a1a9ff8960c3303fc6af46b2572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d21c0d1_569eba7f",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-21T21:21:38Z",
+      "side": 1,
+      "message": "update ?",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 24
+      },
+      "revId": "b65fb75b3cef5a1a9ff8960c3303fc6af46b2572",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
