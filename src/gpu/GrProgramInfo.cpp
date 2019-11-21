@@ -47,7 +47,7 @@ void GrProgramInfo::validate() const {
             auto dynamicPrimProcTextures = this->dynamicPrimProcTextures(0);
 
             const GrBackendFormat& format = dynamicPrimProcTextures[s]->backendFormat();
-            GrTextureType type = dynamicPrimProcTextures[s]->textureType();
+            GrTextureType type = dynamicPrimProcTextures[s]->backendFormat().textureType();
             GrPixelConfig config = dynamicPrimProcTextures[s]->config();
 
             for (int m = 1; m < fNumDynamicStateArrays; ++m) {
@@ -55,7 +55,7 @@ void GrProgramInfo::validate() const {
 
                 auto testProxy = dynamicPrimProcTextures[s];
                 SkASSERT(testProxy->backendFormat() == format);
-                SkASSERT(testProxy->textureType() == type);
+                SkASSERT(testProxy->backendFormat().textureType() == type);
                 SkASSERT(testProxy->config() == config);
             }
         }

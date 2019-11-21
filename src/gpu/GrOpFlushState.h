@@ -101,11 +101,11 @@ public:
         return *fOpArgs;
     }
 
-    void setSampledProxyArray(SkTArray<GrTextureProxy*, true>* sampledProxies) {
+    void setSampledProxyArray(SkTArray<GrSurfaceProxy*, true>* sampledProxies) {
         fSampledProxies = sampledProxies;
     }
 
-    SkTArray<GrTextureProxy*, true>* sampledProxyArray() override {
+    SkTArray<GrSurfaceProxy*, true>* sampledProxyArray() override {
         return fSampledProxies;
     }
 
@@ -198,7 +198,7 @@ private:
 
     // This field is only transiently set during flush. Each GrOpsTask will set it to point to an
     // array of proxies it uses before call onPrepare and onExecute.
-    SkTArray<GrTextureProxy*, true>* fSampledProxies;
+    SkTArray<GrSurfaceProxy*, true>* fSampledProxies;
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;

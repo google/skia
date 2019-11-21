@@ -80,7 +80,7 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 }
 
 void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
-                                     const GrTextureProxy* const primProcTextures[]) {
+                                     const GrSurfaceProxy* const primProcTextures[]) {
     fSamplerBindings.reset();
     for (int i = 0; i < programInfo.primProc().numTextureSamplers(); ++i) {
         const auto& sampler = programInfo.primProc().textureSampler(i);

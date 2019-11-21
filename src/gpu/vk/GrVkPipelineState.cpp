@@ -150,7 +150,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
 bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrPipeline& pipeline,
-                                           const GrTextureProxy* const primProcTextures[],
+                                           const GrSurfaceProxy* const primProcTextures[],
                                            GrVkCommandBuffer* commandBuffer) {
     SkASSERT(primProcTextures || !primProc.numTextureSamplers());
 

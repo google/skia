@@ -541,7 +541,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
 
 wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
                                            const GrProgramInfo& programInfo,
-                                           const GrTextureProxy* const primProcTextures[]) {
+                                           const GrSurfaceProxy* const primProcTextures[]) {
     std::vector<wgpu::BindGroupBinding> bindings;
     int binding = 0;
     const GrPipeline& pipeline = programInfo.pipeline();
