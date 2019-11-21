@@ -209,7 +209,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
-    bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0();
+    bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().wrapsSwapchainSurface();
     // We should never get in the situation where we have a texture render target that is also
     // backend by FBO 0.
     SkASSERT(!usesGLFBO0 || !SkToBool(rtc->asTextureProxy()));
@@ -299,7 +299,8 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
-    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
+    if (characterization.usesGLFBO0() !=
+            rtc->asRenderTargetProxy()->rtPriv().wrapsSwapchainSurface()) {
         return false;
     }
 
