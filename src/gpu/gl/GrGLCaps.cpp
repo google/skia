@@ -3125,7 +3125,7 @@ static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& g
     // 3) It's not FBO 0, which is special and always auto-resolves
     return rt->numSamples() > 1 &&
            glCaps.usesMSAARenderBuffers() &&
-           !rt->rtPriv().glRTFBOIDIs0();
+           !rt->rtPriv().wrapsSwapchainSurface();
 }
 
 bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
