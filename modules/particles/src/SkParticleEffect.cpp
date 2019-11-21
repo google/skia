@@ -366,6 +366,7 @@ void SkParticleEffect::advanceTime(double now) {
     this->runParticleScript(now, "death", fCount, numDyingParticles);
 
     // Run 'effectUpdate' to adjust emitter properties
+    EffectState oldState = fState;
     this->runEffectScript(now, "effectUpdate");
 
     // Do integration of effect position and orientation
@@ -388,23 +389,22 @@ void SkParticleEffect::advanceTime(double now) {
         const int spawnBase = fCount;
 
         for (int i = 0; i < numToSpawn; ++i) {
+            float t = (i + 1.0f) / numToSpawn;
+
             // Mutate our SkRandom so each particle definitely gets a different generator
             fRandom.nextU();
             fParticles.fData[SkParticles::kAge            ][fCount] = 0.0f;
             fParticles.fData[SkParticles::kLifetime       ][fCount] = 0.0f;
-            fParticles.fData[SkParticles::kPositionX      ][fCount] = fState.fPosition.fX;
-            fParticles.fData[SkParticles::kPositionY      ][fCount] = fState.fPosition.fY;
-            fParticles.fData[SkParticles::kHeadingX       ][fCount] = fState.fHeading.fX;
-            fParticles.fData[SkParticles::kHeadingY       ][fCount] = fState.fHeading.fY;
-            fParticles.fData[SkParticles::kScale          ][fCount] = fState.fScale;
-            fParticles.fData[SkParticles::kVelocityX      ][fCount] = fState.fVelocity.fX;
-            fParticles.fData[SkParticles::kVelocityY      ][fCount] = fState.fVelocity.fY;
-            fParticles.fData[SkParticles::kVelocityAngular][fCount] = fState.fSpin;
-            fParticles.fData[SkParticles::kColorR         ][fCount] = fState.fColor.fR;
-            fParticles.fData[SkParticles::kColorG         ][fCount] = fState.fColor.fG;
-            fParticles.fData[SkParticles::kColorB         ][fCount] = fState.fColor.fB;
-            fParticles.fData[SkParticles::kColorA         ][fCount] = fState.fColor.fA;
-            fParticles.fData[SkParticles::kSpriteFrame    ][fCount] = fState.fFrame;
+
+            // Interpolate all of the floating point properties
+            const float* prev = &oldState.fPosition.fX;
+            const float* cur  = &fState.fPosition.fX;
+            for (int j = SkParticles::kPositionX; j <= SkParticles::kSpriteFrame; ++j) {
+                fParticles.fData[j][fCount] = *prev + (*cur - *prev) * t;
+                ++prev;
+                ++cur;
+            }
+
             fParticles.fData[SkParticles::kFlags          ][fCount] = bits_to_float(fState.fFlags);
             fParticles.fRandom[fCount] = fRandom;
             fCount++;
@@ -414,10 +414,13 @@ void SkParticleEffect::advanceTime(double now) {
         this->runParticleScript(now, "spawn", spawnBase, numToSpawn);
 
         // Now stash copies of the random generators and compute inverse particle lifetimes
-        // (so that subsequent updates are faster)
+        // (so that subsequent updates are faster). Also update particle age for newly spawned
+        // particles. Otherwise, particles that spawn during a long frame can live far too long.
         for (int i = spawnBase; i < fCount; ++i) {
             fParticles.fData[SkParticles::kLifetime][i] =
                     sk_ieee_float_divide(1.0f, fParticles.fData[SkParticles::kLifetime][i]);
+            fParticles.fData[SkParticles::kAge][i] +=
+                fParticles.fData[SkParticles::kLifetime][i] * deltaTime;
             fStableRandoms[i] = fParticles.fRandom[i];
         }
     }

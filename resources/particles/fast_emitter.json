@@ -1,0 +1,29 @@
+{
+   "MaxCount": 600,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 1
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 600;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "  float a = radians(effect.age * 1080);",
+      "  effect.pos = float2(cos(a), sin(a)) * 100;",
+      "  effect.vel = effect.pos;",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 1;",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "}",
+      ""
+   ],
+   "Bindings": []
+}
