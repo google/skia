@@ -77,7 +77,7 @@ struct Test {
     TestProc proc;
     ContextOptionsProc fContextOptionsProc;
 
-    void modifyGrContextOptions(GrContextOptions* options) {
+    void modifyGrContextOptions(GrContextOptions* options) const {
         if (fContextOptionsProc) {
             (*fContextOptionsProc)(options);
         }

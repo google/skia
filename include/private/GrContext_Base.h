@@ -42,6 +42,11 @@ public:
     GrBaseContextPriv priv();
     const GrBaseContextPriv priv() const;
 
+    /*
+     * The options in effect for this context
+     */
+    const GrContextOptions& options() const { return fOptions; }
+
 protected:
     friend class GrBaseContextPriv; // for hidden functions
 
@@ -62,10 +67,6 @@ protected:
         return candidate->contextID() == this->contextID();
     }
 
-    /*
-     * The options in effect for this context
-     */
-    const GrContextOptions& options() const { return fOptions; }
 
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
