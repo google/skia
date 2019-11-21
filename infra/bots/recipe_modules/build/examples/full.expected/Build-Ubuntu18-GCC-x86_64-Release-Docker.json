@@ -72,7 +72,9 @@
       "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-ubuntu18@sha256:3439bba135be1593de385f89b59e503ab28ef637ba634e2ecec43559dd928c69\"] extra_ldflags=[] is_debug=false target_cpu=\"x86_64\" werror=true"
     ],
     "env": {
-      "DOCKER_CONFIG": "/home/chrome-bot/.docker"
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "Run build script in Docker"
   },

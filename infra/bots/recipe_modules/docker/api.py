@@ -69,4 +69,5 @@ class DockerApi(recipe_api.RecipeApi):
 
     env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
     with self.m.env(env):
-      self.m.step(name, cmd=cmd)
+      self.m.run.with_retry(self.m.step, name, 3, # 3 attempts
+          cmd=cmd)
