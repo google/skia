@@ -8,7 +8,6 @@
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
 #include "include/private/SkVx.h"
-#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
@@ -285,12 +284,16 @@ Tessellator::WriteQuadProc Tessellator::GetWriteQuadProc(const VertexSpec& spec)
     return write_quad_generic;
 }
 
-Tessellator::Tessellator(const VertexSpec& spec)
+Tessellator::Tessellator(const VertexSpec& spec, char* vertices)
         : fVertexSpec(spec)
+        , fVertexWriter{vertices}
         , fWriteProc(Tessellator::GetWriteQuadProc(spec)) {}
 
-void* Tessellator::append(void* vertices, const GrQuad& deviceQuad, const GrQuad& localQuad,
-                          const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
+void Tessellator::append(const GrQuad& deviceQuad, const GrQuad& localQuad,
+                         const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
+    // We allow Tessellator to be created with a null vertices pointer for convenience, but it is
+    // assumed it will never actually be used in those cases.
+    SkASSERT(fVertexWriter.fPtr);
     SkASSERT(deviceQuad.quadType() <= fVertexSpec.deviceQuadType());
     SkASSERT(!fVertexSpec.hasLocalCoords() || localQuad.quadType() <= fVertexSpec.localQuadType());
 
@@ -298,7 +301,6 @@ void* Tessellator::append(void* vertices, const GrQuad& deviceQuad, const GrQuad
     static const float kZeroCoverage[4] = {0.f, 0.f, 0.f, 0.f};
     static const SkRect kIgnoredDomain = SkRect::MakeEmpty();
 
-    GrVertexWriter vb{vertices};
     if (fVertexSpec.usesCoverageAA()) {
         SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kWithColor ||
                  fVertexSpec.coverageMode() == CoverageMode::kWithPosition);
@@ -313,11 +315,11 @@ void* Tessellator::append(void* vertices, const GrQuad& deviceQuad, const GrQuad
         if (aaFlags == GrQuadAAFlags::kNone) {
             // Have to write the coverage AA vertex structure, but there's no math to be done for a
             // non-aa quad batched into a coverage AA op.
-            fWriteProc(&vb, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
+            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
                        geomDomain, uvDomain);
             // Since we pass the same corners in, the outer vertex structure will have 0 area and
             // the coverage interpolation from 1 to 0 will not be visible.
-            fWriteProc(&vb, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
+            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
                        geomDomain, uvDomain);
         } else {
             // Reset the tessellation helper to match the current geometry
@@ -340,23 +342,21 @@ void* Tessellator::append(void* vertices, const GrQuad& deviceQuad, const GrQuad
             // Write inner vertices first
             float coverage[4];
             fAAHelper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad).store(coverage);
-            fWriteProc(&vb, fVertexSpec, aaDeviceQuad, aaLocalQuad, coverage, color,
+            fWriteProc(&fVertexWriter, fVertexSpec, aaDeviceQuad, aaLocalQuad, coverage, color,
                        geomDomain, uvDomain);
 
             // Then outer vertices, which use 0.f for their coverage
             fAAHelper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
-            fWriteProc(&vb, fVertexSpec, aaDeviceQuad, aaLocalQuad, kZeroCoverage, color,
+            fWriteProc(&fVertexWriter, fVertexSpec, aaDeviceQuad, aaLocalQuad, kZeroCoverage, color,
                        geomDomain, uvDomain);
         }
     } else {
         // No outsetting needed, just write a single quad with full coverage
         SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kNone &&
                  !fVertexSpec.requiresGeometryDomain());
-        fWriteProc(&vb, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
+        fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
                    kIgnoredDomain, uvDomain);
     }
-
-    return vb.fPtr;
 }
 
 sk_sp<const GrBuffer> GetIndexBuffer(GrMeshDrawOp::Target* target,
