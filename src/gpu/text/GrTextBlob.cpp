@@ -162,7 +162,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 }
 
 inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
-        SubRun& info, int glyphCount, uint16_t run, uint16_t subRun,
+        SubRun& info, int glyphCount,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps& props,
         const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextTarget* target) {
@@ -323,7 +323,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
             }
 
             if (submitOp) {
-                auto op = this->makeOp(info, glyphCount, runIndex, subRun, viewMatrix, x, y,
+                auto op = this->makeOp(info, glyphCount, viewMatrix, x, y,
                                        clipRect, paint, filteredColor, props, distanceAdjustTable,
                                        target);
                 if (op) {
@@ -341,13 +341,13 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 }
 
 std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
-        int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
+        int glyphCount, const SkMatrix& viewMatrix,
         SkScalar x, SkScalar y, const SkPaint& paint, const SkPMColor4f& filteredColor,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
         GrTextTarget* target) {
-    GrTextBlob::SubRun& info = fRuns[run].fSubRunInfo[subRun];
+    GrTextBlob::SubRun& info = fRuns[0].fSubRunInfo[0];
     SkIRect emptyRect = SkIRect::MakeEmpty();
-    return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect,
+    return this->makeOp(info, glyphCount, viewMatrix, x, y, emptyRect,
                         paint, filteredColor, props, distanceAdjustTable, target);
 }
 
