@@ -113,7 +113,6 @@
   "Build-Mac-Clang-x86_64-Release-Metal",
   "Build-Mac-Clang-x86_64-Release-TSAN",
   "Build-Mac-Clang-x86_64-Release-TSAN_Metal",
-  "Build-Ubuntu18-GCC-x86_64-Release-Docker",
   "Build-Win-Clang-arm64-Debug",
   "Build-Win-Clang-arm64-Debug-ANGLE",
   "Build-Win-Clang-arm64-Release",

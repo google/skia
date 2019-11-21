@@ -14,8 +14,3 @@ publish_Debian10-mips64el:
 	docker tag gcc-debian10-mips64el gcr.io/skia-public/gcc-debian10-mips64el
 	docker push gcr.io/skia-public/gcc-debian10-mips64el
 
-publish_Ubuntu18:
-	docker build -t gcc-ubuntu18 ./Ubuntu18/
-	docker tag gcc-ubuntu18 gcr.io/skia-public/gcc-ubuntu18
-	docker push gcr.io/skia-public/gcc-ubuntu18
-
