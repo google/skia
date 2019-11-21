@@ -1054,19 +1054,56 @@ private:
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void GrTextureOp::CreateTextureSetOps(GrRenderTargetContext* rtc,
-                                      const GrClip& clip,
-                                      GrRecordingContext* context,
-                                      const GrRenderTargetContext::TextureSetEntry set[],
-                                      int cnt,
-                                      GrSamplerState::Filter filter,
-                                      Saturate saturate,
-                                      GrAAType aaType,
-                                      SkCanvas::SrcRectConstraint constraint,
-                                      const SkMatrix& viewMatrix,
-                                      sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
+                                   const GrClip& clip,
+                                   GrRecordingContext* context,
+                                   const GrRenderTargetContext::TextureSetEntry set[],
+                                   int cnt,
+                                   GrSamplerState::Filter filter,
+                                   Saturate saturate,
+                                   SkBlendMode blendMode,
+                                   GrAAType aaType,
+                                   SkCanvas::SrcRectConstraint constraint,
+                                   const SkMatrix& viewMatrix,
+                                   sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
+    // First check if we can support batches as a single op
+    if (blendMode != SkBlendMode::kSrcOver ||
+        !context->priv().caps()->dynamicStateArrayGeometryProcessorTextureSupport()) {
+        // Append each entry as its own op; these may still be GrTextureOps if the blend mode is
+        // src-over but the backend doesn't support dynamic state changes. Otherwise Make()
+        // automatically creates the appropriate GrFillRectOp to emulate GrTextureOp.
+        SkMatrix ctm;
+        for (int i = 0; i < cnt; ++i) {
+            float alpha = set[i].fAlpha;
+            ctm = viewMatrix;
+            if (set[i].fPreViewMatrix) {
+                ctm.preConcat(*set[i].fPreViewMatrix);
+            }
 
-    // First check if we can always just make a single op and avoid the extra iteration
+            GrQuad quad, srcQuad;
+            if (set[i].fDstClipQuad) {
+                quad = GrQuad::MakeFromSkQuad(set[i].fDstClipQuad, ctm);
+
+                SkPoint srcPts[4];
+                GrMapRectPoints(set[i].fDstRect, set[i].fSrcRect, set[i].fDstClipQuad, srcPts, 4);
+                srcQuad = GrQuad::MakeFromSkQuad(srcPts, SkMatrix::I());
+            } else {
+                quad = GrQuad::MakeFromRect(set[i].fDstRect, ctm);
+                srcQuad = GrQuad(set[i].fSrcRect);
+            }
+
+            const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint
+                    ? &set[i].fSrcRect : nullptr;
+
+            auto op = Make(context, set[i].fProxyView, set[i].fSrcColorType, textureColorSpaceXform,
+                           filter, {alpha, alpha, alpha, alpha}, saturate, blendMode, aaType,
+                           set[i].fAAFlags, quad, srcQuad, domain);
+            rtc->addDrawOp(clip, std::move(op));
+        }
+        return;
+    }
+
+    // Second check if we can always just make a single op and avoid the extra iteration
     // needed to clump things together.
     if (cnt <= SkTMin(GrResourceProvider::MaxNumNonAAQuads(),
                       GrResourceProvider::MaxNumAAQuads())) {

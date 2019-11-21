@@ -54,18 +54,20 @@ public:
                                           const GrQuad& localQuad,
                                           const SkRect* domain = nullptr);
 
-    // Unlike the single-proxy factory, this only supports src-over blending.
-    static void CreateTextureSetOps(GrRenderTargetContext*,
-                                    const GrClip& clip,
-                                    GrRecordingContext*,
-                                    const GrRenderTargetContext::TextureSetEntry[],
-                                    int cnt,
-                                    GrSamplerState::Filter,
-                                    Saturate,
-                                    GrAAType,
-                                    SkCanvas::SrcRectConstraint,
-                                    const SkMatrix& viewMatrix,
-                                    sk_sp<GrColorSpaceXform> textureXform);
+    // Automatically falls back to using one GrFillRectOp per entry if dynamic states are not
+    // supported, or if the blend mode is not src-over.
+    static void AddTextureSetOps(GrRenderTargetContext*,
+                                 const GrClip& clip,
+                                 GrRecordingContext*,
+                                 const GrRenderTargetContext::TextureSetEntry[],
+                                 int cnt,
+                                 GrSamplerState::Filter,
+                                 Saturate,
+                                 SkBlendMode,
+                                 GrAAType,
+                                 SkCanvas::SrcRectConstraint,
+                                 const SkMatrix& viewMatrix,
+                                 sk_sp<GrColorSpaceXform> textureXform);
 
 #if GR_TEST_UTILS
     static uint32_t ClassID();
