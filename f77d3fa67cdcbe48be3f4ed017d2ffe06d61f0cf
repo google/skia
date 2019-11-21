@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c71a68fa_887fdcc2",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-21T21:39:48Z",
+      "side": 1,
+      "message": "eventually we won\u0027t be able to get the swizzle off of the proxy and instead will query it with the GrColorType. So I think for this function it makes sense to pass in both the colorType and alphaType here, and for now we won\u0027t be using the color now.",
+      "range": {
+        "startLine": 206,
+        "startChar": 0,
+        "endLine": 206,
+        "endChar": 59
+      },
+      "revId": "f77d3fa67cdcbe48be3f4ed017d2ffe06d61f0cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e4cf229_d880fc38",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-21T21:39:48Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 225,
+        "startChar": 8,
+        "endLine": 225,
+        "endChar": 59
+      },
+      "revId": "f77d3fa67cdcbe48be3f4ed017d2ffe06d61f0cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
