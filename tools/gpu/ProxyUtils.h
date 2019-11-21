@@ -10,7 +10,10 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrTextureProxy.h"
+
+class GrProgramInfo;
 
 namespace sk_gpu_test {
 
@@ -21,6 +24,18 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext*,
                                                const GrImageInfo&,
                                                const void* data,
                                                size_t rowBytes);
+
+GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                 SkArenaAlloc*,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&&,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrGeometryProcessor*, SkBlendMode,
+                                 GrPrimitiveType,
+                                 GrPipeline::InputFlags flags = GrPipeline::InputFlags::kNone,
+                                 const GrUserStencilSettings* stencil =
+                                                                &GrUserStencilSettings::kUnused);
+
 
 }  // namespace sk_gpu_test
 
