@@ -102,7 +102,6 @@ public:
         SkString fName;
         std::vector<GrShaderVar> fParameters;
         SkString fBody;
-        std::vector<Compiler::FormatArg> fFormatArgs;
     };
 #endif
 
