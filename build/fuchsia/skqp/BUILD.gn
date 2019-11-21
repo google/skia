@@ -82,13 +82,6 @@ group("base_manifest") {
 
     # Vulkan ICD / Validation / Loader
     "lib/libvulkan.so=${sdk_dist_path}/libvulkan.so",
-    "lib/libVkLayer_image_pipe_swapchain.so=${sdk_dist_path}/libVkLayer_image_pipe_swapchain.so",
-    "lib/VkLayer_core_validation.so=${sdk_dist_path}/VkLayer_core_validation.so",
-    "lib/VkLayer_khronos_validation.so=${sdk_dist_path}/VkLayer_khronos_validation.so",
-    "lib/VkLayer_thread_safety.so=${sdk_dist_path}/VkLayer_thread_safety.so",
-    "lib/VkLayer_stateless_validation.so=${sdk_dist_path}/VkLayer_stateless_validation.so",
-    "lib/VkLayer_object_lifetimes.so=${sdk_dist_path}/VkLayer_object_lifetimes.so",
-    "lib/VkLayer_unique_objects.so=${sdk_dist_path}/VkLayer_unique_objects.so",
   ]
   write_file(base_pkg_manifest, manifest_entries)
 }
