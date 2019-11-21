@@ -612,11 +612,22 @@ optional("gpu") {
 
 optional("gif") {
   enabled = !skia_use_wuffs && skia_use_libgifcodec
-  public_defines = [ "SK_USE_LIBGIFCODEC" ]
-  sources = [
-    "src/codec/SkGifCodec.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
-  ]
+  _libgifcodec_gni_path = "third_party/externals/libgifcodec/libgifcodec.gni"
+  if ("True" ==
+      exec_script("gn/checkpath.py",
+                  [ rebase_path(_libgifcodec_gni_path, root_build_dir) ],
+                  "trim string")) {
+    public_defines = [ "SK_USE_LIBGIFCODEC" ]
+    public_include_dirs = [
+      ".",
+      skia_libgifcodec_path,
+    ]
+    include_dirs = public_include_dirs
+    import(_libgifcodec_gni_path)
+    sources = rebase_path(libgifcodec_sources + libgifcodec_public,
+                          ".",
+                          skia_libgifcodec_path)
+  }
 }
 
 optional("heif") {
