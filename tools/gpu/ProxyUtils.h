@@ -22,6 +22,15 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext*,
                                                const void* data,
                                                size_t rowBytes);
 
+GrProgramInfo* CreateProgramInfo(const GrCaps*,
+                                 SkArenaAlloc*,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&&,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrGeometryProcessor*, SkBlendMode,
+                                 GrPrimitiveType);
+
+
 }  // namespace sk_gpu_test
 
 #endif

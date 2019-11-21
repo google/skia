@@ -56,4 +56,48 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     return proxy;
 }
 
+
+GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
+                                 SkArenaAlloc* arena,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&& appliedClip,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrGeometryProcessor* geomProc,
+                                 SkBlendMode blendMode,
+                                 GrPrimitiveType primitiveType) {
+#if 1
+    GrPipeline* pipeline = arena->make<GrPipeline>(GrScissorTest::kDisabled,
+                                                    SkBlendMode::kSrcOver,
+                                                    dstView->swizzle());
+#else
+    GrPipeline::InitArgs initArgs;
+    initArgs.fCaps = caps;
+    initArgs.fDstProxyView = dstProxyView;
+    initArgs.fOutputSwizzle = dstView->swizzle();
+
+
+    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs,
+                                                    std::move(fProcessors),
+                                                    std::move(appliedClip));
+
+#endif
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    if (appliedClip.scissorState().enabled()) {
+        fixedDynamicState = arena->make<GrPipeline::FixedDynamicState>(
+                                                        appliedClip.scissorState().rect());
+    }
+
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                        dstProxy->numStencilSamples(),
+                                        dstView->origin(),
+                                        pipeline,
+                                        geomProc,
+                                        fixedDynamicState,
+                                        nullptr, 0,
+                                        primitiveType);
+}
+
+
 }  // namespace sk_gpu_test
