@@ -721,8 +721,9 @@ enum class GrInternalSurfaceFlags {
 
     // RT-level
 
-    // This flag is for use with GL only. It tells us that the internal render target wraps FBO 0.
-    kGLRTFBOIDIs0                   = 1 << 1,
+    // This flag is for use with GL or Metal only. It tells us that the internal render target
+    // wraps a swapchain surface (e.g., FBO 0)
+    kWrapsSwapchainSurface          = 1 << 1,
 
     // This means the render target is multisampled, and internally holds a non-msaa texture for
     // resolving into. The render target resolves itself by blitting into this internal texture.
@@ -739,7 +740,8 @@ constexpr static int kGrInternalTextureFlagsMask = static_cast<int>(
         GrInternalSurfaceFlags::kReadOnly);
 
 constexpr static int kGrInternalRenderTargetFlagsMask = static_cast<int>(
-        GrInternalSurfaceFlags::kGLRTFBOIDIs0 | GrInternalSurfaceFlags::kRequiresManualMSAAResolve);
+        GrInternalSurfaceFlags::kWrapsSwapchainSurface |
+        GrInternalSurfaceFlags::kRequiresManualMSAAResolve);
 
 constexpr static int kGrInternalTextureRenderTargetFlagsMask =
         kGrInternalTextureFlagsMask | kGrInternalRenderTargetFlagsMask;

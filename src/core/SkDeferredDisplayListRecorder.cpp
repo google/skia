@@ -151,7 +151,7 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     if (usesGLFBO0) {
-        surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+        surfaceFlags |= GrInternalSurfaceFlags::kWrapsSwapchainSurface;
     }
     // FIXME: Why do we use GrMipMapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
     static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipMapped::kNo,

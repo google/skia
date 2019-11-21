@@ -28,6 +28,9 @@ public:
     // Make manual MSAA resolve publicly accessible from GrRenderTarget.
     using GrSurface::setRequiresManualMSAAResolve;
     using GrSurface::requiresManualMSAAResolve;
+    // Make swapchain wrapping publicly accessible from GrRenderTarget.
+    using GrSurface::setWrapsSwapchainSurface;
+    using GrSurface::wrapsSwapchainSurface;
 
     virtual bool alwaysClearStencil() const { return false; }
 

@@ -56,6 +56,14 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     texInfo.fMipMapped = GrMipMapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
+    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
+    if (sampleCnt > 1) {
+        surfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
+    }
+    if (metalLayer.framebufferOnly) {
+        surfaceFlags |= GrInternalSurfaceFlags::kWrapsSwapchainSurface;
+    }
+
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [layer, drawable, sampleCnt, config](GrResourceProvider* resourceProvider) {
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
@@ -76,9 +84,6 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
                                       mtlGpu, desc, sampleCnt, currentDrawable.texture,
                                       GrWrapCacheable::kNo);
                 }
-                if (surface && sampleCnt > 1) {
-                    surface->setRequiresManualMSAAResolve();
-                }
 
                 *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
@@ -87,8 +92,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             desc,
             sampleCnt,
             origin,
-            sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
-                          : GrInternalSurfaceFlags::kNone,
+            surfaceFlags,
             metalLayer.framebufferOnly ? nullptr : &texInfo,
             GrMipMapsStatus::kNotAllocated,
             SkBackingFit::kExact,

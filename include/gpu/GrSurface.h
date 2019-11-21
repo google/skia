@@ -93,18 +93,16 @@ public:
     bool isProtected() const { return fIsProtected == GrProtected::kYes; }
 
 protected:
-    void setGLRTFBOIDIs0() {
-        SkASSERT(!this->requiresManualMSAAResolve());
+    void setWrapsSwapchainSurface() {
         SkASSERT(!this->asTexture());
         SkASSERT(this->asRenderTarget());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+        fSurfaceFlags |= GrInternalSurfaceFlags::kWrapsSwapchainSurface;
     }
-    bool glRTFBOIDis0() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    bool wrapsSwapchainSurface() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kWrapsSwapchainSurface;
     }
 
     void setRequiresManualMSAAResolve() {
-        SkASSERT(!this->glRTFBOIDis0());
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
     }

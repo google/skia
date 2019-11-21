@@ -27,6 +27,10 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
         , fColorTexture(colorTexture)
         , fResolveTexture(resolveTexture) {
     SkASSERT(sampleCnt > 1);
+    if (resolveTexture.framebufferOnly) {
+        this->setWrapsSwapchainSurface();
+    }
+    this->setRequiresManualMSAAResolve();
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -38,6 +42,9 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
         , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, 1, GrProtected::kNo)
         , fColorTexture(colorTexture)
         , fResolveTexture(nil) {
+    if (colorTexture.framebufferOnly) {
+        this->setWrapsSwapchainSurface();
+    }
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -53,6 +60,10 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
         , fColorTexture(colorTexture)
         , fResolveTexture(resolveTexture) {
     SkASSERT(sampleCnt > 1);
+    if (resolveTexture.framebufferOnly) {
+        this->setWrapsSwapchainSurface();
+    }
+    this->setRequiresManualMSAAResolve();
 }
 
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
@@ -61,7 +72,11 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
         : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
         , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, 1, GrProtected::kNo)
         , fColorTexture(colorTexture)
-        , fResolveTexture(nil) {}
+        , fResolveTexture(nil) {
+    if (colorTexture.framebufferOnly) {
+        this->setWrapsSwapchainSurface();
+    }
+}
 
 sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu,
                                                                     const GrSurfaceDesc& desc,

@@ -29,7 +29,7 @@ public:
     bool instantiate(GrResourceProvider*) override;
 
     bool canUseMixedSamples(const GrCaps& caps) const {
-        return caps.mixedSamplesSupport() && !this->glRTFBOIDIs0() &&
+        return caps.mixedSamplesSupport() && !this->wrapsSwapchainSurface() &&
                caps.internalMultisampleCount(this->backendFormat()) > 0 &&
                this->canChangeStencilAttachment();
     }
@@ -135,11 +135,11 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
-    void setGLRTFBOIDIs0() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    void setWrapsSwapchainSurface() {
+        fSurfaceFlags |= GrInternalSurfaceFlags::kWrapsSwapchainSurface;
     }
-    bool glRTFBOIDIs0() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
+    bool wrapsSwapchainSurface() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kWrapsSwapchainSurface;
     }
     bool canChangeStencilAttachment() const;
 
