@@ -16,14 +16,14 @@ void draw(SkCanvas* canvas) {
     arrowPath.addPoly(arrow, SK_ARRAY_COUNT(arrow), true);
     arrowPaint.setPathEffect(SkPath1DPathEffect::Make(arrowPath, 320, 0,
                              SkPath1DPathEffect::kRotate_Style));
-    for (auto direction : { SkPath::kCW_Direction, SkPath::kCCW_Direction } ) {
+    for (auto direction : { SkPathDirection::kCW, SkPathDirection::kCCW } ) {
         canvas->drawRect(rect, rectPaint);
         for (unsigned start : { 0, 1, 2, 3 } ) {
            SkPath path;
            path.addRect(rect, direction, start);
            canvas->drawPath(path, arrowPaint);
        }
-       canvas->drawString(SkPath::kCW_Direction == direction ? "CW" : "CCW",  rect.centerX(),
+       canvas->drawString(SkPathDirection::kCW == direction ? "CW" : "CCW",  rect.centerX(),
             rect.centerY(), textPaint);
        canvas->translate(120, 0);
     }
