@@ -13,8 +13,8 @@ void draw(SkCanvas* canvas) {
     one.addRect({10, 20, 30, 40});
     two.addRect({10, 20, 30, 40});
     debugster("add rect", one, two);
-    one.setConvexity(SkPath::kConcave_Convexity);
+    one.setConvexityType(SkPathConvexityType::kConcave);
     debugster("setConvexity", one, two);
-    SkDebugf("convexity %c=\n", one.getConvexity() == two.getConvexity() ? '=' : '!');
+    SkDebugf("convexity %c=\n", one.getConvexityType() == two.getConvexityType() ? '=' : '!');
 }
 }  // END FIDDLE
