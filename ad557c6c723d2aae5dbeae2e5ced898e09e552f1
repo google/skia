@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da69b18d_b6e1233a",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-11-21T19:28:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd631dd1_7bd2b7fd",
+      "range": {
+        "startLine": 377,
+        "startChar": 2,
+        "endLine": 377,
+        "endChar": 105
+      },
+      "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07b7e1ae_8f0e90b2",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "923296a3_0dd2fd55",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-11-21T19:28:01Z",
+      "side": 1,
+      "message": "Good catch! Done.",
+      "parentUuid": "07b7e1ae_8f0e90b2",
+      "range": {
+        "startLine": 264,
+        "startChar": 43,
+        "endLine": 264,
+        "endChar": 45
+      },
+      "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28fe20f0_a6198daa",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 6
@@ -68,6 +116,30 @@
       "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cbed432_c0f6c092",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-11-21T19:28:01Z",
+      "side": 1,
+      "message": "Good point! Yes, Dawn TextureViews keep a ref on their Textures. (So do BindGroups and\nCommandBuffers, incidentally.)",
+      "parentUuid": "28fe20f0_a6198daa",
+      "range": {
+        "startLine": 439,
+        "startChar": 24,
+        "endLine": 439,
+        "endChar": 41
+      },
+      "revId": "ad557c6c723d2aae5dbeae2e5ced898e09e552f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
