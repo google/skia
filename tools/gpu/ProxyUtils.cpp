@@ -10,6 +10,7 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/SkGr.h"
 #include "tools/gpu/ProxyUtils.h"
@@ -55,5 +56,56 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     }
     return proxy;
 }
+
+#include "include/core/SkColor.h"
+
+GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
+                                 SkArenaAlloc* arena,
+                                 const GrSurfaceProxyView* dstView,
+                                 GrAppliedClip&& appliedClip,
+                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrGeometryProcessor* geomProc,
+                                 SkBlendMode blendMode,
+                                 GrPrimitiveType primitiveType,
+                                 GrPipeline::InputFlags flags,
+                                 const GrUserStencilSettings* stencil) {
+
+    GrPipeline::InitArgs initArgs;
+    initArgs.fInputFlags = flags;
+    initArgs.fUserStencil = stencil;
+    initArgs.fCaps = caps;
+    initArgs.fDstProxyView = dstProxyView;
+    initArgs.fOutputSwizzle = dstView->swizzle();
+
+    GrProcessorSet processors = GrProcessorSet(blendMode);
+
+    SkPMColor4f analysisColor = { 0, 0, 0, 1 }; // opaque black
+
+    processors.finalize(analysisColor, GrProcessorAnalysisCoverage::kNone,
+                        &appliedClip, stencil, false,
+                        *caps, GrClampType::kNone, &analysisColor);
+
+    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs,
+                                                   std::move(processors),
+                                                   std::move(appliedClip));
+
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    if (appliedClip.scissorState().enabled()) {
+        fixedDynamicState = arena->make<GrPipeline::FixedDynamicState>(
+                                                        appliedClip.scissorState().rect());
+    }
+
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                        dstProxy->numStencilSamples(),
+                                        dstView->origin(),
+                                        pipeline,
+                                        geomProc,
+                                        fixedDynamicState,
+                                        nullptr, 0,
+                                        primitiveType);
+}
+
 
 }  // namespace sk_gpu_test
