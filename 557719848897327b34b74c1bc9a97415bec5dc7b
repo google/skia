@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4378088c_c26bb76a",
+        "filename": "src/gpu/geometry/GrQuad.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-22T22:03:32Z",
+      "side": 1,
+      "message": "Not sure if it\u0027s any better but you could have fW[4] \u003d {1.f, 1.f, 1.f, 1.f}; here.",
+      "range": {
+        "startLine": 158,
+        "startChar": 10,
+        "endLine": 158,
+        "endChar": 15
+      },
+      "revId": "557719848897327b34b74c1bc9a97415bec5dc7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
