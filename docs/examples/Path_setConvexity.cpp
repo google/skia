@@ -6,15 +6,15 @@ REG_FIDDLE(Path_setConvexity, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
         SkDebugf("%s path convexity is %s\n", prefix,
-                SkPathConvexityType::kUnknown == path.getConvexityTypeOrUnknown() ? "unknown" :
-                SkPathConvexityType::kConvex == path.getConvexityTypeOrUnknown() ? "convex" : "concave"); };
+                SkPath::kUnknown_Convexity == path.getConvexity() ? "unknown" :
+                SkPath::kConvex_Convexity == path.getConvexity() ? "convex" : "concave"); };
         SkPoint quad[] = {{70, 70}, {20, 20}, {120, 20}, {120, 120}};
         SkPath path;
         path.addPoly(quad, SK_ARRAY_COUNT(quad), true);
         debugster("initial", path);
-        path.setConvexityType(SkPathConvexityType::kConcave);
+        path.setConvexity(SkPath::kConcave_Convexity);
         debugster("after forcing concave", path);
-        path.setConvexityType(SkPathConvexityType::kUnknown);
+        path.setConvexity(SkPath::kUnknown_Convexity);
         debugster("after forcing unknown", path);
 }
 }  // END FIDDLE

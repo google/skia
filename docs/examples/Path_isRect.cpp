@@ -6,12 +6,12 @@ REG_FIDDLE(Path_isRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path) -> void {
         SkRect rect;
-        SkPathDirection direction;
+        SkPath::Direction direction;
         bool isClosed;
         path.isRect(&rect, &isClosed, &direction) ?
                 SkDebugf("%s is rect (%g, %g, %g, %g); is %s" "closed; direction %s\n", prefix,
                          rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, isClosed ? "" : "not ",
-                         SkPathDirection::kCW == direction ? "CW" : "CCW") :
+                         SkPath::kCW_Direction == direction ? "CW" : "CCW") :
                 SkDebugf("%s is not rect\n", prefix);
     };
     SkPath path;

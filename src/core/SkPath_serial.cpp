@@ -169,15 +169,15 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
     uint8_t dir = (packed >> kDirection_SerializationShift) & 0x3;
     FillType fillType = extract_filltype(packed);
 
-    SkPathDirection rrectDir;
+    Direction rrectDir;
     SkRRect rrect;
     int32_t start;
     switch (dir) {
         case SkPathPriv::kCW_FirstDirection:
-            rrectDir = SkPathDirection::kCW;
+            rrectDir = kCW_Direction;
             break;
         case SkPathPriv::kCCW_FirstDirection:
-            rrectDir = SkPathDirection::kCCW;
+            rrectDir = kCCW_Direction;
             break;
         default:
             return 0;
