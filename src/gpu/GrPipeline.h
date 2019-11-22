@@ -76,7 +76,7 @@ public:
         SkIRect fScissorRect = SkIRect::EmptyIRect();
         // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers
         // or textures are passed using DynamicStateArrays.
-        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
+        GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
@@ -88,7 +88,7 @@ public:
         // Must have GrPrimitiveProcessor::numTextureSamplers() * num_meshes entries.
         // Can be null if no samplers or to use the same textures for all meshes via'
         // FixedDynamicState.
-        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
+        GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
