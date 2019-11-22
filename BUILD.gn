@@ -1321,6 +1321,8 @@ if (skia_enable_tools) {
       "tools/gpu/MemoryCache.h",
       "tools/gpu/ProxyUtils.cpp",
       "tools/gpu/TestContext.cpp",
+      "tools/gpu/TestOps.cpp",
+      "tools/gpu/TestOps.h",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
       "tools/gpu/mock/MockTestContext.cpp",

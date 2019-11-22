@@ -159,6 +159,7 @@ public:
         kFwidthSquircleTestProcessor_ClassID,
         kSwizzleFragmentProcessor_ClassID,
         kTestFP_ClassID,
+        kTestRectOp_ClassID,
         kFlatNormalsFP_ClassID,
         kMappedNormalsFP_ClassID,
         kLightingFP_ClassID,
