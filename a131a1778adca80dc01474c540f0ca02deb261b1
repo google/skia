@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86d97e80_32f35a67",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-22T20:29:36Z",
+      "side": 1,
+      "message": "nit: add space",
+      "range": {
+        "startLine": 408,
+        "startChar": 18,
+        "endLine": 408,
+        "endChar": 19
+      },
+      "revId": "a131a1778adca80dc01474c540f0ca02deb261b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f0511fc_cd54a9d3",
+        "filename": "modules/skparagraph/src/Run.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-22T20:29:36Z",
+      "side": 1,
+      "message": "If this can be removed, we should just remove it.",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 49
+      },
+      "revId": "a131a1778adca80dc01474c540f0ca02deb261b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
