@@ -64,7 +64,6 @@
         // calling read pixels here. Thus the pixel data will be uploaded immediately and we don't
         // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
         sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
-        GrColorType dataColorType = SkColorTypeToGrColorType(image->colorType());
         sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(std::move(image),
                                                                             1,
                                                                             SkBudgeted::kYes,
@@ -87,7 +86,7 @@
         std::unique_ptr<GrFragmentProcessor> upmToPM(
                 new GrConfigConversionEffect(PMConversion::kToPremul));
 
-        paint1.addColorTextureProcessor(dataProxy, dataColorType, SkMatrix::I());
+        paint1.addColorTextureProcessor(dataProxy, kPremul_SkAlphaType, SkMatrix::I());
         paint1.addColorFragmentProcessor(pmToUPM->clone());
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -101,14 +100,16 @@
         // draw
         tempRTC->discard();
 
-        paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), kColorType, SkMatrix::I());
+        paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), kUnpremul_SkAlphaType,
+                                        SkMatrix::I());
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
-        paint3.addColorTextureProcessor(tempRTC->asTextureProxyRef(), kColorType, SkMatrix::I());
+        paint3.addColorTextureProcessor(tempRTC->asTextureProxyRef(), kPremul_SkAlphaType,
+                                        SkMatrix::I());
         paint3.addColorFragmentProcessor(std::move(pmToUPM));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
