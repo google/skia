@@ -411,6 +411,10 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     unsigned int numActiveProxies;
     const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
     SkASSERT(proxies);
+    // Something has gone terribly wrong, bail
+    if (!proxies || 0 == numActiveProxies) {
+        return;
+    }
     if (gp->numTextureSamplers() != (int) numActiveProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
