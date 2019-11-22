@@ -231,22 +231,22 @@ void test_draw_op(GrContext* context,
                   GrRenderTargetContext* rtc,
                   std::unique_ptr<GrFragmentProcessor> fp,
                   sk_sp<GrTextureProxy> inputDataProxy,
-                  GrColorType inputColorType) {
+                  SkAlphaType inputAlphaType) {
     GrPaint paint;
-    paint.addColorTextureProcessor(std::move(inputDataProxy), inputColorType, SkMatrix::I());
+    paint.addColorTextureProcessor(std::move(inputDataProxy), inputAlphaType, SkMatrix::I());
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     auto op = GrFillRectOp::MakeNonAARect(context, std::move(paint), SkMatrix::I(),
                                           SkRect::MakeWH(rtc->width(), rtc->height()));
-    rtc->addDrawOp(GrNoClip(), std::move(op));
+    rtc->priv().testingOnly_addDrawOp(std::move(op));
 }
 
 // This assumes that the output buffer will be the same size as inputDataProxy
 void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcessor* fp,
-               sk_sp<GrTextureProxy> inputDataProxy, GrColorType inputColorType, GrColor* buffer) {
+               sk_sp<GrTextureProxy> inputDataProxy, SkAlphaType inputAlphaType, GrColor* buffer) {
     // test_draw_op needs to take ownership of an FP, so give it a clone that it can own
-    test_draw_op(context, rtc, fp->clone(), inputDataProxy, inputColorType);
+    test_draw_op(context, rtc, fp->clone(), inputDataProxy, inputAlphaType);
     memset(buffer, 0x0, sizeof(GrColor) * inputDataProxy->width() * inputDataProxy->height());
     rtc->readPixels(SkImageInfo::Make(inputDataProxy->dimensions(), kRGBA_8888_SkColorType,
                                       kPremul_SkAlphaType),
@@ -257,8 +257,7 @@ void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcess
 bool init_test_textures(GrResourceProvider* resourceProvider,
                         GrProxyProvider* proxyProvider,
                         SkRandom* random,
-                        sk_sp<GrTextureProxy> proxies[2],
-                        GrColorType proxyColorTypes[2]) {
+                        sk_sp<GrTextureProxy> proxies[2]) {
     static const int kTestTextureSize = 256;
 
     {
@@ -278,7 +277,6 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         proxies[0] =
                 proxyProvider->createTextureProxy(img, 1, SkBudgeted::kYes, SkBackingFit::kExact);
         proxies[0]->instantiate(resourceProvider);
-        proxyColorTypes[0] = GrColorType::kRGBA_8888;
     }
 
     {
@@ -297,7 +295,6 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
         proxies[1] =
                 proxyProvider->createTextureProxy(img, 1, SkBudgeted::kYes, SkBackingFit::kExact);
         proxies[1]->instantiate(resourceProvider);
-        proxyColorTypes[1] = GrColorType::kAlpha_8;
     }
 
     return proxies[0] && proxies[1];
@@ -431,12 +428,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             SkBackingFit::kExact, kRenderSize, kRenderSize, GrColorType::kRGBA_8888, nullptr);
 
     sk_sp<GrTextureProxy> proxies[2];
-    GrColorType proxyColorTypes[2];
-    if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies, proxyColorTypes)) {
+    if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
-    GrProcessorTestData testData(&random, context, rtc.get(), proxies, proxyColorTypes);
+    GrProcessorTestData testData(&random, context, rtc.get(), proxies);
 
     // Coverage optimization uses three frames with a linearly transformed input texture.  The first
     // frame has no offset, second frames add .2 and .4, which should then be present as a fixed
@@ -483,14 +479,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
             if (fp->compatibleWithCoverageAsAlpha()) {
                 // 2nd and 3rd frames are only used when checking coverage optimization
-                render_fp(context, rtc.get(), fp.get(), inputTexture2, GrColorType::kRGBA_8888,
+                render_fp(context, rtc.get(), fp.get(), inputTexture2, kPremul_SkAlphaType,
                           readData2.get());
-                render_fp(context, rtc.get(), fp.get(), inputTexture3, GrColorType::kRGBA_8888,
+                render_fp(context, rtc.get(), fp.get(), inputTexture3, kPremul_SkAlphaType,
                           readData3.get());
             }
             // Draw base frame last so that rtc holds the original FP behavior if we need to
             // dump the image to the log.
-            render_fp(context, rtc.get(), fp.get(), inputTexture1, GrColorType::kRGBA_8888,
+            render_fp(context, rtc.get(), fp.get(), inputTexture1, kPremul_SkAlphaType,
                       readData1.get());
 
             if (0) {  // Useful to see what FPs are being tested.
@@ -669,12 +665,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             SkBackingFit::kExact, kRenderSize, kRenderSize, GrColorType::kRGBA_8888, nullptr);
 
     sk_sp<GrTextureProxy> proxies[2];
-    GrColorType proxyColorTypes[2];
-    if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies, proxyColorTypes)) {
+    if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
-    GrProcessorTestData testData(&random, context, rtc.get(), proxies, proxyColorTypes);
+    GrProcessorTestData testData(&random, context, rtc.get(), proxies);
 
     auto inputTexture = make_input_texture(proxyProvider, kRenderSize, kRenderSize, 0.0f);
     std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);
@@ -714,11 +709,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             REPORTER_ASSERT(reporter, fp->numChildProcessors() == clone->numChildProcessors());
             REPORTER_ASSERT(reporter, fp->usesLocalCoords() == clone->usesLocalCoords());
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), fp.get(), inputTexture, GrColorType::kRGBA_8888,
+            render_fp(context, rtc.get(), fp.get(), inputTexture, kPremul_SkAlphaType,
                       readData1.get());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), clone.get(), inputTexture, GrColorType::kRGBA_8888,
+            render_fp(context, rtc.get(), clone.get(), inputTexture, kPremul_SkAlphaType,
                       readData2.get());
 
             // Check that the results are the same.

@@ -29,7 +29,7 @@
 // skbug.com/5932
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
                                    sk_sp<GrTextureProxy> rectProxy, GrColorType colorType,
-                                   uint32_t expectedPixelValues[]) {
+                                   SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
     auto rtContext = context->priv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, rectProxy->width(), rectProxy->height(), colorType, nullptr);
     for (auto filter : {GrSamplerState::Filter::kNearest,
@@ -37,7 +37,7 @@ static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* cont
                         GrSamplerState::Filter::kMipMap}) {
         rtContext->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xDDCCBBAA),
                          GrRenderTargetContext::CanClearFullscreen::kYes);
-        auto fp = GrSimpleTextureEffect::Make(rectProxy, colorType, SkMatrix::I(), filter);
+        auto fp = GrSimpleTextureEffect::Make(rectProxy, alphaType, SkMatrix::I(), filter);
         GrPaint paint;
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
@@ -185,7 +185,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         SkASSERT(rectProxy->hasRestrictedSampling());
         SkASSERT(rectProxy->peekTexture()->texturePriv().hasRestrictedSampling());
 
-        test_basic_draw_as_src(reporter, context, rectProxy, GrColorType::kRGBA_8888, refPixels);
+        test_basic_draw_as_src(reporter, context, rectProxy, GrColorType::kRGBA_8888,
+                               kPremul_SkAlphaType, refPixels);
 
         // Test copy to both a texture and RT
         TestCopyFromSurface(reporter, context, rectProxy.get(), GrColorType::kRGBA_8888, refPixels,

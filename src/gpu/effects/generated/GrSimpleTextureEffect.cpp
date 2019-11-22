@@ -85,7 +85,8 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx),
-                                       testData->textureProxyColorType(texIdx), matrix, params);
+    auto alphaType =
+            static_cast<SkAlphaType>(testData->fRandom->nextULessThan(kLastEnum_SkAlphaType + 1));
+    return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx), alphaType, matrix, params);
 }
 #endif
