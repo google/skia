@@ -25,7 +25,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, result.isEmpty());
 
     SkPath rectPath;
-    rectPath.setFillType(SkPath::kEvenOdd_FillType);
+    rectPath.setFillType(SkPathFillType::kEvenOdd);
     rectPath.addRect(0, 1, 2, 3, SkPathDirection::kCW);
     builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
@@ -38,7 +38,7 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 
     rectPath.reset();
-    rectPath.setFillType(SkPath::kEvenOdd_FillType);
+    rectPath.setFillType(SkPathFillType::kEvenOdd);
     rectPath.addRect(0, 1, 2, 3, SkPathDirection::kCCW);
     builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
@@ -138,10 +138,10 @@ DEF_TEST(BuilderIssue3838_3, reporter) {
 
 DEF_TEST(BuilderIssue502792_2, reporter) {
     SkPath path, pathB;
-    path.setFillType(SkPath::kWinding_FillType);
+    path.setFillType(SkPathFillType::kWinding);
     path.addRect(0, 0, 1, 1, SkPathDirection::kCW);
     path.addRect(2, 2, 3, 3, SkPathDirection::kCW);
-    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.setFillType(SkPathFillType::kEvenOdd);
     pathB.addRect(3, 3, 4, 4, SkPathDirection::kCW);
     pathB.addRect(3, 3, 4, 4, SkPathDirection::kCW);
     SkOpBuilder builder;
@@ -304,14 +304,14 @@ DEF_TEST(Issue569540, reporter) {
 
 DEF_TEST(SkOpBuilderFuzz665, reporter) {
     SkPath path;
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
 path.moveTo(SkBits2Float(0xcc4264a7), SkBits2Float(0x4bb12e50));  // -5.0959e+07f, 2.32235e+07f
 path.lineTo(SkBits2Float(0xcc4264b0), SkBits2Float(0x4bb12e48));  // -5.0959e+07f, 2.32234e+07f
 path.lineTo(SkBits2Float(0xcc4264a7), SkBits2Float(0x4bb12e50));  // -5.0959e+07f, 2.32235e+07f
 path.close();
     SkPath path1(path);
     path.reset();
-    path.setFillType(SkPath::kWinding_FillType);
+    path.setFillType(SkPathFillType::kWinding);
 path.moveTo(SkBits2Float(0x43213333), SkBits2Float(0x43080000));  // 161.2f, 136
 path.lineTo(SkBits2Float(0x43038000), SkBits2Float(0x43080000));  // 131.5f, 136
 path.cubicTo(SkBits2Float(0x43038000), SkBits2Float(0x42f00000), SkBits2Float(0x42f16666), SkBits2Float(0x42d53333), SkBits2Float(0x42d3cccd), SkBits2Float(0x42cd6666));  // 131.5f, 120, 120.7f, 106.6f, 105.9f, 102.7f

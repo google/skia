@@ -201,7 +201,7 @@ static void write_path_key_from_data(const SkPath& path, uint32_t* origKey) {
     const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
     SkASSERT(verbCnt <= GrShape::kMaxKeyFromDataVerbCnt);
     SkASSERT(pointCnt && verbCnt);
-    *key++ = path.getFillType();
+    *key++ = (uint32_t)path.getFillType();
     *key++ = verbCnt;
     memcpy(key, SkPathPriv::VerbData(path), verbCnt * sizeof(uint8_t));
     int verbKeySize = SkAlign4(verbCnt);
@@ -297,7 +297,7 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
                 *key++ = fPathData.fGenID;
                 // We could canonicalize the fill rule for paths that don't differentiate between
                 // even/odd or winding fill (e.g. convex).
-                *key++ = this->path().getFillType();
+                *key++ = (uint32_t)this->path().getFillType();
                 break;
             }
         }

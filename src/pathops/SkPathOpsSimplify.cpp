@@ -140,8 +140,8 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* writer) {
 bool SimplifyDebug(const SkPath& path, SkPath* result
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
-            : SkPath::kEvenOdd_FillType;
+    SkPathFillType fillType = path.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
+            : SkPathFillType::kEvenOdd;
     if (path.isConvex()) {
         if (result != &path) {
             *result = path;
