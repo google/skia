@@ -77,14 +77,14 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
                                                                               strUniName.c_str(),
                                                                               &uniName).toIndex();
         GrSLType varyingType = kFloat2_GrSLType;
-        if (localMatrix.hasPerspective() || coordTransform->getMatrix().hasPerspective()
-            || threeComponentLocalCoords) {
+        if (localMatrix.hasPerspective() || coordTransform->matrix().hasPerspective() ||
+            threeComponentLocalCoords) {
             varyingType = kFloat3_GrSLType;
         }
         SkString strVaryingName;
         strVaryingName.printf("TransformedCoords_%d", i);
         GrGLSLVarying v(varyingType);
-        if (coordTransform->computeInVertexShader()) {
+        if (handler->currentFP()->applyCoordTransformsInVertexShader()) {
             varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
             if (kFloat2_GrSLType == varyingType) {
