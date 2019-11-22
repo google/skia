@@ -204,6 +204,10 @@ void GrDrawRandomOp(SkRandom* random, GrRenderTargetContext* renderTargetContext
     uint32_t index = random->nextULessThan(static_cast<uint32_t>(kTotal));
     auto op = gFactories[index](
             std::move(paint), random, context, renderTargetContext->numSamples());
+    if (!op) {
+        SkDebugf("Failed %d", index);
+        SK_ABORT("done");
+    }
     SkASSERT(op);
     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
 }
