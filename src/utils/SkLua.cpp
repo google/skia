@@ -1310,7 +1310,7 @@ static int lpath_getSegmentTypes(lua_State* L) {
 }
 
 static int lpath_isConvex(lua_State* L) {
-    bool isConvex = SkPath::kConvex_Convexity == get_obj<SkPath>(L, 1)->getConvexity();
+    bool isConvex = get_obj<SkPath>(L, 1)->isConvex();
     SkLua(L).pushBool(isConvex);
     return 1;
 }

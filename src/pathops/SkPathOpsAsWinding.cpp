@@ -13,7 +13,7 @@
 using std::vector;
 
 struct Contour {
-    enum class Direction {  // SkPath::Direction doesn't have 'none' state
+    enum class Direction {  // SkPathDirection doesn't have 'none' state
         kCCW = -1,
         kNone,
         kCW,

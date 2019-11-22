@@ -34,7 +34,7 @@ void draw(SkCanvas* canvas) {
                 path.arcTo({56, 56}, {32, 56}, 24);
                 break;
             case '5':
-                path.arcTo({24, 24}, 0, SkPath::kSmall_ArcSize, SkPath::kCW_Direction, {32, 56});
+                path.arcTo({24, 24}, 0, SkPath::kSmall_ArcSize, SkPathDirection::kCW, {32, 56});
                 break;
             case '6':
                 path.conicTo({56, 56}, {32, 56}, SK_ScalarRoot2Over2);

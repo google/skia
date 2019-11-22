@@ -273,7 +273,7 @@ void GrShape::writeUnstyledKey(uint32_t* key) const {
             case Type::kRRect:
                 fRRectData.fRRect.writeToMemory(key);
                 key += SkRRect::kSizeInMemory / sizeof(uint32_t);
-                *key = (fRRectData.fDir == SkPath::kCCW_Direction) ? (1 << 31) : 0;
+                *key = (fRRectData.fDir == SkPathDirection::kCCW) ? (1 << 31) : 0;
                 *key |= fRRectData.fInverted ? (1 << 30) : 0;
                 *key++ |= fRRectData.fStart;
                 SkASSERT(fRRectData.fStart < 8);
@@ -507,7 +507,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
 void GrShape::attemptToSimplifyPath() {
     SkRect rect;
     SkRRect rrect;
-    SkPath::Direction rrectDir;
+    SkPathDirection rrectDir;
     unsigned rrectStart;
     bool inverted = this->path().isInverseFillType();
     SkPoint pts[2];

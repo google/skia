@@ -15,10 +15,10 @@ void draw(SkCanvas* canvas) {
     SkRRect rrect;
     SkVector corners[] = {{15, 17}, {17, 19}, {19, 15}, {15, 15}};
     rrect.setRectRadii({20, 20, 100, 100}, corners);
-    path.addRRect(rrect, SkPath::kCW_Direction);
+    path.addRRect(rrect, SkPathDirection::kCW);
     canvas->drawPath(path, paint);
     path.rewind();
-    path.addRRect(rrect, SkPath::kCCW_Direction, 1);
+    path.addRRect(rrect, SkPathDirection::kCCW, 1);
     canvas->translate(120, 0);
     canvas->drawPath(path, paint);
 }

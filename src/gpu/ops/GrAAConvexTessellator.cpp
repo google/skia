@@ -377,7 +377,7 @@ bool GrAAConvexTessellator::computePtAlongBisector(int startIdx,
 }
 
 bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& path) {
-    SkASSERT(SkPath::kConvex_Convexity == path.getConvexity());
+    SkASSERT(SkPathConvexityType::kConvex == path.getConvexityType());
 
     SkRect bounds = path.getBounds();
     m.mapRect(&bounds);

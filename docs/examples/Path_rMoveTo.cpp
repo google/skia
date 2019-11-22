@@ -6,7 +6,7 @@
 REG_FIDDLE(Path_rMoveTo, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path;
-    path.addRect({20, 20, 80, 80}, SkPath::kCW_Direction, 2);
+    path.addRect({20, 20, 80, 80}, SkPathDirection::kCW, 2);
     path.rMoveTo(25, 2);
     SkVector arrow[] = {{0, -4}, {-20, 0}, {0, -3}, {-5, 5}, {5, 5}, {0, -3}, {20, 0}};
     for (unsigned i = 0; i < SK_ARRAY_COUNT(arrow); ++i) {

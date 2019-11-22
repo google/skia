@@ -26,25 +26,25 @@ DEF_TEST(PathOpsBuilder, reporter) {
 
     SkPath rectPath;
     rectPath.setFillType(SkPath::kEvenOdd_FillType);
-    rectPath.addRect(0, 1, 2, 3, SkPath::kCW_Direction);
+    rectPath.addRect(0, 1, 2, 3, SkPathDirection::kCW);
     builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     bool closed;
-    SkPath::Direction dir;
+    SkPathDirection dir;
     REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
-    REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
+    REPORTER_ASSERT(reporter, dir == SkPathDirection::kCCW);
     int pixelDiff = comparePaths(reporter, __FUNCTION__, rectPath, result);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 
     rectPath.reset();
     rectPath.setFillType(SkPath::kEvenOdd_FillType);
-    rectPath.addRect(0, 1, 2, 3, SkPath::kCCW_Direction);
+    rectPath.addRect(0, 1, 2, 3, SkPathDirection::kCCW);
     builder.add(rectPath, kUnion_SkPathOp);
     REPORTER_ASSERT(reporter, builder.resolve(&result));
     REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
-    REPORTER_ASSERT(reporter, dir == SkPath::kCCW_Direction);
+    REPORTER_ASSERT(reporter, dir == SkPathDirection::kCCW);
     REPORTER_ASSERT(reporter, rectPath == result);
 
     builder.add(rectPath, kDifference_SkPathOp);
@@ -52,8 +52,8 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, result.isEmpty());
 
     SkPath rect2, rect3;
-    rect2.addRect(2, 1, 4, 3, SkPath::kCW_Direction);
-    rect3.addRect(4, 1, 5, 3, SkPath::kCCW_Direction);
+    rect2.addRect(2, 1, 4, 3, SkPathDirection::kCW);
+    rect3.addRect(4, 1, 5, 3, SkPathDirection::kCCW);
     builder.add(rectPath, kUnion_SkPathOp);
     builder.add(rect2, kUnion_SkPathOp);
     builder.add(rect3, kUnion_SkPathOp);
@@ -65,9 +65,9 @@ DEF_TEST(PathOpsBuilder, reporter) {
     REPORTER_ASSERT(reporter, result.getBounds() == expected);
 
     SkPath circle1, circle2, circle3;
-    circle1.addCircle(5, 6, 4, SkPath::kCW_Direction);
-    circle2.addCircle(7, 4, 8, SkPath::kCCW_Direction);
-    circle3.addCircle(6, 5, 6, SkPath::kCW_Direction);
+    circle1.addCircle(5, 6, 4, SkPathDirection::kCW);
+    circle2.addCircle(7, 4, 8, SkPathDirection::kCCW);
+    circle3.addCircle(6, 5, 6, SkPathDirection::kCW);
     SkPath opCompare;
     Op(circle1, circle2, kUnion_SkPathOp, &opCompare);
     Op(opCompare, circle3, kDifference_SkPathOp, &opCompare);
@@ -139,11 +139,11 @@ DEF_TEST(BuilderIssue3838_3, reporter) {
 DEF_TEST(BuilderIssue502792_2, reporter) {
     SkPath path, pathB;
     path.setFillType(SkPath::kWinding_FillType);
-    path.addRect(0, 0, 1, 1, SkPath::kCW_Direction);
-    path.addRect(2, 2, 3, 3, SkPath::kCW_Direction);
+    path.addRect(0, 0, 1, 1, SkPathDirection::kCW);
+    path.addRect(2, 2, 3, 3, SkPathDirection::kCW);
     pathB.setFillType(SkPath::kEvenOdd_FillType);
-    pathB.addRect(3, 3, 4, 4, SkPath::kCW_Direction);
-    pathB.addRect(3, 3, 4, 4, SkPath::kCW_Direction);
+    pathB.addRect(3, 3, 4, 4, SkPathDirection::kCW);
+    pathB.addRect(3, 3, 4, 4, SkPathDirection::kCW);
     SkOpBuilder builder;
     builder.add(path, kUnion_SkPathOp);
     builder.add(pathB, kDifference_SkPathOp);
