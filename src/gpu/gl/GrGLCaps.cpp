@@ -3365,6 +3365,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fPerformStencilClearsAsDraws = true;
     }
 
+    if (ctxInfo.vendor() == kQualcomm_GrGLVendor) {
+        // It appears that all the Adreno GPUs have less than optimal performance when
+        // drawing w/ large index buffers.
+        fAvoidLargeIndexBufferDraws = true;
+    }
+
     // This was reproduced on the following configurations:
     // - A Galaxy J5 (Adreno 306) running Android 6 with driver 140.0
     // - A Nexus 7 2013 (Adreno 320) running Android 5 with driver 104.0
