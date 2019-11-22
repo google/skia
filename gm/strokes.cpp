@@ -344,42 +344,42 @@ static SkRect inset(const SkRect& r) {
 
 class Strokes3GM : public skiagm::GM {
     static void make0(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPath::kCW_Direction);
-        path->addRect(inset(bounds), SkPath::kCW_Direction);
+        path->addRect(bounds, SkPathDirection::kCW);
+        path->addRect(inset(bounds), SkPathDirection::kCW);
         title->set("CW CW");
     }
 
     static void make1(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPath::kCW_Direction);
-        path->addRect(inset(bounds), SkPath::kCCW_Direction);
+        path->addRect(bounds, SkPathDirection::kCW);
+        path->addRect(inset(bounds), SkPathDirection::kCCW);
         title->set("CW CCW");
     }
 
     static void make2(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addOval(bounds, SkPath::kCW_Direction);
-        path->addOval(inset(bounds), SkPath::kCW_Direction);
+        path->addOval(bounds, SkPathDirection::kCW);
+        path->addOval(inset(bounds), SkPathDirection::kCW);
         title->set("CW CW");
     }
 
     static void make3(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addOval(bounds, SkPath::kCW_Direction);
-        path->addOval(inset(bounds), SkPath::kCCW_Direction);
+        path->addOval(bounds, SkPathDirection::kCW);
+        path->addOval(inset(bounds), SkPathDirection::kCCW);
         title->set("CW CCW");
     }
 
     static void make4(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPath::kCW_Direction);
+        path->addRect(bounds, SkPathDirection::kCW);
         SkRect r = bounds;
         r.inset(bounds.width() / 10, -bounds.height() / 10);
-        path->addOval(r, SkPath::kCW_Direction);
+        path->addOval(r, SkPathDirection::kCW);
         title->set("CW CW");
     }
 
     static void make5(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPath::kCW_Direction);
+        path->addRect(bounds, SkPathDirection::kCW);
         SkRect r = bounds;
         r.inset(bounds.width() / 10, -bounds.height() / 10);
-        path->addOval(r, SkPath::kCCW_Direction);
+        path->addOval(r, SkPathDirection::kCCW);
         title->set("CW CCW");
     }
 

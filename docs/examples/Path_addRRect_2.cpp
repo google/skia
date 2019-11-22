@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawPath(path, paint);
     for (int start = 0; start < 8; ++start) {
         SkPath textPath;
-        textPath.addRRect(rrect, SkPath::kCW_Direction, start);
+        textPath.addRRect(rrect, SkPathDirection::kCW, start);
         SkPathMeasure pathMeasure(textPath, false);
         SkPoint position;
         SkVector tangent;
