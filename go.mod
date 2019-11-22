@@ -7,6 +7,7 @@ require (
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.1
+	github.com/mtklein/idiff v0.0.0-20190321175252-9e0741d83053 // indirect
 	go.chromium.org/luci v0.0.0-20191119055648-478869e8bc76 // indirect
 	go.skia.org/infra v0.0.0-20191118172813-369d64620dd4
 	google.golang.org/api v0.11.0

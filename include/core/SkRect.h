@@ -960,6 +960,13 @@ struct SK_API SkRect {
         return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
     }
 
+    /** Returns SkRect offset by v.
+
+        @param v  added to rect
+        @return    SkRect offset on axes, with original width and height
+    */
+    constexpr SkRect makeOffset(SkVector v) const { return this->makeOffset(v.x(), v.y()); }
+
     /** Returns SkRect, inset by (dx, dy).
 
         If dx is negative, SkRect returned is wider.
