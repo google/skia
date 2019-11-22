@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "555f87b1_fba5b264",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-22T14:38:40Z",
+      "side": 1,
+      "message": "Why is this necessary?",
+      "range": {
+        "startLine": 487,
+        "startChar": 42,
+        "endLine": 487,
+        "endChar": 74
+      },
+      "revId": "e1859ad5507696f2280644d9fd5f80468473559b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fda84203_ae5991c5",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-11-22T14:38:40Z",
+      "side": 1,
+      "message": "Doesn\u0027t this one need to zero dst?",
+      "range": {
+        "startLine": 505,
+        "startChar": 30,
+        "endLine": 505,
+        "endChar": 61
+      },
+      "revId": "e1859ad5507696f2280644d9fd5f80468473559b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
