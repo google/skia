@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c2eb75ec_1065a37c",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-22T20:51:00Z",
+      "side": 1,
+      "message": "Maybe flip the condition so it\u0027s if (avoid), vs. if (!avoid)?\n\nSeparately, a comment along the lines of \u0027We avoid large index buffer draws by modifying the base vertex of the draw, which in GL requires rebinding all vertex attrib arrays, so a base index is generally preferred. On some platforms, the opposite is true...\"",
+      "range": {
+        "startLine": 422,
+        "startChar": 8,
+        "endLine": 422,
+        "endChar": 42
+      },
+      "revId": "ca3c59d2588995b3bab024c41c8550a34f9bc234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
