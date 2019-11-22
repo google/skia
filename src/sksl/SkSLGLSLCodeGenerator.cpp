@@ -153,6 +153,8 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             }
             break;
         }
+        case Type::kEnum_Kind:
+            return "int";
         default:
             return type.name();
     }

@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONDEFINITION
 #define SKSL_FUNCTIONDEFINITION
 
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -35,6 +36,11 @@ struct FunctionDefinition : public ProgramElement {
 
     const FunctionDeclaration& fDeclaration;
     std::unique_ptr<Statement> fBody;
+    // This pointer may be null, and even when non-null is not guaranteed to remain valid for the
+    // entire lifespan of this object. The parse tree's lifespan is normally controlled by
+    // IRGenerator, so the IRGenerator being destroyed or being used to compile another file will
+    // invalidate this pointer.
+    const ASTNode* fSource = nullptr;
 
     typedef ProgramElement INHERITED;
 };
