@@ -137,7 +137,11 @@ class TextWrapper {
     };
 
 public:
-    TextWrapper() { fLineNumber = 1; }
+    TextWrapper() {
+        fLineNumber = 1;
+        fAddEllipsis = false;
+        fHardLineBreak = false;
+    }
 
     using AddLineToParagraph = std::function<void(TextRange text,
                                                   TextRange textWithSpaces,
@@ -148,8 +152,7 @@ public:
                                                   size_t endClip,
                                                   SkVector offset,
                                                   SkVector advance,
-                                                  InternalLineMetrics metrics,
-                                                  bool addEllipsis)>;
+                                                  InternalLineMetrics metrics)>;
     void breakTextIntoLines(ParagraphImpl* parent,
                             SkScalar maxWidth,
                             const AddLineToParagraph& addLine);
@@ -158,6 +161,7 @@ public:
     SkScalar minIntrinsicWidth() const { return fMinIntrinsicWidth; }
     SkScalar maxIntrinsicWidth() const { return fMaxIntrinsicWidth; }
     bool exceededMaxLines() const { return fExceededMaxLines; }
+    bool addEllipsis() const { return fAddEllipsis; }
 
 private:
     TextStretch fWords;
@@ -170,6 +174,7 @@ private:
 
     bool fHardLineBreak;
     bool fExceededMaxLines;
+    bool fAddEllipsis;
 
     SkScalar fHeight;
     SkScalar fMinIntrinsicWidth;
@@ -184,7 +189,7 @@ private:
     }
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
-    void moveForward();
+    bool moveForward(bool withEllipsis, size_t maxLines);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
