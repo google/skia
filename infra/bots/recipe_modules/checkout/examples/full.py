@@ -103,7 +103,7 @@ def GenTests(api):
       api.path.exists(api.path['start_dir'].join('skp_output'))
   )
 
-  buildername = 'Build-Debian9-GCC-x86_64-Release'
+  buildername = 'Build-Debian9-Clang-x86_64-Release'
   yield (
       api.test('cross_repo_trybot') +
       api.properties(

@@ -94,8 +94,8 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OpenCL',
   'Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan',
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-ASAN',
-  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
-   '-Valgrind_AbandonGpuContext'),
+  ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
+   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_ProcDump',
   'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
 ]
@@ -124,7 +124,7 @@ def GenTests(api):
           stdout=api.raw_io.output('192.168.1.2:5555'))
     yield test
 
-  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All'
+  builder = 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
   yield (
       api.test('exceptions') +
       api.properties(buildername=builder,

@@ -140,28 +140,6 @@ def compile_fn(api, checkout_root, out_dir):
 
   elif compiler == 'Clang':
     cc, cxx = 'clang', 'clang++'
-  elif compiler == 'GCC':
-    if target_arch in ['mips64el', 'loongson3a']:
-      mips64el_toolchain_linux = str(api.vars.slave_dir.join(
-          'mips64el_toolchain_linux'))
-      cc  = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-gcc-8'
-      cxx = mips64el_toolchain_linux + '/bin/mips64el-linux-gnuabi64-g++-8'
-      env['LD_LIBRARY_PATH'] = (
-          mips64el_toolchain_linux + '/lib/x86_64-linux-gnu/')
-      extra_ldflags.append('-L' + mips64el_toolchain_linux +
-                           '/mips64el-linux-gnuabi64/lib')
-      extra_cflags.extend([
-          ('-DDUMMY_mips64el_toolchain_linux_version=%s' %
-           api.run.asset_version('mips64el_toolchain_linux', skia_dir))
-      ])
-      args.update({
-        'skia_use_system_freetype2': 'false',
-        'skia_use_fontconfig':       'false',
-        'skia_enable_gpu':           'false',
-        'werror':                    'false',
-      })
-    else:
-      cc, cxx = 'gcc', 'g++'
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
@@ -242,8 +220,6 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_vulkan':        'false',
       'skia_use_zlib':          'false',
     })
-  if 'NoGPU' in extra_tokens:
-    args['skia_enable_gpu'] = 'false'
   if 'Shared' in extra_tokens:
     args['is_component_build'] = 'true'
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
