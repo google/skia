@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "07e4d242_06e77b8c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-11-22T19:26:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad730ae0_67f8b73f",
+      "range": {
+        "startLine": 78,
+        "startChar": 34,
+        "endLine": 79,
+        "endChar": 100
+      },
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26678984_0c422ac7",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 5
@@ -39,6 +63,24 @@
       "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80134a4d_cfa07777",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-11-22T19:26:59Z",
+      "side": 1,
+      "message": "Yes, it\u0027s so that we can copy the functions into the final program without them being reported as duplicates.",
+      "parentUuid": "26678984_0c422ac7",
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "f30fc4dc_9ff616a6",
+        "filename": "src/sksl/ir/SkSLFunctionDefinition.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-11-22T19:26:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e20a2c9c_f5f1c1a2",
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5bc6627_0e951cbc",
         "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
         "patchSetId": 5
@@ -73,6 +133,24 @@
       "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30feb4a5_d52b325c",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-11-22T19:26:59Z",
+      "side": 1,
+      "message": "Well, I hesitate to profess \"it\u0027s all fine\", but I will at least confirm that you are reading it correctly :-).",
+      "parentUuid": "b5bc6627_0e951cbc",
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
