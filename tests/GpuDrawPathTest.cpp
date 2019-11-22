@@ -65,8 +65,8 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
 
     SkPath oval1, oval2;
     const SkRect rect = SkRect::MakeWH(100, 50);
-    oval1.addOval(rect, SkPathDirection::kCW);
-    oval2.addOval(rect, SkPathDirection::kCCW);
+    oval1.addOval(rect, SkPath::kCW_Direction);
+    oval2.addOval(rect, SkPath::kCCW_Direction);
 
     fill_and_stroke(canvas, oval1, oval2, nullptr);
 

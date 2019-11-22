@@ -112,8 +112,8 @@ protected:
             "Z";
         SkParsePath::FromSVGString(str, &fPath);
 #else
-        fPath.addCircle(0, 0, SkIntToScalar(50), SkPathDirection::kCW);
-        fPath.addCircle(0, SkIntToScalar(-50), SkIntToScalar(30), SkPathDirection::kCW);
+        fPath.addCircle(0, 0, SkIntToScalar(50), SkPath::kCW_Direction);
+        fPath.addCircle(0, SkIntToScalar(-50), SkIntToScalar(30), SkPath::kCW_Direction);
 #endif
 
         scale_to_width(&fPath, fWidth);

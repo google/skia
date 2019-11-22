@@ -55,8 +55,8 @@ static SkBitmap read_back(GrRenderTargetContext* rtc, int width, int height) {
 static SkPath make_path(const SkRect& outer, int inset, SkPath::FillType fill) {
     SkPath p;
 
-    p.addRect(outer, SkPathDirection::kCW);
-    p.addRect(outer.makeInset(inset, inset), SkPathDirection::kCCW);
+    p.addRect(outer, SkPath::kCW_Direction);
+    p.addRect(outer.makeInset(inset, inset), SkPath::kCCW_Direction);
     p.setFillType(fill);
     return p;
 }
