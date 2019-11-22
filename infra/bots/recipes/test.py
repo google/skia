@@ -326,9 +326,6 @@ def dm_flags(api, bot):
       args.extend(['--skpViewportSize', "2048"])
       args.extend(['--gpuThreads', "0"])
 
-    if 'Lottie' in bot:
-      configs = ['gl']
-
   tf = api.vars.builder_cfg.get('test_filter')
   if 'All' != tf:
     # Expected format: shard_XX_YY
@@ -1035,14 +1032,13 @@ TEST_BUILDERS = [
   ('Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All'
    '-CommandBuffer'),
   'Test-Mac10.14-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All',
-  'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage',
-  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
-   '-Valgrind_AbandonGpuContext'),
-  ('Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All'
-   '-Valgrind_PreAbandonGpuContext'),
-  'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
-  'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
-  'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Lottie',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan',
+  ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
+   '-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  ('Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
+   '-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41'),
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
+  'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NonNVPR',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
@@ -1127,7 +1123,7 @@ def GenTests(api):
     )
   )
 
-  builder = 'Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All'
+  builder = 'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
   yield (
     api.test('failed_dm') +
     api.properties(buildername=builder,

@@ -207,12 +207,12 @@ type Config struct {
 	Project string `json:"project"`
 
 	// Service accounts.
-	ServiceAccountCompile                 string `json:"service_account_compile"`
-	ServiceAccountHousekeeper             string `json:"service_account_housekeeper"`
-	ServiceAccountRecreateSKPs            string `json:"service_account_recreate_skps"`
-	ServiceAccountUploadBinary            string `json:"service_account_upload_binary"`
-	ServiceAccountUploadGM                string `json:"service_account_upload_gm"`
-	ServiceAccountUploadNano              string `json:"service_account_upload_nano"`
+	ServiceAccountCompile      string `json:"service_account_compile"`
+	ServiceAccountHousekeeper  string `json:"service_account_housekeeper"`
+	ServiceAccountRecreateSKPs string `json:"service_account_recreate_skps"`
+	ServiceAccountUploadBinary string `json:"service_account_upload_binary"`
+	ServiceAccountUploadGM     string `json:"service_account_upload_gm"`
+	ServiceAccountUploadNano   string `json:"service_account_upload_nano"`
 
 	// Optional override function which derives Swarming bot dimensions
 	// from parts of task names.
@@ -487,10 +487,9 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 			task_os = "Mac"
 		} else if strings.Contains(task_os, "Win") {
 			task_os = "Win"
-		} else if parts["compiler"] == "GCC" && task_os == "Debian10" {
+		} else if parts["compiler"] == "GCC" {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
-			// TODO(dogben): Remove Debian10 criteria above.
 			ec = append(ec, "Docker")
 		} else if strings.Contains(task_os, "Ubuntu") || strings.Contains(task_os, "Debian") {
 			task_os = "Debian9"
@@ -1018,12 +1017,6 @@ func (b *builder) compile(name string, parts map[string]string) string {
 	} else if strings.Contains(name, "Debian") {
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
-		}
-		if parts["target_arch"] == "mips64el" || parts["target_arch"] == "loongson3a" {
-			if parts["compiler"] != "GCC" {
-				glog.Fatalf("mips64el toolchain is GCC, but compiler is %q in %q", parts["compiler"], name)
-			}
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("mips64el_toolchain_linux"))
 		}
 		if strings.Contains(name, "SwiftShader") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("cmake_linux"))

@@ -397,7 +397,8 @@ TEST_BUILDERS = [
    'Metal'),
   ('Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-'
    'CommandBuffer'),
-  'Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind',
+  ('Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
+   '-Valgrind_SK_CPU_LIMIT_SSE41'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',

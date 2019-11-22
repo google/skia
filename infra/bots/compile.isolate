@@ -44,7 +44,6 @@
       'assets/cast_toolchain/VERSION',
       'assets/clang_linux/VERSION',
       'assets/clang_win/VERSION',
-      'assets/mips64el_toolchain_linux/VERSION',
     ],
   },
 }
