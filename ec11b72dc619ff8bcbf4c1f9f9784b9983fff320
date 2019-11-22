@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad730ae0_67f8b73f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-22T17:38:07Z",
+      "side": 1,
+      "message": "std::make_pair(std::move(element), false) ?",
+      "range": {
+        "startLine": 78,
+        "startChar": 34,
+        "endLine": 79,
+        "endChar": 100
+      },
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26678984_0c422ac7",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-22T17:38:07Z",
+      "side": 1,
+      "message": "Is this letting us re-define functions that are defined in the .inc files?",
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e20a2c9c_f5f1c1a2",
+        "filename": "src/sksl/ir/SkSLFunctionDefinition.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-22T17:38:07Z",
+      "side": 1,
+      "message": "nit: This could just be a forward declaration.",
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5bc6627_0e951cbc",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-11-22T17:38:07Z",
+      "side": 1,
+      "message": "I know I changed this to make defined functions in the .inc files work, but my read is that the change to ByteCodeGenerator solves that in a different way, so this is all fine?",
+      "revId": "ec11b72dc619ff8bcbf4c1f9f9784b9983fff320",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
