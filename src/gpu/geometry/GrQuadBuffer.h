@@ -250,18 +250,9 @@ const float* GrQuadBuffer<T>::unpackQuad(GrQuad::Type type, const float* coords,
         memcpy(quad->xs(), coords, k3DQuadFloats * sizeof(float));
         coords = coords + k3DQuadFloats;
     } else {
-        // Fill in X and Y of the quad, and set W to 1s if needed
+        // Fill in X and Y of the quad, the setQuadType() below will set Ws to 1 if needed
         memcpy(quad->xs(), coords, k2DQuadFloats * sizeof(float));
         coords = coords + k2DQuadFloats;
-
-        if (quad->quadType() == GrQuad::Type::kPerspective) {
-            // The output quad was previously perspective, so its ws are not 1s
-            static constexpr float kNoPerspectiveWs[4] = {1.f, 1.f, 1.f, 1.f};
-            memcpy(quad->ws(), kNoPerspectiveWs, 4 * sizeof(float));
-        }
-        // Else the quad should already have 1s in w
-        SkASSERT(quad->w(0) == 1.f && quad->w(1) == 1.f &&
-                 quad->w(2) == 1.f && quad->w(3) == 1.f);
     }
 
     quad->setQuadType(type);
