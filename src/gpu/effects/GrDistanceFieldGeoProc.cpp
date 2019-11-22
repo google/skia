@@ -253,6 +253,8 @@ void GrDistanceFieldA8TextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* pr
                                                  int numProxies,
                                                  const GrSamplerState& params) {
     SkASSERT(numProxies <= kMaxTextures);
+    // Just to make sure we don't try to add too many proxies
+    numProxies = SkTMin(numProxies, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = proxies[0]->dimensions();
@@ -548,6 +550,8 @@ void GrDistanceFieldPathGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* prox
                                                int numProxies,
                                                const GrSamplerState& params) {
     SkASSERT(numProxies <= kMaxTextures);
+    // Just to make sure we don't try to add too many proxies
+    numProxies = SkTMin(numProxies, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = proxies[0]->dimensions();
@@ -874,6 +878,8 @@ void GrDistanceFieldLCDTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* p
                                                   int numProxies,
                                                   const GrSamplerState& params) {
     SkASSERT(numProxies <= kMaxTextures);
+    // Just to make sure we don't try to add too many proxies
+    numProxies = SkTMin(numProxies, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = proxies[0]->dimensions();

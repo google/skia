@@ -59,6 +59,13 @@ static void append_multitexture_lookup(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                        const GrGLSLVarying &texIdx,
                                        const char* coordName,
                                        const char* colorName) {
+    SkASSERT(numTextureSamplers > 0);
+    // This shouldn't happen, but will avoid a crash if it does
+    if (numTextureSamplers <= 0) {
+        args.fFragBuilder->codeAppendf("%s = float4(1, 1, 1, 1);", colorName);
+        return;
+    }
+
     // conditionally load from the indexed texture sampler
     for (int i = 0; i < numTextureSamplers-1; ++i) {
         args.fFragBuilder->codeAppendf("if (%s == %d) { %s = ", texIdx.fsIn(), i, colorName);
