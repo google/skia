@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de4140fa_b776ef26",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-22T20:49:27Z",
+      "side": 1,
+      "message": "type ?",
+      "range": {
+        "startLine": 152,
+        "startChar": 80,
+        "endLine": 152,
+        "endChar": 86
+      },
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3cf5f51_bfef6bdb",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-22T20:49:27Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6bb6eb9_8848378a",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-22T20:49:27Z",
+      "side": 1,
+      "message": "Can we not just move this up to line 450 and use it in 451 ?",
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc54d962_5abf68a7",
+        "filename": "src/gpu/gl/GrGLUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-22T20:49:27Z",
+      "side": 1,
+      "message": "wdyt about renaming this to be \u0027surface\u0027 ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 89,
+        "endLine": 62,
+        "endChar": 96
+      },
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
