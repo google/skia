@@ -94,7 +94,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
         set[i].fProxyView = proxyView;
-        set[i].fSrcAlphaType = kPremul_SkAlphaType;
+        set[i].fSrcColorType = GrColorType::kRGBA_8888;
         set[i].fSrcRect = SkRect::MakeWH(100.0f, 100.0f);
         set[i].fDstRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
         set[i].fDstClipQuad = nullptr;
