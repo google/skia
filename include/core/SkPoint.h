@@ -175,13 +175,13 @@ struct SK_API SkPoint {
 
         @return  fX
     */
-    SkScalar x() const { return fX; }
+    constexpr SkScalar x() const { return fX; }
 
     /** Returns y-axis value of SkPoint or vector.
 
         @return  fY
     */
-    SkScalar y() const { return fY; }
+    constexpr SkScalar y() const { return fY; }
 
     /** Returns true if fX and fY are both zero.
 

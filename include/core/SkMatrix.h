@@ -89,6 +89,17 @@ public:
         return m;
     }
 
+    /** Sets SkMatrix to translate by (t.x(), t.y()). Returned matrix is:
+
+            | 1 0 t.x() |
+            | 0 1 t.y() |
+            | 0 0 1     |
+
+        @param t  translation vector
+        @return   SkMatrix with translation
+    */
+    static SkMatrix SK_WARN_UNUSED_RESULT MakeTrans(SkVector t) { return MakeTrans(t.x(), t.y()); }
+
     /** Sets SkMatrix to:
 
             | scaleX  skewX transX |
