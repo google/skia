@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7cc8f0ae_da8ca488",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-22T19:14:35Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 99,
+        "startChar": 18,
+        "endLine": 99,
+        "endChar": 19
+      },
+      "revId": "a454012f703ad5fd3041727790ade7233078f74e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dc1a088_bd5974dd",
+        "filename": "tools/gpu/TestOps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-22T19:14:35Z",
+      "side": 1,
+      "message": "TestRectOp::GP?",
+      "range": {
+        "startLine": 31,
+        "startChar": 48,
+        "endLine": 31,
+        "endChar": 52
+      },
+      "revId": "a454012f703ad5fd3041727790ade7233078f74e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be24ac19_b8be5fc2",
+        "filename": "tools/gpu/TestOps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-22T19:14:35Z",
+      "side": 1,
+      "message": "This comment could go on the Make() functions in the header, to help make it clear that the provided local matrix is pushed all the way into the program (unlike the regular rects).",
+      "range": {
+        "startLine": 75,
+        "startChar": 2,
+        "endLine": 77,
+        "endChar": 43
+      },
+      "revId": "a454012f703ad5fd3041727790ade7233078f74e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
