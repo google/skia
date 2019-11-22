@@ -3860,6 +3860,18 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
         }
       ],
       "cipd_packages": [
@@ -3875,6 +3887,21 @@
         },
         {
           "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.24.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:0e171233385f11fd2b7458728c8ee439d4db53f1"
         }
@@ -3913,7 +3940,7 @@
       "io_timeout_ns": 10800000000000,
       "isolate": "compile_g3_framework.isolate",
       "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+      "service_account": "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Build-Debian9-Clang-arm-Debug-Android": {
       "caches": [
