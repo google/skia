@@ -150,7 +150,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
 bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                                            const GrPrimitiveProcessor& primProc,
                                            const GrPipeline& pipeline,
-                                           const GrTextureProxy* const primProcTextures[],
+                                           const GrSurfaceProxy* const primProcTextures[],
                                            GrVkCommandBuffer* commandBuffer) {
     SkASSERT(primProcTextures || !primProc.numTextureSamplers());
 
@@ -162,6 +162,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
     int currTextureBinding = 0;
 
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        SkASSERT(primProcTextures[i]->asTextureProxy());
         const auto& sampler = primProc.textureSampler(i);
         auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
         samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};

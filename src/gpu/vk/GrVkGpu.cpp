@@ -322,7 +322,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
             GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-            const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrVkOpsRenderPass(this));
     }

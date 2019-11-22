@@ -342,7 +342,7 @@ public:
             GrRenderTarget* renderTarget, GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrTextureProxy*, true>& sampledProxies) = 0;
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also

@@ -541,13 +541,14 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
 
 wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
                                            const GrProgramInfo& programInfo,
-                                           const GrTextureProxy* const primProcTextures[]) {
+                                           const GrSurfaceProxy* const primProcTextures[]) {
     std::vector<wgpu::BindGroupBinding> bindings;
     int binding = 0;
     const GrPipeline& pipeline = programInfo.pipeline();
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
     if (primProcTextures) {
         for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            SkASSERT(primProcTextures[i]->asTextureProxy());
             auto& sampler = primProc.textureSampler(i);
             set_texture(gpu, sampler.samplerState(), primProcTextures[i]->peekTexture(), &bindings,
                         &binding);
