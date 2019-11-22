@@ -42,7 +42,7 @@ public:
      */
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
                                           GrSurfaceProxyView,
-                                          SkAlphaType srcAlphaType,
+                                          GrColorType srcColorType,
                                           sk_sp<GrColorSpaceXform>,
                                           GrSamplerState::Filter,
                                           const SkPMColor4f&,

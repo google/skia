@@ -220,15 +220,14 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
         SkPoint srcQuad[4];
         GrMapRectPoints(dstRect, srcRect, dstClip, srcQuad, 4);
 
-        rtc->drawTextureQuad(clip, std::move(proxy), srcColorInfo.colorType(),
-                             srcColorInfo.alphaType(), filter, paint.getBlendMode(), color, srcQuad,
-                             dstClip, aa, aaFlags,
+        rtc->drawTextureQuad(clip, std::move(proxy), srcColorInfo.colorType(), filter,
+                             paint.getBlendMode(), color, srcQuad, dstClip, aa, aaFlags,
                              constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
                              ctm, std::move(textureXform));
     } else {
-        rtc->drawTexture(clip, std::move(proxy), srcColorInfo.colorType(), srcColorInfo.alphaType(),
-                         filter, paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags,
-                         constraint, ctm, std::move(textureXform));
+        rtc->drawTexture(clip, std::move(proxy), srcColorInfo.colorType(), filter,
+                         paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags, constraint,
+                         ctm, std::move(textureXform));
     }
 }
 
@@ -556,7 +555,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         GrSurfaceOrigin origin = proxy->origin();
         const GrSwizzle& swizzle = proxy->textureSwizzle();
         textures[i].fProxyView = {std::move(proxy), origin, swizzle};
-        textures[i].fSrcAlphaType = image->alphaType();
+        textures[i].fSrcColorType = SkColorTypeToGrColorType(image->colorType());
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
         textures[i].fDstClipQuad = clip;
