@@ -112,16 +112,17 @@ TEST(Append) {
     auto iter = buffer.iterator();
     while(iter.next()) {
         // Each entry always has the device quad
-        assert_quad_eq(r, expectedDeviceQuads[i], iter.deviceQuad());
+        assert_quad_eq(r, expectedDeviceQuads[i], *iter.deviceQuad());
         assert_metadata_eq(r, {2 * i, 3.f * i}, iter.metadata());
 
         if (i % 2 == 0) {
             // Confirm local quads included on even entries
             ASSERT(iter.isLocalValid());
-            assert_quad_eq(r, expectedLocalQuads[i], iter.localQuad());
+            assert_quad_eq(r, expectedLocalQuads[i], *iter.localQuad());
         } else {
             // Should not have locals
             ASSERT(!iter.isLocalValid());
+            ASSERT(!iter.localQuad());
         }
 
         i++;
@@ -161,25 +162,27 @@ TEST(Concat) {
     while(iter.next()) {
         if (i < kQuadCount) {
             // First half should match original buffer1
-            assert_quad_eq(r, quadsA[i], iter.deviceQuad());
+            assert_quad_eq(r, quadsA[i], *iter.deviceQuad());
             assert_metadata_eq(r, {i, 2.f * i}, iter.metadata());
             if (i % 2 == 0) {
                 ASSERT(iter.isLocalValid());
-                assert_quad_eq(r, quadsB[i], iter.localQuad());
+                assert_quad_eq(r, quadsB[i], *iter.localQuad());
             } else {
                 ASSERT(!iter.isLocalValid());
+                ASSERT(!iter.localQuad());
             }
 
         } else {
             // Second half should match buffer2
             int j = i - kQuadCount;
-            assert_quad_eq(r, quadsB[j], iter.deviceQuad());
+            assert_quad_eq(r, quadsB[j], *iter.deviceQuad());
             assert_metadata_eq(r, {2 * j, 0.5f * j}, iter.metadata());
             if (j % 2 == 0) {
                 ASSERT(!iter.isLocalValid());
+                ASSERT(!iter.localQuad());
             } else {
                 ASSERT(iter.isLocalValid());
-                assert_quad_eq(r, quadsA[j], iter.localQuad());
+                assert_quad_eq(r, quadsA[j], *iter.localQuad());
             }
         }
 
@@ -221,12 +224,13 @@ TEST(Metadata) {
         assert_metadata_eq(r, {2 * i, 0.5f * i}, iter.metadata());
 
         // Quad coordinates are unchanged
-        assert_quad_eq(r, quad, iter.deviceQuad());
+        assert_quad_eq(r, quad, *iter.deviceQuad());
         if (i % 2 == 0) {
             ASSERT(iter.isLocalValid());
-            assert_quad_eq(r, quad, iter.localQuad());
+            assert_quad_eq(r, quad, *iter.localQuad());
         } else {
             ASSERT(!iter.isLocalValid());
+            ASSERT(!iter.localQuad());
         }
         i++;
     }
