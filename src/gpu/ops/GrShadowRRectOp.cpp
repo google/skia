@@ -647,7 +647,7 @@ static sk_sp<GrTextureProxy> create_falloff_texture(GrProxyProvider* proxyProvid
 
         sk_sp<SkData> data = SkData::MakeUninitialized(kRowBytes);
         if (!data) {
-            return nullptr;
+            SkDebugf("!falloffTexture: 650"); return nullptr;
         }
         unsigned char* values = (unsigned char*) data->writable_data();
         for (int i = 0; i < 128; ++i) {
@@ -657,13 +657,13 @@ static sk_sp<GrTextureProxy> create_falloff_texture(GrProxyProvider* proxyProvid
 
         sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), kRowBytes);
         if (!img) {
-            return nullptr;
+            SkDebugf("!img: 660"); return nullptr;
         }
 
         falloffTexture = proxyProvider->createTextureProxy(std::move(img), 1, SkBudgeted::kYes,
                                                            SkBackingFit::kExact);
         if (!falloffTexture) {
-            return nullptr;
+            SkDebugf("!falloffTexture: 666"); return nullptr;
         }
 
         SkASSERT(falloffTexture->origin() == kTopLeft_GrSurfaceOrigin);
@@ -700,6 +700,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
     if (scaledInsetWidth <= 0) {
+        SkDebugf("scaledInsetWith: 703");
         return nullptr;
     }
 
@@ -726,7 +727,7 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     SkScalar scale;
     do {
         scale = random->nextSScalar1() * 100.f;
-    } while (scale == 0);
+    } while (scale*scale == 0);
     SkMatrix viewMatrix;
     viewMatrix.setRotate(rotate);
     viewMatrix.postTranslate(translateX, translateY);

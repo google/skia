@@ -159,9 +159,8 @@ public:
         const SkString* begin() const { return fStrings.begin(); }
         const SkString* end() const { return fStrings.end(); }
 
-    private:
         void reset() { fStrings.reset(); }
-
+    private:
         void append(const char* string) { fStrings.push_back().set(string); }
 
         void append(const char* string, size_t length) { fStrings.push_back().set(string, length); }

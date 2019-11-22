@@ -52,16 +52,11 @@ struct GrProcessorTestData {
     GrProcessorTestData(SkRandom* random,
                         GrContext* context,
                         const GrRenderTargetContext* renderTargetContext,
-                        sk_sp<GrTextureProxy> proxies[2],
-                        GrColorType proxyColorTypes[2])
-            : fRandom(random)
-            , fRenderTargetContext(renderTargetContext)
-            , fContext(context) {
+                        sk_sp<GrTextureProxy> proxies[2])
+            : fRandom(random), fRenderTargetContext(renderTargetContext), fContext(context) {
         SkASSERT(proxies[0] && proxies[1]);
         fProxies[0] = proxies[0];
         fProxies[1] = proxies[1];
-        fProxyColorTypes[0] = proxyColorTypes[0];
-        fProxyColorTypes[1] = proxyColorTypes[1];
 
         fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
     }
@@ -74,13 +69,11 @@ struct GrProcessorTestData {
     GrProxyProvider* proxyProvider();
     const GrCaps* caps();
     sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
-    GrColorType textureProxyColorType(int index) { return fProxyColorTypes[index]; }
     SkArenaAlloc* allocator() { return fArena.get(); }
 
 private:
     GrContext* fContext;
     sk_sp<GrTextureProxy> fProxies[2];
-    GrColorType fProxyColorTypes[2];
 
     std::unique_ptr<SkArenaAlloc> fArena;
 };
