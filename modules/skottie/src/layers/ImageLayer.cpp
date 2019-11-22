@@ -9,6 +9,7 @@
 
 #include "include/core/SkImage.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGImage.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
@@ -61,7 +62,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     if (asset_info->fAsset->isMultiFrame()) {
         class MultiFrameAnimator final : public sksg::Animator {
         public:
-            MultiFrameAnimator(sk_sp<ImageAsset> asset, sk_sp<sksg::Image> image_node,
+            MultiFrameAnimator(sk_sp<skresources::ImageAsset> asset, sk_sp<sksg::Image> image_node,
                                float time_bias, float time_scale)
                 : fAsset(std::move(asset))
                 , fImageNode(std::move(image_node))
@@ -73,10 +74,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
             }
 
         private:
-            sk_sp<ImageAsset>     fAsset;
-            sk_sp<sksg::Image>    fImageNode;
-            float                 fTimeBias,
-                                  fTimeScale;
+            sk_sp<skresources::ImageAsset> fAsset;
+            sk_sp<sksg::Image>             fImageNode;
+            float                          fTimeBias,
+                                           fTimeScale;
         };
 
         fCurrentAnimatorScope->push_back(sk_make_sp<MultiFrameAnimator>(asset_info->fAsset,

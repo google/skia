@@ -14,6 +14,7 @@
 #include "modules/skottie/src/text/TextAdapter.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
