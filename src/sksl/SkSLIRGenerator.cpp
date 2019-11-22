@@ -169,6 +169,10 @@ void IRGenerator::start(const Program::Settings* settings,
             }
         }
     }
+    SkASSERT(fIntrinsics);
+    for (auto& pair : *fIntrinsics) {
+        pair.second.second = false;
+    }
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
@@ -833,7 +837,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                             return;
                         }
                     }
-                    if (other->fDefined) {
+                    if (other->fDefined && !other->fBuiltin) {
                         fErrors.error(f.fOffset, "duplicate definition of " +
                                                  other->description());
                     }
@@ -893,8 +897,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (Program::kVertex_Kind == fKind && fd.fName == "main" && fRTAdjust) {
             body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
         }
-        fProgramElements->push_back(std::unique_ptr<FunctionDefinition>(
-                                        new FunctionDefinition(f.fOffset, *decl, std::move(body))));
+        std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(f.fOffset, *decl,
+                                                                          std::move(body)));
+        result->fSource = &f;
+        fProgramElements->push_back(std::move(result));
     }
 }
 
@@ -1748,6 +1754,16 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
+    if (function.fBuiltin) {
+        auto found = fIntrinsics->find(function.fName);
+        if (found != fIntrinsics->end() && !found->second.second) {
+            found->second.second = true;
+            const FunctionDeclaration* old = fCurrentFunction;
+            fCurrentFunction = nullptr;
+            this->convertFunction(*((FunctionDefinition&) *found->second.first).fSource);
+            fCurrentFunction = old;
+        }
+    }
     if (function.fParameters.size() != arguments.size()) {
         String msg = "call to '" + function.fName + "' expected " +
                                  to_string((uint64_t) function.fParameters.size()) +
@@ -2246,10 +2262,23 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
             fSymbolTable = ((Enum&) *e).fSymbols;
             result = convertIdentifier(ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier,
                                                field));
+            SkASSERT(result->fKind == Expression::kVariableReference_Kind);
+            const Variable& v = ((VariableReference&) *result).fVariable;
+            SkASSERT(v.fInitialValue);
+            SkASSERT(v.fInitialValue->fKind == Expression::kIntLiteral_Kind);
+            result.reset(new IntLiteral(offset, ((IntLiteral&) *v.fInitialValue).fValue, &type));
             fSymbolTable = old;
+            break;
         }
     }
     if (!result) {
+        auto found = fIntrinsics->find(type.fName);
+        if (found != fIntrinsics->end()) {
+            SkASSERT(!found->second.second);
+            found->second.second = true;
+            fProgramElements->push_back(found->second.first->clone());
+            return this->convertTypeField(offset, type, field);
+        }
         fErrors.error(offset, "type '" + type.fName + "' does not have a field named '" + field +
                               "'");
     }
