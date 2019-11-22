@@ -40,6 +40,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
     fPerformPartialClearsAsDraws = false;
     fPerformColorClearsAsDraws = false;
+    fAvoidLargeIndexBufferDraws = false;
     fPerformStencilClearsAsDraws = false;
     fAllowCoverageCounting = false;
     fTransferBufferSupport = false;
@@ -100,6 +101,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fAvoidStencilBuffers);
         SkASSERT(!fAdvBlendEqBlacklist);
         SkASSERT(!fPerformColorClearsAsDraws);
+        SkASSERT(!fAvoidLargeIndexBufferDraws);
         SkASSERT(!fPerformStencilClearsAsDraws);
         // Don't check the partial-clear workaround, since that is a backend limitation, not a
         // driver workaround (it just so happens the fallbacks are the same).
@@ -203,6 +205,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fDynamicStateArrayGeometryProcessorTextureSupport);
     writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);
     writer->appendBool("Use draws for color clears", fPerformColorClearsAsDraws);
+    writer->appendBool("Avoid Large IndexBuffer Draws", fAvoidLargeIndexBufferDraws);
     writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
     writer->appendBool("Allow coverage counting shortcuts", fAllowCoverageCounting);
     writer->appendBool("Supports transfer buffers", fTransferBufferSupport);
