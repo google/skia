@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 80
 
 <Insert new notes here- top is most recent.>
+  * Added SkMatrix::MakeTrans(SkVector) and SkRect::makeOffset(SkVector).
+    https://review.skia.org/255782
+
   * Added SkImageInfo::MakeA8(SkISize) and added optional color space parameter to
     SkImageInfo::MakeN32Premul(SkISize).
 
