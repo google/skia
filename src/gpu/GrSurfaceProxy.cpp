@@ -278,7 +278,6 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceProxy* src,
-                                           GrColorType srcColorType,
                                            GrMipMapped mipMapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
@@ -320,8 +319,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                 fit, width, height, colorType, nullptr, 1, mipMapped, src->origin(), nullptr,
                 budgeted);
 
-        if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcColorType, srcRect,
-                                                  dstPoint)) {
+        if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();
         }
     }
@@ -330,11 +328,10 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfaceProxy* src,
-                                           GrColorType srcColorType, GrMipMapped mipMapped,
-                                           SkBackingFit fit, SkBudgeted budgeted) {
+                                           GrMipMapped mipMapped, SkBackingFit fit,
+                                           SkBudgeted budgeted) {
     SkASSERT(!src->isFullyLazy());
-    return Copy(context, src, srcColorType, mipMapped, SkIRect::MakeSize(src->dimensions()), fit,
-                budgeted);
+    return Copy(context, src, mipMapped, SkIRect::MakeSize(src->dimensions()), fit, budgeted);
 }
 
 #if GR_TEST_UTILS
