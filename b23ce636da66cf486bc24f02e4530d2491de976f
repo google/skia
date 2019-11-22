@@ -22,6 +22,30 @@
       "revId": "b23ce636da66cf486bc24f02e4530d2491de976f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7268cfb_ab4a89e8",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-11-22T19:59:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef276b34_830aa7e8",
+      "range": {
+        "startLine": 64,
+        "startChar": 27,
+        "endLine": 64,
+        "endChar": 31
+      },
+      "revId": "b23ce636da66cf486bc24f02e4530d2491de976f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
