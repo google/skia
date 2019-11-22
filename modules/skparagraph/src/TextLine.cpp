@@ -71,6 +71,11 @@ TextLine::TextLine(ParagraphImpl* master,
         , fHasBackground(false)
         , fHasShadows(false)
         , fHasDecorations(false) {
+
+    if (fGhostClusterRange.width() == 0) {
+        return;
+    }
+
     // Reorder visual runs
     auto& start = master->cluster(fGhostClusterRange.start);
     auto& end = master->cluster(fGhostClusterRange.end - 1);
@@ -114,6 +119,14 @@ TextLine::TextLine(ParagraphImpl* master,
             break;
         }
     }
+}
+
+void TextLine::clear() {
+    fClusterRange.end = fClusterRange.start;
+    fGhostClusterRange.end = fGhostClusterRange.start;
+    fRunsInVisualOrder.reset();
+    fAdvance = SkVector::Make(0, 0);
+    fWidthWithSpaces = 0;
 }
 
 void TextLine::paint(SkCanvas* textCanvas) {
@@ -243,10 +256,12 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
 
     SkTextBlobBuilder builder;
     context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(0, correctedBaseline));
+
     canvas->save();
     if (context.clippingNeeded) {
         canvas->clipRect(context.clip);
     }
+
     canvas->translate(context.fTextShift, 0);
     canvas->drawTextBlob(builder.make(), 0, 0, paint);
     canvas->restore();
@@ -517,29 +532,46 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     // Go through the clusters in the reverse logical order
     // taking off cluster by cluster until the ellipsis fits
     SkScalar width = fAdvance.fX;
+    bool noWhitespace = false;
+
+    auto attachEllipsis = [&](const Cluster* cluster){
+        // Shape the ellipsis
+        Run* run = shapeEllipsis(ellipsis, cluster->run());
+        run->fClusterStart = cluster->textRange().start;
+        run->setMaster(fMaster);
+
+        // See if it fits
+        if (width + run->advance().fX > maxWidth) {
+            width -= cluster->width();
+            // Continue if it's not
+            noWhitespace = true;
+            return false;
+        }
+
+        fEllipsis = std::make_shared<Run>(*run);
+        fEllipsis->shift(width, 0);
+        fAdvance.fX = width;
+        return true;
+    };
+
+    if (this->clusters().width() == 0) {
+        // Weird situation: just the ellipsis on the line (if it fits)
+        attachEllipsis(&fMaster->cluster(clusters().start));
+        return;
+    }
+
     iterateThroughClustersInGlyphsOrder(
-        true, false, [this, &width, ellipsis, maxWidth](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+        true, false, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
             if (cluster->isWhitespaces()) {
                 width -= cluster->width();
+                noWhitespace = false;
                 return true;
-            }
-
-            // Shape the ellipsis
-            Run* run = shapeEllipsis(ellipsis, cluster->run());
-            run->fClusterStart = cluster->textRange().start;
-            run->setMaster(fMaster);
-            fEllipsis = std::make_shared<Run>(*run);
-
-            // See if it fits
-            if (width + fEllipsis->advance().fX > maxWidth) {
+            } else if (noWhitespace) {
                 width -= cluster->width();
-                // Continue if it's not
                 return true;
             }
 
-            fEllipsis->shift(width, 0);
-            fAdvance.fX = width;
-            return false;
+            return !attachEllipsis(cluster);
         });
 }
 
@@ -599,7 +631,8 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         // Both ellipsis and placeholders can only be measured as one glyph
         SkASSERT(textRange == run->textRange());
         result.fTextShift = runOffsetInLine;
-        result.clip = SkRect::MakeXYWH(runOffsetInLine, sizes().runTop(run), run->advance().fX, run->calculateHeight());
+        result.clip = SkRect::MakeXYWH(run->fEllipsis ? 0 : runOffsetInLine, sizes().runTop(run),
+                                       run->advance().fX, run->calculateHeight());
         return result;
     }
 
@@ -626,11 +659,15 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
     // EOL (when we expect the last cluster clipped without any spaces)
     // Anything else (when we want the cluster width contain all the spaces -
     // coming from letter spacing or word spacing or justification)
-    result.clip =
-            SkRect::MakeXYWH(0,
-                             sizes().runTop(run),
-                             run->calculateWidth(result.pos, result.pos + result.size, false),
-                             run->calculateHeight());
+    if (result.size == 0) {
+        result.clip = SkRect::MakeXYWH(0, sizes().leading() / 2 + sizes().delta(), 0, sizes().height());
+    } else {
+        result.clip =
+                SkRect::MakeXYWH(0,
+                                 sizes().runTop(run),
+                                 run->calculateWidth(result.pos, result.pos + result.size, false),
+                                 run->calculateHeight());
+    }
 
     // Correct the width in case the text edges don't match clusters
     // TODO: This is where we get smart about selecting a part of a cluster

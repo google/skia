@@ -1,0 +1,95 @@
+_overflow(TextOverflow.clip)
+textSize=Size(50.0, 10.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+textSize=Size(50.0, 30.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+textSize=Size(50.0, 200.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+_overflow = TextOverflow.ellipsis
+textSize=Size(50.0, 10.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+textSize=Size(50.0, 30.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+textSize=Size(50.0, 20.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+_overflow = TextOverflow.clip
+textSize=Size(950.0, 10.0)
+textDidExceedMaxLines=true
+didOverflowWidth
+didOverflowHeight
+8
+3
+textSize=Size(950.0, 20.0)
+textDidExceedMaxLines=true
+didOverflowWidth
+didOverflowHeight
+8
+3
+textSize=Size(950.0, 20.0)
+textDidExceedMaxLines=true
+didOverflowWidth
+didOverflowHeight
+8
+3
+_overflow = TextOverflow.ellipsis
+textSize=Size(50.0, 10.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+textSize=Size(50.0, 30.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+textSize=Size(50.0, 20.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+_overflow = TextOverflow.fade
+textSize=Size(50.0, 30.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+10
+_overflow = TextOverflow.ellipsis
+textSize=Size(50.0, 30.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+8
+3
+_overflow = TextOverflow.fade
+textSize=Size(50.0, 200.0)
+textDidExceedMaxLines=true
+-
+didOverflowHeight
+10

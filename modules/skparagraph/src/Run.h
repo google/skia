@@ -74,7 +74,6 @@ public:
     SkVector advance() const {
         return SkVector::Make(fAdvance.fX, fFontMetrics.fDescent - fFontMetrics.fAscent);
     }
-    SkVector offset() const { return fOffset; }
     SkScalar ascent() const { return fFontMetrics.fAscent; }
     SkScalar correctAscent() const {
 
