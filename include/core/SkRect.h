@@ -956,9 +956,16 @@ struct SK_API SkRect {
         @param dy  added to fTop and fBottom
         @return    SkRect offset on axes, with original width and height
     */
-    SkRect makeOffset(SkScalar dx, SkScalar dy) const {
+    constexpr SkRect makeOffset(SkScalar dx, SkScalar dy) const {
         return MakeLTRB(fLeft + dx, fTop + dy, fRight + dx, fBottom + dy);
     }
+
+    /** Returns SkRect offset by v.
+
+        @param v  added to rect
+        @return    SkRect offset on axes, with original width and height
+    */
+    constexpr SkRect makeOffset(SkVector v) const { return this->makeOffset(v.x(), v.y()); }
 
     /** Returns SkRect, inset by (dx, dy).
 
