@@ -76,21 +76,28 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     }
 }
 
-void TextWrapper::moveForward() {
-    do {
-        if (fWords.width() > 0) {
-            fEndLine.extend(fWords);
-        } else if (fClusters.width() > 0) {
-            fEndLine.extend(fClusters);
-            fTooLongWord = false;
-        } else if (fClip.width() > 0 || (fTooLongWord && fTooLongCluster)) {
-            fEndLine.extend(fClip);
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else {
-            break;
-        }
-    } while (fTooLongWord || fTooLongCluster);
+bool TextWrapper::moveForward(bool withEllipsis, size_t maxLines) {
+    if (withEllipsis) {
+        // We only attach ellipsis to the end of the word so we only draw words
+        fEndLine.extend(fWords);
+    } else {
+        // TODO: Introduce different line breaking strategies
+        do {
+            if (fWords.width() > 0) {
+                fEndLine.extend(fWords);
+            } else if (fClusters.width() > 0) {
+                fEndLine.extend(fClusters);
+                fTooLongWord = false;
+            } else if (fClip.width() > 0 || (fTooLongWord && fTooLongCluster)) {
+                fEndLine.extend(fClip);
+                fTooLongWord = false;
+                fTooLongCluster = false;
+            } else {
+                break;
+            }
+        } while (fTooLongWord || fTooLongCluster);
+    }
+    return fEndLine.width() > 0;
 }
 
 // Special case for start/end cluster since they can be clipped
@@ -175,15 +182,19 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto end = span.end() - 1;
     auto start = span.begin();
     InternalLineMetrics maxRunMetrics;
-    auto needEllipsis = false;
     auto endlessLine = maxLines == std::numeric_limits<size_t>::max();
     while (fEndLine.endCluster() != end) {
 
         reset();
+        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
 
         fEndLine.metrics().clean();
         lookAhead(maxWidth, end);
-        moveForward();
+        if (!moveForward(!ellipsisStr.isEmpty(), maxLines)) {
+            // Word does not fit the line
+            fAddEllipsis = !ellipsisStr.isEmpty();
+            break;
+        }
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
@@ -194,12 +205,11 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         SkScalar widthWithSpaces;
         std::tie(startLine, pos, widthWithSpaces) = trimStartSpaces(end);
 
-        needEllipsis =
-            fEndLine.endCluster() < end - 1 &&
-            SkScalarIsFinite(maxWidth) &&
-            !ellipsisStr.isEmpty();
-
-        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
+        fAddEllipsis = exceededLines &&
+                       !fHardLineBreak &&
+                       fEndLine.endCluster() < end - 1 &&
+                       SkScalarIsFinite(maxWidth) &&
+                       !ellipsisStr.isEmpty();
 
         // TODO: perform ellipsis work here
 
@@ -242,8 +252,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 fEndLine.endPos(),
                 SkVector::Make(0, fHeight),
                 SkVector::Make(fEndLine.width(), fEndLine.metrics().height()),
-                fEndLine.metrics(),
-                needEllipsis && exceededLines && !fHardLineBreak);
+                fEndLine.metrics());
 
         parent->lines().back().setMaxRunMetrics(maxRunMetrics);
 
@@ -260,7 +269,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         fEndLine.startFrom(startLine, pos);
         parent->fMaxWidthWithTrailingSpaces = SkMaxScalar(parent->fMaxWidthWithTrailingSpaces, widthWithSpaces);
 
-        if (exceededLines || (needEllipsis && endlessLine && !fHardLineBreak)) {
+        if (exceededLines || fAddEllipsis) {
             fHardLineBreak = false;
             break;
         }
@@ -297,8 +306,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 0,
                 SkVector::Make(0, fHeight),
                 SkVector::Make(0, fEndLine.metrics().height()),
-                fEndLine.metrics(),
-                needEllipsis);
+                fEndLine.metrics());
         fHeight += fEndLine.metrics().height();
         parent->lines().back().setMaxRunMetrics(maxRunMetrics);
     }

@@ -206,6 +206,7 @@ private:
     friend class OneLineShaper;
 
     void calculateBoundaries(ClusterRange clusters, SkVector offset, SkVector advance);
+    void extendBoundaries(SkScalar x);
     BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();
 

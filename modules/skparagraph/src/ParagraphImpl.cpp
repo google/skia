@@ -387,17 +387,38 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 size_t endPos,
                 SkVector offset,
                 SkVector advance,
-                InternalLineMetrics metrics,
-                bool addEllipsis) {
+                InternalLineMetrics metrics) {
                 // Add the line
                 // TODO: Take in account clipped edges
-                auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
-                if (addEllipsis) {
-                    line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
-                }
-
+                this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
                 fLongestLine = advance.fX;
             });
+
+    if (textWrapper.addEllipsis()) {
+        while (!fLines.empty()) {
+            auto& line = this->fLines.back();
+            line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
+            if (line.ellipsis() != nullptr) {
+                break;
+            }
+            // Could not place an ellipsis with at least one word.
+            if (fLines.size() > 1) {
+                // Need to remove this line and try the previous one
+                this->fLines.pop_back();
+            } else{
+                // All we can do is to show an ellipsis instead of the first line
+                line.clear();
+                // If we could not place the ellipsis at all we don't care
+                line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
+                break;
+            }
+        }
+        auto lastLine = this->fLines.back();
+        if (lastLine.ellipsis() != nullptr) {
+            extendBoundaries(lastLine.ellipsis()->advance().fX);
+        }
+    }
+
     fHeight = textWrapper.height();
     fWidth = maxWidth;
     fMaxIntrinsicWidth = textWrapper.maxIntrinsicWidth();
@@ -513,6 +534,10 @@ void ParagraphImpl::calculateBoundaries(ClusterRange clusters, SkVector offset, 
     }
     boundaries.offset(offset);
     fOrigin.joinPossiblyEmptyRect(boundaries);
+}
+
+void ParagraphImpl::extendBoundaries(SkScalar x) {
+    fOrigin.fRight += x;
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,

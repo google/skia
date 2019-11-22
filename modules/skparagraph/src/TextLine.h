@@ -93,6 +93,8 @@ public:
 
     LineMetrics getMetrics() const;
 
+    void clear();
+
 private:
 
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);

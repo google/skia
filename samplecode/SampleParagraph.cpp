@@ -1713,30 +1713,21 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text = "Simple\nMultiline\nText";
+        const char* text = "World domination is such an ugly phrase - I prefer to call it world optimisation";
         ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(7);
+        paragraph_style.setEllipsis(u"\u2026");
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
         TextStyle text_style;
-        text_style.setBackgroundColor(paint);
-        text_style.setColor(SK_ColorBLUE);
+        text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(20);
+        text_style.setFontSize(40);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(500);
+        paragraph->layout(this->width());
 
-        // Write down the format
-        //auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-        //impl->startFormatRecording(SkString("/tmp/format.txt"), canvas->getLocalClipBounds());
-
-        canvas->translate(10, 10);
-        canvas->scale(3, 3);
-        paragraph->paint(canvas, 17, 17);
-
-        //impl->stopFormatRecording();
+        paragraph->paint(canvas, 0, 0);
     }
 
 private:
