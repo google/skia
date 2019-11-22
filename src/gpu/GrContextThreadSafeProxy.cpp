@@ -37,7 +37,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                      int sampleCnt, GrSurfaceOrigin origin,
                                      const SkSurfaceProps& surfaceProps,
-                                     bool isMipMapped, bool willUseGLFBO0, bool isTextureable,
+                                     bool isMipMapped, bool willWrapSwapchain, bool isTextureable,
                                      GrProtected isProtected) {
     if (!backendFormat.isValid()) {
         return SkSurfaceCharacterization(); // return an invalid characterization
@@ -45,8 +45,9 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 
     SkASSERT(isTextureable || !isMipMapped);
 
-    if (GrBackendApi::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
-        // The willUseGLFBO0 flags can only be used for a GL backend.
+    if (GrBackendApi::kOpenGL != backendFormat.backend() &&
+        GrBackendApi::kMetal != backendFormat.backend() && willWrapSwapchain) {
+        // The willWrapSwapchain flags can only be used for a GL or Metal backend.
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
@@ -67,7 +68,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
     sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendFormat);
     SkASSERT(sampleCnt);
 
-    if (willUseGLFBO0 && isTextureable) {
+    if (willWrapSwapchain && isTextureable) {
         return SkSurfaceCharacterization(); // return an invalid characterization
     }
 
@@ -96,7 +97,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      origin, sampleCnt,
                                      SkSurfaceCharacterization::Textureable(isTextureable),
                                      SkSurfaceCharacterization::MipMapped(isMipMapped),
-                                     SkSurfaceCharacterization::UsesGLFBO0(willUseGLFBO0),
+                                     SkSurfaceCharacterization::WrapsSwapchain(willWrapSwapchain),
                                      SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
                                      isProtected,
                                      surfaceProps);

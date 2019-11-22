@@ -33,7 +33,7 @@ class SK_API SkSurfaceCharacterization {
 public:
     enum class Textureable : bool { kNo = false, kYes = true };
     enum class MipMapped : bool { kNo = false, kYes = true };
-    enum class UsesGLFBO0 : bool { kNo = false, kYes = true };
+    enum class WrapsSwapchain : bool { kNo = false, kYes = true };
     // This flag indicates if the surface is wrapping a raw Vulkan secondary command buffer.
     enum class VulkanSecondaryCBCompatible : bool { kNo = false, kYes = true };
 
@@ -43,7 +43,7 @@ public:
             , fSampleCnt(0)
             , fIsTextureable(Textureable::kYes)
             , fIsMipMapped(MipMapped::kYes)
-            , fUsesGLFBO0(UsesGLFBO0::kNo)
+            , fWrapsSwapchain(WrapsSwapchain::kNo)
             , fVulkanSecondaryCBCompatible(VulkanSecondaryCBCompatible::kNo)
             , fIsProtected(GrProtected::kNo)
             , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
@@ -85,7 +85,7 @@ public:
     int sampleCount() const { return fSampleCnt; }
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
-    bool usesGLFBO0() const { return UsesGLFBO0::kYes == fUsesGLFBO0; }
+    bool wrapsSwapchain() const { return WrapsSwapchain::kYes == fWrapsSwapchain; }
     bool vulkanSecondaryCBCompatible() const {
         return VulkanSecondaryCBCompatible::kYes == fVulkanSecondaryCBCompatible;
     }
@@ -114,7 +114,7 @@ private:
                               int sampleCnt,
                               Textureable isTextureable,
                               MipMapped isMipMapped,
-                              UsesGLFBO0 usesGLFBO0,
+                              WrapsSwapchain wrapsSwapchain,
                               VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
                               GrProtected isProtected,
                               const SkSurfaceProps& surfaceProps)
@@ -126,7 +126,7 @@ private:
             , fSampleCnt(sampleCnt)
             , fIsTextureable(isTextureable)
             , fIsMipMapped(isMipMapped)
-            , fUsesGLFBO0(usesGLFBO0)
+            , fWrapsSwapchain(wrapsSwapchain)
             , fVulkanSecondaryCBCompatible(vulkanSecondaryCBCompatible)
             , fIsProtected(isProtected)
             , fSurfaceProps(surfaceProps) {
@@ -141,15 +141,15 @@ private:
              int sampleCnt,
              Textureable isTextureable,
              MipMapped isMipMapped,
-             UsesGLFBO0 usesGLFBO0,
+             WrapsSwapchain wrapsSwapchain,
              VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
              GrProtected isProtected,
              const SkSurfaceProps& surfaceProps) {
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
-        SkASSERT(Textureable::kNo == isTextureable || UsesGLFBO0::kNo == usesGLFBO0);
+        SkASSERT(Textureable::kNo == isTextureable || WrapsSwapchain::kNo == wrapsSwapchain);
 
         SkASSERT(VulkanSecondaryCBCompatible::kNo == vulkanSecondaryCBCompatible ||
-                 UsesGLFBO0::kNo == usesGLFBO0);
+                 WrapsSwapchain::kNo == wrapsSwapchain);
         SkASSERT(Textureable::kNo == isTextureable ||
                  VulkanSecondaryCBCompatible::kNo == vulkanSecondaryCBCompatible);
 
@@ -162,7 +162,7 @@ private:
         fSampleCnt = sampleCnt;
         fIsTextureable = isTextureable;
         fIsMipMapped = isMipMapped;
-        fUsesGLFBO0 = usesGLFBO0;
+        fWrapsSwapchain = wrapsSwapchain;
         fVulkanSecondaryCBCompatible = vulkanSecondaryCBCompatible;
         fIsProtected = isProtected;
         fSurfaceProps = surfaceProps;
@@ -179,7 +179,7 @@ private:
     int                             fSampleCnt;
     Textureable                     fIsTextureable;
     MipMapped                       fIsMipMapped;
-    UsesGLFBO0                      fUsesGLFBO0;
+    WrapsSwapchain                  fWrapsSwapchain;
     VulkanSecondaryCBCompatible     fVulkanSecondaryCBCompatible;
     GrProtected                     fIsProtected;
     SkSurfaceProps                  fSurfaceProps;
@@ -213,7 +213,7 @@ public:
     int stencilCount() const { return 0; }
     bool isTextureable() const { return false; }
     bool isMipMapped() const { return false; }
-    bool usesGLFBO0() const { return false; }
+    bool wrapsSwapchain() const { return false; }
     bool vulkanSecondaryCBCompatible() const { return false; }
     SkColorSpace* colorSpace() const { return nullptr; }
     sk_sp<SkColorSpace> refColorSpace() const { return nullptr; }

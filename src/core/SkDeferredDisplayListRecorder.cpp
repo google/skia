@@ -110,9 +110,10 @@ bool SkDeferredDisplayListRecorder::init() {
     auto proxyProvider = fContext->priv().proxyProvider();
     const GrCaps* caps = fContext->priv().caps();
 
-    bool usesGLFBO0 = fCharacterization.usesGLFBO0();
-    if (usesGLFBO0) {
-        if (GrBackendApi::kOpenGL != fContext->backend() ||
+    bool wrapsSwapchain = fCharacterization.wrapsSwapchain();
+    if (wrapsSwapchain) {
+        if ((GrBackendApi::kOpenGL != fContext->backend() &&
+             GrBackendApi::kMetal != fContext->backend()) ||
             fCharacterization.isTextureable()) {
             return false;
         }
@@ -123,7 +124,7 @@ bool SkDeferredDisplayListRecorder::init() {
         // of time that we don't be able to support certain parameter combinations. Specifially we
         // fail on usesGLFBO0 since we can't mix GL and Vulkan. We can't have a texturable object.
         // And finally the GrVkSecondaryCBDrawContext always assumes a top left origin.
-        if (usesGLFBO0 ||
+        if (wrapsSwapchain ||
             fCharacterization.isTextureable() ||
             fCharacterization.origin() == kBottomLeft_GrSurfaceOrigin) {
             return false;
@@ -150,7 +151,7 @@ bool SkDeferredDisplayListRecorder::init() {
     // DDL is being replayed into.
 
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
-    if (usesGLFBO0) {
+    if (wrapsSwapchain) {
         surfaceFlags |= GrInternalSurfaceFlags::kWrapsSwapchainSurface;
     }
     // FIXME: Why do we use GrMipMapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?

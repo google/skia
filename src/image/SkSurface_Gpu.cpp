@@ -223,7 +223,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                           rtc->origin(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
-                          SkSurfaceCharacterization::UsesGLFBO0(wrapsSwapchain),
+                          SkSurfaceCharacterization::WrapsSwapchain(wrapsSwapchain),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
                           GrProtected(rtc->asRenderTargetProxy()->isProtected()),
                           this->props());
@@ -299,7 +299,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
-    if (characterization.usesGLFBO0() !=
+    if (characterization.wrapsSwapchain() !=
             rtc->asRenderTargetProxy()->rtPriv().wrapsSwapchainSurface()) {
         return false;
     }
@@ -345,8 +345,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
-    if (c.usesGLFBO0()) {
-        // If we are making the surface we will never use FBO0.
+    if (c.wrapsSwapchain()) {
+        // If we are making the surface we will never use a swapchain.
         return nullptr;
     }
 
@@ -424,8 +424,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context,
         return nullptr;
     }
 
-    if (c.usesGLFBO0()) {
-        // If we are making the surface we will never use FBO0.
+    if (c.wrapsSwapchain()) {
+        // If we are making the surface we will never use a swapchain.
         return nullptr;
     }
 

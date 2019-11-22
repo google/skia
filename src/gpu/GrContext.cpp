@@ -417,8 +417,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return GrBackendTexture();
     }
 
-    if (c.usesGLFBO0()) {
-        // If we are making the surface we will never use FBO0.
+    if (c.wrapsSwapchain()) {
+        // If we are making the surface we will never use a swapchain surface.
         return GrBackendTexture();
     }
 
@@ -449,8 +449,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization
         return GrBackendTexture();
     }
 
-    if (c.usesGLFBO0()) {
-        // If we are making the surface we will never use FBO0.
+    if (c.wrapsSwapchain()) {
+        // If we are making the surface we will never use a swapchain surface.
         return GrBackendTexture();
     }
 
