@@ -17,7 +17,6 @@
     "UBSAN",
     "Valgrind"
   ],
-  "service_account_android_framework_compile": "skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com",
   "service_account_compile": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com",
   "service_account_housekeeper": "skia-external-housekeeper@skia-swarming-bots.iam.gserviceaccount.com",
   "service_account_recreate_skps": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com",

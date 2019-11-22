@@ -207,7 +207,6 @@ type Config struct {
 	Project string `json:"project"`
 
 	// Service accounts.
-	ServiceAccountAndroidFrameworkCompile string `json:"service_account_android_framework_compile"`
 	ServiceAccountCompile                 string `json:"service_account_compile"`
 	ServiceAccountHousekeeper             string `json:"service_account_housekeeper"`
 	ServiceAccountRecreateSKPs            string `json:"service_account_recreate_skps"`
@@ -1113,7 +1112,7 @@ func (b *builder) housekeeper(name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func (b *builder) androidFrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", b.cfg.ServiceAccountAndroidFrameworkCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task := b.kitchenTask(name, "android_compile", "compile_android_framework.isolate", "skia-android-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 2*time.Hour)
 	b.usesGit(task, name)
 	b.MustAddTask(name, task)
@@ -1124,8 +1123,9 @@ func (b *builder) androidFrameworkCompile(name string) string {
 // the name of the last task in the generated chain of tasks, which the Job
 // should add as a dependency.
 func (b *builder) g3FrameworkCompile(name string) string {
-	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
+	task := b.kitchenTask(name, "g3_compile", "compile_g3_framework.isolate", "skia-g3-framework-compile@skia-swarming-bots.iam.gserviceaccount.com", b.linuxGceDimensions(MACHINE_TYPE_SMALL), EXTRA_PROPS, OUTPUT_NONE)
 	timeout(task, 3*time.Hour)
+	b.usesGit(task, name)
 	b.MustAddTask(name, task)
 	return name
 }
