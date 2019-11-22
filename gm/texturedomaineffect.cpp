@@ -142,10 +142,8 @@ protected:
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
                     auto fp = GrTextureDomainEffect::Make(
-                            proxy, SkColorTypeToGrColorType(fBitmap.colorType()),
-                            textureMatrices[tm],
-                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
+                            proxy, fBitmap.alphaType(), textureMatrices[tm],
+                            GrTextureDomain::MakeTexelDomain(texelDomains[d], mode), mode, fFilter);
 
                     if (!fp) {
                         continue;
