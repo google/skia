@@ -13,6 +13,7 @@
 #include "tools/SkSharingProc.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
+#include "tools/debugger/DebugLayerManager.h"
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -231,10 +232,17 @@ class SkpDebugPlayer {
             return;
           }
 
+          SkDebugf("Create new DebugLayerManager\n");
+          fLayerManager.reset(new DebugLayerManager(page_count));
+
+          int i = 0;
           for (const auto& page : pages) {
+            fLayerManager->setFrame(i);
+            i++;
             // Make debug canvas using bounds from SkPicture
             fBounds = page.fPicture->cullRect().roundOut();
-            std::unique_ptr<DebugCanvas> debugDanvas = std::make_unique<DebugCanvas>(fBounds);
+            std::unique_ptr<DebugCanvas> debugDanvas = std::make_unique<DebugCanvas>(
+              fBounds, fLayerManager.get());
             // Only draw picture to the debug canvas once.
             debugDanvas->drawPicture(page.fPicture);
             SkDebugf("Added picture with %d commands.\n", debugDanvas->getSize());
@@ -270,6 +278,8 @@ class SkpDebugPlayer {
       // look up all of fImages in udm but the exact encoding of the PNG differs and we wouldn't
       // find anything. TODO(nifong): Unify these two numbering schemes in CollatingCanvas.
       UrlDataManager udm;
+
+      std::unique_ptr<DebugLayerManager> fLayerManager;
 
 };
 

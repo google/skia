@@ -16,17 +16,19 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTArray.h"
 #include "tools/UrlDataManager.h"
+#include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
 class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
+class DebugLayerManager;
 
 class DebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
-    DebugCanvas(int width, int height);
+    DebugCanvas(int width, int height, DebugLayerManager* layerManager = nullptr);
 
-    DebugCanvas(SkIRect bounds);
+    DebugCanvas(SkIRect bounds, DebugLayerManager* layerManager = nullptr);
 
     ~DebugCanvas() override;
 
@@ -206,6 +208,15 @@ private:
     bool    fOverdrawViz;
     SkColor fClipVizColor;
     bool    fDrawGpuOpBounds;
+
+    // When not negative, indicates the render node id of the layer represented by the next
+    // drawPicture call.
+    int         fnextDrawPictureLayerId = -1;
+    int         fnextDrawImageRectLayerId = -1;
+    SkIRect     fnextDrawPictureDirtyRect;
+    // may be null, in which case layer annotations can be ignored.
+    DebugLayerManager* fLayerManager;
+
 
     /**
         Adds the command to the class' vector of commands.
