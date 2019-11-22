@@ -241,6 +241,30 @@
     },
     {
       "key": {
+        "uuid": "751b3506_b0cfed44",
+        "filename": "site/dev/contrib/cqkeywords.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-22T14:01:32Z",
+      "side": 1,
+      "message": "Andrii:\n\nI tested both luci.skia.skia.primary and skia/skia.primary in https://skia-review.googlesource.com/c/skia/+/251197 and https://skia-review.googlesource.com/c/skia/+/244305 respectively and both appear to work.\n\nEric is updating our autorollers to only use skia/skia.primary in https://skia-review.googlesource.com/c/buildbot/+/256017 because they started failing with:\n\"Failed to parse additional builders: deprecated syntax is \"Cq-Include-Trybot: luci.project.bucket:builder\". Please migrate to canonical syntax or ensure \"luci.\" prefix in skia.primary. Canonical syntax is \"Cq-Include-Trybots: project/bucket:builder1,builder2;another/bucket:b3\". Multiple lines are allowed.\"\nLet us know if there is any problem with us using \"skia/skia.primary\".\n\nStill not sure what happened with https://skia-review.googlesource.com/c/skia/+/251196 though. Maybe it was already in the CQ queue when your changes were being pushed and something got confused?",
+      "parentUuid": "b3612ebf_0b9c3cac",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 76
+      },
+      "revId": "5bea80e6f76398f23ff4c7f702fcd2f5f7841fae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55d711d0_056a9ec8",
         "filename": "site/dev/contrib/cqkeywords.md",
         "patchSetId": 4
