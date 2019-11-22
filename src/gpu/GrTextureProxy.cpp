@@ -130,11 +130,6 @@ void GrTextureProxyPriv::resetDeferredUploader() {
     fTextureProxy->fDeferredUploader.reset();
 }
 
-GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
-    return this->hasRestrictedSampling() ? GrSamplerState::Filter::kBilerp
-                                         : GrSamplerState::Filter::kMipMap;
-}
-
 GrMipMapped GrTextureProxy::mipMapped() const {
     if (this->isInstantiated()) {
         return this->peekTexture()->texturePriv().mipMapped();
@@ -145,6 +140,11 @@ GrMipMapped GrTextureProxy::mipMapped() const {
 size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
     return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(), 1,
                                   this->proxyMipMapped(), !this->priv().isExact());
+}
+
+GrSamplerState::Filter GrTextureProxy::HighestFilterMode(GrTextureType textureType) {
+    return GrTextureTypeHasRestrictedSampling(textureType) ? GrSamplerState::Filter::kBilerp
+                                                           : GrSamplerState::Filter::kMipMap;
 }
 
 bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* first,
