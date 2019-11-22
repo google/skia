@@ -5,10 +5,10 @@
 REG_FIDDLE(Path_FillType_a, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
    SkPath path;
-   path.addRect({10, 10, 30, 30}, SkPath::kCW_Direction);
-   path.addRect({20, 20, 40, 40}, SkPath::kCW_Direction);
-   path.addRect({10, 60, 30, 80}, SkPath::kCW_Direction);
-   path.addRect({20, 70, 40, 90}, SkPath::kCCW_Direction);
+   path.addRect({10, 10, 30, 30}, SkPathDirection::kCW);
+   path.addRect({20, 20, 40, 40}, SkPathDirection::kCW);
+   path.addRect({10, 60, 30, 80}, SkPathDirection::kCW);
+   path.addRect({20, 70, 40, 90}, SkPathDirection::kCCW);
    SkPaint strokePaint;
    strokePaint.setStyle(SkPaint::kStroke_Style);
    SkRect clipRect = {0, 0, 51, 100};
