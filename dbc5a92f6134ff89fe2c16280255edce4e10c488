@@ -22,6 +22,30 @@
       "revId": "dbc5a92f6134ff89fe2c16280255edce4e10c488",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eabfe00e_1171a83c",
+        "filename": "infra/bots/recipe_modules/flavor/docker.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-22T15:37:02Z",
+      "side": 1,
+      "message": "If \"convenience\" is a euphemism for \"laziness,\" then I did it out of convenience.",
+      "parentUuid": "5fe698b7_2915d7a1",
+      "range": {
+        "startLine": 12,
+        "startChar": 35,
+        "endLine": 12,
+        "endChar": 59
+      },
+      "revId": "dbc5a92f6134ff89fe2c16280255edce4e10c488",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
