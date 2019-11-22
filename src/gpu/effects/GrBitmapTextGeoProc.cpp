@@ -164,6 +164,8 @@ void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
                                         int numActiveProxies,
                                         const GrSamplerState& params) {
     SkASSERT(numActiveProxies <= kMaxTextures);
+    // Just to make sure we don't try to add too many proxies
+    numActiveProxies = SkTMin(numActiveProxies, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = proxies[0]->dimensions();
