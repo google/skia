@@ -99,7 +99,7 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
         // Alternate between two proxies to prevent op merging if the batch API was forced to submit
         // one op at a time (to work, this does require that all fDstRects overlap).
         set[i].fProxyView = i % 2 == 0 ? proxyViewA : proxyViewB;
-        set[i].fSrcColorType = GrColorType::kRGBA_8888;
+        set[i].fSrcAlphaType = kPremul_SkAlphaType;
         set[i].fSrcRect = SkRect::MakeWH(100.0f, 100.0f);
         set[i].fDstRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
         set[i].fDstClipQuad = nullptr;

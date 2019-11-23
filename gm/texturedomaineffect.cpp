@@ -124,10 +124,9 @@ protected:
                         // Repeat mode doesn't produce correct results with bilerp filtering
                         continue;
                     }
-                    auto ct = SkColorTypeToGrColorType(fBitmap.colorType());
                     SkRect domainRect = GrTextureDomain::MakeTexelDomain(texelDomains[d], mode);
                     auto fp1 = GrTextureDomainEffect::Make(
-                            proxy, ct, textureMatrices[tm], domainRect, mode, fFilter);
+                            proxy, fBitmap.alphaType(), textureMatrices[tm], domainRect, mode, fFilter);
                     if (!fp1) {
                         continue;
                     }
