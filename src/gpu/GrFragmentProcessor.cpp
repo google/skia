@@ -418,6 +418,41 @@ const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+GrFragmentProcessor::FPIter::FPIter(const GrPipeline& pipeline) {
+    for (int i = pipeline.numFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(&pipeline.getFragmentProcessor(i));
+    }
+}
+
+GrFragmentProcessor::FPIter::FPIter(const GrPaint& paint) {
+    for (int i = paint.numCoverageFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(paint.getCoverageFragmentProcessor(i));
+    }
+    for (int i = paint.numColorFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(paint.getColorFragmentProcessor(i));
+    }
+}
+const GrFragmentProcessor& GrFragmentProcessor::FPIter::operator*() const {
+    SkASSERT(!fFPStack.empty());
+    return *fFPStack.back();
+}
+const GrFragmentProcessor* GrFragmentProcessor::FPIter::operator->() const {
+    SkASSERT(!fFPStack.empty());
+    return fFPStack.back();
+}
+
+GrFragmentProcessor::FPIter& GrFragmentProcessor::FPIter::operator++() {
+    SkASSERT(!fFPStack.empty());
+    const GrFragmentProcessor* back = fFPStack.back();
+    fFPStack.pop_back();
+    for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(&back->childProcessor(i));
+    }
+    return *this;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
                                                     const GrSamplerState& samplerState) {
     this->reset(std::move(proxy), samplerState);

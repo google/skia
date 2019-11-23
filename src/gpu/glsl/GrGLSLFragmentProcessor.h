@@ -35,7 +35,7 @@ public:
 
 private:
     /**
-     * This class allows the shader builder to provide each GrGLSLFragmentProcesor with an array of
+     * This class allows the shader builder to provide each GrGLSLFragmentProcessor with an array of
      * generated variables where each generated variable corresponds to an element of an array on
      * the GrFragmentProcessor that generated the GLSLFP. For example, this is used to provide a
      * variable holding transformed coords for each GrCoordTransform owned by the FP.
@@ -54,15 +54,15 @@ private:
 
         BuilderInputProvider childInputs(int childIdx) const {
             const GrFragmentProcessor* child = &fFP->childProcessor(childIdx);
-            GrFragmentProcessor::Iter iter(fFP);
             int numToSkip = 0;
-            while (true) {
-                const GrFragmentProcessor* fp = iter.next();
-                if (fp == child) {
+            for (const auto& fp : GrFragmentProcessor::FPRange(fFP)) {
+                if (&fp == child) {
                     return BuilderInputProvider(child, fTs + numToSkip);
                 }
-                numToSkip += (fp->*COUNT)();
+                numToSkip += (fp.*COUNT)();
             }
+            SK_ABORT("Didn't find the child.");
+            return {nullptr, nullptr};
         }
 
     private:

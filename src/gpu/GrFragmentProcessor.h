@@ -208,55 +208,95 @@ public:
         SkSTArray<4, const GrFragmentProcessor*, true> fFPStack;
     };
 
-    /**
-     * Iterates over all the Ts owned by a GrFragmentProcessor and its children or over all the Ts
-     * owned by the forest of GrFragmentProcessors in a GrPipeline. FPs are visited in the same
-     * order as Iter and each of an FP's Ts are visited in order.
-     */
-    template <typename T, int (GrFragmentProcessor::*COUNT)() const,
-              const T& (GrFragmentProcessor::*GET)(int)const>
-    class FPItemIter : public SkNoncopyable {
+    // Iterator types used for range-for loops over FP hierarchies.
+    class FPEndIter {};
+    class FPIter {
     public:
-        explicit FPItemIter(const GrFragmentProcessor* fp)
-                : fCurrFP(nullptr)
-                , fCTIdx(0)
-                , fFPIter(fp) {
-            fCurrFP = fFPIter.next();
-        }
-        explicit FPItemIter(const GrPipeline& pipeline)
-                : fCurrFP(nullptr)
-                , fCTIdx(0)
-                , fFPIter(pipeline) {
-            fCurrFP = fFPIter.next();
-        }
+        explicit FPIter(const GrFragmentProcessor* fp) { fFPStack.push_back(fp); }
+        explicit FPIter(const GrPipeline& pipeline);
+        explicit FPIter(const GrPaint&);
 
-        const T* next() {
-            if (!fCurrFP) {
-                return nullptr;
-            }
-            while (fCTIdx == (fCurrFP->*COUNT)()) {
-                fCTIdx = 0;
-                fCurrFP = fFPIter.next();
-                if (!fCurrFP) {
-                    return nullptr;
-                }
-            }
-            return &(fCurrFP->*GET)(fCTIdx++);
-        }
+        const GrFragmentProcessor& operator*() const;
+        const GrFragmentProcessor* operator->() const;
+
+        FPIter& operator++();
+        operator bool() const { return !fFPStack.empty(); }
+        bool operator!=(const FPEndIter&) { return !(bool)*this; }
+
+        // Because each iterator carries a stack we want to avoid copies.
+        FPIter(const FPIter&) = delete;
+        FPIter& operator=(const FPIter&) = delete;
 
     private:
-        const GrFragmentProcessor*  fCurrFP;
-        int                         fCTIdx;
-        GrFragmentProcessor::Iter   fFPIter;
+        SkSTArray<4, const GrFragmentProcessor*, true> fFPStack;
     };
 
-    using CoordTransformIter = FPItemIter<GrCoordTransform,
-                                          &GrFragmentProcessor::numCoordTransforms,
-                                          &GrFragmentProcessor::coordTransform>;
+    // Defines a range that can be looped over to visit a hierarchy of FPs in a pre-order traversal.
+    // T should be one of const GrFragmentProcessor*, const GrPaint, or const GrPipeline.
+    // For GrPipelines and GrPaints the hierarchy at each color and then coverage FP is visited
+    // successively.
+    template <typename T> class FPRange {
+    public:
+        explicit FPRange(const T& t) : fT(t) {}
+        FPIter begin() { return FPIter(fT); }
+        FPEndIter end() { return FPEndIter(); }
 
-    using TextureAccessIter = FPItemIter<TextureSampler,
-                                         &GrFragmentProcessor::numTextureSamplers,
-                                         &GrFragmentProcessor::textureSampler>;
+    private:
+        const T& fT;
+    };
+    template <typename T> FPRange(const T&) -> FPRange<T>;
+
+
+    template <typename T, int (GrFragmentProcessor::*COUNT)() const,
+              const T& (GrFragmentProcessor::*GET)(int)const>
+    class FPItemRange {
+    public:
+        class EndIter {};
+        class Iter {
+        public:
+            explicit Iter(const GrFragmentProcessor* fp) : fFPIter(fp), fIndex(-1) { ++*this; }
+
+            const T& operator*() const { return (fFPIter->*GET)(fIndex); }
+            const T* operator->() const  { return &**this; }
+
+            Iter& operator++() {
+                ++fIndex;
+                while (fFPIter && fIndex >= ((fFPIter->*COUNT)()) - 1) {
+                    fIndex = 0;
+                    ++fFPIter;
+                }
+                return *this;
+            }
+
+            operator bool() const { return !fFPIter; }
+            bool operator!=(const EndIter&) { return !(bool)*this; }
+
+            // Because each iterator carries a stack we want to avoid copies.
+            Iter(const Iter&) = delete;
+            Iter& operator=(const Iter&) = delete;
+
+        private:
+            int fIndex;
+            FPIter fFPIter;
+        };
+
+        FPItemRange(const GrFragmentProcessor* fp) : fFP(fp) {}
+
+        Iter begin() { return Iter(fFP); }
+
+        EndIter end() { return FPEndIter(); }
+
+    private:
+        const GrFragmentProcessor* fFP;
+    };
+
+    using CoordTransformRange = FPItemRange<GrCoordTransform,
+                                            &GrFragmentProcessor::numCoordTransforms,
+                                            &GrFragmentProcessor::coordTransform>;
+
+    using TextureAccessRange = FPItemRange<TextureSampler,
+                                           &GrFragmentProcessor::numTextureSamplers,
+                                           &GrFragmentProcessor::textureSampler>;
 
     void visitProxies(const GrOp::VisitProxyFunc& func);
 

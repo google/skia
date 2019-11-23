@@ -23,9 +23,9 @@ class GrShaderCaps;
 
 class GrGLSLPrimitiveProcessor {
 public:
-    using UniformHandle        = GrGLSLProgramDataManager::UniformHandle;
-    using SamplerHandle        = GrGLSLUniformHandler::SamplerHandle;
-    using FPCoordTransformIter = GrFragmentProcessor::CoordTransformIter;
+    using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
+    using FPCoordTransformRange = GrFragmentProcessor::CoordTransformRange;
 
     struct TransformVar {
         TransformVar() = default;
