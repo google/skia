@@ -6,6 +6,34 @@ across a variety of hardware and software platforms.  It serves as the graphics
 engine for Google Chrome and Chrome OS, Android, Mozilla Firefox and Firefox
 OS, and many other products.
 
+<details>
+  <summary><img src="https://dot.skia.org/dot?foo"></summary>
+  <pre>
+graph {
+  Hello -- World
+}
+  </pre>
+</details>
+
+
+<details>
+  <summary><img src="https://dot.skia.org/neato?bar"></summary>
+  <pre>
+digraph {
+  Jim [URL="https://www.google.com/" fillcolor="green4" style="filled"];
+  Jim -> John;
+  Jim -> Mary;
+  Mary -> Caroline;
+  Mary -> Francis;
+  Jim -> Frank;
+  Frank -> Gary;
+}
+  </pre>
+</details>
+
+
+
+
 Skia is sponsored and managed by Google, but is available for use by anyone
 under the BSD Free Software License.  While engineering of the core components
 is done by the Skia development team, we consider contributions from any
