@@ -282,17 +282,17 @@ protected:
      * callers must determine on their own if the sampling uses a decal strategy in any way, in
      * which case the texture may become transparent regardless of the color type.
      */
-    static OptimizationFlags ModulateForSamplerOptFlags(GrColorType colorType, bool samplingDecal) {
+    static OptimizationFlags ModulateForSamplerOptFlags(SkAlphaType alphaType, bool samplingDecal) {
         if (samplingDecal) {
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag;
         } else {
-            return ModulateForClampedSamplerOptFlags(colorType);
+            return ModulateForClampedSamplerOptFlags(alphaType);
         }
     }
 
     // As above, but callers should somehow ensure or assert their sampler still uses clamping
-    static OptimizationFlags ModulateForClampedSamplerOptFlags(GrColorType colorType) {
-        if (!GrColorTypeHasAlpha(colorType)) {
+    static OptimizationFlags ModulateForClampedSamplerOptFlags(SkAlphaType alphaType) {
+        if (alphaType == kOpaque_SkAlphaType) {
             return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
                    kPreservesOpaqueInput_OptimizationFlag;
         } else {

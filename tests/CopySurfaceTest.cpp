@@ -116,7 +116,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 } else if (dRenderable == GrRenderable::kYes) {
                                     SkASSERT(dstContext->asRenderTargetContext());
                                     result = dstContext->asRenderTargetContext()->blitTexture(
-                                            src.get(), grColorType, srcRect, dstPoint);
+                                            src.get(), srcRect, dstPoint);
                                 }
 
                                 bool expectedResult = true;

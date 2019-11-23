@@ -606,7 +606,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
-                rtc->drawTexture(GrNoClip(), proxy, GrColorType::kRGBA_8888,
+                rtc->drawTexture(GrNoClip(), proxy, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                  SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                  GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
@@ -621,10 +621,10 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
 
                 // This time we move the proxy into the draw.
                 rtc->drawTexture(GrNoClip(), std::move(proxy), GrColorType::kRGBA_8888,
-                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
-                                 SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
-                                 GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), nullptr);
+                                 kPremul_SkAlphaType, GrSamplerState::Filter::kNearest,
+                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
+                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 context->flush();
                 context->priv().getGpu()->testingOnly_flushGpuAndSync();
@@ -667,7 +667,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                             auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
                                     texture, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin);
                             rtc->drawTexture(
-                                    GrNoClip(), proxy, GrColorType::kRGBA_8888,
+                                    GrNoClip(), proxy, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
                                     GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                     SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                     GrAA::kNo, GrQuadAAFlags::kNone,
