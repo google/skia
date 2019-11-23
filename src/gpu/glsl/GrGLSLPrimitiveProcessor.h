@@ -65,6 +65,10 @@ public:
 
         const GrCoordTransform* nextCoordTransform();
 
+        // Gets the fragment processor for the last coord transform returned by
+        // nextCoordTransform().
+        const GrFragmentProcessor* currentFP() const { return fIter.currentFP(); }
+
         // 'args' are constructor params to GrShaderVar.
         template<typename... Args>
         void specifyCoordsForCurrCoordTransform(Args&&... args) {
