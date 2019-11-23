@@ -357,12 +357,12 @@ DrawResult SampleLocationsGM::onDraw(
                             SkMatrix::I(), SkRect::MakeWH(200, 200));
 
     // Copy offscreen texture to canvas.
-    rtc->drawTexture(GrNoClip(), sk_ref_sp(offscreenRTC->asTextureProxy()),
-                     offscreenRTC->colorInfo().colorType(), offscreenRTC->colorInfo().alphaType(),
-                     GrSamplerState::Filter::kNearest, SkBlendMode::kSrc, SK_PMColor4fWHITE,
-                     {0,0,200,200}, {0,0,200,200}, GrAA::kNo, GrQuadAAFlags::kNone,
-                     SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
-                     nullptr);
+    rtc->drawTexture(
+            GrNoClip(), sk_ref_sp(offscreenRTC->asTextureProxy()),
+            offscreenRTC->colorInfo().colorType(), GrSamplerState::Filter::kNearest,
+            SkBlendMode::kSrc, SK_PMColor4fWHITE, {0,0,200,200}, {0,0,200,200}, GrAA::kNo,
+            GrQuadAAFlags::kNone, SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint,
+            SkMatrix::I(), nullptr);
 
     return skiagm::DrawResult::kOk;
 }

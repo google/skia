@@ -35,10 +35,16 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
     this->setXPFactory(GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage));
 }
 
-void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, SkAlphaType alphaType,
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+                                       const SkMatrix& matrix) {
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), srcColorType,
+                                                                matrix));
+}
+
+void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
                                        const SkMatrix& matrix, const GrSamplerState& samplerState) {
-    this->addColorFragmentProcessor(
-            GrSimpleTextureEffect::Make(std::move(proxy), alphaType, matrix, samplerState));
+    this->addColorFragmentProcessor(GrSimpleTextureEffect::Make(std::move(proxy), srcColorType,
+                                                                matrix, samplerState));
 }
 
 bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
