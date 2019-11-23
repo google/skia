@@ -719,35 +719,42 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
 #if GR_TEST_UTILS
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
-    // create a similarity matrix
-    SkScalar rotate = random->nextSScalar1() * 360.f;
-    SkScalar translateX = random->nextSScalar1() * 1000.f;
-    SkScalar translateY = random->nextSScalar1() * 1000.f;
-    SkScalar scale;
+    // We may choose matrix and inset values that cause the factory to fail. We loop until we find
+    // an acceptable combination.
     do {
-        scale = random->nextSScalar1() * 100.f;
-    } while (scale == 0);
-    SkMatrix viewMatrix;
-    viewMatrix.setRotate(rotate);
-    viewMatrix.postTranslate(translateX, translateY);
-    viewMatrix.postScale(scale, scale);
-    SkScalar insetWidth = random->nextSScalar1() * 72.f;
-    SkScalar blurWidth = random->nextSScalar1() * 72.f;
-    bool isCircle = random->nextBool();
-    // This op doesn't use a full GrPaint, just a color.
-    GrColor color = paint.getColor4f().toBytes_RGBA();
-    if (isCircle) {
-        SkRect circle = GrTest::TestSquare(random);
-        SkRRect rrect = SkRRect::MakeOval(circle);
-        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth, insetWidth);
-    } else {
-        SkRRect rrect;
-        do {
-            // This may return a rrect with elliptical corners, which we don't support.
-            rrect = GrTest::TestRRectSimple(random);
-        } while (!SkRRectPriv::IsSimpleCircular(rrect));
-        return GrShadowRRectOp::Make(context, color, viewMatrix, rrect, blurWidth, insetWidth);
-    }
+        // create a similarity matrix
+        SkScalar rotate = random->nextSScalar1() * 360.f;
+        SkScalar translateX = random->nextSScalar1() * 1000.f;
+        SkScalar translateY = random->nextSScalar1() * 1000.f;
+        SkScalar scale = random->nextSScalar1() * 100.f;
+        SkMatrix viewMatrix;
+        viewMatrix.setRotate(rotate);
+        viewMatrix.postTranslate(translateX, translateY);
+        viewMatrix.postScale(scale, scale);
+        SkScalar insetWidth = random->nextSScalar1() * 72.f;
+        SkScalar blurWidth = random->nextSScalar1() * 72.f;
+        bool isCircle = random->nextBool();
+        // This op doesn't use a full GrPaint, just a color.
+        GrColor color = paint.getColor4f().toBytes_RGBA();
+        if (isCircle) {
+            SkRect circle = GrTest::TestSquare(random);
+            SkRRect rrect = SkRRect::MakeOval(circle);
+            if (auto op = GrShadowRRectOp::Make(
+                    context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
+                return op;
+            }
+        } else {
+            SkRRect rrect;
+            do {
+                // This may return a rrect with elliptical corners, which will cause an assert.
+                rrect = GrTest::TestRRectSimple(random);
+            } while (!SkRRectPriv::IsSimpleCircular(rrect));
+            if (auto op = GrShadowRRectOp::Make(
+                    context, color, viewMatrix, rrect, blurWidth, insetWidth)) {
+                return op;
+            }
+        }
+    } while (true);
 }
 
 #endif
