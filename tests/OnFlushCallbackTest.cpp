@@ -435,7 +435,7 @@ private:
 // This creates an off-screen rendertarget whose ops which eventually pull from the atlas.
 static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject* object, int start,
                                                  sk_sp<GrTextureProxy> atlasProxy,
-                                                 GrColorType atlasColorType) {
+                                                 SkAlphaType atlasAlphaType) {
     auto rtc = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                3* kDrawnTileSize,
                                                                kDrawnTileSize,
@@ -447,7 +447,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrSimpleTextureEffect::Make(atlasProxy, atlasColorType, SkMatrix::I());
+        auto fp = GrSimpleTextureEffect::Make(atlasProxy, atlasAlphaType, SkMatrix::I());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -545,10 +545,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
 
     sk_sp<GrTextureProxy> proxies[kNumProxies];
     for (int i = 0; i < kNumProxies; ++i) {
-        proxies[i] = make_upstream_image(context, &object, i*3,
-                                         object.getAtlasProxy(proxyProvider,
-                                                              context->priv().caps()),
-                                         GrColorType::kRGBA_8888);
+        proxies[i] = make_upstream_image(
+                context, &object, i*3,
+                object.getAtlasProxy(proxyProvider, context->priv().caps()), kPremul_SkAlphaType);
     }
 
     static const int kFinalWidth = 6*kDrawnTileSize;
@@ -566,7 +565,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
-        auto fp = GrSimpleTextureEffect::Make(std::move(proxies[i]), GrColorType::kRGBA_8888, t);
+        auto fp = GrSimpleTextureEffect::Make(std::move(proxies[i]), kPremul_SkAlphaType, t);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
 

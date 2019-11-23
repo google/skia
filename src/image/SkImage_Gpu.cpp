@@ -93,8 +93,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    paint.addColorTextureProcessor(std::move(proxy), SkColorTypeToGrColorType(this->colorType()),
-                                   SkMatrix::I());
+    paint.addColorTextureProcessor(std::move(proxy), this->alphaType(), SkMatrix::I());
     if (xform) {
         paint.addColorFragmentProcessor(std::move(xform));
     }
