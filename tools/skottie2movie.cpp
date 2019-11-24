@@ -29,8 +29,8 @@ static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 static DEFINE_int(set_dst_width, 0, "set destination width (height will be computed)");
 static DEFINE_bool2(gpu, g, false, "use GPU for rendering");
 
-static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame_time) {
-    anim->seekFrameTime(frame_time);
+static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame) {
+    anim->seekFrame(frame);
     surf->getCanvas()->clear(SK_ColorWHITE);
     anim->render(surf->getCanvas());
 }
@@ -73,12 +73,8 @@ int main(int argc, char** argv) {
 
     SkISize dim = animation->size().toRound();
     double duration = animation->duration();
-    int fps = FLAGS_fps;
-    if (fps < 1) {
-        fps = 1;
-    } else if (fps > 240) {
-        fps = 240;
-    }
+    int fps = SkTPin(FLAGS_fps, 1, 240);
+    double fps_scale = animation->fps() / fps;
 
     float scale = 1;
     if (FLAGS_set_dst_width > 0) {
@@ -130,15 +126,12 @@ int main(int argc, char** argv) {
         }
 
         for (int i = 0; i <= frames; ++i) {
-            double ts = i * 1.0 / fps;
+            const double frame = i * fps_scale;
             if (FLAGS_verbose) {
-                SkDebugf("rendering frame %d ts %g\n", i, ts);
+                SkDebugf("rendering frame %g\n", frame);
             }
 
-            double normal_time = i * 1.0 / frames;
-            double frame_time = normal_time * duration;
-
-            produce_frame(surf.get(), animation.get(), frame_time);
+            produce_frame(surf.get(), animation.get(), frame);
 
             AsyncRec asyncRec = { info, &encoder };
             if (context) {
