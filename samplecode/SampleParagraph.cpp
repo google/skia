@@ -1350,72 +1350,6 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView13 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph13"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-
-        const char* text = "This\n"
-                           "is a wrapping test. It should wrap at manual newlines, and if softWrap is true, also at spaces.";
-        TextStyle text_style;
-        text_style.setFontFamilies({SkString("Ahem")});
-        text_style.setColor(SK_ColorBLACK);
-        text_style.setFontSize(10);
-
-        auto relayout = [&](size_t lines, bool ellipsis,
-                SkScalar width, SkScalar height, SkScalar minWidth, SkScalar maxWidth, SkColor bg) {
-            ParagraphStyle paragraph_style;
-            SkPaint paint;
-            paint.setColor(bg);
-            text_style.setForegroundColor(paint);
-            paragraph_style.setTextStyle(text_style);
-            paragraph_style.setMaxLines(lines);
-            if (ellipsis) {
-                paragraph_style.setEllipsis(u"\u2026");
-            }
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
-            builder.addText(text);
-            auto paragraph = builder.Build();
-            paragraph->layout(50);
-            paragraph->paint(canvas, 0, 0);
-            canvas->translate(0, paragraph->getHeight() + 10);
-            auto result = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kTight, RectWidthStyle::kTight);
-            SkPaint background;
-            background.setColor(SK_ColorRED);
-            background.setStyle(SkPaint::kStroke_Style);
-            background.setAntiAlias(true);
-            background.setStrokeWidth(1);
-            canvas->drawRect(result.front().rect, background);
-
-            SkASSERT(width == paragraph->getMaxWidth());
-            SkASSERT(height == paragraph->getHeight());
-            SkASSERT(minWidth == paragraph->getMinIntrinsicWidth());
-            SkASSERT(maxWidth == paragraph->getMaxIntrinsicWidth());
-        };
-
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
-        canvas->drawRect(SkRect::MakeXYWH(0, 0, 50, 500), paint);
-
-        relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
-        relayout(3, false, 50, 30,  50, 950, SK_ColorBLUE);
-        relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  50, 950, SK_ColorGREEN);
-
-        relayout(1, true, 50, 10, 950, 950, SK_ColorYELLOW);
-        relayout(3, true, 50, 30,  50, 950, SK_ColorMAGENTA);
-        relayout(std::numeric_limits<size_t>::max(), true, 50, 20,  950, 950, SK_ColorCYAN);
-
-        relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
-        relayout(3, false, 50, 30,  50, 950, SK_ColorBLUE);
-        relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  50, 950, SK_ColorGREEN);
-    }
-
-private:
-    typedef Sample INHERITED;
-};
-
 class ParagraphView14 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph14"); }
@@ -1713,30 +1647,51 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text = "Simple\nMultiline\nText";
+        const char* text = "World domination is such an ugly phrase - I prefer to call it world optimisation";
         ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(7);
+        paragraph_style.setEllipsis(u"\u2026");
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        SkPaint paint;
-        paint.setColor(SK_ColorLTGRAY);
         TextStyle text_style;
-        text_style.setBackgroundColor(paint);
-        text_style.setColor(SK_ColorBLUE);
+        text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(20);
+        text_style.setFontSize(40);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(500);
+        paragraph->layout(this->width());
 
-        // Write down the format
-        //auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-        //impl->startFormatRecording(SkString("/tmp/format.txt"), canvas->getLocalClipBounds());
+        paragraph->paint(canvas, 0, 0);
+    }
 
-        canvas->translate(10, 10);
-        canvas->scale(3, 3);
-        paragraph->paint(canvas, 17, 17);
+private:
+    typedef Sample INHERITED;
+};
 
-        //impl->stopFormatRecording();
+class ParagraphView20 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph20"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
+
+        const char* text = "";
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        //paragraph_style.setEllipsis(u"\u2026");
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(40);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(this->width());
+
+        paragraph->paint(canvas, 0, 0);
     }
 
 private:
@@ -1756,10 +1711,10 @@ DEF_SAMPLE(return new ParagraphView9();)
 DEF_SAMPLE(return new ParagraphView10();)
 DEF_SAMPLE(return new ParagraphView11();)
 DEF_SAMPLE(return new ParagraphView12();)
-DEF_SAMPLE(return new ParagraphView13();)
 DEF_SAMPLE(return new ParagraphView14();)
 DEF_SAMPLE(return new ParagraphView15();)
 DEF_SAMPLE(return new ParagraphView16();)
 DEF_SAMPLE(return new ParagraphView17();)
 DEF_SAMPLE(return new ParagraphView18();)
 DEF_SAMPLE(return new ParagraphView19();)
+DEF_SAMPLE(return new ParagraphView20();)

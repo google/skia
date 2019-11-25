@@ -137,7 +137,11 @@ class TextWrapper {
     };
 
 public:
-    TextWrapper() { fLineNumber = 1; }
+    TextWrapper() {
+         fLineNumber = 1;
+         fHardLineBreak = false;
+         fExceededMaxLines = false;
+    }
 
     using AddLineToParagraph = std::function<void(TextRange text,
                                                   TextRange textWithSpaces,

@@ -517,30 +517,46 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     // Go through the clusters in the reverse logical order
     // taking off cluster by cluster until the ellipsis fits
     SkScalar width = fAdvance.fX;
+    bool noWhitespace = false;
+
+    auto attachEllipsis = [&](const Cluster* cluster){
+        // Shape the ellipsis
+        Run* run = shapeEllipsis(ellipsis, cluster->run());
+        run->fClusterStart = cluster->textRange().start;
+        run->setMaster(fMaster);
+
+        // See if it fits
+        if (width + run->advance().fX > maxWidth) {
+            width -= cluster->width();
+            // Continue if it's not
+            noWhitespace = true;
+            return false;
+        }
+
+        fEllipsis = std::make_shared<Run>(*run);
+        fEllipsis->shift(width, 0);
+        fAdvance.fX = width;
+        return true;
+    };
+
     iterateThroughClustersInGlyphsOrder(
-        true, false, [this, &width, ellipsis, maxWidth](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+        true, false, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
             if (cluster->isWhitespaces()) {
                 width -= cluster->width();
+                noWhitespace = false;
                 return true;
-            }
-
-            // Shape the ellipsis
-            Run* run = shapeEllipsis(ellipsis, cluster->run());
-            run->fClusterStart = cluster->textRange().start;
-            run->setMaster(fMaster);
-            fEllipsis = std::make_shared<Run>(*run);
-
-            // See if it fits
-            if (width + fEllipsis->advance().fX > maxWidth) {
+            } else if (noWhitespace) {
                 width -= cluster->width();
-                // Continue if it's not
                 return true;
             }
 
-            fEllipsis->shift(width, 0);
-            fAdvance.fX = width;
-            return false;
+            return !attachEllipsis(cluster);
         });
+
+    if (!fEllipsis) {
+        // Weird situation: just the ellipsis on the line (if it fits)
+        attachEllipsis(&fMaster->cluster(clusters().start));
+    }
 }
 
 Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {

@@ -814,10 +814,6 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
       boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
       return boxes;
   }
-  if (fPlaceholders.size() <= 1) {
-      boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
-      return boxes;
-  }
   for (auto& line : fLines) {
       line.iterateThroughVisualRuns(
               true,
