@@ -8,13 +8,13 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     SkPath path;
     path.addRect({20, 30, 100, 110});
-    path.setFillType(SkPath::kInverseWinding_FillType);
+    path.setFillType(SkPathFillType::kInverseWinding);
     canvas->save();
     canvas->clipPath(path, SkClipOp::kDifference, false);
     canvas->drawCircle(70, 100, 60, paint);
     canvas->restore();
     canvas->translate(100, 100);
-    path.setFillType(SkPath::kWinding_FillType);
+    path.setFillType(SkPathFillType::kWinding);
     canvas->clipPath(path, SkClipOp::kIntersect, false);
     canvas->drawCircle(70, 100, 60, paint);
 }

@@ -34,7 +34,7 @@ class ComplexClipView : public Sample {
         path.quadTo(SkIntToScalar(150), SkIntToScalar(150), SkIntToScalar(125), SkIntToScalar(150));
         path.lineTo(SkIntToScalar(50),  SkIntToScalar(150));
         path.close();
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         SkColor pathColor = SK_ColorBLACK;
         SkPaint pathPaint;
         pathPaint.setAntiAlias(true);
@@ -99,8 +99,8 @@ class ComplexClipView : public Sample {
                 }
                 canvas->save();
                     // set clip
-                    clipA.setFillType(invA ? SkPath::kInverseEvenOdd_FillType :
-                                             SkPath::kEvenOdd_FillType);
+                    clipA.setFillType(invA ? SkPathFillType::kInverseEvenOdd :
+                                             SkPathFillType::kEvenOdd);
                     canvas->clipPath(clipA);
                     canvas->clipPath(clipB, gOps[op].fOp);
 
