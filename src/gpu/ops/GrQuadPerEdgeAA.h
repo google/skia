@@ -156,10 +156,35 @@ namespace GrQuadPerEdgeAA {
                                       const SkRect& geomDomain, const SkRect& texDomain);
         static WriteQuadProc GetWriteQuadProc(const VertexSpec& spec);
 
-        GrQuadUtils::TessellationHelper<> fAAHelper;
+        // Similarly, a VertexSpec's coverage AA and device quad type can be specialized to avoid
+        // branching when calculating the inset/outset geometry. The procs will statically cast
+        // helper to the more specialized type.
+        typedef void (*AppendQuadProc)(Tessellator* tessellator, const GrQuad& deviceQuad,
+                                       const GrQuad& localQuad, const SkPMColor4f& color,
+                                       const SkRect& uvDomain, GrQuadAAFlags aaFlags);
+        static AppendQuadProc GetAppendQuadProc(const VertexSpec& spec);
+
+        // For a given Tessellator, fAAHelper will only be used in one way (dependent on its
+        // VertexSpec). Specialized AppendQuadProcs use the appropriate actual helper in this union.
+        union AllHelpers {
+            GrQuadUtils::TessellationHelper<GrQuadUtils::DeviceType::kAssumeRectilinear> fRect;
+            GrQuadUtils::TessellationHelper<GrQuadUtils::DeviceType::kAny>               fAny;
+
+            AllHelpers(const VertexSpec& spec);
+        } fAAHelper;
+
         VertexSpec                        fVertexSpec;
         GrVertexWriter                    fVertexWriter;
         WriteQuadProc                     fWriteProc;
+        AppendQuadProc                    fAppendProc;
+
+        // All specialized AppendQuadProcs, declared here to access AllHelpers,Tessellator fields
+        static void AppendNonAAQuad(Tessellator*, const GrQuad&, const GrQuad&, const SkPMColor4f&,
+                                    const SkRect&, GrQuadAAFlags);
+        static void AppendAARect(Tessellator*, const GrQuad&, const GrQuad&, const SkPMColor4f&,
+                                 const SkRect&, GrQuadAAFlags);
+        static void AppendAAQuad(Tessellator*, const GrQuad&, const GrQuad&, const SkPMColor4f&,
+                                 const SkRect&, GrQuadAAFlags);
     };
 
     GrGeometryProcessor* MakeProcessor(SkArenaAlloc*, const VertexSpec&);

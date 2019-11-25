@@ -941,7 +941,7 @@ void TessellationHelper<kType>::adjustVertices(const V4f& signedEdgeDistances, V
 }
 
 template<DeviceType kType>
-int TessellationHelper<kType>::adjustDegenerateVertices(const V4& signedEdgeDistances,
+int TessellationHelper<kType>::adjustDegenerateVertices(const V4f& signedEdgeDistances,
                                                         Vertices* vertices) {
     SkASSERT(vertices);
     SkASSERT(vertices->fUVRCount == 0 || vertices->fUVRCount == 2 || vertices->fUVRCount == 3);
