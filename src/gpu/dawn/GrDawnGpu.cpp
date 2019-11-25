@@ -85,20 +85,26 @@ static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
 
 class Desc : public GrProgramDesc {
 public:
-    static bool Build(Desc* desc,
+    static bool Build4(Desc* desc,
                       GrRenderTarget* rt,
                       const GrProgramInfo& programInfo,
                       bool hasDepthStencil,
                       const GrCaps& caps) {
-        if (!GrProgramDesc::Build(desc, rt, programInfo, caps)) {
+        if (!GrProgramDesc::Build1(desc, rt, programInfo, caps)) {
             return false;
         }
+
+        wgpu::TextureFormat format;
+        if (!programInfo.backendFormat().asDawnFormat(&format)) {
+            return false;
+        }
+
         GrProcessorKeyBuilder b(&desc->key());
 
         GrStencilSettings stencil = programInfo.nonGLStencilSettings();
         stencil.genKey(&b);
 
-        b.add32(rt->config());
+        b.add32((uint32_t) format);
         b.add32(static_cast<int32_t>(hasDepthStencil));
         b.add32(get_blend_info_key(programInfo.pipeline()));
         b.add32(static_cast<uint32_t>(programInfo.primitiveType()));
@@ -621,7 +627,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         const GrProgramInfo& programInfo) {
     bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
     Desc desc;
-    if (!Desc::Build(&desc, rt, programInfo, hasDepthStencil, *this->caps())) {
+    if (!Desc::Build4(&desc, rt, programInfo, hasDepthStencil, *this->caps())) {
         return nullptr;
     }
 
