@@ -18,7 +18,7 @@ in uniform half outerThreshold;
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> mask,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> mask,
                                                      float innerThreshold,
                                                      float outerThreshold,
                                                      const SkIRect& bounds) {
