@@ -405,19 +405,6 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 
 } // namespace internal
 
-sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
-    return nullptr;
-}
-
-sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char path[], const char name[],
-                                                   const char id[]) const {
-    return nullptr;
-}
-
-sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {
-    return nullptr;
-}
-
 void Logger::log(Level, const char[], const char*) {}
 
 Animation::Builder::Builder()  = default;
