@@ -156,10 +156,10 @@ namespace GrQuadPerEdgeAA {
                                       const SkRect& geomDomain, const SkRect& texDomain);
         static WriteQuadProc GetWriteQuadProc(const VertexSpec& spec);
 
-        GrQuadUtils::TessellationHelper fAAHelper;
-        VertexSpec                      fVertexSpec;
-        GrVertexWriter                  fVertexWriter;
-        WriteQuadProc                   fWriteProc;
+        GrQuadUtils::TessellationHelper<> fAAHelper;
+        VertexSpec                        fVertexSpec;
+        GrVertexWriter                    fVertexWriter;
+        WriteQuadProc                     fWriteProc;
     };
 
     GrGeometryProcessor* MakeProcessor(SkArenaAlloc*, const VertexSpec&);
