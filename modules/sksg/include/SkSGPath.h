@@ -30,12 +30,12 @@ public:
     // Temporarily inlined for SkPathFillType staging
     // SG_MAPPED_ATTRIBUTE(FillType, SkPathFillType, fPath)
 
-    SkPath::FillType getFillType() const {
-        return fPath.getFillType();
+    SkPathFillType getFillType() const {
+        return fPath.getNewFillType();
     }
 
-    void setFillType(SkPath::FillType fillType) {
-        if (fillType != fPath.getFillType()) {
+    void setFillType(SkPathFillType fillType) {
+        if (fillType != fPath.getNewFillType()) {
             fPath.setFillType(fillType);
             this->invalidate();
         }
