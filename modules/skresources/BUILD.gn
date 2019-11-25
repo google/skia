@@ -19,3 +19,23 @@ static_library("skresources") {
     "../..:skia",
   ]
 }
+
+if (defined(is_skia_standalone)) {
+  config("utils_config") {
+    include_dirs = [ "utils" ]
+  }
+  source_set("utils") {
+    testonly = true
+
+    public_configs = [ ":utils_config" ]
+    configs += [ "../../:skia_private" ]
+
+    sources = [
+      "utils/SkResourcesUtils.cpp",
+    ]
+    deps = [
+      ":skresources",
+      "../..:skia",
+    ]
+  }
+}
