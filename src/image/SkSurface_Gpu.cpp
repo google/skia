@@ -209,10 +209,10 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
-    bool wrapsSwapchain = rtc->asRenderTargetProxy()->rtPriv().wrapsSwapchainSurface();
+    bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0();
     // We should never get in the situation where we have a texture render target that is also
-    // backended by a swapchain.
-    SkASSERT(!wrapsSwapchain || !SkToBool(rtc->asTextureProxy()));
+    // backend by FBO 0.
+    SkASSERT(!usesGLFBO0 || !SkToBool(rtc->asTextureProxy()));
 
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorInfo().refColorSpace());
@@ -223,7 +223,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                           rtc->origin(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
                           SkSurfaceCharacterization::MipMapped(mipmapped),
-                          SkSurfaceCharacterization::UsesGLFBO0(wrapsSwapchain),
+                          SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
                           GrProtected(rtc->asRenderTargetProxy()->isProtected()),
                           this->props());
@@ -299,8 +299,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
-    if (characterization.usesGLFBO0() !=
-            rtc->asRenderTargetProxy()->rtPriv().wrapsSwapchainSurface()) {
+    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
         return false;
     }
 

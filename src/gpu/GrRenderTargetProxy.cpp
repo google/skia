@@ -76,7 +76,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(sk_sp<GrSurface> surf,
 }
 
 int GrRenderTargetProxy::maxWindowRectangles(const GrCaps& caps) const {
-    return this->wrapsSwapchainSurface() ? 0 : caps.maxWindowRectangles();
+    return this->glRTFBOIDIs0() ? 0 : caps.maxWindowRectangles();
 }
 
 bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
