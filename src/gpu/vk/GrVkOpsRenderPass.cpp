@@ -181,6 +181,11 @@ void GrVkOpsRenderPass::submit() {
 
     // We don't want to actually submit the secondary command buffer if it is wrapped.
     if (this->wrapsSecondaryCommandBuffer()) {
+        // We pass the ownership of the GrVkSecondaryCommandBuffer to the special wrapped
+        // GrVkRenderTarget since it's lifetime matches the lifetime we need to keep the
+        // GrVkResources on the GrVkSecondaryCommandBuffer alive.
+        static_cast<GrVkRenderTarget*>(fRenderTarget)->addWrappedGrSecondaryCommandBuffer(
+                std::move(fCurrentSecondaryCommandBuffer));
         return;
     }
 

@@ -13,14 +13,13 @@
 #include "src/gpu/vk/GrVkImage.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
-class GrVkCommandBuffer;
 class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImageView;
-class GrVkSecondaryCommandBuffer;
 class GrVkStencilAttachment;
 
 struct GrVkImageInfo;
@@ -90,6 +89,10 @@ public:
                                   GrVkRenderPass::AttachmentFlags* flags) const;
 
     void addResources(GrVkCommandBuffer& commandBuffer);
+
+    void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
+        fGrSecondaryCommandBuffers.push_back(std::move(cmdBuffer));
+    }
 
 protected:
     GrVkRenderTarget(GrVkGpu* gpu,
@@ -183,6 +186,16 @@ private:
     // VkCommandBuffer and not VK_NULL_HANDLE. In this case the render target will not be backed by
     // an actual VkImage and will thus be limited in terms of what it can be used for.
     VkCommandBuffer fSecondaryCommandBuffer = VK_NULL_HANDLE;
+    // When we wrap a secondary command buffer, we will record GrVkResources onto it which need to
+    // be kept alive till the command buffer gets submitted and the GPU has finished. However, in
+    // the wrapped case, we don't know when the command buffer gets submitted and when it is
+    // finished on the GPU since the client is in charge of that. However, we do require that the
+    // client keeps the GrVkSecondaryCBDrawContext alive and call releaseResources on it once the
+    // GPU is finished all the work. Thus we can use this to manage the lifetime of our
+    // GrVkSecondaryCommandBuffers. By storing them on the GrVkRenderTarget, which is owned by the
+    // SkGpuDevice on the GrVkSecondaryCBDrawContext, we assure that the GrVkResources held by the
+    // GrVkSecondaryCommandBuffer don't get deleted before they are allowed to.
+    SkTArray<std::unique_ptr<GrVkCommandBuffer>> fGrSecondaryCommandBuffers;
 };
 
 #endif
