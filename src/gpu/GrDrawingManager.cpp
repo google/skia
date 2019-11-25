@@ -583,6 +583,8 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 
     ddl->fRecordTimeData = fContext->priv().detachRecordTimeAllocator();
 
+    fContext->priv().detachProgramInfos(&ddl->fProgramInfos);
+
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
             ddl->fPendingPaths = ccpr->detachPendingPaths();
@@ -593,7 +595,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 void GrDrawingManager::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
-                                          GrRenderTargetProxy* newDest) {
+                                              GrRenderTargetProxy* newDest) {
     SkDEBUGCODE(this->validate());
 
     if (fActiveOpsTask) {

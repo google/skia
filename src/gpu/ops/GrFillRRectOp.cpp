@@ -461,6 +461,8 @@ void GrFillRRectOp::onPrePrepare(GrRecordingContext* context,
     // TODO: need to also give this to the recording context
     fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView,
                                            std::move(appliedClip), dstProxyView);
+
+    context->priv().recordTimeProgramInfo(fProgramInfo);
 }
 
 void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {

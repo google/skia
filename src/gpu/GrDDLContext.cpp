@@ -22,19 +22,19 @@ public:
         fThreadSafeProxy = std::move(proxy);
     }
 
-    ~GrDDLContext() override { }
+    ~GrDDLContext() final { }
 
-    void abandonContext() override {
+    void abandonContext() final {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::abandonContext();
     }
 
-    void releaseResourcesAndAbandonContext() override {
+    void releaseResourcesAndAbandonContext() final {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::releaseResourcesAndAbandonContext();
     }
 
-    void freeGpuResources() override {
+    void freeGpuResources() final {
         SkASSERT(0); // freeing resources in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::freeGpuResources();
     }
@@ -42,9 +42,9 @@ public:
 protected:
     // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
     // GrRecordingContext!
-    GrContext* asDirectContext() override { return nullptr; }
+    GrContext* asDirectContext() final { return nullptr; }
 
-    bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) override {
+    bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) final {
         SkASSERT(caps && FPFactoryCache);
         SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
@@ -61,12 +61,26 @@ protected:
         return true;
     }
 
-    GrAtlasManager* onGetAtlasManager() override {
+    GrAtlasManager* onGetAtlasManager() final {
         SkASSERT(0);   // the DDL Recorders should never invoke this
         return nullptr;
     }
 
+    void recordTimeProgramInfo(const GrProgramInfo* programInfo) final {
+        fProgramInfos.push_back(programInfo);
+    }
+
+    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) final {
+        SkASSERT(dst->isEmpty());
+        fProgramInfos.swap(*dst);
+    }
+
+
 private:
+    // All the programInfo data should be stored in the record-time arena so there is no
+    // need to ref them here or to delete them in the destructor.
+    SkTDArray<const GrProgramInfo*> fProgramInfos;
+
     typedef GrContext INHERITED;
 };
 

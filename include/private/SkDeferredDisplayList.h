@@ -72,6 +72,10 @@ private:
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
     std::unique_ptr<SkArenaAlloc>   fRecordTimeData;
+
+    // The program infos should be stored in 'fRecordTimeData' so do not need to be ref counted
+    // or deleted in the destructor.
+    SkTDArray<const GrProgramInfo*> fProgramInfos;
 #endif
     sk_sp<LazyProxyData>            fLazyProxyData;
 };
