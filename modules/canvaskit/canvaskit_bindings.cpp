@@ -52,6 +52,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkMakeUnique.h"
+#include "src/core/SkResourceCache.h"
 
 #include <iostream>
 #include <string>
@@ -694,6 +695,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     constant("gpu", true);
 #endif
+    function("getDecodeCacheLimitBytes", optional_override([]()->size_t {
+        return SkResourceCache::GetTotalByteLimit();
+    }));
+    function("setDecodeCacheLimitBytes", optional_override([](size_t limit)->size_t {
+        return SkResourceCache::SetTotalByteLimit(limit);
+    }));
+    function("getDecodeCacheUsedBytes", optional_override([]()->size_t {
+        return SkResourceCache::GetTotalBytesUsed();
+    }));
+
     function("computeTonalColors", &computeTonalColors);
     function("_decodeAnimatedImage", optional_override([](uintptr_t /* uint8_t*  */ iptr,
                                                   size_t length)->sk_sp<SkAnimatedImage> {
