@@ -374,7 +374,7 @@ protected:
             // inset rings into outsets when adjacent bisector angles converged outside the previous
             // ring due to accumulated error.
             SkPath p3;
-            p3.setFillType(SkPath::kEvenOdd_FillType);
+            p3.setFillType(SkPathFillType::kEvenOdd);
             p3.moveTo(1184.96f, 982.557f);
             p3.lineTo(1183.71f, 982.865f);
             p3.lineTo(1180.99f, 982.734f);

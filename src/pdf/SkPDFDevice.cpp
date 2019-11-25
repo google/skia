@@ -506,7 +506,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
             maskDevice->makeFormXObjectFromDevice(dstMaskBounds, true), false,
             SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), content.stream());
     SkPDFUtils::AppendRectangle(SkRect::Make(dstMaskBounds), content.stream());
-    SkPDFUtils::PaintPath(SkPaint::kFill_Style, path.getFillType(), content.stream());
+    SkPDFUtils::PaintPath(SkPaint::kFill_Style, path.getNewFillType(), content.stream());
     this->clearMaskOnGraphicState(content.stream());
 }
 
@@ -593,7 +593,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
             paint->getStrokeCap() != SkPaint::kSquare_Cap);
     SkPDFUtils::EmitPath(*pathPtr, paint->getStyle(), consumeDegeratePathSegments, content.stream(),
                          tolerance);
-    SkPDFUtils::PaintPath(paint->getStyle(), pathPtr->getFillType(), content.stream());
+    SkPDFUtils::PaintPath(paint->getStyle(), pathPtr->getNewFillType(), content.stream());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1561,7 +1561,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                 maskDevice->makeFormXObjectFromDevice(maskDeviceBounds, true), false,
                 SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), content.stream());
         SkPDFUtils::AppendRectangle(SkRect::Make(this->size()), content.stream());
-        SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kWinding_FillType, content.stream());
+        SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPathFillType::kWinding, content.stream());
         this->clearMaskOnGraphicState(content.stream());
         return;
     }

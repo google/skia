@@ -26,7 +26,7 @@ protected:
     void onRender(const SkSVGRenderContext&) const final;
 
     virtual void onDraw(SkCanvas*, const SkSVGLengthContext&, const SkPaint&,
-                        SkPath::FillType) const = 0;
+                        SkPathFillType) const = 0;
 
 private:
     typedef SkSVGTransformableNode INHERITED;

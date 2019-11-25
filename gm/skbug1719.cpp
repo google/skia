@@ -59,7 +59,7 @@ DEF_SIMPLE_GM_BG(skbug1719, canvas, 300, 100, 0xFF303030) {
         drawPath.lineTo(824.f, 662.f);
         drawPath.cubicTo(824.f, 657.58173f, 827.58173f, 654.f, 832.f, 654.f);
         drawPath.close();
-        drawPath.setFillType(SkPath::kEvenOdd_FillType);
+        drawPath.setFillType(SkPathFillType::kEvenOdd);
 
         SkPaint paint;
         paint.setAntiAlias(true);
