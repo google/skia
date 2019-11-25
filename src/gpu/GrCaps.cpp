@@ -40,6 +40,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
     fPerformPartialClearsAsDraws = false;
     fPerformColorClearsAsDraws = false;
+    fAvoidLargeIndexBufferDraws = false;
     fPerformStencilClearsAsDraws = false;
     fAllowCoverageCounting = false;
     fTransferBufferSupport = false;
@@ -203,6 +204,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fDynamicStateArrayGeometryProcessorTextureSupport);
     writer->appendBool("Use draws for partial clears", fPerformPartialClearsAsDraws);
     writer->appendBool("Use draws for color clears", fPerformColorClearsAsDraws);
+    writer->appendBool("Avoid Large IndexBuffer Draws", fAvoidLargeIndexBufferDraws);
     writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
     writer->appendBool("Allow coverage counting shortcuts", fAllowCoverageCounting);
     writer->appendBool("Supports transfer buffers", fTransferBufferSupport);
