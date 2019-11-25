@@ -86,7 +86,7 @@ protected:
         paths.push_back();
         paths.back().addCircle(30.f, 30.f, 30.f);
         paths.back().addRect(SkRect::MakeXYWH(45.f, 45.f, 50.f, 60.f));
-        paths.back().setFillType(SkPath::kEvenOdd_FillType);
+        paths.back().setFillType(SkPathFillType::kEvenOdd);
 
         canvas->translate(kPad, kPad);
 

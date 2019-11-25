@@ -53,13 +53,13 @@ DEF_SIMPLE_GM(hittestpath, canvas, 700, 460) {
                          randoms[10] * scale, randoms[11] * scale);
         }
 
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         path.offset(SkIntToScalar(20), SkIntToScalar(20));
 
         test_hittest(canvas, path);
 
         canvas->translate(SkIntToScalar(scale), 0);
-        path.setFillType(SkPath::kWinding_FillType);
+        path.setFillType(SkPathFillType::kWinding);
 
         test_hittest(canvas, path);
 }
