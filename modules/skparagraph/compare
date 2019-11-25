@@ -1,0 +1,843 @@
+                [hi on] jlavrova@jlavrova:~/Sources/flutter/flutter/packages/flutter$ ../../bin/flutter --local-engine host_debug_unopt_x64 test --plain-name="TextField height with minLines and maxLines" test/material/text_field_test.dart
+00:02 +0: TextField height with minLines and maxLines
+Shell: layout(60.000000): 60.000000 * 14.000000 '_'layout(800.000000): 800.000000 * 40.000000 'Test
+starting...'layout(640.000000): 640.000000 * 40.000000 'Test starting...'layout(inf): inf * 40.000000
+'Test starting...'layout(640.000000): 640.000000 * 40.000000 'Test starting...'layout(inf): inf *
+40.000000 'Test starting...'layout(inf): inf * 40.000000 'Test starting...'layout(640.000000): 640.000000
+* 40.000000 'Test starting...'layout(800.000000): 800.000000 * 40.000000 'Test starting...'layout(inf):
+inf * 40.000000 'Test starting...'layout(640.000000): 640.000000 * 40.000000 'Test
+starting...'layout(inf): inf * 40.000000 'Test starting...'layout(inf): inf * 40.000000 'Test
+starting...'layout(640.000000): 640.000000 * 40.000000 'Test starting...'layout(800.000000): 800.000000 *
+40.000000 'Test starting...'layout(inf): inf * 40.000000 'Test starting...'layout(640.000000): 640.000000
+* 40.000000 'Test starting...'layout(inf): inf * 40.000000 'Test starting...'layout(inf): inf * 40.000000
+'Test starting...'layout(640.000000): 640.000000 * 40.000000 'Test starting...'layout(800.000000):
+800.000000 * 40.000000 'Test starting...'layout(inf): inf * 40.000000 'Test
+starting...'layout(640.000000): 640.000000 * 40.000000 'Test starting...'layout(inf): inf * 40.000000
+'Test starting...'layout(inf): inf * 40.000000 'Test starting...'layout(640.000000): 640.000000 *
+40.000000 'Test starting...'layout(800.000000): 800.000000 * 40.000000 'Test
+starting...'layout(800.000000): 800.000000 * 40.000000 'Test starting...'layout(640.000000): 640.000000 *
+40.000000 'Test starting...'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 ' 'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(80.000000): 80.000000 *
+10.000000 'DEBUG'layout(inf): inf * 0.000000 ''layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 0.000000
+''layout(797.000000): 797.000000 * 0.000000 ''layout(800.000000): 800.000000 * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(80.000000): 80.000000 * 10.000000 'DEBUG'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000):
+800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000):
+797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping
+here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf *
+34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf):
+inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000):
+797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping
+here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf *
+34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf):
+inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000):
+797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping
+here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf *
+34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf):
+inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000):
+797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping
+here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf *
+34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf):
+inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf):
+inf * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000):
+374.000000 * 34.000000 'Placeholder'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000):
+797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping
+here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No
+wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000
+'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf): inf *
+34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(inf):
+inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping
+here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000 'No
+wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 * 34.000000
+'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000): 797.000000 *
+34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping here.'layout(797.000000):
+797.000000 * 34.000000 'No wrapping here.'layout(inf): inf * 34.000000 'No wrapping
+here.'layout(797.000000): 797.000000 * 34.000000 'No wrapping here.'layout(800.000000): 800.000000 *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000): 800.000000 *
+34.000000 'Placeholder'layout(797.000000): 797.000000 * 170.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(797.000000): 797.000000 *
+170.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(800.000000): 800.000000 * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000): 800.000000 *
+34.000000 'Placeholder'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(797.000000): 797.000000 *
+170.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(800.000000): 800.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000): 800.000000 *
+34.000000 'Placeholder'
+layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(800.000000): 800.000000 *
+34.000000 'Placeholder'layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000
+''layout(inf): inf * 0.000000 ''layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000
+* 34.000000 'Placeholder'layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000
+''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000):
+797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000
+''layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000
+''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000):
+797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000
+''layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000
+''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000):
+797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000
+''layout(inf): inf * 0.000000 ''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000
+''layout(797.000000): 797.000000 * 0.000000 ''layout(inf): inf * 0.000000 ''layout(797.000000):
+797.000000 * 0.000000 ''layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(inf): inf *
+34.000000 'Placeholder'layout(inf): inf * 34.000000 'Placeholder'layout(374.000000): 374.000000 *
+34.000000 'Placeholder'layout(800.000000): 800.000000 * 34.000000 'Placeholder'layout(797.000000):
+797.000000 * 170.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 34.000000
+'Placeholder'layout(374.000000): 374.000000 * 34.000000 'Placeholder'layout(797.000000): 797.000000 *
+170.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(inf): inf * 136.000000 'First line of text is
+Shell: Second line goes until
+Shell: Third line of stuff
+Shell: Fourth line won't display and ends at'layout(797.000000): 797.000000 * 170.000000 'First line of
+text is
+Shell: Second line goes until
+Shell: Third line of stuff
+00:03 +1: TextField height with minLines and maxLines                                                   Shell: Fourth line won't display and ends at'layout(800.000000): 800.000000 * 34.000000
+'Placeholder'layout(800.000000): 800.000000 * 40.000000 'Test finished.'layout(560.000000): 560.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(560.000000): 560.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test
+finished.'layout(560.000000): 560.000000 * 40.000000 'Test finished.'layout(800.000000): 800.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(560.000000): 560.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test
+finished.'layout(560.000000): 560.000000 * 40.000000 'Test finished.'layout(800.000000): 800.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(560.000000): 560.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test
+finished.'layout(560.000000): 560.000000 * 40.000000 'Test finished.'layout(800.000000): 800.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(560.000000): 560.000000 *
+40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test finished.'layout(inf): inf * 40.000000 'Test
+finished.'layout(560.000000): 560.000000 * 40.000000 'Test finished.'layout(800.000000): 800.000000 *
+40.000000 'Test finished.'layout(800.000000): 800.000000 * 40.000000 'Test finished.'layout(560.000000):
+560.000000 * 40.000000 'Test finished.'
+00:03 +1: All tests passed!
+[hi on] jlavrova@jlavrova:~/Sources/flutter/flutter/packages/flutter$
