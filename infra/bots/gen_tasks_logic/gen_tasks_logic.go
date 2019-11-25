@@ -690,8 +690,8 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 					// At some point this might use the device ID, but for now it's like Chromebooks.
 					"Adreno630":     "Adreno630",
 					"GT610":         "10de:104a-23.21.13.9101",
-					"GTX660":        "10de:11c0-25.21.14.1634",
-					"GTX960":        "10de:1401-25.21.14.1634",
+					"GTX660":        "10de:11c0-26.21.14.4120",
+					"GTX960":        "10de:1401-26.21.14.4120",
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
 					"IntelIris540":  "8086:1926-26.20.100.7463",
 					"IntelIris6100": "8086:162b-20.19.15.4963",
