@@ -62,8 +62,6 @@ public:
                             uint32_t dynamicOffsetCount,
                             const uint32_t* dynamicOffsets);
 
-    GrVkCommandPool* commandPool() { return fCmdPool; }
-
     void setViewport(const GrVkGpu* gpu,
                      uint32_t firstViewport,
                      uint32_t viewportCount,
@@ -115,25 +113,21 @@ public:
 
     void releaseResources(GrVkGpu* gpu);
 
-    void freeGPUData(GrVkGpu* gpu) const;
+    void freeGPUData(GrVkGpu* gpu, VkCommandPool pool) const;
     void abandonGPUData() const;
 
     bool hasWork() const { return fHasWork; }
 
 protected:
-    GrVkCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool,
-                      const GrVkRenderPass* rp = nullptr)
-            : fIsActive(false)
-            , fActiveRenderPass(rp)
-            , fCmdBuffer(cmdBuffer)
-            , fCmdPool(cmdPool)
-            , fNumResets(0) {
+    GrVkCommandBuffer(VkCommandBuffer cmdBuffer, bool isWrapped = false)
+            : fCmdBuffer(cmdBuffer)
+            , fIsWrapped(isWrapped) {
         fTrackedResources.setReserve(kInitialTrackedResourcesCount);
         fTrackedRecycledResources.setReserve(kInitialTrackedResourcesCount);
         this->invalidateState();
     }
 
-    bool isWrapped() const { return fCmdPool == nullptr; }
+    bool isWrapped() const { return fIsWrapped; }
 
     void addingWork(const GrVkGpu* gpu);
 
@@ -144,19 +138,15 @@ protected:
 
     // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
     // new commands to the buffer;
-    bool                      fIsActive;
+    bool                      fIsActive = false;
     bool                      fHasWork = false;
 
     // Stores a pointer to the current active render pass (i.e. begin has been called but not
     // end). A nullptr means there is no active render pass. The GrVKCommandBuffer does not own
     // the render pass.
-    const GrVkRenderPass*     fActiveRenderPass;
+    const GrVkRenderPass*     fActiveRenderPass = nullptr;
 
     VkCommandBuffer           fCmdBuffer;
-
-    // Raw pointer, not refcounted. The command pool controls the command buffer's lifespan, so
-    // it's guaranteed to outlive us.
-    GrVkCommandPool*          fCmdPool;
 
 private:
     static const int kInitialTrackedResourcesCount = 32;
@@ -175,7 +165,7 @@ private:
     // all arrays growing to the max size, after so many resets we'll do a full reset of the tracked
     // resource arrays.
     static const int kNumRewindResetsBeforeFullReset = 8;
-    int              fNumResets;
+    int              fNumResets = 0;
 
     // Cached values used for dynamic state updates
     VkViewport fCachedViewport;
@@ -191,6 +181,8 @@ private:
     bool fBarriersByRegion = false;
     VkPipelineStageFlags fSrcStageMask = 0;
     VkPipelineStageFlags fDstStageMask = 0;
+
+    bool fIsWrapped;
 };
 
 class GrVkSecondaryCommandBuffer;
@@ -199,7 +191,7 @@ class GrVkPrimaryCommandBuffer : public GrVkCommandBuffer {
 public:
     ~GrVkPrimaryCommandBuffer() override;
 
-    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
+    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
 
     void begin(GrVkGpu* gpu);
     void end(GrVkGpu* gpu);
@@ -298,11 +290,11 @@ public:
 
     void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
-    void recycleSecondaryCommandBuffers(GrVkGpu* gpu);
+    void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);
 
 private:
-    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool)
-        : INHERITED(cmdBuffer, cmdPool)
+    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
+        : INHERITED(cmdBuffer)
         , fSubmitFence(VK_NULL_HANDLE) {}
 
     void onFreeGPUData(GrVkGpu* gpu) const override;
@@ -328,13 +320,13 @@ public:
                const GrVkRenderPass* compatibleRenderPass);
     void end(GrVkGpu* gpu);
 
-    void recycle(GrVkGpu* gpu);
+    void recycle(GrVkCommandPool* cmdPool);
 
     VkCommandBuffer vkCommandBuffer() { return fCmdBuffer; }
 
 private:
-    explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer, GrVkCommandPool* cmdPool)
-        : INHERITED(cmdBuffer, cmdPool) {}
+    explicit GrVkSecondaryCommandBuffer(VkCommandBuffer cmdBuffer, bool isWrapped)
+        : INHERITED(cmdBuffer, isWrapped) {}
 
     void onFreeGPUData(GrVkGpu* gpu) const override {}
 
