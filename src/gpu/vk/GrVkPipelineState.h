@@ -59,7 +59,7 @@ public:
      * bindings.
      */
     bool setAndBindTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
-                            const GrTextureProxy* const primitiveProcessorTextures[],
+                            const GrSurfaceProxy* const primitiveProcessorTextures[],
                             GrVkCommandBuffer*);
 
     void bindPipeline(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);

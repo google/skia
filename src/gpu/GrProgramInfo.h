@@ -78,7 +78,7 @@ public:
         return fDynamicStateArrays && fDynamicStateArrays->fPrimitiveProcessorTextures;
     }
 
-    const GrTextureProxy* const* dynamicPrimProcTextures(int i) const {
+    const GrSurfaceProxy* const* dynamicPrimProcTextures(int i) const {
         SkASSERT(this->hasDynamicPrimProcTextures());
         SkASSERT(i < fNumDynamicStateArrays);
 
@@ -90,7 +90,7 @@ public:
         return fFixedDynamicState && fFixedDynamicState->fPrimitiveProcessorTextures;
     }
 
-    const GrTextureProxy* const* fixedPrimProcTextures() const {
+    const GrSurfaceProxy* const* fixedPrimProcTextures() const {
         SkASSERT(this->hasFixedPrimProcTextures());
 
         return fFixedDynamicState->fPrimitiveProcessorTextures;

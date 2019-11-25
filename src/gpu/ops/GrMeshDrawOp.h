@@ -202,7 +202,7 @@ public:
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
     // array it will use that it did not access during a call to visitProxies. This is usually the
     // case for atlases.
-    virtual SkTArray<GrTextureProxy*, true>* sampledProxyArray() = 0;
+    virtual SkTArray<GrSurfaceProxy*, true>* sampledProxyArray() = 0;
 
     virtual const GrCaps& caps() const = 0;
 

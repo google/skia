@@ -460,7 +460,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
 static GrOpsRenderPass* create_render_pass(
         GrGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
         GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor, GrLoadOp stencilLoadOp,
-        GrStoreOp stencilStoreOp, const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+        GrStoreOp stencilStoreOp, const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -690,8 +690,8 @@ void GrOpsTask::dump(bool printDependencies) const {
     }
 }
 
-void GrOpsTask::visitProxies_debugOnly(const VisitSurfaceProxyFunc& func) const {
-    auto textureFunc = [ func ] (GrTextureProxy* tex, GrMipMapped mipmapped) {
+void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
+    auto textureFunc = [ func ] (GrSurfaceProxy* tex, GrMipMapped mipmapped) {
         func(tex, mipmapped);
     };
 
