@@ -332,6 +332,8 @@ public:
     // Many drivers have issues with color clears.
     bool performColorClearsAsDraws() const { return fPerformColorClearsAsDraws; }
 
+    bool avoidLargeIndexBufferDraws() const { return fAvoidLargeIndexBufferDraws; }
+
     /// Adreno 4xx devices experience an issue when there are a large number of stencil clip bit
     /// clears. The minimal repro steps are not precisely known but drawing a rect with a stencil
     /// op instead of using glClear seems to resolve the issue.
@@ -487,6 +489,7 @@ protected:
     bool fClampToBorderSupport                       : 1;
     bool fPerformPartialClearsAsDraws                : 1;
     bool fPerformColorClearsAsDraws                  : 1;
+    bool fAvoidLargeIndexBufferDraws                 : 1;
     bool fPerformStencilClearsAsDraws                : 1;
     bool fAllowCoverageCounting                      : 1;
     bool fTransferBufferSupport                      : 1;

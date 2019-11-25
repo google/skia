@@ -238,9 +238,9 @@ private:
 
         // Configure the mesh for the vertex data
         GrMesh* mesh = target->allocMeshes(1);
-        GrQuadPerEdgeAA::ConfigureMesh(mesh, vertexSpec, 0, fQuads.count(), totalNumVertices,
-                                       std::move(vertexBuffer), std::move(indexBuffer),
-                                       vertexOffsetInBuffer);
+        GrQuadPerEdgeAA::ConfigureMesh(target->caps(), mesh, vertexSpec, 0, fQuads.count(),
+                                       totalNumVertices, std::move(vertexBuffer),
+                                       std::move(indexBuffer), vertexOffsetInBuffer);
         target->recordDraw(gp, mesh, 1, vertexSpec.primitiveType());
     }
 

@@ -186,8 +186,8 @@ namespace GrQuadPerEdgeAA {
     // @param quadCount         the number of quads that will be drawn by the provided 'mesh'.
     //                          A subsequent ConfigureMesh call would the use
     //                          'runningQuadCount' + 'quadCount' for its new 'runningQuadCount'.
-    void ConfigureMesh(GrMesh* mesh, const VertexSpec&, int runningQuadCount, int quadCount,
-                       int maxVerts, sk_sp<const GrBuffer> vertexBuffer,
+    void ConfigureMesh(const GrCaps&, GrMesh*, const VertexSpec&, int runningQuadCount,
+                       int quadCount, int maxVerts, sk_sp<const GrBuffer> vertexBuffer,
                        sk_sp<const GrBuffer> indexBuffer, int absVertBufferOffset);
 
 } // namespace GrQuadPerEdgeAA

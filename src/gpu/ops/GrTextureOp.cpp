@@ -574,11 +574,11 @@ private:
 
         // At this juncture we only fill in the vertex data and state arrays. Filling in of
         // the meshes is left until onPrepareDraws.
-        SkAssertResult(FillInData(this, fPrePreparedDesc, fPrePreparedDesc->fVertices,
-                                  nullptr, 0, nullptr, nullptr));
+        SkAssertResult(FillInData(*context->priv().caps(), this, fPrePreparedDesc,
+                                  fPrePreparedDesc->fVertices, nullptr, 0, nullptr, nullptr));
     }
 
-    static bool FillInData(TextureOp* texOp, PrePreparedDesc* desc,
+    static bool FillInData(const GrCaps& caps, TextureOp* texOp, PrePreparedDesc* desc,
                            char* pVertexData, GrMesh* meshes, int absBufferOffset,
                            sk_sp<const GrBuffer> vertexBuffer,
                            sk_sp<const GrBuffer> indexBuffer) {
@@ -611,7 +611,7 @@ private:
                 }
 
                 if (meshes) {
-                    GrQuadPerEdgeAA::ConfigureMesh(&(meshes[meshIndex]), desc->fVertexSpec,
+                    GrQuadPerEdgeAA::ConfigureMesh(caps, &(meshes[meshIndex]), desc->fVertexSpec,
                                                    totQuadsSeen, quadCnt, desc->totalNumVertices(),
                                                    vertexBuffer, indexBuffer, absBufferOffset);
                 }
@@ -793,12 +793,12 @@ private:
             memcpy(vdata, desc.fVertices, desc.totalSizeInBytes());
             // The above memcpy filled in the vertex data - just call FillInData to fill in the
             // mesh data
-            result = FillInData(this, &desc, nullptr, meshes, vertexOffsetInBuffer,
+            result = FillInData(target->caps(), this, &desc, nullptr, meshes, vertexOffsetInBuffer,
                                 std::move(vbuffer), std::move(indexBuffer));
         } else {
             // Fills in both vertex data and mesh data
-            result = FillInData(this, &desc, (char*) vdata, meshes, vertexOffsetInBuffer,
-                                std::move(vbuffer), std::move(indexBuffer));
+            result = FillInData(target->caps(), this, &desc, (char*) vdata, meshes,
+                                vertexOffsetInBuffer, std::move(vbuffer), std::move(indexBuffer));
         }
 
         if (!result) {
