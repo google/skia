@@ -281,4 +281,19 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can use DecodeCache APIs', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const initial_limit = CanvasKit.getDecodeCacheLimitBytes();
+            expect(initial_limit).toBeGreaterThan(1024 * 1024);
+
+            const new_limit = 42 * 1024 * 1024;
+            CanvasKit.setDecodeCacheLimitBytes(new_limit);
+            expect(CanvasKit.getDecodeCacheLimitBytes()).toEqual(new_limit);
+
+            CanvasKit.getDecodeCacheUsedBytes();
+
+            done();
+        }));
+    });
+
 });

@@ -69,6 +69,10 @@ var CanvasKit = {
 	multiplyByAlpha: function() {},
 	setCurrentContext: function() {},
 
+    getDecodeCacheLimitBytes: function() {},
+    setDecodeCacheLimitBytes: function() {},
+    getDecodeCacheUsageBytes: function() {},
+
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
 	_MakeImage: function() {},
