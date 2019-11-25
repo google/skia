@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "395f500c_a86ece18",
+        "filename": "include/gpu/GrContextThreadSafeProxy.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-11-25T17:38:58Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 53,
+        "startChar": 3,
+        "endLine": 54,
+        "endChar": 110
+      },
+      "revId": "d47b6dae984a532cc043bf0c65c4a61e230465dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
