@@ -89,7 +89,7 @@ private:
 
     class Impl : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                     FPCoordTransformIter&&) override {}
+                     CoordTransformIter&&) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 
@@ -182,7 +182,7 @@ private:
 
     class Impl : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                     FPCoordTransformIter&&) override {}
+                     CoordTransformIter&&) override {}
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override;
     };
 

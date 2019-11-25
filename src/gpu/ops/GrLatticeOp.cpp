@@ -46,7 +46,7 @@ public:
         class GLSLProcessor : public GrGLSLGeometryProcessor {
         public:
             void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                         FPCoordTransformIter&& transformIter) override {
+                         CoordTransformIter&& transformIter) override {
                 const auto& latticeGP = proc.cast<LatticeGP>();
                 this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
                 fColorSpaceXformHelper.setData(pdman, latticeGP.fColorSpaceXform.get());

@@ -23,9 +23,9 @@ class GrShaderCaps;
 
 class GrGLSLPrimitiveProcessor {
 public:
-    using UniformHandle        = GrGLSLProgramDataManager::UniformHandle;
-    using SamplerHandle        = GrGLSLUniformHandler::SamplerHandle;
-    using FPCoordTransformIter = GrFragmentProcessor::CoordTransformIter;
+    using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
+    using CoordTransformIter    = GrFragmentProcessor::CoordTransformIter;
 
     struct TransformVar {
         TransformVar() = default;
@@ -137,7 +137,7 @@ public:
      * the transforms in the same order as the TransformHandler passed to emitCode.
      */
     virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                         FPCoordTransformIter&&) = 0;
+                         CoordTransformIter&&) = 0;
 
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
 

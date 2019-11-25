@@ -558,7 +558,7 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         }
     }
 
-    GrFragmentProcessor::Iter iter(programInfo.pipeline());
+    GrFragmentProcessor::FPItemIter iter(programInfo.pipeline());
     while (const GrFragmentProcessor* fp = iter.next()) {
         for (int i = 0; i < fp->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);

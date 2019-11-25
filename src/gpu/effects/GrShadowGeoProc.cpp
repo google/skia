@@ -51,7 +51,7 @@ public:
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& proc,
-                 FPCoordTransformIter&& transformIter) override {
+                 CoordTransformIter&& transformIter) override {
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 

@@ -820,7 +820,7 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) override;
+                 CoordTransformIter&& transformIter) override;
 private:
     UniformHandle fParamUniform;
     UniformHandle fColorUniform;
@@ -893,7 +893,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
                                     const GrPrimitiveProcessor& processor,
-                                    FPCoordTransformIter&& transformIter)  {
+                                    CoordTransformIter&& transformIter)  {
     const DashingCircleEffect& dce = processor.cast<DashingCircleEffect>();
     if (dce.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, dce.color().vec());
@@ -1029,7 +1029,7 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& iter) override;
+                 CoordTransformIter&& iter) override;
 
 private:
     SkPMColor4f   fColor;
@@ -1120,7 +1120,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
 void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
                                   const GrPrimitiveProcessor& processor,
-                                  FPCoordTransformIter&& transformIter) {
+                                  CoordTransformIter&& transformIter) {
     const DashingLineEffect& de = processor.cast<DashingLineEffect>();
     if (de.color() != fColor) {
         pdman.set4fv(fColorUniform, 1, de.color().vec());

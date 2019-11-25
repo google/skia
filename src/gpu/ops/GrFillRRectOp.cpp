@@ -632,7 +632,7 @@ class GrFillRRectOp::Processor::CoverageImpl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) override {
+                 CoordTransformIter&& transformIter) override {
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 };
@@ -738,7 +738,7 @@ class GrFillRRectOp::Processor::MSAAImpl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) override {
+                 CoordTransformIter&& transformIter) override {
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 };

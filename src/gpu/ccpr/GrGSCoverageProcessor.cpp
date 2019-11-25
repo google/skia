@@ -23,7 +23,7 @@ protected:
     virtual bool hasCoverage(const GrGSCoverageProcessor& proc) const { return false; }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&& transformIter) final {
+                 CoordTransformIter&& transformIter) final {
         this->setTransformDataHelper(SkMatrix::I(), pdman, &transformIter);
     }
 

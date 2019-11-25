@@ -221,7 +221,7 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     FPCoordTransformIter&& transformIter) override {
+                     CoordTransformIter&& transformIter) override {
             this->setTransformDataHelper(primProc.cast<CircleGeometryProcessor>().fLocalMatrix,
                                          pdman, &transformIter);
         }
@@ -481,7 +481,7 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     FPCoordTransformIter&& transformIter) override {
+                     CoordTransformIter&& transformIter) override {
             this->setTransformDataHelper(
                     primProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix, pdman,
                     &transformIter);
@@ -672,7 +672,7 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                     FPCoordTransformIter&& transformIter) override {
+                     CoordTransformIter&& transformIter) override {
             const EllipseGeometryProcessor& egp = primProc.cast<EllipseGeometryProcessor>();
             this->setTransformDataHelper(egp.fLocalMatrix, pdman, &transformIter);
         }
@@ -868,7 +868,7 @@ private:
         }
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& gp,
-                     FPCoordTransformIter&& transformIter) override {
+                     CoordTransformIter&& transformIter) override {
             const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
 
             if (!diegp.fViewMatrix.isIdentity() && !fViewMatrix.cheapEqualTo(diegp.fViewMatrix)) {
