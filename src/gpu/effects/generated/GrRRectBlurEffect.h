@@ -117,7 +117,7 @@ public:
 
 private:
     GrRRectBlurEffect(float sigma, SkRect rect, float cornerRadius,
-                      sk_sp<GrTextureProxy> ninePatchSampler)
+                      sk_sp<GrSurfaceProxy> ninePatchSampler)
             : INHERITED(kGrRRectBlurEffect_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , sigma(sigma)

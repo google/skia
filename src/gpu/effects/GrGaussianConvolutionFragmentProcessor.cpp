@@ -211,7 +211,7 @@ static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-        sk_sp<GrTextureProxy> proxy,
+        sk_sp<GrSurfaceProxy> proxy,
         SkAlphaType alphaType,
         Direction direction,
         int radius,

@@ -22,7 +22,7 @@ public:
     enum class Direction { kX, kY };
 
     /// Convolve with a Gaussian kernel
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      Direction dir,
                                                      int halfWidth,
@@ -72,7 +72,7 @@ public:
 
 private:
     /// Convolve with a Gaussian kernel
-    GrGaussianConvolutionFragmentProcessor(sk_sp<GrTextureProxy>, SkAlphaType alphaType, Direction,
+    GrGaussianConvolutionFragmentProcessor(sk_sp<GrSurfaceProxy>, SkAlphaType alphaType, Direction,
                                            int halfWidth, float gaussianSigma,
                                            GrTextureDomain::Mode mode, int bounds[2]);
 

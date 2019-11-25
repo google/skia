@@ -22,7 +22,7 @@ in half4x4 matrix;
 }
 
 @make {
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
@@ -31,7 +31,7 @@ in half4x4 matrix;
     }
 
     /* clamp mode */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
@@ -40,7 +40,7 @@ in half4x4 matrix;
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
      }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
