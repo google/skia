@@ -50,8 +50,8 @@ public:
      *                               with this characterization will be replayed into
      *  @param isMipMapped           Will the surface the DDL will be replayed into have space
      *                               allocated for mipmaps?
-     *  @param willUseGLFBO0         Will the surface the DDL will be replayed into be backed by GL
-     *                               FBO 0. This flag is only valid if using an GL backend.
+     *  @param willWrapSwapchain         Will the surface the DDL will be replayed into be backed by a window
+     *                               system swapchain? This flag is only valid if using a GL or Metal backend.
      *  @param isTextureable         Will the surface be able to act as a texture?
      *  @param isProtected           Will the (Vulkan) surface be DRM protected?
      */
@@ -61,7 +61,7 @@ public:
                                   int sampleCount, GrSurfaceOrigin origin,
                                   const SkSurfaceProps& surfaceProps,
                                   bool isMipMapped,
-                                  bool willUseGLFBO0 = false,
+                                  bool willWrapSwapchain = false,
                                   bool isTextureable = true,
                                   GrProtected isProtected = GrProtected::kNo);
 

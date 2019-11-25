@@ -97,7 +97,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
                           rtc->origin(), rtc->numSamples(),
                           SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
-                          SkSurfaceCharacterization::UsesGLFBO0(false),
+                          SkSurfaceCharacterization::WrapsSwapchain(false),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(true),
                           GrProtected(rtc->asRenderTargetProxy()->isProtected()),
                           this->props());
@@ -128,7 +128,7 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
-    if (characterization.usesGLFBO0()) {
+    if (characterization.wrapsSwapchain()) {
         return false;
     }
 

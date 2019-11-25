@@ -39,7 +39,7 @@ bool SkSurfaceCharacterization::operator==(const SkSurfaceCharacterization& othe
            fSampleCnt == other.fSampleCnt &&
            fIsTextureable == other.fIsTextureable &&
            fIsMipMapped == other.fIsMipMapped &&
-           fUsesGLFBO0 == other.fUsesGLFBO0 &&
+           fWrapsSwapchain == other.fWrapsSwapchain &&
            fVulkanSecondaryCBCompatible == other.fVulkanSecondaryCBCompatible &&
            fIsProtected == other.fIsProtected &&
            fSurfaceProps == other.fSurfaceProps;
@@ -58,7 +58,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
-                                     fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fSampleCnt, fIsTextureable, fIsMipMapped, fWrapsSwapchain,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -70,8 +70,9 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeColorSpace(std::move(cs)), fBackendFormat,
-                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
-                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped,
+                                     fWrapsSwapchain, fVulkanSecondaryCBCompatible, fIsProtected,
+                                     fSurfaceProps);
 }
 
 
@@ -84,8 +85,8 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
         return false;
     }
 
-    if (this->usesGLFBO0()) {
-        // It is a backend texture so can't be wrapping FBO0
+    if (this->wrapsSwapchain()) {
+        // It is a backend texture so can't be wrapping a swapchain surface
         return false;
     }
 
