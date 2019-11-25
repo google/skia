@@ -44,7 +44,7 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix with clamp wrap mode.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      Direction direction,
@@ -59,7 +59,7 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2],
@@ -77,7 +77,7 @@ public:
      * supports providing modes for the texture domain explicitly, in the event that it should
      * override the behavior of the sampler's tile mode (e.g. clamp to border unsupported).
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2],
@@ -101,7 +101,7 @@ public:
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      GrColorType srcColorType,
                                                      const SkMatrix& matrix,
                                                      const SkRect& domain,
@@ -125,7 +125,7 @@ public:
                                  GrSamplerState::Filter* filterMode);
 
 private:
-    GrBicubicEffect(sk_sp<GrTextureProxy>, GrColorType srcColorType, const SkMatrix& matrix,
+    GrBicubicEffect(sk_sp<GrSurfaceProxy>, GrColorType srcColorType, const SkMatrix& matrix,
                     const SkRect& domain, const GrSamplerState::WrapMode wrapModes[2],
                     GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY, Direction direction,
                     SkAlphaType alphaType);
