@@ -63,11 +63,16 @@ namespace GrQuadUtils {
         // Theta represents the angle formed by the two edges connected at each corner.
         skvx::Vec<4, float> fCosTheta;
         skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
+
+        void reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
+                   const skvx::Vec<4, float>& ws, GrQuad::Type quadType);
     };
 
     struct EdgeEquations {
         // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
         skvx::Vec<4, float> fA, fB, fC;
+
+        void reset(const EdgeVectors& edgeVectors);
 
         skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
                                              const skvx::Vec<4, float>& y2d) const;
@@ -83,6 +88,9 @@ namespace GrQuadUtils {
         // be because of the requested edge distances (collapse of inset, etc.)
         bool fInsetDegenerate;
         bool fOutsetDegenerate;
+
+        void reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
+                   const skvx::Vec<4, float>& edgeDistances);
     };
 
     struct Vertices {
@@ -92,6 +100,11 @@ namespace GrQuadUtils {
         // Ignored depending on uvrCount (0, 1, 2).
         skvx::Vec<4, float> fU, fV, fR;
         int fUVRCount;
+
+        void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
+
+        void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
+                       GrQuad* localOut, GrQuad::Type localType) const;
 
         // Update the device and optional local coordinates by moving the corners along their
         // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
@@ -107,9 +120,6 @@ namespace GrQuadUtils {
         void moveTo(const skvx::Vec<4, float>& x2d,
                     const skvx::Vec<4, float>& y2d,
                     const skvx::Vec<4, int32_t>& mask);
-
-        void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
-                       GrQuad* localOut, GrQuad::Type localType) const;
     };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
