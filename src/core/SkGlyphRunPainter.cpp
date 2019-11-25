@@ -483,7 +483,8 @@ class GrTextBlob::SubRun* GrTextBlob::makeSubRun(SubRunType type,
     fVerticesCursor += drawables.size() * GetVertexStride(format, hasW) * kVerticesPerGlyph;
     size_t verticesEnd = fVerticesCursor;
 
-    SubRunBufferSpec bufferSpec = {glyphsStart, glyphsEnd, verticesStart, verticesEnd};
+    SubRunBufferSpec bufferSpec = std::make_tuple(
+            glyphsStart, glyphsEnd, verticesStart, verticesEnd);
 
     sk_sp<GrTextStrike> grStrike = strikeSpec.findOrCreateGrStrike(fStrikeCache);
 
