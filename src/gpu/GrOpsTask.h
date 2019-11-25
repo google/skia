@@ -58,14 +58,20 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
-    void addSampledTexture(GrTextureProxy* proxy) {
+    void addSampledTexture(GrSurfaceProxy* proxy) {
+        // This function takes a GrSurfaceProxy because all subsequent uses of the proxy do not
+        // require the specifics of GrTextureProxy, so this avoids a number of unnecessary virtual
+        // asTextureProxy() calls. However, sampling the proxy implicitly requires that the proxy
+        // be a texture. Eventually, when proxies are a unified type with flags, this can just
+        // assert that capability.
+        SkASSERT(proxy->asTextureProxy());
         fSampledProxies.push_back(proxy);
     }
 
     void addOp(std::unique_ptr<GrOp> op, GrTextureResolveManager textureResolveManager,
                const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
-                GrTextureProxy* p, GrMipMapped mipmapped) {
+                GrSurfaceProxy* p, GrMipMapped mipmapped) {
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
 
@@ -84,7 +90,7 @@ public:
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ textureResolveManager, &caps, this ] (
-                GrTextureProxy* p, GrMipMapped mipmapped) {
+                GrSurfaceProxy* p, GrMipMapped mipmapped) {
             this->addSampledTexture(p);
             this->addDependency(p, mipmapped, textureResolveManager, caps);
         };
@@ -104,7 +110,7 @@ public:
 
     SkDEBUGCODE(void dump(bool printDependencies) const override;)
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
-    SkDEBUGCODE(void visitProxies_debugOnly(const VisitSurfaceProxyFunc&) const override;)
+    SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;)
 
 #if GR_TEST_UTILS
     int numOpChains() const { return fOpChains.count(); }
@@ -296,7 +302,7 @@ private:
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
     // causing slow downs.
-    SkTArray<GrTextureProxy*, true> fSampledProxies;
+    SkTArray<GrSurfaceProxy*, true> fSampledProxies;
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();

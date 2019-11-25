@@ -69,7 +69,7 @@ public:
 
     virtual const char* name() const = 0;
 
-    using VisitProxyFunc = std::function<void(GrTextureProxy*, GrMipMapped)>;
+    using VisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipMapped)>;
 
     virtual void visitProxies(const VisitProxyFunc&) const {
         // This default implementation assumes the op has no proxies

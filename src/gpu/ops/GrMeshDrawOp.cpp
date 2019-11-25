@@ -89,7 +89,7 @@ GrPipeline::DynamicStateArrays* GrMeshDrawOp::Target::AllocDynamicStateArrays(
     }
 
     if (numPrimitiveProcessorTextures) {
-        result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrTextureProxy*>(
+        result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrSurfaceProxy*>(
                         numPrimitiveProcessorTextures * numMeshes);
     }
 
@@ -109,7 +109,7 @@ GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::MakeFixedDynamicState(
         }
 
         if (numPrimProcTextures) {
-            result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrTextureProxy*>(
+            result->fPrimitiveProcessorTextures = arena->makeArrayDefault<GrSurfaceProxy*>(
                         numPrimProcTextures);
         }
         return result;

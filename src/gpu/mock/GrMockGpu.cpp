@@ -56,7 +56,7 @@ GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
                                 GrRenderTarget* rt, GrSurfaceOrigin origin, const SkIRect& bounds,
                                 const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                 const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                const SkTArray<GrTextureProxy*, true>& sampledProxies) {
+                                const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
     return new GrMockOpsRenderPass(this, rt, origin, colorInfo);
 }
 

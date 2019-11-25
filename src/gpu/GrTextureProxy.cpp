@@ -147,10 +147,11 @@ size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
                                   this->proxyMipMapped(), !this->priv().isExact());
 }
 
-bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,
-                                                        const GrTextureProxy* second) {
+bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* first,
+                                                        const GrSurfaceProxy* second) {
+    // In order to be compatible, the proxies should also have the same texture type, but since
+    // that is owned by the backend format, the formats being equal is sufficient.
     return first->config() == second->config() &&
-           first->textureType() == second->textureType() &&
            first->backendFormat() == second->backendFormat();
 }
 

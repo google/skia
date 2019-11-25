@@ -223,7 +223,7 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         for (unsigned p = 0; p < fProxyCnt; ++p) {
             bool mipped = (GrSamplerState::Filter::kMipMap == this->filter());
-            func(fViewCountPairs[p].fProxyView.asTextureProxy(), GrMipMapped(mipped));
+            func(fViewCountPairs[p].fProxyView.proxy(), GrMipMapped(mipped));
         }
     }
 
@@ -335,7 +335,7 @@ private:
         // Helper to fill in the fFixedDynamicState and fDynamicStateArrays. If there is more
         // than one mesh/proxy they are stored in fDynamicStateArrays but if there is only one
         // it is stored in fFixedDynamicState.
-        void setMeshProxy(int index, GrTextureProxy* proxy) {
+        void setMeshProxy(int index, GrSurfaceProxy* proxy) {
             SkASSERT(index < fNumProxies);
 
             if (fDynamicStateArrays) {
@@ -462,7 +462,7 @@ private:
             fTotNumQuads += 1;
             curProxy = fViewCountPairs[p].fProxyView.proxy();
             SkASSERT(curProxy->backendFormat().textureType() ==
-                     fViewCountPairs[0].fProxyView.asTextureProxy()->textureType());
+                     fViewCountPairs[0].fProxyView.proxy()->backendFormat().textureType());
             SkASSERT(curProxy->config() == fViewCountPairs[0].fProxyView.proxy()->config());
 
             SkMatrix ctm = viewMatrix;
@@ -591,7 +591,7 @@ private:
         for (const auto& op : ChainRange<TextureOp>(texOp)) {
             auto iter = op.fQuads.iterator();
             for (unsigned p = 0; p < op.fProxyCnt; ++p) {
-                GrTextureProxy* proxy = op.fViewCountPairs[p].fProxyView.asTextureProxy();
+                GrSurfaceProxy* proxy = op.fViewCountPairs[p].fProxyView.proxy();
 
                 const int quadCnt = op.fViewCountPairs[p].fQuadCnt;
                 SkDEBUGCODE(int meshVertexCnt = quadCnt * desc->fVertexSpec.verticesPerQuad());
@@ -638,6 +638,7 @@ private:
 
 #ifdef SK_DEBUG
     void validate() const override {
+        // NOTE: Since this is debug-only code, we use the virtual asTextureProxy()
         auto textureType = fViewCountPairs[0].fProxyView.asTextureProxy()->textureType();
         GrAAType aaType = this->aaType();
 
@@ -878,8 +879,8 @@ private:
         }
         const auto& thisView = fViewCountPairs[0].fProxyView;
         const auto& thatView = that->fViewCountPairs[0].fProxyView;
-        auto thisProxy = thisView.asTextureProxy();
-        auto thatProxy = thatView.asTextureProxy();
+        auto thisProxy = thisView.proxy();
+        auto thatProxy = thatView.proxy();
         if (fProxyCnt > 1 || that->fProxyCnt > 1 || thisView != thatView) {
             // We can't merge across different proxies. Check if 'this' can be chained with 'that'.
             if (GrTextureProxy::ProxiesAreCompatibleAsDynamicState(thisProxy, thatProxy) &&
@@ -954,9 +955,8 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
                                             const GrQuad& deviceQuad,
                                             const GrQuad& localQuad,
                                             const SkRect* domain) {
-    GrTextureProxy* proxy = proxyView.asTextureProxy();
     // Apply optimizations that are valid whether or not using GrTextureOp or GrFillRectOp
-    if (domain && domain->contains(proxy->backingStoreBoundsRect())) {
+    if (domain && domain->contains(proxyView.proxy()->backingStoreBoundsRect())) {
         // No need for a shader-based domain if hardware clamping achieves the same effect
         domain = nullptr;
     }
@@ -974,6 +974,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         paint.setColor4f(color);
         paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
+        GrTextureProxy* proxy = proxyView.asTextureProxy();
         std::unique_ptr<GrFragmentProcessor> fp;
         if (domain) {
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any

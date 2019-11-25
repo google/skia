@@ -93,7 +93,7 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
 }
 
 #ifdef SK_DEBUG
-void GrTextureResolveRenderTask::visitProxies_debugOnly(const VisitSurfaceProxyFunc& fn) const {
+void GrTextureResolveRenderTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
     for (const auto& resolve : fResolves) {
         fn(resolve.fProxyView.proxy(), GrMipMapped::kNo);
     }

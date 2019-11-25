@@ -61,9 +61,11 @@ public:
     }
 
     // Returns true if the passed in proxies can be used as dynamic state together when flushing
-    // draws to the gpu.
-    static bool ProxiesAreCompatibleAsDynamicState(const GrTextureProxy* first,
-                                                   const GrTextureProxy* second);
+    // draws to the gpu. This accepts GrSurfaceProxy since the information needed is defined on
+    // that type, but this function exists in GrTextureProxy because it's only relevant when the
+    // proxies are being used as textures.
+    static bool ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* first,
+                                                   const GrSurfaceProxy* second);
 
     /**
      * Return the texture proxy's unique key. It will be invalid if the proxy doesn't have one.
