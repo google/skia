@@ -93,12 +93,18 @@ public:
         if (!GrProgramDesc::Build(desc, rt, programInfo, caps)) {
             return false;
         }
+
+        wgpu::TextureFormat format;
+        if (!programInfo.backendFormat().asDawnFormat(&format)) {
+            return false;
+        }
+
         GrProcessorKeyBuilder b(&desc->key());
 
         GrStencilSettings stencil = programInfo.nonGLStencilSettings();
         stencil.genKey(&b);
 
-        b.add32(rt->config());
+        b.add32((uint32_t) format);
         b.add32(static_cast<int32_t>(hasDepthStencil));
         b.add32(get_blend_info_key(programInfo.pipeline()));
         b.add32(static_cast<uint32_t>(programInfo.primitiveType()));
