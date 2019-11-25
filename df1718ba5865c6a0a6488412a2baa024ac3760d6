@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5862a04e_ddf79416",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-25T18:28:04Z",
+      "side": 1,
+      "message": "Doesn\u0027t \u0026SkResourceCache::GetTotalByteLimit work here? Same for the other 2 additions",
+      "range": {
+        "startLine": 698,
+        "startChar": 41,
+        "endLine": 700,
+        "endChar": 6
+      },
+      "revId": "df1718ba5865c6a0a6488412a2baa024ac3760d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa6fb988_0e950b9c",
+        "filename": "modules/canvaskit/externs.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-25T18:28:04Z",
+      "side": 1,
+      "message": "Nit: move these up a line and sort lines 65-73",
+      "range": {
+        "startLine": 72,
+        "startChar": 1,
+        "endLine": 74,
+        "endChar": 41
+      },
+      "revId": "df1718ba5865c6a0a6488412a2baa024ac3760d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45c3afaf_76f370bf",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-25T18:28:04Z",
+      "side": 1,
+      "message": "nit: initialLimit (JS prefers camelcase); same for new_limit",
+      "range": {
+        "startLine": 286,
+        "startChar": 18,
+        "endLine": 286,
+        "endChar": 31
+      },
+      "revId": "df1718ba5865c6a0a6488412a2baa024ac3760d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2faec481_1c9b62ef",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-25T18:28:04Z",
+      "side": 1,
+      "message": "nit: add a comment explaining that this is simply to make sure it doesn\u0027t crash.",
+      "range": {
+        "startLine": 293,
+        "startChar": 12,
+        "endLine": 293,
+        "endChar": 48
+      },
+      "revId": "df1718ba5865c6a0a6488412a2baa024ac3760d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
