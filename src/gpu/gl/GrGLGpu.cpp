@@ -2027,7 +2027,6 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
             return false;
         } else {
             SkASSERT(renderTarget->requiresManualMSAAResolve());
-            SkASSERT(!renderTarget->wrapsSwapchainSurface());
             // we don't track the state of the READ FBO ID.
             this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, renderTarget->textureFBOID());
         }
@@ -2343,7 +2342,6 @@ void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resol
                                     GrSurfaceOrigin resolveOrigin, ForExternalIO) {
     // Some extensions automatically resolves the texture when it is read.
     SkASSERT(this->glCaps().usesMSAARenderBuffers());
-    SkASSERT(!target->wrapsSwapchainSurface());
 
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     SkASSERT(rt->textureFBOID() != rt->renderFBOID());

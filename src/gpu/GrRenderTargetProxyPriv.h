@@ -15,14 +15,15 @@
  */
 class GrRenderTargetProxyPriv {
 public:
-    void setWrapsSwapchainSurface() {
-        // A swapchain surface should never be wrapped as a texture render target.
+    void setGLRTFBOIDIs0() {
+        // FBO0 should never be wrapped as a texture render target.
+        SkASSERT(!fRenderTargetProxy->requiresManualMSAAResolve());
         SkASSERT(!fRenderTargetProxy->asTextureProxy());
-        fRenderTargetProxy->setWrapsSwapchainSurface();
+        fRenderTargetProxy->setGLRTFBOIDIs0();
     }
 
-    bool wrapsSwapchainSurface() const {
-        return fRenderTargetProxy->wrapsSwapchainSurface();
+    bool glRTFBOIDIs0() const {
+        return fRenderTargetProxy->glRTFBOIDIs0();
     }
 
 private:
