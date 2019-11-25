@@ -327,11 +327,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
+bool GrVkPipelineStateBuilder::Desc::Build2(Desc* desc,
                                            GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,
                                            const GrCaps& caps) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, caps)) {
+    if (!GrProgramDesc::Build1(desc, renderTarget, programInfo, caps)) {
         return false;
     }
 

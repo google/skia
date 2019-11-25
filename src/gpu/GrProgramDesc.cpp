@@ -171,8 +171,14 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
                                                               fp.numCoordTransforms()), b);
 }
 
-bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
+bool GrProgramDesc::Build1(GrProgramDesc* desc, const GrRenderTarget* renderTarget,
                           const GrProgramInfo& programInfo, const GrCaps& caps) {
+
+#ifdef SK_DEBUG
+    if (renderTarget) {
+        SkASSERT(programInfo.backendFormat() == renderTarget->backendFormat());
+    }
+#endif
 
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
