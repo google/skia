@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07d8173c_4096eff0",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2019-11-25T13:27:08Z",
+      "side": 1,
+      "message": "self._service_account_json is only set when service_account_json is specified. When not specified line 73 fails with:\nAttributeError: \u0027CIPDStore\u0027 object has no attribute \u0027_service_account_json\u0027\n\nCan reproduce with \ninfra/bots/assets/skp/download.py -t /tmp/skps/",
+      "revId": "bff12d60f618d337a83b0b69a5efcb7a92bf908d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
