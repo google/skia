@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec94c4e4_a7109ebb",
+        "filename": "modules/skparagraph/src/TextWrapper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-11-25T19:48:55Z",
+      "side": 1,
+      "message": "These are added here, but they don\u0027t seem to be used?",
+      "range": {
+        "startLine": 142,
+        "startChar": 8,
+        "endLine": 143,
+        "endChar": 35
+      },
+      "revId": "866c7055d789a9bb305d765a09c837d2b4f4753c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
