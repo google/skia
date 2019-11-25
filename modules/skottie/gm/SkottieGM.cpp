@@ -11,6 +11,7 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/core/SkMakeUnique.h"
 #include "tools/Resources.h"
 
@@ -18,6 +19,7 @@
 #include <vector>
 
 using namespace skottie;
+using namespace skresources;
 
 namespace {
 
@@ -208,10 +210,10 @@ protected:
     }
 
 private:
-    class MultiFrameResourceProvider final : public skottie::ResourceProvider {
+    class MultiFrameResourceProvider final : public ResourceProvider {
     public:
         sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override {
-            return skottie_utils::MultiFrameImageAsset::Make(
+            return skresources::MultiFrameImageAsset::Make(
                         GetResourceAsData("images/flightAnim.gif"));
         }
     };

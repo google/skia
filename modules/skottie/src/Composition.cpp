@@ -11,6 +11,7 @@
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
