@@ -1656,11 +1656,10 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 static float rg_nonlinear(float x,
                           const skcms_Curve* curve,
                           const skcms_TransferFunction* tf,
-                          const float P[3],
                           float dfdP[3]) {
     const float y = eval_curve(curve, x);
 
-    const float g = P[0],  a = P[1],  b = P[2],
+    const float g = tf->g, a = tf->a, b = tf->b,
                 c = tf->c, d = tf->d, f = tf->f;
 
     const float Y = fmaxf_(a*y + b, 0.0f),
@@ -1683,10 +1682,11 @@ static float rg_nonlinear(float x,
 }
 
 static bool gauss_newton_step(const skcms_Curve* curve,
-                              const skcms_TransferFunction* tf,
-                              float P[3],
+                                    skcms_TransferFunction* tf,
                               float x0, float dx, int N) {
     // We'll sample x from the range [x0,x1] (both inclusive) N times with even spacing.
+    //
+    // Let P = [ tf->g, tf->a, tf->b ] (the three terms that we're adjusting).
     //
     // We want to do P' = P + (Jf^T Jf)^-1 Jf^T r(P),
     //   where r(P) is the residual vector
@@ -1729,7 +1729,7 @@ static bool gauss_newton_step(const skcms_Curve* curve,
         float x = x0 + i*dx;
 
         float dfdP[3] = {0,0,0};
-        float resid = rg_nonlinear(x,curve,tf,P, dfdP);
+        float resid = rg_nonlinear(x,curve,tf, dfdP);
 
         for (int r = 0; r < 3; r++) {
             for (int c = 0; c < 3; c++) {
@@ -1756,58 +1756,85 @@ static bool gauss_newton_step(const skcms_Curve* curve,
 
     // 4) multiply inverse lhs by rhs
     skcms_Vector3 dP = mv_mul(&lhs_inv, &rhs);
-    P[0] += dP.vals[0];
-    P[1] += dP.vals[1];
-    P[2] += dP.vals[2];
-    return isfinitef_(P[0]) && isfinitef_(P[1]) && isfinitef_(P[2]);
+    tf->g += dP.vals[0];
+    tf->a += dP.vals[1];
+    tf->b += dP.vals[2];
+    return isfinitef_(tf->g) && isfinitef_(tf->a) && isfinitef_(tf->b);
 }
 
+static float max_roundtrip_error_checked(const skcms_Curve* curve,
+                                         const skcms_TransferFunction* tf_inv) {
+    skcms_TransferFunction tf;
+    if (!skcms_TransferFunction_invert(tf_inv, &tf) || sRGBish != classify(tf)) {
+        return INFINITY_;
+    }
+
+    skcms_TransferFunction tf_inv_again;
+    if (!skcms_TransferFunction_invert(&tf, &tf_inv_again)) {
+        return INFINITY_;
+    }
+
+    return skcms_MaxRoundtripError(curve, &tf_inv_again);
+}
 
 // Fit the points in [L,N) to the non-linear piece of tf, or return false if we can't.
 static bool fit_nonlinear(const skcms_Curve* curve, int L, int N, skcms_TransferFunction* tf) {
-    float P[3] = { tf->g, tf->a, tf->b };
+    // This enforces a few constraints that are not modeled in gauss_newton_step()'s optimization.
+    auto fixup_tf = [tf]() {
+        // a must be non-negative. That ensures the function is monotonically increasing.
+        // We don't really know how to fix up a if it goes negative.
+        if (tf->a < 0) {
+            return false;
+        }
+        // ad+b must be non-negative. That ensures we don't end up with complex numbers in powf.
+        // We feel just barely not uneasy enough to tweak b so ad+b is zero in this case.
+        if (tf->a * tf->d + tf->b < 0) {
+            tf->b = -tf->a * tf->d;
+        }
+        assert (tf->a >= 0 &&
+                tf->a * tf->d + tf->b >= 0);
+
+        // cd+f must be ~= (ad+b)^g+e. That ensures the function is continuous. We keep e as a free
+        // parameter so we can guarantee this.
+        tf->e =   tf->c*tf->d + tf->f
+          - powf_(tf->a*tf->d + tf->b, tf->g);
+
+        return true;
+    };
+
+    if (!fixup_tf()) {
+        return false;
+    }
 
     // No matter where we start, dx should always represent N even steps from 0 to 1.
     const float dx = 1.0f / (N-1);
 
+    skcms_TransferFunction best_tf = *tf;
+    float best_max_error = INFINITY_;
+
+    // Need this or several curves get worse... *sigh*
+    float init_error = max_roundtrip_error_checked(curve, tf);
+    if (init_error < best_max_error) {
+        best_max_error = init_error;
+        best_tf = *tf;
+    }
+
     // As far as we can tell, 1 Gauss-Newton step won't converge, and 3 steps is no better than 2.
-    for (int j = 0; j < 2; j++) {
-        // These extra constraints a >= 0 and ad+b >= 0 are not modeled in the optimization.
-        // We don't really know how to fix up a if it goes negative.
-        if (P[1] < 0) {
-            return false;
+    for (int j = 0; j < 8; j++) {
+        if (!gauss_newton_step(curve, tf, L*dx, dx, N-L) || !fixup_tf()) {
+            *tf = best_tf;
+            return isfinitef_(best_max_error);
         }
-        // If ad+b goes negative, we feel just barely not uneasy enough to tweak b so ad+b is zero.
-        if (P[1] * tf->d + P[2] < 0) {
-            P[2] = -P[1] * tf->d;
-        }
-        assert (P[1] >= 0 &&
-                P[1] * tf->d + P[2] >= 0);
 
-        if (!gauss_newton_step(curve, tf,
-                               P,
-                               L*dx, dx, N-L)) {
-            return false;
+        float max_error = max_roundtrip_error_checked(curve, tf);
+        if (max_error < best_max_error) {
+            best_max_error = max_error;
+            best_tf = *tf;
         }
     }
 
-    // We need to apply our fixups one last time
-    if (P[1] < 0) {
-        return false;
-    }
-    if (P[1] * tf->d + P[2] < 0) {
-        P[2] = -P[1] * tf->d;
-    }
-
-    assert (P[1] >= 0 &&
-            P[1] * tf->d + P[2] >= 0);
-
-    tf->g = P[0];
-    tf->a = P[1];
-    tf->b = P[2];
-    tf->e =   tf->c*tf->d + tf->f
-      - powf_(tf->a*tf->d + tf->b, tf->g);
-    return true;
+    *tf = best_tf;
+    return isfinitef_(best_max_error);
 }
 
 bool skcms_ApproximateCurve(const skcms_Curve* curve,
@@ -1874,7 +1901,9 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             }
 
             // We fit tf_inv, so calculate tf to keep in sync.
+            // fit_nonlinear() should guarantee invertibility.
             if (!skcms_TransferFunction_invert(&tf_inv, &tf)) {
+                assert(false);
                 continue;
             }
         }
@@ -1882,7 +1911,9 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         // We'd better have a sane, sRGB-ish TF by now.
         // Other non-Bad TFs would be fine, but we know we've only ever tried to fit sRGBish;
         // anything else is just some accident of math and the way we pun tf.g as a type flag.
+        // fit_nonlinear() should guarantee this.
         if (sRGBish != classify(tf)) {
+            assert(false);
             continue;
         }
 
@@ -1893,7 +1924,9 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         //
         // We've kept tf and tf_inv in sync above, but we can't guarantee that tf is
         // invertible, so re-verify that here (and use the new inverse for testing).
+        // fit_nonlinear() should guarantee this.
         if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
+            assert(false);
             continue;
         }
 
