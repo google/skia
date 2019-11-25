@@ -52,6 +52,8 @@ class CIPDStore(object):
     self._cipd_url = cipd_url
     if service_account_json:
       self._service_account_json = os.path.abspath(service_account_json)
+    else:
+      self._service_account_json = None
     self._check_setup()
 
   def _check_setup(self):
