@@ -59,7 +59,7 @@
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "modules/skottie/include/Skottie.h"
-    #include "modules/skottie/utils/SkottieUtils.h"
+    #include "modules/skresources/include/SkResources.h"
 #endif
 
 #if defined(SK_XML)
@@ -1116,8 +1116,8 @@ SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 Error SkottieSrc::draw(SkCanvas* canvas) const {
     auto animation = skottie::Animation::Builder()
         .setResourceProvider(
-                skottie_utils::DataURIResourceProviderProxy::Make(
-                    skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
+                skresources::DataURIResourceProviderProxy::Make(
+                    skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
                                                               /*predecode=*/true),
                     /*predecode=*/true))
         .makeFromFile(fPath.c_str());
