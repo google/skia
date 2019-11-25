@@ -16,6 +16,24 @@
       "revId": "bff12d60f618d337a83b0b69a5efcb7a92bf908d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e248972_aab573a4",
+        "filename": "infra/bots/assets/asset_utils.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2019-11-25T15:54:27Z",
+      "side": 1,
+      "message": "Sorry! https://skia-review.googlesource.com/c/skia/+/256230",
+      "parentUuid": "07d8173c_4096eff0",
+      "revId": "bff12d60f618d337a83b0b69a5efcb7a92bf908d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
