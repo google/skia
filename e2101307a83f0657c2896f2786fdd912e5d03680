@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f524435_a999c01e",
+        "filename": "src/gpu/vk/GrVkOpsRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-25T20:52:01Z",
+      "side": 1,
+      "message": "special",
+      "range": {
+        "startLine": 184,
+        "startChar": 74,
+        "endLine": 184,
+        "endChar": 82
+      },
+      "revId": "e2101307a83f0657c2896f2786fdd912e5d03680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c86cf69_19dc6562",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-25T20:52:01Z",
+      "side": 1,
+      "message": ",",
+      "range": {
+        "startLine": 191,
+        "startChar": 23,
+        "endLine": 191,
+        "endChar": 24
+      },
+      "revId": "e2101307a83f0657c2896f2786fdd912e5d03680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
