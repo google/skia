@@ -238,8 +238,8 @@ public:
                         static_cast<int>(fFilter));
             int i = 0;
             while(i < fViewCountPairs[p].fQuadCnt && iter.next()) {
-                const GrQuad& quad = iter.deviceQuad();
-                const GrQuad& uv = iter.localQuad();
+                const GrQuad* quad = iter.deviceQuad();
+                GrQuad uv = iter.isLocalValid() ? *(iter.localQuad()) : GrQuad();
                 const ColorDomainAndAA& info = iter.metadata();
                 str.appendf(
                         "%d: Color: 0x%08x, Domain(%d): [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n"
@@ -247,8 +247,8 @@ public:
                         "  Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
                         i, info.fColor.toBytes_RGBA(), fDomain, info.fDomainRect.fLeft,
                         info.fDomainRect.fTop, info.fDomainRect.fRight, info.fDomainRect.fBottom,
-                        quad.point(0).fX, quad.point(0).fY, quad.point(1).fX, quad.point(1).fY,
-                        quad.point(2).fX, quad.point(2).fY, quad.point(3).fX, quad.point(3).fY,
+                        quad->point(0).fX, quad->point(0).fY, quad->point(1).fX, quad->point(1).fY,
+                        quad->point(2).fX, quad->point(2).fY, quad->point(3).fX, quad->point(3).fY,
                         uv.point(0).fX, uv.point(0).fY, uv.point(1).fX, uv.point(1).fY,
                         uv.point(2).fX, uv.point(2).fY, uv.point(3).fX, uv.point(3).fY);
 

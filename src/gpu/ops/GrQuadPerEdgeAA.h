@@ -139,8 +139,10 @@ namespace GrQuadPerEdgeAA {
 
         // Calculates (as needed) inset and outset geometry for anti-aliasing, and appends all
         // necessary position and vertex attributes required by this Tessellator's VertexSpec into
-        // the 'vertices' the Tessellator was called with.
-        void append(const GrQuad& deviceQuad, const GrQuad& localQuad,
+        // the 'vertices' the Tessellator was called with. The insetting and outsetting may
+        // damage the provided GrQuads (as this is intended to work with GrQuadBuffer::Iter).
+        // 'localQuad' can be null if the VertexSpec does not use local coords.
+        void append(GrQuad* deviceQuad, GrQuad* localQuad,
                     const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags);
 
         SkDEBUGCODE(char* vertices() const { return (char*) fVertexWriter.fPtr; })
@@ -151,7 +153,7 @@ namespace GrQuadPerEdgeAA {
         // specs that appear in the wild far more frequently, so they use explicit WriteQuadProcs
         // that have no branches.
         typedef void (*WriteQuadProc)(GrVertexWriter* vertices, const VertexSpec& spec,
-                                      const GrQuad& deviceQuad, const GrQuad& localQuad,
+                                      const GrQuad* deviceQuad, const GrQuad* localQuad,
                                       const float coverage[4], const SkPMColor4f& color,
                                       const SkRect& geomDomain, const SkRect& texDomain);
         static WriteQuadProc GetWriteQuadProc(const VertexSpec& spec);

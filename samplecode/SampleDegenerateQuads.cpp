@@ -422,7 +422,7 @@ private:
 
         float vertices[56]; // 2 quads, with x, y, coverage, and geometry domain (7 floats x 8 vert)
         GrQuadPerEdgeAA::Tessellator tessellator(kSpec, (char*) vertices);
-        tessellator.append(quad, GrQuad(SkRect::MakeEmpty()), {1.f, 1.f, 1.f, 1.f},
+        tessellator.append(&quad, nullptr, {1.f, 1.f, 1.f, 1.f},
                            SkRect::MakeEmpty(), flags);
 
         // The first quad in vertices is the inset, then the outset, but they
