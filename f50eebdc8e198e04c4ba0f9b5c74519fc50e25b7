@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "39e45788_80cfb589",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-25T13:35:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de4140fa_b776ef26",
+      "range": {
+        "startLine": 152,
+        "startChar": 80,
+        "endLine": 152,
+        "endChar": 86
+      },
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3cf5f51_bfef6bdb",
         "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
         "patchSetId": 4
@@ -39,6 +63,24 @@
       "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fca94c7a_d624fcc4",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-25T13:35:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3cf5f51_bfef6bdb",
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "df257323_784a9144",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-25T13:35:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6bb6eb9_8848378a",
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc54d962_5abf68a7",
         "filename": "src/gpu/gl/GrGLUniformHandler.cpp",
         "patchSetId": 4
@@ -70,6 +130,30 @@
       "writtenOn": "2019-11-22T20:49:27Z",
       "side": 1,
       "message": "wdyt about renaming this to be \u0027surface\u0027 ?",
+      "range": {
+        "startLine": 62,
+        "startChar": 89,
+        "endLine": 62,
+        "endChar": 96
+      },
+      "revId": "f50eebdc8e198e04c4ba0f9b5c74519fc50e25b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d49383b8_5dccc716",
+        "filename": "src/gpu/gl/GrGLUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-11-25T13:35:12Z",
+      "side": 1,
+      "message": "I wanted to keep it \u0027texture\u0027 to emphasize that the surface needs to be texturable",
+      "parentUuid": "dc54d962_5abf68a7",
       "range": {
         "startLine": 62,
         "startChar": 89,
