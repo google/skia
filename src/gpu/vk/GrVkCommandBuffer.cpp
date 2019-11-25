@@ -40,23 +40,15 @@ void GrVkCommandBuffer::invalidateState() {
     }
 }
 
-void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu) const {
+void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu, VkCommandPool cmdPool) const {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fIsActive);
-    for (int i = 0; i < fTrackedResources.count(); ++i) {
-        fTrackedResources[i]->notifyRemovedFromCommandBuffer();
-        fTrackedResources[i]->unref(gpu);
-    }
+    SkASSERT(!fTrackedResources.count());
+    SkASSERT(!fTrackedRecycledResources.count());
+    SkASSERT(cmdPool != VK_NULL_HANDLE);
+    SkASSERT(!this->isWrapped());
 
-    for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
-        fTrackedRecycledResources[i]->notifyRemovedFromCommandBuffer();
-        fTrackedRecycledResources[i]->recycle(const_cast<GrVkGpu*>(gpu));
-    }
-
-    if (!this->isWrapped()) {
-        GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), fCmdPool->vkCommandPool(),
-                                                          1, &fCmdBuffer));
-    }
+    GR_VK_CALL(gpu->vkInterface(), FreeCommandBuffers(gpu->device(), cmdPool, 1, &fCmdBuffer));
 
     this->onFreeGPUData(gpu);
 }
@@ -377,11 +369,11 @@ GrVkPrimaryCommandBuffer::~GrVkPrimaryCommandBuffer() {
 }
 
 GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
-                                                           GrVkCommandPool* cmdPool) {
+                                                           VkCommandPool cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
         nullptr,                                          // pNext
-        cmdPool->vkCommandPool(),                         // commandPool
+        cmdPool,                                          // commandPool
         VK_COMMAND_BUFFER_LEVEL_PRIMARY,                  // level
         1                                                 // bufferCount
     };
@@ -393,7 +385,7 @@ GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
     if (err) {
         return nullptr;
     }
-    return new GrVkPrimaryCommandBuffer(cmdBuffer, cmdPool);
+    return new GrVkPrimaryCommandBuffer(cmdBuffer);
 }
 
 void GrVkPrimaryCommandBuffer::begin(GrVkGpu* gpu) {
@@ -475,7 +467,6 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
     // The Vulkan spec allows secondary command buffers to be executed on a primary command buffer
     // if the command pools both were created from were created with the same queue family. However,
     // we currently always create them from the same pool.
-    SkASSERT(buffer->commandPool() == fCmdPool);
     SkASSERT(fIsActive);
     SkASSERT(!buffer->fIsActive);
     SkASSERT(fActiveRenderPass);
@@ -631,10 +622,9 @@ void GrVkPrimaryCommandBuffer::onReleaseResources(GrVkGpu* gpu) {
     fFinishedProcs.reset();
 }
 
-void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers(GrVkGpu* gpu) {
+void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool) {
     for (int i = 0; i < fSecondaryCommandBuffers.count(); ++i) {
-        SkASSERT(fSecondaryCommandBuffers[i]->commandPool() == fCmdPool);
-        fSecondaryCommandBuffers[i].release()->recycle(gpu);
+        fSecondaryCommandBuffers[i].release()->recycle(cmdPool);
     }
     fSecondaryCommandBuffers.reset();
 }
@@ -851,9 +841,7 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
     if (VK_NULL_HANDLE != fSubmitFence) {
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
     }
-    for (const auto& buffer : fSecondaryCommandBuffers) {
-        buffer->freeGPUData(gpu);
-    }
+    SkASSERT(!fSecondaryCommandBuffers.count());
 }
 
 void GrVkPrimaryCommandBuffer::onAbandonGPUData() const {
@@ -885,11 +873,11 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gp
     if (err) {
         return nullptr;
     }
-    return new GrVkSecondaryCommandBuffer(cmdBuffer, cmdPool);
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, false);
 }
 
 GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(VkCommandBuffer cmdBuffer) {
-    return new GrVkSecondaryCommandBuffer(cmdBuffer, nullptr);
+    return new GrVkSecondaryCommandBuffer(cmdBuffer, true);
 }
 
 void GrVkSecondaryCommandBuffer::begin(GrVkGpu* gpu, const GrVkFramebuffer* framebuffer,
@@ -933,12 +921,11 @@ void GrVkSecondaryCommandBuffer::end(GrVkGpu* gpu) {
     fHasWork = false;
 }
 
-void GrVkSecondaryCommandBuffer::recycle(GrVkGpu* gpu) {
+void GrVkSecondaryCommandBuffer::recycle(GrVkCommandPool* cmdPool) {
     if (this->isWrapped()) {
-        this->freeGPUData(gpu);
         delete this;
     } else {
-        fCmdPool->recycleSecondaryCommandBuffer(this);
+        cmdPool->recycleSecondaryCommandBuffer(this);
     }
 }
 

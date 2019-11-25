@@ -232,7 +232,9 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrSurfaceOrigin origin, const Sk
 
 void GrVkOpsRenderPass::reset() {
     if (fCurrentSecondaryCommandBuffer) {
-        fCurrentSecondaryCommandBuffer.release()->recycle(fGpu);
+        // The active GrVkCommandPool on the GrVkGpu should still be the same pool we got the
+        // secondary command buffer from since we haven't submitted any work yet.
+        fCurrentSecondaryCommandBuffer.release()->recycle(fGpu->cmdPool());
     }
     if (fCurrentRenderPass) {
         fCurrentRenderPass->unref(fGpu);
