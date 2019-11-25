@@ -441,9 +441,19 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // GrCaps workarounds
     ////////////////////////////////////////////////////////////////////////////
 
-    // Temporarily disable the MSAA implementation of CCPR while we work out a crash on Win10
-    // GTX660 and incorrect rendring on Adreno.
+    // The GTX660 bot experiences crashes and incorrect rendering with MSAA CCPR. Block this path
+    // renderer on non-mixed-sampled NVIDIA.
+    // NOTE: We may lose mixed samples support later if the context options suppress dual source
+    // blending, but that shouldn't be an issue because MSAA CCPR seems to work fine (even without
+    // mixed samples) on later NVIDIA hardware where mixed samples would be supported.
+    if ((kNvidia_VkVendor == properties.vendorID) && !fMixedSamplesSupport) {
+        fDriverBlacklistMSAACCPR = true;
+    }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // MSAA CCPR is slow on Android. http://skbug.com/9676
     fDriverBlacklistMSAACCPR = true;
+#endif
 
     if (kARM_VkVendor == properties.vendorID) {
         fInstanceAttribSupport = false;
