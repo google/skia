@@ -34,7 +34,7 @@ public:
      * Create a transformation that maps [0, 1] to a proxy's boundaries. The proxy origin also
      * implies whether a y-reversal should be performed.
      */
-    GrCoordTransform(GrTextureProxy* proxy) {
+    GrCoordTransform(GrSurfaceProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
         this->reset(SkMatrix::I(), proxy);
@@ -44,7 +44,7 @@ public:
      * Create a transformation from a matrix. The proxy origin also implies whether a y-reversal
      * should be performed.
      */
-    GrCoordTransform(const SkMatrix& m, GrTextureProxy* proxy) {
+    GrCoordTransform(const SkMatrix& m, GrSurfaceProxy* proxy) {
         SkASSERT(proxy);
         SkDEBUGCODE(fInProcessor = false);
         this->reset(m, proxy);
@@ -93,7 +93,7 @@ public:
     }
 
     const SkMatrix& getMatrix() const { return fMatrix; }
-    const GrTextureProxy* proxy() const { return fProxy; }
+    const GrSurfaceProxy* proxy() const { return fProxy; }
     bool normalize() const { return fNormalize; }
     bool reverseY() const { return fReverseY; }
 
@@ -108,12 +108,12 @@ public:
     }
 
 private:
-    void reset(const SkMatrix& m, GrTextureProxy* proxy = nullptr) {
+    void reset(const SkMatrix& m, GrSurfaceProxy* proxy = nullptr) {
         SkASSERT(!fInProcessor);
 
         fMatrix = m;
         fProxy = proxy;
-        fNormalize = proxy && proxy->textureType() != GrTextureType::kRectangle;
+        fNormalize = proxy && proxy->backendFormat().textureType() != GrTextureType::kRectangle;
         fReverseY = proxy && kBottomLeft_GrSurfaceOrigin == proxy->origin();
         fComputeInVertexShader = true;
     }
@@ -124,7 +124,7 @@ private:
     bool operator!=(const GrCoordTransform& that) const;
 
     SkMatrix                fMatrix;
-    const GrTextureProxy*   fProxy;
+    const GrSurfaceProxy*   fProxy;
     bool                    fNormalize;
     bool                    fReverseY;
     bool                    fComputeInVertexShader;

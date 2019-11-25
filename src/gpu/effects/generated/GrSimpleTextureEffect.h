@@ -16,7 +16,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix) {
         return std::unique_ptr<GrFragmentProcessor>(
@@ -26,7 +26,7 @@ public:
     }
 
     /* clamp mode */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      GrSamplerState::Filter filter) {
@@ -35,7 +35,7 @@ public:
                 GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
     }
 
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState& p) {
@@ -50,7 +50,7 @@ public:
     SkMatrix44 matrix;
 
 private:
-    GrSimpleTextureEffect(sk_sp<GrTextureProxy> image, SkMatrix44 matrix, SkAlphaType alphaType,
+    GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> image, SkMatrix44 matrix, SkAlphaType alphaType,
                           GrSamplerState samplerParams)
             : INHERITED(kGrSimpleTextureEffect_ClassID,
                         (OptimizationFlags)ModulateForSamplerOptFlags(

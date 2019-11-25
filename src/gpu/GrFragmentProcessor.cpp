@@ -418,14 +418,17 @@ const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
+GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrSurfaceProxy> proxy,
                                                     const GrSamplerState& samplerState) {
     this->reset(std::move(proxy), samplerState);
 }
 
-void GrFragmentProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
+void GrFragmentProcessor::TextureSampler::reset(sk_sp<GrSurfaceProxy> proxy,
                                                 const GrSamplerState& samplerState) {
+    SkASSERT(proxy->asTextureProxy());
     fProxy = std::move(proxy);
     fSamplerState = samplerState;
-    fSamplerState.setFilterMode(SkTMin(samplerState.filter(), this->proxy()->highestFilterMode()));
+    fSamplerState.setFilterMode(
+            SkTMin(samplerState.filter(),
+                   GrTextureProxy::HighestFilterMode(fProxy->backendFormat().textureType())));
 }

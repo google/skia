@@ -974,7 +974,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         paint.setColor4f(color);
         paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
-        GrTextureProxy* proxy = proxyView.asTextureProxy();
+        GrSurfaceProxy* proxy = proxyView.proxy();
         std::unique_ptr<GrFragmentProcessor> fp;
         if (domain) {
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any

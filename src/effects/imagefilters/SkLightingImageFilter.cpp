@@ -1840,11 +1840,11 @@ void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         fLight = lighting.light()->createGLLight();
     }
 
-    GrTextureProxy* proxy = lighting.textureSampler(0).proxy();
-    GrTexture* texture = proxy->peekTexture();
+    GrSurfaceProxy* proxy = lighting.textureSampler(0).proxy();
+    SkISize textureDims = proxy->backingStoreDimensions();
 
     float ySign = proxy->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
-    pdman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());
+    pdman.set2f(fImageIncrementUni, 1.0f / textureDims.width(), ySign / textureDims.height());
     pdman.set1f(fSurfaceScaleUni, lighting.surfaceScale());
     sk_sp<SkImageFilterLight> transformedLight(
             lighting.light()->transform(lighting.filterMatrix()));

@@ -53,7 +53,7 @@ public:
      * @param index     Pass a value >= 0 if using multiple texture domains in the same effect.
      *                  It is used to keep inserted variables from causing name collisions.
      */
-    GrTextureDomain(GrTextureProxy*, const SkRect& domain, Mode modeX, Mode modeY, int index = -1);
+    GrTextureDomain(GrSurfaceProxy*, const SkRect& domain, Mode modeX, Mode modeY, int index = -1);
 
     GrTextureDomain(const GrTextureDomain&) = default;
 
@@ -143,7 +143,7 @@ public:
          * texture domain. The rectangle is automatically adjusted to account for the texture's
          * origin.
          */
-        void setData(const GrGLSLProgramDataManager&, const GrTextureDomain&, GrTextureProxy*,
+        void setData(const GrGLSLProgramDataManager&, const GrTextureDomain&, GrSurfaceProxy*,
                      const GrSamplerState& sampler);
 
         enum {
@@ -187,14 +187,14 @@ protected:
  */
 class GrTextureDomainEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
                                                      SkAlphaType srcAlphaType,
                                                      const SkMatrix&,
                                                      const SkRect& domain,
                                                      GrTextureDomain::Mode mode,
                                                      GrSamplerState::Filter filterMode);
 
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
                                                      SkAlphaType srcAlphaType,
                                                      const SkMatrix&,
                                                      const SkRect& domain,
@@ -224,7 +224,7 @@ private:
     GrTextureDomain fTextureDomain;
     TextureSampler fTextureSampler;
 
-    GrTextureDomainEffect(sk_sp<GrTextureProxy>,
+    GrTextureDomainEffect(sk_sp<GrSurfaceProxy>,
                           SkAlphaType srcAlphaType,
                           const SkMatrix&,
                           const SkRect& domain,
@@ -249,7 +249,7 @@ private:
 
 class GrDeviceSpaceTextureDecalFragmentProcessor : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy>,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
                                                      const SkIRect& subset,
                                                      const SkIPoint& deviceSpaceOffset);
 
@@ -274,7 +274,7 @@ private:
     GrTextureDomain fTextureDomain;
     SkIPoint fDeviceSpaceOffset;
 
-    GrDeviceSpaceTextureDecalFragmentProcessor(sk_sp<GrTextureProxy>,
+    GrDeviceSpaceTextureDecalFragmentProcessor(sk_sp<GrSurfaceProxy>,
                                                const SkIRect&, const SkIPoint&);
     GrDeviceSpaceTextureDecalFragmentProcessor(const GrDeviceSpaceTextureDecalFragmentProcessor&);
 

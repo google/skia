@@ -28,7 +28,7 @@ public:
 
 private:
     GrCircleBlurFragmentProcessor(SkRect circleRect, float textureRadius, float solidRadius,
-                                  sk_sp<GrTextureProxy> blurProfileSampler)
+                                  sk_sp<GrSurfaceProxy> blurProfileSampler)
             : INHERITED(kGrCircleBlurFragmentProcessor_ClassID,
                         (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , circleRect(circleRect)
