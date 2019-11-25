@@ -19,6 +19,7 @@ class GrProgramInfo {
 public:
     GrProgramInfo(int numSamples,
                   int numStencilSamples,
+                  GrPixelConfig config,
                   GrSurfaceOrigin origin,
                   const GrPipeline* pipeline,
                   const GrPrimitiveProcessor* primProc,
@@ -28,6 +29,7 @@ public:
                   GrPrimitiveType primitiveType)
             : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
             , fIsMixedSampled(fNumRasterSamples > numSamples)
+            , fConfig(config)
             , fOrigin(origin)
             , fPipeline(pipeline)
             , fPrimProc(primProc)
@@ -50,6 +52,7 @@ public:
 
     int numRasterSamples() const { return fNumRasterSamples;  }
     bool isMixedSampled() const { return fIsMixedSampled; }
+    GrPixelConfig config() const { return fConfig; }
     GrSurfaceOrigin origin() const { return fOrigin;  }
     const GrPipeline& pipeline() const { return *fPipeline; }
     const GrPrimitiveProcessor& primProc() const { return *fPrimProc; }
@@ -121,6 +124,7 @@ public:
 private:
     const int                             fNumRasterSamples;
     const bool                            fIsMixedSampled;
+    const GrPixelConfig                   fConfig;
     const GrSurfaceOrigin                 fOrigin;
     const GrPipeline*                     fPipeline;
     const GrPrimitiveProcessor*           fPrimProc;
