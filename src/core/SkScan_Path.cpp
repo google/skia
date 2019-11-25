@@ -97,14 +97,13 @@ typedef void (*PrePostProc)(SkBlitter* blitter, int y, bool isStartOfScanline);
 #define PREPOST_START   true
 #define PREPOST_END     false
 
-static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
+static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
                        SkBlitter* blitter, int start_y, int stop_y,
                        PrePostProc proc, int rightClip) {
     validate_sort(prevHead->fNext);
 
     int curr_y = start_y;
-    // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    int windingMask = (fillType & 1) ? 1 : -1;
+    int windingMask = SkPathFillType_IsEvenOdd(fillType) ? 1 : -1;
 
     for (;;) {
         int     w = 0;
@@ -471,8 +470,8 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     if (path.isConvex() && (nullptr == proc) && count >= 2) {
         walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
-        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
-                shiftedClip.right());
+        walk_edges(&headEdge, path.getNewFillType(), blitter, start_y, stop_y, proc,
+                   shiftedClip.right());
     }
 }
 

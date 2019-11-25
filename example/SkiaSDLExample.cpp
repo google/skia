@@ -97,7 +97,7 @@ static SkPath create_star() {
     for (int i = 0; i < kNumPoints; ++i) {
         concavePath.lineTo(points[(2 * i) % kNumPoints]);
     }
-    concavePath.setFillType(SkPath::kEvenOdd_FillType);
+    concavePath.setFillType(SkPathFillType::kEvenOdd);
     SkASSERT(!concavePath.isConvex());
     concavePath.close();
     return concavePath;

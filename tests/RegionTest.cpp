@@ -421,7 +421,7 @@ DEF_TEST(region_toobig, reporter) {
 
 DEF_TEST(region_inverse_union_skbug_7491, reporter) {
     SkPath path;
-    path.setFillType(SkPath::kInverseWinding_FillType);
+    path.setFillType(SkPathFillType::kInverseWinding);
     path.moveTo(10, 20); path.lineTo(10, 30); path.lineTo(10.1f, 10); path.close();
 
     SkRegion clip;

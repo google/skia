@@ -177,7 +177,6 @@ DEF_TEST(test_fuzz_crbug_698714, reporter) {
     SkPaint paint;
     paint.setAntiAlias(true);
     SkPath path;
-    path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0,0
     path.lineTo(SkBits2Float(0x43434343), SkBits2Float(0x43430143));  //195.263f, 195.005f
     path.lineTo(SkBits2Float(0x43434343), SkBits2Float(0x43434343));  //195.263f, 195.263f

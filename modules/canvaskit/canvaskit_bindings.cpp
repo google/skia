@@ -1482,10 +1482,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("R16G16B16A16_unorm", SkColorType::kR16G16B16A16_unorm_SkColorType);
 
     enum_<SkPath::FillType>("FillType")
-        .value("Winding",           SkPath::FillType::kWinding_FillType)
-        .value("EvenOdd",           SkPath::FillType::kEvenOdd_FillType)
-        .value("InverseWinding",    SkPath::FillType::kInverseWinding_FillType)
-        .value("InverseEvenOdd",    SkPath::FillType::kInverseEvenOdd_FillType);
+        .value("Winding",           SkPathFillType::kWinding)
+        .value("EvenOdd",           SkPathFillType::kEvenOdd)
+        .value("InverseWinding",    SkPathFillType::kInverseWinding)
+        .value("InverseEvenOdd",    SkPathFillType::kInverseEvenOdd);
 
     enum_<SkFilterQuality>("FilterQuality")
         .value("None",   SkFilterQuality::kNone_SkFilterQuality)
