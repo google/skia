@@ -22,6 +22,30 @@
       "revId": "bb380a8231a561c05fea2b02dfbe980e762ab72b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd966f20_779cd393",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-11-25T16:26:25Z",
+      "side": 1,
+      "message": "At this point the viewMatrix is still the same (so not necessarily I), but when doing direct drawing, the code does not use the viewMatrix at all.",
+      "parentUuid": "3ff6a83b_58db8f53",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 9
+      },
+      "revId": "bb380a8231a561c05fea2b02dfbe980e762ab72b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
