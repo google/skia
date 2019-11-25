@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ff6a83b_58db8f53",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-11-25T16:05:21Z",
+      "side": 1,
+      "message": "Add assert to check transform type for kDirectMask?",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 9
+      },
+      "revId": "bb380a8231a561c05fea2b02dfbe980e762ab72b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
