@@ -53,7 +53,7 @@ public:
                                               const char[] /* id */) const override {
         // For CK/Skottie we ignore paths & IDs, and identify images based solely on name.
         if (auto data = this->findAsset(name)) {
-            return skottie_utils::MultiFrameImageAsset::Make(std::move(data), true /* predecode */);
+            return skottie_utils::MultiFrameImageAsset::Make(std::move(data));
         }
 
         return nullptr;
@@ -247,8 +247,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
 
         return ManagedAnimation::Make(json,
                  skottie_utils::DataURIResourceProviderProxy::Make(
-                    SkottieAssetProvider::Make(std::move(assets)),
-                    /*predecode=*/true));
+                    SkottieAssetProvider::Make(std::move(assets))));
     }));
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
