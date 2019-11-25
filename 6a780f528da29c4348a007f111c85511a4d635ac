@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dda33892_4ae771bf",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-11-25T16:38:33Z",
+      "side": 1,
+      "message": "The \"asset\" name is originally tied to Lottie assets - feel free to adjust if you think it creates an unnecessary distinction (ImageResource?).",
+      "range": {
+        "startLine": 22,
+        "startChar": 13,
+        "endLine": 22,
+        "endChar": 23
+      },
+      "revId": "6a780f528da29c4348a007f111c85511a4d635ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cddf469_69ff4304",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-11-25T16:38:33Z",
+      "side": 1,
+      "message": "nit: we can drop Skottie references.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 62
+      },
+      "revId": "6a780f528da29c4348a007f111c85511a4d635ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a466c383_064efed9",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-11-25T16:38:33Z",
+      "side": 1,
+      "message": "Doesn\u0027t have to be this CL, but should we consider turning this into a pure virtual interface?  I\u0027m not sure the default null impls add much value.",
+      "range": {
+        "startLine": 47,
+        "startChar": 13,
+        "endLine": 47,
+        "endChar": 29
+      },
+      "revId": "6a780f528da29c4348a007f111c85511a4d635ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
