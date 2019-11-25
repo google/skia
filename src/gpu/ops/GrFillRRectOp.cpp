@@ -461,6 +461,8 @@ void GrFillRRectOp::onPrePrepare(GrRecordingContext* context,
     // TODO: need to also give this to the recording context
     fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView,
                                            std::move(appliedClip), dstProxyView);
+
+    context->priv().recordProgramInfo(fProgramInfo);
 }
 
 void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {
@@ -781,6 +783,7 @@ GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
     GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
     return arena->make<GrProgramInfo>(dstProxy->numSamples(),
                                       dstProxy->numStencilSamples(),
+                                      dstProxy->backendFormat(),
                                       dstView->origin(),
                                       pipeline,
                                       geomProc,

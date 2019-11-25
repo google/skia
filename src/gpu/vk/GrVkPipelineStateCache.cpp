@@ -94,7 +94,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
     // TODO: can this be unified between GL, Vk and Mtl?
     // Get GrVkProgramDesc
     GrVkPipelineStateBuilder::Desc desc;
-    if (!GrVkPipelineStateBuilder::Desc::Build(&desc, renderTarget, programInfo, *fGpu->caps())) {
+    if (!GrVkPipelineStateBuilder::Desc::Build2(&desc, renderTarget, programInfo, *fGpu->caps())) {
         GrCapsDebugf(fGpu->caps(), "Failed to build vk program descriptor!\n");
         return nullptr;
     }

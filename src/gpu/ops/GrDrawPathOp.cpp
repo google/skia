@@ -103,6 +103,7 @@ void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
 
     GrProgramInfo programInfo(state->proxy()->numSamples(),
                               state->proxy()->numStencilSamples(),
+                              state->proxy()->backendFormat(),
                               state->drawOpArgs().origin(),
                               &pipeline,
                               pathProc.get(),
