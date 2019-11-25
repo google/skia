@@ -65,9 +65,12 @@ var CanvasKit = {
 	computeTonalColors: function() {},
 	currentContext: function() {},
 	getColorComponents: function() {},
+	getDecodeCacheLimitBytes: function() {},
+	getDecodeCacheUsageBytes: function() {},
 	getSkDataBytes: function() {},
 	multiplyByAlpha: function() {},
 	setCurrentContext: function() {},
+	setDecodeCacheLimitBytes: function() {},
 
 	// private API (i.e. things declared in the bindings that we use
 	// in the pre-js file)
