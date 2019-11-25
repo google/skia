@@ -413,16 +413,23 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
 
 //** EdgeVectors implementation
 
+template<DeviceType kType>
 void EdgeVectors::reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
                         const skvx::Vec<4, float>& ws, GrQuad::Type quadType) {
     // Calculate all projected edge vector values for this quad.
-    if (quadType == GrQuad::Type::kPerspective) {
-        V4f iw = 1.0 / ws;
-        fX2D = xs * iw;
-        fY2D = ys * iw;
-    } else {
+    if constexpr (kType == DeviceType::kAssumeRectilinear) {
+        SkASSERT(quadType <= GrQuad::Type::kRectilinear);
         fX2D = xs;
         fY2D = ys;
+    } else {
+        if (quadType != GrQuad::Type::kPerspective) {
+            fX2D = xs;
+            fY2D = ys;
+        } else {
+            V4f iw = 1.0 / ws;
+            fX2D = xs * iw;
+            fY2D = ys * iw;
+        }
     }
 
     fDX = next_ccw(fX2D) - fX2D;
@@ -434,14 +441,20 @@ void EdgeVectors::reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>
     fDY *= fInvLengths;
 
     // Calculate angles between vectors
-    if (quadType <= GrQuad::Type::kRectilinear) {
+    if constexpr (kType == DeviceType::kAssumeRectilinear) {
+        SkASSERT(quadType <= GrQuad::Type::kRectilinear);
         fCosTheta = 0.f;
         fInvSinTheta = 1.f;
     } else {
-        fCosTheta = mad(fDX, next_cw(fDX), fDY * next_cw(fDY));
-        // NOTE: if cosTheta is close to 1, inset/outset math will avoid the fast paths that rely
-        // on thefInvSinTheta since it will approach infinity.
-        fInvSinTheta = rsqrt(1.f - fCosTheta * fCosTheta);
+        if (quadType <= GrQuad::Type::kRectilinear) {
+            fCosTheta = 0.f;
+            fInvSinTheta = 1.f;
+        } else {
+            fCosTheta = mad(fDX, next_cw(fDX), fDY * next_cw(fDY));
+            // NOTE: if cosTheta is close to 1, inset/outset math will avoid the fast paths that
+            // rely on thefInvSinTheta since it will approach infinity.
+            fInvSinTheta = rsqrt(1.f - fCosTheta * fCosTheta);
+        }
     }
 }
 
@@ -486,66 +499,169 @@ V4f EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
     return w * h;
 }
 
+int EdgeEquations::computeDegenerateQuad(const V4f& signedEdgeDistances, V4f* x2d, V4f* y2d) const {
+    // Move the edge by the signed edge adjustment.
+    V4f oc = fC + signedEdgeDistances;
+
+    // There are 6 points that we care about to determine the final shape of the polygon, which
+    // are the intersections between (e0,e2), (e1,e0), (e2,e3), (e3,e1) (corresponding to the
+    // 4 corners), and (e1, e2), (e0, e3) (representing the intersections of opposite edges).
+    V4f denom = fA * next_cw(fB) - fB * next_cw(fA);
+    V4f px = (fB * next_cw(oc) - oc * next_cw(fB)) / denom;
+    V4f py = (oc * next_cw(fA) - fA * next_cw(oc)) / denom;
+    correct_bad_coords(abs(denom) < kTolerance, &px, &py, nullptr);
+
+    // Calculate the signed distances from these 4 corners to the other two edges that did not
+    // define the intersection. So p(0) is compared to e3,e1, p(1) to e3,e2 , p(2) to e0,e1, and
+    // p(3) to e0,e2
+    V4f dists1 = px * skvx::shuffle<3, 3, 0, 0>(fA) +
+                 py * skvx::shuffle<3, 3, 0, 0>(fB) +
+                 skvx::shuffle<3, 3, 0, 0>(oc);
+    V4f dists2 = px * skvx::shuffle<1, 2, 1, 2>(fA) +
+                 py * skvx::shuffle<1, 2, 1, 2>(fB) +
+                 skvx::shuffle<1, 2, 1, 2>(oc);
+
+    // If all the distances are >= 0, the 4 corners form a valid quadrilateral, so use them as
+    // the 4 points. If any point is on the wrong side of both edges, the interior has collapsed
+    // and we need to use a central point to represent it. If all four points are only on the
+    // wrong side of 1 edge, one edge has crossed over another and we use a line to represent it.
+    // Otherwise, use a triangle that replaces the bad points with the intersections of
+    // (e1, e2) or (e0, e3) as needed.
+    M4f d1v0 = dists1 < kTolerance;
+    M4f d2v0 = dists2 < kTolerance;
+    M4f d1And2 = d1v0 & d2v0;
+    M4f d1Or2 = d1v0 | d2v0;
+
+    if (!any(d1Or2)) {
+        // Every dists1 and dists2 >= kTolerance so it's not degenerate, use all 4 corners as-is
+        // and use full coverage
+        *x2d = px;
+        *y2d = py;
+        return 4;
+    } else if (any(d1And2)) {
+        // A point failed against two edges, so reduce the shape to a single point, which we take as
+        // the center of the original quad to ensure it is contained in the intended geometry. Since
+        // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
+        SkPoint center = {0.25f * ((*x2d)[0] + (*x2d)[1] + (*x2d)[2] + (*x2d)[3]),
+                          0.25f * ((*y2d)[0] + (*y2d)[1] + (*y2d)[2] + (*y2d)[3])};
+        *x2d = center.fX;
+        *y2d = center.fY;
+        return 1;
+    } else if (all(d1Or2)) {
+        // Degenerates to a line. Compare p[2] and p[3] to edge 0. If they are on the wrong side,
+        // that means edge 0 and 3 crossed, and otherwise edge 1 and 2 crossed.
+        if (dists1[2] < kTolerance && dists1[3] < kTolerance) {
+            // Edges 0 and 3 have crossed over, so make the line from average of (p0,p2) and (p1,p3)
+            *x2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(px) + skvx::shuffle<2, 3, 2, 3>(px));
+            *y2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(py) + skvx::shuffle<2, 3, 2, 3>(py));
+        } else {
+            // Edges 1 and 2 have crossed over, so make the line from average of (p0,p1) and (p2,p3)
+            *x2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(px) + skvx::shuffle<1, 1, 3, 3>(px));
+            *y2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(py) + skvx::shuffle<1, 1, 3, 3>(py));
+        }
+        return 2;
+    } else {
+        // This turns into a triangle. Replace corners as needed with the intersections between
+        // (e0,e3) and (e1,e2), which must now be calculated
+        using V2f = skvx::Vec<2, float>;
+        V2f eDenom = skvx::shuffle<0, 1>(fA) * skvx::shuffle<3, 2>(fB) -
+                     skvx::shuffle<0, 1>(fB) * skvx::shuffle<3, 2>(fA);
+        V2f ex = (skvx::shuffle<0, 1>(fB) * skvx::shuffle<3, 2>(oc) -
+                  skvx::shuffle<0, 1>(oc) * skvx::shuffle<3, 2>(fB)) / eDenom;
+        V2f ey = (skvx::shuffle<0, 1>(oc) * skvx::shuffle<3, 2>(fA) -
+                  skvx::shuffle<0, 1>(fA) * skvx::shuffle<3, 2>(oc)) / eDenom;
+
+        if (SkScalarAbs(eDenom[0]) > kTolerance) {
+            px = if_then_else(d1v0, V4f(ex[0]), px);
+            py = if_then_else(d1v0, V4f(ey[0]), py);
+        }
+        if (SkScalarAbs(eDenom[1]) > kTolerance) {
+            px = if_then_else(d2v0, V4f(ex[1]), px);
+            py = if_then_else(d2v0, V4f(ey[1]), py);
+        }
+
+        *x2d = px;
+        *y2d = py;
+        return 3;
+    }
+}
+
 //** OutsetRequest implementation
 
+static bool check_inset_degenerate_rect(const skvx::Vec<4, float>& edgeDistances,
+                                        const skvx::Vec<4, float>& invLengths) {
+    // Since it's rectangular, the width (edge[1] or edge[2]) collapses if subtracting
+    // (dist[0] + dist[3]) makes the new width negative (minus for inset, outsetting will
+    // never be degenerate in this case). The same applies for height (edge[0] or edge[3])
+    // and (dist[1] + dist[2]).
+    float widthChange = edgeDistances[0] + edgeDistances[3];
+    float heightChange = edgeDistances[1] + edgeDistances[2];
+    // (1/len > 1/(edge sum) implies len - edge sum < 0.
+    return (widthChange > 0.f  && invLengths[1] > 1.f / widthChange) ||
+           (heightChange > 0.f && invLengths[0] > 1.f / heightChange);
+}
+
+template<DeviceType kType>
 void OutsetRequest::reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
                           const skvx::Vec<4, float>& edgeDistances) {
     fEdgeDistances = edgeDistances;
 
     // Based on the edge distances, determine if it's acceptable to use fInvSinTheta to
     // calculate the inset or outset geometry.
-    if (quadType <= GrQuad::Type::kRectilinear) {
-        // Since it's rectangular, the width (edge[1] or edge[2]) collapses if subtracting
-        // (dist[0] + dist[3]) makes the new width negative (minus for inset, outsetting will
-        // never be degenerate in this case). The same applies for height (edge[0] or edge[3])
-        // and (dist[1] + dist[2]).
+    if constexpr (kType == DeviceType::kAssumeRectilinear) {
+        SkASSERT(quadType <= GrQuad::Type::kRectilinear);
         fOutsetDegenerate = false;
-        float widthChange = edgeDistances[0] + edgeDistances[3];
-        float heightChange = edgeDistances[1] + edgeDistances[2];
-        // (1/len > 1/(edge sum) implies len - edge sum < 0.
-        fInsetDegenerate =
-                (widthChange > 0.f  && edgeVectors.fInvLengths[1] > 1.f / widthChange) ||
-                (heightChange > 0.f && edgeVectors.fInvLengths[0] > 1.f / heightChange);
-    } else if (any(edgeVectors.fInvLengths >= 1.f / kTolerance)) {
-        // Have an edge that is effectively length 0, so we're dealing with a triangle, which
-        // must always go through the degenerate code path.
-        fOutsetDegenerate = true;
-        fInsetDegenerate = true;
+        fInsetDegenerate = check_inset_degenerate_rect(edgeDistances, edgeVectors.fInvLengths);
     } else {
-        // If possible, the corners will move +/-edgeDistances * 1/sin(theta). The entire
-        // request is degenerate if 1/sin(theta) -> infinity (or cos(theta) -> 1).
-        if (any(abs(edgeVectors.fCosTheta) >= 0.9f)) {
+        if (quadType <= GrQuad::Type::kRectilinear) {
+            fOutsetDegenerate = false;
+            fInsetDegenerate = check_inset_degenerate_rect(edgeDistances, edgeVectors.fInvLengths);
+        } else if (any(edgeVectors.fInvLengths >= 1.f / kTolerance)) {
+            // Have an edge that is effectively length 0, so we're dealing with a triangle, which
+            // must always go through the degenerate code path.
             fOutsetDegenerate = true;
             fInsetDegenerate = true;
         } else {
-            // With an edge-centric view, an edge's length changes by
-            // edgeDistance * cos(pi - theta) / sin(theta) for each of its corners (the second
-            // corner uses ccw theta value). An edge's length also changes when its adjacent
-            // edges move, in which case it's updated by edgeDistance / sin(theta)
-            // (or cos(theta) for the other edge).
+            // If possible, the corners will move +/-edgeDistances * 1/sin(theta). The entire
+            // request is degenerate if 1/sin(theta) -> infinity (or cos(theta) -> 1).
+            if (any(abs(edgeVectors.fCosTheta) >= 0.9f)) {
+                fOutsetDegenerate = true;
+                fInsetDegenerate = true;
+            } else {
+                // With an edge-centric view, an edge's length changes by
+                // edgeDistance * cos(pi - theta) / sin(theta) for each of its corners (the second
+                // corner uses ccw theta value). An edge's length also changes when its adjacent
+                // edges move, in which case it's updated by edgeDistance / sin(theta)
+                // (or cos(theta) for the other edge).
 
-            // cos(pi - theta) = -cos(theta)
-            V4f halfTanTheta = -edgeVectors.fCosTheta * edgeVectors.fInvSinTheta;
-            V4f edgeAdjust = edgeDistances * (halfTanTheta + next_ccw(halfTanTheta)) +
-                             next_ccw(edgeDistances) * next_ccw(edgeVectors.fInvSinTheta) +
-                             next_cw(edgeDistances) * edgeVectors.fInvSinTheta;
+                // cos(pi - theta) = -cos(theta)
+                V4f halfTanTheta = -edgeVectors.fCosTheta * edgeVectors.fInvSinTheta;
+                V4f edgeAdjust = edgeDistances * (halfTanTheta + next_ccw(halfTanTheta)) +
+                                 next_ccw(edgeDistances) * next_ccw(edgeVectors.fInvSinTheta) +
+                                 next_cw(edgeDistances) * edgeVectors.fInvSinTheta;
 
-            // If either outsetting (plus edgeAdjust) or insetting (minus edgeAdjust) make
-            // the edge lengths negative, then it's degenerate.
-            V4f threshold = 0.1f - (1.f / edgeVectors.fInvLengths);
-            fOutsetDegenerate = any(edgeAdjust < threshold);
-            fInsetDegenerate = any(edgeAdjust > -threshold);
+                // If either outsetting (plus edgeAdjust) or insetting (minus edgeAdjust) make
+                // the edge lengths negative, then it's degenerate.
+                V4f threshold = 0.1f - (1.f / edgeVectors.fInvLengths);
+                fOutsetDegenerate = any(edgeAdjust < threshold);
+                fInsetDegenerate = any(edgeAdjust > -threshold);
+            }
         }
     }
 }
 
 //** Vertices implementation
 
+template<DeviceType kType>
 void Vertices::reset(const GrQuad& deviceQuad, const GrQuad* localQuad) {
     // Set vertices to match the device and local quad
     fX = deviceQuad.x4f();
     fY = deviceQuad.y4f();
-    fW = deviceQuad.w4f();
+    if constexpr (kType == DeviceType::kAny) {
+        fW = deviceQuad.w4f();
+    } else {
+        SkASSERT(deviceQuad.quadType() <= GrQuad::Type::kRectilinear);
+    }
 
     if (localQuad) {
         fU = localQuad->x4f();
@@ -557,6 +673,7 @@ void Vertices::reset(const GrQuad& deviceQuad, const GrQuad* localQuad) {
     }
 }
 
+template<DeviceType kType>
 void Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
                          GrQuad* localOut, GrQuad::Type localType) const {
     SkASSERT(deviceOut);
@@ -564,8 +681,10 @@ void Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
 
     fX.store(deviceOut->xs());
     fY.store(deviceOut->ys());
-    if (deviceType == GrQuad::Type::kPerspective) {
-        fW.store(deviceOut->ws());
+    if constexpr(kType == DeviceType::kAny) {
+        if (deviceType == GrQuad::Type::kPerspective) {
+            fW.store(deviceOut->ws());
+        }
     }
     deviceOut->setQuadType(deviceType); // This sets ws == 1 when device type != perspective
 
@@ -716,7 +835,8 @@ void Vertices::moveTo(const V4f& x2d, const V4f& y2d, const M4f& mask) {
 
 //** TessellationHelper implementation
 
-void TessellationHelper::reset(const GrQuad& deviceQuad, const GrQuad* localQuad) {
+template<DeviceType kType>
+void TessellationHelper<kType>::reset(const GrQuad& deviceQuad, const GrQuad* localQuad) {
     // Record basic state that isn't recorded on the Vertices struct itself
     fDeviceType = deviceQuad.quadType();
     fLocalType = localQuad ? localQuad->quadType() : GrQuad::Type::kAxisAligned;
@@ -726,21 +846,29 @@ void TessellationHelper::reset(const GrQuad& deviceQuad, const GrQuad* localQuad
     fEdgeEquationsValid = false;
 
     // Compute vertex properties that are always needed for a quad, so no point in doing it lazily.
-    fOriginal.reset(deviceQuad, localQuad);
-    fEdgeVectors.reset(fOriginal.fX, fOriginal.fY, fOriginal.fW, fDeviceType);
+    fOriginal.reset<kType>(deviceQuad, localQuad);
+    fEdgeVectors.reset<kType>(fOriginal.fX, fOriginal.fY, fOriginal.fW, fDeviceType);
 
     fVerticesValid = true;
 }
 
-
-V4f TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
-                              GrQuad* deviceInset, GrQuad* localInset) {
+template<DeviceType kType>
+V4f TessellationHelper<kType>::inset(const skvx::Vec<4, float>& edgeDistances,
+                                     GrQuad* deviceInset, GrQuad* localInset) {
     SkASSERT(fVerticesValid);
 
     Vertices inset = fOriginal;
-    int vertexCount = this->adjustVertices(edgeDistances, true, &inset);
-    inset.asGrQuads(deviceInset, fDeviceType, localInset, fLocalType);
 
+    const OutsetRequest& request = this->getOutsetRequest(edgeDistances);
+    int vertexCount;
+    if (request.fInsetDegenerate) {
+        vertexCount = this->adjustDegenerateVertices(-request.fEdgeDistances, &inset);
+    } else {
+        this->adjustVertices(-request.fEdgeDistances, &inset);
+        vertexCount = 4;
+    }
+
+    inset.asGrQuads<kType>(deviceInset, fDeviceType, localInset, fLocalType);
     if (vertexCount < 3) {
         // The interior has less than a full pixel's area so estimate reduced coverage using
         // the distance of the inset's projected corners to the original edges.
@@ -751,16 +879,24 @@ V4f TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
     }
 }
 
-void TessellationHelper::outset(const skvx::Vec<4, float>& edgeDistances,
-                                GrQuad* deviceOutset, GrQuad* localOutset) {
+template<DeviceType kType>
+void TessellationHelper<kType>::outset(const skvx::Vec<4, float>& edgeDistances,
+                                       GrQuad* deviceOutset, GrQuad* localOutset) {
     SkASSERT(fVerticesValid);
 
     Vertices outset = fOriginal;
-    this->adjustVertices(edgeDistances, false, &outset);
-    outset.asGrQuads(deviceOutset, fDeviceType, localOutset, fLocalType);
+
+    const OutsetRequest& request = this->getOutsetRequest(edgeDistances);
+    if (request.fOutsetDegenerate) {
+        this->adjustDegenerateVertices(request.fEdgeDistances, &outset);
+    } else {
+        this->adjustVertices(request.fEdgeDistances, &outset);
+    }
+    outset.asGrQuads<kType>(deviceOutset, fDeviceType, localOutset, fLocalType);
 }
 
-const OutsetRequest& TessellationHelper::getOutsetRequest(
+template<DeviceType kType>
+const OutsetRequest& TessellationHelper<kType>::getOutsetRequest(
         const skvx::Vec<4, float>& edgeDistances) {
     // Much of the code assumes that we start from positive distances and apply it unmodified to
     // create an outset; knowing that it's outset simplifies degeneracy checking.
@@ -768,13 +904,14 @@ const OutsetRequest& TessellationHelper::getOutsetRequest(
 
     // Rebuild outset request if invalid or if the edge distances have changed.
     if (!fOutsetRequestValid || any(edgeDistances != fOutsetRequest.fEdgeDistances)) {
-        fOutsetRequest.reset(fEdgeVectors, fDeviceType, edgeDistances);
+        fOutsetRequest.reset<kType>(fEdgeVectors, fDeviceType, edgeDistances);
         fOutsetRequestValid = true;
     }
     return fOutsetRequest;
 }
 
-const EdgeEquations& TessellationHelper::getEdgeEquations() {
+template<DeviceType kType>
+const EdgeEquations& TessellationHelper<kType>::getEdgeEquations() {
     if (!fEdgeEquationsValid) {
         fEdgeEquations.reset(fEdgeVectors);
         fEdgeEquationsValid = true;
@@ -782,128 +919,66 @@ const EdgeEquations& TessellationHelper::getEdgeEquations() {
     return fEdgeEquations;
 }
 
-int TessellationHelper::computeDegenerateQuad(const V4f& signedEdgeDistances, V4f* x2d, V4f* y2d) {
-    // Move the edge by the signed edge adjustment.
-    const EdgeEquations& edges = this->getEdgeEquations();
-    V4f oc = edges.fC + signedEdgeDistances;
-
-    // There are 6 points that we care about to determine the final shape of the polygon, which
-    // are the intersections between (e0,e2), (e1,e0), (e2,e3), (e3,e1) (corresponding to the
-    // 4 corners), and (e1, e2), (e0, e3) (representing the intersections of opposite edges).
-    V4f denom = edges.fA * next_cw(edges.fB) - edges.fB * next_cw(edges.fA);
-    V4f px = (edges.fB * next_cw(oc) - oc * next_cw(edges.fB)) / denom;
-    V4f py = (oc * next_cw(edges.fA) - edges.fA * next_cw(oc)) / denom;
-    correct_bad_coords(abs(denom) < kTolerance, &px, &py, nullptr);
-
-    // Calculate the signed distances from these 4 corners to the other two edges that did not
-    // define the intersection. So p(0) is compared to e3,e1, p(1) to e3,e2 , p(2) to e0,e1, and
-    // p(3) to e0,e2
-    V4f dists1 = px * skvx::shuffle<3, 3, 0, 0>(edges.fA) +
-                 py * skvx::shuffle<3, 3, 0, 0>(edges.fB) +
-                 skvx::shuffle<3, 3, 0, 0>(oc);
-    V4f dists2 = px * skvx::shuffle<1, 2, 1, 2>(edges.fA) +
-                 py * skvx::shuffle<1, 2, 1, 2>(edges.fB) +
-                 skvx::shuffle<1, 2, 1, 2>(oc);
-
-    // If all the distances are >= 0, the 4 corners form a valid quadrilateral, so use them as
-    // the 4 points. If any point is on the wrong side of both edges, the interior has collapsed
-    // and we need to use a central point to represent it. If all four points are only on the
-    // wrong side of 1 edge, one edge has crossed over another and we use a line to represent it.
-    // Otherwise, use a triangle that replaces the bad points with the intersections of
-    // (e1, e2) or (e0, e3) as needed.
-    M4f d1v0 = dists1 < kTolerance;
-    M4f d2v0 = dists2 < kTolerance;
-    M4f d1And2 = d1v0 & d2v0;
-    M4f d1Or2 = d1v0 | d2v0;
-
-    if (!any(d1Or2)) {
-        // Every dists1 and dists2 >= kTolerance so it's not degenerate, use all 4 corners as-is
-        // and use full coverage
-        *x2d = px;
-        *y2d = py;
-        return 4;
-    } else if (any(d1And2)) {
-        // A point failed against two edges, so reduce the shape to a single point, which we take as
-        // the center of the original quad to ensure it is contained in the intended geometry. Since
-        // it has collapsed, we know the shape cannot cover a pixel so update the coverage.
-        SkPoint center = {0.25f * ((*x2d)[0] + (*x2d)[1] + (*x2d)[2] + (*x2d)[3]),
-                          0.25f * ((*y2d)[0] + (*y2d)[1] + (*y2d)[2] + (*y2d)[3])};
-        *x2d = center.fX;
-        *y2d = center.fY;
-        return 1;
-    } else if (all(d1Or2)) {
-        // Degenerates to a line. Compare p[2] and p[3] to edge 0. If they are on the wrong side,
-        // that means edge 0 and 3 crossed, and otherwise edge 1 and 2 crossed.
-        if (dists1[2] < kTolerance && dists1[3] < kTolerance) {
-            // Edges 0 and 3 have crossed over, so make the line from average of (p0,p2) and (p1,p3)
-            *x2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(px) + skvx::shuffle<2, 3, 2, 3>(px));
-            *y2d = 0.5f * (skvx::shuffle<0, 1, 0, 1>(py) + skvx::shuffle<2, 3, 2, 3>(py));
-        } else {
-            // Edges 1 and 2 have crossed over, so make the line from average of (p0,p1) and (p2,p3)
-            *x2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(px) + skvx::shuffle<1, 1, 3, 3>(px));
-            *y2d = 0.5f * (skvx::shuffle<0, 0, 2, 2>(py) + skvx::shuffle<1, 1, 3, 3>(py));
-        }
-        return 2;
-    } else {
-        // This turns into a triangle. Replace corners as needed with the intersections between
-        // (e0,e3) and (e1,e2), which must now be calculated
-        using V2f = skvx::Vec<2, float>;
-        V2f eDenom = skvx::shuffle<0, 1>(edges.fA) * skvx::shuffle<3, 2>(edges.fB) -
-                      skvx::shuffle<0, 1>(edges.fB) * skvx::shuffle<3, 2>(edges.fA);
-        V2f ex = (skvx::shuffle<0, 1>(edges.fB) * skvx::shuffle<3, 2>(oc) -
-                   skvx::shuffle<0, 1>(oc) * skvx::shuffle<3, 2>(edges.fB)) / eDenom;
-        V2f ey = (skvx::shuffle<0, 1>(oc) * skvx::shuffle<3, 2>(edges.fA) -
-                   skvx::shuffle<0, 1>(edges.fA) * skvx::shuffle<3, 2>(oc)) / eDenom;
-
-        if (SkScalarAbs(eDenom[0]) > kTolerance) {
-            px = if_then_else(d1v0, V4f(ex[0]), px);
-            py = if_then_else(d1v0, V4f(ey[0]), py);
-        }
-        if (SkScalarAbs(eDenom[1]) > kTolerance) {
-            px = if_then_else(d2v0, V4f(ex[1]), px);
-            py = if_then_else(d2v0, V4f(ey[1]), py);
-        }
-
-        *x2d = px;
-        *y2d = py;
-        return 3;
-    }
-}
-
-int TessellationHelper::adjustVertices(const skvx::Vec<4, float>& edgeDistances, bool inset,
-                                       Vertices* vertices) {
+template<DeviceType kType>
+void TessellationHelper<kType>::adjustVertices(const V4f& signedEdgeDistances, Vertices* vertices) {
     SkASSERT(vertices);
     SkASSERT(vertices->fUVRCount == 0 || vertices->fUVRCount == 2 || vertices->fUVRCount == 3);
 
-    const OutsetRequest& outsetRequest = this->getOutsetRequest(edgeDistances);
-    // Insets are more likely to become degenerate than outsets, so this allows us to compute the
-    // outer geometry with the fast path and the inner geometry with a slow path if possible.
-    bool degenerate = inset ? outsetRequest.fInsetDegenerate : outsetRequest.fOutsetDegenerate;
-    V4f signedEdgeDistances = outsetRequest.fEdgeDistances;
-    if (inset) {
-        signedEdgeDistances *= -1.f;
-    }
-
-    if (fDeviceType == GrQuad::Type::kPerspective || degenerate) {
-        Vertices projected = { fEdgeVectors.fX2D, fEdgeVectors.fY2D, /*w*/ 1.f, 0.f, 0.f, 0.f, 0};
-        int vertexCount;
-        if (degenerate) {
-            // Must use the slow path to handle numerical issues and self intersecting geometry
-            vertexCount = computeDegenerateQuad(signedEdgeDistances, &projected.fX, &projected.fY);
-        } else {
-            // Move the projected quad with the fast path, even though we will reconstruct the
-            // perspective corners afterwards.
-            projected.moveAlong(fEdgeVectors, signedEdgeDistances);
-            vertexCount = 4;
-        }
-        vertices->moveTo(projected.fX, projected.fY, signedEdgeDistances != 0.f);
-        return vertexCount;
-    } else {
-        // Quad is 2D and the inset/outset request does not cause the geometry to self intersect, so
-        // we can directly move the corners along the already calculated edge vectors.
+    if constexpr (kType == DeviceType::kAssumeRectilinear) {
+        // Assumed rectilinear, and not degenerate so use fast path
+        SkASSERT(fDeviceType <= GrQuad::Type::kRectilinear);
         vertices->moveAlong(fEdgeVectors, signedEdgeDistances);
-        return 4;
+    } else if (fDeviceType < GrQuad::Type::kPerspective) {
+        // As above, moveAlong() is valid for all non-perspective, non-degenerate quads
+        vertices->moveAlong(fEdgeVectors, signedEdgeDistances);
+    } else {
+        // Use efficient moveAlong for the projected inset/outset
+        Vertices projected = { fEdgeVectors.fX2D, fEdgeVectors.fY2D, /*w*/ 1.f, 0.f, 0.f, 0.f, 0 };
+        projected.moveAlong(fEdgeVectors, signedEdgeDistances);
+        // And then the slower moveTo to reconstruct the proper perspective Ws to match
+        vertices->moveTo(projected.fX, projected.fY, signedEdgeDistances != 0.f);
     }
 }
+
+template<DeviceType kType>
+int TessellationHelper<kType>::adjustDegenerateVertices(const V4& signedEdgeDistances,
+                                                        Vertices* vertices) {
+    SkASSERT(vertices);
+    SkASSERT(vertices->fUVRCount == 0 || vertices->fUVRCount == 2 || vertices->fUVRCount == 3);
+
+    if constexpr (kType == DeviceType::kAssumeRectilinear) {
+        // When degenerate and rectilinear, the degenerate interior simply collapses to a point
+        // or line, which can be achieved by adjusting the signedEdgeDistances to be minimum of
+        // the request and half the width or height (as appropriate per edge).
+        SkASSERT(all(signedEdgeDistances <= 0.f)); // Only degenerate rectilinear is an inset
+        V4f half_lengths = -0.5f / fEdgeVectors.fInvLengths; // Negate to inset
+        V4f safe_distances = if_then_else(half_lengths > signedEdgeDistances,
+                                          half_lengths, signedEdgeDistances);
+        vertices->moveAlong(fEdgeVectors, safe_distances);
+        return 4;
+    } else if (fDeviceType <= GrQuad::Type::kRectilinear) {
+        // As above, this specific iteration's quad is rectilinear, so use the faster degenerate
+        // code path this time.
+        SkASSERT(all(signedEdgeDistances <= 0.f));
+        V4f half_lengths = -0.5f / fEdgeVectors.fInvLengths;
+        V4f safe_distances = if_then_else(half_lengths > signedEdgeDistances,
+                                          half_lengths, signedEdgeDistances);
+        vertices->moveAlong(fEdgeVectors, safe_distances);
+        return 4;
+    } else {
+        // Degenerate non-rectangular shape, must go through slowest path (which automatically
+        // handles perspective).
+        V4f x2d = fEdgeVectors.fX2D;
+        V4f y2d = fEdgeVectors.fY2D;
+        int vertexCount = this->getEdgeEquations().computeDegenerateQuad(signedEdgeDistances,
+                                                                         &x2d, &y2d);
+        vertices->moveTo(x2d, y2d, signedEdgeDistances != 0.f);
+        return vertexCount;
+    }
+}
+
+// Instantiate the valid helper types to prevent linker errors.
+template class TessellationHelper<DeviceType::kAssumeRectilinear>;
+template class TessellationHelper<DeviceType::kAny>;
 
 }; // namespace GrQuadUtils

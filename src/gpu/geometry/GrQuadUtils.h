@@ -40,6 +40,11 @@ namespace GrQuadUtils {
     bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
                     GrQuad* local=nullptr);
 
+    // Template flag for controlling specialization of the TessellationHelper and its structs
+    enum DeviceType {
+        kAssumeRectilinear,
+        kAny
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Internal-use-only structs for TessellationHelper. These are defined outside of
@@ -64,6 +69,7 @@ namespace GrQuadUtils {
         skvx::Vec<4, float> fCosTheta;
         skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
 
+        template<DeviceType kType>
         void reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
                    const skvx::Vec<4, float>& ws, GrQuad::Type quadType);
     };
@@ -76,6 +82,12 @@ namespace GrQuadUtils {
 
         skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
                                              const skvx::Vec<4, float>& y2d) const;
+
+        // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very small,
+        // edges are near parallel, or edges are very short/zero-length. Returns number of effective
+        // vertices in the degenerate quad.
+        int computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
+                                  skvx::Vec<4, float>* x2d, skvx::Vec<4, float>* y2d) const;
     };
 
     struct OutsetRequest {
@@ -89,6 +101,7 @@ namespace GrQuadUtils {
         bool fInsetDegenerate;
         bool fOutsetDegenerate;
 
+        template<DeviceType kType>
         void reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
                    const skvx::Vec<4, float>& edgeDistances);
     };
@@ -101,8 +114,10 @@ namespace GrQuadUtils {
         skvx::Vec<4, float> fU, fV, fR;
         int fUVRCount;
 
+        template<DeviceType kType>
         void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
+        template<DeviceType kType>
         void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
                        GrQuad* localOut, GrQuad::Type localType) const;
 
@@ -127,6 +142,7 @@ namespace GrQuadUtils {
     // designed to make processing GrQuads batched in an op as efficient as possible.
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    template<DeviceType kType = DeviceType::kAny>
     class TessellationHelper {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
@@ -157,17 +173,17 @@ namespace GrQuadUtils {
                     GrQuad* deviceOutset, GrQuad* localOutset);
 
     private:
-        Vertices            fOriginal;
-        EdgeVectors         fEdgeVectors;
-        GrQuad::Type        fDeviceType;
-        GrQuad::Type        fLocalType;
+        Vertices      fOriginal;
+        EdgeVectors   fEdgeVectors;
+        GrQuad::Type  fDeviceType;
+        GrQuad::Type  fLocalType;
 
         // Lazily computed as needed; use accessor functions instead of direct access.
-        OutsetRequest       fOutsetRequest;
-        EdgeEquations       fEdgeEquations;
+        OutsetRequest fOutsetRequest;
+        EdgeEquations fEdgeEquations;
 
         // Validity of Vertices/EdgeVectors (always true after first call to set()).
-        bool fVerticesValid = false;
+        bool fVerticesValid      = false;
         // Validity of outset request (true after calling getOutsetRequest() until next set() call
         // or next inset/outset() with different edge distances).
         bool fOutsetRequestValid = false;
@@ -179,16 +195,13 @@ namespace GrQuadUtils {
         const OutsetRequest& getOutsetRequest(const skvx::Vec<4, float>& edgeDistances);
         const EdgeEquations& getEdgeEquations();
 
-        // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very small,
-        // edges are near parallel, or edges are very short/zero-length. Returns number of effective
-        // vertices in the degenerate quad.
-        int computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
-                                  skvx::Vec<4, float>* x2d, skvx::Vec<4, float>* y2d);
-        // Outsets or insets 'vertices' by the given perpendicular 'edgeDistances'. If 'inset' is
-        // true the distances move the edges inwards; if it is false, the distances move outwards.
-        // Returns number of effective vertices in the adjusted quad.
-        int adjustVertices(const skvx::Vec<4, float>& edgeDistances, bool inset,
-                           Vertices* vertices);
+        // Outsets or insets 'vertices' by the given perpendicular 'signedEdgeDistances' (inset or
+        // outset is determined implicitly by the sign of the distances).
+        void adjustVertices(const skvx::Vec<4, float>& signedEdgeDistances, Vertices* vertices);
+        // Like adjustVertices() but handles empty edges, collapsed quads, numerical issues, and
+        // returns the number of effective vertices in the adjusted shape.
+        int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
+                                     Vertices* vertices);
     };
 
 }; // namespace GrQuadUtils
