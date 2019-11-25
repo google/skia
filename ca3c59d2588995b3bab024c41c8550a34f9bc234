@@ -22,6 +22,30 @@
       "revId": "ca3c59d2588995b3bab024c41c8550a34f9bc234",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ffdf9be_0e4a3267",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-11-25T14:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2eb75ec_1065a37c",
+      "range": {
+        "startLine": 422,
+        "startChar": 8,
+        "endLine": 422,
+        "endChar": 42
+      },
+      "revId": "ca3c59d2588995b3bab024c41c8550a34f9bc234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
