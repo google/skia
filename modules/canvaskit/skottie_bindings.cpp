@@ -23,6 +23,7 @@
 #if SK_INCLUDE_MANAGED_SKOTTIE
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
 
 using namespace emscripten;
@@ -30,7 +31,7 @@ using namespace emscripten;
 #if SK_INCLUDE_MANAGED_SKOTTIE
 namespace {
 
-class SkottieAssetProvider : public skottie::ResourceProvider {
+class SkottieAssetProvider : public skresources::ResourceProvider {
 public:
     ~SkottieAssetProvider() override = default;
 
@@ -48,12 +49,12 @@ public:
         return sk_sp<SkottieAssetProvider>(new SkottieAssetProvider(std::move(assets)));
     }
 
-    sk_sp<skottie::ImageAsset> loadImageAsset(const char[] /* path */,
-                                              const char name[],
-                                              const char[] /* id */) const override {
+    sk_sp<skresources::ImageAsset> loadImageAsset(const char[] /* path */,
+                                                  const char name[],
+                                                  const char[] /* id */) const override {
         // For CK/Skottie we ignore paths & IDs, and identify images based solely on name.
         if (auto data = this->findAsset(name)) {
-            return skottie_utils::MultiFrameImageAsset::Make(std::move(data), true /* predecode */);
+            return skresources::MultiFrameImageAsset::Make(std::move(data), true /* predecode */);
         }
 
         return nullptr;
@@ -84,7 +85,7 @@ private:
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
-                                        sk_sp<skottie::ResourceProvider> rp) {
+                                        sk_sp<skresources::ResourceProvider> rp) {
         auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
@@ -246,8 +247,8 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         }
 
         return ManagedAnimation::Make(json,
-                 skottie_utils::DataURIResourceProviderProxy::Make(
-                    SkottieAssetProvider::Make(std::move(assets)),
+                 skresources::DataURIResourceProviderProxy::Make(
+                     SkottieAssetProvider::Make(std::move(assets)),
                     /*predecode=*/true));
     }));
     constant("managed_skottie", true);

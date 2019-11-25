@@ -28,6 +28,8 @@ class ObjectValue;
 class Value;
 } // namespace skjson
 
+namespace skresources { class ImageAsset; }
+
 namespace sksg {
 class Color;
 class Path;
@@ -48,8 +50,8 @@ using AnimatorScope = sksg::AnimatorList;
 
 class AnimationBuilder final : public SkNoncopyable {
 public:
-    AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
-                     sk_sp<Logger>, sk_sp<MarkerObserver>,
+    AnimationBuilder(sk_sp<skresources::ResourceProvider>, sk_sp<SkFontMgr>,
+                     sk_sp<PropertyObserver>, sk_sp<Logger>, sk_sp<MarkerObserver>,
                      Animation::Builder::Stats*, const SkSize& size,
                      float duration, float framerate);
 
@@ -216,18 +218,18 @@ private:
         sk_sp<SkFontMgr> fFontMgr;
     };
 
-    sk_sp<ResourceProvider>    fResourceProvider;
-    LazyResolveFontMgr         fLazyFontMgr;
-    sk_sp<PropertyObserver>    fPropertyObserver;
-    sk_sp<Logger>              fLogger;
-    sk_sp<MarkerObserver>      fMarkerObserver;
-    Animation::Builder::Stats* fStats;
-    const SkSize               fSize;
-    const float                fDuration,
-                               fFrameRate;
-    mutable AnimatorScope*     fCurrentAnimatorScope;
-    mutable const char*        fPropertyObserverContext;
-    mutable bool               fHasNontrivialBlending : 1;
+    sk_sp<skresources::ResourceProvider> fResourceProvider;
+    LazyResolveFontMgr                   fLazyFontMgr;
+    sk_sp<PropertyObserver>              fPropertyObserver;
+    sk_sp<Logger>                        fLogger;
+    sk_sp<MarkerObserver>                fMarkerObserver;
+    Animation::Builder::Stats*           fStats;
+    const SkSize                         fSize;
+    const float                          fDuration,
+                                         fFrameRate;
+    mutable AnimatorScope*               fCurrentAnimatorScope;
+    mutable const char*                  fPropertyObserverContext;
+    mutable bool                         fHasNontrivialBlending : 1;
 
     struct LayerInfo {
         SkSize      fSize;
@@ -241,8 +243,8 @@ private:
     };
 
     struct ImageAssetInfo {
-        sk_sp<ImageAsset> fAsset;
-        SkISize           fSize;
+        sk_sp<skresources::ImageAsset> fAsset;
+        SkISize                        fSize;
     };
 
     SkTHashMap<SkString, AssetInfo>              fAssets;
