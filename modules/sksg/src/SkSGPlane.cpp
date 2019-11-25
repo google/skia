@@ -30,7 +30,7 @@ SkRect Plane::onRevalidate(InvalidationController*, const SkMatrix&) {
 
 SkPath Plane::onAsPath() const {
     SkPath path;
-    path.setFillType(SkPath::kInverseWinding_FillType);
+    path.setFillType(SkPathFillType::kInverseWinding);
 
     return path;
 }

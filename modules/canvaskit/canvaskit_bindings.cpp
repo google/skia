@@ -1272,7 +1272,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("toSVGString", &ToSVGString)
         .function("toCmds", &ToCmds)
 
-        .function("setFillType", &SkPath::setFillType)
+        .function("setFillType", select_overload<void(SkPathFillType)>(&SkPath::setFillType))
         .function("getFillType", &SkPath::getFillType)
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
@@ -1486,11 +1486,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("R16G16_float", SkColorType::kR16G16_float_SkColorType)
         .value("R16G16B16A16_unorm", SkColorType::kR16G16B16A16_unorm_SkColorType);
 
-    enum_<SkPath::FillType>("FillType")
-        .value("Winding",           SkPath::FillType::kWinding_FillType)
-        .value("EvenOdd",           SkPath::FillType::kEvenOdd_FillType)
-        .value("InverseWinding",    SkPath::FillType::kInverseWinding_FillType)
-        .value("InverseEvenOdd",    SkPath::FillType::kInverseEvenOdd_FillType);
+    enum_<SkPathFillType>("FillType")
+        .value("Winding",           SkPathFillType::kWinding)
+        .value("EvenOdd",           SkPathFillType::kEvenOdd)
+        .value("InverseWinding",    SkPathFillType::kInverseWinding)
+        .value("InverseEvenOdd",    SkPathFillType::kInverseEvenOdd);
 
     enum_<SkFilterQuality>("FilterQuality")
         .value("None",   SkFilterQuality::kNone_SkFilterQuality)

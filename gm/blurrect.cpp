@@ -53,7 +53,7 @@ static void draw_donut(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     rect.inset(STROKE_WIDTH/2, STROKE_WIDTH/2);
 
     path.addRect(rect);
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
 
     canvas->drawPath(path, p);
 }
@@ -71,7 +71,7 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
     rect.offset(7, -7);
 
     path.addRect(rect);
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
 
     canvas->drawPath(path, p);
 }

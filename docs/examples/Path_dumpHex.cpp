@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkPath path, copy;
     path.lineTo(6.f / 7, 2.f / 3);
     path.dumpHex();
-    copy.setFillType(SkPath::kWinding_FillType);
+    copy.setFillType(SkPathFillType::kWinding);
     copy.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
     copy.lineTo(SkBits2Float(0x3f5b6db7), SkBits2Float(0x3f2aaaab));  // 0.857143f, 0.666667f
     SkDebugf("path is " "%s" "equal to copy\n", path == copy ? "" : "not ");

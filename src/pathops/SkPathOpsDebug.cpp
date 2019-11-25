@@ -2901,10 +2901,10 @@ static void showPathContours(SkPath::RawIter& iter, const char* pathName) {
 }
 
 static const char* gFillTypeStr[] = {
-    "kWinding_FillType",
-    "kEvenOdd_FillType",
-    "kInverseWinding_FillType",
-    "kInverseEvenOdd_FillType"
+    "kWinding",
+    "kEvenOdd",
+    "kInverseWinding",
+    "kInverseEvenOdd"
 };
 
 void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool includeDeclaration) {
@@ -2927,12 +2927,12 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
         return;
     }
 #endif
-    SkPath::FillType fillType = path.getFillType();
-    SkASSERT(fillType >= SkPath::kWinding_FillType && fillType <= SkPath::kInverseEvenOdd_FillType);
+    SkPathFillType fillType = path.getNewFillType();
+    SkASSERT(fillType >= SkPathFillType::kWinding && fillType <= SkPathFillType::kInverseEvenOdd);
     if (includeDeclaration) {
         SkDebugf("    SkPath %s;\n", name);
     }
-    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[fillType]);
+    SkDebugf("    %s.setFillType(SkPath::%s);\n", name, gFillTypeStr[(int)fillType]);
     iter.setPath(path);
     showPathContours(iter, name);
 }

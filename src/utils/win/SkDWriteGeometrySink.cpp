@@ -49,10 +49,10 @@ SK_STDMETHODIMP_(ULONG) SkDWriteGeometrySink::Release(void) {
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::SetFillMode(D2D1_FILL_MODE fillMode) {
     switch (fillMode) {
     case D2D1_FILL_MODE_ALTERNATE:
-        fPath->setFillType(SkPath::kEvenOdd_FillType);
+        fPath->setFillType(SkPathFillType::kEvenOdd);
         break;
     case D2D1_FILL_MODE_WINDING:
-        fPath->setFillType(SkPath::kWinding_FillType);
+        fPath->setFillType(SkPathFillType::kWinding);
         break;
     default:
         SkDEBUGFAIL("Unknown D2D1_FILL_MODE.");

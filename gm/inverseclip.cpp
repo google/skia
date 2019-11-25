@@ -12,7 +12,7 @@
 // Repro case for http://skbug.com/9453
 DEF_SIMPLE_GM(inverseclip, canvas, 400, 400) {
     SkPath clip;
-    clip.setFillType(SkPath::kInverseWinding_FillType);
+    clip.setFillType(SkPathFillType::kInverseWinding);
     clip.moveTo(195.448f, 31);
     clip.cubicTo(97.9925f, 31, 18.99f, 105.23f, 18.99f, 196.797f);
     clip.cubicTo(18.99f, 288.365f, 97.9925f, 362.595f, 195.448f, 362.595f);

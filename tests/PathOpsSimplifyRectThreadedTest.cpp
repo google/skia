@@ -39,7 +39,6 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
     for (int dYAlign = 0; dYAlign < 5; ++dYAlign) {
         SkString pathStr;
         SkPath path, out;
-        path.setFillType(SkPath::kWinding_FillType);
         int l SK_INIT_TO_AVOID_WARNING, t SK_INIT_TO_AVOID_WARNING,
             r SK_INIT_TO_AVOID_WARNING, b SK_INIT_TO_AVOID_WARNING;
         if (aShape) {
@@ -172,11 +171,11 @@ static void testSimplify4x4RectsMain(PathOpsThreadState* data)
         }
         path.close();
         if (state.fReporter->verbose()) {
-            state.outputProgress(pathStr.c_str(), SkPath::kWinding_FillType);
+            state.outputProgress(pathStr.c_str(), SkPathFillType::kWinding);
         }
         testSimplify(path, false, out, state, pathStr.c_str());
         if (state.fReporter->verbose()) {
-            state.outputProgress(pathStr.c_str(), SkPath::kEvenOdd_FillType);
+            state.outputProgress(pathStr.c_str(), SkPathFillType::kEvenOdd);
         }
         testSimplify(path, true, out, state, pathStr.c_str());
     }

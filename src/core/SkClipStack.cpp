@@ -129,13 +129,13 @@ void SkClipStack::Element::invertShapeFillType() {
         case DeviceSpaceType::kRect:
             fDeviceSpacePath.init();
             fDeviceSpacePath.get()->addRect(this->getDeviceSpaceRect());
-            fDeviceSpacePath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
+            fDeviceSpacePath.get()->setFillType(SkPathFillType::kInverseEvenOdd);
             fDeviceSpaceType = DeviceSpaceType::kPath;
             break;
         case DeviceSpaceType::kRRect:
             fDeviceSpacePath.init();
             fDeviceSpacePath.get()->addRRect(fDeviceSpaceRRect);
-            fDeviceSpacePath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
+            fDeviceSpacePath.get()->setFillType(SkPathFillType::kInverseEvenOdd);
             fDeviceSpaceType = DeviceSpaceType::kPath;
             break;
         case DeviceSpaceType::kPath:
@@ -752,7 +752,7 @@ bool SkClipStack::asPath(SkPath *path) const {
     bool isAA = false;
 
     path->reset();
-    path->setFillType(SkPath::kInverseEvenOdd_FillType);
+    path->setFillType(SkPathFillType::kInverseEvenOdd);
 
     SkClipStack::Iter iter(*this, SkClipStack::Iter::kBottom_IterStart);
     while (const SkClipStack::Element* element = iter.next()) {

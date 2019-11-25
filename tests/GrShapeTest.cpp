@@ -145,8 +145,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         ignoreInversenessDifference = (canDropInverse1 != canDropInverse2);
     }
     bool ignoreWindingVsEvenOdd = false;
-    if (SkPath::ConvertToNonInverseFillType(pathA.getFillType()) !=
-        SkPath::ConvertToNonInverseFillType(pathB.getFillType())) {
+    if (SkPathFillType_ConvertToNonInverse(pathA.getNewFillType()) !=
+        SkPathFillType_ConvertToNonInverse(pathB.getNewFillType())) {
         bool aCanChange = can_interchange_winding_and_even_odd_fill(a);
         bool bCanChange = can_interchange_winding_and_even_odd_fill(b);
         if (aCanChange != bCanChange) {
@@ -163,14 +163,14 @@ static void check_equivalence(skiatest::Reporter* r, const GrShape& a, const GrS
         REPORTER_ASSERT(r, a.inverseFilled() == pA.isInverseFillType());
         REPORTER_ASSERT(r, b.inverseFilled() == pB.isInverseFillType());
         if (ignoreInversenessDifference) {
-            pA.setFillType(SkPath::ConvertToNonInverseFillType(pathA.getFillType()));
-            pB.setFillType(SkPath::ConvertToNonInverseFillType(pathB.getFillType()));
+            pA.setFillType(SkPathFillType_ConvertToNonInverse(pathA.getNewFillType()));
+            pB.setFillType(SkPathFillType_ConvertToNonInverse(pathB.getNewFillType()));
         }
         if (ignoreWindingVsEvenOdd) {
-            pA.setFillType(pA.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
-                                                  : SkPath::kEvenOdd_FillType);
-            pB.setFillType(pB.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
-                                                  : SkPath::kEvenOdd_FillType);
+            pA.setFillType(pA.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
+                                                  : SkPathFillType::kEvenOdd);
+            pB.setFillType(pB.isInverseFillType() ? SkPathFillType::kInverseEvenOdd
+                                                  : SkPathFillType::kEvenOdd);
         }
         if (!ignoreInversenessDifference && !ignoreWindingVsEvenOdd) {
             REPORTER_ASSERT(r, keyA == keyB);
@@ -425,11 +425,11 @@ public:
     PathGeo(const SkPath& path, Invert invert) : fPath(path)  {
         SkASSERT(!path.isInverseFillType());
         if (Invert::kYes == invert) {
-            if (fPath.getFillType() == SkPath::kEvenOdd_FillType) {
-                fPath.setFillType(SkPath::kInverseEvenOdd_FillType);
+            if (fPath.getNewFillType() == SkPathFillType::kEvenOdd) {
+                fPath.setFillType(SkPathFillType::kInverseEvenOdd);
             } else {
-                SkASSERT(fPath.getFillType() == SkPath::kWinding_FillType);
-                fPath.setFillType(SkPath::kInverseWinding_FillType);
+                SkASSERT(fPath.getNewFillType() == SkPathFillType::kWinding);
+                fPath.setFillType(SkPathFillType::kInverseWinding);
             }
         }
     }
@@ -572,7 +572,7 @@ private:
         }
         // The bounds API explicitly calls out that it does not consider inverseness.
         SkPath p = path;
-        p.setFillType(SkPath::ConvertToNonInverseFillType(path.getFillType()));
+        p.setFillType(SkPathFillType_ConvertToNonInverse(path.getNewFillType()));
         REPORTER_ASSERT(r, test_bounds_by_rasterizing(p, bounds));
     }
 
@@ -1885,7 +1885,7 @@ DEF_TEST(GrShape_lines, r) {
     lineAC.lineTo(kC);
 
     SkPath invLineAB = lineAB;
-    invLineAB.setFillType(SkPath::kInverseEvenOdd_FillType);
+    invLineAB.setFillType(SkPathFillType::kInverseEvenOdd);
 
     SkPaint fill;
     SkPaint stroke;

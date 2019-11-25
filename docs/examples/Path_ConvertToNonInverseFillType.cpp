@@ -3,25 +3,25 @@
 #include "tools/fiddle/examples.h"
 // HASH=319f6b124458dcc0f9ce4d7bbde65810
 REG_FIDDLE(Path_ConvertToNonInverseFillType, 256, 256, true, 0) {
-#define nameValue(fill) { SkPath::fill, #fill }
+#define nameValue(fill) { SkPathFillType::fill, #fill }
 
 void draw(SkCanvas* canvas) {
     struct {
-        SkPath::FillType fill;
+        SkPathFillType fill;
         const char* name;
     } fills[] = {
-        nameValue(kWinding_FillType),
-        nameValue(kEvenOdd_FillType),
-        nameValue(kInverseWinding_FillType),
-        nameValue(kInverseEvenOdd_FillType),
+        nameValue(kWinding),
+        nameValue(kEvenOdd),
+        nameValue(kInverseWinding),
+        nameValue(kInverseEvenOdd),
     };
     for (unsigned i = 0; i < SK_ARRAY_COUNT(fills); ++i) {
-        if (fills[i].fill != (SkPath::FillType) i) {
+        if (fills[i].fill != (SkPathFillType) i) {
             SkDebugf("fills array order does not match FillType enum order");
             break;
         }
         SkDebugf("ConvertToNonInverseFillType(%s) == %s\n", fills[i].name,
-                fills[(int) SkPath::ConvertToNonInverseFillType(fills[i].fill)].name);
+                fills[(int) SkPathFillType_ConvertToNonInverse(fills[i].fill)].name);
     }
 }
 }  // END FIDDLE

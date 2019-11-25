@@ -192,11 +192,11 @@ protected:
         fPath.offset(100, 0);
 #endif
 
-        fPath.setFillType(SkPath::kWinding_FillType);
+        fPath.setFillType(SkPathFillType::kWinding);
         drawSet(canvas, &paint);
 
         canvas->translate(0, fPath.getBounds().height() * 5 / 4);
-        fPath.setFillType(SkPath::kEvenOdd_FillType);
+        fPath.setFillType(SkPathFillType::kEvenOdd);
         drawSet(canvas, &paint);
     }
 

@@ -197,7 +197,7 @@ class DegenerateSegmentsGM : public GM {
 
     void drawPath(SkPath& path, SkCanvas* canvas, SkColor color,
                   const SkRect& clip, SkPaint::Cap cap, SkPaint::Join join,
-                  SkPaint::Style style, SkPath::FillType fill,
+                  SkPaint::Style style, SkPathFillType fill,
                   SkScalar strokeWidth) {
         path.setFillType(fill);
         SkPaint paint;
@@ -261,14 +261,14 @@ class DegenerateSegmentsGM : public GM {
         };
 
         struct FillAndName {
-            SkPath::FillType fFill;
+            SkPathFillType fFill;
             const char*      fName;
         };
         constexpr FillAndName gFills[] = {
-            {SkPath::kWinding_FillType, "Winding"},
-            {SkPath::kEvenOdd_FillType, "Even / Odd"},
-            {SkPath::kInverseWinding_FillType, "Inverse Winding"},
-            {SkPath::kInverseEvenOdd_FillType, "Inverse Even / Odd"}
+            {SkPathFillType::kWinding, "Winding"},
+            {SkPathFillType::kEvenOdd, "Even / Odd"},
+            {SkPathFillType::kInverseWinding, "Inverse Winding"},
+            {SkPathFillType::kInverseEvenOdd, "Inverse Even / Odd"}
         };
         struct StyleAndName {
             SkPaint::Style fStyle;

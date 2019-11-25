@@ -132,7 +132,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     if (path.isRect(&rect, &isClosed, &direction) &&
         isClosed &&
         (SkPathDirection::kCW == direction ||
-         SkPath::kEvenOdd_FillType == path.getFillType()))
+         SkPathFillType::kEvenOdd == path.getNewFillType()))
     {
         SkPDFUtils::AppendRectangle(rect, content);
         return;
@@ -213,8 +213,7 @@ void SkPDFUtils::ClosePath(SkWStream* content) {
     content->writeText("h\n");
 }
 
-void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
-                           SkWStream* content) {
+void SkPDFUtils::PaintPath(SkPaint::Style style, SkPathFillType fill, SkWStream* content) {
     if (style == SkPaint::kFill_Style) {
         content->writeText("f");
     } else if (style == SkPaint::kStrokeAndFill_Style) {
@@ -224,9 +223,9 @@ void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
     }
 
     if (style != SkPaint::kStroke_Style) {
-        NOT_IMPLEMENTED(fill == SkPath::kInverseEvenOdd_FillType, false);
-        NOT_IMPLEMENTED(fill == SkPath::kInverseWinding_FillType, false);
-        if (fill == SkPath::kEvenOdd_FillType) {
+        NOT_IMPLEMENTED(fill == SkPathFillType::kInverseEvenOdd, false);
+        NOT_IMPLEMENTED(fill == SkPathFillType::kInverseWinding, false);
+        if (fill == SkPathFillType::kEvenOdd) {
             content->writeText("*");
         }
     }
@@ -234,8 +233,7 @@ void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
 }
 
 void SkPDFUtils::StrokePath(SkWStream* content) {
-    SkPDFUtils::PaintPath(
-        SkPaint::kStroke_Style, SkPath::kWinding_FillType, content);
+    SkPDFUtils::PaintPath(SkPaint::kStroke_Style, SkPathFillType::kWinding, content);
 }
 
 void SkPDFUtils::ApplyGraphicState(int objectIndex, SkWStream* content) {
