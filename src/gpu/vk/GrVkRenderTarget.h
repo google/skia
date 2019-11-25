@@ -13,14 +13,13 @@
 #include "src/gpu/vk/GrVkImage.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
-class GrVkCommandBuffer;
 class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImageView;
-class GrVkSecondaryCommandBuffer;
 class GrVkStencilAttachment;
 
 struct GrVkImageInfo;
@@ -90,6 +89,10 @@ public:
                                   GrVkRenderPass::AttachmentFlags* flags) const;
 
     void addResources(GrVkCommandBuffer& commandBuffer);
+
+    void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
+        fGrSecondaryCommandBuffers.push_back(std::move(cmdBuffer));
+    }
 
 protected:
     GrVkRenderTarget(GrVkGpu* gpu,
@@ -183,6 +186,7 @@ private:
     // VkCommandBuffer and not VK_NULL_HANDLE. In this case the render target will not be backed by
     // an actual VkImage and will thus be limited in terms of what it can be used for.
     VkCommandBuffer fSecondaryCommandBuffer = VK_NULL_HANDLE;
+    SkTArray<std::unique_ptr<GrVkCommandBuffer>> fGrSecondaryCommandBuffers;
 };
 
 #endif

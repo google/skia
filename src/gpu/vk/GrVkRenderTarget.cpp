@@ -356,6 +356,11 @@ void GrVkRenderTarget::releaseInternalObjects() {
         fCachedSimpleRenderPass->unref(gpu);
         fCachedSimpleRenderPass = nullptr;
     }
+    for (int i = 0; i < fGrSecondaryCommandBuffers.count(); ++i) {
+        SkASSERT(fGrSecondaryCommandBuffers[i]);
+        fGrSecondaryCommandBuffers[i]->releaseResources(gpu);
+    }
+    fGrSecondaryCommandBuffers.reset();
 }
 
 void GrVkRenderTarget::abandonInternalObjects() {
@@ -380,6 +385,11 @@ void GrVkRenderTarget::abandonInternalObjects() {
         fCachedSimpleRenderPass->unrefAndAbandon();
         fCachedSimpleRenderPass = nullptr;
     }
+    for (int i = 0; i < fGrSecondaryCommandBuffers.count(); ++i) {
+        SkASSERT(fGrSecondaryCommandBuffers[i]);
+        fGrSecondaryCommandBuffers[i]->abandonGPUData();
+    }
+    fGrSecondaryCommandBuffers.reset();
 }
 
 void GrVkRenderTarget::onRelease() {
