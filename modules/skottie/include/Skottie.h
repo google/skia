@@ -69,16 +69,20 @@ public:
      * Load a generic resource (currently only nested animations) specified by |path| + |name|,
      * and return as an SkData.
      */
-    virtual sk_sp<SkData> load(const char resource_path[],
-                               const char resource_name[]) const;
+    virtual sk_sp<SkData> load(const char[] /* resource_path */,
+                               const char[] /* resource_name */) const {
+        return nullptr;
+    }
 
     /**
      * Load an image asset specified by |path| + |name|, and returns the corresponding
      * ImageAsset proxy.
      */
-    virtual sk_sp<ImageAsset> loadImageAsset(const char resource_path[],
-                                             const char resource_name[],
-                                             const char resource_id[]) const;
+    virtual sk_sp<ImageAsset> loadImageAsset(const char[] /* resource_path */,
+                                             const char[] /* resource_name */,
+                                             const char[] /* resource_id   */) const {
+        return nullptr;
+    }
 
     /**
      * Load an external font and return as SkData.
@@ -93,7 +97,10 @@ public:
      *   capabilities (woff, woff2).  In that case, the embedder would need to advertise no user
      *   agent capabilities when fetching the URL, in order to receive full font data.
      */
-    virtual sk_sp<SkData> loadFont(const char name[], const char url[]) const;
+    virtual sk_sp<SkData> loadFont(const char[] /* name */,
+                                   const char[] /* url  */) const {
+        return nullptr;
+    }
 };
 
 /**
