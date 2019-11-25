@@ -40,6 +40,83 @@ namespace GrQuadUtils {
     bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
                     GrQuad* local=nullptr);
 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Internal-use-only structs for TessellationHelper. These are defined outside of
+    // TessellationHelper to control their templating independently of the Helper, and unfortunately
+    // we can't just forward declare them and define them afterwards.
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    // NOTE: This struct is named 'EdgeVectors' because it holds a lot of cached calculations
+    // pertaining to the edge vectors of the input quad, projected into 2D device coordinates.
+    // While they are not direction vectors, this struct represents a convenient storage space
+    // for the projected corners of the quad.
+    struct EdgeVectors {
+        // Projected corners (x/w and y/w); these are the 2D coordinates that determine the
+        // actual edge direction vectors, dx, dy, and invLengths
+        skvx::Vec<4, float> fX2D, fY2D;
+        // Normalized edge vectors of the device space quad, ordered L, B, T, R
+        // (i.e. next_ccw(x) - x).
+        skvx::Vec<4, float> fDX, fDY;
+        // Reciprocal of edge length of the device space quad, i.e. 1 / sqrt(dx*dx + dy*dy)
+        skvx::Vec<4, float> fInvLengths;
+        // Theta represents the angle formed by the two edges connected at each corner.
+        skvx::Vec<4, float> fCosTheta;
+        skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
+    };
+
+    struct EdgeEquations {
+        // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
+        skvx::Vec<4, float> fA, fB, fC;
+
+        skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
+                                             const skvx::Vec<4, float>& y2d) const;
+    };
+
+    struct OutsetRequest {
+        // Positive edge distances to move each edge of the quad. These distances represent the
+        // shortest (perpendicular) distance between the original edge and the inset or outset
+        // edge. If the distance is 0, then the edge will not move.
+        skvx::Vec<4, float> fEdgeDistances;
+        // True if the new corners cannot be calculated by simply adding scaled edge vectors.
+        // The quad may be degenerate because of the original geometry (near colinear edges), or
+        // be because of the requested edge distances (collapse of inset, etc.)
+        bool fInsetDegenerate;
+        bool fOutsetDegenerate;
+    };
+
+    struct Vertices {
+        // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
+        skvx::Vec<4, float> fX, fY, fW;
+        // U, V, and R coordinates representing local quad.
+        // Ignored depending on uvrCount (0, 1, 2).
+        skvx::Vec<4, float> fU, fV, fR;
+        int fUVRCount;
+
+        // Update the device and optional local coordinates by moving the corners along their
+        // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
+        // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
+        // numerically sound.
+        void moveAlong(const EdgeVectors& edgeVectors,
+                       const skvx::Vec<4, float>& signedEdgeDistances);
+
+        // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
+        // optional local coordinates updated to match the new vertices. It is assumed that
+        // 'mask' was respected when determing (x2d, y2d), but it is used to ensure that only
+        // unmasked unprojected edge vectors are used when computing device and local coords.
+        void moveTo(const skvx::Vec<4, float>& x2d,
+                    const skvx::Vec<4, float>& y2d,
+                    const skvx::Vec<4, int32_t>& mask);
+
+        void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
+                       GrQuad* localOut, GrQuad::Type localType) const;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Utility class for calculating screen-space insets and outsets for GrQuads. Its API is
+    // designed to make processing GrQuads batched in an op as efficient as possible.
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     class TessellationHelper {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
@@ -70,74 +147,6 @@ namespace GrQuadUtils {
                     GrQuad* deviceOutset, GrQuad* localOutset);
 
     private:
-        struct EdgeVectors;
-        struct OutsetRequest;
-
-        struct Vertices {
-            // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
-            skvx::Vec<4, float> fX, fY, fW;
-            // U, V, and R coordinates representing local quad.
-            // Ignored depending on uvrCount (0, 1, 2).
-            skvx::Vec<4, float> fU, fV, fR;
-            int fUVRCount;
-
-            // Update the device and optional local coordinates by moving the corners along their
-            // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
-            // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
-            // numerically sound.
-            void moveAlong(const EdgeVectors& edgeVectors,
-                           const skvx::Vec<4, float>& signedEdgeDistances);
-
-            // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
-            // optional local coordinates updated to match the new vertices. It is assumed that
-            // 'mask' was respected when determing (x2d, y2d), but it is used to ensure that only
-            // unmasked unprojected edge vectors are used when computing device and local coords.
-            void moveTo(const skvx::Vec<4, float>& x2d,
-                        const skvx::Vec<4, float>& y2d,
-                        const skvx::Vec<4, int32_t>& mask);
-
-            void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
-                           GrQuad* localOut, GrQuad::Type localType) const;
-        };
-
-        // NOTE: This struct is named 'EdgeVectors' because it holds a lot of cached calculations
-        // pertaining to the edge vectors of the input quad, projected into 2D device coordinates.
-        // While they are not direction vectors, this struct represents a convenient storage space
-        // for the projected corners of the quad.
-        struct EdgeVectors {
-            // Projected corners (x/w and y/w); these are the 2D coordinates that determine the
-            // actual edge direction vectors, dx, dy, and invLengths
-            skvx::Vec<4, float> fX2D, fY2D;
-            // Normalized edge vectors of the device space quad, ordered L, B, T, R
-            // (i.e. next_ccw(x) - x).
-            skvx::Vec<4, float> fDX, fDY;
-            // Reciprocal of edge length of the device space quad, i.e. 1 / sqrt(dx*dx + dy*dy)
-            skvx::Vec<4, float> fInvLengths;
-            // Theta represents the angle formed by the two edges connected at each corner.
-            skvx::Vec<4, float> fCosTheta;
-            skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
-        };
-
-        struct EdgeEquations {
-            // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
-            skvx::Vec<4, float> fA, fB, fC;
-
-            skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
-                                                 const skvx::Vec<4, float>& y2d) const;
-        };
-
-        struct OutsetRequest {
-            // Positive edge distances to move each edge of the quad. These distances represent the
-            // shortest (perpendicular) distance between the original edge and the inset or outset
-            // edge. If the distance is 0, then the edge will not move.
-            skvx::Vec<4, float> fEdgeDistances;
-            // True if the new corners cannot be calculated by simply adding scaled edge vectors.
-            // The quad may be degenerate because of the original geometry (near colinear edges), or
-            // be because of the requested edge distances (collapse of inset, etc.)
-            bool fInsetDegenerate;
-            bool fOutsetDegenerate;
-        };
-
         Vertices            fOriginal;
         EdgeVectors         fEdgeVectors;
         GrQuad::Type        fDeviceType;

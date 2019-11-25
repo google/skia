@@ -468,7 +468,7 @@ void TessellationHelper::reset(const GrQuad& deviceQuad, const GrQuad* localQuad
     fVerticesValid = true;
 }
 
-const TessellationHelper::EdgeEquations& TessellationHelper::getEdgeEquations() {
+const EdgeEquations& TessellationHelper::getEdgeEquations() {
     if (!fEdgeEquationsValid) {
         V4f dx = fEdgeVectors.fDX;
         V4f dy = fEdgeVectors.fDY;
@@ -493,7 +493,7 @@ const TessellationHelper::EdgeEquations& TessellationHelper::getEdgeEquations() 
     return fEdgeEquations;
 }
 
-const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
+const OutsetRequest& TessellationHelper::getOutsetRequest(
         const skvx::Vec<4, float>& edgeDistances) {
     // Much of the code assumes that we start from positive distances and apply it unmodified to
     // create an outset; knowing that it's outset simplifies degeneracy checking.
@@ -553,8 +553,7 @@ const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
     return fOutsetRequest;
 }
 
-void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
-                                             const V4f& signedEdgeDistances) {
+void Vertices::moveAlong(const EdgeVectors& edgeVectors, const V4f& signedEdgeDistances) {
     // This shouldn't be called if fInvSinTheta is close to infinity (cosTheta close to 1).
     SkASSERT(all(abs(edgeVectors.fCosTheta) < 0.9f));
 
@@ -584,7 +583,7 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
     }
 }
 
-void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const M4f& mask) {
+void Vertices::moveTo(const V4f& x2d, const V4f& y2d, const M4f& mask) {
     // Left to right, in device space, for each point
     V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
     V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
@@ -689,8 +688,8 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     }
 }
 
-void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
-                                             GrQuad* localOut, GrQuad::Type localType) const {
+void Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
+                         GrQuad* localOut, GrQuad::Type localType) const {
     SkASSERT(deviceOut);
     SkASSERT(fUVRCount == 0 || localOut);
 
@@ -711,7 +710,7 @@ void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type dev
     }
 }
 
-V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
+V4f EdgeEquations::estimateCoverage(const V4f& x2d, const V4f& y2d) const {
     // Calculate distance of the 4 inset points (px, py) to the 4 edges
     V4f d0 = mad(fA[0], x2d, mad(fB[0], y2d, fC[0]));
     V4f d1 = mad(fA[1], x2d, mad(fB[1], y2d, fC[1]));
