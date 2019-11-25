@@ -23,6 +23,7 @@
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/text/TextAdapter.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGPaint.h"
@@ -267,9 +268,9 @@ sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcol
     return color_node;
 }
 
-AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
-                                   sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
-                                   sk_sp<MarkerObserver> mobserver,
+AnimationBuilder::AnimationBuilder(sk_sp<skresources::ResourceProvider> rp,
+                                   sk_sp<SkFontMgr> fontmgr, sk_sp<PropertyObserver> pobserver,
+                                   sk_sp<Logger> logger, sk_sp<MarkerObserver> mobserver,
                                    Animation::Builder::Stats* stats,
                                    const SkSize& size, float duration, float framerate)
     : fResourceProvider(std::move(rp))
@@ -405,25 +406,13 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 
 } // namespace internal
 
-sk_sp<SkData> ResourceProvider::load(const char[], const char[]) const {
-    return nullptr;
-}
-
-sk_sp<ImageAsset> ResourceProvider::loadImageAsset(const char path[], const char name[],
-                                                   const char id[]) const {
-    return nullptr;
-}
-
-sk_sp<SkData> ResourceProvider::loadFont(const char[], const char[]) const {
-    return nullptr;
-}
-
 void Logger::log(Level, const char[], const char*) {}
 
 Animation::Builder::Builder()  = default;
 Animation::Builder::~Builder() = default;
 
-Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
+Animation::Builder& Animation::Builder::setResourceProvider(
+        sk_sp<skresources::ResourceProvider> rp) {
     fResourceProvider = std::move(rp);
     return *this;
 }
@@ -472,7 +461,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     TRACE_EVENT0("skottie", TRACE_FUNC);
 
     // Sanitize factory args.
-    class NullResourceProvider final : public ResourceProvider {
+    class NullResourceProvider final : public skresources::ResourceProvider {
         sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
     };
     auto resolvedProvider = fResourceProvider
