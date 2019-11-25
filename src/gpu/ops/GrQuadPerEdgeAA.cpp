@@ -221,6 +221,25 @@ static void write_2d_cov_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::Ve
     }
 }
 
+static const float kFullCoverage[4] = {1.f, 1.f, 1.f, 1.f};
+static const float kZeroCoverage[4] = {0.f, 0.f, 0.f, 0.f};
+static const SkRect kIgnoredDomain = SkRect::MakeEmpty();
+
+static skvx::Vec<4, float> aa_coverage_edge_distances(GrQuadAAFlags aaFlags) {
+    // Edge inset/outset distance ordered LBTR, set to 0.5 for a half pixel if the AA flag
+    // is turned on, or 0.0 if the edge is not anti-aliased.
+    if (aaFlags == GrQuadAAFlags::kNone) {
+        return 0.0f;
+    } else if (aaFlags == GrQuadAAFlags::kAll) {
+        return 0.5f;
+    } else {
+        return { (aaFlags & GrQuadAAFlags::kLeft)   ? 0.5f : 0.f,
+                 (aaFlags & GrQuadAAFlags::kBottom) ? 0.5f : 0.f,
+                 (aaFlags & GrQuadAAFlags::kTop)    ? 0.5f : 0.f,
+                 (aaFlags & GrQuadAAFlags::kRight)  ? 0.5f : 0.f };
+    }
+}
+
 } // anonymous namespace
 
 namespace GrQuadPerEdgeAA {
@@ -284,10 +303,32 @@ Tessellator::WriteQuadProc Tessellator::GetWriteQuadProc(const VertexSpec& spec)
     return write_quad_generic;
 }
 
+Tessellator::AppendQuadProc Tessellator::GetAppendQuadProc(const VertexSpec& spec) {
+    if (spec.usesCoverageAA()) {
+        if (spec.deviceQuadType() <= GrQuad::Type::kRectilinear) {
+            return Tessellator::AppendAAQuad;
+        } else {
+            return Tessellator::AppendAARect;
+        }
+    } else {
+        return Tessellator::AppendNonAAQuad;
+    }
+}
+
+Tessellator::AllHelpers::AllHelpers(const VertexSpec& spec) {
+    if (spec.deviceQuadType() <= GrQuad::Type::kRectilinear) {
+        new (&fRect) GrQuadUtils::TessellationHelper<GrQuadUtils::DeviceType::kAssumeRectilinear>();
+    } else {
+        new (&fAny) GrQuadUtils::TessellationHelper<GrQuadUtils::DeviceType::kAny>();
+    }
+}
+
 Tessellator::Tessellator(const VertexSpec& spec, char* vertices)
-        : fVertexSpec(spec)
+        : fAAHelper(spec)
+        , fVertexSpec(spec)
         , fVertexWriter{vertices}
-        , fWriteProc(Tessellator::GetWriteQuadProc(spec)) {}
+        , fWriteProc(Tessellator::GetWriteQuadProc(spec))
+        , fAppendProc(Tessellator::GetAppendQuadProc(spec)) {}
 
 void Tessellator::append(const GrQuad& deviceQuad, const GrQuad& localQuad,
                          const SkPMColor4f& color, const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
@@ -297,66 +338,79 @@ void Tessellator::append(const GrQuad& deviceQuad, const GrQuad& localQuad,
     SkASSERT(deviceQuad.quadType() <= fVertexSpec.deviceQuadType());
     SkASSERT(!fVertexSpec.hasLocalCoords() || localQuad.quadType() <= fVertexSpec.localQuadType());
 
-    static const float kFullCoverage[4] = {1.f, 1.f, 1.f, 1.f};
-    static const float kZeroCoverage[4] = {0.f, 0.f, 0.f, 0.f};
-    static const SkRect kIgnoredDomain = SkRect::MakeEmpty();
+    fAppendProc(this, deviceQuad, localQuad, color, uvDomain, aaFlags);
+}
 
-    if (fVertexSpec.usesCoverageAA()) {
-        SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kWithColor ||
-                 fVertexSpec.coverageMode() == CoverageMode::kWithPosition);
-        // Must calculate inner and outer quadrilaterals for the vertex coverage ramps, and possibly
-        // a geometry domain if corners are not right angles
-        SkRect geomDomain;
-        if (fVertexSpec.requiresGeometryDomain()) {
-            geomDomain = deviceQuad.bounds();
-            geomDomain.outset(0.5f, 0.5f); // account for AA expansion
-        }
+void Tessellator::AppendNonAAQuad(Tessellator* tessellator, const GrQuad& deviceQuad,
+                                  const GrQuad& localQuad, const SkPMColor4f& color,
+                                  const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
+    SkASSERT(!tessellator->fVertexSpec.usesCoverageAA() &&
+             !tessellator->fVertexSpec.requiresGeometryDomain());
+    // No outsetting needed, just write a single quad with full coverage
+    tessellator->fWriteProc(&tessellator->fVertexWriter, tessellator->fVertexSpec,
+                            deviceQuad, localQuad, kFullCoverage, color, kIgnoredDomain, uvDomain);
+}
 
-        if (aaFlags == GrQuadAAFlags::kNone) {
-            // Have to write the coverage AA vertex structure, but there's no math to be done for a
-            // non-aa quad batched into a coverage AA op.
-            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
-                       geomDomain, uvDomain);
-            // Since we pass the same corners in, the outer vertex structure will have 0 area and
-            // the coverage interpolation from 1 to 0 will not be visible.
-            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
-                       geomDomain, uvDomain);
-        } else {
-            // Reset the tessellation helper to match the current geometry
-            fAAHelper.reset(deviceQuad, fVertexSpec.hasLocalCoords() ? &localQuad : nullptr);
+void Tessellator::AppendAARect(Tessellator* tessellator, const GrQuad& deviceQuad,
+                               const GrQuad& localQuad, const SkPMColor4f& color,
+                               const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
+    const VertexSpec& spec = tessellator->fVertexSpec;
+    SkASSERT(spec.usesCoverageAA() && (spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
+                                       spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithPosition));
+    // Since this assumes everything is rectilinear, we should not have a geometry domain
+    SkASSERT(spec.deviceQuadType() <= GrQuad::Type::kRectilinear && !spec.requiresGeometryDomain());
 
-            // Edge inset/outset distance ordered LBTR, set to 0.5 for a half pixel if the AA flag
-            // is turned on, or 0.0 if the edge is not anti-aliased.
-            skvx::Vec<4, float> edgeDistances;
-            if (aaFlags == GrQuadAAFlags::kAll) {
-                edgeDistances = 0.5f;
-            } else {
-                edgeDistances = { (aaFlags & GrQuadAAFlags::kLeft)   ? 0.5f : 0.f,
-                                  (aaFlags & GrQuadAAFlags::kBottom) ? 0.5f : 0.f,
-                                  (aaFlags & GrQuadAAFlags::kTop)    ? 0.5f : 0.f,
-                                  (aaFlags & GrQuadAAFlags::kRight)  ? 0.5f : 0.f };
-            }
+    // Cast the helper to kAssumeRectlinear so it always uses the fast path for calculating
+    // the inset and outset geometry.
+    auto& helper = tessellator->fAAHelper.fRect;
 
-            GrQuad aaDeviceQuad, aaLocalQuad;
+    helper.reset(deviceQuad, spec.hasLocalCoords() ? &localQuad : nullptr);
 
-            // Write inner vertices first
-            float coverage[4];
-            fAAHelper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad).store(coverage);
-            fWriteProc(&fVertexWriter, fVertexSpec, aaDeviceQuad, aaLocalQuad, coverage, color,
-                       geomDomain, uvDomain);
+    skvx::Vec<4, float> edgeDistances = aa_coverage_edge_distances(aaFlags);
+    GrQuad aaDeviceQuad, aaLocalQuad;
 
-            // Then outer vertices, which use 0.f for their coverage
-            fAAHelper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
-            fWriteProc(&fVertexWriter, fVertexSpec, aaDeviceQuad, aaLocalQuad, kZeroCoverage, color,
-                       geomDomain, uvDomain);
-        }
-    } else {
-        // No outsetting needed, just write a single quad with full coverage
-        SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kNone &&
-                 !fVertexSpec.requiresGeometryDomain());
-        fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
-                   kIgnoredDomain, uvDomain);
+    // Inner vertices first
+    float coverage[4];
+    helper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad).store(coverage);
+    tessellator->fWriteProc(&tessellator->fVertexWriter, spec, aaDeviceQuad, aaLocalQuad,
+                            coverage, color, kIgnoredDomain, uvDomain);
+
+    // Then outer vertices, which use 0.f for their coverage
+    helper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
+    tessellator->fWriteProc(&tessellator->fVertexWriter, spec, aaDeviceQuad, aaLocalQuad,
+                            kZeroCoverage, color, kIgnoredDomain, uvDomain);
+}
+
+void Tessellator::AppendAAQuad(Tessellator* tessellator, const GrQuad& deviceQuad,
+                               const GrQuad& localQuad, const SkPMColor4f& color,
+                               const SkRect& uvDomain, GrQuadAAFlags aaFlags) {
+        const VertexSpec& spec = tessellator->fVertexSpec;
+    SkASSERT(spec.usesCoverageAA() && (spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
+                                       spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithPosition));
+    // This is similar to append_aa_rect except it has no restriction on device quad type, and
+    // supports geometric domains.
+    SkRect geomDomain;
+    if (spec.requiresGeometryDomain()) {
+        geomDomain = deviceQuad.bounds();
+        geomDomain.outset(0.5f, 0.5f); // account for AA expansion
     }
+    auto& helper = tessellator->fAAHelper.fAny;
+
+    helper.reset(deviceQuad, spec.hasLocalCoords() ? &localQuad : nullptr);
+
+    skvx::Vec<4, float> edgeDistances = aa_coverage_edge_distances(aaFlags);
+    GrQuad aaDeviceQuad, aaLocalQuad;
+
+    // Inner vertices first
+    float coverage[4];
+    helper.inset(edgeDistances, &aaDeviceQuad, &aaLocalQuad).store(coverage);
+    tessellator->fWriteProc(&tessellator->fVertexWriter, spec, aaDeviceQuad, aaLocalQuad,
+                            coverage, color, geomDomain, uvDomain);
+
+    // Then outer vertices, which use 0.f for their coverage
+    helper.outset(edgeDistances, &aaDeviceQuad, &aaLocalQuad);
+    tessellator->fWriteProc(&tessellator->fVertexWriter, spec, aaDeviceQuad, aaLocalQuad,
+                            kZeroCoverage, color, geomDomain, uvDomain);
 }
 
 sk_sp<const GrBuffer> GetIndexBuffer(GrMeshDrawOp::Target* target,
