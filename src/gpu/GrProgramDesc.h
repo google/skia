@@ -34,7 +34,7 @@ public:
      * @param programInfo   Program information need to build the key
      * @param caps          the caps
      **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
+    static bool Build1(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
 
     // This is strictly an OpenGL call since the other backends have additional data in their
     // keys
@@ -127,6 +127,8 @@ protected:
     SkSTArray<kPreAllocSize, uint8_t, true>& key() { return fKey; }
 
 private:
+//    GrProgramDesc(const GrProgramDesc&) = delete;
+
     SkSTArray<kPreAllocSize, uint8_t, true> fKey;
 };
 

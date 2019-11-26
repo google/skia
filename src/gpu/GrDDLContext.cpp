@@ -66,6 +66,23 @@ private:
         return nullptr;
     }
 
+    void recordProgramInfo(const GrProgramInfo* programInfo) final {
+
+
+        fProgramInfos.push_back(programInfo);
+    }
+
+    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) final {
+        SkASSERT(dst->isEmpty());
+        fProgramInfos.swap(*dst);
+    }
+
+
+private:
+    // All the programInfo data should be stored in the record-time arena so there is no
+    // need to ref them here or to delete them in the destructor.
+    SkTDArray<const GrProgramInfo*> fProgramInfos;
+
     typedef GrContext INHERITED;
 };
 

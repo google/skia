@@ -51,7 +51,7 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
     const GrCaps& caps = *gpu->caps();
 
     GrProgramDesc desc;
-    if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, caps)) {
+    if (!GrProgramDesc::Build1(&desc, renderTarget, programInfo, caps)) {
 
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
