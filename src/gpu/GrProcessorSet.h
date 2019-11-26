@@ -153,15 +153,7 @@ public:
     SkString dumpProcessors() const;
 #endif
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const {
-        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
-            GrFragmentProcessor::TextureAccessIter iter(this->fragmentProcessor(i));
-            while (const GrFragmentProcessor::TextureSampler* sampler = iter.next()) {
-                bool mipped = (GrSamplerState::Filter::kMipMap == sampler->samplerState().filter());
-                func(sampler->proxy(), GrMipMapped(mipped));
-            }
-        }
-    }
+    void visitProxies(const GrOp::VisitProxyFunc& func) const;
 
 private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}

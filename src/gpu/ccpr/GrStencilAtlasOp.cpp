@@ -59,7 +59,7 @@ class StencilResolveProcessor::Impl : public GrGLSLGeometryProcessor {
     }
 
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&&) override {}
+                 const CoordTransformRange&) override {}
 };
 
 GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrShaderCaps&) const {
