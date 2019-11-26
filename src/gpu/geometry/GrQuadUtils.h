@@ -40,10 +40,40 @@ namespace GrQuadUtils {
     bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
                     GrQuad* local=nullptr);
 
+    enum class DeviceMode :int {
+        // All device-space quads submitted to the TessellationHelper will have
+        // GrQuad::Type::kRectilinear or kAxisAligned (a subclass of rectilinear for its purposes).
+        // Fast paths will always be taken.
+        kAssumeRectilinear,
+        // The device-space quads submitted may have any GrQuad::Type; fast paths will be taken
+        // on a per-quad basis.
+        kAny
+    };
+
+    enum class LocalMode :int{
+        // The localQuad will be ignored and is allowed to be null
+        kNone,
+        // The localQuad will have its x and y coordinates updated, asserts that it's never null
+        // and that its type is not kPerspective
+        kUV,
+        // The localQuad will have its x, y, and w coordinates updated, asserts that it's never
+        // null and supports any type of local coords.
+        kUVR,
+    };
+
     class TessellationHelper {
     public:
+        // A tessellation helper that handles any device quad type and any local quad type.
+        TessellationHelper();
+        // A tessellation helper that operates with the given device and local mode optimizations.
+        TessellationHelper(DeviceMode deviceMode, LocalMode localMode);
+        // Convenience to choose the device mode and local mode appropriate for ops that are
+        // limited to the device type and local coordinate dimensionality (0, 2, or 3).
+        TessellationHelper(GrQuad::Type deviceType, int localDimensionality);
+
         // Set the original device and (optional) local coordinates that are inset or outset
         // by the requested edge distances. Use nullptr if there are no local coordinates to update.
+        // Must meet the requirements of the DeviceMode and LocalMode the helper was created with.
         void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
         // Calculates a new quadrilateral with edges parallel to the original except that they
@@ -87,10 +117,17 @@ namespace GrQuadUtils {
             skvx::Vec<4, float> fCosTheta;
             skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
 
-            void reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
-                       const skvx::Vec<4, float>& ws, GrQuad::Type quadType);
+            template<DeviceMode opt>
+            static void Reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
+                              const skvx::Vec<4, float>& ws, GrQuad::Type quadType,
+                              EdgeVectors* edgeVec);
+            // Type of all EdgeVectors::Reset() instantiations.
+            typedef void (*ResetProc)(const skvx::Vec<4, float>&, const skvx::Vec<4, float>&,
+                                      const skvx::Vec<4, float>&, GrQuad::Type, EdgeVectors*);
         };
 
+        // NOTE: EdgeEquations has no specializations for DeviceMode or LocalMode so it employs
+        // no static template function trickery.
         struct EdgeEquations {
             // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
             skvx::Vec<4, float> fA, fB, fC;
@@ -118,8 +155,13 @@ namespace GrQuadUtils {
             bool fInsetDegenerate;
             bool fOutsetDegenerate;
 
-            void reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
-                       const skvx::Vec<4, float>& edgeDistances);
+            template<DeviceMode opt>
+            static void Reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
+                              const skvx::Vec<4, float>& edgeDistances,
+                              OutsetRequest* outReq);
+            // Type of all OutsetRequest::Reset() instantiations
+            typedef void (*ResetProc)(const EdgeVectors&, GrQuad::Type, const skvx::Vec<4, float>&,
+                                      OutsetRequest*);
         };
 
         struct Vertices {
@@ -128,37 +170,96 @@ namespace GrQuadUtils {
             // U, V, and R coordinates representing local quad.
             // Ignored depending on uvrCount (0, 1, 2).
             skvx::Vec<4, float> fU, fV, fR;
-            int fUVRCount;
 
-            void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
+            template<DeviceMode devOpt, LocalMode localOpt>
+            static void Reset(const GrQuad& deviceQuad, const GrQuad* localQuad, Vertices* verts);
+            // Type of all Vertices::Reset() instantiations
+            typedef void (*ResetProc)(const GrQuad&, const GrQuad*, Vertices*);
 
-            void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
-                           GrQuad* localOut, GrQuad::Type localType) const;
+            template<DeviceMode devOpt, LocalMode localOpt>
+            static void AsGrQuads(const Vertices& verts, GrQuad* deviceOut, GrQuad::Type deviceType,
+                                  GrQuad* localOut, GrQuad::Type localType);
+            // Type of all Vertices::AsGrQuads() instantiations
+            typedef void (*AsGrQuadsProc)(const Vertices&, GrQuad*, GrQuad::Type,
+                                          GrQuad*, GrQuad::Type);
 
             // Update the device and optional local coordinates by moving the corners along their
             // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
             // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
             // numerically sound.
-            void moveAlong(const EdgeVectors& edgeVectors,
-                           const skvx::Vec<4, float>& signedEdgeDistances);
+            template<LocalMode opt>
+            static void MoveAlong(const EdgeVectors& edgeVectors,
+                                  const skvx::Vec<4, float>& signedEdgeDistances,
+                                  Vertices* verts);
+            // Type of all Vertices::MoveAlong() instantiations
+            typedef void (*MoveAlongProc)(const EdgeVectors&, const skvx::Vec<4, float>&,
+                                          Vertices*);
 
             // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
             // optional local coordinates updated to match the new vertices. It is assumed that
             // 'mask' was respected when determining (x2d, y2d), but it is used to ensure that only
             // unmasked unprojected edge vectors are used when computing device and local coords.
-            void moveTo(const skvx::Vec<4, float>& x2d,
-                        const skvx::Vec<4, float>& y2d,
-                        const skvx::Vec<4, int32_t>& mask);
+            template<LocalMode opt>
+            static void MoveTo(const skvx::Vec<4, float>& x2d,
+                               const skvx::Vec<4, float>& y2d,
+                               const skvx::Vec<4, int32_t>& mask,
+                               Vertices* verts);
+            // Type of all Vertices::MoveTo instantiations
+            typedef void (*MoveToProc)(const skvx::Vec<4, float>&, const skvx::Vec<4, float>&,
+                                       const skvx::Vec<4, int32_t>&, Vertices*);
         };
 
-        Vertices            fOriginal;
-        EdgeVectors         fEdgeVectors;
-        GrQuad::Type        fDeviceType;
-        GrQuad::Type        fLocalType;
+        // Type of all TessellationHelper::Adjust[Degenerate]Vertices instantiations. The
+        // mutable TessellationHelper is included to provide access to its cached metadata.
+        typedef int (*AdjustVerticesProc)(const skvx::Vec<4, float>&, TessellationHelper*,
+                                          Vertices*);
+
+        template<DeviceMode kDM, LocalMode kLM>
+        struct Config {
+            static constexpr DeviceMode kDeviceMode = kDM;
+            static constexpr LocalMode kLocalMode = kLM;
+        };
+
+        // Dynamic way to go from the untemplated TessellationHelper's input modes to the resolved
+        // function pointers that refer to one of the static template functions. The static
+        // functions use templates because it makes code reuse convenient, but this lets us prevent
+        // templates from bubbling up to the users of TessellationHelper.
+        struct FunctionTable {
+            AdjustVerticesProc       fAdjustProc;
+            AdjustVerticesProc       fAdjustDegenerateProc;
+
+            EdgeVectors::ResetProc   fResetEdgeVectorsProc;
+            OutsetRequest::ResetProc fResetOutsetRequestProc;
+            Vertices::ResetProc      fResetVerticesProc;
+
+            Vertices::AsGrQuadsProc  fAsGrQuadsProc;
+
+            // May not need these...
+            // Vertices::MoveAlongProc  fMoveAlongProc;
+            // Vertices::MoveToProc     fMoveToProc;
+
+            template<typename C>
+            constexpr FunctionTable(C c)
+                : fAdjustProc( AdjustVertices<C::kDeviceMode, C::kLocalMode>)
+                , fAdjustDegenerateProc(AdjustDegenerateVertices<C::kDeviceMode, C::kLocalMode>)
+                , fResetEdgeVectorsProc(EdgeVectors::Reset<C::kDeviceMode>)
+                , fResetOutsetRequestProc(OutsetRequest::Reset<C::kDeviceMode>)
+                , fResetVerticesProc(Vertices::Reset<C::kDeviceMode, C::kLocalMode>)
+                , fAsGrQuadsProc(Vertices::AsGrQuads<C::kDeviceMode, C::kLocalMode>) {}
+        };
+        // 2 device modes X 3 local modes = 6 total function table configs
+        static FunctionTable kFunctionTables[6];
+        static const FunctionTable* GetFunctionTable(DeviceMode, LocalMode);
+
+        const FunctionTable* fFunctions; // Refers to an entry in kFunctionTables
+        Vertices             fOriginal;
+        EdgeVectors          fEdgeVectors;
+        GrQuad::Type         fDeviceType;
+        GrQuad::Type         fLocalType;
 
         // Lazily computed as needed; use accessor functions instead of direct access.
-        OutsetRequest       fOutsetRequest;
-        EdgeEquations       fEdgeEquations;
+        OutsetRequest        fOutsetRequest;
+        EdgeEquations        fEdgeEquations;
 
         // Validity of Vertices/EdgeVectors (always true after first call to set()).
         bool fVerticesValid      = false;
@@ -175,11 +276,14 @@ namespace GrQuadUtils {
 
         // Outsets or insets 'vertices' by the given perpendicular 'signedEdgeDistances' (inset or
         // outset is determined implicitly by the sign of the distances).
-        void adjustVertices(const skvx::Vec<4, float>& signedEdgeDistances, Vertices* vertices);
+        template<DeviceMode devOpt, LocalMode localOpt>
+        static int AdjustVertices(const skvx::Vec<4, float>& signedEdgeDistances,
+                                  TessellationHelper* helper, Vertices* vertices);
         // Like adjustVertices() but handles empty edges, collapsed quads, numerical issues, and
         // returns the number of effective vertices in the adjusted shape.
-        int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
-                                     Vertices* vertices);
+        template<DeviceMode devOpt, LocalMode localOpt>
+        static int AdjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
+                                            TessellationHelper* helper, Vertices* vertices);
     };
 
 }; // namespace GrQuadUtils

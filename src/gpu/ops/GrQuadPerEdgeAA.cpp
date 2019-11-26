@@ -285,7 +285,8 @@ Tessellator::WriteQuadProc Tessellator::GetWriteQuadProc(const VertexSpec& spec)
 }
 
 Tessellator::Tessellator(const VertexSpec& spec, char* vertices)
-        : fVertexSpec(spec)
+        : fAAHelper(spec.deviceQuadType(), spec.localDimensionality())
+        , fVertexSpec(spec)
         , fVertexWriter{vertices}
         , fWriteProc(Tessellator::GetWriteQuadProc(spec)) {}
 
