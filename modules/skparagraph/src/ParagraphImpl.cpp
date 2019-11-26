@@ -106,6 +106,15 @@ ParagraphImpl::~ParagraphImpl() = default;
 
 void ParagraphImpl::layout(SkScalar rawWidth) {
 
+    if (fText.size() == 0) {
+        this->resetContext();
+        this->fRunShifts.reset();
+        this->fClusters.reset();
+        this->markGraphemes();
+        fState = kFormatted;
+        return;
+    }
+
     // TODO: This rounding is done to match Flutter tests. Must be removed...
     auto floorWidth = SkScalarFloorToScalar(rawWidth);
     if (fState < kShaped) {
@@ -348,10 +357,6 @@ void ParagraphImpl::markLineBreaks() {
 }
 
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
-
-    if (fText.size() == 0) {
-        return false;
-    }
 
     // Check the font-resolved text against the cache
     if (fFontCollection->getParagraphCache()->findParagraph(this)) {
