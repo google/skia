@@ -117,7 +117,7 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
     SkPath path;
     path.addRRect(outer);
     path.addRRect(inner);
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
     path.setIsVolatile(true);
 
     this->drawPath(path, paint, true);

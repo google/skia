@@ -24,9 +24,9 @@ void draw(SkCanvas* canvas) {
         canvas->translate(-240, 60);
     }
     paint.setStyle(SkPaint::kFill_Style);
-    for (auto fill : { SkPath::kWinding_FillType,
-                       SkPath::kEvenOdd_FillType,
-                       SkPath::kInverseWinding_FillType } ) {
+    for (auto fill : { SkPathFillType::kWinding,
+                       SkPathFillType::kEvenOdd,
+                       SkPathFillType::kInverseWinding } ) {
         path.setFillType(fill);
         canvas->save();
         canvas->clipRect({0, 10, 80, 70});

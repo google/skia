@@ -151,7 +151,7 @@ SkPath::SkPath()
 void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
-    fFillType = kWinding_FillType;
+    fFillType = SkToU8(SkPathFillType::kWinding);
     this->setConvexityType(SkPathConvexityType::kUnknown);
     this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
 
@@ -1871,7 +1871,7 @@ void SkPath::dump(SkWStream* wStream, bool forceClose, bool dumpAsHex) const {
         "InverseWinding",
         "InverseEvenOdd",
     };
-    builder.printf("path.setFillType(SkPath::k%s_FillType);\n",
+    builder.printf("path.setFillType(SkPathFillType::k%s);\n",
             gFillTypeStrs[(int) this->getFillType()]);
     while ((verb = iter.next(pts)) != kDone_Verb) {
         switch (verb) {
@@ -2940,8 +2940,8 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
                 break;
        }
     } while (!done);
-    bool evenOddFill = SkPath::kEvenOdd_FillType == this->getFillType()
-            || SkPath::kInverseEvenOdd_FillType == this->getFillType();
+    bool evenOddFill = SkPathFillType::kEvenOdd        == this->getNewFillType()
+                    || SkPathFillType::kInverseEvenOdd == this->getNewFillType();
     if (evenOddFill) {
         w &= 1;
     }
@@ -3123,7 +3123,7 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
 
     path->reset();
     path->setIsVolatile(true);
-    path->setFillType(SkPath::kWinding_FillType);
+    path->setFillType(SkPathFillType::kWinding);
     if (isFillNoPathEffect && SkScalarAbs(sweepAngle) >= 360.f) {
         path->addOval(oval);
         SkASSERT(path->isConvex() && DrawArcIsConvex(sweepAngle, false, isFillNoPathEffect));

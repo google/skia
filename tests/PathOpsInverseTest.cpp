@@ -8,20 +8,22 @@
 
 DEF_TEST(PathOpsInverse, reporter) {
     const SkPathDirection dirs[] = {SkPathDirection::kCW, SkPathDirection::kCCW};
+    const SkPathFillType fts[] = {
+        SkPathFillType::kWinding,        SkPathFillType::kEvenOdd,
+        SkPathFillType::kInverseWinding, SkPathFillType::kInverseEvenOdd
+    };
     SkPath one, two;
     int testCount = 0;
     for (int op = kDifference_SkPathOp; op <= kReverseDifference_SkPathOp; ++op) {
-        for (int oneFill = SkPath::kWinding_FillType; oneFill <= SkPath::kInverseEvenOdd_FillType;
-                    ++oneFill) {
+        for (auto oneFill : fts) {
             for (auto oneDir : dirs) {
                 one.reset();
-                one.setFillType((SkPath::FillType) oneFill);
+                one.setFillType(oneFill);
                 one.addRect(0, 0, 6, 6, oneDir);
-                for (int twoFill = SkPath::kWinding_FillType;
-                        twoFill <= SkPath::kInverseEvenOdd_FillType; ++twoFill) {
+                for (auto twoFill : fts) {
                     for (auto twoDir : dirs) {
                         two.reset();
-                        two.setFillType((SkPath::FillType) twoFill);
+                        two.setFillType(twoFill);
                         two.addRect(3, 3, 9, 9, twoDir);
                         SkString testName;
                         testName.printf("inverseTest%d", ++testCount);

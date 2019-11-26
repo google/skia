@@ -90,7 +90,7 @@ protected:
                     for (int i = 0; i < 5; ++i) {
                         fConcavePath.lineTo(points[(2 * i) % 5]);
                     }
-                    fConcavePath.setFillType(SkPath::kEvenOdd_FillType);
+                    fConcavePath.setFillType(SkPathFillType::kEvenOdd);
                     SkASSERT(!fConcavePath.isConvex());
                 }
                 canvas->drawPath(fConcavePath, *paint);

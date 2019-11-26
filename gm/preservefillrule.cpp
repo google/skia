@@ -82,19 +82,19 @@ private:
 
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);
-        star7_winding.setFillType(SkPath::kWinding_FillType);
+        star7_winding.setFillType(SkPathFillType::kWinding);
 
         SkPath star7_evenOdd = star7_winding;
         star7_evenOdd.transform(SkMatrix::MakeTrans(0, fStarSize));
-        star7_evenOdd.setFillType(SkPath::kEvenOdd_FillType);
+        star7_evenOdd.setFillType(SkPathFillType::kEvenOdd);
 
         SkPath star5_winding = ToolUtils::make_star(starRect, 5);
         star5_winding.transform(SkMatrix::MakeTrans(fStarSize, 0));
-        star5_winding.setFillType(SkPath::kWinding_FillType);
+        star5_winding.setFillType(SkPathFillType::kWinding);
 
         SkPath star5_evenOdd = star5_winding;
         star5_evenOdd.transform(SkMatrix::MakeTrans(0, fStarSize));
-        star5_evenOdd.setFillType(SkPath::kEvenOdd_FillType);
+        star5_evenOdd.setFillType(SkPathFillType::kEvenOdd);
 
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);

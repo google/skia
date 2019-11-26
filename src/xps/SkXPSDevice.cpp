@@ -1182,7 +1182,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
     if (rect_must_be_pathed(paint, this->localToDevice())) {
         SkPath tmp;
         tmp.addRect(r);
-        tmp.setFillType(SkPath::kWinding_FillType);
+        tmp.setFillType(SkPathFillType::kWinding);
         this->drawPath(tmp, paint, true);
         return;
     }
@@ -1607,14 +1607,14 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
     //Set the fill rule.
     SkPath* xpsCompatiblePath = fillablePath;
     XPS_FILL_RULE xpsFillRule;
-    switch (fillablePath->getFillType()) {
-        case SkPath::kWinding_FillType:
+    switch (fillablePath->getNewFillType()) {
+        case SkPathFillType::kWinding:
             xpsFillRule = XPS_FILL_RULE_NONZERO;
             break;
-        case SkPath::kEvenOdd_FillType:
+        case SkPathFillType::kEvenOdd:
             xpsFillRule = XPS_FILL_RULE_EVENODD;
             break;
-        case SkPath::kInverseWinding_FillType: {
+        case SkPathFillType::kInverseWinding: {
             //[Fillable-path (inverse winding) -> XPS-path (inverse even odd)]
             if (!pathIsMutable) {
                 xpsCompatiblePath = &modifiedPath;
@@ -1626,7 +1626,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
             }
         }
         // The xpsCompatiblePath is now inverse even odd, so fall through.
-        case SkPath::kInverseEvenOdd_FillType: {
+        case SkPathFillType::kInverseEvenOdd: {
             const SkRect universe = SkRect::MakeLTRB(
                 0, 0,
                 this->fCurrentCanvasSize.fWidth,
