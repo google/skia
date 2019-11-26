@@ -66,6 +66,48 @@ private:
         return nullptr;
     }
 
+    void recordProgramInfo(const GrProgramInfo* programInfo) final {
+        // TODO: only insert unique programInfos based on their key
+        fProgramInfos.push_back(programInfo);
+    }
+
+    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) final {
+        SkASSERT(dst->isEmpty());
+        fProgramInfos.swap(*dst);
+    }
+
+
+private:
+    // All the programInfo data should be stored in the record-time arena so there is no
+    // need to ref them here or to delete them in the destructor.
+#if 0
+    SkTDArray<const GrProgramInfo*> fProgramInfos;
+#else
+    class ProgramCache : public ::SkNoncopyable {
+    public:
+        ProgramCache(GrGLGpu* gpu);
+        ~ProgramCache();
+
+        void abandon();
+        void reset();
+        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&);
+        bool precompileShader(const SkData& key, const SkData& data);
+
+    private:
+        struct Entry;
+
+        struct DescHash {
+            uint32_t operator()(const GrProgramDesc& desc) const {
+                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+            }
+        };
+
+        SkLRUCache<GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
+
+        GrGLGpu* fGpu;
+    };
+#endif
+
     typedef GrContext INHERITED;
 };
 
