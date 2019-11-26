@@ -31,10 +31,6 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
     this->initStencilFormat(device);
 
     this->finishInitialization(contextOptions);
-
-    // The following are disabled due to the unfinished Metal backend, not because Metal itself
-    // doesn't support it.
-    fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }
 
 void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
@@ -291,7 +287,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     }
     fSemaphoreSupport = supportsMTLEvent;
 
-    fCrossContextTextureSupport = false;
+    fCrossContextTextureSupport = true;
     fHalfFloatVertexAttributeSupport = true;
 
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
