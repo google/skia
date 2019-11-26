@@ -239,6 +239,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     if (header->fColorFragmentProcessorCnt != programInfo.pipeline().numColorFragmentProcessors() ||
         header->fCoverageFragmentProcessorCnt !=
                                          programInfo.pipeline().numCoverageFragmentProcessors()) {
+        desc->key().reset();
         return false;
     }
     // If we knew the shader won't depend on origin, we could skip this (and use the same program
@@ -252,5 +253,13 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
     // specific versions (e.g., Vulkan) require more detail
     header->fHasPointSize = (programInfo.primitiveType() == GrPrimitiveType::kPoints);
+
+    header->fInitialKeyLength = desc->keyLength();
+    // Fail if the initial key length won't fit in 27 bits.
+    if (header->fInitialKeyLength != desc->keyLength()) {
+        desc->key().reset();
+        return false;
+    }
+
     return true;
 }

@@ -86,6 +86,8 @@ public:
         return !(*this == other);
     }
 
+    uint32_t initialKeyLength() const { return this->header().fInitialKeyLength; }
+
 protected:
     // TODO: this should be removed and converted to just data added to the key
     struct KeyHeader {
@@ -94,16 +96,24 @@ protected:
         uint8_t fColorFragmentProcessorCnt; // Can be packed into 4 bits if required.
         uint8_t fCoverageFragmentProcessorCnt;
         // Set to uniquely identify the rt's origin, or 0 if the shader does not require this info.
-        uint8_t fSurfaceOriginKey : 2;
-        uint8_t fProcessorFeatures : 1;
-        bool fSnapVerticesToPixelCenters : 1;
-        bool fHasPointSize : 1;
-        uint8_t fPad : 3;
+        uint32_t fSurfaceOriginKey : 2;
+        uint32_t fProcessorFeatures : 1;
+        uint32_t fSnapVerticesToPixelCenters : 1;
+        uint32_t fHasPointSize : 1;
+        // This is the key size (in bytes) after core key construction. It doesn't include any
+        // portions added by the platform-specific backends.
+        uint32_t fInitialKeyLength : 27;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 6);
+    GR_STATIC_ASSERT(sizeof(KeyHeader) == 8);
+
+    const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
     template<typename T, size_t OFFSET> T* atOffset() {
         return reinterpret_cast<T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
+    }
+
+    template<typename T, size_t OFFSET> const T* atOffset() const {
+        return reinterpret_cast<const T*>(reinterpret_cast<intptr_t>(fKey.begin()) + OFFSET);
     }
 
     // The key, stored in fKey, is composed of two parts:

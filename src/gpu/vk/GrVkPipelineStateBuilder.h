@@ -40,11 +40,7 @@ public:
     public:
         static bool Build(Desc*, GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
 
-        size_t shaderKeyLength() const { return fShaderKeyLength; }
-
     private:
-        size_t fShaderKeyLength;
-
         typedef GrProgramDesc INHERITED;
     };
 
