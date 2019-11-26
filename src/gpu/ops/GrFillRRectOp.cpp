@@ -781,6 +781,7 @@ GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
     GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
     return arena->make<GrProgramInfo>(dstProxy->numSamples(),
                                       dstProxy->numStencilSamples(),
+                                      dstProxy->backendFormat(),
                                       dstView->origin(),
                                       pipeline,
                                       geomProc,
