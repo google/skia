@@ -26,7 +26,7 @@
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(GrMtlGpu* gpu,
                                                                    GrRenderTarget* renderTarget,
                                                                    const GrProgramInfo& programInfo,
-                                                                   Desc* desc) {
+                                                                   GrProgramDesc* desc) {
     GrAutoLocaleSetter als("C");
     GrMtlPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
 
@@ -341,7 +341,7 @@ uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 
 GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTarget,
                                                         const GrProgramInfo& programInfo,
-                                                        Desc* desc) {
+                                                        GrProgramDesc* desc) {
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
@@ -450,35 +450,3 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
-                                            GrRenderTarget* renderTarget,
-                                            const GrProgramInfo& programInfo,
-                                            const GrMtlCaps& caps) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, caps)) {
-        return false;
-    }
-
-    GrProcessorKeyBuilder b(&desc->key());
-
-    b.add32(programInfo.backendFormat().asMtlFormat());
-
-    b.add32(programInfo.numRasterSamples());
-
-#ifdef SK_DEBUG
-    if (renderTarget && programInfo.pipeline().isStencilEnabled()) {
-        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
-    }
-#endif
-
-    b.add32(programInfo.pipeline().isStencilEnabled()
-                                 ? caps.preferredStencilFormat().fInternalFormat
-                                 : MTLPixelFormatInvalid);
-    b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
-    // Stencil samples don't seem to be tracked in the MTLRenderPipeline
-
-    programInfo.pipeline().genKey(&b, caps);
-
-    b.add32((uint32_t)programInfo.primitiveType());
-
-    return true;
-}

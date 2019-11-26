@@ -14,6 +14,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
 class GrGLSLFPFragmentBuilder;
