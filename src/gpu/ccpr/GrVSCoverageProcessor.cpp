@@ -8,6 +8,7 @@
 #include "src/gpu/ccpr/GrVSCoverageProcessor.h"
 
 #include "src/gpu/GrMesh.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 // This class implements the coverage processor with vertex shaders.

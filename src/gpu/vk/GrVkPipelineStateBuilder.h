@@ -10,32 +10,21 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 #include "src/gpu/vk/GrVkVaryingHandler.h"
 #include "src/sksl/SkSLCompiler.h"
 
+class GrProgramDesc;
 class GrVkGpu;
 class GrVkRenderPass;
 class SkReader32;
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
-    /**
-     * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
-     * the information needed to differentiate one pipeline from another.
-     *
-     * The GrProgramDesc contains all the information need to create the actual shaders for the
-     * pipeline.
-     *
-     * For Vulkan we need to add to the GrProgramDesc to include the rest of the state on the
-     * pipline. This includes stencil settings, blending information, render pass format, draw face
-     * information, and primitive type. Note that some state is set dynamically on the pipeline for
-     * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
-     * and blend constant.
-     */
+
+#if 0
     class Desc : public GrProgramDesc {
     public:
         static bool Build(Desc*, GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
@@ -47,6 +36,7 @@ public:
 
         typedef GrProgramDesc INHERITED;
     };
+#endif
 
     /** Generates a pipeline state.
     *
@@ -59,7 +49,7 @@ public:
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
                                                   const GrProgramInfo&,
-                                                  Desc*,
+                                                  GrProgramDesc*,
                                                   VkRenderPass compatibleRenderPass);
 
     const GrCaps* caps() const override;
@@ -72,7 +62,7 @@ public:
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, Desc*);
+    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
@@ -86,7 +76,7 @@ private:
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::Program::Settings& settings,
-                              Desc* desc,
+                              GrProgramDesc* desc,
                               SkSL::String* outSPIRV,
                               SkSL::Program::Inputs* outInputs);
 

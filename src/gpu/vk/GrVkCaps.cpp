@@ -8,6 +8,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -1743,6 +1744,23 @@ void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
 
     tmp[numInts - 1] = 0;
     memcpy(tmp, &key, sizeof(key));
+}
+
+/**
+ * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
+ * the information needed to differentiate one pipeline from another.
+ *
+ * The GrProgramDesc contains all the information need to create the actual shaders for the
+ * pipeline.
+ *
+ * For Vulkan we need to add to the GrProgramDesc to include the rest of the state on the
+ * pipline. This includes stencil settings, blending information, render pass format, draw face
+ * information, and primitive type. Note that some state is set dynamically on the pipeline for
+ * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
+ * and blend constant.
+ */
+GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget*, const GrProgramInfo&) const {
+
 }
 
 #if GR_TEST_UTILS
