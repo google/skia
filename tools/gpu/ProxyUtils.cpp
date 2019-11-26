@@ -99,13 +99,14 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
 
     GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
     return arena->make<GrProgramInfo>(dstProxy->numSamples(),
-                                        dstProxy->numStencilSamples(),
-                                        dstView->origin(),
-                                        pipeline,
-                                        geomProc,
-                                        fixedDynamicState,
-                                        nullptr, 0,
-                                        primitiveType);
+                                      dstProxy->numStencilSamples(),
+                                      dstProxy->backendFormat(),
+                                      dstView->origin(),
+                                      pipeline,
+                                      geomProc,
+                                      fixedDynamicState,
+                                      nullptr, 0,
+                                      primitiveType);
 }
 
 

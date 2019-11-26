@@ -781,7 +781,8 @@ void GrCCStroker::flushBufferedMeshesAsStrokes(const GrPrimitiveProcessor& proce
 
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
-                              flushState->drawOpArgs().origin(),
+                              flushState->proxy()->backendFormat(),
+                              flushState->view()->origin(),
                               &pipeline,
                               &processor,
                               nullptr,
