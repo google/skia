@@ -296,12 +296,10 @@ static MTLBlendOperation blend_equation_to_mtl_blend_op(GrBlendEquation equation
 }
 
 static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
-        GrPixelConfig config, const GrPipeline& pipeline) {
+        MTLPixelFormat format, const GrPipeline& pipeline) {
     auto mtlColorAttachment = [[MTLRenderPipelineColorAttachmentDescriptor alloc] init];
 
     // pixel format
-    MTLPixelFormat format;
-    SkAssertResult(GrPixelConfigToMTLFormat(config, &format));
     mtlColorAttachment.pixelFormat = format;
 
     // blending
@@ -391,7 +389,13 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(programInfo.primProc());
-    pipelineDescriptor.colorAttachments[0] = create_color_attachment(renderTarget->config(),
+
+    MTLPixelFormat pixelFormat = GrBackendFormatAsMTLPixelFormat(renderTarget->backendFormat());
+    if (pixelFormat == MTLPixelFormatInvalid) {
+        return nullptr;
+    }
+
+    pipelineDescriptor.colorAttachments[0] = create_color_attachment(pixelFormat,
                                                                      programInfo.pipeline());
     pipelineDescriptor.sampleCount = programInfo.numRasterSamples();
     bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
@@ -456,13 +460,18 @@ bool GrMtlPipelineStateBuilder::Desc::Build(Desc* desc,
 
     GrProcessorKeyBuilder b(&desc->key());
 
-    b.add32(renderTarget->config());
+    b.add32(programInfo.backendFormat().asMtlFormat());
+
     b.add32(programInfo.numRasterSamples());
 
-    bool hasStencilAttachment = SkToBool(renderTarget->renderTargetPriv().getStencilAttachment());
-    SkASSERT(!programInfo.pipeline().isStencilEnabled() || hasStencilAttachment);
+#ifdef SK_DEBUG
+    if (renderTarget && programInfo.pipeline().isStencilEnabled()) {
+        SkASSERT(renderTarget->renderTargetPriv().getStencilAttachment());
+    }
+#endif
 
-    b.add32(hasStencilAttachment ? caps.preferredStencilFormat().fInternalFormat
+    b.add32(programInfo.pipeline().isStencilEnabled()
+                                 ? caps.preferredStencilFormat().fInternalFormat
                                  : MTLPixelFormatInvalid);
     b.add32((uint32_t)programInfo.pipeline().isStencilEnabled());
     // Stencil samples don't seem to be tracked in the MTLRenderPipeline
