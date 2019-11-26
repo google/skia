@@ -75,7 +75,7 @@ protected:
                         for (int outerCW = 0; outerCW <= 1; ++outerCW) {
                             for (int innerCW = 0; innerCW <= 1; ++innerCW) {
                                 SkPath path;
-                                path.setFillType(doEvenOdd ? SkPath::kEvenOdd_FillType : SkPath::kWinding_FillType);
+                                path.setFillType(doEvenOdd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding);
                                 SkPathDirection outerDir = outerCW ? SkPathDirection::kCW : SkPathDirection::kCCW;
                                 SkPathDirection innerDir = innerCW ? SkPathDirection::kCW : SkPathDirection::kCCW;
 
