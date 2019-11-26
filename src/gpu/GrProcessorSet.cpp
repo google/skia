@@ -251,3 +251,10 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
 #endif
     return analysis;
 }
+
+void GrProcessorSet::visitProxies(const GrOp::VisitProxyFunc& func) const {
+    for (auto [sampler, fp] : GrFragmentProcessor::ProcessorSetTextureSamplerRange(*this)) {
+        bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
+        func(sampler.proxy(), GrMipMapped(mipped));
+    }
+}
