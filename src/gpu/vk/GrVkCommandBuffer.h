@@ -191,7 +191,7 @@ class GrVkPrimaryCommandBuffer : public GrVkCommandBuffer {
 public:
     ~GrVkPrimaryCommandBuffer() override;
 
-    static GrVkPrimaryCommandBuffer* Create(const GrVkGpu* gpu, VkCommandPool cmdPool);
+    static GrVkPrimaryCommandBuffer* Create(GrVkGpu* gpu, VkCommandPool cmdPool);
 
     void begin(GrVkGpu* gpu);
     void end(GrVkGpu* gpu);
@@ -312,7 +312,7 @@ private:
 
 class GrVkSecondaryCommandBuffer : public GrVkCommandBuffer {
 public:
-    static GrVkSecondaryCommandBuffer* Create(const GrVkGpu* gpu, GrVkCommandPool* cmdPool);
+    static GrVkSecondaryCommandBuffer* Create(GrVkGpu* gpu, GrVkCommandPool* cmdPool);
     // Used for wrapping an external secondary command buffer.
     static GrVkSecondaryCommandBuffer* Create(VkCommandBuffer externalSecondaryCB);
 
@@ -332,6 +332,7 @@ private:
 
     void onAbandonGPUData() const override {}
 
+    // Used for accessing fIsActive (on GrVkCommandBuffer)
     friend class GrVkPrimaryCommandBuffer;
 
     typedef GrVkCommandBuffer INHERITED;

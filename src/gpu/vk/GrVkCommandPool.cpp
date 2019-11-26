@@ -31,12 +31,20 @@ GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
     if (result != VK_SUCCESS) {
         return nullptr;
     }
-    return new GrVkCommandPool(gpu, pool);
+
+    GrVkPrimaryCommandBuffer* primaryCmdBuffer = GrVkPrimaryCommandBuffer::Create(gpu, pool);
+    if (!primaryCmdBuffer) {
+        GR_VK_CALL(gpu->vkInterface(), DestroyCommandPool(gpu->device(), pool, nullptr));
+        return nullptr;
+    }
+
+    return new GrVkCommandPool(gpu, pool, primaryCmdBuffer);
 }
 
-GrVkCommandPool::GrVkCommandPool(const GrVkGpu* gpu, VkCommandPool commandPool)
-        : fCommandPool(commandPool) {
-    fPrimaryCommandBuffer.reset(GrVkPrimaryCommandBuffer::Create(gpu, fCommandPool));
+GrVkCommandPool::GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool,
+                                 GrVkPrimaryCommandBuffer* primaryCmdBuffer)
+        : fCommandPool(commandPool)
+        , fPrimaryCommandBuffer(primaryCmdBuffer) {
 }
 
 std::unique_ptr<GrVkSecondaryCommandBuffer> GrVkCommandPool::findOrCreateSecondaryCommandBuffer(

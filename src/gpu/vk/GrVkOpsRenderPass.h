@@ -57,7 +57,7 @@ private:
 
     // Called instead of init when we are drawing to a render target that already wraps a secondary
     // command buffer.
-    void initWrapped();
+    bool initWrapped();
 
     bool wrapsSecondaryCommandBuffer() const;
 

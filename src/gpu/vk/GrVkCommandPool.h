@@ -50,7 +50,7 @@ public:
 private:
     GrVkCommandPool() = delete;
 
-    GrVkCommandPool(const GrVkGpu* gpu, VkCommandPool commandPool);
+    GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
 
     void abandonGPUData() const override;
 
