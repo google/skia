@@ -143,6 +143,8 @@ public:
         return GrSwizzle();
     }
 
+    GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
+
 #if GR_TEST_UTILS
     std::vector<GrCaps::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif

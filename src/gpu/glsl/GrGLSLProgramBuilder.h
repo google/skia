@@ -10,7 +10,6 @@
 
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
-#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetPriv.h"
@@ -22,6 +21,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 
+class GrProgramDesc;
 class GrShaderVar;
 class GrGLSLVaryingHandler;
 class SkString;

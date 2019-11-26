@@ -7,6 +7,16 @@
 
 #include "src/gpu/mock/GrMockCaps.h"
 
+#include "src/gpu/GrProgramDesc.h"
+
+GrProgramDesc GrMockCaps::makeDesc(const GrRenderTarget* rt,
+                                   const GrProgramInfo& programInfo) const {
+    GrProgramDesc desc;
+    SkDEBUGCODE(bool result =) GrProgramDesc::Build(&desc, rt, programInfo, *this);
+    SkASSERT(result == desc.isValid());
+    return desc;
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
     // TODO: need to add compressed formats to this list

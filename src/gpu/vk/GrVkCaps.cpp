@@ -8,13 +8,17 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkCaps.h"
+#include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkUniformHandler.h"
 #include "src/gpu/vk/GrVkUtil.h"
@@ -1743,6 +1747,58 @@ void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
 
     tmp[numInts - 1] = 0;
     memcpy(tmp, &key, sizeof(key));
+}
+
+/**
+ * For Vulkan we want to cache the entire VkPipeline for reuse of draws. The Desc here holds all
+ * the information needed to differentiate one pipeline from another.
+ *
+ * The GrProgramDesc contains all the information need to create the actual shaders for the
+ * pipeline.
+ *
+ * For Vulkan we need to add to the GrProgramDesc to include the rest of the state on the
+ * pipline. This includes stencil settings, blending information, render pass format, draw face
+ * information, and primitive type. Note that some state is set dynamically on the pipeline for
+ * each draw  and thus is not included in this descriptor. This includes the viewport, scissor,
+ * and blend constant.
+ */
+GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
+    GrProgramDesc desc;
+    if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
+        SkASSERT(!desc.isValid());
+        return desc;
+    }
+
+    GrProcessorKeyBuilder b(&desc.key());
+
+    // This will become part of the sheared off key used to persistently cache
+    // the SPIRV code. It needs to be added right after the base key so that,
+    // when the base-key is sheared off, the shearing code can include it in the
+    // reduced key (c.f. the +4s in the SkData::MakeWithCopy calls in
+    // GrVkPipelineStateBuilder.cpp).
+    b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
+
+    GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
+    // TODO: support failure in getSimpleRenderPass
+    SkASSERT(vkRT->getSimpleRenderPass());
+    vkRT->getSimpleRenderPass()->genKey(&b);
+
+    GrStencilSettings stencil = programInfo.nonGLStencilSettings();
+    stencil.genKey(&b);
+
+    programInfo.pipeline().genKey(&b, *this);
+    b.add32(programInfo.numRasterSamples());
+
+    // Vulkan requires the full primitive type as part of its key
+    b.add32((uint32_t)programInfo.primitiveType());
+
+    if (this->mixedSamplesSupport()) {
+        // Add "0" to indicate that coverage modulation will not be enabled, or the (non-zero)
+        // raster sample count if it will.
+        b.add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
+    }
+
+    return desc;
 }
 
 #if GR_TEST_UTILS

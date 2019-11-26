@@ -9,6 +9,7 @@
 #define GrDawnGpu_DEFINED
 
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "dawn/dawncpp.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"

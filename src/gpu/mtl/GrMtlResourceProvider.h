@@ -11,6 +11,7 @@
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlSampler.h"
@@ -62,9 +63,9 @@ private:
             }
         };
 
-        SkLRUCache<const GrMtlPipelineStateBuilder::Desc, std::unique_ptr<Entry>, DescHash> fMap;
+        SkLRUCache<const GrProgramDesc, std::unique_ptr<Entry>, DescHash> fMap;
 
-        GrMtlGpu*                    fGpu;
+        GrMtlGpu*                   fGpu;
 
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         int                         fTotalRequests;

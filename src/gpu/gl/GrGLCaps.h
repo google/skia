@@ -425,6 +425,8 @@ public:
     GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
+
 #if GR_TEST_UTILS
     GrGLStandard standard() const { return fStandard; }
 

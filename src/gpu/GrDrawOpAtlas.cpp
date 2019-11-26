@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
+#include "src/core/SkOpts.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"

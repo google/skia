@@ -66,52 +66,6 @@ static wgpu::AddressMode to_dawn_address_mode(GrSamplerState::WrapMode wrapMode)
 
 }
 
-// FIXME: taken from GrVkPipelineState; refactor.
-static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
-    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
-
-    static const uint32_t kBlendWriteShift = 1;
-    static const uint32_t kBlendCoeffShift = 5;
-    GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
-    GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
-
-    uint32_t key = blendInfo.fWriteColor;
-    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
-    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
-    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
-
-    return key;
-}
-
-class Desc : public GrProgramDesc {
-public:
-    static bool Build(Desc* desc,
-                      GrRenderTarget* rt,
-                      const GrProgramInfo& programInfo,
-                      bool hasDepthStencil,
-                      const GrCaps& caps) {
-        if (!GrProgramDesc::Build(desc, rt, programInfo, caps)) {
-            return false;
-        }
-
-        wgpu::TextureFormat format;
-        if (!programInfo.backendFormat().asDawnFormat(&format)) {
-            return false;
-        }
-
-        GrProcessorKeyBuilder b(&desc->key());
-
-        GrStencilSettings stencil = programInfo.nonGLStencilSettings();
-        stencil.genKey(&b);
-
-        b.add32(static_cast<uint32_t>(format));
-        b.add32(static_cast<int32_t>(hasDepthStencil));
-        b.add32(get_blend_info_key(programInfo.pipeline()));
-        b.add32(static_cast<uint32_t>(programInfo.primitiveType()));
-        return true;
-    }
-};
-
 sk_sp<GrGpu> GrDawnGpu::Make(const wgpu::Device& device,
                              const GrContextOptions& options, GrContext* context) {
     if (!device) {
@@ -625,9 +579,9 @@ std::unique_ptr<GrSemaphore> GrDawnGpu::prepareTextureForCrossContextUsage(GrTex
 sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
         GrRenderTarget* rt,
         const GrProgramInfo& programInfo) {
-    bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
-    Desc desc;
-    if (!Desc::Build(&desc, rt, programInfo, hasDepthStencil, *this->caps())) {
+
+    GrProgramDesc desc = this->caps()->makeDesc(rt, programInfo);
+    if (!desc.isValid()) {
         return nullptr;
     }
 
@@ -639,6 +593,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     SkAssertResult(programInfo.backendFormat().asDawnFormat(&colorFormat));
 
     wgpu::TextureFormat stencilFormat = wgpu::TextureFormat::Depth24PlusStencil8;
+    bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
 
     sk_sp<GrDawnProgram> program = GrDawnProgramBuilder::Build(
         this, rt, programInfo, colorFormat,

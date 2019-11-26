@@ -7,6 +7,12 @@
 
 #include "src/gpu/dawn/GrDawnCaps.h"
 
+#include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrStencilSettings.h"
+
 GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(contextOptions) {
     fMipMapSupport = true;
     fBufferMapThreshold = SK_MaxS32;  // FIXME: get this from Dawn?
@@ -207,6 +213,53 @@ GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&
         case wgpu::TextureFormat::BGRA8Unorm:  return GrColorType::kBGRA_8888;
         default:                               return GrColorType::kUnknown;
     }
+}
+
+// FIXME: taken from GrVkPipelineState; refactor.
+static uint32_t get_blend_info_key(const GrPipeline& pipeline) {
+    GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
+
+    static const uint32_t kBlendWriteShift = 1;
+    static const uint32_t kBlendCoeffShift = 5;
+    GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
+    GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
+
+    uint32_t key = blendInfo.fWriteColor;
+    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
+    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
+    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
+
+    return key;
+}
+
+GrProgramDesc GrDawnCaps::makeDesc(const GrRenderTarget* rt,
+                                   const GrProgramInfo& programInfo) const {
+    GrProgramDesc desc;
+    if (!GrProgramDesc::Build(&desc, rt, programInfo, *this)) {
+        SkASSERT(!desc.isValid());
+        return desc;
+    }
+
+    wgpu::TextureFormat format;
+    if (!programInfo.backendFormat().asDawnFormat(&format)) {
+        desc.key().reset();
+        SkASSERT(!desc.isValid());
+        return desc;
+    }
+
+    GrProcessorKeyBuilder b(&desc.key());
+
+    GrStencilSettings stencil = programInfo.nonGLStencilSettings();
+    stencil.genKey(&b);
+
+    // TODO: remove this reliance on the renderTarget
+    bool hasDepthStencil = rt->renderTargetPriv().getStencilAttachment() != nullptr;
+
+    b.add32(static_cast<uint32_t>(format));
+    b.add32(static_cast<int32_t>(hasDepthStencil));
+    b.add32(get_blend_info_key(programInfo.pipeline()));
+    b.add32(static_cast<uint32_t>(programInfo.primitiveType()));
+    return desc;
 }
 
 #if GR_TEST_UTILS
