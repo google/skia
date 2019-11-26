@@ -9,6 +9,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -1097,6 +1098,21 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         }
     }
     return {GrColorType::kUnknown, 0};
+}
+
+/**
+ * For Metal we want to cache the entire pipeline for reuse of draws. The Desc here holds all
+ * the information needed to differentiate one pipeline from another.
+ *
+ * The GrProgramDesc contains all the information need to create the actual shaders for the
+ * pipeline.
+ *
+ * For Metal we need to add to the GrProgramDesc to include the rest of the state on the
+ * pipeline. This includes blending information and primitive type. The pipeline is immutable
+ * so any remaining dynamic state is set via the MtlRenderCmdEncoder.
+ */
+GrProgramDesc GrMtlCaps::makeDesc(const GrRenderTarget*, const GrProgramInfo&) const {
+
 }
 
 #if GR_TEST_UTILS
