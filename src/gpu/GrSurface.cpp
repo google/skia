@@ -21,6 +21,12 @@ size_t GrSurface::ComputeSize(const GrCaps& caps,
                               int colorSamplesPerPixel,
                               GrMipMapped mipMapped,
                               bool binSize) {
+    // For external formats we do not actually know the real size of the resource so we just return
+    // 0 here to indicate this.
+    if (format.textureType() == GrTextureType::kExternal) {
+        return 0;
+    }
+
     size_t colorSize;
 
     if (binSize) {
