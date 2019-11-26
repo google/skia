@@ -2,7 +2,8 @@
    "MaxCount": 32,
    "Drawable": {
       "Type": "SkImageDrawable",
-      "Path": "resources/images/explosion_sprites.png",
+      "Path": "images",
+      "Name": "explosion_sprites.png",
       "Columns": 4,
       "Rows": 4
    },
