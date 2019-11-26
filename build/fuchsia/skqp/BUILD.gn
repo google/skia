@@ -36,6 +36,8 @@ fuchsia_repo("skqp_repo") {
 #
 # Base manifest entries (w/o assets) for SKQP.
 #
+# TODO(rosasco): Convert this group() to generated_file() when a
+#                sufficiently modern version of gn rolls in.
 group("base_manifest") {
   base_pkg_manifest = "${pkg_dir}/base_${pkg_name}.manifest"
 
@@ -83,6 +85,12 @@ group("base_manifest") {
     # Vulkan ICD / Validation / Loader
     "lib/libvulkan.so=${sdk_dist_path}/libvulkan.so",
   ]
+
+  # TODO(rosasco): Add 2 lines when generated_file() switch is implemented
+  #                and remove the 'write_file' below.
+  # contents = manifest_entries
+  # outputs = [ base_pkg_manifest ]
+
   write_file(base_pkg_manifest, manifest_entries)
 }
 
@@ -101,9 +109,10 @@ action("append_assets_to_manifest") {
   ]
 
   outputs = [
-    base_pkg_manifest,
     pkg_manifest,
   ]
+
+  manifest_deps = "$target_out_dir/skqp_manifest.d"
 
   args = [
     "--root_dir",
@@ -112,5 +121,12 @@ action("append_assets_to_manifest") {
     rebase_path(base_pkg_manifest),
     "--manifest",
     rebase_path(pkg_manifest),
+    "--deps",
+    rebase_path(manifest_deps),
+    "--root_build_dir",
+    rebase_path(root_out_dir)
   ]
+
+  deps = [ ":base_manifest" ]
+  depfile = manifest_deps
 }
