@@ -70,36 +70,6 @@ namespace GrQuadUtils {
                     GrQuad* deviceOutset, GrQuad* localOutset);
 
     private:
-        struct EdgeVectors;
-        struct OutsetRequest;
-
-        struct Vertices {
-            // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
-            skvx::Vec<4, float> fX, fY, fW;
-            // U, V, and R coordinates representing local quad.
-            // Ignored depending on uvrCount (0, 1, 2).
-            skvx::Vec<4, float> fU, fV, fR;
-            int fUVRCount;
-
-            // Update the device and optional local coordinates by moving the corners along their
-            // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
-            // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
-            // numerically sound.
-            void moveAlong(const EdgeVectors& edgeVectors,
-                           const skvx::Vec<4, float>& signedEdgeDistances);
-
-            // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
-            // optional local coordinates updated to match the new vertices. It is assumed that
-            // 'mask' was respected when determing (x2d, y2d), but it is used to ensure that only
-            // unmasked unprojected edge vectors are used when computing device and local coords.
-            void moveTo(const skvx::Vec<4, float>& x2d,
-                        const skvx::Vec<4, float>& y2d,
-                        const skvx::Vec<4, int32_t>& mask);
-
-            void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
-                           GrQuad* localOut, GrQuad::Type localType) const;
-        };
-
         // NOTE: This struct is named 'EdgeVectors' because it holds a lot of cached calculations
         // pertaining to the edge vectors of the input quad, projected into 2D device coordinates.
         // While they are not direction vectors, this struct represents a convenient storage space
@@ -116,14 +86,25 @@ namespace GrQuadUtils {
             // Theta represents the angle formed by the two edges connected at each corner.
             skvx::Vec<4, float> fCosTheta;
             skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
+
+            void reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
+                       const skvx::Vec<4, float>& ws, GrQuad::Type quadType);
         };
 
         struct EdgeEquations {
             // a * x + b * y + c = 0; positive distance is inside the quad; ordered LBTR.
             skvx::Vec<4, float> fA, fB, fC;
 
+            void reset(const EdgeVectors& edgeVectors);
+
             skvx::Vec<4, float> estimateCoverage(const skvx::Vec<4, float>& x2d,
                                                  const skvx::Vec<4, float>& y2d) const;
+
+            // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very
+            // small, edges are near parallel, or edges are very short/zero-length. Returns number
+            // of effective vertices in the degenerate quad.
+            int computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
+                                      skvx::Vec<4, float>* x2d, skvx::Vec<4, float>* y2d) const;
         };
 
         struct OutsetRequest {
@@ -136,6 +117,38 @@ namespace GrQuadUtils {
             // be because of the requested edge distances (collapse of inset, etc.)
             bool fInsetDegenerate;
             bool fOutsetDegenerate;
+
+            void reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
+                       const skvx::Vec<4, float>& edgeDistances);
+        };
+
+        struct Vertices {
+            // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
+            skvx::Vec<4, float> fX, fY, fW;
+            // U, V, and R coordinates representing local quad.
+            // Ignored depending on uvrCount (0, 1, 2).
+            skvx::Vec<4, float> fU, fV, fR;
+            int fUVRCount;
+
+            void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
+
+            void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
+                           GrQuad* localOut, GrQuad::Type localType) const;
+
+            // Update the device and optional local coordinates by moving the corners along their
+            // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
+            // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
+            // numerically sound.
+            void moveAlong(const EdgeVectors& edgeVectors,
+                           const skvx::Vec<4, float>& signedEdgeDistances);
+
+            // Update the device coordinates by deriving (x,y,w) that project to (x2d, y2d), with
+            // optional local coordinates updated to match the new vertices. It is assumed that
+            // 'mask' was respected when determining (x2d, y2d), but it is used to ensure that only
+            // unmasked unprojected edge vectors are used when computing device and local coords.
+            void moveTo(const skvx::Vec<4, float>& x2d,
+                        const skvx::Vec<4, float>& y2d,
+                        const skvx::Vec<4, int32_t>& mask);
         };
 
         Vertices            fOriginal;
@@ -148,7 +161,7 @@ namespace GrQuadUtils {
         EdgeEquations       fEdgeEquations;
 
         // Validity of Vertices/EdgeVectors (always true after first call to set()).
-        bool fVerticesValid = false;
+        bool fVerticesValid      = false;
         // Validity of outset request (true after calling getOutsetRequest() until next set() call
         // or next inset/outset() with different edge distances).
         bool fOutsetRequestValid = false;
@@ -160,16 +173,13 @@ namespace GrQuadUtils {
         const OutsetRequest& getOutsetRequest(const skvx::Vec<4, float>& edgeDistances);
         const EdgeEquations& getEdgeEquations();
 
-        // Outsets or insets 'x2d' and 'y2d' in place. To be used when the interior is very small,
-        // edges are near parallel, or edges are very short/zero-length. Returns number of effective
-        // vertices in the degenerate quad.
-        int computeDegenerateQuad(const skvx::Vec<4, float>& signedEdgeDistances,
-                                  skvx::Vec<4, float>* x2d, skvx::Vec<4, float>* y2d);
-        // Outsets or insets 'vertices' by the given perpendicular 'edgeDistances'. If 'inset' is
-        // true the distances move the edges inwards; if it is false, the distances move outwards.
-        // Returns number of effective vertices in the adjusted quad.
-        int adjustVertices(const skvx::Vec<4, float>& edgeDistances, bool inset,
-                           Vertices* vertices);
+        // Outsets or insets 'vertices' by the given perpendicular 'signedEdgeDistances' (inset or
+        // outset is determined implicitly by the sign of the distances).
+        void adjustVertices(const skvx::Vec<4, float>& signedEdgeDistances, Vertices* vertices);
+        // Like adjustVertices() but handles empty edges, collapsed quads, numerical issues, and
+        // returns the number of effective vertices in the adjusted shape.
+        int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
+                                     Vertices* vertices);
     };
 
 }; // namespace GrQuadUtils
