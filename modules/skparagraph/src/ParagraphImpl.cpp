@@ -611,7 +611,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                                      RectWidthStyle rectWidthStyle) {
     std::vector<TextBox> results;
     if (fText.isEmpty()) {
-        results.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
+        if (start == 0 && end > 0) {
+            // On account of implied "\n" that is always at the end of the text
+            results.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
+        }
         return results;
     }
 
@@ -811,8 +814,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
   std::vector<TextBox> boxes;
   if (fText.isEmpty()) {
-      boxes.emplace_back(SkRect::MakeXYWH(0, 0, 0, fHeight), fParagraphStyle.getTextDirection());
-      return boxes;
+       return boxes;
   }
   for (auto& line : fLines) {
       line.iterateThroughVisualRuns(
