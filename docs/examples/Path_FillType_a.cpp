@@ -14,8 +14,8 @@ void draw(SkCanvas* canvas) {
    SkRect clipRect = {0, 0, 51, 100};
    canvas->drawPath(path, strokePaint);
    SkPaint fillPaint;
-   for (auto fillType : { SkPathFillType::kWinding, SkPathFillType::kEvenOdd,
-                      SkPathFillType::kInverseWinding, SkPathFillType::kInverseEvenOdd } ) {
+   for (auto fillType : { SkPath::kWinding_FillType, SkPath::kEvenOdd_FillType,
+                      SkPath::kInverseWinding_FillType, SkPath::kInverseEvenOdd_FillType } ) {
         canvas->translate(51, 0);
         canvas->save();
         canvas->clipRect(clipRect);

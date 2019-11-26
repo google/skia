@@ -598,7 +598,7 @@ static void draw_rect_as_path(const SkDraw& orig, const SkRect& prePaintRect,
     draw.fMatrix = matrix;
     SkPath  tmp;
     tmp.addRect(prePaintRect);
-    tmp.setFillType(SkPathFillType::kWinding);
+    tmp.setFillType(SkPath::kWinding_FillType);
     draw.drawPath(tmp, paint, nullptr, true);
 }
 

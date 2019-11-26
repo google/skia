@@ -131,10 +131,10 @@ DEF_SIMPLE_GM(inverse_paths, canvas, 800, 1200) {
                     canvas->clipRect(clipRect);
 
                     SkPath path = paths[pathIndex](cx, cy, size);
-                    path.setFillType(SkPathFillType::kInverseWinding);
+                    path.setFillType(SkPath::kInverseWinding_FillType);
                     canvas->drawPath(path, paint);
 
-                    path.setFillType(SkPathFillType::kWinding);
+                    path.setFillType(SkPath::kWinding_FillType);
                     canvas->drawPath(path, outlinePaint);
 
                     canvas->restore();

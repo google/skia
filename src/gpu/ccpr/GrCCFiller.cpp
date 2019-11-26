@@ -134,12 +134,12 @@ void GrCCFiller::PathInfo::tessellateFan(
         // We use "winding" fill type right now because we are producing a coverage count, and must
         // fill in every region that has non-zero wind. The path processor will convert coverage
         // count to the appropriate fill type later.
-        fan.setFillType(SkPathFillType::kWinding);
+        fan.setFillType(SkPath::kWinding_FillType);
     } else {
         // When counting winding numbers in the stencil buffer, it works to use even/odd for the fan
         // tessellation (where applicable). But we need to strip out inverse fill info because
         // inverse-ness gets accounted for later on.
-        fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getNewFillType()));
+        fan.setFillType(SkPath::ConvertToNonInverseFillType(originalPath.getFillType()));
     }
     SkASSERT(Verb::kBeginPath == verbs[verbsIdx]);
     for (int i = verbsIdx + 1; i < verbs.count(); ++i) {
@@ -204,7 +204,7 @@ void GrCCFiller::PathInfo::tessellateFan(
         }
 
         int weight = abs(tessWinding);
-        if (SkPathFillType::kEvenOdd == fan.getNewFillType()) {
+        if (SkPath::kEvenOdd_FillType == fan.getFillType()) {
             SkASSERT(Algorithm::kCoverageCount != algorithm);  // Covg. count always uses winding.
             if (weight != 1) {
                 // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.

@@ -9,9 +9,9 @@ void draw(SkCanvas* canvas) {
     paint.setTextSize(128);
     SkPath xPath, opPath;
     paint.getTextPath("X", 1, 20, 110, &xPath);
-    xPath.setFillType(SkPathFillType::kInverseWinding);
+    xPath.setFillType(SkPath::kInverseWinding_FillType);
     opPath.addCircle(64, 64, frame * 64);
-    opPath.setFillType(SkPathFillType::kInverseWinding);
+    opPath.setFillType(SkPath::kInverseWinding_FillType);
     SkRegion xRegion, opRegion, rectRegion;
     SkIRect drawBounds = {0, 0, 128, 128};
     opRegion.setPath(opPath, SkRegion(drawBounds));

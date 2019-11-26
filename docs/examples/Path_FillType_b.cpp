@@ -22,8 +22,8 @@ void draw(SkCanvas* canvas) {
    canvas->scale(.5f, .5f);
    canvas->drawString("inverse", 384, 150, textPaint);
    SkPaint fillPaint;
-   for (auto fillType : { SkPathFillType::kWinding, SkPathFillType::kEvenOdd,
-                      SkPathFillType::kInverseWinding, SkPathFillType::kInverseEvenOdd } ) {
+   for (auto fillType : { SkPath::kWinding_FillType, SkPath::kEvenOdd_FillType,
+                      SkPath::kInverseWinding_FillType, SkPath::kInverseEvenOdd_FillType } ) {
         canvas->save();
         canvas->clipRect(clipRect);
         path.setFillType(fillType);

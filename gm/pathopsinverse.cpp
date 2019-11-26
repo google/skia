@@ -69,11 +69,11 @@ protected:
         SkPath one, two;
         int yPos = 0;
         for (int oneFill = 0; oneFill <= 1; ++oneFill) {
-            SkPathFillType oneF = oneFill ? SkPathFillType::kInverseEvenOdd
-                    : SkPathFillType::kEvenOdd;
+            SkPath::FillType oneF = oneFill ? SkPath::kInverseEvenOdd_FillType
+                    : SkPath::kEvenOdd_FillType;
             for (int twoFill = 0; twoFill <= 1; ++twoFill) {
-                SkPathFillType twoF = twoFill ? SkPathFillType::kInverseEvenOdd
-                        : SkPathFillType::kEvenOdd;
+                SkPath::FillType twoF = twoFill ? SkPath::kInverseEvenOdd_FillType
+                        : SkPath::kEvenOdd_FillType;
                 one.reset();
                 one.setFillType(oneF);
                 one.addRect(10, 10, 70, 70);

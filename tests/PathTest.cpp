@@ -3583,7 +3583,7 @@ static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
     REPORTER_ASSERT(reporter, 0 == p.countVerbs());
     REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, p.isConvex());
-    REPORTER_ASSERT(reporter, p.getNewFillType() == SkPathFillType::kWinding);
+    REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
     REPORTER_ASSERT(reporter, p == empty);
     REPORTER_ASSERT(reporter, !(p != empty));
@@ -4026,9 +4026,9 @@ static void test_contains(skiatest::Reporter* reporter) {
     (void) p.contains(-77.2027664f, 15.3066053f);
 
     p.reset();
-    p.setFillType(SkPathFillType::kInverseWinding);
+    p.setFillType(SkPath::kInverseWinding_FillType);
     REPORTER_ASSERT(reporter, p.contains(0, 0));
-    p.setFillType(SkPathFillType::kWinding);
+    p.setFillType(SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.contains(0, 0));
     p.moveTo(4, 4);
     p.lineTo(6, 8);
@@ -4153,7 +4153,7 @@ static void test_contains(skiatest::Reporter* reporter) {
     SkPoint pts[] = {{5, 4}, {6, 5}, {7, 6}, {6, 6}, {4, 6}, {5, 7}, {5, 5}, {5, 4}, {6, 5}, {7, 6}};
     for (int i = 0; i < 3; ++i) {
         p.reset();
-        p.setFillType(SkPathFillType::kEvenOdd);
+        p.setFillType(SkPath::kEvenOdd_FillType);
         p.moveTo(pts[i].fX, pts[i].fY);
         p.cubicTo(pts[i + 1].fX, pts[i + 1].fY, pts[i + 2].fX, pts[i + 2].fY, pts[i + 3].fX, pts[i + 3].fY);
         p.cubicTo(pts[i + 4].fX, pts[i + 4].fY, pts[i + 5].fX, pts[i + 5].fY, pts[i + 6].fX, pts[i + 6].fY);
@@ -4251,7 +4251,7 @@ static void test_operatorEqual(skiatest::Reporter* reporter) {
     SkPath b;
     REPORTER_ASSERT(reporter, a == a);
     REPORTER_ASSERT(reporter, a == b);
-    a.setFillType(SkPathFillType::kInverseWinding);
+    a.setFillType(SkPath::kInverseWinding_FillType);
     REPORTER_ASSERT(reporter, a != b);
     a.reset();
     REPORTER_ASSERT(reporter, a == b);
@@ -4282,51 +4282,51 @@ static void compare_dump(skiatest::Reporter* reporter, const SkPath& path, bool 
 
 static void test_dump(skiatest::Reporter* reporter) {
     SkPath p;
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kWinding);\n");
-    compare_dump(reporter, p, true, false,  "path.setFillType(SkPathFillType::kWinding);\n");
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n");
+    compare_dump(reporter, p, true, false,  "path.setFillType(SkPath::kWinding_FillType);\n");
     p.moveTo(1, 2);
     p.lineTo(3, 4);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kWinding);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
-    compare_dump(reporter, p, true, false,  "path.setFillType(SkPathFillType::kWinding);\n"
+    compare_dump(reporter, p, true, false,  "path.setFillType(SkPath::kWinding_FillType);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n"
                                             "path.lineTo(1, 2);\n"
                                             "path.close();\n");
     p.reset();
-    p.setFillType(SkPathFillType::kEvenOdd);
+    p.setFillType(SkPath::kEvenOdd_FillType);
     p.moveTo(1, 2);
     p.quadTo(3, 4, 5, 6);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kEvenOdd);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kEvenOdd_FillType);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.quadTo(3, 4, 5, 6);\n");
     p.reset();
-    p.setFillType(SkPathFillType::kInverseWinding);
+    p.setFillType(SkPath::kInverseWinding_FillType);
     p.moveTo(1, 2);
     p.conicTo(3, 4, 5, 6, 0.5f);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kInverseWinding);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kInverseWinding_FillType);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.conicTo(3, 4, 5, 6, 0.5f);\n");
     p.reset();
-    p.setFillType(SkPathFillType::kInverseEvenOdd);
+    p.setFillType(SkPath::kInverseEvenOdd_FillType);
     p.moveTo(1, 2);
     p.cubicTo(3, 4, 5, 6, 7, 8);
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kInverseEvenOdd);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kInverseEvenOdd_FillType);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.cubicTo(3, 4, 5, 6, 7, 8);\n");
     p.reset();
-    p.setFillType(SkPathFillType::kWinding);
+    p.setFillType(SkPath::kWinding_FillType);
     p.moveTo(1, 2);
     p.lineTo(3, 4);
     compare_dump(reporter, p, false, true,
-                 "path.setFillType(SkPathFillType::kWinding);\n"
+                 "path.setFillType(SkPath::kWinding_FillType);\n"
                  "path.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));  // 1, 2\n"
                  "path.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));  // 3, 4\n");
     p.reset();
     p.moveTo(SkBits2Float(0x3f800000), SkBits2Float(0x40000000));
     p.lineTo(SkBits2Float(0x40400000), SkBits2Float(0x40800000));
-    compare_dump(reporter, p, false, false, "path.setFillType(SkPathFillType::kWinding);\n"
+    compare_dump(reporter, p, false, false, "path.setFillType(SkPath::kWinding_FillType);\n"
                                             "path.moveTo(1, 2);\n"
                                             "path.lineTo(3, 4);\n");
 }
@@ -4525,7 +4525,7 @@ static void test_skbug_6947() {
 
 static void test_skbug_7015() {
     SkPath path;
-    path.setFillType(SkPathFillType::kWinding);
+    path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(SkBits2Float(0x4388c000), SkBits2Float(0x43947c08));  // 273.5f, 296.969f
     path.lineTo(SkBits2Float(0x4386c000), SkBits2Float(0x43947c08));  // 269.5f, 296.969f
     // 269.297f, 292.172f, 273.695f, 292.172f, 273.5f, 296.969f
@@ -4549,7 +4549,7 @@ static void test_skbug_7051() {
 static void test_skbug_7435() {
     SkPaint paint;
     SkPath path;
-    path.setFillType(SkPathFillType::kWinding);
+    path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(SkBits2Float(0x7f07a5af), SkBits2Float(0xff07ff1d));  // 1.80306e+38f, -1.8077e+38f
     path.lineTo(SkBits2Float(0x7edf4b2d), SkBits2Float(0xfedffe0a));  // 1.48404e+38f, -1.48868e+38f
     path.lineTo(SkBits2Float(0x7edf4585), SkBits2Float(0xfee003b2));  // 1.48389e+38f, -1.48883e+38f
@@ -5147,7 +5147,7 @@ DEF_TEST(ClipPath_nonfinite, reporter) {
 
     REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
     for (bool aa : {false, true}) {
-        for (auto ft : {SkPathFillType::kWinding, SkPathFillType::kInverseWinding}) {
+        for (SkPath::FillType ft : {SkPath::kWinding_FillType, SkPath::kInverseWinding_FillType}) {
             for (SkScalar bad : {SK_ScalarInfinity, SK_ScalarNaN}) {
                 for (int bits = 1; bits <= 15; ++bits) {
                     SkPoint p0 = { 0, 0 };

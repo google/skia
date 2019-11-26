@@ -260,7 +260,7 @@ public:
             return false;
         }
 
-        if (SkPathFillType::kWinding == this->path().getNewFillType() && dirs[0] == dirs[1]) {
+        if (SkPath::kWinding_FillType == this->path().getFillType() && dirs[0] == dirs[1]) {
             // The two rects need to be wound opposite to each other
             return false;
         }
@@ -550,8 +550,9 @@ private:
     const SkPath* originalPathForListeners() const;
 
     // Defaults to use when there is no distinction between even/odd and winding fills.
-    static constexpr SkPathFillType kDefaultPathFillType = SkPathFillType::kEvenOdd;
-    static constexpr SkPathFillType kDefaultPathInverseFillType = SkPathFillType::kInverseEvenOdd;
+    static constexpr SkPath::FillType kDefaultPathFillType = SkPath::kEvenOdd_FillType;
+    static constexpr SkPath::FillType kDefaultPathInverseFillType =
+            SkPath::kInverseEvenOdd_FillType;
 
     static constexpr SkPathDirection kDefaultRRectDir = SkPathDirection::kCW;
     static constexpr unsigned kDefaultRRectStart = 0;

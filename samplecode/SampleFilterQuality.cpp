@@ -42,7 +42,7 @@ static sk_sp<SkImage> make_image() {
     canvas->drawColor(SK_ColorWHITE);
 
     SkPath path;
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::kEvenOdd_FillType);
 
     path.addRect(SkRect::MakeWH(N/2, N));
     path.addRect(SkRect::MakeWH(N, N/2));

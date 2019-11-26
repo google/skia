@@ -282,13 +282,13 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         paint.setStyle(SkPaint::kStrokeAndFill_Style);
 
         SkPath path;
-        path.setFillType(SkPathFillType::kWinding);
+        path.setFillType(SkPath::kWinding_FillType);
         path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCW);
         path.addCircle(x, y + SkIntToScalar(200), SkIntToScalar(40), SkPathDirection::kCCW);
         canvas->drawPath(path, paint);
 
         SkPath path2;
-        path2.setFillType(SkPathFillType::kWinding);
+        path2.setFillType(SkPath::kWinding_FillType);
         path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCCW);
         path2.addCircle(x + SkIntToScalar(120), y + SkIntToScalar(200), SkIntToScalar(40), SkPathDirection::kCW);
         canvas->drawPath(path2, paint);
@@ -307,7 +307,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         SkRect r = SkRect::MakeXYWH(x - SkIntToScalar(50), y + SkIntToScalar(280),
                                     SkIntToScalar(100), SkIntToScalar(100));
         SkPath path3;
-        path3.setFillType(SkPathFillType::kWinding);
+        path3.setFillType(SkPath::kWinding_FillType);
         path3.addRect(r, SkPathDirection::kCW);
         r.inset(SkIntToScalar(10), SkIntToScalar(10));
         path3.addRect(r, SkPathDirection::kCCW);
@@ -316,7 +316,7 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
         r = SkRect::MakeXYWH(x + SkIntToScalar(70), y + SkIntToScalar(280),
                              SkIntToScalar(100), SkIntToScalar(100));
         SkPath path4;
-        path4.setFillType(SkPathFillType::kWinding);
+        path4.setFillType(SkPath::kWinding_FillType);
         path4.addRect(r, SkPathDirection::kCCW);
         r.inset(SkIntToScalar(10), SkIntToScalar(10));
         path4.addRect(r, SkPathDirection::kCW);

@@ -68,9 +68,9 @@ protected:
             .lineTo(50,  150)
             .close();
         if (fInvertDraw) {
-            path.setFillType(SkPathFillType::kInverseEvenOdd);
+            path.setFillType(SkPath::kInverseEvenOdd_FillType);
         } else {
-            path.setFillType(SkPathFillType::kEvenOdd);
+            path.setFillType(SkPath::kEvenOdd_FillType);
         }
         SkPaint pathPaint;
         pathPaint.setAntiAlias(true);
@@ -126,10 +126,10 @@ protected:
                 bool doInvB = SkToBool(invBits & 2);
                 canvas->save();
                     // set clip
-                    clipA.setFillType(doInvA ? SkPathFillType::kInverseEvenOdd :
-                                      SkPathFillType::kEvenOdd);
-                    clipB.setFillType(doInvB ? SkPathFillType::kInverseEvenOdd :
-                                      SkPathFillType::kEvenOdd);
+                    clipA.setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
+                                      SkPath::kEvenOdd_FillType);
+                    clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
+                                      SkPath::kEvenOdd_FillType);
                     canvas->clipPath(clipA, fDoAAClip);
                     canvas->clipPath(clipB, gOps[op].fOp, fDoAAClip);
 

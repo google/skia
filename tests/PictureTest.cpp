@@ -379,7 +379,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
 
     SkPath invPath;
     invPath.addOval(rect1);
-    invPath.setFillType(SkPathFillType::kInverseEvenOdd);
+    invPath.setFillType(SkPath::kInverseEvenOdd_FillType);
     SkPath path;
     path.addOval(rect2);
     SkPath path2;
