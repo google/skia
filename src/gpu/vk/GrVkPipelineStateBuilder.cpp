@@ -24,7 +24,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        Desc* desc,
+        GrProgramDesc* desc,
         VkRenderPass compatibleRenderPass) {
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");
@@ -66,7 +66,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     VkShaderModule* shaderModule,
                                                     VkPipelineShaderStageCreateInfo* stageInfo,
                                                     const SkSL::Program::Settings& settings,
-                                                    Desc* desc,
+                                                    GrProgramDesc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
     if (!GrCompileVkShaderModule(fGpu, sksl, stage, shaderModule,
@@ -135,11 +135,12 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
                                                    bool isSkSL) {
-    const Desc* desc = static_cast<const Desc*>(this->desc());
     // Here we shear off the Vk-specific portion of the Desc in order to create the
     // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
     // program, and that only depends on the base GrProgramDesc data.
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
+                                                this->desc()->initialKeyLength()+4);
+
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
                                                                    inputs, kGrShaderTypeCount);
@@ -147,7 +148,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
-                                                      Desc* desc) {
+                                                      GrProgramDesc* desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
@@ -209,7 +210,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
         // Here we shear off the Vk-specific portion of the Desc in order to create the
         // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
         // program, and that only depends on the base GrProgramDesc data.
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength()+4);
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());
@@ -326,41 +327,3 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
-                                           GrRenderTarget* renderTarget,
-                                           const GrProgramInfo& programInfo,
-                                           const GrCaps& caps) {
-    if (!GrProgramDesc::Build(desc, renderTarget, programInfo, caps)) {
-        return false;
-    }
-
-    GrProcessorKeyBuilder b(&desc->key());
-
-    b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
-    int keyLength = desc->key().count();
-    SkASSERT(0 == (keyLength % 4));
-    desc->fShaderKeyLength = SkToU32(keyLength);
-
-    GrVkRenderTarget* vkRT = (GrVkRenderTarget*)renderTarget;
-    // TODO: support failure in getSimpleRenderPass
-    SkASSERT(vkRT->getSimpleRenderPass());
-    vkRT->getSimpleRenderPass()->genKey(&b);
-
-    GrStencilSettings stencil = programInfo.nonGLStencilSettings();
-    stencil.genKey(&b);
-
-    programInfo.pipeline().genKey(&b, caps);
-    b.add32(programInfo.numRasterSamples());
-
-    // Vulkan requires the full primitive type as part of its key
-    b.add32((uint32_t)programInfo.primitiveType());
-
-    if (caps.mixedSamplesSupport()) {
-        // Add "0" to indicate that coverage modulation will not be enabled, or the (non-zero)
-        // raster sample count if it will.
-        b.add32(!programInfo.isMixedSampled() ? 0 : programInfo.numRasterSamples());
-    }
-
-    return true;
-}
