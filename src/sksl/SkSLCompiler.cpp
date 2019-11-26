@@ -28,6 +28,11 @@
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
+#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
+#include "src/gpu/GrShaderCaps.h"
+#endif
+
 #ifdef SK_ENABLE_SPIRV_VALIDATION
 #include "spirv-tools/libspirv.hpp"
 #endif
@@ -281,8 +286,17 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t le
                                   std::shared_ptr<SymbolTable> base,
                                   std::vector<std::unique_ptr<ProgramElement>>* outElements,
                                   std::shared_ptr<SymbolTable>* outSymbolTable) {
+#ifdef SK_DEBUG
+    String source(src, length);
+    fSource = &source;
+#endif
     fIRGenerator->fSymbolTable = std::move(base);
     Program::Settings settings;
+#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
+    GrContextOptions opts;
+    GrShaderCaps caps(opts);
+    settings.fCaps = &caps;
+#endif
     fIRGenerator->start(&settings, nullptr);
     fIRGenerator->convertProgram(kind, src, length, *fTypes, outElements);
     if (this->fErrorCount) {
@@ -291,6 +305,9 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* src, size_t le
     SkASSERT(!fErrorCount);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     *outSymbolTable = fIRGenerator->fSymbolTable;
+#ifdef SK_DEBUG
+    fSource = nullptr;
+#endif
 }
 
 // add the definition created by assigning to the lvalue to the definition set
