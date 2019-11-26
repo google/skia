@@ -12,7 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/encode/SkPngEncoder.h"
 #include "modules/skottie/include/Skottie.h"
-#include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
@@ -260,9 +260,9 @@ int main(int argc, char** argv) {
     }
 
     auto logger = sk_make_sp<Logger>();
-    auto     rp = skottie_utils::CachingResourceProvider::Make(
-                    skottie_utils::DataURIResourceProviderProxy::Make(
-                      skottie_utils::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0]),
+    auto     rp = skresources::CachingResourceProvider::Make(
+                    skresources::DataURIResourceProviderProxy::Make(
+                      skresources::FileResourceProvider::Make(SkOSPath::Dirname(FLAGS_input[0]),
                                                                 /*predecode=*/true),
                       /*predecode=*/true));
     auto data   = SkData::MakeFromFileName(FLAGS_input[0]);

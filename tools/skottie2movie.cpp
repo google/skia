@@ -12,7 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
 #include "modules/skottie/include/Skottie.h"
-#include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
 
 #include "tools/flags/CommandLineFlags.h"
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     SkDebugf("assetPath %s\n", assetPath.c_str());
 
     auto animation = skottie::Animation::Builder()
-        .setResourceProvider(skottie_utils::FileResourceProvider::Make(assetPath))
+        .setResourceProvider(skresources::FileResourceProvider::Make(assetPath))
         .makeFromFile(FLAGS_input[0]);
     if (!animation) {
         SkDebugf("failed to load %s\n", FLAGS_input[0]);

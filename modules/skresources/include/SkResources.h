@@ -10,8 +10,14 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkMutex.h"
+#include "include/private/SkTHash.h"
 
+#include <memory>
+
+class SkAnimCodecPlayer;
 class SkImage;
 
 namespace skresources {
@@ -38,6 +44,30 @@ public:
      *            (in-point).
      */
     virtual sk_sp<SkImage> getFrame(float t) = 0;
+};
+
+class MultiFrameImageAsset final : public ImageAsset {
+public:
+    /**
+    * By default, images are decoded on-the-fly, at rasterization time.
+    * Large images may cause jank as decoding is expensive (and can thrash internal caches).
+    *
+    * Pass |predecode| true to force-decode all images upfront, at the cost of potentially more RAM
+    * and slower animation build times.
+    */
+    static sk_sp<MultiFrameImageAsset> Make(sk_sp<SkData>, bool predecode = false);
+
+    bool isMultiFrame() override;
+
+    sk_sp<SkImage> getFrame(float t) override;
+
+private:
+    explicit MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer>, bool predecode);
+
+    std::unique_ptr<SkAnimCodecPlayer> fPlayer;
+    bool                               fPreDecode;
+
+    using INHERITED = ImageAsset;
 };
 
 /**
@@ -82,6 +112,68 @@ public:
                                    const char[] /* url  */) const {
         return nullptr;
     }
+};
+
+class FileResourceProvider final : public ResourceProvider {
+public:
+    static sk_sp<FileResourceProvider> Make(SkString base_dir, bool predecode = false);
+
+    sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override;
+
+    sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+
+private:
+    FileResourceProvider(SkString, bool);
+
+    const SkString fDir;
+    const bool     fPredecode;
+
+    using INHERITED = ResourceProvider;
+};
+
+class ResourceProviderProxyBase : public ResourceProvider {
+protected:
+    explicit ResourceProviderProxyBase(sk_sp<ResourceProvider>);
+
+    sk_sp<SkData> load(const char[], const char[]) const override;
+    sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+    sk_sp<SkData> loadFont(const char[], const char[]) const override;
+
+private:
+    const sk_sp<ResourceProvider> fProxy;
+};
+
+class CachingResourceProvider final : public ResourceProviderProxyBase {
+public:
+    static sk_sp<CachingResourceProvider> Make(sk_sp<ResourceProvider> rp) {
+        return rp ? sk_sp<CachingResourceProvider>(new CachingResourceProvider(std::move(rp)))
+                  : nullptr;
+    }
+
+private:
+    explicit CachingResourceProvider(sk_sp<ResourceProvider>);
+
+    sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+
+    mutable SkMutex                                 fMutex;
+    mutable SkTHashMap<SkString, sk_sp<ImageAsset>> fImageCache;
+
+    using INHERITED = ResourceProviderProxyBase;
+};
+
+class DataURIResourceProviderProxy final : public ResourceProviderProxyBase {
+public:
+    static sk_sp<DataURIResourceProviderProxy> Make(sk_sp<ResourceProvider> rp,
+                                                    bool predecode = false);
+
+private:
+    DataURIResourceProviderProxy(sk_sp<ResourceProvider>, bool);
+
+    sk_sp<ImageAsset> loadImageAsset(const char[], const char[], const char[]) const override;
+
+    const bool fPredecode;
+
+    using INHERITED = ResourceProviderProxyBase;
 };
 
 } // namespace skresources
