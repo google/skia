@@ -163,7 +163,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
                                                          GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
-    if (!args.fFp.computeLocalCoordsInVertexShader() && args.fTransformedCoords.count() > 0) {
+    if (!args.fFp.coordTransformsApplyToLocalCoords() && args.fTransformedCoords.count() > 0) {
         // we currently only support overriding a single coordinate pair
         SkASSERT(args.fTransformedCoords.count() == 1);
         const GrGLSLProgramDataManager::UniformHandle& mat =
@@ -182,7 +182,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
     SkString result;
     this->emitFunction(kHalf4_GrSLType,
                        "stage",
-                       args.fFp.computeLocalCoordsInVertexShader() ? 1 : 2,
+                       args.fFp.coordTransformsApplyToLocalCoords() ? 1 : 2,
                        params,
                        this->code().c_str(),
                        &result);
