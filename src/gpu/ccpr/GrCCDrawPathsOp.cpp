@@ -17,9 +17,8 @@
 #include "src/gpu/ccpr/GrOctoBounds.h"
 
 static bool has_coord_transforms(const GrPaint& paint) {
-    GrFragmentProcessor::Iter iter(paint);
-    while (const GrFragmentProcessor* fp = iter.next()) {
-        if (!fp->coordTransforms().empty()) {
+    for (const auto& fp : GrFragmentProcessor::PaintRange(paint)) {
+        if (!fp.coordTransforms().empty()) {
             return true;
         }
     }
