@@ -193,72 +193,104 @@ public:
      */
     bool isEqual(const GrFragmentProcessor& that) const;
 
-    /**
-     * Pre-order traversal of a FP hierarchy, or of the forest of FPs in a GrPipeline. In the latter
-     * case the tree rooted at each FP in the GrPipeline is visited successively.
-     */
-    class Iter : public SkNoncopyable {
+    void visitProxies(const GrOp::VisitProxyFunc& func);
+
+    // Sentinel type for range-for using Iter.
+    class EndIter {};
+    // A pre-order traversal iterator over a hierarchy of FPs. It can also iterate over all the FP
+    // hierarchies rooted in a GrPaint, GrProcessorSet, or GrPipeline. For these collections it
+    // iterates the tree rooted at each color FP and then each coverage FP.
+    class Iter {
     public:
-        explicit Iter(const GrFragmentProcessor* fp) { fFPStack.push_back(fp); }
-        explicit Iter(const GrPipeline& pipeline);
+        explicit Iter(const GrFragmentProcessor& fp) { fFPStack.push_back(&fp); }
         explicit Iter(const GrPaint&);
-        const GrFragmentProcessor* next();
+        explicit Iter(const GrProcessorSet&);
+        explicit Iter(const GrPipeline&);
+
+        const GrFragmentProcessor& operator*() const;
+        const GrFragmentProcessor* operator->() const;
+        Iter& operator++();
+        operator bool() const { return !fFPStack.empty(); }
+        bool operator!=(const EndIter&) { return (bool)*this; }
+
+        // Because each iterator carries a stack we want to avoid copies.
+        Iter(const Iter&) = delete;
+        Iter& operator=(const Iter&) = delete;
 
     private:
         SkSTArray<4, const GrFragmentProcessor*, true> fFPStack;
     };
 
-    /**
-     * Iterates over all the Ts owned by a GrFragmentProcessor and its children or over all the Ts
-     * owned by the forest of GrFragmentProcessors in a GrPipeline. FPs are visited in the same
-     * order as Iter and each of an FP's Ts are visited in order.
-     */
-    template <typename T, int (GrFragmentProcessor::*COUNT)() const,
-              const T& (GrFragmentProcessor::*GET)(int)const>
-    class FPItemIter : public SkNoncopyable {
+    // Used to implement a range-fop loop using Iter. Src is one of GrFragmentProcessor, GrPaint,
+    // GrProcessorSet, or GrPipeline. Type aliases for these defined below.
+    template <typename Src> class IterRange {
     public:
-        explicit FPItemIter(const GrFragmentProcessor* fp)
-                : fCurrFP(nullptr)
-                , fCTIdx(0)
-                , fFPIter(fp) {
-            fCurrFP = fFPIter.next();
-        }
-        explicit FPItemIter(const GrPipeline& pipeline)
-                : fCurrFP(nullptr)
-                , fCTIdx(0)
-                , fFPIter(pipeline) {
-            fCurrFP = fFPIter.next();
-        }
-
-        const T* next() {
-            if (!fCurrFP) {
-                return nullptr;
-            }
-            while (fCTIdx == (fCurrFP->*COUNT)()) {
-                fCTIdx = 0;
-                fCurrFP = fFPIter.next();
-                if (!fCurrFP) {
-                    return nullptr;
-                }
-            }
-            return &(fCurrFP->*GET)(fCTIdx++);
-        }
+        explicit IterRange(const Src& t) : fT(t) {}
+        Iter begin() const { return Iter(fT); }
+        EndIter end() const { return EndIter(); }
 
     private:
-        const GrFragmentProcessor*  fCurrFP;
-        int                         fCTIdx;
-        GrFragmentProcessor::Iter   fFPIter;
+        const Src& fT;
+    };
+    // We would use template deduction guides but for:
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79501
+    using FPRange           = IterRange<GrFragmentProcessor>;
+    using PaintRange        = IterRange<GrPaint>;
+
+    using CountFn = int (GrFragmentProcessor::*)() const;
+    template <typename Item> using GetFn = const Item& (GrFragmentProcessor::*)(int) const;
+
+    // Sentinel type for range-for using FPItemIter.
+    class FPItemEndIter {};
+    // Iterates over all the Items in a collection of FPs. The FPs themselves are iterated in the
+    // same order as Iter. Count is a member that gets the number of Items owned by each FP and Get
+    // takes an index less than Count() and returns an Item.
+    template <typename Item, CountFn Count, GetFn<Item> Get> class FPItemIter {
+    public:
+        template <typename Src> explicit FPItemIter(const Src& s);
+
+        std::pair<const Item&, const GrFragmentProcessor&> operator*() const {
+            return {((*fFPIter).*Get)(fIndex), *fFPIter};
+        }
+        FPItemIter& operator++();
+        operator bool() const { return fFPIter; }
+        bool operator!=(const FPItemEndIter&) { return (bool)*this; }
+
+        FPItemIter(const FPItemIter&) = delete;
+        FPItemIter& operator=(const FPItemIter&) = delete;
+
+    private:
+        Iter fFPIter;
+        int fIndex;
     };
 
     using CoordTransformIter = FPItemIter<GrCoordTransform,
                                           &GrFragmentProcessor::numCoordTransforms,
                                           &GrFragmentProcessor::coordTransform>;
+    using TextureSamplerIter = FPItemIter<TextureSampler,
+                                          &GrFragmentProcessor::numTextureSamplers,
+                                          &GrFragmentProcessor::textureSampler>;
 
-    using TextureAccessIter = FPItemIter<TextureSampler,
-                                         &GrFragmentProcessor::numTextureSamplers,
-                                         &GrFragmentProcessor::textureSampler>;
+    // A range that uses FPItemIter. Src is const GrFragmentProcessor, GrPaint, GrProcessorSet, or
+    // GrPipeline.
+    template <typename Src, typename FPItemIter> class FPItemRange {
+    public:
+        FPItemRange(const Src& src) : fSrc(src) {}
+        FPItemIter begin() const { return FPItemIter(fSrc); }
+        FPItemEndIter end() const { return FPItemEndIter(); }
 
-    void visitProxies(const GrOp::VisitProxyFunc& func);
+    private:
+        const Src& fSrc;
+    };
+
+    // This could be a little nicer if type aliases supported template argument deduction:
+    // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1021r5.html
+    // We'd just have type aliases for CoordTransformRange and TextureSamplerRange along with
+    // deduction guides.
+    using PipelineCoordTransformRange     = FPItemRange<GrPipeline,          CoordTransformIter>;
+    using FPTextureSamplerRange           = FPItemRange<GrFragmentProcessor, TextureSamplerIter>;
+    using ProcessorSetTextureSamplerRange = FPItemRange<GrProcessorSet,      TextureSamplerIter>;
+    using PipelineTextureSamplerRange     = FPItemRange<GrPipeline,          TextureSamplerIter>;
 
 protected:
     enum OptimizationFlags : uint32_t {
@@ -471,5 +503,28 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::IthTextureSample
 }
 
 GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <typename Item, GrFragmentProcessor::CountFn Count, GrFragmentProcessor::GetFn<Item> Get>
+template <typename Src>
+GrFragmentProcessor::FPItemIter<Item, Count, Get>::FPItemIter(const Src& s)
+        : fFPIter(s), fIndex(-1) {
+    if (fFPIter) {
+        ++*this;
+    }
+}
+
+template <typename Item, GrFragmentProcessor::CountFn Count, GrFragmentProcessor::GetFn<Item> Get>
+GrFragmentProcessor::FPItemIter<Item, Count, Get>&
+GrFragmentProcessor::FPItemIter<Item, Count, Get>::operator++() {
+    ++fIndex;
+    if (fIndex < ((*fFPIter).*Count)()) {
+        return *this;
+    }
+    fIndex = 0;
+    do {} while (++fFPIter && !((*fFPIter).*Count)());
+    return *this;
+}
 
 #endif
