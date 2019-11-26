@@ -47,9 +47,9 @@ GrGLSLPrimitiveProcessor* GP::createGLSLInstance(const GrShaderCaps& caps) const
     class GLSLGP : public GrGLSLGeometryProcessor {
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrPrimitiveProcessor& pp,
-                     FPCoordTransformIter&& iter) override {
+                     const CoordTransformRange& transformRange) override {
             const auto& gp = pp.cast<GP>();
-            this->setTransformDataHelper(gp.fLocalMatrix, pdman, &iter);
+            this->setTransformDataHelper(gp.fLocalMatrix, pdman, transformRange);
         }
 
     private:

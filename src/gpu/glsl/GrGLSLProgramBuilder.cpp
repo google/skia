@@ -150,9 +150,8 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
         output = this->emitAndInstallFragProc(fp, i, transformedCoordVarsIdx, **inOut, output,
                                               &glslFragmentProcessors);
-        GrFragmentProcessor::Iter iter(&fp);
-        while (const GrFragmentProcessor* fp = iter.next()) {
-            transformedCoordVarsIdx += fp->numCoordTransforms();
+        for (const auto& subFP : GrFragmentProcessor::FPRange(fp)) {
+            transformedCoordVarsIdx += subFP.numCoordTransforms();
         }
         **inOut = output;
     }
@@ -185,20 +184,18 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
     SkSTArray<4, SamplerHandle> texSamplers;
-    GrFragmentProcessor::Iter fpIter(&fp);
     int samplerIdx = 0;
-    while (const auto* subFP = fpIter.next()) {
-        for (int i = 0; i < subFP->numTextureSamplers(); ++i) {
+    for (const auto& subFP : GrFragmentProcessor::FPRange(fp)) {
+        for (int i = 0; i < subFP.numTextureSamplers(); ++i) {
             SkString name;
             name.printf("TextureSampler_%d", samplerIdx++);
-            const auto& sampler = subFP->textureSampler(i);
+            const auto& sampler = subFP.textureSampler(i);
             texSamplers.emplace_back(this->emitSampler(sampler.proxy(),
                                                        sampler.samplerState(),
                                                        sampler.swizzle(),
                                                        name.c_str()));
         }
     }
-
     const GrGLSLPrimitiveProcessor::TransformVar* coordVars = fTransformedCoordVars.begin() +
                                                               transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
