@@ -54,7 +54,7 @@ static void testOvalSet(const OvalSet& set, const SkPath& oval, SkOpBuilder* bui
 
 static void testOne(skiatest::Reporter* reporter, const OvalSet& set) {
     SkPath oval, regionResult, builderResult, opResult;
-    oval.setFillType(SkPathFillType::kWinding);
+    oval.setFillType(SkPath::kWinding_FillType);
     oval.addOval(set.fBounds);
     SkOpBuilder builder;
     SkRegion region;
@@ -412,7 +412,7 @@ testSimplify(reporter, path, __FUNCTION__);
 
 DEF_TEST(SixtyOvalsA, reporter) {
 SkPath path;
-path.setFillType(SkPathFillType::kEvenOdd);
+path.setFillType(SkPath::kEvenOdd_FillType);
 path.moveTo(11.1722f, -8.10398f);
 path.conicTo(22.9143f, -10.3787f, 23.7764f, -7.72542f, 1.00863f);
 path.conicTo(24.6671f, -4.98406f, 13.8147f, 0.0166066f, 0.973016f);
@@ -439,7 +439,7 @@ path.conicTo(16.9933f, -18.5554f, 11.1722f, -8.10398f, 0.989875f);
 path.close();
 SkPath one(path);
 path.reset();
-path.setFillType(SkPathFillType::kWinding);
+path.setFillType(SkPath::kWinding_FillType);
 path.moveTo(-1.54509f, -4.75528f);
 path.conicTo(22.2313f, -12.4807f, 23.7764f, -7.72543f, 0.707107f);
 path.conicTo(25.3215f, -2.97014f, 1.54509f, 4.75528f, 0.707107f);
@@ -453,7 +453,7 @@ Op(one, two, kUnion_SkPathOp, &result);
 
 DEF_TEST(SixtyOvalsAX, reporter) {
 SkPath path;
-path.setFillType(SkPathFillType::kEvenOdd);
+path.setFillType(SkPath::kEvenOdd_FillType);
 path.moveTo(SkBits2Float(0x4132c174), SkBits2Float(0xc101a9e5));  // 11.1722f, -8.10398f
 path.conicTo(SkBits2Float(0x41b7508a), SkBits2Float(0xc1260efe), SkBits2Float(0x41be3618), SkBits2Float(0xc0f736ad), SkBits2Float(0x3f811abd));  // 22.9143f, -10.3787f, 23.7764f, -7.72542f, 1.00863f
 path.conicTo(SkBits2Float(0x41c5564b), SkBits2Float(0xc09f7d6d), SkBits2Float(0x415d0934), SkBits2Float(0x3c880a93), SkBits2Float(0x3f79179a));  // 24.6671f, -4.98406f, 13.8147f, 0.0166066f, 0.973016f
@@ -481,7 +481,7 @@ path.close();
 path.close();
 SkPath one(path);
 path.reset();
-path.setFillType(SkPathFillType::kWinding);
+path.setFillType(SkPath::kWinding_FillType);
 path.moveTo(SkBits2Float(0xbfc5c55c), SkBits2Float(0xc0982b46));  // -1.54509f, -4.75528f
 path.conicTo(SkBits2Float(0x41b1d9c2), SkBits2Float(0xc147b0fc), SkBits2Float(0x41be3618), SkBits2Float(0xc0f736b3), SkBits2Float(0x3f3504f3));  // 22.2313f, -12.4807f, 23.7764f, -7.72543f, 0.707107f
 path.conicTo(SkBits2Float(0x41ca926e), SkBits2Float(0xc03e16da), SkBits2Float(0x3fc5c55c), SkBits2Float(0x40982b46), SkBits2Float(0x3f3504f3));  // 25.3215f, -2.97014f, 1.54509f, 4.75528f, 0.707107f

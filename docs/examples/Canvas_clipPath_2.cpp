@@ -9,13 +9,13 @@ void draw(SkCanvas* canvas) {
     SkPath path;
     path.addRect({20, 15, 100, 95});
     path.addRect({50, 65, 130, 135});
-    path.setFillType(SkPathFillType::kWinding);
+    path.setFillType(SkPath::kWinding_FillType);
     canvas->save();
     canvas->clipPath(path, SkClipOp::kIntersect);
     canvas->drawCircle(70, 85, 60, paint);
     canvas->restore();
     canvas->translate(100, 100);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::kEvenOdd_FillType);
     canvas->clipPath(path, SkClipOp::kIntersect);
     canvas->drawCircle(70, 85, 60, paint);
 }

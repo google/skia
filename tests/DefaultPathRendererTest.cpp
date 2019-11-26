@@ -52,7 +52,7 @@ static SkBitmap read_back(GrRenderTargetContext* rtc, int width, int height) {
     return bm;
 }
 
-static SkPath make_path(const SkRect& outer, int inset, SkPathFillType fill) {
+static SkPath make_path(const SkRect& outer, int inset, SkPath::FillType fill) {
     SkPath p;
 
     p.addRect(outer, SkPathDirection::kCW);
@@ -77,9 +77,9 @@ static const int kPad = 3;
 
 static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
     SkPath invPath = make_path(SkRect::MakeXYWH(0, 0, kBigSize, kBigSize),
-                               kBigSize/2-1, SkPathFillType::kInverseWinding);
+                               kBigSize/2-1, SkPath::kInverseWinding_FillType);
     SkPath path = make_path(SkRect::MakeXYWH(0, 0, kBigSize, kBigSize),
-                            kPad, SkPathFillType::kWinding);
+                            kPad, SkPath::kWinding_FillType);
 
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 

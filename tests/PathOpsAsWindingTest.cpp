@@ -58,58 +58,58 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     REPORTER_ASSERT(reporter, test == result);
     // if test is empty
     test.reset();
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, result.isEmpty());
-    REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+    REPORTER_ASSERT(reporter, result.getFillType() == SkPath::kWinding_FillType);
     // if test is convex
     test.addCircle(5, 5, 10);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, result.isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test.setFillType(SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, test == result);
     // if test has infinity
     test.reset();
     test.addRect({1, 2, 3, SK_ScalarInfinity});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, !AsWinding(test, &result));
     // if test has only one contour
     test.reset();
     SkPoint ell[] = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
     test.addPoly(ell, SK_ARRAY_COUNT(ell), true);
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, !result.isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test.setFillType(SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, test == result);
     // test two contours that do not overlap or share bounds
     test.addRect({5, 2, 6, 3});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, !result.isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test.setFillType(SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, test == result);
     // test two contours that do not overlap but share bounds
     test.reset();
     test.addPoly(ell, SK_ARRAY_COUNT(ell), true);
     test.addRect({2, 2, 3, 3});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, !result.isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test.setFillType(SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, test == result);
     // test two contours that partially overlap
     test.reset();
     test.addRect({0, 0, 3, 3});
     test.addRect({1, 1, 4, 4});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, !result.isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test.setFillType(SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, test == result);
     // test that result may be input
     SkPath copy = test;
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test.setFillType(SkPath::kEvenOdd_FillType);
     REPORTER_ASSERT(reporter, AsWinding(test, &test));
     REPORTER_ASSERT(reporter, !test.isConvex());
     REPORTER_ASSERT(reporter, test == copy);
@@ -122,7 +122,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
         for (auto dirA : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (auto dirB : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
                 test.reset();
-                test.setFillType(SkPathFillType::kEvenOdd);
+                test.setFillType(SkPath::kEvenOdd_FillType);
                 if (aFirst) {
                     test.addRect(rectA, dirA);
                     test.addRect(rectB, dirB);
@@ -132,7 +132,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                 }
                 SkPath original = test;
                 REPORTER_ASSERT(reporter, AsWinding(test, &result));
-                REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+                REPORTER_ASSERT(reporter, result.getFillType() == SkPath::kWinding_FillType);
                 test.reset();
                 if (aFirst) {
                     test.addRect(rectA, dirA);
@@ -148,7 +148,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                 REPORTER_ASSERT(reporter, test == result);
                 // test that result may be input
                 REPORTER_ASSERT(reporter, AsWinding(original, &original));
-                REPORTER_ASSERT(reporter, original.getNewFillType() == SkPathFillType::kWinding);
+                REPORTER_ASSERT(reporter, original.getFillType() == SkPath::kWinding_FillType);
                 REPORTER_ASSERT(reporter, original == result);
             }
         }
@@ -168,9 +168,9 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                         if (!aFirst) {
                             test.addPath(pathA);
                         }
-                        test.setFillType(SkPathFillType::kEvenOdd);
+                        test.setFillType(SkPath::kEvenOdd_FillType);
                         REPORTER_ASSERT(reporter, AsWinding(test, &result));
-                       REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+                       REPORTER_ASSERT(reporter, result.getFillType() == SkPath::kWinding_FillType);
                         for (SkScalar x = rectA.fLeft - 1; x <= rectA.fRight + 1; ++x) {
                             for (SkScalar y = rectA.fTop - 1; y <= rectA.fBottom + 1; ++y) {
                                 bool evenOddContains = test.contains(x, y);

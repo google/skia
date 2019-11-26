@@ -46,7 +46,7 @@ protected:
         return SkISize::Make(835, 840);
     }
 
-    void showPath(SkCanvas* canvas, int x, int y, SkPathFillType ft,
+    void showPath(SkCanvas* canvas, int x, int y, SkPath::FillType ft,
                   SkScalar scale, const SkPaint& paint) {
         const SkRect r = { 0, 0, SkIntToScalar(150), SkIntToScalar(150) };
 
@@ -75,13 +75,13 @@ protected:
                                                      SkTileMode::kClamp));
         paint.setAntiAlias(aa);
 
-        showPath(canvas,   0,   0, SkPathFillType::kWinding,
+        showPath(canvas,   0,   0, SkPath::kWinding_FillType,
                  scale, paint);
-        showPath(canvas, 200,   0, SkPathFillType::kEvenOdd,
+        showPath(canvas, 200,   0, SkPath::kEvenOdd_FillType,
                  scale, paint);
-        showPath(canvas,  00, 200, SkPathFillType::kInverseWinding,
+        showPath(canvas,  00, 200, SkPath::kInverseWinding_FillType,
                  scale, paint);
-        showPath(canvas, 200, 200, SkPathFillType::kInverseEvenOdd,
+        showPath(canvas, 200, 200, SkPath::kInverseEvenOdd_FillType,
                  scale, paint);
     }
 

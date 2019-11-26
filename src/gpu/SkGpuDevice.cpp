@@ -475,7 +475,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     path.setIsVolatile(true);
     path.addRRect(outer);
     path.addRRect(inner);
-    path.setFillType(SkPathFillType::kEvenOdd);
+    path.setFillType(SkPath::kEvenOdd_FillType);
 
     // TODO: We are losing the possible mutability of the path here but this should probably be
     // fixed by upgrading GrShape to handle DRRects.

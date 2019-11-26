@@ -370,7 +370,7 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) 
         SkPath path;
         path.addRect(rects[0]);
         path.addRect(rects[1]);
-        path.setFillType(SkPathFillType::kEvenOdd);
+        path.setFillType(SkPath::kEvenOdd_FillType);
         canvas.drawPath(path, paint);
     }
     return true;

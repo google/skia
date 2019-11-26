@@ -28,7 +28,7 @@ public:
     static constexpr int kDefaultSubdivisions = 10;
 
     MandolineSlicer(SkPoint anchorPt) {
-        fPath.setFillType(SkPathFillType::kEvenOdd);
+        fPath.setFillType(SkPath::kEvenOdd_FillType);
         fPath.setIsVolatile(true);
         this->reset(anchorPt);
     }

@@ -33,8 +33,8 @@ void FuzzNicePath(Fuzz* fuzz, SkPath* path, int maxOps) {
         return;
     }
     uint8_t fillType;
-    fuzz->nextRange(&fillType, 0, (uint8_t)SkPathFillType::kInverseEvenOdd);
-    path->setFillType((SkPathFillType)fillType);
+    fuzz->nextRange(&fillType, 0, (uint8_t)SkPath::kInverseEvenOdd_FillType);
+    path->setFillType((SkPath::FillType)fillType);
     uint8_t numOps;
     fuzz->nextRange(&numOps, 0, maxOps);
     for (uint8_t i = 0; i < numOps; ++i) {

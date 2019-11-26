@@ -165,7 +165,6 @@ public:
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
-#ifdef SK_SUPPORT_LEGACY_PATH_FILLTYPE_ENUM
     /** \enum SkPath::FillType
         FillType selects the rule used to fill SkPath. SkPath set to kWinding_FillType
         fills if the sum of contour edges is not zero, where clockwise edges add one, and
@@ -200,62 +199,12 @@ public:
         fFillType = SkToU8(ft);
     }
 
-    /** Returns true if fill is inverted and SkPath with fill represents area outside
-        of its geometric bounds.
-
-        @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
-                     kInverseWinding_FillType, kInverseEvenOdd_FillType
-        @return      true if SkPath fills outside its bounds
-    */
-    static bool IsInverseFillType(FillType fill) {
-        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
-        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
-        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
-        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
-        return (fill & 2) != 0;
-    }
-
-    /** Returns equivalent SkPath::FillType representing SkPath fill inside its bounds.
-        .
-
-        @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
-                     kInverseWinding_FillType, kInverseEvenOdd_FillType
-        @return      fill, or kWinding_FillType or kEvenOdd_FillType if fill is inverted
-    */
-    static FillType ConvertToNonInverseFillType(FillType fill) {
-        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
-        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
-        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
-        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
-        return (FillType)(fill & 1);
-    }
-#else
-    /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
-        kWinding_FillType.
-
-        @return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
-                 kInverseEvenOdd_FillType
-    */
-    SkPathFillType getFillType() const { return (SkPathFillType)fFillType; }
-#endif
-    // Temporary method -- remove when we've switched to the new enum
-    SkPathFillType getNewFillType() const { return (SkPathFillType)this->getFillType(); }
-
-    /** Sets FillType, the rule used to fill SkPath. While there is no check
-        that ft is legal, values outside of FillType are not supported.
-
-        @param ft  one of: kWinding, kEvenOdd,  kInverseWinding, kInverseEvenOdd
-    */
-    void setFillType(SkPathFillType ft) {
-        fFillType = SkToU8(ft);
-    }
-
     /** Returns if FillType describes area outside SkPath geometry. The inverse fill area
         extends indefinitely.
 
         @return  true if FillType is kInverseWinding_FillType or kInverseEvenOdd_FillType
     */
-    bool isInverseFillType() const { return SkPathFillType_IsInverse(this->getNewFillType()); }
+    bool isInverseFillType() const { return IsInverseFillType((FillType)fFillType); }
 
     /** Replaces FillType with its inverse. The inverse of FillType describes the area
         unmodified by the original FillType.
@@ -355,7 +304,7 @@ public:
     bool isRRect(SkRRect* rrect) const;
 
     /** Sets SkPath to its initial state.
-        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
+        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding_FillType.
         Internal storage associated with SkPath is released.
 
         @return  reference to SkPath
@@ -365,7 +314,7 @@ public:
     SkPath& reset();
 
     /** Sets SkPath to its initial state, preserving internal storage.
-        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
+        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding_FillType.
         Internal storage associated with SkPath is retained.
 
         Use rewind() instead of reset() if SkPath storage will be reused and performance
@@ -1090,6 +1039,36 @@ public:
         example: https://fiddle.skia.org/c/@Path_close
     */
     SkPath& close();
+
+    /** Returns true if fill is inverted and SkPath with fill represents area outside
+        of its geometric bounds.
+
+        @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
+                     kInverseWinding_FillType, kInverseEvenOdd_FillType
+        @return      true if SkPath fills outside its bounds
+    */
+    static bool IsInverseFillType(FillType fill) {
+        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
+        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
+        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
+        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
+        return (fill & 2) != 0;
+    }
+
+    /** Returns equivalent SkPath::FillType representing SkPath fill inside its bounds.
+        .
+
+        @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
+                     kInverseWinding_FillType, kInverseEvenOdd_FillType
+        @return      fill, or kWinding_FillType or kEvenOdd_FillType if fill is inverted
+    */
+    static FillType ConvertToNonInverseFillType(FillType fill) {
+        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
+        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
+        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
+        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
+        return (FillType)(fill & 1);
+    }
 
     /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
         control SkPoint p1, end SkPoint p2, and weight w.

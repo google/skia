@@ -540,11 +540,11 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             lastPassIsBounds = false;
         } else {
-            switch (path.getNewFillType()) {
-                case SkPathFillType::kInverseEvenOdd:
+            switch (path.getFillType()) {
+                case SkPath::kInverseEvenOdd_FillType:
                     reverse = true;
                     // fallthrough
-                case SkPathFillType::kEvenOdd:
+                case SkPath::kEvenOdd_FillType:
                     passes[0] = &gEOStencilPass;
                     if (stencilOnly) {
                         passCount = 1;
@@ -560,10 +560,10 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
                     }
                     break;
 
-                case SkPathFillType::kInverseWinding:
+                case SkPath::kInverseWinding_FillType:
                     reverse = true;
                     // fallthrough
-                case SkPathFillType::kWinding:
+                case SkPath::kWinding_FillType:
                     passes[0] = &gWindStencilPass;
                     passCount = 2;
                     if (stencilOnly) {

@@ -219,7 +219,7 @@ public:
         path.addCircle(0, 0, SkIntToScalar(200));
         path.addCircle(0, 0, SkIntToScalar(180));
         // evenodd means we've constructed basically a stroked circle
-        path.setFillType(SkPathFillType::kEvenOdd);
+        path.setFillType(SkPath::kEvenOdd_FillType);
 
         SkIRect bounds;
         path.getBounds().roundOut(&bounds);
