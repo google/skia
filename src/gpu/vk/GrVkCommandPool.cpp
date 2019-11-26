@@ -63,7 +63,6 @@ void GrVkCommandPool::close() {
 void GrVkCommandPool::reset(GrVkGpu* gpu) {
     SkASSERT(!fOpen);
     fOpen = true;
-    fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(this);
     // We can't use the normal result macro calls here because we may call reset on a different
     // thread and we can't be modifying the lost state on the GrVkGpu. We just call
     // vkResetCommandPool and assume the "next" vulkan call will catch the lost device.
@@ -76,6 +75,7 @@ void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fOpen);
     fPrimaryCommandBuffer->releaseResources(gpu);
+    fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(this);
 }
 
 void GrVkCommandPool::abandonGPUData() const {
