@@ -8,6 +8,7 @@
 #include "src/gpu/ccpr/GrGSCoverageProcessor.h"
 
 #include "src/gpu/GrMesh.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 using InputType = GrGLSLGeometryBuilder::InputType;
