@@ -13,6 +13,7 @@
 #include "include/core/SkPath.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkRandom.h"
+#include "modules/skresources/include/SkResources.h"
 
 class SkParticleEffect;
 class SkParticleEffectParams;
@@ -52,6 +53,8 @@ private:
         bool fTrackMouse;
     };
     SkTArray<RunningEffect> fRunning;
+
+    sk_sp<skresources::ResourceProvider> fResourceProvider;
 };
 
 #endif
