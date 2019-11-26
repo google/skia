@@ -72,7 +72,8 @@ fi
 
 MANAGED_SKOTTIE_BINDINGS="\
   -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
-  modules/skottie/utils/SkottieUtils.cpp"
+  modules/skottie/utils/SkottieUtils.cpp \
+  modules/skresources/src/SkResources.cpp"
 if [[ $@ == *no_managed_skottie* ]]; then
   echo "Omitting managed Skottie"
   MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"

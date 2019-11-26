@@ -34,7 +34,7 @@
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "modules/skottie/include/Skottie.h"
-    #include "modules/skottie/utils/SkottieUtils.h"
+    #include "modules/skresources/include/SkResources.h"
 #endif
 
 using sk_gpu_test::GrContextFactory;
@@ -454,7 +454,7 @@ int main(int argc, char** argv) {
             else if (name.endsWith(".json")) {
                 const SkString dir  = SkOSPath::Dirname(name.c_str());
                 if (sk_sp<skottie::Animation> animation = skottie::Animation::Builder()
-                        .setResourceProvider(skottie_utils::FileResourceProvider::Make(dir))
+                        .setResourceProvider(skresources::FileResourceProvider::Make(dir))
                         .make((const char*)blob->data(), blob->size())) {
                     init(source, animation);
                     continue;
