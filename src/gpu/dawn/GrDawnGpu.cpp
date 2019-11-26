@@ -90,7 +90,7 @@ public:
                       const GrProgramInfo& programInfo,
                       bool hasDepthStencil,
                       const GrCaps& caps) {
-        if (!GrProgramDesc::Build(desc, rt, programInfo, caps)) {
+        if (!GrProgramDesc::Build1(desc, rt, programInfo, caps)) {
             return false;
         }
 
