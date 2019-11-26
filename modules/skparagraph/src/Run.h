@@ -345,9 +345,6 @@ public:
         fDescent = metrics.fDescent;
         fLeading = metrics.fLeading;
         fForceStrut = forceStrut;
-        if (fForceStrut) {
-            fHeight = fDescent - fAscent + fLeading;
-        }
     }
 
     void add(Run* run) {
@@ -359,7 +356,6 @@ public:
         fAscent = SkTMin(fAscent, run->correctAscent());
         fDescent = SkTMax(fDescent, run->correctDescent());
         fLeading = SkTMax(fLeading, run->correctLeading());
-
     }
 
     void add(InternalLineMetrics other) {
@@ -371,7 +367,6 @@ public:
         fAscent = 0;
         fDescent = 0;
         fLeading = 0;
-        //fForceStrut = false;
     }
 
     SkScalar delta() const { return height() - ideographicBaseline(); }
@@ -381,12 +376,10 @@ public:
             metrics.fAscent = fAscent;
             metrics.fDescent = fDescent;
             metrics.fLeading = fLeading;
-            metrics.fHeight = fDescent - fAscent + fLeading;
         } else {
             // This is another of those flutter changes. To be removed...
             metrics.fAscent = SkTMin(metrics.fAscent, fAscent - fLeading / 2.0f);
             metrics.fDescent = SkTMax(metrics.fDescent, fDescent + fLeading / 2.0f);
-            //metrics.fLeading = SkTMax(metrics.fLeading, fLeading);
         }
     }
 
@@ -395,11 +388,7 @@ public:
     }
 
     SkScalar height() const {
-        if (fForceStrut) {
-            return ::round(fHeight);
-        } else {
-            return ::round((double)fDescent - fAscent + fLeading);
-        }
+        return ::round((double)fDescent - fAscent + fLeading);
     }
 
     SkScalar alphabeticBaseline() const { return fLeading / 2 - fAscent; }
@@ -419,7 +408,6 @@ private:
     SkScalar fDescent;
     SkScalar fLeading;
     bool fForceStrut;
-    SkScalar fHeight;
 };
 }  // namespace textlayout
 }  // namespace skia
