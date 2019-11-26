@@ -26,7 +26,7 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+                 const CoordTransformRange& transformRange) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
 
         if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
@@ -45,7 +45,7 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(ce.coverageScale()));
             fCoverageScale = ce.coverageScale();
         }
-        this->setTransformDataHelper(ce.localMatrix(), pdman, &transformIter);
+        this->setTransformDataHelper(ce.localMatrix(), pdman, transformRange);
     }
 
 private:
@@ -278,7 +278,7 @@ public:
                               GrProcessorKeyBuilder*);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+                 const CoordTransformRange& transformRange) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
 
         if (!qe.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(qe.viewMatrix())) {
@@ -297,7 +297,7 @@ public:
             pdman.set1f(fCoverageScaleUniform, GrNormalizeByteToFloat(qe.coverageScale()));
             fCoverageScale = qe.coverageScale();
         }
-        this->setTransformDataHelper(qe.localMatrix(), pdman, &transformIter);
+        this->setTransformDataHelper(qe.localMatrix(), pdman, transformRange);
     }
 
 private:
