@@ -518,15 +518,11 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     const GrPipeline& pipeline = programInfo.pipeline();
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
     fGeometryProcessor->setData(fDataManager, primProc,
-                                GrFragmentProcessor::CoordTransformIter(pipeline));
-    GrFragmentProcessor::Iter iter(pipeline);
+                                GrFragmentProcessor::CoordTransformRange(pipeline));
+    GrFragmentProcessor::Iter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    const GrFragmentProcessor* fp = iter.next();
-    GrGLSLFragmentProcessor* glslFP = glslIter.next();
-    while (fp && glslFP) {
-        glslFP->setData(fDataManager, *fp);
-        fp = iter.next();
-        glslFP = glslIter.next();
+    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
+        glslIter->setData(fDataManager, *fpIter);
     }
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
@@ -554,19 +550,15 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
                         &binding);
         }
     }
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    const GrFragmentProcessor* fp = iter.next();
-    GrGLSLFragmentProcessor* glslFP = glslIter.next();
-    while (fp && glslFP) {
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            auto& s = fp->textureSampler(i);
+    SkIPoint offset;
+    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
+        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
+            auto& s = fpIter->textureSampler(i);
             set_texture(gpu, s.samplerState(), s.peekTexture(), &bindings, &binding);
         }
-        fp = iter.next();
-        glslFP = glslIter.next();
     }
-    SkIPoint offset;
     if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {
         set_texture(gpu, GrSamplerState::ClampNearest(), dstTexture, &bindings, &binding);
     }
