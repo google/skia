@@ -14067,6 +14067,11 @@
           "name": "skia/bots/go",
           "path": "go",
           "version": "version:7"
+        },
+        {
+          "name": "skia/bots/clang_linux",
+          "path": "clang_linux",
+          "version": "version:14"
         }
       ],
       "command": [
