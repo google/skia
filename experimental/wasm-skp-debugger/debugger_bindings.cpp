@@ -13,7 +13,12 @@
 #include "tools/SkSharingProc.h"
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
+#include "tools/debugger/DebugLayerManager.h"
 
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -162,6 +167,7 @@ class SkpDebugPlayer {
 
     void changeFrame(int index) {
       fp = index;
+      fLayerManager->setFrame(fp);
     }
 
     // Return the png file at the requested index in
@@ -201,54 +207,58 @@ class SkpDebugPlayer {
         SkDebugf("Parsed SKP file.\n");
         // Make debug canvas using bounds from SkPicture
         fBounds = picture->cullRect().roundOut();
-        std::unique_ptr<DebugCanvas> debugDanvas = std::make_unique<DebugCanvas>(fBounds);
-        SkDebugf("DebugCanvas created.\n");
+        std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBounds);
 
         // Only draw picture to the debug canvas once.
-        debugDanvas->drawPicture(picture);
-        SkDebugf("Added picture with %d commands.\n", debugDanvas->getSize());
-        return debugDanvas;
+        debugCanvas->drawPicture(picture);
+        return debugCanvas;
       }
 
       void loadMultiFrame(SkMemoryStream* stream) {
+        // Attempt to deserialize with an image sharing serial proc.
+        auto deserialContext = std::make_unique<SkSharingDeserialContext>();
+        SkDeserialProcs procs;
+        procs.fImageProc = SkSharingDeserialContext::deserializeImage;
+        procs.fImageCtx = deserialContext.get();
 
-          // Attempt to deserialize with an image sharing serial proc.
-          auto deserialContext = std::make_unique<SkSharingDeserialContext>();
-          SkDeserialProcs procs;
-          procs.fImageProc = SkSharingDeserialContext::deserializeImage;
-          procs.fImageCtx = deserialContext.get();
+        int page_count = SkMultiPictureDocumentReadPageCount(stream);
+        if (!page_count) {
+          SkDebugf("Not a MultiPictureDocument");
+          return;
+        }
+        SkDebugf("Expecting %d frames\n", page_count);
 
-          int page_count = SkMultiPictureDocumentReadPageCount(stream);
-          if (!page_count) {
-            SkDebugf("Not a MultiPictureDocument");
-            return;
+        std::vector<SkDocumentPage> pages(page_count);
+        if (!SkMultiPictureDocumentRead(stream, pages.data(), page_count, &procs)) {
+          SkDebugf("Reading frames from MultiPictureDocument failed");
+          return;
+        }
+
+        fLayerManager = std::make_unique<DebugLayerManager>();
+
+        int i = 0;
+        for (const auto& page : pages) {
+          fLayerManager->setFrame(i);
+          i++;
+          // Make debug canvas using bounds from SkPicture
+          fBounds = page.fPicture->cullRect().roundOut();
+          std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBounds);
+          debugCanvas->setLayerManager(fLayerManager.get());
+
+          // Only draw picture to the debug canvas once.
+          debugCanvas->drawPicture(page.fPicture);
+
+          if (debugCanvas->getSize() <=0 ){
+            SkDebugf("Skipped corrupted frame, had %d commands \n", debugCanvas->getSize());
+            continue;
           }
-          SkDebugf("Expecting %d frames\n", page_count);
-
-          std::vector<SkDocumentPage> pages(page_count);
-          if (!SkMultiPictureDocumentRead(stream, pages.data(), page_count, &procs)) {
-            SkDebugf("Reading frames from MultiPictureDocument failed");
-            return;
-          }
-
-          for (const auto& page : pages) {
-            // Make debug canvas using bounds from SkPicture
-            fBounds = page.fPicture->cullRect().roundOut();
-            std::unique_ptr<DebugCanvas> debugDanvas = std::make_unique<DebugCanvas>(fBounds);
-            // Only draw picture to the debug canvas once.
-            debugDanvas->drawPicture(page.fPicture);
-            SkDebugf("Added picture with %d commands.\n", debugDanvas->getSize());
-
-            if (debugDanvas->getSize() <=0 ){
-              SkDebugf("Skipped corrupted frame, had %d commands \n", debugDanvas->getSize());
-              continue;
-            }
-            debugDanvas->setOverdrawViz(false);
-            debugDanvas->setDrawGpuOpBounds(false);
-            debugDanvas->setClipVizColor(SK_ColorTRANSPARENT);
-            frames.push_back(std::move(debugDanvas));
-          }
-          fImages = deserialContext->fImages;
+          debugCanvas->setOverdrawViz(false);
+          debugCanvas->setDrawGpuOpBounds(false);
+          debugCanvas->setClipVizColor(SK_ColorTRANSPARENT);
+          frames.push_back(std::move(debugCanvas));
+        }
+        fImages = deserialContext->fImages;
+        fLayerManager->setFrame(0);
       }
 
       // A vector of DebugCanvas, each one initialized to a frame of the animation.
@@ -270,6 +280,8 @@ class SkpDebugPlayer {
       // look up all of fImages in udm but the exact encoding of the PNG differs and we wouldn't
       // find anything. TODO(nifong): Unify these two numbering schemes in CollatingCanvas.
       UrlDataManager udm;
+
+      std::unique_ptr<DebugLayerManager> fLayerManager;
 
 };
 
