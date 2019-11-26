@@ -142,7 +142,7 @@ RenderNode::ScopedRenderContext::modulateMaskFilter(sk_sp<SkMaskFilter> mf, cons
         //   => T = Inv(maskCTM) x ctm
         //
         SkMatrix invMaskCTM;
-        if (fCtx.fMaskCTM.invert(&invMaskCTM)) {
+        if (mf && fCtx.fMaskCTM.invert(&invMaskCTM)) {
             const auto relative_transform = SkMatrix::Concat(invMaskCTM, ctm);
             fCtx.fMaskFilter = SkMaskFilter::MakeCompose(std::move(fCtx.fMaskFilter),
                                                          mf->makeWithMatrix(relative_transform));
