@@ -1088,6 +1088,7 @@ func (b *builder) checkGeneratedFiles(name string) string {
 	task := b.kitchenTask(name, "check_generated_files", "swarm_recipe.isolate", b.cfg.ServiceAccountCompile, b.linuxGceDimensions(MACHINE_TYPE_LARGE), EXTRA_PROPS, OUTPUT_NONE)
 	b.usesGit(task, name)
 	b.usesGo(task, name)
+	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
 	b.MustAddTask(name, task)
 	return name
 }

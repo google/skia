@@ -127,6 +127,11 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
+  if 'CheckGeneratedFiles' in extra_tokens:
+    compiler = 'Clang'
+    args['skia_compile_processors'] = 'true'
+    args['skia_generate_workarounds'] = 'true'
+
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
     cxx = clang_linux + '/bin/clang++'
@@ -250,9 +255,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_ios_profile'] = '"%s"' % api.vars.slave_dir.join(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
-  if 'CheckGeneratedFiles' in extra_tokens:
-    args['skia_compile_processors'] = 'true'
-    args['skia_generate_workarounds'] = 'true'
   if compiler == 'Clang' and 'Win' in os:
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %

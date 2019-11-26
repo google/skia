@@ -87,7 +87,11 @@ class SkiaVarsApi(recipe_api.RecipeApi):
 
   @property
   def is_linux(self):
-    return 'Ubuntu' in self.builder_name or 'Debian' in self.builder_name
+    return (
+        'Ubuntu' in self.builder_name
+     or 'Debian' in self.builder_name
+     or 'Housekeeper' in self.builder_name
+    )
 
   @property
   def swarming_bot_id(self):
