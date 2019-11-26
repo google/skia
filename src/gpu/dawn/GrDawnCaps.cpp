@@ -209,6 +209,10 @@ GrColorType GrDawnCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat&
     }
 }
 
+GrProgramDesc GrDawnCaps::makeDesc(const GrRenderTarget*, const GrProgramInfo&) const {
+
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrDawnCaps::getTestingCombinations() const {
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {

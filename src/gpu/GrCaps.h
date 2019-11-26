@@ -22,6 +22,8 @@ class GrBackendRenderTarget;
 class GrBackendTexture;
 struct GrContextOptions;
 class GrProcessorKeyBuilder;
+class GrProgramDesc;
+class GrProgramInfo;
 class GrRenderTargetProxy;
 class GrSamplerState;
 class GrSurface;
@@ -443,6 +445,8 @@ public:
                                     const GrSamplerState&,
                                     const GrBackendFormat&) const {}
 
+    virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
+
 #ifdef SK_DEBUG
     // This is just a debugging entry point until we're weaned off of GrPixelConfig. It
     // should be used to verify that the pixel config from user-level code (the genericConfig)
@@ -460,6 +464,8 @@ public:
 #endif
 
 protected:
+    static void MakeBaseDesc(const GrRenderTarget*, const GrProgramInfo&);
+
     // Subclasses must call this at the end of their init method in order to do final processing on
     // the caps (including overrides requested by the client).
     // NOTE: this method will only reduce the caps, never expand them.

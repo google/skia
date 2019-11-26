@@ -50,12 +50,19 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
                                                const GrProgramInfo& programInfo) {
     const GrCaps& caps = *gpu->caps();
 
+    GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
+    if (!desc.isValid()) {
+        GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
+        return nullptr;
+    }
+#if 0
     GrProgramDesc desc;
     if (!GrProgramDesc::Build(&desc, renderTarget, programInfo, caps)) {
 
         GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
+#endif
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {

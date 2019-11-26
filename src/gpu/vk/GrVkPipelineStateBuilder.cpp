@@ -24,7 +24,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
-        Desc* desc,
+        GrProgramDesc* desc,
         VkRenderPass compatibleRenderPass) {
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");
@@ -66,7 +66,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     VkShaderModule* shaderModule,
                                                     VkPipelineShaderStageCreateInfo* stageInfo,
                                                     const SkSL::Program::Settings& settings,
-                                                    Desc* desc,
+                                                    GrProgramDesc* desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
     if (!GrCompileVkShaderModule(fGpu, sksl, stage, shaderModule,
@@ -135,7 +135,7 @@ int GrVkPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                    const SkSL::Program::Inputs inputs[],
                                                    bool isSkSL) {
-    const Desc* desc = static_cast<const Desc*>(this->desc());
+    const GrProgramDesc* desc = static_cast<const GrProgramDesc*>(this->desc());
     // Here we shear off the Vk-specific portion of the Desc in order to create the
     // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
     // program, and that only depends on the base GrProgramDesc data.
@@ -147,7 +147,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
-                                                      Desc* desc) {
+                                                      GrProgramDesc* desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
