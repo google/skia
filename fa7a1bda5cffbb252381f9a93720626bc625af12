@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2d72ab5_42bb5d01",
+        "filename": "src/gpu/vk/GrVkCommandPool.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-11-26T19:57:50Z",
+      "side": 1,
+      "message": "I believe this is because ref/unref are const, so they can be called on const objects. It\u0027s all a little weird.",
+      "range": {
+        "startLine": 91,
+        "startChar": 53,
+        "endLine": 91,
+        "endChar": 81
+      },
+      "revId": "fa7a1bda5cffbb252381f9a93720626bc625af12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
