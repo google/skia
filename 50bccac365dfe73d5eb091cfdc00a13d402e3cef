@@ -22,6 +22,23 @@
       "revId": "50bccac365dfe73d5eb091cfdc00a13d402e3cef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47b157c1_01d474a2",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2019-11-26T15:58:55Z",
+      "side": 1,
+      "message": "Now that programInfo has the backendFormat, perhaps GrProgramDesc::Build() should include\nthe backendFormat as part of the cache key?\n\nOr are there some backends for which this is incorrect? (ie., for which the key should not \ninclude color attachment format?)",
+      "revId": "50bccac365dfe73d5eb091cfdc00a13d402e3cef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
