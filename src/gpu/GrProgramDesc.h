@@ -23,29 +23,7 @@ class GrShaderCaps;
  */
 class GrProgramDesc {
 public:
-    // Creates an uninitialized key that must be populated by Build
-    GrProgramDesc() {}
-
-    /**
-     * Builds a program descriptor.
-     *
-     * @param desc          The built descriptor
-     * @param renderTarget  The target of the draw
-     * @param programInfo   Program information need to build the key
-     * @param caps          the caps
-     **/
-    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
-
-    // This is strictly an OpenGL call since the other backends have additional data in their
-    // keys
-    static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
-        if (!SkTFitsIn<int>(keyLength)) {
-            return false;
-        }
-        desc->fKey.reset(SkToInt(keyLength));
-        memcpy(desc->fKey.begin(), keyData, keyLength);
-        return true;
-    }
+    bool isValid() const { return !fKey.empty(); }
 
     // Returns this as a uint32_t array to be used as a key in the program cache.
     const uint32_t* asKey() const {
@@ -86,7 +64,41 @@ public:
         return !(*this == other);
     }
 
+    uint32_t initialKeyLength() const { return 0; }
+
 protected:
+    friend class GrDawnCaps;
+    friend class GrGLCaps;
+    friend class GrMockCaps;
+    friend class GrMtlCaps;
+    friend class GrVkCaps;
+
+    friend class GrGLGpu; // for ProgramCache to access BuildFromData
+
+    // Creates an uninitialized key that must be populated by Build
+    GrProgramDesc() {}
+
+    /**
+     * Builds a program descriptor.
+     *
+     * @param desc          The built descriptor
+     * @param renderTarget  The target of the draw
+     * @param programInfo   Program information need to build the key
+     * @param caps          the caps
+     **/
+    static bool Build(GrProgramDesc*, const GrRenderTarget*, const GrProgramInfo&, const GrCaps&);
+
+    // This is strictly an OpenGL call since the other backends have additional data in their
+    // keys
+    static bool BuildFromData(GrProgramDesc* desc, const void* keyData, size_t keyLength) {
+        if (!SkTFitsIn<int>(keyLength)) {
+            return false;
+        }
+        desc->fKey.reset(SkToInt(keyLength));
+        memcpy(desc->fKey.begin(), keyData, keyLength);
+        return true;
+    }
+
     // TODO: this should be removed and converted to just data added to the key
     struct KeyHeader {
         // Set to uniquely identify any swizzling of the shader's output color(s).
