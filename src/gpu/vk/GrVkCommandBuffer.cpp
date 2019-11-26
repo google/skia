@@ -368,7 +368,7 @@ GrVkPrimaryCommandBuffer::~GrVkPrimaryCommandBuffer() {
     SkASSERT(!fActiveRenderPass);
 }
 
-GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
+GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(GrVkGpu* gpu,
                                                            VkCommandPool cmdPool) {
     const VkCommandBufferAllocateInfo cmdInfo = {
         VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,   // sType
@@ -379,9 +379,8 @@ GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(const GrVkGpu* gpu,
     };
 
     VkCommandBuffer cmdBuffer;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), AllocateCommandBuffers(gpu->device(),
-                                                                         &cmdInfo,
-                                                                         &cmdBuffer));
+    VkResult err;
+    GR_VK_CALL_RESULT(gpu, err, AllocateCommandBuffers(gpu->device(), &cmdInfo, &cmdBuffer));
     if (err) {
         return nullptr;
     }
@@ -855,7 +854,7 @@ void GrVkPrimaryCommandBuffer::onAbandonGPUData() const {
 // SecondaryCommandBuffer
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gpu,
+GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(GrVkGpu* gpu,
                                                                GrVkCommandPool* cmdPool) {
     SkASSERT(cmdPool);
     const VkCommandBufferAllocateInfo cmdInfo = {
@@ -867,9 +866,8 @@ GrVkSecondaryCommandBuffer* GrVkSecondaryCommandBuffer::Create(const GrVkGpu* gp
     };
 
     VkCommandBuffer cmdBuffer;
-    VkResult err = GR_VK_CALL(gpu->vkInterface(), AllocateCommandBuffers(gpu->device(),
-                                                                         &cmdInfo,
-                                                                         &cmdBuffer));
+    VkResult err;
+    GR_VK_CALL_RESULT(gpu, err, AllocateCommandBuffers(gpu->device(), &cmdInfo, &cmdBuffer));
     if (err) {
         return nullptr;
     }
