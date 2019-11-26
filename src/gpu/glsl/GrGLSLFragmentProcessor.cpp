@@ -35,7 +35,7 @@ void GrGLSLFragmentProcessor::writeChildCall(GrGLSLFPFragmentBuilder* fragBuilde
     }
     // if the fragment processor is invoked with overridden coordinates, it must *always* be invoked
     // with overridden coords
-    SkASSERT(args.fFp.computeLocalCoordsInVertexShader() == (skslCoords.length() == 0));
+    SkASSERT(args.fFp.coordTransformsApplyToLocalCoords() == (skslCoords.length() == 0));
     fragBuilder->codeAppendf("%s = %s(%s", outputColor, fFunctionNames[childIndex].c_str(),
                              inputColor ? inputColor : "half4(1)");
     if (skslCoords.length()) {
@@ -54,7 +54,7 @@ void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
     }
-    if (!args.fFp.computeLocalCoordsInVertexShader() && skslCoords.length() == 0) {
+    if (!args.fFp.coordTransformsApplyToLocalCoords() && skslCoords.length() == 0) {
         skslCoords = "_coords";
     }
     if (fFunctionNames[childIndex].size() == 0) {
