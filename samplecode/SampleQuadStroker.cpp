@@ -488,7 +488,7 @@ protected:
         paint.setColor(0x3f0f1f3f);
         canvas->drawPath(path, paint);
         path.reset();
-        path.setFillType(SkPath::kEvenOdd_FillType);
+        path.setFillType(SkPathFillType::kEvenOdd);
         path.addCircle(center.fX, center.fY, maxSide + width / 2);
         SkRect outside = SkRect::MakeXYWH(center.fX - maxSide - width, center.fY - maxSide - width,
                 (maxSide + width) * 2, (maxSide + width) * 2);

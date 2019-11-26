@@ -5,7 +5,7 @@
 REG_FIDDLE(Path_rewind, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path1, path2;
-    path1.setFillType(SkPath::kInverseWinding_FillType);
+    path1.setFillType(SkPathFillType::kInverseWinding);
     path1.addRect({10, 20, 30, 40});
     SkDebugf("path1 %c= path2\n", path1 == path2 ? '=' : '!');
     path1.rewind();

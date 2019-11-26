@@ -229,7 +229,7 @@ void get_text_path(const SkFont&  font,
 SkPath make_star(const SkRect& bounds, int numPts, int step) {
     SkASSERT(numPts != step);
     SkPath path;
-    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, -1);
     for (int i = 1; i < numPts; ++i) {
         int      idx   = i * step % numPts;
