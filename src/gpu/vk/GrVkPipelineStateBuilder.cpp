@@ -139,7 +139,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     // Here we shear off the Vk-specific portion of the Desc in order to create the
     // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
     // program, and that only depends on the base GrProgramDesc data.
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength()+4);
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
                                                                    inputs, kGrShaderTypeCount);
@@ -209,7 +209,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
         // Here we shear off the Vk-specific portion of the Desc in order to create the
         // persistent key. This is bc Vk only caches the SPIRV code, not the fully compiled
         // program, and that only depends on the base GrProgramDesc data.
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->shaderKeyLength());
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength()+4);
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());
@@ -337,10 +337,9 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
 
     GrProcessorKeyBuilder b(&desc->key());
 
+    // This will become part of the sheared off key used to persistently cache
+    // the SPIRV code.
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
-    int keyLength = desc->key().count();
-    SkASSERT(0 == (keyLength % 4));
-    desc->fShaderKeyLength = SkToU32(keyLength);
 
     GrVkRenderTarget* vkRT = (GrVkRenderTarget*)renderTarget;
     // TODO: support failure in getSimpleRenderPass
