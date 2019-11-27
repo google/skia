@@ -22,7 +22,7 @@
 #define DEF_TEST_DISABLED(name, reporter) \
 static void test_##name(skiatest::Reporter* reporter, const GrContextOptions&); \
 skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name, false, test_##name)); \
-void test_##name(skiatest::Reporter* reporter, const GrContextOptions&) { SkDebugf("Disabled: " #name "\n"); } \
+void test_##name(skiatest::Reporter* reporter, const GrContextOptions&) { /* SkDebugf("Disabled:"#name "\n"); */ } \
 void disabled_##name(skiatest::Reporter* reporter, const GrContextOptions&)
 
 using namespace skia::textlayout;
@@ -61,7 +61,7 @@ public:
         }
 
         if (!fFontsFound) {
-            SkDebugf("Fonts not found, skipping all the tests\n");
+            // SkDebugf("Fonts not found, skipping all the tests\n");
             return;
         }
         // Only register fonts if we have to
@@ -1783,7 +1783,7 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) {
-    SkDebugf("TODO: Fix decorations\n");
+    // SkDebugf("TODO: Fix decorations\n");
 }
 
 // Checked: NO DIFF
@@ -4358,7 +4358,7 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
 
 // TODO: Implement font features
 DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
-    SkDebugf("TODO: Font features\n");
+    // SkDebugf("TODO: Font features\n");
 }
 
 // Not in Minikin
