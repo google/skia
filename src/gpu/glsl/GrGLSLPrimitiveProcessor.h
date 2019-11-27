@@ -140,7 +140,7 @@ public:
     virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
                          const CoordTransformRange&) = 0;
 
-    static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
+    static SkMatrix GetTransformMatrix(const GrCoordTransform&, const SkMatrix& preMatrix);
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

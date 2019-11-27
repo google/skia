@@ -980,8 +980,10 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any
             // normalization since GrTextureDomainEffect handles that and the origin.
             SkRect correctedDomain = normalize_domain(filter, {1.f, 1.f, 0.f}, domain);
-            fp = GrTextureDomainEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(),
-                                             correctedDomain, GrTextureDomain::kClamp_Mode, filter);
+            fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
+            bool filterIfDecal = GrDomainEffect::DecalFilterFromSamplerFilter(filter);
+            fp = GrDomainEffect::Make(std::move(fp), correctedDomain,
+                                      GrTextureDomain::kClamp_Mode, filterIfDecal);
         } else {
             fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
         }

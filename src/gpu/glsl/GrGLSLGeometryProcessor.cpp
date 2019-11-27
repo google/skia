@@ -104,7 +104,12 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
                                                      const CoordTransformRange& transformRange) {
     int i = 0;
     for (auto [transform, fp] : transformRange) {
-        const SkMatrix& m = GetTransformMatrix(localMatrix, transform);
+        SkMatrix m;
+        if (fp.coordTransformsApplyToLocalCoords()) {
+            m = GetTransformMatrix(transform, localMatrix);
+        } else {
+            m = GetTransformMatrix(transform, SkMatrix::I());
+        }
         if (!fInstalledTransforms[i].fCurrentValue.cheapEqualTo(m)) {
             pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);
             fInstalledTransforms[i].fCurrentValue = m;
