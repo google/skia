@@ -10,6 +10,7 @@
 
 #include "include/core/SkImageFilter.h"
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_COMPOSE
 // DEPRECATED: Use include/effects/SkImageFilters::Compose
 class SK_API SkComposeImageFilter {
 public:
@@ -20,5 +21,6 @@ public:
 private:
     SkComposeImageFilter() = delete;
 };
+#endif
 
 #endif

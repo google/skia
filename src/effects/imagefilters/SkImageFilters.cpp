@@ -50,7 +50,9 @@ void SkImageFilters::RegisterFlattenables() {
     SkArithmeticImageFilter::RegisterFlattenables();
     SkBlurImageFilter::RegisterFlattenables();
     SkColorFilterImageFilter::RegisterFlattenables();
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_COMPOSE
     SkComposeImageFilter::RegisterFlattenables();
+#endif
     SkDilateImageFilter::RegisterFlattenables();
     SkDisplacementMapEffect::RegisterFlattenables();
     SkDropShadowImageFilter::RegisterFlattenables();
@@ -96,10 +98,12 @@ sk_sp<SkImageFilter> SkImageFilters::ColorFilter(
     return SkColorFilterImageFilter::Make(std::move(cf), std::move(input), &r);
 }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_COMPOSE
 sk_sp<SkImageFilter> SkImageFilters::Compose(
         sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner) {
     return SkComposeImageFilter::Make(std::move(outer), std::move(inner));
 }
+#endif
 
 sk_sp<SkImageFilter> SkImageFilters::DisplacementMap(
         SkColorChannel xChannelSelector, SkColorChannel yChannelSelector, SkScalar scale,

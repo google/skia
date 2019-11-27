@@ -86,6 +86,7 @@ public:
     static sk_sp<SkImageFilter> ColorFilter(sk_sp<SkColorFilter> cf, sk_sp<SkImageFilter> input,
                                             const SkIRect* cropRect = nullptr);
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_COMPOSE
     /**
      *  Create a filter that composes 'inner' with 'outer', such that the results of 'inner' are
      *  treated as the source bitmap passed to 'outer', i.e. result = outer(inner(source)).
@@ -93,6 +94,7 @@ public:
      *  @param inner The inner filter that produces the input to outer.
      */
     static sk_sp<SkImageFilter> Compose(sk_sp<SkImageFilter> outer, sk_sp<SkImageFilter> inner);
+#endif
 
     /**
      *  Create a filter that moves each pixel in its color input based on an (x,y) vector encoded

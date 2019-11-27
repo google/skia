@@ -589,11 +589,8 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             return SkImageFilters::ColorFilter(std::move(cf), std::move(input),
                                                useCropRect ? &cropRect : nullptr);
         }
-        case 6: {
-            sk_sp<SkImageFilter> ifo = make_fuzz_imageFilter(fuzz, depth - 1);
-            sk_sp<SkImageFilter> ifi = make_fuzz_imageFilter(fuzz, depth - 1);
-            return SkImageFilters::Compose(std::move(ifo), std::move(ifi));
-        }
+        case 6:
+            return make_fuzz_imageFilter(fuzz, depth - 1);
         case 7: {
             SkColorChannel xChannelSelector, yChannelSelector;
             fuzz->nextEnum(&xChannelSelector, SkColorChannel::kLastEnum);
