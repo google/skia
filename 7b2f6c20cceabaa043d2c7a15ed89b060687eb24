@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cfa65ec8_9ea2a9b8",
+        "filename": "src/gpu/GrDDLContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T14:15:53Z",
+      "side": 1,
+      "message": "I switched all the methods to override because that seems to be what we do in other final classes and there is no difference once the class is marked final. I slightly lean in this direction since it leaves one knob to turn all the methods from effectively final to plain old override but am also happy to put them back to final.",
+      "range": {
+        "startLine": 25,
+        "startChar": 20,
+        "endLine": 25,
+        "endChar": 28
+      },
+      "revId": "7b2f6c20cceabaa043d2c7a15ed89b060687eb24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
