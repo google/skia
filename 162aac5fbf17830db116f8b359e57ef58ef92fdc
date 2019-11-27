@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5157925_5d031333",
+        "filename": "modules/canvaskit/particles.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "Add a comment about what assets is expected to be ({key: ArrayBuffer}?)",
+      "range": {
+        "startLine": 5,
+        "startChar": 41,
+        "endLine": 5,
+        "endChar": 47
+      },
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dce2412_dcb3b461",
+        "filename": "modules/canvaskit/particles.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "Maybe comment that the names should be \"well behaved\" strings, i.e. can\u0027t contain a null byte in the middle, for example, since we just pass them over as a null-terminated string.",
+      "range": {
+        "startLine": 12,
+        "startChar": 6,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf4520cf_7c4f8073",
+        "filename": "modules/canvaskit/particles.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "yep, seems good",
+      "range": {
+        "startLine": 37,
+        "startChar": 5,
+        "endLine": 38,
+        "endChar": 71
+      },
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "914af827_43e16150",
+        "filename": "modules/canvaskit/particles.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "This means that the Particles code copies all three of these arrays, right?  From a casual read, if I saw \"is now owned\", I would interpret that to mean \"The thing will call free on the data, so I don\u0027t have to\", and then would be confused as to why there are calls to free.",
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecbfc9bf_15846e31",
+        "filename": "modules/canvaskit/particles_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "It took me a moment to recognize the original author of this comment...",
+      "range": {
+        "startLine": 28,
+        "startChar": 7,
+        "endLine": 28,
+        "endChar": 24
+      },
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61db1906_f639cd90",
+        "filename": "modules/canvaskit/particles_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "nit: add a comment here referencing the detailed explanation in canvaskit_bindings.cpp for the uintptr_t trick",
+      "range": {
+        "startLine": 92,
+        "startChar": 8,
+        "endLine": 92,
+        "endChar": 10
+      },
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73db47b6_5d1f1074",
+        "filename": "modules/particles/src/SkParticleDrawable.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-11-27T14:01:32Z",
+      "side": 1,
+      "message": "Did you want to cast this to a float before or after division? Seems strange to do it one way for cols, one way for rows. If this is intentional, a comment on why would be appreciated.",
+      "range": {
+        "startLine": 129,
+        "startChar": 41,
+        "endLine": 129,
+        "endChar": 76
+      },
+      "revId": "162aac5fbf17830db116f8b359e57ef58ef92fdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
