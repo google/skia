@@ -233,6 +233,7 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                                            uintptr_t /* uint8_t**  */ dptr,
                                                            uintptr_t /* size_t*    */ sptr)
                                                         ->sk_sp<ManagedAnimation> {
+        // See the comment in canvaskit_bindings.cpp about the use of uintptr_t
         const auto assetNames = reinterpret_cast<char**   >(nptr);
         const auto assetDatas = reinterpret_cast<uint8_t**>(dptr);
         const auto assetSizes = reinterpret_cast<size_t*  >(sptr);
