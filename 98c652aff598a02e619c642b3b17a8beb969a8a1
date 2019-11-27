@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3ace7d2a_c76dc170",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33c1dd9a_f9c63ad3",
+      "range": {
+        "startLine": 224,
+        "startChar": 33,
+        "endLine": 224,
+        "endChar": 37
+      },
+      "revId": "98c652aff598a02e619c642b3b17a8beb969a8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc61f434_81bb4784",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "db11b7f1_c48b0f7f",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc61f434_81bb4784",
+      "range": {
+        "startLine": 253,
+        "startChar": 19,
+        "endLine": 253,
+        "endChar": 56
+      },
+      "revId": "98c652aff598a02e619c642b3b17a8beb969a8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "90bce886_ede79a14",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 8
@@ -68,6 +116,30 @@
       "revId": "98c652aff598a02e619c642b3b17a8beb969a8a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3563a13a_febeb256",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:52:24Z",
+      "side": 1,
+      "message": "Done.\n\nMy mental model for sorting the sources was by order of how they\u0027re used:\n\nfirst I make an FP, then I put it in a paint, then its transferred to a processor set, and\nthen to a pipeline. But that\u0027s probably less than useful 😊",
+      "parentUuid": "90bce886_ede79a14",
+      "range": {
+        "startLine": 293,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 97
+      },
+      "revId": "98c652aff598a02e619c642b3b17a8beb969a8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
