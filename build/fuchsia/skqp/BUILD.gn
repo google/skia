@@ -124,9 +124,11 @@ action("append_assets_to_manifest") {
     "--deps",
     rebase_path(manifest_deps),
     "--root_build_dir",
-    rebase_path(root_out_dir)
+    rebase_path(root_out_dir),
   ]
 
-  deps = [ ":base_manifest" ]
+  deps = [
+    ":base_manifest",
+  ]
   depfile = manifest_deps
 }
