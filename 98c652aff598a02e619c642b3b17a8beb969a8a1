@@ -68,6 +68,29 @@
       "revId": "98c652aff598a02e619c642b3b17a8beb969a8a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ac739ce_934c625e",
+        "filename": "src/gpu/glsl/GrGLSLPrimitiveProcessor.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T01:54:49Z",
+      "side": 1,
+      "message": "This got a bit uglier, but gets simpler than the original in the next CL that replaces next() with an operator++().",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 22
+      },
+      "revId": "98c652aff598a02e619c642b3b17a8beb969a8a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
