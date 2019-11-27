@@ -48,10 +48,9 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
 }
 
 void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) {
-    GrFragmentProcessor::TextureAccessIter iter(this);
-    while (const TextureSampler* sampler = iter.next()) {
-        bool mipped = (GrSamplerState::Filter::kMipMap == sampler->samplerState().filter());
-        func(sampler->proxy(), GrMipMapped(mipped));
+    for (auto [sampler, fp] : FPTextureSamplerRange(*this)) {
+        bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
+        func(sampler.proxy(), GrMipMapped(mipped));
     }
 }
 
@@ -389,12 +388,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor::Iter::Iter(const GrPipeline& pipeline) {
-    for (int i = pipeline.numFragmentProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(&pipeline.getFragmentProcessor(i));
-    }
-}
-
 GrFragmentProcessor::Iter::Iter(const GrPaint& paint) {
     for (int i = paint.numCoverageFragmentProcessors() - 1; i >= 0; --i) {
         fFPStack.push_back(paint.getCoverageFragmentProcessor(i));
@@ -404,16 +397,32 @@ GrFragmentProcessor::Iter::Iter(const GrPaint& paint) {
     }
 }
 
-const GrFragmentProcessor* GrFragmentProcessor::Iter::next() {
-    if (fFPStack.empty()) {
-        return nullptr;
+GrFragmentProcessor::Iter::Iter(const GrProcessorSet& set) {
+    for (int i = set.numCoverageFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(set.coverageFragmentProcessor(i));
     }
+    for (int i = set.numColorFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(set.colorFragmentProcessor(i));
+    }
+}
+
+GrFragmentProcessor::Iter::Iter(const GrPipeline& pipeline) {
+    for (int i = pipeline.numFragmentProcessors() - 1; i >= 0; --i) {
+        fFPStack.push_back(&pipeline.getFragmentProcessor(i));
+    }
+}
+
+const GrFragmentProcessor& GrFragmentProcessor::Iter::operator*() const { return *fFPStack.back(); }
+const GrFragmentProcessor* GrFragmentProcessor::Iter::operator->() const { return fFPStack.back(); }
+
+GrFragmentProcessor::Iter& GrFragmentProcessor::Iter::operator++() {
+    SkASSERT(!fFPStack.empty());
     const GrFragmentProcessor* back = fFPStack.back();
     fFPStack.pop_back();
     for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
         fFPStack.push_back(&back->childProcessor(i));
     }
-    return back;
+    return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
