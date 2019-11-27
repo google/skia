@@ -85,7 +85,7 @@ public:
 
     void setData(const GrGLSLProgramDataManager& pd,
                  const GrPrimitiveProcessor& primProc,
-                 FPCoordTransformIter&& transformIter) override {
+                 const CoordTransformRange& transformRange) override {
         const GrPathProcessor& pathProc = primProc.cast<GrPathProcessor>();
         if (pathProc.color() != fColor) {
             pd.set4fv(fColorUniform, 1, pathProc.color().vec());
@@ -93,9 +93,9 @@ public:
         }
 
         int t = 0;
-        while (const GrCoordTransform* coordTransform = transformIter.next()) {
+        for (auto [transform, fp] : transformRange) {
             SkASSERT(fInstalledTransforms[t].fHandle.isValid());
-            const SkMatrix& m = GetTransformMatrix(pathProc.localMatrix(), *coordTransform);
+            const SkMatrix& m = GetTransformMatrix(pathProc.localMatrix(), transform);
             if (fInstalledTransforms[t].fCurrentValue.cheapEqualTo(m)) {
                 continue;
             }

@@ -84,8 +84,8 @@ void GrGLProgram::updateUniformsAndTextureBindings(const GrRenderTarget* renderT
     // We must bind to texture units in the same order in which we set the uniforms in
     // GrGLProgramDataManager. That is, we bind textures for processors in this order:
     // primProc, fragProcs, XP.
-    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.primProc(),
-                                 GrFragmentProcessor::CoordTransformIter(programInfo.pipeline()));
+    GrFragmentProcessor::PipelineCoordTransformRange range(programInfo.pipeline());
+    fPrimitiveProcessor->setData(fProgramDataManager, programInfo.primProc(), range);
     if (programInfo.hasFixedPrimProcTextures()) {
         this->updatePrimitiveProcessorTextureBindings(programInfo.primProc(),
                                                       programInfo.fixedPrimProcTextures());
@@ -118,21 +118,17 @@ void GrGLProgram::updatePrimitiveProcessorTextureBindings(const GrPrimitiveProce
 }
 
 void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSamplerIdx) {
-    GrFragmentProcessor::Iter iter(pipeline);
+    GrFragmentProcessor::Iter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    const GrFragmentProcessor* fp = iter.next();
-    GrGLSLFragmentProcessor* glslFP = glslIter.next();
-    while (fp && glslFP) {
-        glslFP->setData(fProgramDataManager, *fp);
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            const GrFragmentProcessor::TextureSampler& sampler = fp->textureSampler(i);
+    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
+        glslIter->setData(fProgramDataManager, *fpIter);
+        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
+            const GrFragmentProcessor::TextureSampler& sampler = fpIter->textureSampler(i);
             fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.samplerState(), sampler.swizzle(),
                               static_cast<GrGLTexture*>(sampler.peekTexture()));
         }
-        fp = iter.next();
-        glslFP = glslIter.next();
     }
-    SkASSERT(!fp && !glslFP);
+    SkASSERT(!fpIter && !glslIter);
 }
 
 void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin,

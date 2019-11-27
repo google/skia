@@ -77,7 +77,7 @@ private:
                     }
                     void setData(const GrGLSLProgramDataManager& pdman,
                                  const GrPrimitiveProcessor& primProc,
-                                 FPCoordTransformIter&&) override {}
+                                 const CoordTransformRange&) override {}
                 };
                 return new GLSLGP();
             }

@@ -117,14 +117,26 @@ void GrGLSLFragmentProcessor::internalInvokeChild(int childIndex, const char* in
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrGLSLFragmentProcessor* GrGLSLFragmentProcessor::Iter::next() {
-    if (fFPStack.empty()) {
-        return nullptr;
+GrGLSLFragmentProcessor::Iter::Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt) {
+    for (int i = cnt - 1; i >= 0; --i) {
+        fFPStack.push_back(fps[i].get());
     }
-    GrGLSLFragmentProcessor* back = fFPStack.back();
+}
+
+GrGLSLFragmentProcessor& GrGLSLFragmentProcessor::Iter::operator*() const {
+    return *fFPStack.back();
+}
+
+GrGLSLFragmentProcessor* GrGLSLFragmentProcessor::Iter::operator->() const {
+    return fFPStack.back();
+}
+
+GrGLSLFragmentProcessor::Iter& GrGLSLFragmentProcessor::Iter::operator++() {
+    SkASSERT(!fFPStack.empty());
+    const GrGLSLFragmentProcessor* back = fFPStack.back();
     fFPStack.pop_back();
     for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
         fFPStack.push_back(back->childProcessor(i));
     }
-    return back;
+    return *this;
 }

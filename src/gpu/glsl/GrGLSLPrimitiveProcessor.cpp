@@ -67,12 +67,15 @@ void GrGLSLPrimitiveProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBu
 //////////////////////////////////////////////////////////////////////////////
 
 const GrCoordTransform* GrGLSLPrimitiveProcessor::FPCoordTransformHandler::nextCoordTransform() {
-#ifdef SK_DEBUG
     SkASSERT(nullptr == fCurr || fAddedCoord);
+    if (!fIter) {
+        return nullptr;
+    }
+    auto [transform, fp] = *fIter;
+    ++fIter;
+#ifdef SK_DEBUG
     fAddedCoord = false;
-    fCurr = fIter.next();
-    return fCurr;
-#else
-    return fIter.next();
+    fCurr = &transform;
 #endif
+    return &transform;
 }

@@ -102,10 +102,10 @@ void GrGLSLGeometryProcessor::emitTransforms(GrGLSLVertexBuilder* vb,
 
 void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix,
                                                      const GrGLSLProgramDataManager& pdman,
-                                                     FPCoordTransformIter* transformIter) {
+                                                     const CoordTransformRange& transformRange) {
     int i = 0;
-    while (const GrCoordTransform* coordTransform = transformIter->next()) {
-        const SkMatrix& m = GetTransformMatrix(localMatrix, *coordTransform);
+    for (auto [transform, fp] : transformRange) {
+        const SkMatrix& m = GetTransformMatrix(localMatrix, transform);
         if (!fInstalledTransforms[i].fCurrentValue.cheapEqualTo(m)) {
             pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);
             fInstalledTransforms[i].fCurrentValue = m;

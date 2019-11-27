@@ -23,9 +23,9 @@ class GrShaderCaps;
 
 class GrGLSLPrimitiveProcessor {
 public:
-    using UniformHandle        = GrGLSLProgramDataManager::UniformHandle;
-    using SamplerHandle        = GrGLSLUniformHandler::SamplerHandle;
-    using FPCoordTransformIter = GrFragmentProcessor::CoordTransformIter;
+    using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
+    using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
+    using CoordTransformRange   = GrFragmentProcessor::PipelineCoordTransformRange;
 
     struct TransformVar {
         TransformVar() = default;
@@ -132,12 +132,13 @@ public:
      * GrPrimitiveProcessor parameter is guaranteed to be of the same type and to have an
      * identical processor key as the GrPrimitiveProcessor that created this
      * GrGLSLPrimitiveProcessor.
-     * The subclass may use the transform iterator to perform any setup required for the particular
-     * set of fp transform matrices, such as uploading via uniforms. The iterator will iterate over
-     * the transforms in the same order as the TransformHandler passed to emitCode.
+     * The subclass should use the transform range to perform any setup required for the coord
+     * transforms of the FPs that are part of the same program, such as updating matrix uniforms.
+     * The range will iterate over the transforms in the same order as the TransformHandler passed
+     * to emitCode.
      */
     virtual void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                         FPCoordTransformIter&&) = 0;
+                         const CoordTransformRange&) = 0;
 
     static SkMatrix GetTransformMatrix(const SkMatrix& localMatrix, const GrCoordTransform&);
 

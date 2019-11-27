@@ -16,7 +16,7 @@ public:
 
 private:
     void setData(const GrGLSLProgramDataManager&, const GrPrimitiveProcessor&,
-                 FPCoordTransformIter&&) override {}
+                 const CoordTransformRange&) override {}
 
     void onEmitCode(EmitArgs&, GrGPArgs*) override;
 

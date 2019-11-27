@@ -213,19 +213,7 @@ public:
 
     const GrSwizzle& outputSwizzle() const { return fOutputSwizzle; }
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const {
-        // This iteration includes any clip coverage FPs
-        for (int i = 0; i < this->numFragmentProcessors(); ++i) {
-            GrFragmentProcessor::TextureAccessIter iter(fFragmentProcessors[i].get());
-            while (const GrFragmentProcessor::TextureSampler* sampler = iter.next()) {
-                bool mipped = (GrSamplerState::Filter::kMipMap == sampler->samplerState().filter());
-                func(sampler->proxy(), GrMipMapped(mipped));
-            }
-        }
-        if (fDstProxyView.asTextureProxy()) {
-            func(fDstProxyView.asTextureProxy(), GrMipMapped::kNo);
-        }
-    }
+    void visitProxies(const GrOp::VisitProxyFunc&) const;
 
 private:
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
