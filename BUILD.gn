@@ -924,6 +924,7 @@ component("skia") {
     "src/ports/SkOSFile_stdio.cpp",
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
+    "src/utils/mac/SkStream_mac.cpp",
   ]
 
   defines = []
