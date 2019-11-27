@@ -23,10 +23,42 @@ template <size_t N> static size_t sk_align(size_t s) {
     return ((s + (N-1)) / N) * N;
 }
 
-sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
+SkMatrix make_inverse(const SkMatrix& matrix) {
+    SkMatrix inverseMatrix;
+    if (!matrix.invert(&inverseMatrix)) {
+        inverseMatrix = SkMatrix::I();
+    }
+    return inverseMatrix;
+}
+
+// The color here is the GrPaint color, and it is used to determine whether we
+// have to regenerate LCD text blobs.
+// We use this color vs the SkPaint color because it has the colorfilter applied.
+GrTextBlob::GrTextBlob(GrStrikeCache* grStrikeCache,
+                       size_t size,
+                       GrColor solidColor,
+                       SkColor luminanceColor,
+                       const SkMatrix& viewMatrix,
+                       const SkPoint& origin,
+                       bool forceWForDistanceFields)
+        : fColor{solidColor}
+        , fStrikeCache{grStrikeCache}
+        , fInitialViewMatrix{viewMatrix}
+        , fInitialViewMatrixInverse{make_inverse(viewMatrix)}
+        , fInitialX{origin.x()}
+        , fInitialY{origin.y()}
+        , fLuminanceColor{luminanceColor}
+        , fSize{size}
+        , fForceWForDistanceFields{forceWForDistanceFields} {}
+
+sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
+                                   const SkMatrix& viewMatrix,
+                                   GrColor solidColor,
                                    bool forceWForDistanceFields,
-                                   GrColor color,
-                                   GrStrikeCache* strikeCache) {
+                                   GrStrikeCache* grStrikeCache) {
+    size_t glyphCount = glyphRunList.totalGlyphCount();
+    SkColor luminanceColor = SkPaintPriv::ComputeLuminanceColor(glyphRunList.paint());
+
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
@@ -42,8 +74,9 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
         sk_bzero(allocation, size);
     }
 
-    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache, color, forceWForDistanceFields}};
-    blob->fSize = size;
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
+            grStrikeCache, size, solidColor, luminanceColor, viewMatrix,
+            glyphRunList.origin(), forceWForDistanceFields}};
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);

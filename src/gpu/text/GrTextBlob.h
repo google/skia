@@ -69,10 +69,11 @@ public:
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(
-            int glyphCount,
+            const SkGlyphRunList& glyphRunList,
+            const SkMatrix& viewMatrix,
+            GrColor solidColor,
             bool forceWForDistanceFields,
-            GrColor color,
-            GrStrikeCache* strikeCache);
+            GrStrikeCache* grStrikeCache);
 
     struct Key {
         Key() {
@@ -204,19 +205,6 @@ public:
 
     static void AssertEqual(const GrTextBlob&, const GrTextBlob&);
 
-    // The color here is the GrPaint color, and it is used to determine whether we
-    // have to regenerate LCD text blobs.
-    // We use this color vs the SkPaint color because it has the colorfilter applied.
-    void initReusableBlob(SkColor luminanceColor, const SkMatrix& viewMatrix,
-                          SkScalar x, SkScalar y) {
-        fLuminanceColor = luminanceColor;
-        this->setupViewMatrix(viewMatrix, x, y);
-    }
-
-    void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        this->setupViewMatrix(viewMatrix, x, y);
-    }
-
     const Key& key() const { return fKey; }
 
     size_t size() const { return fSize; }
@@ -232,23 +220,13 @@ public:
                                           GrTextTarget*);
 
 private:
-    GrTextBlob(GrStrikeCache* strikeCache, GrColor color, bool forceWForDistanceFields)
-        : fColor{color}
-        , fStrikeCache{strikeCache}
-        , fForceWForDistanceFields{forceWForDistanceFields} { }
-
-    // This function will only be called when we are generating a blob from scratch. We record the
-    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
-    // these numbers.  When blobs are reused with new matrices, we need to return to model space so
-    // we can update the vertex bounds appropriately.
-    void setupViewMatrix(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        fInitialViewMatrix = viewMatrix;
-        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
-            fInitialViewMatrixInverse = SkMatrix::I();
-        }
-        fInitialX = x;
-        fInitialY = y;
-    }
+    GrTextBlob(GrStrikeCache* grStrikeCache,
+               size_t size,
+               GrColor solidColor,
+               SkColor luminanceColor,
+               const SkMatrix& viewMatrix,
+               const SkPoint& origin,
+               bool forceWForDistanceFields);
 
 public:
     // Any glyphs that can't be rendered with the base or override descriptor
@@ -447,12 +425,12 @@ private:
     };
     StrokeInfo fStrokeInfo;
     Key fKey;
-    SkMatrix fInitialViewMatrix;
-    SkMatrix fInitialViewMatrixInverse;
-    size_t fSize;
-    SkColor fLuminanceColor;
-    SkScalar fInitialX;
-    SkScalar fInitialY;
+    const SkMatrix fInitialViewMatrix;
+    const SkMatrix fInitialViewMatrixInverse;
+    const SkScalar fInitialX;
+    const SkScalar fInitialY;
+    const SkColor fLuminanceColor;
+    const size_t fSize;
 
     // We can reuse distance field text, but only if the new viewmatrix would not result in
     // a mip change.  Because there can be multiple runs in a blob, we track the overall

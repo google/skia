@@ -34,21 +34,28 @@ public:
     ~GrTextBlobCache();
 
     sk_sp<GrTextBlob> makeBlob(const SkGlyphRunList& glyphRunList,
-                               bool forceW,
-                               GrColor color,
-                               GrStrikeCache* strikeCache) {
-        return GrTextBlob::Make(glyphRunList.totalGlyphCount(), forceW, color, strikeCache);
+                               const SkMatrix& viewMatrix,
+                               GrColor solidColor,
+                               bool forceWForDistanceFields,
+                               GrStrikeCache* grStrikeCache) {
+        return GrTextBlob::Make(glyphRunList,
+                                viewMatrix,
+                                solidColor,
+                                forceWForDistanceFields,
+                                grStrikeCache);
     }
 
-    sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
-                                     const GrTextBlob::Key& key,
+    sk_sp<GrTextBlob> makeCachedBlob(const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkPaint& paint,
-                                     bool forceW,
-                                     GrColor color,
-                                     GrStrikeCache* strikeCache) {
-        sk_sp<GrTextBlob> cacheBlob(makeBlob(glyphRunList, forceW, color, strikeCache));
-        cacheBlob->setupKey(key, blurRec, paint);
+                                     const SkGlyphRunList& glyphRunList,
+                                     const SkMatrix& viewMatrix,
+                                     GrColor solidColor,
+                                     bool forceWForDistanceFields,
+                                     GrStrikeCache* grStrikeCache) {
+        sk_sp<GrTextBlob> cacheBlob(
+            this->makeBlob(
+                glyphRunList, viewMatrix, forceWForDistanceFields, solidColor, grStrikeCache));
+        cacheBlob->setupKey(key, blurRec, glyphRunList.paint());
         this->add(cacheBlob);
         glyphRunList.temporaryShuntBlobNotifyAddedToCache(fUniqueID);
         return cacheBlob;
