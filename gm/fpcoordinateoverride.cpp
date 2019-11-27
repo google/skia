@@ -37,7 +37,7 @@ public:
 
     SampleCoordEffect(std::unique_ptr<GrFragmentProcessor> child)
         : INHERITED(CLASS_ID, kNone_OptimizationFlags) {
-        child->setComputeLocalCoordsInVertexShader(false);
+        child->setSampledWithExplicitCoords(true);
         this->registerChildProcessor(std::move(child));
     }
 

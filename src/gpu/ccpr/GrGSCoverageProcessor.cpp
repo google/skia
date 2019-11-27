@@ -40,7 +40,7 @@ protected:
         this->emitGeometryShader(proc, varyingHandler, args.fGeomBuilder, args.fRTAdjustName);
         varyingHandler->emitAttributes(proc);
         varyingHandler->setNoPerspective();
-        SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
+        SkASSERT(!*args.fFPCoordTransformHandler);
 
         // Fragment shader.
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
