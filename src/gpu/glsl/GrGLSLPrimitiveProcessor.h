@@ -56,14 +56,15 @@ public:
      */
     class FPCoordTransformHandler : public SkNoncopyable {
     public:
-        FPCoordTransformHandler(const GrPipeline& pipeline,
-                                SkTArray<TransformVar>* transformedCoordVars)
-                : fIter(pipeline)
-                , fTransformedCoordVars(transformedCoordVars) {}
+        FPCoordTransformHandler(const GrPipeline&, SkTArray<TransformVar>*);
+        ~FPCoordTransformHandler() { SkASSERT(!fIter); }
 
-        ~FPCoordTransformHandler() { SkASSERT(!this->nextCoordTransform());}
+        operator bool() const { return (bool)fIter; }
 
-        const GrCoordTransform* nextCoordTransform();
+        // Gets the current coord transform and its owning GrFragmentProcessor.
+        std::pair<const GrCoordTransform&, const GrFragmentProcessor&> get() const;
+
+        FPCoordTransformHandler& operator++();
 
         // 'args' are constructor params to GrShaderVar.
         template<typename... Args>
@@ -76,7 +77,6 @@ public:
     private:
         GrFragmentProcessor::CoordTransformIter fIter;
         SkDEBUGCODE(bool                        fAddedCoord = false;)
-        SkDEBUGCODE(const GrCoordTransform*     fCurr = nullptr;)
         SkTArray<TransformVar>*                 fTransformedCoordVars;
     };
 

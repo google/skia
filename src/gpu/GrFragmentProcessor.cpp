@@ -69,10 +69,8 @@ const GrFragmentProcessor::TextureSampler& GrFragmentProcessor::textureSampler(i
 }
 
 void GrFragmentProcessor::addCoordTransform(GrCoordTransform* transform) {
-    transform->setComputeInVertexShader(this->computeLocalCoordsInVertexShader());
     fCoordTransforms.push_back(transform);
-    fFlags |= kUsesLocalCoords_Flag;
-    SkDEBUGCODE(transform->setInProcessor();)
+    fFlags |= kHasCoordTranforms_Flag;
 }
 
 #ifdef SK_DEBUG
@@ -94,8 +92,8 @@ bool GrFragmentProcessor::isInstantiated() const {
 #endif
 
 int GrFragmentProcessor::registerChildProcessor(std::unique_ptr<GrFragmentProcessor> child) {
-    if (child->usesLocalCoords()) {
-        fFlags |= kUsesLocalCoords_Flag;
+    if (child->fFlags & kHasCoordTranforms_Flag) {
+        fFlags |= kHasCoordTranforms_Flag;
     }
     fRequestedFeatures |= child->fRequestedFeatures;
 
@@ -111,7 +109,7 @@ bool GrFragmentProcessor::hasSameTransforms(const GrFragmentProcessor& that) con
     }
     int count = this->numCoordTransforms();
     for (int i = 0; i < count; ++i) {
-        if (!this->coordTransform(i).hasSameEffectAs(that.coordTransform(i))) {
+        if (!this->coordTransform(i).hasSameEffectiveMatrix(that.coordTransform(i))) {
             return false;
         }
     }

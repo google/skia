@@ -282,7 +282,7 @@ void HCodeGenerator::writeConstructor() {
             this->writef("            %s_index = this->numChildProcessors();",
                          FieldName(String(param->fName).c_str()).c_str());
             if (fSectionAndParameterHelper.hasCoordOverrides(*param)) {
-                this->writef("            %s->setComputeLocalCoordsInVertexShader(false);",
+                this->writef("            %s->setSampledWithExplicitCoords(true);",
                              String(param->fName).c_str());
             }
             this->writef("            this->registerChildProcessor(std::move(%s));",

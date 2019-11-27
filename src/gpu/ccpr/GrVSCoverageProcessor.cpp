@@ -442,7 +442,7 @@ void GrVSCoverageProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                           "vertexpos", "coverage", "corner_coverage", "wind");
 
     varyingHandler->emitAttributes(proc);
-    SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
+    SkASSERT(!*args.fFPCoordTransformHandler);
 
     // Fragment shader.
     GrGLSLFPFragmentBuilder* f = args.fFragBuilder;

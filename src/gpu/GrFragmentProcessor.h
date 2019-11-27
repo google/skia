@@ -124,24 +124,26 @@ public:
 
     SkDEBUGCODE(bool isInstantiated() const;)
 
-    /** Do any of the coordtransforms for this processor require local coords? */
-    bool usesLocalCoords() const { return SkToBool(fFlags & kUsesLocalCoords_Flag); }
-
-    bool computeLocalCoordsInVertexShader() const {
-        return SkToBool(fFlags & kComputeLocalCoordsInVertexShader_Flag);
+    /** Do any of the coord transforms for this processor require local coords? */
+    bool usesLocalCoords() const {
+        // If the processor is sampled with explicit coords then we do not need to apply the
+        // coord transforms in the vertex shader to the local coords.
+        return SkToBool(fFlags & kHasCoordTranforms_Flag) &&
+               SkToBool(fFlags & kCoordTransformsApplyToLocalCoords_Flag);
     }
 
-    void setComputeLocalCoordsInVertexShader(bool value) const {
+    bool coordTransformsApplyToLocalCoords() const {
+        return SkToBool(fFlags & kCoordTransformsApplyToLocalCoords_Flag);
+    }
+
+    void setSampledWithExplicitCoords(bool value) {
         if (value) {
-            fFlags |= kComputeLocalCoordsInVertexShader_Flag;
+            fFlags &= ~kCoordTransformsApplyToLocalCoords_Flag;
         } else {
-            fFlags &= ~kComputeLocalCoordsInVertexShader_Flag;
+            fFlags |= kCoordTransformsApplyToLocalCoords_Flag;
         }
-        for (GrCoordTransform* transform : fCoordTransforms) {
-            transform->setComputeInVertexShader(value);
-        }
-        for (const auto& child : fChildProcessors) {
-            child->setComputeLocalCoordsInVertexShader(value);
+        for (auto& child : fChildProcessors) {
+            child->setSampledWithExplicitCoords(value);
         }
     }
 
@@ -318,7 +320,7 @@ protected:
 
     GrFragmentProcessor(ClassID classID, OptimizationFlags optimizationFlags)
             : INHERITED(classID)
-            , fFlags(optimizationFlags | kComputeLocalCoordsInVertexShader_Flag) {
+            , fFlags(optimizationFlags | kCoordTransformsApplyToLocalCoords_Flag) {
         SkASSERT((optimizationFlags & ~kAll_OptimizationFlags) == 0);
     }
 
@@ -415,11 +417,11 @@ private:
 
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
-        kUsesLocalCoords_Flag = kFirstPrivateFlag,
-        kComputeLocalCoordsInVertexShader_Flag = kFirstPrivateFlag << 1,
+        kHasCoordTranforms_Flag = kFirstPrivateFlag,
+        kCoordTransformsApplyToLocalCoords_Flag = kFirstPrivateFlag << 1,
     };
 
-    mutable uint32_t fFlags = kComputeLocalCoordsInVertexShader_Flag;
+    uint32_t fFlags = kCoordTransformsApplyToLocalCoords_Flag;
 
     int fTextureSamplerCnt = 0;
 

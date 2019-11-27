@@ -31,7 +31,7 @@ GrPrimitiveProcessor::getTransformKey(const SkTArray<GrCoordTransform*, true>& c
     for (int t = 0; t < numCoords; ++t) {
         uint32_t key = 0;
         const GrCoordTransform* coordTransform = coords[t];
-        if (coordTransform->getMatrix().hasPerspective()) {
+        if (coordTransform->matrix().hasPerspective()) {
             key |= kGeneral_MatrixType;
         } else {
             key |= kNoPersp_MatrixType;

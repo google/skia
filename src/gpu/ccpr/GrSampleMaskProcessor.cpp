@@ -31,7 +31,7 @@ void GrSampleMaskProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     int inputWidth = (4 == numInputPoints || proc.hasInputWeight()) ? 4 : 3;
 
     varyingHandler->emitAttributes(proc);
-    SkASSERT(!args.fFPCoordTransformHandler->nextCoordTransform());
+    SkASSERT(!*args.fFPCoordTransformHandler);
 
     if (PrimitiveType::kTriangles == proc.fPrimitiveType) {
         SkASSERT(!proc.hasInstanceAttributes());  // Triangles are drawn with vertex arrays.
