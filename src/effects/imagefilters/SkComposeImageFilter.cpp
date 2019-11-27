@@ -12,6 +12,8 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEFILTER_COMPOSE
+
 namespace {
 
 class SkComposeImageFilterImpl final : public SkImageFilter_Base {
@@ -120,3 +122,5 @@ SkIRect SkComposeImageFilterImpl::onFilterBounds(const SkIRect& src, const SkMat
     return outer->filterBounds(innerRect, ctm, dir,
                                kReverse_MapDirection == dir ? &innerRect : nullptr);
 }
+
+#endif
