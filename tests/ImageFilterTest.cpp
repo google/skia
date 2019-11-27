@@ -946,14 +946,11 @@ DEF_TEST(ImageFilterScaledBlurRadius, reporter) {
 }
 
 DEF_TEST(ImageFilterComposedBlurFastBounds, reporter) {
-    sk_sp<SkImageFilter> filter1(make_blur(nullptr));
-    sk_sp<SkImageFilter> filter2(make_blur(nullptr));
-    sk_sp<SkImageFilter> composedFilter(SkImageFilters::Compose(std::move(filter1),
-                                                                std::move(filter2)));
+    sk_sp<SkImageFilter> filter(make_blur(make_blur(nullptr)));
 
     SkRect boundsSrc = SkRect::MakeIWH(100, 100);
     SkRect expectedBounds = SkRect::MakeXYWH(-6, -6, 112, 112);
-    SkRect boundsDst = composedFilter->computeFastBounds(boundsSrc);
+    SkRect boundsDst = filter->computeFastBounds(boundsSrc);
 
     REPORTER_ASSERT(reporter, boundsDst == expectedBounds);
 }
@@ -1441,16 +1438,13 @@ static void test_composed_imagefilter_offset(skiatest::Reporter* reporter, GrCon
 
     SkIRect cropRect = SkIRect::MakeXYWH(1, 0, 20, 20);
     sk_sp<SkImageFilter> offsetFilter(SkImageFilters::Offset(0, 0, nullptr, &cropRect));
-    sk_sp<SkImageFilter> blurFilter(SkImageFilters::Blur(SK_Scalar1, SK_Scalar1,
-                                                            nullptr, &cropRect));
-    sk_sp<SkImageFilter> composedFilter(SkImageFilters::Compose(std::move(blurFilter),
-                                                                std::move(offsetFilter)));
+    sk_sp<SkImageFilter> filter(SkImageFilters::Blur(1, 1, std::move(offsetFilter), &cropRect));
     SkIPoint offset;
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr,
                                     kN32_SkColorType, nullptr, srcImg.get());
 
     sk_sp<SkSpecialImage> resultImg(
-            as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(&offset));
+            as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
     REPORTER_ASSERT(reporter, resultImg);
     REPORTER_ASSERT(reporter, offset.fX == 1 && offset.fY == 0);
 }
@@ -1475,18 +1469,15 @@ static void test_composed_imagefilter_bounds(skiatest::Reporter* reporter, GrCon
     recordingCanvas->clipRect(SkRect::MakeXYWH(100, 0, 100, 100));
     recordingCanvas->clear(SK_ColorGREEN);
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-    sk_sp<SkImageFilter> pictureFilter(SkImageFilters::Picture(picture));
     SkIRect cropRect = SkIRect::MakeWH(100, 100);
-    sk_sp<SkImageFilter> offsetFilter(SkImageFilters::Offset(-100, 0, nullptr, &cropRect));
-    sk_sp<SkImageFilter> composedFilter(SkImageFilters::Compose(std::move(offsetFilter),
-                                                                std::move(pictureFilter)));
+    sk_sp<SkImageFilter> filter(SkImageFilters::Offset(-100, 0, SkImageFilters::Picture(picture),
+                                                       &cropRect));
 
     sk_sp<SkSpecialImage> sourceImage(create_empty_special_image(context, 100));
     SkImageFilter_Base::Context ctx(SkMatrix::I(), SkIRect::MakeWH(100, 100), nullptr,
                                     kN32_SkColorType, nullptr, sourceImage.get());
     SkIPoint offset;
-    sk_sp<SkSpecialImage> result(
-            as_IFB(composedFilter)->filterImage(ctx).imageAndOffset(&offset));
+    sk_sp<SkSpecialImage> result(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
     REPORTER_ASSERT(reporter, offset.isZero());
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, result->subset().size() == SkISize::Make(100, 100));
@@ -1757,13 +1748,11 @@ DEF_TEST(ImageFilterComplexCTM, reporter) {
         { cfif,                                  true  },
         { SkImageFilters::ColorFilter(cf, cfif), true  },
         { SkImageFilters::Merge(cfif, cfif),     true  },
-        { SkImageFilters::Compose(cfif, cfif),   true  },
 
         { blif,                                  false },
         { SkImageFilters::Blur(3, 3, cfif),      false },
         { SkImageFilters::ColorFilter(cf, blif), false },
         { SkImageFilters::Merge(cfif, blif),     false },
-        { SkImageFilters::Compose(blif, cfif),   false },
     };
 
     for (const auto& rec : recs) {
