@@ -15,26 +15,26 @@
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
  */
-class GrDDLContext : public GrContext {
+class GrDDLContext final : public GrContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
             : INHERITED(proxy->backend(), proxy->priv().options(), proxy->priv().contextID()) {
         fThreadSafeProxy = std::move(proxy);
     }
 
-    ~GrDDLContext() final { }
+    ~GrDDLContext() override {}
 
-    void abandonContext() final {
+    void abandonContext() override {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::abandonContext();
     }
 
-    void releaseResourcesAndAbandonContext() final {
+    void releaseResourcesAndAbandonContext() override {
         SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::releaseResourcesAndAbandonContext();
     }
 
-    void freeGpuResources() final {
+    void freeGpuResources() override {
         SkASSERT(0); // freeing resources in a DDL Recorder doesn't make a whole lot of sense
         INHERITED::freeGpuResources();
     }
@@ -42,9 +42,9 @@ public:
 private:
     // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
     // GrRecordingContext!
-    GrContext* asDirectContext() final { return nullptr; }
+    GrContext* asDirectContext() override { return nullptr; }
 
-    bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) final {
+    bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) override {
         SkASSERT(caps && FPFactoryCache);
         SkASSERT(fThreadSafeProxy); // should've been set in the ctor
 
@@ -61,7 +61,7 @@ private:
         return true;
     }
 
-    GrAtlasManager* onGetAtlasManager() final {
+    GrAtlasManager* onGetAtlasManager() override {
         SkASSERT(0);   // the DDL Recorders should never invoke this
         return nullptr;
     }
