@@ -80,12 +80,14 @@ if [[ $@ == *no_managed_skottie* ]]; then
 fi
 
 GN_PARTICLES="skia_enable_sksl_interpreter=true"
+PARTICLES_JS="--pre-js $BASE_DIR/particles.js"
 PARTICLES_BINDINGS="$BASE_DIR/particles_bindings.cpp"
 PARTICLES_LIB="$BUILD_DIR/libparticles.a"
 
 if [[ $@ == *no_particles* ]]; then
   echo "Omitting Particles"
   GN_PARTICLES="skia_enable_sksl_interpreter=false"
+  PARTICLES_JS=""
   PARTICLES_BINDINGS=""
   PARTICLES_LIB=""
 fi
@@ -244,6 +246,7 @@ ${EMCXX} \
     --pre-js $BASE_DIR/interface.js \
     $PARAGRAPH_JS \
     $SKOTTIE_JS \
+    $PARTICLES_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
     --post-js $BASE_DIR/ready.js \

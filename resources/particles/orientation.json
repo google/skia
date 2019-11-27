@@ -2,7 +2,8 @@
    "MaxCount": 32,
    "Drawable": {
       "Type": "SkImageDrawable",
-      "Path": "resources/images/index8.png",
+      "Path": "images",
+      "Name": "index8.png",
       "Columns": 1,
       "Rows": 1
    },

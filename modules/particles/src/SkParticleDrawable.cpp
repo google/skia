@@ -15,6 +15,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "modules/particles/include/SkParticleData.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/core/SkAutoMalloc.h"
 
 static sk_sp<SkImage> make_circle_image(int radius) {
@@ -78,8 +79,8 @@ public:
 
     REFLECTED(SkCircleDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-              const SkPaint& paint) override {
+    void draw(const skresources::ResourceProvider* /* unused */, SkCanvas* canvas,
+              const SkParticles& particles, int count, const SkPaint& paint) override {
         SkPoint center = { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
         DrawAtlasArrays arrays(particles, count, center);
         for (int i = 0; i < count; ++i) {
@@ -110,18 +111,22 @@ private:
 
 class SkImageDrawable : public SkParticleDrawable {
 public:
-    SkImageDrawable(const SkString& path = SkString(), int cols = 1, int rows = 1)
+    SkImageDrawable(const SkString& path = SkString(), const SkString& name = SkString(),
+                    int cols = 1, int rows = 1)
             : fPath(path)
+            , fName(name)
             , fCols(cols)
-            , fRows(rows) {
-        this->rebuild();
-    }
+            , fRows(rows)
+            , fDirty(true) {}
 
     REFLECTED(SkImageDrawable, SkParticleDrawable)
 
-    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
-              const SkPaint& paint) override {
-        SkRect baseRect = getBaseRect();
+    void draw(const skresources::ResourceProvider* resourceProvider, SkCanvas* canvas,
+              const SkParticles& particles, int count, const SkPaint& paint) override {
+        this->rebuildIfDirty(resourceProvider);
+
+        SkRect baseRect = SkRect::MakeWH(static_cast<float>(fImage->width()) / fCols,
+                                         static_cast<float>(fImage->height()) / fRows);
         SkPoint center = { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
         DrawAtlasArrays arrays(particles, count, center);
 
@@ -139,41 +144,46 @@ public:
     }
 
     void visitFields(SkFieldVisitor* v) override {
-        SkString oldPath = fPath;
+        SkString oldPath = fPath,
+                 oldName = fName;
 
         v->visit("Path", fPath);
+        v->visit("Name", fName);
         v->visit("Columns", fCols);
         v->visit("Rows", fRows);
 
         fCols = SkTMax(fCols, 1);
         fRows = SkTMax(fRows, 1);
-        if (oldPath != fPath) {
-            this->rebuild();
+        if (oldPath != fPath || oldName != fName) {
+            fDirty = true;
         }
     }
 
 private:
     SkString fPath;
+    SkString fName;
     int      fCols;
     int      fRows;
 
-    SkRect getBaseRect() const {
-        return SkRect::MakeWH(static_cast<float>(fImage->width()) / fCols,
-                              static_cast<float>(fImage->height() / fRows));
-    }
+    void rebuildIfDirty(const skresources::ResourceProvider* resourceProvider) {
+        if (!fDirty) {
+            return;
+        }
 
-    void rebuild() {
-        fImage = SkImage::MakeFromEncoded(SkData::MakeFromFileName(fPath.c_str()));
+        fImage.reset();
+        if (auto asset = resourceProvider->loadImageAsset(fPath.c_str(), fName.c_str(), nullptr)) {
+            fImage = asset->getFrame(0);
+        }
         if (!fImage) {
-            if (!fPath.isEmpty()) {
-                SkDebugf("Could not load image \"%s\"\n", fPath.c_str());
-            }
+            SkDebugf("Could not load image \"%s:%s\"\n", fPath.c_str(), fName.c_str());
             fImage = make_circle_image(1);
         }
+        fDirty = false;
     }
 
     // Cached
     sk_sp<SkImage> fImage;
+    bool           fDirty;
 };
 
 void SkParticleDrawable::RegisterDrawableTypes() {
@@ -186,6 +196,7 @@ sk_sp<SkParticleDrawable> SkParticleDrawable::MakeCircle(int radius) {
     return sk_sp<SkParticleDrawable>(new SkCircleDrawable(radius));
 }
 
-sk_sp<SkParticleDrawable> SkParticleDrawable::MakeImage(const SkString& path, int cols, int rows) {
-    return sk_sp<SkParticleDrawable>(new SkImageDrawable(path, cols, rows));
+sk_sp<SkParticleDrawable> SkParticleDrawable::MakeImage(const SkString& path, const SkString& name,
+                                                        int cols, int rows) {
+    return sk_sp<SkParticleDrawable>(new SkImageDrawable(path, name, cols, rows));
 }

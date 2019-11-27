@@ -17,6 +17,8 @@
 class SkParticleEffect;
 class SkParticleEffectParams;
 
+namespace skresources { class ResourceProvider; }
+
 class ParticlesSlide : public Slide {
 public:
     ParticlesSlide();
@@ -52,6 +54,8 @@ private:
         bool fTrackMouse;
     };
     SkTArray<RunningEffect> fRunning;
+
+    sk_sp<skresources::ResourceProvider> fResourceProvider;
 };
 
 #endif
