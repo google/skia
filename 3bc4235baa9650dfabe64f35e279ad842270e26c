@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f35c142_84519ceb",
+        "filename": "src/gpu/GrCoordTransform.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:08:33Z",
+      "side": 0,
+      "message": "I think this [0,1] was from way back when we would normalize the local coords fed to the transform rather than making the transform do the normalization.",
+      "range": {
+        "startLine": 34,
+        "startChar": 41,
+        "endLine": 34,
+        "endChar": 47
+      },
+      "revId": "3bc4235baa9650dfabe64f35e279ad842270e26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c778366_e073596b",
+        "filename": "src/gpu/GrCoordTransform.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:08:33Z",
+      "side": 0,
+      "message": "This used to matter because we\u0027d do some manipulations on the coord transform as it was recorded onto the FP. We don\u0027t do that anymore. Also FPs had shared ownership so it would have been weird for one owner to change a transform after the FP was created. Of course they are unique owned now. Modifying coord transforms on an existing FP is no longer bug-prone. Moreover, to efficiently implement the domain effect I will need to reset child CT matrices to identity as the child FP is transferred to the domain effect.",
+      "revId": "3bc4235baa9650dfabe64f35e279ad842270e26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "785594ad_e9116797",
+        "filename": "src/gpu/GrCoordTransform.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:08:33Z",
+      "side": 0,
+      "message": "I\u0027m supposing that caching these values is not worth it and doing the null check on fProxy is fine.",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 38
+      },
+      "revId": "3bc4235baa9650dfabe64f35e279ad842270e26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef17c45e_ff32f2d9",
+        "filename": "src/gpu/GrCoordTransform.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:08:33Z",
+      "side": 0,
+      "message": "This is now a property of the owning FP, not each transform.",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 130,
+        "endChar": 51
+      },
+      "revId": "3bc4235baa9650dfabe64f35e279ad842270e26c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

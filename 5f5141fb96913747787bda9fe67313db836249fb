@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44793291_afce2b4c",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-11-27T13:08:33Z",
+      "side": 1,
+      "message": "This renaming reflects a larger view of what this means. I think it will make subsequent changes that check this clearer to have the full context in the name rather than just where the coord transforms are performed.\n\nAlso this was never primarily about where local coords are computed but rather whether the coord transform matrices apply to local coords (which *can* be done in the VS[, or FS, or CPU via vertex attribs]) or to custom coords (which must be done in the FS in general).",
+      "range": {
+        "startLine": 135,
+        "startChar": 9,
+        "endLine": 135,
+        "endChar": 43
+      },
+      "revId": "5f5141fb96913747787bda9fe67313db836249fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
