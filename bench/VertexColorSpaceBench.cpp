@@ -79,7 +79,7 @@ public:
             }
             void setData(const GrGLSLProgramDataManager& pdman,
                          const GrPrimitiveProcessor& primProc,
-                         FPCoordTransformIter&&) override {
+                         const CoordTransformRange&) override {
                 const GP& gp = primProc.cast<GP>();
                 fColorSpaceHelper.setData(pdman, gp.fColorSpaceXform.get());
             }

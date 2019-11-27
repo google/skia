@@ -59,8 +59,8 @@ GrMtlPipelineState::GrMtlPipelineState(
 void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
                                  const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
-    fGeometryProcessor->setData(fDataManager, programInfo.primProc(),
-                                GrFragmentProcessor::CoordTransformIter(programInfo.pipeline()));
+    GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
+    fGeometryProcessor->setData(fDataManager, programInfo.primProc(), transformRange);
 
     if (!programInfo.hasDynamicPrimProcTextures()) {
         auto proxies = programInfo.hasFixedPrimProcTextures() ? programInfo.fixedPrimProcTextures()
@@ -89,20 +89,16 @@ void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::Iter iter(programInfo.pipeline());
+    GrFragmentProcessor::Iter fpIter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
-    const GrFragmentProcessor* fp = iter.next();
-    GrGLSLFragmentProcessor* glslFP = glslIter.next();
-    while (fp && glslFP) {
-        glslFP->setData(fDataManager, *fp);
-        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
-            const auto& sampler = fp->textureSampler(i);
+    for (; fpIter && glslIter; ++fpIter, ++glslIter) {
+        glslIter->setData(fDataManager, *fpIter);
+        for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
+            const auto& sampler = fpIter->textureSampler(i);
             fSamplerBindings.emplace_back(sampler.samplerState(), sampler.peekTexture(), fGpu);
         }
-        fp = iter.next();
-        glslFP = glslIter.next();
     }
-    SkASSERT(!fp && !glslFP);
+    SkASSERT(!fpIter && !glslIter);
 
     {
         SkIPoint offset;
