@@ -10,6 +10,7 @@
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"
 #include "modules/particles/include/SkReflected.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/utils/SkOSPath.h"
@@ -207,6 +208,7 @@ ParticlesSlide::ParticlesSlide() {
     SkParticleEffect::RegisterParticleTypes();
     fName = "Particles";
     fPlayPosition.set(200.0f, 200.0f);
+    fResourceProvider = skresources::FileResourceProvider::Make(GetResourcePath());
 }
 
 void ParticlesSlide::loadEffects(const char* dirname) {
@@ -280,7 +282,8 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
         for (int i = 0; i < fLoaded.count(); ++i) {
             ImGui::PushID(i);
             if (fAnimated && ImGui::Button("Play")) {
-                sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams, fRandom));
+                sk_sp<SkParticleEffect> effect(new SkParticleEffect(fLoaded[i].fParams,
+                                                                    fResourceProvider, fRandom));
                 effect->start(fAnimationTime, looped);
                 fRunning.push_back({ fPlayPosition, fLoaded[i].fName, effect, false });
                 fRandom.nextU();

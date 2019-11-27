@@ -25,6 +25,10 @@ class SkParticleBinding;
 class SkParticleDrawable;
 class SkParticleExternalValue;
 
+namespace skresources {
+    class ResourceProvider;
+}
+
 namespace SkSL {
     class ByteCode;
 }
@@ -128,7 +132,8 @@ private:
 
 class SkParticleEffect : public SkRefCnt {
 public:
-    SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random);
+    SkParticleEffect(sk_sp<SkParticleEffectParams> params,
+                     sk_sp<skresources::ResourceProvider> rp, const SkRandom& random);
 
     // Start playing this effect, specifying initial values for the emitter's properties
     void start(double now, bool looping, SkPoint position, SkVector heading, float scale,
@@ -198,7 +203,8 @@ private:
     void processParticleSpawnRequests(double now, int start);
     void runParticleScript(double now, const char* entry, int start, int count);
 
-    sk_sp<SkParticleEffectParams> fParams;
+    sk_sp<SkParticleEffectParams>        fParams;
+    sk_sp<skresources::ResourceProvider> fResourceProvider;
 
     SkRandom fRandom;
 
