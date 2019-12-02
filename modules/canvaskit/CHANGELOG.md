@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - The returned values from `SkParagraph.getRectsForRange` now have direction with value
    `CanvasKit.TextDirection`.
 
+### Fixed
+ - `MakeImage` properly in the externs file and can work with `CanvasKit.Malloc`.
+
 ## [0.9.0] - 2019-11-18
 ### Added
  - Experimental `CanvasKit.Malloc`, which can be used to create a

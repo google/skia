@@ -76,7 +76,7 @@ describe('Core canvas behavior', function() {
                 let img = CanvasKit.MakeImageFromEncoded(pngData);
                 expect(img).toBeTruthy();
                 const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface')
+                expect(surface).toBeTruthy('Could not make surface');
                 if (!surface) {
                     done();
                     return;
@@ -103,7 +103,7 @@ describe('Core canvas behavior', function() {
                 let img = CanvasKit.MakeImageFromEncoded(jpgData);
                 expect(img).toBeTruthy();
                 const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface')
+                expect(surface).toBeTruthy('Could not make surface');
                 if (!surface) {
                     done();
                     return;
@@ -130,7 +130,7 @@ describe('Core canvas behavior', function() {
                 let img = CanvasKit.MakeImageFromEncoded(gifData);
                 expect(img).toBeTruthy();
                 const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface')
+                expect(surface).toBeTruthy('Could not make surface');
                 if (!surface) {
                     done();
                     return;
@@ -162,7 +162,7 @@ describe('Core canvas behavior', function() {
                 expect(aImg.getFrameCount()).toEqual(60);
 
                 const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface')
+                expect(surface).toBeTruthy('Could not make surface');
                 if (!surface) {
                     done();
                     return;
@@ -182,7 +182,7 @@ describe('Core canvas behavior', function() {
                     c = aImg.decodeNextFrame();
                     expect(c).not.toEqual(-1);
                 }
-                 canvas.drawAnimatedImage(aImg, 300, 300);
+                canvas.drawAnimatedImage(aImg, 300, 300);
 
                 aImg.delete();
 
@@ -191,10 +191,37 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can create an image "from scratch" by specifying pixels/colorInfo manually', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface');
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+            canvas.clear(CanvasKit.WHITE);
+            const paint = new CanvasKit.SkPaint();
+
+            // This creates and draws an SkImage that is 1 pixel wide, 4 pixels tall with
+            // the colors listed below.
+            const pixels = Uint8Array.from([
+                255,   0,   0, 255, // opaque red
+                  0, 255,   0, 255, // opaque green
+                  0,   0, 255, 255, // opaque blue
+                255,   0, 255, 100, // transparent purple
+            ]);
+            const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888);
+            canvas.drawImage(img, 1, 1, paint);
+
+            reportSurface(surface, '1x4_from_scratch', done);
+        }));
+    });
+
     it('can blur using ImageFilter or MaskFilter', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');
-            expect(surface).toBeTruthy('Could not make surface')
+            expect(surface).toBeTruthy('Could not make surface');
             if (!surface) {
                 done();
                 return;
@@ -241,7 +268,7 @@ describe('Core canvas behavior', function() {
                 let img = CanvasKit.MakeImageFromEncoded(pngData);
                 expect(img).toBeTruthy();
                 const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface')
+                expect(surface).toBeTruthy('Could not make surface');
                 if (!surface) {
                     done();
                     return;
