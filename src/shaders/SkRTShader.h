@@ -49,7 +49,7 @@ private:
     typedef SkShaderBase INHERITED;
 };
 
-class SkRuntimeShaderFactory {
+class SK_API SkRuntimeShaderFactory {
 public:
     SkRuntimeShaderFactory(SkString sksl, bool isOpaque);
 
