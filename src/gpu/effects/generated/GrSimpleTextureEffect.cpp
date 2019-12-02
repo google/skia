@@ -31,7 +31,10 @@ public:
                 "%s = %s * sample(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 sk_TransformedCoords2D_0.c_str(),
-                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
+                fragBuilder->getProgramBuilder()
+                        ->samplerSwizzle(args.fTexSamplers[0])
+                        .asString()
+                        .c_str());
     }
 
 private:

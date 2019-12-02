@@ -497,7 +497,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(c.fArguments[0]->fKind == Expression::kVariableReference_Kind);
         String sampler = this->getSamplerHandle(((VariableReference&) *c.fArguments[0]).fVariable);
         fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
-                              ").c_str()");
+                              ").asString().c_str()");
     }
 }
 

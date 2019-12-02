@@ -169,7 +169,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
                     fragBuilder->codeAppendf("%s = %s.%s;",
-                                             args.fOutputColor, args.fInputColor, swizzle.c_str());
+                            args.fOutputColor, args.fInputColor, swizzle.asString().c_str());
                 }
             };
             return new GLFP;

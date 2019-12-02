@@ -94,7 +94,10 @@ public:
                 "sample(%s, float2(texCoord)).%s;\n",
                 args.fOutputColor, args.fInputColor,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
-                fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str());
+                fragBuilder->getProgramBuilder()
+                        ->samplerSwizzle(args.fTexSamplers[0])
+                        .asString()
+                        .c_str());
     }
 
 private:
