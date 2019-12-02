@@ -452,7 +452,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu17":   "Ubuntu-17.04",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-18362",
+			"Win10":      "Windows-10-18363",
 			"Win2k8":     "Windows-2008ServerR2-SP1",
 			"Win2016":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
@@ -563,14 +563,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			} else if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
 					"GT610":         "10de:104a-23.21.13.9101",
-					"GTX660":        "10de:11c0-25.21.14.1634",
-					"GTX960":        "10de:1401-25.21.14.1634",
+					"GTX660":        "10de:11c0-26.21.14.4120",
+					"GTX960":        "10de:1401-26.21.14.4120",
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
-					"IntelIris540":  "8086:1926-25.20.100.6519",
+					"IntelIris540":  "8086:1926-26.20.100.7463",
 					"IntelIris6100": "8086:162b-20.19.15.4963",
-					"IntelIris655":  "8086:3ea5-25.20.100.6519",
-					"RadeonHD7770":  "1002:683d-24.20.13001.1010",
-					"RadeonR9M470X": "1002:6646-24.20.13001.1010",
+					"IntelIris655":  "8086:3ea5-26.20.100.7463",
+					"RadeonHD7770":  "1002:683d-26.20.13031.18002",
+					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-25.21.14.1678",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
