@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e1d22533_b39b8e49",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-02T20:31:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b47f515_3a3fc0e4",
+      "range": {
+        "startLine": 39,
+        "startChar": 33,
+        "endLine": 39,
+        "endChar": 35
+      },
+      "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "98a5f5d8_86b02b1e",
         "filename": "src/gpu/GrSwizzle.h",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "0e3dbc61_ba2bfa36",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-02T20:31:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98a5f5d8_86b02b1e",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 5
+      },
+      "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89969ebd_99bd1a65",
         "filename": "src/gpu/GrSwizzle.h",
         "patchSetId": 1
@@ -62,6 +110,24 @@
       "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2b7f97c_d77ff25b",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-02T20:31:27Z",
+      "side": 1,
+      "message": "Interesting, seems like msvc and gcc caught this, but clang doesn\u0027t complain.",
+      "parentUuid": "89969ebd_99bd1a65",
+      "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
