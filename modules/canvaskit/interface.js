@@ -1065,20 +1065,20 @@ CanvasKit.MakeImageFromEncoded = function(data) {
   return img;
 }
 
-// pixels is a Uint8Array
+// pixels must be a Uint8Array with bytes representing the pixel values
+// (e.g. each set of 4 bytes could represent RGBA values for a single pixel).
 CanvasKit.MakeImage = function(pixels, width, height, alphaType, colorType) {
-  var bytesPerPixel = pixels.byteLength / (width * height);
+  var bytesPerPixel = pixels.length / (width * height);
   var info = {
     'width': width,
     'height': height,
     'alphaType': alphaType,
     'colorType': colorType,
   };
-  var pptr = CanvasKit._malloc(pixels.byteLength);
-  CanvasKit.HEAPU8.set(pixels, pptr);
-  // No need to _free iptr, Image takes it with SkData::MakeFromMalloc
+  var pptr = copy1dArray(pixels, CanvasKit.HEAPU8);
+  // No need to _free pptr, Image takes it with SkData::MakeFromMalloc
 
-  return CanvasKit._MakeImage(info, pptr, pixels.byteLength, width * bytesPerPixel);
+  return CanvasKit._MakeImage(info, pptr, pixels.length, width * bytesPerPixel);
 }
 
 CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, localMatrix, flags) {

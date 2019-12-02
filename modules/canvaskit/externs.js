@@ -42,6 +42,8 @@ var CanvasKit = {
 	/** @return {CanvasKit.SkAnimatedImage} */
 	MakeAnimatedImageFromEncoded: function() {},
 	/** @return {CanvasKit.SkImage} */
+	MakeImage: function() {},
+	/** @return {CanvasKit.SkImage} */
 	MakeImageFromEncoded: function() {},
 	/** @return {LinearCanvasGradient} */
 	MakeLinearGradientShader: function() {},
