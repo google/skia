@@ -275,7 +275,7 @@ void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, emscripten::val /* Path2D
     SkPath::Iter iter(path, false);
     SkPoint pts[4];
     SkPath::Verb verb;
-    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
                 ctx.call<void>("moveTo", pts[0].x(), pts[0].y());
