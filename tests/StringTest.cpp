@@ -10,11 +10,8 @@
 #include "include/core/SkString.h"
 #include "src/core/SkStringUtils.h"
 
-#include <stdarg.h>
 #include <stdio.h>
 #include <thread>
-
-static const char* gThirtyWideDecimal = "%30d";
 
 DEF_TEST(String, reporter) {
     SkString    a;
@@ -163,18 +160,6 @@ DEF_TEST(String, reporter) {
             ERRORF(reporter, "received <%s> expected <%s>\n", a.c_str(), gRec[i].fString);
         }
     }
-
-    REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
-
-    char buffer [40];
-    memset(buffer, 'a', 40);
-    REPORTER_ASSERT(reporter, buffer[18] == 'a');
-    REPORTER_ASSERT(reporter, buffer[19] == 'a');
-    REPORTER_ASSERT(reporter, buffer[20] == 'a');
-    snprintf(buffer, 20, gThirtyWideDecimal, 0);
-    REPORTER_ASSERT(reporter, buffer[18] == ' ');
-    REPORTER_ASSERT(reporter, buffer[19] == 0);
-    REPORTER_ASSERT(reporter, buffer[20] == 'a');
 
     REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
 
