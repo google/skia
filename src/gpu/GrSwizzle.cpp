@@ -28,7 +28,7 @@ void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
             // Rather than allocate the 4 control bytes on the heap somewhere, just jam them right
             // into a uintptr_t context.
             uintptr_t ctx;
-            memcpy(&ctx, fSwiz, 4 * sizeof(char));
+            memcpy(&ctx, this->asString().c_str(), 4 * sizeof(char));
             pipeline->append(SkRasterPipeline::swizzle, ctx);
             return;
         }
