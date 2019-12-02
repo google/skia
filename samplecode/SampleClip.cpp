@@ -393,7 +393,7 @@ static void half_planes(const SkMatrix44& m44, SkScalar W, SkScalar H, SkHalfPla
 
     a = 2*a/W - m;  b = 2*b/W - n;  d = 2*d/W - p;
     e = 2*e/H - m;  f = 2*f/H - n;  h = 2*h/H - p;
-    i = 2*i   - m;  j = 2*j   - n;  l = 2*l   - p;
+//    i = 2*i   - m;  j = 2*j   - n;  l = 2*l   - p;
 
     planes[0] = { m - a, n - b, p - d }; // w - x
     planes[1] = { m + a, n + b, p + d }; // w + x
@@ -401,6 +401,19 @@ static void half_planes(const SkMatrix44& m44, SkScalar W, SkScalar H, SkHalfPla
     planes[3] = { m + e, n + f, p + h }; // w + y
     planes[4] = { m - i, n - j, p - l }; // w - z
     planes[5] = { m + i, n + j, p + l }; // w + z
+}
+
+static SkHalfPlane half_plane_w0(const SkMatrix44& m44, SkScalar W, SkScalar H) {
+    float mx[16];
+    m44.asColMajorf(mx);
+
+    SkScalar
+//            a = mx[0], b = mx[4], /* c = mx[ 8], */ d = mx[12],
+//             e = mx[1], f = mx[5], /* g = mx[ 9], */ h = mx[13],
+//             i = mx[2], j = mx[6], /* k = mx[10], */ l = mx[14],
+             m = mx[3], n = mx[7], /* o = mx[11], */ p = mx[15];
+
+    return { m, n, p - 0.05f };  // w = 0.05f
 }
 
 class HalfPlaneView3 : public Sample {
@@ -468,18 +481,21 @@ class HalfPlaneView3 : public Sample {
 
         SkHalfPlane planes[6];
         half_planes(mx44, 400, 400, planes);
+        SkHalfPlane hpw = half_plane_w0(mx44, 400, 400);
 
         SkPath path = clip(fPath, planes[4]);
+        path = fPath;
         canvas->save();
         canvas->concat(mx);
         canvas->drawPath(path, paint);
         canvas->restore();
 
-//        for (auto& p : planes) {
-//            draw_halfplane(canvas, p, SK_ColorRED);
-//        }
+       for (auto& p : planes) {
+            draw_halfplane(canvas, p, SK_ColorBLACK);
+        }
         draw_halfplane(canvas, planes[4], SK_ColorBLUE);
         draw_halfplane(canvas, planes[5], SK_ColorGREEN);
+        draw_halfplane(canvas, hpw, SK_ColorRED);
     }
 
     bool onChar(SkUnichar uni) override {
