@@ -1555,7 +1555,7 @@ public:
         */
         Verb next(SkPoint pts[4]);
 
-#ifdef SK_SUPPORT_LEGACY_PATHITER_NEXT
+#ifndef SK_SUPPORT_LEGACY_PATH_ITER_NEXT
         // DEPRECATED
         Verb next(SkPoint pts[4], bool /*doConsumeDegenerates*/, bool /*exact*/ = false) {
             return this->next(pts);
