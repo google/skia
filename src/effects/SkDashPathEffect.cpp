@@ -381,6 +381,12 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
+#if defined(IS_FUZZING)
+    // TODO(kjlubick) Can this be removed now that we have the check above?
+    if (count > 20) {
+        return nullptr;
+    }
+#endif
     SkAutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);

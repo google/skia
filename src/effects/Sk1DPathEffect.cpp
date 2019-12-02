@@ -19,6 +19,11 @@
 bool Sk1DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
                                   SkStrokeRec*, const SkRect*) const {
     SkPathMeasure   meas(src, false);
+#if defined(IS_FUZZING)
+    if (meas.getLength() < 0 || meas.getLength() > 100) {
+        return false;
+    }
+#endif
     do {
         int governor = MAX_REASONABLE_ITERATIONS;
         SkScalar    length = meas.getLength();
