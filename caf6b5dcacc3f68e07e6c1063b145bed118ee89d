@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b47f515_3a3fc0e4",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-02T20:19:14Z",
+      "side": 1,
+      "message": "Don\u0027t you speak hex?",
+      "range": {
+        "startLine": 39,
+        "startChar": 33,
+        "endLine": 39,
+        "endChar": 35
+      },
+      "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98a5f5d8_86b02b1e",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-02T20:19:14Z",
+      "side": 1,
+      "message": "seems long enough to have a standalone definition",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 5
+      },
+      "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89969ebd_99bd1a65",
+        "filename": "src/gpu/GrSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-02T20:19:14Z",
+      "side": 1,
+      "message": "constexpr? I\u0027d be surprised if you don\u0027t get yelled at because this is invoked by constexpr Concat.",
+      "revId": "caf6b5dcacc3f68e07e6c1063b145bed118ee89d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
