@@ -70,6 +70,27 @@ namespace GrQuadUtils {
                     GrQuad* deviceOutset, GrQuad* localOutset);
 
     private:
+        enum class DeviceMode :int {
+            // All device-space quads submitted to the TessellationHelper will have
+            // GrQuad::Type::kRectilinear or kAxisAligned (a subclass of rectilinear for its
+            // purposes). Fast paths will always be taken.
+            kAssumeRectilinear,
+            // The device-space quads submitted may have any GrQuad::Type; fast paths will be taken
+            // on a per-quad basis.
+            kAny
+        };
+
+        enum class LocalMode :int {
+            // The localQuad will be ignored and is allowed to be null
+            kNone,
+            // The localQuad will have its x and y coordinates updated, asserts that it's never null
+            // and that its type is not kPerspective
+            kUV,
+            // The localQuad will have its x, y, and w coordinates updated, asserts that it's never
+            // null and supports any type of local coords.
+            kUVR,
+        };
+
         // NOTE: This struct is named 'EdgeVectors' because it holds a lot of cached calculations
         // pertaining to the edge vectors of the input quad, projected into 2D device coordinates.
         // While they are not direction vectors, this struct represents a convenient storage space
@@ -87,6 +108,7 @@ namespace GrQuadUtils {
             skvx::Vec<4, float> fCosTheta;
             skvx::Vec<4, float> fInvSinTheta; // 1 / sin(theta)
 
+            template<DeviceMode kDM>
             void reset(const skvx::Vec<4, float>& xs, const skvx::Vec<4, float>& ys,
                        const skvx::Vec<4, float>& ws, GrQuad::Type quadType);
         };
@@ -118,6 +140,7 @@ namespace GrQuadUtils {
             bool fInsetDegenerate;
             bool fOutsetDegenerate;
 
+            template<DeviceMode kDM>
             void reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
                        const skvx::Vec<4, float>& edgeDistances);
         };
@@ -126,12 +149,13 @@ namespace GrQuadUtils {
             // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
             skvx::Vec<4, float> fX, fY, fW;
             // U, V, and R coordinates representing local quad.
-            // Ignored depending on uvrCount (0, 1, 2).
+            // Ignored depending on the LocalMode of the function calls.
             skvx::Vec<4, float> fU, fV, fR;
-            int fUVRCount;
 
+            template<DeviceMode kDM, LocalMode kLM>
             void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
+            template<DeviceMode kDM, LocalMode kLM>
             void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
                            GrQuad* localOut, GrQuad::Type localType) const;
 
@@ -139,6 +163,7 @@ namespace GrQuadUtils {
             // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
             // original lines. This should only be called if the 'edgeVectors' fInvSinTheta data is
             // numerically sound.
+            template<DeviceMode kDM, LocalMode kLM>
             void moveAlong(const EdgeVectors& edgeVectors,
                            const skvx::Vec<4, float>& signedEdgeDistances);
 
@@ -146,22 +171,53 @@ namespace GrQuadUtils {
             // optional local coordinates updated to match the new vertices. It is assumed that
             // 'mask' was respected when determining (x2d, y2d), but it is used to ensure that only
             // unmasked unprojected edge vectors are used when computing device and local coords.
+            template<LocalMode kLM>
             void moveTo(const skvx::Vec<4, float>& x2d,
                         const skvx::Vec<4, float>& y2d,
                         const skvx::Vec<4, int32_t>& mask);
         };
 
-        Vertices            fOriginal;
-        EdgeVectors         fEdgeVectors;
-        GrQuad::Type        fDeviceType;
-        GrQuad::Type        fLocalType;
+        // Dynamic way to go from the public, un-templated API functions reset/inset/outset to the
+        // templated versions that use compile-time branch removal to specialize the tessellation
+        // based on what's known about the quads.
+        struct FunctionTable {
+            typedef void (*ResetProc)(TessellationHelper*, const GrQuad&, const GrQuad*);
+            typedef skvx::Vec<4, float> (*InsetProc)(TessellationHelper*,
+                                                     const skvx::Vec<4, float>&,
+                                                     GrQuad*, GrQuad*);
+            typedef void (*OutsetProc)(TessellationHelper*, const skvx::Vec<4, float>&,
+                                       GrQuad*, GrQuad*);
+
+            template<DeviceMode kDM, LocalMode kLM>
+            struct Config {
+                static constexpr DeviceMode kDeviceMode = kDM;
+                static constexpr LocalMode kLocalMode = kLM;
+            };
+
+            template<typename C>
+            constexpr FunctionTable(C config)
+                : fResetProc(Reset<C::kDeviceMode, C::kLocalMode>)
+                , fInsetProc(Inset<C::kDeviceMode, C::kLocalMode>)
+                , fOutsetProc(Outset<C::kDeviceMode, C::kLocalMode>) {}
+
+            ResetProc  fResetProc;
+            InsetProc  fInsetProc;
+            OutsetProc fOutsetProc;
+        };
+        // 2 device modes X 3 local modes = 6 total function table configs
+        static FunctionTable kFunctionTables[6];
+        static const FunctionTable* GetFunctionTable(DeviceMode, LocalMode);
+
+        const FunctionTable* fFunctions = nullptr; // Refers to an entry in kFunctionTables
+        Vertices             fOriginal;
+        EdgeVectors          fEdgeVectors;
+        GrQuad::Type         fDeviceType;
+        GrQuad::Type         fLocalType;
 
         // Lazily computed as needed; use accessor functions instead of direct access.
         OutsetRequest       fOutsetRequest;
         EdgeEquations       fEdgeEquations;
 
-        // Validity of Vertices/EdgeVectors (always true after first call to set()).
-        bool fVerticesValid      = false;
         // Validity of outset request (true after calling getOutsetRequest() until next set() call
         // or next inset/outset() with different edge distances).
         bool fOutsetRequestValid = false;
@@ -170,16 +226,33 @@ namespace GrQuadUtils {
 
         // The requested edge distances must be positive so that they can be reused between inset
         // and outset calls.
+        template<DeviceMode kDM>
         const OutsetRequest& getOutsetRequest(const skvx::Vec<4, float>& edgeDistances);
         const EdgeEquations& getEdgeEquations();
 
         // Outsets or insets 'vertices' by the given perpendicular 'signedEdgeDistances' (inset or
         // outset is determined implicitly by the sign of the distances).
+        template<DeviceMode kDM, LocalMode kLM>
         void adjustVertices(const skvx::Vec<4, float>& signedEdgeDistances, Vertices* vertices);
         // Like adjustVertices() but handles empty edges, collapsed quads, numerical issues, and
         // returns the number of effective vertices in the adjusted shape.
+        template<DeviceMode kDM, LocalMode kLM>
         int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
                                      Vertices* vertices);
+
+        // Specialized implementations of public API, filled in via FunctionTable.
+
+        template<DeviceMode kDM, LocalMode kLM>
+        static void Reset(TessellationHelper*, const GrQuad& deviceQuad, const GrQuad* localQuad);
+
+        template<DeviceMode kDM, LocalMode kLM>
+        static skvx::Vec<4, float> Inset(TessellationHelper*,
+                                         const skvx::Vec<4, float>& edgeDistances,
+                                         GrQuad* deviceInset, GrQuad* localInset);
+
+        template<DeviceMode kDM, LocalMode kLM>
+        static void Outset(TessellationHelper*, const skvx::Vec<4, float>& edgeDistances,
+                           GrQuad* deviceOutset, GrQuad* localOutset);
     };
 
 }; // namespace GrQuadUtils
