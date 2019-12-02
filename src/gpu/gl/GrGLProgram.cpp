@@ -118,7 +118,7 @@ void GrGLProgram::updatePrimitiveProcessorTextureBindings(const GrPrimitiveProce
 }
 
 void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSamplerIdx) {
-    GrFragmentProcessor::Iter fpIter(pipeline);
+    GrFragmentProcessor::CIter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         glslIter->setData(fProgramDataManager, *fpIter);
