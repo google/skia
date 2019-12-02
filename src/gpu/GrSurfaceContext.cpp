@@ -105,13 +105,12 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
     // Our tight row bytes may have been changed by clipping.
     tightRowBytes = dstInfo.minRowBytes();
 
-    bool premul   = this->colorInfo().alphaType() == kUnpremul_SkAlphaType &&
-                    dstInfo.alphaType() == kPremul_SkAlphaType;
-    bool unpremul = this->colorInfo().alphaType() == kPremul_SkAlphaType &&
-                    dstInfo.alphaType() == kUnpremul_SkAlphaType;
 
-    bool needColorConversion =
-            SkColorSpaceXformSteps::Required(this->colorInfo().colorSpace(), dstInfo.colorSpace());
+    SkColorSpaceXformSteps::Flags flags = SkColorSpaceXformSteps{this->colorInfo(), dstInfo}.flags;
+    bool unpremul            = flags.unpremul,
+         needColorConversion = flags.linearize || flags.gamut_transform || flags.encode,
+         premul              = flags.premul;
+
 
     const GrCaps* caps = direct->priv().caps();
     // This is the getImageData equivalent to the canvas2D putImageData fast path. We probably don't
@@ -264,13 +263,10 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
     // Our tight row bytes may have been changed by clipping.
     tightRowBytes = srcInfo.minRowBytes();
 
-    bool premul   = this->colorInfo().alphaType() == kPremul_SkAlphaType &&
-                    srcInfo.alphaType() == kUnpremul_SkAlphaType;
-    bool unpremul = this->colorInfo().alphaType() == kUnpremul_SkAlphaType &&
-                    srcInfo.alphaType() == kPremul_SkAlphaType;
-
-    bool needColorConversion =
-            SkColorSpaceXformSteps::Required(srcInfo.colorSpace(), this->colorInfo().colorSpace());
+    SkColorSpaceXformSteps::Flags flags = SkColorSpaceXformSteps{srcInfo, this->colorInfo()}.flags;
+    bool unpremul            = flags.unpremul,
+         needColorConversion = flags.linearize || flags.gamut_transform || flags.encode,
+         premul              = flags.premul;
 
     const GrCaps* caps = direct->priv().caps();
 

@@ -10,16 +10,6 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 
-// TODO(mtklein): explain the logic of this file
-
-bool SkColorSpaceXformSteps::Required(SkColorSpace* src, SkColorSpace* dst) {
-    // Any SkAlphaType will work fine here as long as we use the same one.
-    SkAlphaType at = kPremul_SkAlphaType;
-    return 0 != SkColorSpaceXformSteps(src, at,
-                                       dst, at).flags.mask();
-    // TODO(mtklein): quicker impl. that doesn't construct an SkColorSpaceXformSteps?
-}
-
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst, SkAlphaType dstAT) {
     // Opaque outputs are treated as the same alpha type as the source input.
