@@ -268,10 +268,10 @@ const SkString escape_xml(const SkString& input,
     static const char kLt[] = "&lt;";
     for (size_t i = 0; i < input.size(); ++i) {
         if (input[i] == '&') {
-            strncpy(out, kAmp, strlen(kAmp));
+            memcpy(out, kAmp, strlen(kAmp));
             out += strlen(kAmp);
         } else if (input[i] == '<') {
-            strncpy(out, kLt, strlen(kLt));
+            memcpy(out, kLt, strlen(kLt));
             out += strlen(kLt);
         } else {
             *out++ = input[i];
