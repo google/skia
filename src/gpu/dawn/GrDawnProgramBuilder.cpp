@@ -519,7 +519,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     const GrPrimitiveProcessor& primProc = programInfo.primProc();
     GrFragmentProcessor::PipelineCoordTransformRange transformRange(pipeline);
     fGeometryProcessor->setData(fDataManager, primProc, transformRange);
-    GrFragmentProcessor::Iter fpIter(pipeline);
+    GrFragmentProcessor::CIter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         glslIter->setData(fDataManager, *fpIter);

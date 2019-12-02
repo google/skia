@@ -167,8 +167,7 @@ static bool gen_frag_proc_and_meta_keys(const GrPrimitiveProcessor& primProc,
 
     fp.getGLSLProcessorKey(*caps.shaderCaps(), b);
 
-    return gen_fp_meta_key(fp, caps, primProc.getTransformKey(fp.coordTransforms(),
-                                                              fp.numCoordTransforms()), b);
+    return gen_fp_meta_key(fp, caps, primProc.computeCoordTransformsKey(fp), b);
 }
 
 bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarget,

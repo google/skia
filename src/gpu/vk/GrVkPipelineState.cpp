@@ -105,7 +105,7 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
 
     GrFragmentProcessor::PipelineCoordTransformRange transformRange(programInfo.pipeline());
     fGeometryProcessor->setData(fDataManager, programInfo.primProc(), transformRange);
-    GrFragmentProcessor::Iter fpIter(programInfo.pipeline());
+    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         glslIter->setData(fDataManager, *fpIter);
@@ -164,7 +164,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
     }
 
-    GrFragmentProcessor::Iter fpIter(pipeline);
+    GrFragmentProcessor::CIter fpIter(pipeline);
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {

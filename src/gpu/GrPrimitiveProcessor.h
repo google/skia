@@ -169,13 +169,10 @@ public:
     virtual bool willUseGeoShader() const = 0;
 
     /**
-     * Computes a transformKey from an array of coord transforms. Will only look at the first
-     * <numCoords> transforms in the array.
-     *
-     * TODO: A better name for this function  would be "compute" instead of "get".
+     * Computes a key for the transforms owned by an FP based on the shader code that will be
+     * emitted by the primitive processor to implement them.
      */
-    uint32_t getTransformKey(const SkTArray<GrCoordTransform*, true>& coords,
-                             int numCoords) const;
+    uint32_t computeCoordTransformsKey(const GrFragmentProcessor& fp) const;
 
     /**
      * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry

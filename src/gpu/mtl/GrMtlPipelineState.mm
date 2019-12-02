@@ -89,7 +89,7 @@ void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    GrFragmentProcessor::Iter fpIter(programInfo.pipeline());
+    GrFragmentProcessor::CIter fpIter(programInfo.pipeline());
     GrGLSLFragmentProcessor::Iter glslIter(fFragmentProcessors.get(), fFragmentProcessorCnt);
     for (; fpIter && glslIter; ++fpIter, ++glslIter) {
         glslIter->setData(fDataManager, *fpIter);
