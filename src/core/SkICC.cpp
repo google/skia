@@ -275,7 +275,7 @@ static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
         // "If the length of src is less than n, strncpy() writes additional
         // null bytes to dest to ensure that a total of n bytes are written."
     } else {
-        strncpy(dst, kDescriptionTagBodyPrefix, sizeof(kDescriptionTagBodyPrefix));
+        memcpy(dst, kDescriptionTagBodyPrefix, sizeof(kDescriptionTagBodyPrefix));
         SkMD5 md5;
         md5.write(&toXYZD50, sizeof(toXYZD50));
         static_assert(sizeof(fn) == sizeof(float) * 7, "packed");
