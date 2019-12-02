@@ -93,7 +93,12 @@ public:
         int t = 0;
         for (auto [transform, fp] : transformRange) {
             SkASSERT(fInstalledTransforms[t].fHandle.isValid());
-            const SkMatrix& m = GetTransformMatrix(pathProc.localMatrix(), transform);
+            SkMatrix m;
+            if (fp.coordTransformsApplyToLocalCoords()) {
+                m = GetTransformMatrix(transform, pathProc.localMatrix());
+            } else {
+                m = GetTransformMatrix(transform, SkMatrix::I());
+            }
             if (fInstalledTransforms[t].fCurrentValue.cheapEqualTo(m)) {
                 continue;
             }
