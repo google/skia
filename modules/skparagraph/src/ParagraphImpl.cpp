@@ -74,6 +74,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fText(text)
         , fState(kUnknown)
         , fPicture(nullptr)
+        , fUnresolvedGlyphs(0)
         , fStrutMetrics(false)
         , fOldWidth(0)
         , fOldHeight(0)
@@ -91,6 +92,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
         , fPlaceholders(std::move(placeholders))
         , fState(kUnknown)
         , fPicture(nullptr)
+        , fUnresolvedGlyphs(0)
         , fStrutMetrics(false)
         , fOldWidth(0)
         , fOldHeight(0)
@@ -103,6 +105,14 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
 }
 
 ParagraphImpl::~ParagraphImpl() = default;
+
+int32_t ParagraphImpl::unresolvedGlyphs() {
+    if (fState < kShaped) {
+        return -1;
+    }
+
+    return fUnresolvedGlyphs;
+}
 
 void ParagraphImpl::layout(SkScalar rawWidth) {
 
@@ -363,6 +373,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     OneLineShaper oneLineShaper(this);
     auto result = oneLineShaper.shape();
+    fUnresolvedGlyphs = oneLineShaper.unresolvedGlyphs();
 
     if (!result) {
         return false;

@@ -174,6 +174,9 @@ public:
     SkTArray<ResolvedFontDescriptor> resolvedFonts() const { return fFontSwitches; }
 
     void markDirty() override { fState = kUnknown; }
+
+    int32_t unresolvedGlyphs() override;
+
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
     SkRect getBoundaries() const { return fOrigin; }
@@ -230,6 +233,7 @@ private:
     SkTArray<Grapheme, true> fGraphemes16;
     SkTArray<Codepoint, true> fCodePoints;
     SkTHashSet<size_t> fGraphemes;
+    size_t fUnresolvedGlyphs;
 
     SkTArray<RunShifts, false> fRunShifts;
     SkTArray<TextLine, true> fLines;    // kFormatted   (cached: width, max lines, ellipsis, text align)
