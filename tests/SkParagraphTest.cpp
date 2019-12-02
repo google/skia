@@ -38,6 +38,7 @@ SkScalar EPSILON2 = 0.50f;
 bool equal(const char* base, TextRange a, const char* b) {
     return std::strncmp(b, base + a.start, a.width()) == 0;
 }
+
 class ResourceFontCollection : public FontCollection {
 public:
     ResourceFontCollection(bool testOnly = false)
@@ -177,6 +178,7 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
@@ -970,6 +972,7 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
@@ -1056,6 +1059,8 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
     paragraph->layout(1000);
     paragraph->paint(canvas.get(), 0, 0);
 
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->runs().size() == 4);
     REPORTER_ASSERT(reporter, impl->styles().size() == 4);
@@ -1130,6 +1135,8 @@ DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 10.0, 15.0);
 
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
@@ -1174,6 +1181,8 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(VeryLongCanvasWidth);
     paragraph->paint(canvas.get(), 10.0, 60.0);
+
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
@@ -1890,6 +1899,8 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
     paragraph->layout(TestCanvasWidth - 100);
     paragraph->paint(canvas.get(), 0, 0);
 
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
@@ -1932,6 +1943,8 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth - 100);
     paragraph->paint(canvas.get(), 0, 0);
+
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
@@ -3408,6 +3421,8 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
 
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
     REPORTER_ASSERT(reporter, impl->lines().size() == 8);
@@ -3849,8 +3864,11 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
     builder.pop();
 
     auto paragraph = builder.Build();
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == -1); // Not shaped yet
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 10.0, 15.0);
+
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 2); // From the text1
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
@@ -4382,6 +4400,9 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
+
+    REPORTER_ASSERT(reporter, paragraph->unresolvedGlyphs() == 0);
+
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     for (size_t i = 0; i < impl->runs().size() - 1; ++i) {
         auto first = impl->runs()[i].textRange();

@@ -23,9 +23,10 @@ class ParagraphCacheValue {
 public:
     ParagraphCacheValue(const ParagraphImpl* paragraph)
         : fKey(ParagraphCacheKey(paragraph))
-        , fInternalState(paragraph->state())
+        , fInternalState(paragraph->fState)
         , fRuns(paragraph->fRuns)
-        , fClusters(paragraph->fClusters) { }
+        , fClusters(paragraph->fClusters)
+        , fUnresolvedGlyphs(paragraph->fUnresolvedGlyphs){ }
 
     // Input == key
     ParagraphCacheKey fKey;
@@ -34,6 +35,7 @@ public:
     InternalState fInternalState;
     SkTArray<Run, false> fRuns;
     SkTArray<Cluster, true> fClusters;
+    size_t fUnresolvedGlyphs;
 };
 
 
@@ -170,6 +172,7 @@ void ParagraphCache::updateTo(ParagraphImpl* paragraph, const Entry* entry) {
     }
 
     paragraph->fState = entry->fValue->fInternalState;
+    paragraph->fUnresolvedGlyphs = entry->fValue->fUnresolvedGlyphs;
 }
 
 void ParagraphCache::printStatistics() {

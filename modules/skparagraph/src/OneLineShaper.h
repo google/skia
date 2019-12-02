@@ -21,9 +21,12 @@ public:
     explicit OneLineShaper(ParagraphImpl* paragraph)
         : fParagraph(paragraph)
         , fHeight(0.0f)
-        , fAdvance(SkPoint::Make(0.0f, 0.0f)) { }
+        , fAdvance(SkPoint::Make(0.0f, 0.0f))
+        , fUnresolvedGLyphs(0) { }
 
     bool shape();
+
+    size_t unresolvedGlyphs() { return fUnresolvedGLyphs; }
 
 private:
 
@@ -97,6 +100,7 @@ private:
     TextRange fCurrentText;
     SkScalar fHeight;
     SkVector fAdvance;
+    size_t fUnresolvedGLyphs;
 
     // TODO: Something that is not thead-safe since we don't need it
     std::shared_ptr<Run> fCurrentRun;

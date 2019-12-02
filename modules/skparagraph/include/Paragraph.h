@@ -63,6 +63,8 @@ public:
 
     virtual void markDirty() = 0;
 
+    virtual int32_t unresolvedGlyphs() = 0;
+
     // Experimental API that allows fast way to update "immutable" paragraph
     virtual void updateTextAlign(TextAlign textAlign) = 0;
     virtual void updateText(size_t from, SkString text) = 0;
