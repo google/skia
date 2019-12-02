@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84b35f3d_0ac829ab",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-02T18:56:08Z",
+      "side": 1,
+      "message": "const GrPaint, or no const for the FPCRange? Or is there a reason they are able to be different? CIterRange always refers to const Src\u0026, so Src shouldn\u0027t need the const modifier right?",
+      "range": {
+        "startLine": 238,
+        "startChar": 35,
+        "endLine": 238,
+        "endChar": 42
+      },
+      "revId": "5dd8a1d66a27ab20f32a5fbee0c7be7c5ccacbcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
