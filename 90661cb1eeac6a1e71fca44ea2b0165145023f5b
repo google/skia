@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17f39972_7b739c2d",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-12-02T14:42:40Z",
+      "side": 1,
+      "message": "I think this still needs to initialize if the frame rect does fill the output, and the client didn\u0027t already fill it?",
+      "range": {
+        "startLine": 533,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 5
+      },
+      "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36b01eec_89f9dd60",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-12-02T14:42:40Z",
+      "side": 1,
+      "message": "Why not move this into onIncrementalDecode? Then -OnePass and -TwoPass don\u0027t need that parameter.",
+      "range": {
+        "startLine": 625,
+        "startChar": 0,
+        "endLine": 627,
+        "endChar": 5
+      },
+      "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
