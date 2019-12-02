@@ -976,14 +976,13 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
 
         GrSurfaceProxy* proxy = proxyView.proxy();
         std::unique_ptr<GrFragmentProcessor> fp;
+        fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
         if (domain) {
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any
             // normalization since GrTextureDomainEffect handles that and the origin.
             SkRect correctedDomain = normalize_domain(filter, {1.f, 1.f, 0.f}, domain);
-            fp = GrTextureDomainEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(),
-                                             correctedDomain, GrTextureDomain::kClamp_Mode, filter);
-        } else {
-            fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
+            fp = GrDomainEffect::Make(std::move(fp), correctedDomain, GrTextureDomain::kClamp_Mode,
+                                      filter);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         paint.addColorFragmentProcessor(std::move(fp));

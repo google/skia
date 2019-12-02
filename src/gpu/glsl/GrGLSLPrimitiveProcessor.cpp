@@ -14,10 +14,10 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const SkMatrix& localMatrix,
-                                                      const GrCoordTransform& coordTransform) {
+SkMatrix GrGLSLPrimitiveProcessor::GetTransformMatrix(const GrCoordTransform& coordTransform,
+                                                      const SkMatrix& preMatrix) {
     SkMatrix combined;
-    combined.setConcat(coordTransform.matrix(), localMatrix);
+    combined.setConcat(coordTransform.matrix(), preMatrix);
     if (coordTransform.normalize()) {
         combined.postIDiv(coordTransform.peekTexture()->width(),
                           coordTransform.peekTexture()->height());

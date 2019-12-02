@@ -247,14 +247,14 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
                                       kDir, srcAlphaType);
     } else {
+        auto dimensions = proxy->dimensions();
+        inner = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse,
+                                            samplerState);
         if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
-            SkRect domain = GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(proxy->dimensions()),
+            SkRect domain = GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(dimensions),
                                                              domainX, domainY);
-            inner = GrTextureDomainEffect::Make(std::move(proxy), srcAlphaType, lmInverse, domain,
-                                                domainX, domainY, samplerState);
-        } else {
-            inner = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse,
-                                                samplerState);
+            inner = GrDomainEffect::Make(std::move(inner), domain, domainX, domainY,
+                                         samplerState.filter());
         }
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,
