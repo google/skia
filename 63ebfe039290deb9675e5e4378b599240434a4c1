@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a630b5a_7a2d41c8",
+        "filename": "tests/StringTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-02T20:23:18Z",
+      "side": 0,
+      "message": "This is a duplicate of line 167...",
+      "revId": "63ebfe039290deb9675e5e4378b599240434a4c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
