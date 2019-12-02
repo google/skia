@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1dfb959b_b9c0f99a",
+        "filename": "modules/skparagraph/include/Paragraph.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-12-02T18:49:46Z",
+      "side": 1,
+      "message": "-1 is perfectly valid case. I added a comment.",
+      "parentUuid": "0da4aede_a0b7e1aa",
+      "range": {
+        "startLine": 66,
+        "startChar": 12,
+        "endLine": 66,
+        "endChar": 19
+      },
+      "revId": "1b92761e1b428c757b3bde2f2d61d17a5ddb9ea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76284d8c_5f9ac625",
         "filename": "modules/skparagraph/src/OneLineShaper.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "1b92761e1b428c757b3bde2f2d61d17a5ddb9ea3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "424cad0f_696bd123",
+        "filename": "modules/skparagraph/src/OneLineShaper.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2019-12-02T18:49:46Z",
+      "side": 1,
+      "message": "Yes! Thank you.",
+      "parentUuid": "76284d8c_5f9ac625",
+      "range": {
+        "startLine": 25,
+        "startChar": 22,
+        "endLine": 25,
+        "endChar": 23
+      },
+      "revId": "1b92761e1b428c757b3bde2f2d61d17a5ddb9ea3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
