@@ -70,7 +70,9 @@ inline GrWindowRectangles& GrWindowRectangles::operator=(const GrWindowRectangle
     SkSafeUnref(this->rec());
     fCount = that.fCount;
     if (fCount <= kNumLocalWindows) {
-        memcpy(fLocalWindows, that.fLocalWindows, fCount * sizeof(SkIRect));
+        for (int i = 0; i < fCount; i++) {
+            fLocalWindows[i] = that.fLocalWindows[i];
+        }
     } else {
         fRec = SkRef(that.fRec);
     }
