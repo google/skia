@@ -49,7 +49,7 @@ public:
     SkTArray(SkTArray&& that) {
         // TODO: If 'that' owns its memory why don't we just steal the pointer?
         this->init(that.fCount);
-        that.move(fMemArray);
+        that.move(fItemArray);
         that.fCount = 0;
     }
 
@@ -86,7 +86,7 @@ public:
         fCount = 0;
         this->checkRealloc(that.count());
         fCount = that.count();
-        that.move(fMemArray);
+        that.move(fItemArray);
         that.fCount = 0;
         return *this;
     }
@@ -96,7 +96,7 @@ public:
             fItemArray[i].~T();
         }
         if (fOwnMemory) {
-            sk_free(fMemArray);
+            sk_free(fItemArray);
         }
     }
 
@@ -428,7 +428,7 @@ protected:
     template <int N>
     SkTArray(SkTArray&& array, SkAlignedSTStorage<N,T>* storage) {
         this->initWithPreallocatedStorage(array.fCount, storage->get(), N);
-        array.move(fMemArray);
+        array.move(fItemArray);
         array.fCount = 0;
     }
 
@@ -450,12 +450,12 @@ private:
         fCount = count;
         if (!count && !reserveCount) {
             fAllocCount = 0;
-            fMemArray = nullptr;
+            fItemArray = nullptr;
             fOwnMemory = true;
             fReserved = false;
         } else {
             fAllocCount = SkTMax(count, SkTMax(kMinHeapAllocCount, reserveCount));
-            fMemArray = sk_malloc_throw(fAllocCount, sizeof(T));
+            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
         }
@@ -466,15 +466,15 @@ private:
         SkASSERT(preallocCount > 0);
         SkASSERT(preallocStorage);
         fCount = count;
-        fMemArray = nullptr;
+        fItemArray = nullptr;
         fReserved = false;
         if (count > preallocCount) {
             fAllocCount = SkTMax(count, kMinHeapAllocCount);
-            fMemArray = sk_malloc_throw(fAllocCount, sizeof(T));
+            fItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
             fOwnMemory = true;
         } else {
             fAllocCount = preallocCount;
-            fMemArray = preallocStorage;
+            fItemArray = (T*)preallocStorage;
             fOwnMemory = false;
         }
     }
@@ -496,7 +496,7 @@ private:
         memcpy(&fItemArray[dst], &fItemArray[src], sizeof(T));
     }
     template <bool E = MEM_MOVE> SK_WHEN(E, void) move(void* dst) {
-        sk_careful_memcpy(dst, fMemArray, fCount * sizeof(T));
+        sk_careful_memcpy(dst, fItemArray, fCount * sizeof(T));
     }
 
     template <bool E = MEM_MOVE> SK_WHEN(!E, void) move(int dst, int src) {
@@ -551,21 +551,18 @@ private:
 
         fAllocCount = Sk64_pin_to_s32(newAllocCount);
         SkASSERT(fAllocCount >= newCount);
-        void* newMemArray = sk_malloc_throw(fAllocCount, sizeof(T));
-        this->move(newMemArray);
+        T* newItemArray = (T*)sk_malloc_throw(fAllocCount, sizeof(T));
+        this->move(newItemArray);
         if (fOwnMemory) {
-            sk_free(fMemArray);
+            sk_free(fItemArray);
 
         }
-        fMemArray = newMemArray;
+        fItemArray = newItemArray;
         fOwnMemory = true;
         fReserved = false;
     }
 
-    union {
-        T*       fItemArray;
-        void*    fMemArray;
-    };
+    T* fItemArray;
     int fCount;
     int fAllocCount;
     bool fOwnMemory : 1;
