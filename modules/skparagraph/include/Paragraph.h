@@ -63,6 +63,10 @@ public:
 
     virtual void markDirty() = 0;
 
+    // This function will return the number of unresolved glyphs or
+    // -1 if not applicable (has not been shaped yet - valid case)
+    virtual int32_t unresolvedGlyphs() = 0;
+
     // Experimental API that allows fast way to update "immutable" paragraph
     virtual void updateTextAlign(TextAlign textAlign) = 0;
     virtual void updateText(size_t from, SkString text) = 0;

@@ -145,6 +145,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
         auto unresolved = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
         fResolvedBlocks.emplace_back(unresolved);
+        fUnresolvedGlyphs += unresolved.fGlyphs.width();
     }
 
     // Sort all pieces by text
