@@ -72,16 +72,14 @@ struct DrawAtlasArrays {
 
 class SkCircleDrawable : public SkParticleDrawable {
 public:
-    SkCircleDrawable(int radius = 1)
-            : fRadius(radius) {
-        this->rebuild();
-    }
+    SkCircleDrawable(int radius = 1) : fRadius(radius) {}
 
     REFLECTED(SkCircleDrawable, SkParticleDrawable)
 
-    void draw(const skresources::ResourceProvider* /* unused */, SkCanvas* canvas,
-              const SkParticles& particles, int count, const SkPaint& paint) override {
-        SkPoint center = { SkIntToScalar(fRadius), SkIntToScalar(fRadius) };
+    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
+              const SkPaint& paint) override {
+        int r = SkTMax(fRadius, 1);
+        SkPoint center = { SkIntToScalar(r), SkIntToScalar(r) };
         DrawAtlasArrays arrays(particles, count, center);
         for (int i = 0; i < count; ++i) {
             arrays.fRects[i].setIWH(fImage->width(), fImage->height());
@@ -90,20 +88,19 @@ public:
                           count, SkBlendMode::kModulate, nullptr, &paint);
     }
 
+    void prepare(const skresources::ResourceProvider*) override {
+        int r = SkTMax(fRadius, 1);
+        if (!fImage || fImage->width() != 2 * r) {
+            fImage = make_circle_image(r);
+        }
+    }
+
     void visitFields(SkFieldVisitor* v) override {
         v->visit("Radius", fRadius);
-        this->rebuild();
     }
 
 private:
     int fRadius;
-
-    void rebuild() {
-        fRadius = SkTMax(fRadius, 1);
-        if (!fImage || fImage->width() != 2 * fRadius) {
-            fImage = make_circle_image(fRadius);
-        }
-    }
 
     // Cached
     sk_sp<SkImage> fImage;
@@ -116,60 +113,33 @@ public:
             : fPath(path)
             , fName(name)
             , fCols(cols)
-            , fRows(rows)
-            , fDirty(true) {}
+            , fRows(rows) {}
 
     REFLECTED(SkImageDrawable, SkParticleDrawable)
 
-    void draw(const skresources::ResourceProvider* resourceProvider, SkCanvas* canvas,
-              const SkParticles& particles, int count, const SkPaint& paint) override {
-        this->rebuildIfDirty(resourceProvider);
-
-        SkRect baseRect = SkRect::MakeWH(static_cast<float>(fImage->width()) / fCols,
-                                         static_cast<float>(fImage->height()) / fRows);
+    void draw(SkCanvas* canvas, const SkParticles& particles, int count,
+              const SkPaint& paint) override {
+        int cols = SkTMax(fCols, 1),
+            rows = SkTMax(fRows, 1);
+        SkRect baseRect = SkRect::MakeWH(static_cast<float>(fImage->width()) / cols,
+                                         static_cast<float>(fImage->height()) / rows);
         SkPoint center = { baseRect.width() * 0.5f, baseRect.height() * 0.5f };
         DrawAtlasArrays arrays(particles, count, center);
 
-        int frameCount = fCols * fRows;
+        int frameCount = cols * rows;
         float* spriteFrames = particles.fData[SkParticles::kSpriteFrame].get();
         for (int i = 0; i < count; ++i) {
             int frame = static_cast<int>(spriteFrames[i] * frameCount + 0.5f);
             frame = SkTPin(frame, 0, frameCount - 1);
-            int row = frame / fCols;
-            int col = frame % fCols;
+            int row = frame / cols;
+            int col = frame % cols;
             arrays.fRects[i] = baseRect.makeOffset(col * baseRect.width(), row * baseRect.height());
         }
         canvas->drawAtlas(fImage, arrays.fXforms.get(), arrays.fRects.get(), arrays.fColors.get(),
                           count, SkBlendMode::kModulate, nullptr, &paint);
     }
 
-    void visitFields(SkFieldVisitor* v) override {
-        SkString oldPath = fPath,
-                 oldName = fName;
-
-        v->visit("Path", fPath);
-        v->visit("Name", fName);
-        v->visit("Columns", fCols);
-        v->visit("Rows", fRows);
-
-        fCols = SkTMax(fCols, 1);
-        fRows = SkTMax(fRows, 1);
-        if (oldPath != fPath || oldName != fName) {
-            fDirty = true;
-        }
-    }
-
-private:
-    SkString fPath;
-    SkString fName;
-    int      fCols;
-    int      fRows;
-
-    void rebuildIfDirty(const skresources::ResourceProvider* resourceProvider) {
-        if (!fDirty) {
-            return;
-        }
-
+    void prepare(const skresources::ResourceProvider* resourceProvider) override {
         fImage.reset();
         if (auto asset = resourceProvider->loadImageAsset(fPath.c_str(), fName.c_str(), nullptr)) {
             fImage = asset->getFrame(0);
@@ -178,12 +148,23 @@ private:
             SkDebugf("Could not load image \"%s:%s\"\n", fPath.c_str(), fName.c_str());
             fImage = make_circle_image(1);
         }
-        fDirty = false;
     }
+
+    void visitFields(SkFieldVisitor* v) override {
+        v->visit("Path", fPath);
+        v->visit("Name", fName);
+        v->visit("Columns", fCols);
+        v->visit("Rows", fRows);
+    }
+
+private:
+    SkString fPath;
+    SkString fName;
+    int      fCols;
+    int      fRows;
 
     // Cached
     sk_sp<SkImage> fImage;
-    bool           fDirty;
 };
 
 void SkParticleDrawable::RegisterDrawableTypes() {
