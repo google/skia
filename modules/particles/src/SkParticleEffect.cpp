@@ -100,30 +100,26 @@ SkParticleEffectParams::SkParticleEffectParams()
         : fMaxCount(128)
         , fDrawable(nullptr)
         , fEffectCode(kDefaultEffectCode)
-        , fParticleCode(kDefaultParticleCode) {
-    this->rebuild();
-}
+        , fParticleCode(kDefaultParticleCode) {}
 
 void SkParticleEffectParams::visitFields(SkFieldVisitor* v) {
-    SkString oldEffectCode = fEffectCode;
-    SkString oldParticleCode = fParticleCode;
-
     v->visit("MaxCount", fMaxCount);
-
     v->visit("Drawable", fDrawable);
-
     v->visit("EffectCode", fEffectCode);
     v->visit("Code", fParticleCode);
-
     v->visit("Bindings", fBindings);
-
-    // TODO: Or, if any change to binding metadata?
-    if (fParticleCode != oldParticleCode || fEffectCode != oldEffectCode) {
-        this->rebuild();
-    }
 }
 
-void SkParticleEffectParams::rebuild() {
+void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resourceProvider) {
+    for (auto& binding : fBindings) {
+        if (binding) {
+            binding->prepare(resourceProvider);
+        }
+    }
+    if (fDrawable) {
+        fDrawable->prepare(resourceProvider);
+    }
+
     auto buildProgram = [this](const SkSL::String& code, Program* p) {
         SkSL::Compiler compiler;
         SkSL::Program::Settings settings;
@@ -169,11 +165,8 @@ void SkParticleEffectParams::rebuild() {
     buildProgram(particleCode, &fParticleProgram);
 }
 
-SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params,
-                                   sk_sp<skresources::ResourceProvider> rp,
-                                   const SkRandom& random)
+SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
         : fParams(std::move(params))
-        , fResourceProvider(std::move(rp))
         , fRandom(random)
         , fLooping(false)
         , fCount(0)
@@ -218,7 +211,7 @@ void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVecto
 void SkParticleEffect::processEffectSpawnRequests(double now) {
     for (const auto& spawnReq : fSpawnRequests) {
         sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams),
-                                                               fResourceProvider, fRandom));
+                                                               fRandom));
         fRandom.nextU();
 
         newEffect->start(now, spawnReq.fLoop, fState.fPosition, fState.fHeading, fState.fScale,
@@ -249,7 +242,6 @@ void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
     for (const auto& spawnReq : fSpawnRequests) {
         int idx = start + spawnReq.fIndex;
         sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams),
-                                                               fResourceProvider,
                                                                fParticles.fRandom[idx]));
         newEffect->start(now, spawnReq.fLoop,
                          { data[SkParticles::kPositionX      ][idx],
@@ -472,7 +464,7 @@ void SkParticleEffect::draw(SkCanvas* canvas) {
     if (this->isAlive(false) && fParams->fDrawable) {
         SkPaint paint;
         paint.setFilterQuality(SkFilterQuality::kMedium_SkFilterQuality);
-        fParams->fDrawable->draw(fResourceProvider.get(), canvas, fParticles, fCount, paint);
+        fParams->fDrawable->draw(canvas, fParticles, fCount, paint);
     }
 
     for (const auto& subEffect : fSubEffects) {

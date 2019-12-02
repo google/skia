@@ -114,11 +114,9 @@ EMSCRIPTEN_BINDINGS(Particles) {
         skjson::DOM dom(json.c_str(), json.length());
         SkFromJsonVisitor fromJson(dom.root());
         params->visitFields(&fromJson);
-        return sk_sp<SkParticleEffect>(new SkParticleEffect(
-                std::move(params),
-                skresources::DataURIResourceProviderProxy::Make(
-                    ParticleAssetProvider::Make(std::move(assets))),
-                r));
+        params->prepare(skresources::DataURIResourceProviderProxy::Make(
+                            ParticleAssetProvider::Make(std::move(assets))).get());
+        return sk_sp<SkParticleEffect>(new SkParticleEffect(std::move(params), r));
     }));
     constant("particles", true);
 

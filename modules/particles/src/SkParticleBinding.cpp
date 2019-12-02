@@ -14,6 +14,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkReflected.h"
+#include "modules/skresources/include/SkResources.h"
 #include "src/sksl/SkSLCompiler.h"
 
 void SkParticleBinding::visitFields(SkFieldVisitor* v) {
@@ -62,6 +63,10 @@ public:
     std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
         return std::unique_ptr<SkParticleExternalValue>(
             new SkEffectExternalValue(fName.c_str(), compiler, fParams));
+    }
+
+    void prepare(const skresources::ResourceProvider* resourceProvider) override {
+        fParams->prepare(resourceProvider);
     }
 
 private:
@@ -121,21 +126,13 @@ class SkPathBinding : public SkParticleBinding {
 public:
     SkPathBinding(const char* name = "", const char* path = "")
             : SkParticleBinding(name)
-            , fPath(path) {
-        this->rebuild();
-    }
+            , fPath(path) {}
 
     REFLECTED(SkPathBinding, SkParticleBinding)
 
     void visitFields(SkFieldVisitor* v) override {
-        SkString oldPath = fPath;
-
         SkParticleBinding::visitFields(v);
         v->visit("Path", fPath);
-
-        if (fPath != oldPath) {
-            this->rebuild();
-        }
     }
 
     std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
@@ -143,15 +140,15 @@ public:
             new SkPathExternalValue(fName.c_str(), compiler, &fContours));
     }
 
-private:
-    SkString fPath;
-
-    void rebuild() {
+    void prepare(const skresources::ResourceProvider*) override {
         SkPath path;
         if (SkParsePath::FromSVGString(fPath.c_str(), &path)) {
             fContours.rebuild(path);
         }
     }
+
+private:
+    SkString fPath;
 
     // Cached
     SkPathContours fContours;
@@ -162,23 +159,14 @@ public:
     SkTextBinding(const char* name = "", const char* text = "", SkScalar fontSize = 96)
             : SkParticleBinding(name)
             , fText(text)
-            , fFontSize(fontSize) {
-        this->rebuild();
-    }
+            , fFontSize(fontSize) {}
 
     REFLECTED(SkTextBinding, SkParticleBinding)
 
     void visitFields(SkFieldVisitor* v) override {
-        SkString oldText = fText;
-        SkScalar oldSize = fFontSize;
-
         SkParticleBinding::visitFields(v);
         v->visit("Text", fText);
         v->visit("FontSize", fFontSize);
-
-        if (fText != oldText || fFontSize != oldSize) {
-            this->rebuild();
-        }
     }
 
     std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
@@ -186,11 +174,7 @@ public:
             new SkPathExternalValue(fName.c_str(), compiler, &fContours));
     }
 
-private:
-    SkString fText;
-    SkScalar fFontSize;
-
-    void rebuild() {
+    void prepare(const skresources::ResourceProvider*) override {
         if (fText.isEmpty()) {
             return;
         }
@@ -200,6 +184,10 @@ private:
         SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8, 0, 0, font, &path);
         fContours.rebuild(path);
     }
+
+private:
+    SkString fText;
+    SkScalar fFontSize;
 
     // Cached
     SkPathContours fContours;

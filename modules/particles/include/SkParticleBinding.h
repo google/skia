@@ -18,6 +18,10 @@ class SkParticleEffect;
 class SkParticleEffectParams;
 class SkRandom;
 
+namespace skresources {
+    class ResourceProvider;
+}
+
 namespace SkSL {
     class Compiler;
 }
@@ -47,7 +51,9 @@ public:
     REFLECTED_ABSTRACT(SkParticleBinding, SkReflected)
 
     void visitFields(SkFieldVisitor* v) override;
+
     virtual std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler&) = 0;
+    virtual void prepare(const skresources::ResourceProvider*) = 0;
 
     static void RegisterBindingTypes();
 
