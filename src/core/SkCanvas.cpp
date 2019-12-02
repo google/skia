@@ -1494,6 +1494,7 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
+    doAA = true;
     if (!rect.isFinite()) {
         return;
     }
@@ -1529,6 +1530,7 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {
+    doAA = true;
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
@@ -1551,6 +1553,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
 }
 
 void SkCanvas::clipPath(const SkPath& path, SkClipOp op, bool doAA) {
+    doAA = true;
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
 
