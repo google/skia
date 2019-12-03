@@ -552,10 +552,8 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
     // overwritten. Similarly, we always write the color and the blob will later overwrite it
     // with texture coords if it is unused.
     size_t colorOffset = hasW ? sizeof(SkPoint3) : sizeof(SkPoint);
-    for (auto t : drawables) {
-        SkGlyph* skGlyph; SkPoint pos;
-        std::tie(skGlyph, pos) = t;
-
+    for (auto [variant, pos] : drawables) {
+        SkGlyph* skGlyph = variant;
         GrGlyph* grGlyph = grStrike->getGlyph(*skGlyph);
         // Only floor the device coordinates.
         SkRect dstRect;
@@ -611,12 +609,12 @@ void GrTextBlob::addMultiMaskFormat(
     this->setHasBitmap();
     if (drawables.empty()) { return; }
 
-    SkGlyph* glyph;
-    std::tie(glyph, std::ignore) = drawables[0];
+    auto glyphSpan = drawables.get<0>();
+    SkGlyph* glyph = glyphSpan[0];
     GrMaskFormat format = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
     size_t startIndex = 0;
     for (size_t i = 1; i < drawables.size(); i++) {
-        std::tie(glyph, std::ignore) = drawables[i];
+        glyph = glyphSpan[i];
         GrMaskFormat nextFormat = GrGlyph::FormatFromSkGlyph(glyph->maskFormat());
         if (format != nextFormat) {
             auto sameFormat = drawables.subspan(startIndex, i - startIndex);
@@ -653,10 +651,8 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
     this->setHasBitmap();
     SubRun& subRun = fSubRuns.emplace_back(this, strikeSpec);
     subRun.setAntiAliased(runFont.hasSomeAntiAliasing());
-    for (auto t : drawables) {
-        const SkPath* path; SkPoint pos;
-        std::tie(path, pos) = t;
-        subRun.fPaths.emplace_back(*path, pos);
+    for (auto [variant, pos] : drawables) {
+        subRun.fPaths.emplace_back(*variant.path(), pos);
     }
 }
 
