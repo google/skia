@@ -209,17 +209,19 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             std::tie(strikeSpec, minScale, maxScale) =
                     SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, viewMatrix, options);
 
-            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            if (!strikeSpec.isEmpty()) {
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            fDrawable.startSource(fRejects.source(), origin);
-            strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
-            fRejects.flipRejectsToSource();
+                fDrawable.startSource(fRejects.source(), origin);
+                strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
+                fRejects.flipRejectsToSource();
 
-            if (process) {
-                // processSourceSDFT must be called even if there are no glyphs to make sure runs
-                // are set correctly.
-                process->processSourceSDFT(
-                        fDrawable.drawable(), strikeSpec, runFont, minScale, maxScale);
+                if (process) {
+                    // processSourceSDFT must be called even if there are no glyphs to make sure
+                    // runs are set correctly.
+                    process->processSourceSDFT(
+                            fDrawable.drawable(), strikeSpec, runFont, minScale, maxScale);
+                }
             }
         }
 
@@ -232,18 +234,20 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
                     runFont, runPaint, fDeviceProps, fScalerContextFlags);
 
-            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+            if (!strikeSpec.isEmpty()) {
+                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-            fDrawable.startSource(fRejects.source(), origin);
-            strike->prepareForPathDrawing(&fDrawable, &fRejects);
-            fRejects.flipRejectsToSource();
-            maxDimensionInSourceSpace =
-                    fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
+                fDrawable.startSource(fRejects.source(), origin);
+                strike->prepareForPathDrawing(&fDrawable, &fRejects);
+                fRejects.flipRejectsToSource();
+                maxDimensionInSourceSpace =
+                        fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
 
-            if (process) {
-                // processSourcePaths must be called even if there are no glyphs to make sure runs
-                // are set correctly.
-                process->processSourcePaths(fDrawable.drawable(), runFont, strikeSpec);
+                if (process) {
+                    // processSourcePaths must be called even if there are no glyphs to make sure
+                    // runs are set correctly.
+                    process->processSourcePaths(fDrawable.drawable(), runFont, strikeSpec);
+                }
             }
         }
 
@@ -315,15 +319,17 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                         runFont, runPaint, fDeviceProps,
                         fScalerContextFlags, maxDimensionInSourceSpace);
 
-                SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+                if (!strikeSpec.isEmpty()) {
+                    SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startSource(fRejects.source(), origin);
-                strike->prepareForMaskDrawing(&fDrawable, &fRejects);
-                fRejects.flipRejectsToSource();
-                SkASSERT(fRejects.source().empty());
+                    fDrawable.startSource(fRejects.source(), origin);
+                    strike->prepareForMaskDrawing(&fDrawable, &fRejects);
+                    fRejects.flipRejectsToSource();
+                    SkASSERT(fRejects.source().empty());
 
-                if (process) {
-                    process->processSourceMasks(fDrawable.drawable(), strikeSpec);
+                    if (process) {
+                        process->processSourceMasks(fDrawable.drawable(), strikeSpec);
+                    }
                 }
             }
         }

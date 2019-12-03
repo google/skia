@@ -78,6 +78,7 @@ public:
             SkStrikeCache* cache = SkStrikeCache::GlobalStrikeCache()) const;
 
     SkScalar strikeToSourceRatio() const { return fStrikeToSourceRatio; }
+    bool isEmpty() const { return SkScalarNearlyZero(fStrikeToSourceRatio); }
     const SkDescriptor& descriptor() const { return *fAutoDescriptor.getDesc(); }
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkFont& font, const SkMatrix& matrix);
 
