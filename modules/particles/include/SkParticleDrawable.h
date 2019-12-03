@@ -13,7 +13,6 @@
 class SkCanvas;
 struct SkParticles;
 class SkPaint;
-class SkString;
 
 namespace skresources { class ResourceProvider; }
 
@@ -28,7 +27,7 @@ public:
     static void RegisterDrawableTypes();
 
     static sk_sp<SkParticleDrawable> MakeCircle(int radius);
-    static sk_sp<SkParticleDrawable> MakeImage(const SkString& path, const SkString& name,
+    static sk_sp<SkParticleDrawable> MakeImage(const char* imagePath, const char* imageName,
                                                int cols, int rows);
 };
 
