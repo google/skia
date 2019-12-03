@@ -42,8 +42,8 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
         sk_bzero(allocation, size);
     }
 
-    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{strikeCache, color, forceWForDistanceFields}};
-    blob->fSize = size;
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
+        size, strikeCache, color, forceWForDistanceFields}};
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);
@@ -353,6 +353,13 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
         }
     }
 }
+
+GrTextBlob::GrTextBlob(size_t size, GrStrikeCache* strikeCache, GrColor color,
+                       bool forceWForDistanceFields)
+        : fSize{size}
+        , fStrikeCache{strikeCache}
+        , fForceWForDistanceFields{forceWForDistanceFields}
+        , fColor{color} { }
 
 void GrTextBlob::SubRun::computeTranslation(const SkMatrix& viewMatrix,
                                                 SkScalar x, SkScalar y, SkScalar* transX,
