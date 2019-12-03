@@ -15,9 +15,6 @@
 class SkRasterPipeline;
 
 struct SkColorSpaceXformSteps {
-    // Returns true if SkColorSpaceXformSteps must be applied
-    // to draw content in `src` into a destination in `dst`.
-    static bool Required(SkColorSpace* src, SkColorSpace* dst);
 
     struct Flags {
         bool unpremul         = false;
