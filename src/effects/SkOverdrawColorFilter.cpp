@@ -12,6 +12,7 @@
 #include "src/core/SkReadBuffer.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
 GR_FP_SRC_STRING SKSL_OVERDRAW_SRC = R"(
