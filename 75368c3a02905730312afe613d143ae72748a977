@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45c69354_6722d2d9",
+        "filename": "modules/skottie/src/layers/ImageLayer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9707
+      },
+      "writtenOn": "2019-12-03T20:22:17Z",
+      "side": 1,
+      "message": "Hi Florin, this would require us to still provide external still-images that might not be used for rendering - would it be possible to defer the loads for single-frame assets as well?",
+      "range": {
+        "startLine": 70,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 53
+      },
+      "revId": "75368c3a02905730312afe613d143ae72748a977",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
