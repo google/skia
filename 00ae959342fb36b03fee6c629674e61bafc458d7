@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aefc3ac_0cccfaeb",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-03T23:21:00Z",
+      "side": 0,
+      "message": "I was going to comment that this glyphRunList seems to need to be the same glyphRunList passed to the \u0027makeBlob\u0027 call. It appears that it is and the pattern is to make the blob then call generateFromGlyphRunList on it. Is there ever a case when that isn\u0027t true?",
+      "range": {
+        "startLine": 469,
+        "startChar": 42,
+        "endLine": 469,
+        "endChar": 77
+      },
+      "revId": "00ae959342fb36b03fee6c629674e61bafc458d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5973c453_8df9070a",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-03T23:21:00Z",
+      "side": 0,
+      "message": "So this seems to be the real change, instead of having the origin come in here the origin is already on the GrTextBlob.",
+      "range": {
+        "startLine": 471,
+        "startChar": 21,
+        "endLine": 471,
+        "endChar": 42
+      },
+      "revId": "00ae959342fb36b03fee6c629674e61bafc458d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
