@@ -68,11 +68,11 @@ public:
 
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
-    static sk_sp<GrTextBlob> Make(
-            int glyphCount,
-            bool forceWForDistanceFields,
-            GrColor color,
-            GrStrikeCache* strikeCache);
+    static sk_sp<GrTextBlob> Make(int glyphCount,
+                                  GrStrikeCache* strikeCache,
+                                  SkPoint origin,
+                                  GrColor color,
+                                  bool forceWForDistanceFields);
 
     struct Key {
         Key() {
@@ -163,34 +163,7 @@ public:
 
     void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                             bool needsGlyphTransform) {
-        // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
-        // into device space.
-        // We handle vertex bounds differently for distance field text and bitmap text because
-        // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
-        // from one blob then we are going to pay the price here of mapping the rect for each run.
-        *outBounds = subRun.vertexBounds();
-        if (needsGlyphTransform) {
-            // Distance field text is positioned with the (X,Y) as part of the glyph position,
-            // and currently the view matrix is applied on the GPU
-            outBounds->offset(x - fInitialX, y - fInitialY);
-            viewMatrix.mapRect(outBounds);
-        } else {
-            // Bitmap text is fully positioned on the CPU, and offset by an (X,Y) translate in
-            // device space.
-            SkMatrix boundsMatrix = fInitialViewMatrixInverse;
-
-            boundsMatrix.postTranslate(-fInitialX, -fInitialY);
-
-            boundsMatrix.postTranslate(x, y);
-
-            boundsMatrix.postConcat(viewMatrix);
-            boundsMatrix.mapRect(outBounds);
-
-            // Due to floating point numerical inaccuracies, we have to round out here
-            outBounds->roundOut(outBounds);
-        }
-    }
+                             bool needsGlyphTransform);
 
     // position + local coord
     static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
@@ -204,17 +177,19 @@ public:
 
     static void AssertEqual(const GrTextBlob&, const GrTextBlob&);
 
+    // This function will only be called when we are generating a blob from scratch.
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
-    // We use this color vs the SkPaint color because it has the colorfilter applied.
-    void initReusableBlob(SkColor luminanceColor, const SkMatrix& viewMatrix,
-                          SkScalar x, SkScalar y) {
+    // We use this color vs the SkPaint color because it has the color filter applied. We record the
+    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
+    // these numbers.  When blobs are reused with new matrices, we need to return to source space so
+    // we can update the vertex bounds appropriately.
+    void initReusableBlob(SkColor luminanceColor, const SkMatrix& viewMatrix) {
         fLuminanceColor = luminanceColor;
-        this->setupViewMatrix(viewMatrix, x, y);
-    }
-
-    void initThrowawayBlob(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        this->setupViewMatrix(viewMatrix, x, y);
+        fInitialViewMatrix = viewMatrix;
+        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
+            fInitialViewMatrixInverse = SkMatrix::I();
+        }
     }
 
     const Key& key() const { return fKey; }
@@ -377,8 +352,11 @@ public:
                  SkScalar maxScale);
 
 private:
-    GrTextBlob(
-            size_t size, GrStrikeCache* strikeCache, GrColor color, bool forceWForDistanceFields);
+    GrTextBlob(size_t size,
+               GrStrikeCache* strikeCache,
+               SkPoint origin,
+               GrColor color,
+               bool forceWForDistanceFields);
 
     struct StrokeInfo {
         SkScalar fFrameWidth;
@@ -390,19 +368,6 @@ private:
         kHasDistanceField_TextType = 0x1,
         kHasBitmap_TextType = 0x2,
     };
-
-    // This function will only be called when we are generating a blob from scratch. We record the
-    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
-    // these numbers.  When blobs are reused with new matrices, we need to return to model space so
-    // we can update the vertex bounds appropriately.
-    void setupViewMatrix(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        fInitialViewMatrix = viewMatrix;
-        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
-            fInitialViewMatrixInverse = SkMatrix::I();
-        }
-        fInitialX = x;
-        fInitialY = y;
-    }
 
     std::unique_ptr<GrAtlasTextOp> makeOp(
             SubRun& info, int glyphCount,
@@ -433,6 +398,10 @@ private:
     // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
     GrStrikeCache* const fStrikeCache;
 
+    // Initial position of this blob. Used for calculating position differences when reusing this
+    // blob.
+    const SkPoint fInitialOrigin;
+
     // From the distance field options to force distance fields to have a W coordinate.
     const bool fForceWForDistanceFields;
 
@@ -457,10 +426,9 @@ private:
     SkMatrix fInitialViewMatrix;
     SkMatrix fInitialViewMatrixInverse;
     SkColor fLuminanceColor;
-    SkScalar fInitialX;
-    SkScalar fInitialY;
 
-    // We can reuse distance field text, but only if the new viewmatrix would not result in
+
+    // We can reuse distance field text, but only if the new view matrix would not result in
     // a mip change.  Because there can be multiple runs in a blob, we track the overall
     // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
     SkScalar fMaxMinScale{-SK_ScalarMax};

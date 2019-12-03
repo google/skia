@@ -34,21 +34,22 @@ public:
     ~GrTextBlobCache();
 
     sk_sp<GrTextBlob> makeBlob(const SkGlyphRunList& glyphRunList,
-                               bool forceW,
+                               GrStrikeCache* strikeCache,
                                GrColor color,
-                               GrStrikeCache* strikeCache) {
-        return GrTextBlob::Make(glyphRunList.totalGlyphCount(), forceW, color, strikeCache);
+                               bool forceW) {
+        return GrTextBlob::Make(
+                glyphRunList.totalGlyphCount(), strikeCache, glyphRunList.origin(), color, forceW);
     }
 
     sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
+                                     GrStrikeCache* strikeCache,
                                      const GrTextBlob::Key& key,
                                      const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkPaint& paint,
-                                     bool forceW,
                                      GrColor color,
-                                     GrStrikeCache* strikeCache) {
-        sk_sp<GrTextBlob> cacheBlob(makeBlob(glyphRunList, forceW, color, strikeCache));
-        cacheBlob->setupKey(key, blurRec, paint);
+                                     bool forceW) {
+        sk_sp<GrTextBlob> cacheBlob(
+                this->makeBlob(glyphRunList, strikeCache, color, forceW));
+        cacheBlob->setupKey(key, blurRec, glyphRunList.paint());
         this->add(cacheBlob);
         glyphRunList.temporaryShuntBlobNotifyAddedToCache(fUniqueID);
         return cacheBlob;
