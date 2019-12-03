@@ -215,7 +215,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             strike->prepareForSDFTDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
-            if (process) {
+            if (process && !strikeSpec.strikeToSourceRationIsZero()) {
                 // processSourceSDFT must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processSourceSDFT(
@@ -240,7 +240,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             maxDimensionInSourceSpace =
                     fRejects.rejectedMaxDimension() * strikeSpec.strikeToSourceRatio();
 
-            if (process) {
+            if (process && !strikeSpec.strikeToSourceRationIsZero()) {
                 // processSourcePaths must be called even if there are no glyphs to make sure runs
                 // are set correctly.
                 process->processSourcePaths(fDrawable.drawable(), runFont, strikeSpec);
@@ -322,7 +322,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
                 fRejects.flipRejectsToSource();
                 SkASSERT(fRejects.source().empty());
 
-                if (process) {
+                if (process && !strikeSpec.strikeToSourceRationIsZero()) {
                     process->processSourceMasks(fDrawable.drawable(), strikeSpec);
                 }
             }
