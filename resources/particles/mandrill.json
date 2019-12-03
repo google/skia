@@ -1,0 +1,38 @@
+{
+   "MaxCount": 4000,
+   "Drawable": {
+      "Type": "SkCircleDrawable",
+      "Radius": 3
+   },
+   "EffectCode": [
+      "void effectSpawn(inout Effect effect) {",
+      "  effect.rate = 4000;",
+      "}",
+      "",
+      "void effectUpdate(inout Effect effect) {",
+      "}",
+      ""
+   ],
+   "Code": [
+      "void spawn(inout Particle p) {",
+      "  p.lifetime = 1;",
+      "  p.pos = float2(rand, rand) * 200;",
+      "  p.vel = float2(rand, rand) * 2 - 1;",
+      "  p.vel *= 20;",
+      "  p.scale = mix(0.25, 1, rand);",
+      "}",
+      "",
+      "void update(inout Particle p) {",
+      "  p.color = img(p.pos / 200);",
+      "}",
+      ""
+   ],
+   "Bindings": [
+      {
+         "Type": "SkImageBinding",
+         "Name": "img",
+         "ImagePath": "images",
+         "ImageName": "mandrill_128.png"
+      }
+   ]
+}
