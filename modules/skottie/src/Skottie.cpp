@@ -550,7 +550,11 @@ Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const
     , fOutPoint(outPoint)
     , fDuration(duration)
     , fFPS(fps)
-    , fFlags(flags) {}
+    , fFlags(flags) {
+
+    // In case the client calls render before the first tick.
+    this->seek(0);
+}
 
 Animation::~Animation() = default;
 

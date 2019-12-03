@@ -148,9 +148,6 @@ public:
     /**
      * Draws the current animation frame.
      *
-     * It is undefined behavior to call render() on a newly created Animation
-     * before specifying an initial frame via one of the seek() variants.
-     *
      * @param canvas   destination canvas
      * @param dst      optional destination rect
      * @param flags    optional RenderFlags
