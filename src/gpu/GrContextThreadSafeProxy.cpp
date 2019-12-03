@@ -13,6 +13,7 @@
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrSkSLFPFactoryCache.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/image/SkSurface_Gpu.h"
 
 #ifdef SK_VULKAN
