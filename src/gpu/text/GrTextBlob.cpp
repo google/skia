@@ -24,9 +24,10 @@ template <size_t N> static size_t sk_align(size_t s) {
 }
 
 sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
-                                   bool forceWForDistanceFields,
+                                   GrStrikeCache* strikeCache,
+                                   SkPoint origin,
                                    GrColor color,
-                                   GrStrikeCache* strikeCache) {
+                                   bool forceWForDistanceFields) {
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
@@ -43,7 +44,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     }
 
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-        size, strikeCache, color, forceWForDistanceFields}};
+        size, strikeCache, origin, color, forceWForDistanceFields}};
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);
@@ -89,11 +90,8 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
     // for mixed blobs if this becomes an issue.
     if (this->hasBitmap() && this->hasDistanceField()) {
-        // Identical viewmatrices and we can reuse in all cases
-        if (fInitialViewMatrix.cheapEqualTo(viewMatrix) && x == fInitialX && y == fInitialY) {
-            return false;
-        }
-        return true;
+        // Identical view matrices and we can reuse in all cases
+        return !(fInitialViewMatrix.cheapEqualTo(viewMatrix) && SkPoint{x, y} == fInitialOrigin);
     }
 
     if (this->hasBitmap()) {
@@ -114,12 +112,12 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
         // already generated vertex coordinates to move them to the correct position.
         // Figure out the translation in view space given a translation in source space.
         SkScalar transX = viewMatrix.getTranslateX() +
-                          viewMatrix.getScaleX() * (x - fInitialX) +
-                          viewMatrix.getSkewX() * (y - fInitialY) -
+                          viewMatrix.getScaleX() * (x - fInitialOrigin.x()) +
+                          viewMatrix.getSkewX() * (y - fInitialOrigin.y()) -
                           fInitialViewMatrix.getTranslateX();
         SkScalar transY = viewMatrix.getTranslateY() +
-                          viewMatrix.getSkewY() * (x - fInitialX) +
-                          viewMatrix.getScaleY() * (y - fInitialY) -
+                          viewMatrix.getSkewY() * (x - fInitialOrigin.x()) +
+                          viewMatrix.getScaleY() * (y - fInitialOrigin.y()) -
                           fInitialViewMatrix.getTranslateY();
         if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
             return true;
@@ -212,7 +210,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                              || runPaint.getMaskFilter();
 
             // The origin for the blob may have changed, so figure out the delta.
-            SkVector originShift = SkPoint{x, y} - SkPoint{fInitialX, fInitialY};
+            SkVector originShift = SkPoint{x, y} - fInitialOrigin;
 
             for (const auto& pathGlyph : subRun.fPaths) {
                 SkMatrix ctm{viewMatrix};
@@ -354,12 +352,47 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
     }
 }
 
-GrTextBlob::GrTextBlob(size_t size, GrStrikeCache* strikeCache, GrColor color,
+GrTextBlob::GrTextBlob(size_t size,
+                       GrStrikeCache* strikeCache,
+                       SkPoint origin,
+                       GrColor color,
                        bool forceWForDistanceFields)
         : fSize{size}
         , fStrikeCache{strikeCache}
+        , fInitialOrigin{origin}
         , fForceWForDistanceFields{forceWForDistanceFields}
         , fColor{color} { }
+
+void GrTextBlob::computeSubRunBounds(SkRect* outBounds, const GrTextBlob::SubRun& subRun,
+                                     const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                     bool needsGlyphTransform) {
+    // We don't yet position distance field text on the cpu, so we have to map the vertex bounds
+    // into device space.
+    // We handle vertex bounds differently for distance field text and bitmap text because
+    // the vertex bounds of bitmap text are in device space.  If we are flushing multiple runs
+    // from one blob then we are going to pay the price here of mapping the rect for each run.
+    *outBounds = subRun.vertexBounds();
+    if (needsGlyphTransform) {
+        // Distance field text is positioned with the (X,Y) as part of the glyph position,
+        // and currently the view matrix is applied on the GPU
+        outBounds->offset(SkPoint{x, y} - fInitialOrigin);
+        viewMatrix.mapRect(outBounds);
+    } else {
+        // Bitmap text is fully positioned on the CPU, and offset by an (X,Y) translate in
+        // device space.
+        SkMatrix boundsMatrix = fInitialViewMatrixInverse;
+
+        boundsMatrix.postTranslate(-fInitialOrigin.x(), -fInitialOrigin.y());
+
+        boundsMatrix.postTranslate(x, y);
+
+        boundsMatrix.postConcat(viewMatrix);
+        boundsMatrix.mapRect(outBounds);
+
+        // Due to floating point numerical inaccuracies, we have to round out here
+        outBounds->roundOut(outBounds);
+    }
+}
 
 void GrTextBlob::SubRun::computeTranslation(const SkMatrix& viewMatrix,
                                                 SkScalar x, SkScalar y, SkScalar* transX,
