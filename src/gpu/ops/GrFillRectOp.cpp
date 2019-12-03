@@ -185,24 +185,62 @@ private:
     int numQuads() const final { return fQuads.count(); }
 #endif
 
-    void onPrepareDraws(Target* target) override {
-        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-
-        using Domain = GrQuadPerEdgeAA::Domain;
-        static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
-
+    VertexSpec vertexSpec() const {
         auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
                                                                         fQuads.count());
 
-        VertexSpec vertexSpec(fQuads.deviceQuadType(), fColorType, fQuads.localQuadType(),
-                              fHelper.usesLocalCoords(), Domain::kNo, fHelper.aaType(),
-                              fHelper.compatibleWithCoverageAsAlpha(), indexBufferOption);
+        return VertexSpec(fQuads.deviceQuadType(), fColorType, fQuads.localQuadType(),
+                          fHelper.usesLocalCoords(), GrQuadPerEdgeAA::Domain::kNo,
+                          fHelper.aaType(),
+                          fHelper.compatibleWithCoverageAsAlpha(), indexBufferOption);
+    }
+
+    void onPrePrepareDraws(GrRecordingContext* context,
+                           const GrSurfaceProxyView*,
+                           GrAppliedClip*,
+                           const GrXferProcessor::DstProxyView&) override {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+        SkASSERT(!fPrePreparedVertices);
+
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+        const VertexSpec vertexSpec = this->vertexSpec();
+
+        const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
+        const size_t totalVertexSizeInBytes = vertexSpec.vertexSize() * totalNumVertices;
+
+        fPrePreparedVertices = arena->makeArrayDefault<char>(totalVertexSizeInBytes);
+
+        this->tessellate(vertexSpec, fPrePreparedVertices);
+    }
+
+    void tessellate(const VertexSpec& vertexSpec, char* dst) const {
+        static constexpr SkRect kEmptyDomain = SkRect::MakeEmpty();
+
+        GrQuadPerEdgeAA::Tessellator tessellator(vertexSpec, dst);
+        auto iter = fQuads.iterator();
+        while (iter.next()) {
+            // All entries should have local coords, or no entries should have local coords,
+            // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
+            SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
+            auto info = iter.metadata();
+            tessellator.append(iter.deviceQuad(), iter.localQuad(),
+                               info.fColor, kEmptyDomain, info.fAAFlags);
+        }
+    }
+
+    void onPrepareDraws(Target* target) override {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+        const VertexSpec vertexSpec = this->vertexSpec();
+
         // Make sure that if the op thought it was a solid color, the vertex spec does not use
         // local coords.
         SkASSERT(!fHelper.isTrivial() || !fHelper.usesLocalCoords());
 
         GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(target->allocator(), vertexSpec);
-        size_t vertexSize = gp->vertexStride();
+        SkASSERT(gp->vertexStride() == vertexSpec.vertexSize());
 
         sk_sp<const GrBuffer> vertexBuffer;
         int vertexOffsetInBuffer = 0;
@@ -210,22 +248,19 @@ private:
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
 
         // Fill the allocated vertex data
-        void* vdata = target->makeVertexSpace(vertexSize, totalNumVertices,
+        void* vdata = target->makeVertexSpace(vertexSpec.vertexSize(), totalNumVertices,
                                               &vertexBuffer, &vertexOffsetInBuffer);
         if (!vdata) {
             SkDebugf("Could not allocate vertices\n");
             return;
         }
 
-        GrQuadPerEdgeAA::Tessellator tessellator(vertexSpec, (char*) vdata);
-        auto iter = fQuads.iterator();
-        while(iter.next()) {
-            // All entries should have local coords, or no entries should have local coords,
-            // matching !helper.isTrivial() (which is more conservative than helper.usesLocalCoords)
-            SkASSERT(iter.isLocalValid() != fHelper.isTrivial());
-            auto info = iter.metadata();
-            tessellator.append(iter.deviceQuad(), iter.localQuad(),
-                               info.fColor, kEmptyDomain, info.fAAFlags);
+        if (fPrePreparedVertices) {
+            const size_t totalVertexSizeInBytes = vertexSpec.vertexSize() * totalNumVertices;
+
+            memcpy(vdata, fPrePreparedVertices, totalVertexSizeInBytes);
+        } else {
+            this->tessellate(vertexSpec, (char*) vdata);
         }
 
         sk_sp<const GrBuffer> indexBuffer;
@@ -336,6 +371,7 @@ private:
 
     Helper fHelper;
     GrQuadBuffer<ColorAndAA> fQuads;
+    char* fPrePreparedVertices = nullptr;
 
     ColorType fColorType;
 
