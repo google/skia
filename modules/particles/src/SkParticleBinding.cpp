@@ -126,15 +126,17 @@ private:
 
 class SkPathBinding : public SkParticleBinding {
 public:
-    SkPathBinding(const char* name = "", const char* path = "")
+    SkPathBinding(const char* name = "", const char* pathPath = "", const char* pathName = "")
             : SkParticleBinding(name)
-            , fPath(path) {}
+            , fPathPath(pathPath)
+            , fPathName(pathName) {}
 
     REFLECTED(SkPathBinding, SkParticleBinding)
 
     void visitFields(SkFieldVisitor* v) override {
         SkParticleBinding::visitFields(v);
-        v->visit("Path", fPath);
+        v->visit("PathPath", fPathPath);
+        v->visit("PathName", fPathName);
     }
 
     std::unique_ptr<SkParticleExternalValue> toValue(SkSL::Compiler& compiler) override {
@@ -142,15 +144,18 @@ public:
             new SkPathExternalValue(fName.c_str(), compiler, &fContours));
     }
 
-    void prepare(const skresources::ResourceProvider*) override {
-        SkPath path;
-        if (SkParsePath::FromSVGString(fPath.c_str(), &path)) {
-            fContours.rebuild(path);
+    void prepare(const skresources::ResourceProvider* resourceProvider) override {
+        if (auto pathData = resourceProvider->load(fPathPath.c_str(), fPathName.c_str())) {
+            SkPath path;
+            if (0 != path.readFromMemory(pathData->data(), pathData->size())) {
+                fContours.rebuild(path);
+            }
         }
     }
 
 private:
-    SkString fPath;
+    SkString fPathPath;
+    SkString fPathName;
 
     // Cached
     SkPathContours fContours;
@@ -263,13 +268,19 @@ private:
     SkBitmap fBitmap;
 };
 
-sk_sp<SkParticleBinding> SkParticleBinding::MakeEffectBinding(
-    const char* name, sk_sp<SkParticleEffectParams> params) {
-    return sk_sp<SkParticleBinding>(new SkEffectBinding(name, params));
+sk_sp<SkParticleBinding> SkParticleBinding::MakeEffect(const char* name,
+                                                       sk_sp<SkParticleEffectParams> params) {
+    return sk_sp<SkParticleBinding>(new SkEffectBinding(name, std::move(params)));
 }
 
-sk_sp<SkParticleBinding> SkParticleBinding::MakePathBinding(const char* name, const char* path) {
-    return sk_sp<SkParticleBinding>(new SkPathBinding(name, path));
+sk_sp<SkParticleBinding> SkParticleBinding::MakeImage(const char* name, const char* imagePath,
+                                                      const char* imageName) {
+    return sk_sp<SkParticleBinding>(new SkImageBinding(name, imagePath, imageName));
+}
+
+sk_sp<SkParticleBinding> SkParticleBinding::MakePath(const char* name, const char* pathPath,
+                                                     const char* pathName) {
+    return sk_sp<SkParticleBinding>(new SkPathBinding(name, pathPath, pathName));
 }
 
 void SkParticleBinding::RegisterBindingTypes() {

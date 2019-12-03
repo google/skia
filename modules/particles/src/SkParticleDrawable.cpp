@@ -108,10 +108,10 @@ private:
 
 class SkImageDrawable : public SkParticleDrawable {
 public:
-    SkImageDrawable(const SkString& path = SkString(), const SkString& name = SkString(),
+    SkImageDrawable(const char* imagePath = "", const char* imageName = "",
                     int cols = 1, int rows = 1)
-            : fPath(path)
-            , fName(name)
+            : fPath(imagePath)
+            , fName(imageName)
             , fCols(cols)
             , fRows(rows) {}
 
@@ -177,7 +177,8 @@ sk_sp<SkParticleDrawable> SkParticleDrawable::MakeCircle(int radius) {
     return sk_sp<SkParticleDrawable>(new SkCircleDrawable(radius));
 }
 
-sk_sp<SkParticleDrawable> SkParticleDrawable::MakeImage(const SkString& path, const SkString& name,
+sk_sp<SkParticleDrawable> SkParticleDrawable::MakeImage(const char* imagePath,
+                                                        const char* imageName,
                                                         int cols, int rows) {
-    return sk_sp<SkParticleDrawable>(new SkImageDrawable(path, name, cols, rows));
+    return sk_sp<SkParticleDrawable>(new SkImageDrawable(imagePath, imageName, cols, rows));
 }
