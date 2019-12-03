@@ -62,11 +62,6 @@ static UIStackView* make_skottie_stack(CGFloat width,
     sk_sp<GrContext> fGrContext;
 }
 
-- (void)dealloc {
-    fGrContext = nullptr;
-    [super dealloc];
-}
-
 - (void)loadView {
     [self setView:[[UIView alloc] init]];
 }
