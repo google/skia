@@ -111,7 +111,12 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 SkShaderBase::Context::~Context() {}
 
 bool SkShaderBase::ContextRec::isLegacyCompatible(SkColorSpace* shaderColorSpace) const {
-    return !SkColorSpaceXformSteps::Required(shaderColorSpace, fDstColorSpace);
+    // In legacy pipelines, shaders always produce premul (or opaque) and the destination is also
+    // always premul (or opaque).  (And those "or opaque" caveats won't make any difference here.)
+    SkAlphaType shaderAT = kPremul_SkAlphaType,
+                   dstAT = kPremul_SkAlphaType;
+    return 0 == SkColorSpaceXformSteps{shaderColorSpace, shaderAT,
+                                         fDstColorSpace,    dstAT}.flags.mask();
 }
 
 SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
