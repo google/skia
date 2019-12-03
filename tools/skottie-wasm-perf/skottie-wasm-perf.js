@@ -115,7 +115,11 @@ async function wait(ms) {
     return ms;
 }
 
-const targetURL = "http://localhost:" + options.port + "/";
+let hash = "#cpu";
+if (options.use_gpu) {
+  hash = "#gpu";
+}
+const targetURL = `http://localhost:${options.port}/${hash}`;
 const viewPort = {width: 1000, height: 1000};
 
 // Drive chrome to load the web page from the server we have running.
@@ -158,9 +162,15 @@ async function driveBrowser() {
     });
 
     console.log('Waiting 60s for run to be done');
-    await page.waitForFunction('window._skottieDone === true', {
+    await page.waitForFunction(`(window._skottieDone === true) || window._error`, {
       timeout: 60000,
     });
+
+    const err = await page.evaluate('window._error');
+    if (err) {
+      console.log(`ERROR: ${err}`)
+      process.exit(1);
+    }
 
     // Stop Trace.
     await page.tracing.stop();
