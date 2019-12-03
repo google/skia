@@ -50,11 +50,10 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) 
     bool useRegion = fRC->isBW() && !fRC->isRect();
 
     if (useRegion) {
-        for (auto t : drawables->drawable()) {
-            SkGlyphVariant glyph; SkPoint pos;
-            std::tie(glyph, pos) = t;
+        for (auto [variant, pos] : drawables->drawable()) {
+            SkGlyph* glyph = variant.glyph();
             if (check_glyph_position(pos)) {
-                SkMask mask = glyph.glyph()->mask(pos);
+                SkMask mask = glyph->mask(pos);
 
                 SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
 
@@ -78,11 +77,10 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) 
     } else {
         SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
                                          : fRC->aaRgn().getBounds();
-        for (auto t : drawables->drawable()) {
-            SkGlyphVariant glyph; SkPoint pos;
-            std::tie(glyph, pos) = t;
+        for (auto [variant, pos] : drawables->drawable()) {
+            SkGlyph* glyph = variant.glyph();
             if (check_glyph_position(pos)) {
-                SkMask mask = glyph.glyph()->mask(pos);
+                SkMask mask = glyph->mask(pos);
                 SkIRect storage;
                 const SkIRect* bounds = &mask.fBounds;
 
@@ -112,12 +110,11 @@ void SkDraw::paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) 
 void SkDraw::paintPaths(SkDrawableGlyphBuffer* drawables,
                         SkScalar scale,
                         const SkPaint& paint) const {
-    for (auto t : drawables->drawable()) {
-        SkGlyphVariant path; SkPoint pos;
-        std::tie(path, pos) = t;
+    for (auto [variant, pos] : drawables->drawable()) {
+        const SkPath* path = variant.path();
         SkMatrix m;
         m.setScaleTranslate(scale, scale, pos.x(), pos.y());
-        this->drawPath(*path.path(), paint, &m, false);
+        this->drawPath(*path, paint, &m, false);
     }
 }
 

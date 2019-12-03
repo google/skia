@@ -65,9 +65,7 @@ void SkDrawableGlyphBuffer::startDevice(
     SkZip<const SkGlyphID, const SkPoint> withMappedPos =
             SkMakeZip(source.get<0>(), fPositions.get());
     SkGlyphVariant* packedIDCursor = fMultiBuffer;
-    for (auto t : withMappedPos) {
-        SkGlyphID glyphID; SkPoint pos;
-        std::tie(glyphID, pos) = t;
+    for (auto [glyphID, pos] : withMappedPos) {
         *packedIDCursor++ = SkPackedGlyphID{glyphID, pos, mask};
     }
     SkDEBUGCODE(fPhase = kInput);
