@@ -139,7 +139,7 @@ void GrCCFiller::PathInfo::tessellateFan(
         // When counting winding numbers in the stencil buffer, it works to use even/odd for the fan
         // tessellation (where applicable). But we need to strip out inverse fill info because
         // inverse-ness gets accounted for later on.
-        fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getNewFillType()));
+        fan.setFillType(SkPathFillType_ConvertToNonInverse(originalPath.getFillType()));
     }
     SkASSERT(Verb::kBeginPath == verbs[verbsIdx]);
     for (int i = verbsIdx + 1; i < verbs.count(); ++i) {
@@ -204,7 +204,7 @@ void GrCCFiller::PathInfo::tessellateFan(
         }
 
         int weight = abs(tessWinding);
-        if (SkPathFillType::kEvenOdd == fan.getNewFillType()) {
+        if (SkPathFillType::kEvenOdd == fan.getFillType()) {
             SkASSERT(Algorithm::kCoverageCount != algorithm);  // Covg. count always uses winding.
             if (weight != 1) {
                 // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.

@@ -763,7 +763,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
         workingPath = path;
     }
 
-    if (!IsDistanceFieldSupportedFillType(workingPath.getNewFillType())) {
+    if (!IsDistanceFieldSupportedFillType(workingPath.getFillType())) {
         return false;
     }
 
@@ -829,7 +829,7 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                 kOutside = 1
             } dfSign;
 
-            switch (workingPath.getNewFillType()) {
+            switch (workingPath.getFillType()) {
                 case SkPathFillType::kWinding:
                     dfSign = windingNumber ? kInside : kOutside;
                     break;

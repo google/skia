@@ -242,7 +242,7 @@ enum class GrFillRule : bool {
 };
 
 inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
-    switch (path.getNewFillType()) {
+    switch (path.getFillType()) {
         case SkPathFillType::kWinding:
         case SkPathFillType::kInverseWinding:
             return GrFillRule::kNonzero;

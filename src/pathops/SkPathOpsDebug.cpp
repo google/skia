@@ -2927,7 +2927,7 @@ void SkPathOpsDebug::ShowOnePath(const SkPath& path, const char* name, bool incl
         return;
     }
 #endif
-    SkPathFillType fillType = path.getNewFillType();
+    SkPathFillType fillType = path.getFillType();
     SkASSERT(fillType >= SkPathFillType::kWinding && fillType <= SkPathFillType::kInverseEvenOdd);
     if (includeDeclaration) {
         SkDebugf("    SkPath %s;\n", name);

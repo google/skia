@@ -470,7 +470,7 @@ void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitte
     if (path.isConvex() && (nullptr == proc) && count >= 2) {
         walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
-        walk_edges(&headEdge, path.getNewFillType(), blitter, start_y, stop_y, proc,
+        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
                    shiftedClip.right());
     }
 }

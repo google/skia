@@ -377,7 +377,7 @@ bool AsWinding(const SkPath& path, SkPath* result) {
     if (!path.isFinite()) {
         return false;
     }
-    SkPathFillType fillType = path.getNewFillType();
+    SkPathFillType fillType = path.getFillType();
     if (fillType == SkPathFillType::kWinding
             || fillType == SkPathFillType::kInverseWinding ) {
         return set_result_path(result, path, fillType);
