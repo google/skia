@@ -231,25 +231,6 @@ public:
                                           const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
                                           GrTextTarget*);
 
-private:
-    GrTextBlob(GrStrikeCache* strikeCache, GrColor color, bool forceWForDistanceFields)
-        : fColor{color}
-        , fStrikeCache{strikeCache}
-        , fForceWForDistanceFields{forceWForDistanceFields} { }
-
-    // This function will only be called when we are generating a blob from scratch. We record the
-    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
-    // these numbers.  When blobs are reused with new matrices, we need to return to model space so
-    // we can update the vertex bounds appropriately.
-    void setupViewMatrix(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
-        fInitialViewMatrix = viewMatrix;
-        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
-            fInitialViewMatrixInverse = SkMatrix::I();
-        }
-        fInitialX = x;
-        fInitialY = y;
-    }
-
 public:
     // Any glyphs that can't be rendered with the base or override descriptor
     // are rendered as paths
@@ -396,6 +377,33 @@ public:
                  SkScalar maxScale);
 
 private:
+    GrTextBlob(
+            size_t size, GrStrikeCache* strikeCache, GrColor color, bool forceWForDistanceFields);
+
+    struct StrokeInfo {
+        SkScalar fFrameWidth;
+        SkScalar fMiterLimit;
+        SkPaint::Join fJoin;
+    };
+
+    enum TextType {
+        kHasDistanceField_TextType = 0x1,
+        kHasBitmap_TextType = 0x2,
+    };
+
+    // This function will only be called when we are generating a blob from scratch. We record the
+    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
+    // these numbers.  When blobs are reused with new matrices, we need to return to model space so
+    // we can update the vertex bounds appropriately.
+    void setupViewMatrix(const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
+        fInitialViewMatrix = viewMatrix;
+        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
+            fInitialViewMatrixInverse = SkMatrix::I();
+        }
+        fInitialX = x;
+        fInitialY = y;
+    }
+
     std::unique_ptr<GrAtlasTextOp> makeOp(
             SubRun& info, int glyphCount,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
@@ -418,7 +426,18 @@ private:
     void processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                             const SkStrikeSpec& strikeSpec) override;
 
+    // Overall size of this struct plus vertices and glyphs at the end.
+    const size_t fSize;
 
+    // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
+    // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
+    GrStrikeCache* const fStrikeCache;
+
+    // From the distance field options to force distance fields to have a W coordinate.
+    const bool fForceWForDistanceFields;
+
+    // The color of the text to draw for solid colors.
+    const GrColor fColor;
 
     // Pool of bytes for vertex data.
     char* fVertices;
@@ -432,24 +451,11 @@ private:
     // Assume one run per text blob.
     SkSTArray<1, SubRun> fSubRuns;
 
-    // The color of the text to draw for solid colors.
-    const GrColor fColor;
-
-    // Lifetime: The GrStrikeCache is owned by and has the same lifetime as the GrRecordingContext.
-    // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
-    GrStrikeCache* const fStrikeCache;
     SkMaskFilterBase::BlurRec fBlurRec;
-
-    struct StrokeInfo {
-        SkScalar fFrameWidth;
-        SkScalar fMiterLimit;
-        SkPaint::Join fJoin;
-    };
     StrokeInfo fStrokeInfo;
     Key fKey;
     SkMatrix fInitialViewMatrix;
     SkMatrix fInitialViewMatrixInverse;
-    size_t fSize;
     SkColor fLuminanceColor;
     SkScalar fInitialX;
     SkScalar fInitialY;
@@ -460,13 +466,6 @@ private:
     SkScalar fMaxMinScale{-SK_ScalarMax};
     SkScalar fMinMaxScale{SK_ScalarMax};
 
-    // From the distance field options to force distance fields to have a W coordinate.
-    const bool fForceWForDistanceFields;
-
-    enum TextType {
-        kHasDistanceField_TextType = 0x1,
-        kHasBitmap_TextType = 0x2,
-    };
     uint8_t fTextType{0};
 };
 
