@@ -54,13 +54,21 @@ def gold_export_url(job, config, first_commit, last_commit):
     return 'https://public-gold.skia.org/json/export?' + urllib.urlencode(query)
 
 
+def urlopen(url):
+    cookie = os.environ.get('SKIA_GOLD_COOKIE', None)
+    if cookie:
+        return urllib2.urlopen(urllib2.Request(url, headers={'Cookie': cookie}))
+    else:
+        return urllib2.urlopen(url)
+
+
 def get_results_for_commit(commit, jobs):
     sys.stderr.write('%s\n' % commit)
     sys.stderr.flush()
     CONFIGS = ['gles', 'vk']
     passing_tests_for_all_jobs = []
     def process(url):
-        testResults = json.load(urllib2.urlopen(url))
+        testResults = json.load(urlopen(url))
         sys.stderr.write('.')
         sys.stderr.flush()
         passing_tests = 0

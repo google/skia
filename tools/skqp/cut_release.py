@@ -19,6 +19,14 @@ assert '/' in [os.sep, os.altsep] and os.pardir == '..'
 ASSETS = 'platform_tools/android/apps/skqp/src/main/assets'
 BUCKET = 'skia-skqp-assets'
 
+def urlopen(url):
+    cookie = os.environ.get('SKIA_GOLD_COOKIE', None)
+    if cookie:
+        return urllib2.urlopen(urllib2.Request(url, headers={'Cookie': cookie}))
+    else:
+        return urllib2.urlopen(url)
+
+
 def make_skqp_model(arg):
     name, urls, exe = arg
     tmp = tempfile.mkdtemp()
@@ -46,7 +54,7 @@ def goldgetter(meta, exe):
 def gold(first_commit, last_commit):
     c1, c2 = (check_output(['git', 'rev-parse', c]).strip()
             for c in (first_commit, last_commit))
-    f = urllib2.urlopen('https://public-gold.skia.org/json/export?' + urllib.urlencode([
+    f = urlopen('https://public-gold.skia.org/json/export?' + urllib.urlencode([
         ('fbegin', c1),
         ('fend', c2),
         ('query', 'config=gles&config=vk&source_type=gm'),
