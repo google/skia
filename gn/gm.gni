@@ -219,6 +219,7 @@ gm_sources = [
   "$_gm/inversepaths.cpp",
   "$_gm/inverseclip.cpp",
   "$_gm/jpg_color_cube.cpp",
+  "$_gm/jpg_gbr_yuv.cpp",
   "$_gm/labyrinth.cpp",
   "$_gm/largeglyphblur.cpp",
   "$_gm/lattice.cpp",
@@ -386,4 +387,3 @@ gl_gm_sources = [
   "$_gm/atlastext.cpp",
   "$_gm/rectangletexture.cpp",
 ]
-
