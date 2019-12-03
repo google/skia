@@ -8,14 +8,20 @@
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 
 #include "include/gpu/GrContext.h"
+
+#include "src/core/SkReader32.h"
+
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPersistentCacheUtils.h"
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 #include "src/gpu/GrRenderTargetPriv.h"
+
+
 
 #import <simd/simd.h>
 
@@ -56,6 +62,55 @@ void GrMtlPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputC
 
 void GrMtlPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
     outputColor.addLayoutQualifier("location = 0, index = 1");
+}
+
+static constexpr SkFourByteTag kMSL_Tag = SkSetFourByteTag('M', 'S', 'L', ' ');
+static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
+
+/*
+int GrMtlPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
+                                                   VkShaderModule outShaderModules[],
+                                                   VkPipelineShaderStageCreateInfo* outStageInfo) {
+    SkSL::String shaders[kGrShaderTypeCount];
+    SkSL::Program::Inputs inputs[kGrShaderTypeCount];
+
+    GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount);
+
+    SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
+                                               fVS,
+                                               &outShaderModules[kVertex_GrShaderType],
+                                               &outStageInfo[0],
+                                               shaders[kVertex_GrShaderType],
+                                               inputs[kVertex_GrShaderType]));
+
+    SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
+                                               fFS,
+                                               &outShaderModules[kFragment_GrShaderType],
+                                               &outStageInfo[1],
+                                               shaders[kFragment_GrShaderType],
+                                               inputs[kFragment_GrShaderType]));
+
+    if (!shaders[kGeometry_GrShaderType].empty()) {
+        SkAssertResult(this->installVkShaderModule(VK_SHADER_STAGE_GEOMETRY_BIT,
+                                                   fGS,
+                                                   &outShaderModules[kGeometry_GrShaderType],
+                                                   &outStageInfo[2],
+                                                   shaders[kGeometry_GrShaderType],
+                                                   inputs[kGeometry_GrShaderType]));
+        return 3;
+    } else {
+        return 2;
+    }
+}
+*/
+void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
+                                                    const SkSL::Program::Inputs inputs[],
+                                                    bool isSkSL) {
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(), this->desc()->keyLength());
+    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kMSL_Tag,
+                                                                   shaders,
+                                                                   inputs, kGrShaderTypeCount);
+    fGpu->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
 id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
