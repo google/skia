@@ -20,6 +20,7 @@
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrConfigConversionEffect.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/image/SkImage_Base.h"

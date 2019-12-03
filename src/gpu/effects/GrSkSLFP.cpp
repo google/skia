@@ -10,6 +10,7 @@
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrContext_Base.h"
 #include "src/gpu/GrBaseContextPriv.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -369,7 +370,6 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          size_t inputSize, SkSL::Program::Kind kind,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  context->priv().caps()->shaderCaps(),
                                                   kind, index, name, sksl, SkString(),
                                                   inputs, inputSize, matrix));
 }
@@ -378,18 +378,16 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          SkString sksl, const void* inputs, size_t inputSize,
                                          SkSL::Program::Kind kind, const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  context->priv().caps()->shaderCaps(),
                                                   kind, index, name, nullptr, std::move(sksl),
                                                   inputs, inputSize, matrix));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
+GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
                    SkSL::Program::Kind kind, int index, const char* name, const char* sksl,
                    SkString skslString, const void* inputs, size_t inputSize,
                    const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(factoryCache)
-        , fShaderCaps(sk_ref_sp(shaderCaps))
         , fKind(kind)
         , fIndex(index)
         , fName(name)
@@ -409,7 +407,6 @@ GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps*
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(other.fFactoryCache)
-        , fShaderCaps(other.fShaderCaps)
         , fFactory(other.fFactory)
         , fKind(other.fKind)
         , fIndex(other.fIndex)
@@ -433,12 +430,7 @@ const char* GrSkSLFP::name() const {
 
 void GrSkSLFP::createFactory() const {
     if (!fFactory) {
-        fFactory = fFactoryCache->get(fIndex);
-        if (!fFactory) {
-            fFactory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(fName, fShaderCaps.get(), fSkSL,
-                                                                  fKind));
-            fFactoryCache->set(fIndex, fFactory);
-        }
+        fFactory = fFactoryCache->findOrCreate(fIndex, fName, fSkSL, fKind);
     }
 }
 
@@ -553,35 +545,39 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(result.release());
 }
 
-// We have to do a bit of manual refcounting in the cache methods below. Ideally, we could just
-// define fFactories to contain sk_sp<GrSkSLFPFactory> rather than GrSkSLFPFactory*, but that would
-// require GrContext to include GrSkSLFP, which creates much bigger headaches than a few manual
-// refcounts.
+/**************************************************************************************************/
+GrSkSLFPFactoryCache::~GrSkSLFPFactoryCache() {}
+
+sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::findOrCreate(int index, const char* name,
+                                                          const char* skSL,
+                                                          SkSL::Program::Kind kind) {
+    // acquire lock for checking/adding to cache
+    SkAutoMutexExclusive ame(fCacheMutex);
+
+    sk_sp<GrSkSLFPFactory> factory = this->get(index);
+    if (!factory) {
+        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, fShaderCaps.get(),
+                                                             skSL, kind));
+        this->set(index, factory);
+    }
+
+    return factory;
+}
 
 sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::get(int index) {
     if (index >= (int) fFactories.size()) {
         return nullptr;
     }
-    GrSkSLFPFactory* result = fFactories[index];
-    SkSafeRef(result);
-    return sk_sp<GrSkSLFPFactory>(result);
+
+    return fFactories[index];
 }
 
 void GrSkSLFPFactoryCache::set(int index, sk_sp<GrSkSLFPFactory> factory) {
     while (index >= (int) fFactories.size()) {
         fFactories.emplace_back();
     }
-    factory->ref();
     SkASSERT(!fFactories[index]);
-    fFactories[index] = factory.get();
-}
-
-GrSkSLFPFactoryCache::~GrSkSLFPFactoryCache() {
-    for (GrSkSLFPFactory* factory : fFactories) {
-        if (factory) {
-            factory->unref();
-        }
-    }
+    fFactories[index] = std::move(factory);
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
