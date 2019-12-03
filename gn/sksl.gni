@@ -8,7 +8,6 @@ _src = get_path_info("../src", "abspath")
 
 skia_sksl_sources = [
   "$_src/sksl/SkSLASTNode.cpp",
-  "$_src/sksl/SkSLByteCode.cpp",
   "$_src/sksl/SkSLByteCodeGenerator.cpp",
   "$_src/sksl/SkSLCFGGenerator.cpp",
   "$_src/sksl/SkSLCompiler.cpp",

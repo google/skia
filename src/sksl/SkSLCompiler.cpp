@@ -73,14 +73,17 @@ static const char* SKSL_PIPELINE_INCLUDE =
 namespace SkSL {
 
 static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
-               std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>>* target) {
-    for (auto& element : *src) {
+               std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* target) {
+    for (auto iter = src->begin(); iter != src->end(); ) {
+        std::unique_ptr<ProgramElement>& element = *iter;
         switch (element->fKind) {
             case ProgramElement::kFunction_Kind: {
                 FunctionDefinition& f = (FunctionDefinition&) *element;
-                StringFragment name = f.fDeclaration.fName;
-                SkASSERT(target->find(name) == target->end());
-                (*target)[name] = std::make_pair(std::move(element), false);
+                SkASSERT(f.fDeclaration.fBuiltin);
+                String key = f.fDeclaration.description();
+                SkASSERT(target->find(key) == target->end());
+                (*target)[key] = std::make_pair(std::move(element), false);
+                iter = src->erase(iter);
                 break;
             }
             case ProgramElement::kEnum_Kind: {
@@ -88,6 +91,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 StringFragment name = e.fTypeName;
                 SkASSERT(target->find(name) == target->end());
                 (*target)[name] = std::make_pair(std::move(element), false);
+                iter = src->erase(iter);
                 break;
             }
             default:
@@ -271,11 +275,13 @@ Compiler::Compiler(Flags flags)
     this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
                              strlen(SKSL_PIPELINE_INCLUDE), fGpuSymbolTable, &fPipelineInclude,
                              &fPipelineSymbolTable);
-    std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
     this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
                              strlen(SKSL_INTERP_INCLUDE), symbols, &fInterpreterInclude,
                              &fInterpreterSymbolTable);
-    grab_intrinsics(&interpIntrinsics, &fInterpreterIntrinsics);
+    grab_intrinsics(&fInterpreterInclude, &fInterpreterIntrinsics);
+    // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
+    // remain valid
+    fInterpreterIncludeSource = std::move(fIRGenerator->fFile);
 }
 
 Compiler::~Compiler() {
@@ -1250,7 +1256,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                     offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
                     break;
             }
-            this->error(offset, String("unreachable"));
+//            this->error(offset, String("unreachable"));
         }
     }
     if (fErrorCount) {
