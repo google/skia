@@ -6,7 +6,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "src/core/SkOSFile.h"
 
-static void update(SkBitmap* maxBitmap, SkBitmap* minBitmap, const SkBitmap& bm) {
+static bool update(SkBitmap* maxBitmap, SkBitmap* minBitmap, const SkBitmap& bm) {
     SkASSERT(!bm.drawsNothing());
     SkASSERT(4 == bm.bytesPerPixel());
     if (maxBitmap->drawsNothing()) {
@@ -14,6 +14,9 @@ static void update(SkBitmap* maxBitmap, SkBitmap* minBitmap, const SkBitmap& bm)
         maxBitmap->eraseColor(0x00000000);
         minBitmap->allocPixels(bm.info());
         minBitmap->eraseColor(0xFFFFFFFF);
+    }
+    if (maxBitmap->dimensions() != bm.dimensions()) {
+        return false;
     }
     SkASSERT_RELEASE(maxBitmap->info() == bm.info());
     const SkPixmap& pmin = minBitmap->pixmap();
@@ -35,6 +38,7 @@ static void update(SkBitmap* maxBitmap, SkBitmap* minBitmap, const SkBitmap& bm)
             memcpy(maxPtr, maxColor, 4);
         }
     }
+    return true;
 }
 
 static SkBitmap decode_to_srgb_8888_unpremul(const char* path) {
@@ -72,11 +76,21 @@ int main(int argc, char** argv) {
     while (iter.next(&name)) {
         name.prependf("%s/", src_dir);
         SkBitmap bm = decode_to_srgb_8888_unpremul(name.c_str());
-        if (!bm.drawsNothing()) {
-            update(&maxBitmap, &minBitmap, bm);
+        if (bm.drawsNothing()) {
+            SkDebugf("'%s' failed to decode.\n", name.c_str());
+            continue;
+        }
+        if (!update(&maxBitmap, &minBitmap, bm)) {
+            SkDebugf("'%s' has unmatched dimensions.\n", name.c_str());
+            continue;
         }
     }
     SkASSERT_RELEASE(sk_mkdir(dst_dir));
+    if ((maxBitmap.drawsNothing()) || (maxBitmap.drawsNothing())) {
+        SkDebugf("Failure: '%s' '%s'\n", src_dir, dst_dir);
+        return 1;
+    }
     encode_png(SkStringPrintf("%s/min.png", dst_dir).c_str(), minBitmap.pixmap());
     encode_png(SkStringPrintf("%s/max.png", dst_dir).c_str(), maxBitmap.pixmap());
+    return 0;
 }
