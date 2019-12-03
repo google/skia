@@ -1555,13 +1555,6 @@ public:
         */
         Verb next(SkPoint pts[4]);
 
-#ifdef SK_SUPPORT_LEGACY_PATHITER_NEXT
-        // DEPRECATED
-        Verb next(SkPoint pts[4], bool /*doConsumeDegenerates*/, bool /*exact*/ = false) {
-            return this->next(pts);
-        }
-#endif
-
         /** Returns conic weight if next() returned kConic_Verb.
 
             If next() has not been called, or next() did not return kConic_Verb,
