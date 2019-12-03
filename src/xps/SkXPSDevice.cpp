@@ -1606,7 +1606,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
     //Set the fill rule.
     SkPath* xpsCompatiblePath = fillablePath;
     XPS_FILL_RULE xpsFillRule;
-    switch (fillablePath->getNewFillType()) {
+    switch (fillablePath->getFillType()) {
         case SkPathFillType::kWinding:
             xpsFillRule = XPS_FILL_RULE_NONZERO;
             break;

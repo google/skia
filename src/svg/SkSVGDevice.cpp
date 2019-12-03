@@ -727,7 +727,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
             const auto& p = e->getDeviceSpacePath();
             AutoElement path("path", fWriter);
             path.addPathAttributes(p);
-            if (p.getNewFillType() == SkPathFillType::kEvenOdd) {
+            if (p.getFillType() == SkPathFillType::kEvenOdd) {
                 path.addAttribute("clip-rule", "evenodd");
             }
         } break;
@@ -851,7 +851,7 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIs
     elem.addPathAttributes(path);
 
     // TODO: inverse fill types?
-    if (path.getNewFillType() == SkPathFillType::kEvenOdd) {
+    if (path.getFillType() == SkPathFillType::kEvenOdd) {
         elem.addAttribute("fill-rule", "evenodd");
     }
 }

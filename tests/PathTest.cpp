@@ -3583,7 +3583,7 @@ static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
     REPORTER_ASSERT(reporter, 0 == p.countVerbs());
     REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, p.isConvex());
-    REPORTER_ASSERT(reporter, p.getNewFillType() == SkPathFillType::kWinding);
+    REPORTER_ASSERT(reporter, p.getFillType() == SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
     REPORTER_ASSERT(reporter, p == empty);
     REPORTER_ASSERT(reporter, !(p != empty));

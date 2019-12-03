@@ -104,7 +104,7 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
 
 static void append_clip_path(const SkPath& clipPath, SkWStream* wStream) {
     SkPDFUtils::EmitPath(clipPath, SkPaint::kFill_Style, wStream);
-    SkPathFillType clipFill = clipPath.getNewFillType();
+    SkPathFillType clipFill = clipPath.getFillType();
     NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseEvenOdd, false);
     NOT_IMPLEMENTED(clipFill == SkPathFillType::kInverseWinding, false);
     if (clipFill == SkPathFillType::kEvenOdd) {

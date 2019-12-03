@@ -315,7 +315,7 @@ GrGLPath::GrGLPath(GrGLGpu* gpu, const SkPath& origSkPath, const GrStyle& style)
         fShouldFill = stroke.isFillStyle() ||
                 stroke.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
 
-        fFillType = convert_skpath_filltype(skPath->getNewFillType());
+        fFillType = convert_skpath_filltype(skPath->getFillType());
         fBounds = skPath->getBounds();
         SkScalar radius = stroke.getInflationRadius();
         fBounds.outset(radius, radius);

@@ -545,7 +545,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
             }
             lastPassIsBounds = false;
         } else {
-            switch (path.getNewFillType()) {
+            switch (path.getFillType()) {
                 case SkPathFillType::kInverseEvenOdd:
                     reverse = true;
                     // fallthrough

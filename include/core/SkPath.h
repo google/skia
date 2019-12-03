@@ -41,26 +41,6 @@ class SkWStream;
 class SK_API SkPath {
 public:
 
-#ifdef SK_SUPPORT_LEGACY_PATH_DIRECTION_ENUM
-    /** \enum SkPath::Direction
-        Direction describes whether contour is clockwise or counterclockwise.
-        When SkPath contains multiple overlapping contours, Direction together with
-        FillType determines whether overlaps are filled or form holes.
-
-        Direction also determines how contour is measured. For instance, dashing
-        measures along SkPath to determine where to start and stop stroke; Direction
-        will change dashed results as it steps clockwise or counterclockwise.
-
-        Closed contours like SkRect, SkRRect, circle, and oval added with
-        kCW_Direction travel clockwise; the same added with kCCW_Direction
-        travel counterclockwise.
-    */
-    enum Direction : int {
-        kCW_Direction  = static_cast<int>(SkPathDirection::kCW),
-        kCCW_Direction = static_cast<int>(SkPathDirection::kCCW)
-    };
-#endif
-
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
         SkPath::FillType is set to kWinding_FillType.
 
@@ -165,71 +145,6 @@ public:
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
-#ifdef SK_SUPPORT_LEGACY_PATH_FILLTYPE_ENUM
-    /** \enum SkPath::FillType
-        FillType selects the rule used to fill SkPath. SkPath set to kWinding_FillType
-        fills if the sum of contour edges is not zero, where clockwise edges add one, and
-        counterclockwise edges subtract one. SkPath set to kEvenOdd_FillType fills if the
-        number of contour edges is odd. Each FillType has an inverse variant that
-        reverses the rule:
-        kInverseWinding_FillType fills where the sum of contour edges is zero;
-        kInverseEvenOdd_FillType fills where the number of contour edges is even.
-    */
-    enum FillType {
-        kWinding_FillType        = static_cast<int>(SkPathFillType::kWinding),
-        kEvenOdd_FillType        = static_cast<int>(SkPathFillType::kEvenOdd),
-        kInverseWinding_FillType = static_cast<int>(SkPathFillType::kInverseWinding),
-        kInverseEvenOdd_FillType = static_cast<int>(SkPathFillType::kInverseEvenOdd)
-    };
-
-    /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
-        kWinding_FillType.
-
-        @return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
-                 kInverseEvenOdd_FillType
-    */
-    FillType getFillType() const { return (FillType)fFillType; }
-
-    /** Sets FillType, the rule used to fill SkPath. While there is no check
-        that ft is legal, values outside of FillType are not supported.
-
-        @param ft  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
-                   kInverseEvenOdd_FillType
-    */
-    void setFillType(FillType ft) {
-        fFillType = SkToU8(ft);
-    }
-
-    /** Returns true if fill is inverted and SkPath with fill represents area outside
-        of its geometric bounds.
-
-        @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
-                     kInverseWinding_FillType, kInverseEvenOdd_FillType
-        @return      true if SkPath fills outside its bounds
-    */
-    static bool IsInverseFillType(FillType fill) {
-        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
-        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
-        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
-        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
-        return (fill & 2) != 0;
-    }
-
-    /** Returns equivalent SkPath::FillType representing SkPath fill inside its bounds.
-        .
-
-        @param fill  one of: kWinding_FillType, kEvenOdd_FillType,
-                     kInverseWinding_FillType, kInverseEvenOdd_FillType
-        @return      fill, or kWinding_FillType or kEvenOdd_FillType if fill is inverted
-    */
-    static FillType ConvertToNonInverseFillType(FillType fill) {
-        static_assert(0 == kWinding_FillType, "fill_type_mismatch");
-        static_assert(1 == kEvenOdd_FillType, "fill_type_mismatch");
-        static_assert(2 == kInverseWinding_FillType, "fill_type_mismatch");
-        static_assert(3 == kInverseEvenOdd_FillType, "fill_type_mismatch");
-        return (FillType)(fill & 1);
-    }
-#else
     /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
         kWinding_FillType.
 
@@ -237,9 +152,9 @@ public:
                  kInverseEvenOdd_FillType
     */
     SkPathFillType getFillType() const { return (SkPathFillType)fFillType; }
-#endif
+
     // Temporary method -- remove when we've switched to the new enum
-    SkPathFillType getNewFillType() const { return (SkPathFillType)this->getFillType(); }
+//    SkPathFillType getNewFillType() const { return (SkPathFillType)this->getFillType(); }
 
     /** Sets FillType, the rule used to fill SkPath. While there is no check
         that ft is legal, values outside of FillType are not supported.
@@ -255,7 +170,7 @@ public:
 
         @return  true if FillType is kInverseWinding_FillType or kInverseEvenOdd_FillType
     */
-    bool isInverseFillType() const { return SkPathFillType_IsInverse(this->getNewFillType()); }
+    bool isInverseFillType() const { return SkPathFillType_IsInverse(this->getFillType()); }
 
     /** Replaces FillType with its inverse. The inverse of FillType describes the area
         unmodified by the original FillType.
@@ -300,32 +215,6 @@ public:
     bool isConvex() const {
         return SkPathConvexityType::kConvex == this->getConvexityType();
     }
-
-#ifdef SK_SUPPORT_LEGACY_PATH_DIRECTION_ENUM
-    /** \enum SkPath::Convexity
-        SkPath is convex if it contains one contour and contour loops no more than
-        360 degrees, and contour angles all have same Direction. Convex SkPath
-        may have better performance and require fewer resources on GPU surface.
-
-        SkPath is concave when either at least one Direction change is clockwise and
-        another is counterclockwise, or the sum of the changes in Direction is not 360
-        degrees.
-
-        Initially SkPath Convexity is kUnknown_Convexity. SkPath Convexity is computed
-        if needed by destination SkSurface.
-    */
-    enum Convexity : uint8_t {
-        kUnknown_Convexity = static_cast<int>(SkPathConvexityType::kUnknown),
-        kConvex_Convexity  = static_cast<int>(SkPathConvexityType::kConvex),
-        kConcave_Convexity = static_cast<int>(SkPathConvexityType::kConcave),
-    };
-
-    Convexity getConvexity() const { return (Convexity)this->getConvexityType(); }
-    Convexity getConvexityOrUnknown() const { return (Convexity)this->getConvexityTypeOrUnknown(); }
-    void setConvexity(Convexity convexity) {
-        this->setConvexityType((SkPathConvexityType)convexity);
-    }
-#endif
 
     /** Returns true if this path is recognized as an oval or circle.
 
@@ -1794,58 +1683,6 @@ public:
         @return  true if SkPath data is consistent
     */
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
-
-#ifdef SK_SUPPORT_LEGACY_PATH_DIRECTION_ENUM
-    SkPath& arcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
-                  Direction sweep, SkScalar x, SkScalar y) {
-        return this->arcTo(rx, ry, xAxisRotate, largeArc, (SkPathDirection)sweep, x, y);
-    }
-    SkPath& arcTo(const SkPoint r, SkScalar xAxisRotate, ArcSize largeArc, Direction sweep,
-                  const SkPoint xy) {
-        return this->arcTo(r.fX, r.fY, xAxisRotate, largeArc, (SkPathDirection)sweep, xy.fX, xy.fY);
-    }
-    SkPath& rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
-                   Direction sweep, SkScalar dx, SkScalar dy) {
-        return this->rArcTo(rx, ry, xAxisRotate, largeArc, (SkPathDirection)sweep, dx, dy);
-    }
-    bool isRect(SkRect* rect, bool* isClosed, Direction* direction) const {
-        return this->isRect(rect, isClosed, (SkPathDirection*)direction);
-    }
-    bool isRect(SkRect* rect, bool* isClosed, nullptr_t) const {
-        return this->isRect(rect, isClosed);
-    }
-    SkPath& addRect(const SkRect& rect, Direction dir) {
-        return this->addRect(rect, (SkPathDirection)dir);
-    }
-    SkPath& addRect(const SkRect& rect, Direction dir, unsigned start) {
-        return this->addRect(rect, (SkPathDirection)dir, start);
-    }
-    SkPath& addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom,
-                    Direction dir) {
-        return this->addRect(left, top, right, bottom, (SkPathDirection)dir);
-    }
-    SkPath& addOval(const SkRect& oval, Direction dir) {
-        return addOval(oval, (SkPathDirection)dir);
-    }
-    SkPath& addOval(const SkRect& oval, Direction dir, unsigned start) {
-        return this->addOval(oval, (SkPathDirection)dir, start);
-    }
-    SkPath& addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir) {
-        return this->addCircle(x, y, radius, (SkPathDirection)dir);
-    }
-    SkPath& addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir) {
-        return this->addRoundRect(rect, rx, ry, (SkPathDirection)dir);
-    }
-    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[], Direction dir) {
-        return this->addRoundRect(rect, radii, (SkPathDirection)dir);
-    }
-    SkPath& addRRect(const SkRRect& rrect, Direction dir) {
-        return this->addRRect(rrect, (SkPathDirection)dir);
-    }
-    SkPath& addRRect(const SkRRect& rrect, Direction dir, unsigned start) {
-        return this->addRRect(rrect, (SkPathDirection)dir, start);
-    }
-#endif
 
 private:
     sk_sp<SkPathRef>               fPathRef;

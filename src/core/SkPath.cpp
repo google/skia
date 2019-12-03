@@ -2948,8 +2948,8 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
                 break;
        }
     } while (!done);
-    bool evenOddFill = SkPathFillType::kEvenOdd        == this->getNewFillType()
-                    || SkPathFillType::kInverseEvenOdd == this->getNewFillType();
+    bool evenOddFill = SkPathFillType::kEvenOdd        == this->getFillType()
+                    || SkPathFillType::kInverseEvenOdd == this->getFillType();
     if (evenOddFill) {
         w &= 1;
     }

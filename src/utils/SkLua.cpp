@@ -1262,7 +1262,7 @@ static const char* fill_type_to_str(SkPathFillType fill) {
 }
 
 static int lpath_getFillType(lua_State* L) {
-    SkPathFillType fill = get_obj<SkPath>(L, 1)->getNewFillType();
+    SkPathFillType fill = get_obj<SkPath>(L, 1)->getFillType();
     SkLua(L).pushString(fill_type_to_str(fill));
     return 1;
 }

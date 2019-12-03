@@ -522,7 +522,7 @@ void DrawCommand::MakeJsonMatrix(SkJSONWriter& writer, const SkMatrix& matrix) {
 
 void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
     writer.beginObject();
-    switch (path.getNewFillType()) {
+    switch (path.getFillType()) {
         case SkPathFillType::kWinding:
             writer.appendString(DEBUGCANVAS_ATTRIBUTE_FILLTYPE, DEBUGCANVAS_FILLTYPE_WINDING);
             break;

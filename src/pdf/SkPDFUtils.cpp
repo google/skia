@@ -132,7 +132,7 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     if (path.isRect(&rect, &isClosed, &direction) &&
         isClosed &&
         (SkPathDirection::kCW == direction ||
-         SkPathFillType::kEvenOdd == path.getNewFillType()))
+         SkPathFillType::kEvenOdd == path.getFillType()))
     {
         SkPDFUtils::AppendRectangle(rect, content);
         return;

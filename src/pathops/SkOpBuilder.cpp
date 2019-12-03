@@ -36,7 +36,7 @@ void SkOpBuilder::ReversePath(SkPath* path) {
 }
 
 bool SkOpBuilder::FixWinding(SkPath* path) {
-    SkPathFillType fillType = path->getNewFillType();
+    SkPathFillType fillType = path->getFillType();
     if (fillType == SkPathFillType::kInverseEvenOdd) {
         fillType = SkPathFillType::kInverseWinding;
     } else if (fillType == SkPathFillType::kEvenOdd) {
