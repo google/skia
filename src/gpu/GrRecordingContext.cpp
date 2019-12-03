@@ -19,6 +19,7 @@
 #include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
 #define ASSERT_SINGLE_OWNER_PRIV \

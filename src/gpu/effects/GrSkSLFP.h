@@ -12,8 +12,6 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPipelineStageCodeGenerator.h"
 #include <atomic>
@@ -25,7 +23,9 @@
 #endif
 
 class GrContext_Base;
+class GrShaderCaps;
 class GrSkSLFPFactory;
+class GrSkSLFPFactoryCache;
 
 class GrSkSLFP : public GrFragmentProcessor {
 public:
@@ -112,7 +112,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
+    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
              SkSL::Program::Kind kind, int fIndex, const char* name, const char* sksl,
              SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
@@ -127,8 +127,6 @@ private:
     void createFactory() const;
 
     sk_sp<GrSkSLFPFactoryCache> fFactoryCache;
-
-    const sk_sp<GrShaderCaps> fShaderCaps;
 
     mutable sk_sp<GrSkSLFPFactory> fFactory;
 

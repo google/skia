@@ -12,6 +12,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -72,7 +73,7 @@ protected:
         SkASSERT(caps && !FPFactoryCache);
         SkASSERT(!fThreadSafeProxy);
 
-        FPFactoryCache.reset(new GrSkSLFPFactoryCache());
+        FPFactoryCache.reset(new GrSkSLFPFactoryCache(caps->refShaderCaps()));
         fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
                                                               this->options(),
                                                               this->contextID(),

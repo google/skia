@@ -26,6 +26,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"

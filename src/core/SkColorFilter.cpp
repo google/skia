@@ -22,6 +22,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 #endif
 
