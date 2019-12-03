@@ -38,6 +38,11 @@ struct SkColorSpaceXformSteps {
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                            SkColorSpace* dst, SkAlphaType dstAT);
 
+    template <typename S, typename D>
+    SkColorSpaceXformSteps(const S& src, const D& dst)
+        : SkColorSpaceXformSteps(src.colorSpace(), src.alphaType(),
+                                 dst.colorSpace(), dst.alphaType()) {}
+
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*, bool src_is_normalized) const;
 
