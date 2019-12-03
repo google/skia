@@ -22,6 +22,30 @@
       "revId": "bf5631ea9ed8ec267e6905f341b0c357181fd3c4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2ecaa89_59e5d9af",
+        "filename": "modules/canvaskit/cpu.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-03T20:05:56Z",
+      "side": 1,
+      "message": "Like that?",
+      "parentUuid": "c885cbde_f6cdb4e5",
+      "range": {
+        "startLine": 75,
+        "startChar": 54,
+        "endLine": 75,
+        "endChar": 61
+      },
+      "revId": "bf5631ea9ed8ec267e6905f341b0c357181fd3c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
