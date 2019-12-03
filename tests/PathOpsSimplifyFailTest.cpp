@@ -63,7 +63,7 @@ static void failOne(skiatest::Reporter* reporter, int index) {
     bool success = Simplify(path, &result);
     REPORTER_ASSERT(reporter, !success);
     REPORTER_ASSERT(reporter, result.isEmpty());
-    REPORTER_ASSERT(reporter, result.getNewFillType() == SkPathFillType::kWinding);
+    REPORTER_ASSERT(reporter, result.getFillType() == SkPathFillType::kWinding);
     reporter->bumpTestCount();
 }
 
@@ -88,7 +88,7 @@ static void dontFailOne(skiatest::Reporter* reporter, int index) {
     result.setFillType(SkPathFillType::kWinding);
     bool success = Simplify(path, &result);
     REPORTER_ASSERT(reporter, success);
-    REPORTER_ASSERT(reporter, result.getNewFillType() != SkPathFillType::kWinding);
+    REPORTER_ASSERT(reporter, result.getFillType() != SkPathFillType::kWinding);
     reporter->bumpTestCount();
 }
 

@@ -356,9 +356,9 @@ void ApplyAddPath(SkPath& orig, const SkPath& newPath,
 }
 
 JSString GetFillTypeString(const SkPath& path) {
-    if (path.getNewFillType() == SkPathFillType::kWinding) {
+    if (path.getFillType() == SkPathFillType::kWinding) {
         return emscripten::val("nonzero");
-    } else if (path.getNewFillType() == SkPathFillType::kEvenOdd) {
+    } else if (path.getFillType() == SkPathFillType::kEvenOdd) {
         return emscripten::val("evenodd");
     } else {
         SkDebugf("warning: can't translate inverted filltype to HTML Canvas\n");
