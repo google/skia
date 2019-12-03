@@ -27,25 +27,25 @@
     }
 
     CanvasKit.MakeSurface = function(width, height) {
+      // We're going to allocate twice as much space as you'd expect,
+      // one premul plane to draw into, and another unpremul plane to
+      // read back from that premul plane then push to putImageData().
+      var planeLen = width * height * 4; // it's 8888, so 4 bytes per pixel
+      var pixelPtr = CanvasKit._malloc(2*planeLen);
+
       /* @dict */
       var imageInfo = {
         'width':  width,
         'height': height,
         'colorType': CanvasKit.ColorType.RGBA_8888,
-        // Since we are sending these pixels directly into the HTML canvas,
-        // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
-        'alphaType': CanvasKit.AlphaType.Unpremul,
+        'alphaType': CanvasKit.AlphaType.Premul,
       }
-      var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
-      // Allocate the buffer of pixels to be drawn into.
-      var pixelPtr = CanvasKit._malloc(pixelLen);
-
-      var surface = this._getRasterDirectSurface(imageInfo, pixelPtr, width*4);
+      var surface = this._getRasterDirectSurface(imageInfo, pixelPtr+0*planeLen, width*4);
       if (surface) {
         surface._canvas = null;
         surface._width = width;
         surface._height = height;
-        surface._pixelLen = pixelLen;
+        surface._planeLen = planeLen;
 
         surface._pixelPtr = pixelPtr;
         // rasterDirectSurface does not initialize the pixels, so we clear them
@@ -60,8 +60,22 @@
       // Do we have an HTML canvas to write the pixels to?
       // We will not if this a GPU build or a raster surface, for example.
       if (this._canvas) {
-        var pixels = new Uint8ClampedArray(CanvasKit.buffer, this._pixelPtr, this._pixelLen);
-        var imageData = new ImageData(pixels, this._width, this._height);
+        // We've drawn as premul into plane 0 of our pixel buffer.
+        // We'll read that back as unpremul into plane 1, then pass that to putImageData().
+        var unpremulInfo = {
+            'width':  this._width,
+            'height': this._height,
+            'colorType': CanvasKit.ColorType.RGBA_8888,
+            'alphaType': CanvasKit.AlphaType.Unpremul,
+        }
+        this.getCanvas()._readPixels(unpremulInfo,
+                                     this._pixelPtr+1*this._planeLen,
+                                     this._width*4,
+                                     0,0);
+        var unpremul = new Uint8ClampedArray(CanvasKit.HEAPU8.buffer,
+                                             this._pixelPtr+1*this._planeLen,
+                                             this._planeLen);
+        var imageData = new ImageData(unpremul, this._width, this._height);
 
         this._canvas.getContext('2d').putImageData(imageData, 0, 0);
       }
