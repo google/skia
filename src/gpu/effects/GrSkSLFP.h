@@ -112,7 +112,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
+    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
              SkSL::Program::Kind kind, int fIndex, const char* name, const char* sksl,
              SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
@@ -127,8 +127,6 @@ private:
     void createFactory() const;
 
     sk_sp<GrSkSLFPFactoryCache> fFactoryCache;
-
-    const sk_sp<GrShaderCaps> fShaderCaps;
 
     mutable sk_sp<GrSkSLFPFactory> fFactory;
 
