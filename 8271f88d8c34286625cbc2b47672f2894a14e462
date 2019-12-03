@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d504a491_ea6445be",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2625,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-12-03T20:40:39Z",
+      "side": 1,
+      "message": "Nit: typo?",
+      "range": {
+        "startLine": 2625,
+        "startChar": 34,
+        "endLine": 2625,
+        "endChar": 58
+      },
+      "revId": "8271f88d8c34286625cbc2b47672f2894a14e462",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eabfd3dd_941fc7ea",
+        "filename": "src/gpu/vk/GrVkGpu.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-12-03T20:40:39Z",
+      "side": 1,
+      "message": "Nit: extra space",
+      "range": {
+        "startLine": 241,
+        "startChar": 9,
+        "endLine": 241,
+        "endChar": 10
+      },
+      "revId": "8271f88d8c34286625cbc2b47672f2894a14e462",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
