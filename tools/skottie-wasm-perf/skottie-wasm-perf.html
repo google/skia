@@ -49,21 +49,32 @@
 
     const animation = CK.MakeManagedAnimation(json, null);
     if (!animation) {
-      console.error('Could not process JSON');
+      window._error = 'Could not process JSON';
       return
     }
 
-    const surface = CK.MakeCanvasSurface("anim");
-    if (!surface) {
-      console.error('Could not make surface');
-      return;
+    let surface = null;
+    if (window.location.hash.indexOf('gpu') !== -1) {
+      surface = CK.MakeWebGLCanvasSurface('anim');
+      if (!surface) {
+        window._error = 'Could not make GPU surface';
+        return;
+      }
+      let c = document.getElementById('anim');
+      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+      // to CPU and add a ck-replaced class to the canvas element.
+      if (c.classList.contains('ck-replaced')) {
+        window._error = 'fell back to CPU';
+        return;
+      }
+    } else {
+      surface = CK.MakeSWCanvasSurface('anim');
+      if (!surface) {
+        window._error = 'Could not make CPU surface';
+        return;
+      }
     }
     const canvas = surface.getCanvas();
-
-    let c = document.getElementById('anim');
-    // If CanvasKit was unable to instantiate a WebGL context, it will fallback
-    // to CPU and add a ck-replaced class to the canvas element.
-    window._gpu = CK.gpu && !c.classList.contains('ck-replaced');
 
     const t_rate = 1.0 / (maxFrames-1);
     let seek = 0;
@@ -93,7 +104,7 @@
                          });
         surface.flush();
       }
-      console.log("Used seek: " + seek);
+      console.log(`Used seek: ${seek}`);
       seek += t_rate;
       frame++;
       window.requestAnimationFrame(drawFrame);
