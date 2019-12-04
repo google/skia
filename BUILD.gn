@@ -2486,6 +2486,15 @@ if (skia_enable_tools) {
     }
   }
 
+  if (skia_use_icu && skia_use_harfbuzz) {
+    test_app("para_edit") {
+      is_shared_library = is_android
+      deps = [
+        "modules/skeditor:para_edit",
+      ]
+    }
+  }
+
   executable("image_diff_metric") {
     sources = [
       "tools/image_diff_metric.cpp",

@@ -1610,6 +1610,7 @@ protected:
                 SkString fontFamily("unresolved");
                 if (run.font().getTypeface() != nullptr) {
                     run.font().getTypeface()->getFamilyName(&fontFamily);
+                    SkDebugf("%s ", fontFamily.c_str());
                 }
                 if (run.font().getTypeface() != nullptr) {
                     for (size_t i = 0; i < run.size(); ++i) {
@@ -1624,6 +1625,7 @@ protected:
                     SkASSERT(false);
                 }
             }
+            SkDebugf("\n");
             fRedraw = false;
             fRepeat = false;
         }
@@ -1668,35 +1670,6 @@ private:
     typedef Sample INHERITED;
 };
 
-class ParagraphView20 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph20"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
-
-        const char* text = "";
-        ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
-        //paragraph_style.setEllipsis(u"\u2026");
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        TextStyle text_style;
-        text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(40);
-        builder.pushStyle(text_style);
-        builder.addText(text);
-        auto paragraph = builder.Build();
-        paragraph->layout(this->width());
-
-        paragraph->paint(canvas, 0, 0);
-    }
-
-private:
-    typedef Sample INHERITED;
-};
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1717,4 +1690,4 @@ DEF_SAMPLE(return new ParagraphView16();)
 DEF_SAMPLE(return new ParagraphView17();)
 DEF_SAMPLE(return new ParagraphView18();)
 DEF_SAMPLE(return new ParagraphView19();)
-DEF_SAMPLE(return new ParagraphView20();)
+
