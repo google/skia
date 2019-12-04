@@ -22,6 +22,30 @@
       "revId": "96135511d02aa436eebd3bb69fc0aca0450ccadc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb8193e0_d51edac4",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:43:35Z",
+      "side": 1,
+      "message": "It wasn\u0027t, but I didn\u0027t have a machine to confirm what was happening exactly. This still reduced the size of the GrTextureOp so I figured the assert wasn\u0027t \"strictly\" necessary, and tomorrow I\u0027ll bring my windows laptop in to sort out the proper way to make windows see it as 8 bytes in a new CL.",
+      "parentUuid": "9336fd3c_7ce05e88",
+      "range": {
+        "startLine": 963,
+        "startChar": 4,
+        "endLine": 963,
+        "endChar": 44
+      },
+      "revId": "96135511d02aa436eebd3bb69fc0aca0450ccadc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
