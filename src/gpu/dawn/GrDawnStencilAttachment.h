@@ -10,7 +10,7 @@
 
 #include "src/gpu/GrStencilAttachment.h"
 
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 

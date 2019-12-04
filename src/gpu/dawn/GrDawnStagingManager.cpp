@@ -40,7 +40,7 @@ GrDawnStagingBuffer* GrDawnStagingManager::findOrCreateStagingBuffer(size_t size
     return stagingBuffer;
 }
 
-static void callback(DawnBufferMapAsyncStatus status, void* data, uint64_t dataLength,
+static void callback(WGPUBufferMapAsyncStatus status, void* data, uint64_t dataLength,
                      void* userData) {
     GrDawnStagingBuffer* buffer = static_cast<GrDawnStagingBuffer*>(userData);
     buffer->fData = data;

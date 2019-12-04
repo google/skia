@@ -11,7 +11,7 @@
 #include "include/core/SkSurface.h"
 
 #include "tools/sk_app/WindowContext.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "dawn_native/DawnNative.h"
 #include "dawn/dawn_wsi.h"
 

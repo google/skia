@@ -9,7 +9,7 @@
 #define GrDawnBuffer_DEFINED
 
 #include "src/gpu/GrGpuBuffer.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 struct GrDawnStagingBuffer;

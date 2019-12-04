@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 struct GrDawnStagingBuffer;
 

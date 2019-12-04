@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "dawn_native/DawnNative.h"
 #include "tools/gpu/dawn/DawnTestContext.h"
 
@@ -20,7 +20,7 @@
 #define USE_OPENGL_BACKEND 0
 
 #ifdef SK_DAWN
-#include "dawn/dawn.h"
+#include "dawn/webgpu.h"
 #include "dawn/dawn_proc.h"
 #include "include/gpu/GrContext.h"
 #include "tools/AutoreleasePool.h"
@@ -95,7 +95,7 @@ public:
     ~DawnFence() {
     }
 
-    static void callback(DawnBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
+    static void callback(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
                          void* userData) {
         DawnFence* fence = static_cast<DawnFence*>(userData);
         fence->fCalled = true;

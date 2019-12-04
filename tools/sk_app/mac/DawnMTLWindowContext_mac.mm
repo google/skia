@@ -8,7 +8,7 @@
 #include "tools/sk_app/DawnWindowContext.h"
 #include "tools/sk_app/mac/WindowContextFactory_mac.h"
 #include "common/SwapChainUtils.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "dawn/dawn_wsi.h"
 #include "dawn_native/DawnNative.h"
 #include "dawn_native/MetalBackend.h"

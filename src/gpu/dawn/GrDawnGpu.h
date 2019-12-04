@@ -10,7 +10,7 @@
 
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProgramDesc.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 #include "src/gpu/dawn/GrDawnStagingManager.h"
