@@ -158,7 +158,6 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         : INHERITED(context)
         , fInterface(std::move(interface))
         , fMemoryAllocator(backendContext.fMemoryAllocator)
-        , fInstance(backendContext.fInstance)
         , fPhysicalDevice(backendContext.fPhysicalDevice)
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
@@ -273,17 +272,12 @@ void GrVkGpu::destroyResources() {
 
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
-
-    fMemoryAllocator.reset();
-
-    fQueue = VK_NULL_HANDLE;
-    fDevice = VK_NULL_HANDLE;
-    fInstance = VK_NULL_HANDLE;
 }
 
 GrVkGpu::~GrVkGpu() {
     if (!fDisconnected) {
         this->destroyResources();
+        fMemoryAllocator.reset();
     }
     delete fCompiler;
 }
@@ -292,25 +286,9 @@ GrVkGpu::~GrVkGpu() {
 void GrVkGpu::disconnect(DisconnectType type) {
     INHERITED::disconnect(type);
     if (!fDisconnected) {
-        if (DisconnectType::kCleanup == type) {
-            this->destroyResources();
-        } else {
-            if (fCmdPool) {
-                fCmdPool->unrefAndAbandon();
-                fCmdPool = nullptr;
-            }
-            for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
-                fSemaphoresToWaitOn[i]->unrefAndAbandon();
-            }
-            for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
-                fSemaphoresToSignal[i]->unrefAndAbandon();
-            }
+        this->destroyResources();
+        fMemoryAllocator.reset();
 
-            // must call this just before we destroy the command pool and VkDevice
-            fResourceProvider.abandonResources();
-
-            fMemoryAllocator.reset();
-        }
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
         fCurrentCmdBuffer = nullptr;
