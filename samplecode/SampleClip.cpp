@@ -13,6 +13,7 @@
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
+#include "src/core/SkPathPriv.h"
 
 constexpr int W = 150;
 constexpr int H = 200;
@@ -540,11 +541,10 @@ class HalfPlaneView3 : public Sample {
             canvas->restore();
         }
 
-        SkHalfPlane hpw = half_plane_w0(mx);
 
         SkColor planeColor = SK_ColorBLUE;
         SkPath clippedPath, *path = &fPath;
-        if (clip(fPath, hpw, &clippedPath)) {
+        if (SkPathPriv::PerspectiveClip(fPath, mx, &clippedPath)) {
             path = &clippedPath;
             planeColor = SK_ColorRED;
         }
@@ -553,6 +553,7 @@ class HalfPlaneView3 : public Sample {
         canvas->drawPath(*path, paint);
         canvas->restore();
 
+        SkHalfPlane hpw = half_plane_w0(mx);
         draw_halfplane(canvas, hpw, planeColor);
     }
 
