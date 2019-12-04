@@ -40,8 +40,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         // the image size divided by the subsampling factor (2). Our API for creating YUVA doesn't
         // capture the intended subsampling (and we should fix that). This fixes up 2x subsampling
         // for images with odd widths/heights (e.g. JPEG 420 or 422).
-        scales[i] = SkSize{dimensions.width()  / SkIntToScalar(YDimensions.width()),
-                           dimensions.height() / SkIntToScalar(YDimensions.height())};
+        scales[i] = {dimensions.width()  / SkIntToScalar(YDimensions.width()),
+                     dimensions.height() / SkIntToScalar(YDimensions.height())};
         if ((YDimensions.width() & 0b1) && dimensions.width() == YDimensions.width() / 2 + 1) {
             scales[i].fWidth = 0.5f;
         }

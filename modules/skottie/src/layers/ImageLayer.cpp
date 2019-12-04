@@ -121,7 +121,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     }
 
     // Image layers are sized explicitly.
-    layer_info->fSize = asset_info->fSize;
+    layer_info->fSize = SkSize::Make(asset_info->fSize);
 
     if (!image_transform) {
         // No resize needed.

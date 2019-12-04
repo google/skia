@@ -1663,8 +1663,7 @@ Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
 SKPSink::SKPSink() {}
 
 Error SKPSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const {
-    SkSize size;
-    size = src.size();
+    auto size = SkSize::Make(src.size());
     SkPictureRecorder recorder;
     Error err = src.draw(recorder.beginRecording(size.width(), size.height()));
     if (!err.isEmpty()) {
