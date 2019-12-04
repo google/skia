@@ -29,9 +29,20 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
                                    SkPoint origin,
                                    GrColor color,
                                    bool forceWForDistanceFields) {
+    // Default to no perspective. Implies one of the following vertex formats: kColorTextVASize,
+    // kGrayTextVASize, kLCDTextVASize.
+    static_assert(kColorTextVASize <= kGrayTextVASize && kLCDTextVASize <= kGrayTextVASize);
+    size_t quadSize = kVerticesPerGlyph * kGrayTextVASize;
+    if (viewMatrix.hasPerspective() || forceWForDistanceFields) {
+        // Perspective. Implies one of the following vertex formats: kColorTextPerspectiveVASize,
+        // kGrayTextDFPerspectiveVASize.
+        static_assert(kColorTextPerspectiveVASize <= kGrayTextDFPerspectiveVASize);
+        quadSize = kVerticesPerGlyph * kGrayTextDFPerspectiveVASize;
+    }
+
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
-    size_t verticesCount = glyphCount * kVerticesPerGlyph * kMaxVASize;
+    size_t verticesCount = glyphCount * quadSize;
 
     size_t blobStart = 0;
     size_t vertex = sk_align<alignof(char)>     (blobStart + sizeof(GrTextBlob) * 1);
