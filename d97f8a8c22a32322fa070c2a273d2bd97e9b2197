@@ -22,6 +22,23 @@
       "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "deaeecdc_d4f464ba",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-04T20:16:05Z",
+      "side": 1,
+      "message": "Maybe since we really are trying to optimize the size of this as much as possible, we should put in a big warning comment here basically saying to be careful increasing the size of the op since we\u0027ve seen perf regressions from even small size increase while compositing.",
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
