@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "36017dc0_67696b03",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-04T20:43:55Z",
+      "side": 1,
+      "message": "It is not that important to put in here if its a pain, but I was just saying something like:\nstatic_assert(GrSamplerState::Filter::kMaxValue \u003c\u003d 3); // Since we give it 2\netc..\n\nAdditionally we could just put normal asserts and check the actual values passed in.",
+      "parentUuid": "884d1521_bcd97513",
+      "range": {
+        "startLine": 332,
+        "startChar": 11,
+        "endLine": 334,
+        "endChar": 47
+      },
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3402dc4c_2d8ce6b4",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
