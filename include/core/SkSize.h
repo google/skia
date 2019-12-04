@@ -56,10 +56,6 @@ struct SkSize {
         return {SkIntToScalar(src.width()), SkIntToScalar(src.height())};
     }
 
-    SkSize& operator=(const SkISize& src) {
-        return *this = SkSize{SkIntToScalar(src.fWidth), SkIntToScalar(src.fHeight)};
-    }
-
     static SkSize MakeEmpty() { return {0, 0}; }
 
     void set(SkScalar w, SkScalar h) { *this = SkSize{w, h}; }
