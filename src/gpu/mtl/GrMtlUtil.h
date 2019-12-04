@@ -72,6 +72,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                          const char* shaderString,
                                          SkSL::Program::Kind kind,
                                          const SkSL::Program::Settings& settings,
+                                         SkSL::String* mslShader,
                                          SkSL::Program::Inputs* outInputs);
 
 /**
