@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e803499c_6a0c8590",
+        "filename": "build/fuchsia/skqp/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10076
+      },
+      "writtenOn": "2019-12-04T18:40:51Z",
+      "side": 1,
+      "message": "Glad to see these steps added.  To make this consistent with the remainder of the document, code format these w/, if preferred, non code formatted comments before each step.",
+      "range": {
+        "startLine": 5,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 28
+      },
+      "revId": "df272bd38d1ef79123fb5660589b520750a7e151",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "634f2744_5ebb8a30",
+        "filename": "build/fuchsia/skqp/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 10076
+      },
+      "writtenOn": "2019-12-04T18:40:51Z",
+      "side": 1,
+      "message": "I believe the `gn gen ...` I included originally to be more robust and gn convention than manually making the directory and manually editing args.gn below.",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 30
+      },
+      "revId": "df272bd38d1ef79123fb5660589b520750a7e151",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59adad36_9e934e81",
+        "filename": "build/fuchsia/skqp/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10076
+      },
+      "writtenOn": "2019-12-04T18:40:51Z",
+      "side": 1,
+      "message": "Why changed from autoninja ?  Is that an internal thing ?",
+      "range": {
+        "startLine": 38,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 9
+      },
+      "revId": "df272bd38d1ef79123fb5660589b520750a7e151",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
