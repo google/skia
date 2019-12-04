@@ -9,115 +9,40 @@
 #define GrWindowRectangles_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/gpu/GrNonAtomicRef.h"
+#include "include/private/SkTArray.h"
 
 class GrWindowRectangles {
 public:
-    constexpr static int kMaxWindows = 8;
+    // This limit is now  totally irrelevant to GrWindowRectangle's impl.
+    static constexpr int kMaxWindows = 8;
 
-    GrWindowRectangles() : fCount(0) {}
-    GrWindowRectangles(const GrWindowRectangles& that) : fCount(0) { *this = that; }
-    ~GrWindowRectangles() { SkSafeUnref(this->rec()); }
+    GrWindowRectangles() {}
 
-    GrWindowRectangles makeOffset(int dx, int dy) const;
+    GrWindowRectangles makeOffset(int dx, int dy) const {
+        GrWindowRectangles result;
+        for (const SkIRect& w : fWindows) {
+            result.addWindow(w.makeOffset(dx,dy));
+        }
+        return result;
+    }
 
-    bool empty() const { return !fCount; }
-    int count() const { return fCount; }
-    const SkIRect* data() const;
+    bool           empty() const { return fWindows.empty(); }
+    int            count() const { return fWindows.count(); }
+    const SkIRect* data () const { return fWindows.data (); }
 
-    void reset();
-    GrWindowRectangles& operator=(const GrWindowRectangles&);
+    void reset() { fWindows.reset(); }
 
-    SkIRect& addWindow(const SkIRect& window) { return this->addWindow() = window; }
-    SkIRect& addWindow();
+    SkIRect& addWindow(const SkIRect& window) { return (this->addWindow() = window); }
+    SkIRect& addWindow() {
+        SkASSERT(this->count() < kMaxWindows);  // Do we care?
+        return fWindows.push_back();
+    }
 
-    bool operator!=(const GrWindowRectangles& that) const { return !(*this == that); }
-    bool operator==(const GrWindowRectangles&) const;
+    bool operator==(const GrWindowRectangles& that) const { return fWindows == that.fWindows; }
+    bool operator!=(const GrWindowRectangles& that) const { return fWindows != that.fWindows; }
 
 private:
-    struct Rec;
-
-    const Rec* rec() const { return fCount <= 1 ? nullptr : fRec; }
-
-    int fCount;
-    union {
-        SkIRect   fLocalWindow; // If fCount <= 1
-        Rec*      fRec;         // If fCount >  1.
-    };
+    SkSTArray<1, SkIRect> fWindows;
 };
-
-struct GrWindowRectangles::Rec : public GrNonAtomicRef<Rec> {
-    Rec(const SkIRect* windows, int numWindows) {
-        SkASSERT(numWindows < kMaxWindows);
-        memcpy(fData, windows, sizeof(SkIRect) * numWindows);
-    }
-    Rec() = default;
-
-    SkIRect fData[kMaxWindows];
-};
-
-inline const SkIRect* GrWindowRectangles::data() const {
-    return fCount <= 1 ? &fLocalWindow : fRec->fData;
-}
-
-inline void GrWindowRectangles::reset() {
-    SkSafeUnref(this->rec());
-    fCount = 0;
-}
-
-inline GrWindowRectangles& GrWindowRectangles::operator=(const GrWindowRectangles& that) {
-    SkSafeUnref(this->rec());
-    fCount = that.fCount;
-    if (fCount <= 1) {
-        fLocalWindow = that.fLocalWindow;
-    } else {
-        fRec = SkRef(that.fRec);
-    }
-    return *this;
-}
-
-inline GrWindowRectangles GrWindowRectangles::makeOffset(int dx, int dy) const {
-    if (!dx && !dy) {
-        return *this;
-    }
-    GrWindowRectangles result;
-    result.fCount = fCount;
-    SkIRect* windows;
-    if (result.fCount > 1) {
-        result.fRec = new Rec();
-        windows = result.fRec->fData;
-    } else {
-        windows = &result.fLocalWindow;
-    }
-    for (int i = 0; i < fCount; ++i) {
-        windows[i] = this->data()[i].makeOffset(dx, dy);
-    }
-    return result;
-}
-
-inline SkIRect& GrWindowRectangles::addWindow() {
-    SkASSERT(fCount < kMaxWindows);
-    if (fCount == 0) {
-        fCount = 1;
-        return fLocalWindow;
-    }
-    if (fCount == 1) {
-        fRec = new Rec(&fLocalWindow, 1);
-    } else if (!fRec->unique()) { // Simple copy-on-write.
-        fRec->unref();
-        fRec = new Rec(fRec->fData, fCount);
-    }
-    return fRec->fData[fCount++];
-}
-
-inline bool GrWindowRectangles::operator==(const GrWindowRectangles& that) const {
-    if (fCount != that.fCount) {
-        return false;
-    }
-    if (fCount > 1 && fRec == that.fRec) {
-        return true;
-    }
-    return !fCount || !memcmp(this->data(), that.data(), sizeof(SkIRect) * fCount);
-}
 
 #endif

@@ -41,7 +41,6 @@ DEF_TEST(WindowRectangles, reporter) {
     {
         GrWindowRectangles A(wr), B(wr);
         REPORTER_ASSERT(reporter, B == A);
-        REPORTER_ASSERT(reporter, B.data() == A.data()); // Should use copy-on-write.
 
         A.addWindow(windowData[GrWindowRectangles::kMaxWindows - 1]);
         REPORTER_ASSERT(reporter, B.data() != A.data());
@@ -60,7 +59,6 @@ DEF_TEST(WindowRectangles, reporter) {
     {
         GrWindowRectangles A(wr), B(wr);
         REPORTER_ASSERT(reporter, B == A);
-        REPORTER_ASSERT(reporter, B.data() == A.data()); // Should use copy-on-write.
 
         A.addWindow(windowData[GrWindowRectangles::kMaxWindows - 1]);
         B.addWindow(windowData[GrWindowRectangles::kMaxWindows - 1]);
