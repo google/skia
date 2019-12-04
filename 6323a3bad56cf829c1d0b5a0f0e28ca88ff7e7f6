@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "865ea8f0_2030e028",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-04T15:51:51Z",
+      "side": 1,
+      "message": "Right",
+      "parentUuid": "65654c70_a2fb40e0",
+      "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a87e869f_1db878b6",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 4
@@ -70,6 +88,23 @@
       "writtenOn": "2019-12-03T20:20:08Z",
       "side": 1,
       "message": "// Informative comment ?",
+      "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f49c163c_af7eab7f",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-04T15:51:51Z",
+      "side": 1,
+      "message": "Is it worth caching this here ?",
       "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
