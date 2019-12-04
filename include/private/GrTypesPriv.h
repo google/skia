@@ -260,8 +260,11 @@ enum class GrAAType : unsigned {
     /** Use fragment shader code or mixed samples to blend with a fractional pixel coverage. */
     kCoverage,
     /** Use normal MSAA. */
-    kMSAA
+    kMSAA,
+
+    kLast = kMSAA
 };
+static const int kGrAATypeCount = static_cast<int>(GrAAType::kLast) + 1;
 
 static constexpr bool GrAATypeIsHW(GrAAType type) {
     switch (type) {
