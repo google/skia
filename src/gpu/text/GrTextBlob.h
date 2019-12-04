@@ -70,6 +70,7 @@ public:
     // adding SubRuns.
     static sk_sp<GrTextBlob> Make(int glyphCount,
                                   GrStrikeCache* strikeCache,
+                                  const SkMatrix& viewMatrix,
                                   SkPoint origin,
                                   GrColor color,
                                   bool forceWForDistanceFields);
@@ -180,16 +181,9 @@ public:
     // This function will only be called when we are generating a blob from scratch.
     // The color here is the GrPaint color, and it is used to determine whether we
     // have to regenerate LCD text blobs.
-    // We use this color vs the SkPaint color because it has the color filter applied. We record the
-    // initial view matrix and initial offsets(x,y), because we record vertex bounds relative to
-    // these numbers.  When blobs are reused with new matrices, we need to return to source space so
-    // we can update the vertex bounds appropriately.
-    void initReusableBlob(SkColor luminanceColor, const SkMatrix& viewMatrix) {
+    // We use this color vs the SkPaint color because it has the color filter applied.
+    void initReusableBlob(SkColor luminanceColor) {
         fLuminanceColor = luminanceColor;
-        fInitialViewMatrix = viewMatrix;
-        if (!viewMatrix.invert(&fInitialViewMatrixInverse)) {
-            fInitialViewMatrixInverse = SkMatrix::I();
-        }
     }
 
     const Key& key() const { return fKey; }
@@ -354,6 +348,7 @@ public:
 private:
     GrTextBlob(size_t size,
                GrStrikeCache* strikeCache,
+               const SkMatrix& viewMatrix,
                SkPoint origin,
                GrColor color,
                bool forceWForDistanceFields);
@@ -398,6 +393,13 @@ private:
     // The GrRecordingContext also owns the GrTextBlob cache which owns this GrTextBlob.
     GrStrikeCache* const fStrikeCache;
 
+    // The initial view matrix and its inverse. This is used for moving additional draws of this
+    // same text blob. We record the initial view matrix and initial offsets(x,y), because we
+    // record vertex bounds relative to these numbers.  When blobs are reused with new matrices,
+    // we need to return to source space so we can update the vertex bounds appropriately.
+    const SkMatrix fInitialViewMatrix;
+    const SkMatrix fInitialViewMatrixInverse;
+
     // Initial position of this blob. Used for calculating position differences when reusing this
     // blob.
     const SkPoint fInitialOrigin;
@@ -423,8 +425,6 @@ private:
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
-    SkMatrix fInitialViewMatrix;
-    SkMatrix fInitialViewMatrixInverse;
     SkColor fLuminanceColor;
 
 
