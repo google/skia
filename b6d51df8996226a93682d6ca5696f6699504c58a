@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4283cf94_da05b092",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-04T19:09:13Z",
+      "side": 1,
+      "message": "I\u0027ve only marked this this way since I\u0027ve removed the union.  If the extra pointer isn\u0027t important, I think this impl works just fine.",
+      "revId": "b6d51df8996226a93682d6ca5696f6699504c58a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
