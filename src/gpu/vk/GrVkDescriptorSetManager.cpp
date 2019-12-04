@@ -234,22 +234,6 @@ void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
     fImmutableSamplers.reset();
 }
 
-void GrVkDescriptorSetManager::abandon() {
-    fPoolManager.abandonGPUResources();
-
-    for (int i = 0; i < fFreeSets.count(); ++i) {
-        fFreeSets[i]->unrefAndAbandon();
-    }
-    fFreeSets.reset();
-
-    for (int i = 0; i < fImmutableSamplers.count(); ++i) {
-        if (fImmutableSamplers[i]) {
-            fImmutableSamplers[i]->unrefAndAbandon();
-        }
-    }
-    fImmutableSamplers.reset();
-}
-
 bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
                                             const GrVkUniformHandler* uniHandler) const {
     SkASSERT(uniHandler);
@@ -360,10 +344,3 @@ void GrVkDescriptorSetManager::DescriptorPoolManager::freeGPUResources(GrVkGpu* 
     }
 }
 
-void GrVkDescriptorSetManager::DescriptorPoolManager::abandonGPUResources() {
-    fDescLayout = VK_NULL_HANDLE;
-    if (fPool) {
-        fPool->unrefAndAbandon();
-        fPool = nullptr;
-    }
-}

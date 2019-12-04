@@ -53,22 +53,6 @@ void GrVkCommandBuffer::freeGPUData(GrVkGpu* gpu, VkCommandPool cmdPool) const {
     this->onFreeGPUData(gpu);
 }
 
-void GrVkCommandBuffer::abandonGPUData() const {
-    SkDEBUGCODE(fResourcesReleased = true;)
-    for (int i = 0; i < fTrackedResources.count(); ++i) {
-        fTrackedResources[i]->notifyRemovedFromCommandBuffer();
-        fTrackedResources[i]->unrefAndAbandon();
-    }
-
-    for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
-        fTrackedRecycledResources[i]->notifyRemovedFromCommandBuffer();
-        // We don't recycle resources when abandoning them.
-        fTrackedRecycledResources[i]->unrefAndAbandon();
-    }
-
-    this->onAbandonGPUData();
-}
-
 void GrVkCommandBuffer::releaseResources(GrVkGpu* gpu) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkDEBUGCODE(fResourcesReleased = true;)
@@ -850,13 +834,6 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(GrVkGpu* gpu) const {
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
     }
     SkASSERT(!fSecondaryCommandBuffers.count());
-}
-
-void GrVkPrimaryCommandBuffer::onAbandonGPUData() const {
-    SkASSERT(!fActiveRenderPass);
-    for (const auto& buffer : fSecondaryCommandBuffers) {
-        buffer->abandonGPUData();
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

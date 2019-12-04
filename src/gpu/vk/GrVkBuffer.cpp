@@ -122,16 +122,6 @@ void GrVkBuffer::vkRelease(const GrVkGpu* gpu) {
     VALIDATE();
 }
 
-void GrVkBuffer::vkAbandon() {
-    fResource->unrefAndAbandon();
-    fResource = nullptr;
-    if (!fDesc.fDynamic) {
-        delete[] (unsigned char*)fMapPtr;
-    }
-    fMapPtr = nullptr;
-    VALIDATE();
-}
-
 VkAccessFlags buffer_type_to_access_flags(GrVkBuffer::Type type) {
     switch (type) {
         case GrVkBuffer::kIndex_Type:

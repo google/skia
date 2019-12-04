@@ -1604,6 +1604,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
     GrTextureFreedMessage msg{tex, context->priv().contextID()};
     SkMessageBus<GrTextureFreedMessage>::Post(msg);
 
+    // This doesn't actually do anything but it does trigger us to read messages
     context->purgeUnlockedResources(false);
 }
 

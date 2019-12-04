@@ -32,8 +32,7 @@ class GrVkGpu;
   the stack or calling delete) if getRefCnt() > 1.
 
   This is nearly identical to SkRefCntBase. The exceptions are that unref()
-  takes a GrVkGpu, and any derived classes must implement freeGPUData() and
-  possibly abandonGPUData().
+  takes a GrVkGpu, and any derived classes must implement freeGPUData().
 */
 
 class GrVkResource : SkNoncopyable {
@@ -134,24 +133,10 @@ public:
         }
     }
 
-    /** Unref without freeing GPU data. Used only when we're abandoning the resource */
-    void unrefAndAbandon() const {
-        SkASSERT(this->getRefCnt() > 0);
-        // A release here acts in place of all releases we "should" have been doing in ref().
-        int newRefCount = fRefCnt.fetch_add(-1, std::memory_order_acq_rel);
-        SkASSERT(newRefCount >= 0);
-        if (newRefCount == 1) {
-            // Like unique(), the acquire is only needed on success, to make sure
-            // code in internal_dispose() doesn't happen before the decrement.
-            this->internal_dispose();
-        }
-    }
-
     // Called every time this resource is added to a command buffer.
     virtual void notifyAddedToCommandBuffer() const {}
     // Called every time this resource is removed from a command buffer (typically because
-    // the command buffer finished execution on the GPU but also when the command buffer
-    // is abandoned.)
+    // the command buffer finished execution on the GPU.)
     virtual void notifyRemovedFromCommandBuffer() const {}
 
 #ifdef SK_DEBUG
@@ -180,33 +165,10 @@ private:
     virtual void freeGPUData(GrVkGpu* gpu) const = 0;
 
     /**
-     * Called from unrefAndAbandon. Resources should do any necessary cleanup without freeing
-     * underlying Vk objects. This must be overridden by subclasses that themselves store
-     * GrVkResources since those resource will need to be unrefed.
-     */
-    virtual void abandonGPUData() const {}
-
-    /**
      *  Called when the ref count goes to 0. Will free Vk resources.
      */
     void internal_dispose(GrVkGpu* gpu) const {
         this->freeGPUData(gpu);
-#ifdef SK_TRACE_VK_RESOURCES
-        GetTrace()->remove(this);
-#endif
-
-#ifdef SK_DEBUG
-        SkASSERT(0 == this->getRefCnt());
-        fRefCnt.store(1);
-#endif
-        delete this;
-    }
-
-    /**
-     *  Internal_dispose without freeing Vk resources. Used when we've lost context.
-     */
-    void internal_dispose() const {
-        this->abandonGPUData();
 #ifdef SK_TRACE_VK_RESOURCES
         GetTrace()->remove(this);
 #endif

@@ -181,17 +181,13 @@ void GrVkTexture::onAbandon() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unrefAndAbandon();
+        fTextureView->unref(this->getVkGpu());
         fTextureView = nullptr;
     }
 
-    fDescSetCache.foreach ([](std::unique_ptr<DescriptorCacheEntry>* entry) {
-        (*entry)->fDescriptorSet->unrefAndAbandon();
-        (*entry)->fDescriptorSet = nullptr;
-    });
     fDescSetCache.reset();
 
-    this->abandonImage();
+    this->releaseImage(this->getVkGpu());
     INHERITED::onAbandon();
 }
 
