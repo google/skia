@@ -316,6 +316,16 @@ public:
     static SkPathFillType ConvertToNonInverseFillType(SkPathFillType fill) {
         return (SkPathFillType)(static_cast<int>(fill) & 1);
     }
+
+    /**
+     *  If needed (to not blow-up under a perspective matrix), clip the path, returning the
+     *  answer in "result", and return true.
+     *
+     *  Note result might be empty (if the path was completely clipped out).
+     *
+     *  If no clipping is needed, returns false and "result" is left unchanged.
+     */
+    static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
