@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 80
 
 <Insert new notes here- top is most recent.>
+  * Removed SkSize& SkSize::operator=(const SkISize&)
+    https://review.skia.org/257880
+
   * SkISize width() and height() now constexpr
     https://review.skia.org/257680
 
