@@ -106,7 +106,7 @@ Samples
   var locate_file = '';
   if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported!');
-    locate_file = 'https://unpkg.com/canvaskit-wasm@0.4.0/bin/';
+    locate_file = 'https://unpkg.com/canvaskit-wasm@0.9.0/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser.');
     document.getElementById('demo').innerHTML = "<div>WASM not supported by your browser. Try a recent version of Chrome, Firefox, Edge, or Safari.</div>";
@@ -313,50 +313,87 @@ Samples
       console.log('Could not make surface');
       return;
     }
-    const context = CanvasKit.currentContext();
+    let robotoData = null;
+    fetch('https://storage.googleapis.com/skia-cdn/google-web-fonts/Roboto-Regular.ttf').then((resp) => {
+      resp.arrayBuffer().then((buffer) => {
+        robotoData = buffer;
+        requestAnimationFrame(drawFrame);
+      });
+    });
+
+    let emojiData = null;
+    fetch('https://storage.googleapis.com/skia-cdn/misc/NotoColorEmoji.ttf').then((resp) => {
+      resp.arrayBuffer().then((buffer) => {
+        emojiData = buffer;
+        requestAnimationFrame(drawFrame);
+      });
+    });
+
     const skcanvas = surface.getCanvas();
-    const paint = new CanvasKit.SkPaint();
-    paint.setColor(CanvasKit.BLUE);
-    paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-    const textPaint = new CanvasKit.SkPaint();
-    const bigFont = new CanvasKit.SkFont(null, 30);
-    const smallFont = new CanvasKit.SkFont(null, 14);
+    const font = new CanvasKit.SkFont(null, 18);
+    const fontPaint = new CanvasKit.SkPaint();
+    fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+    fontPaint.setAntiAlias(true);
 
-    const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac leo vitae ipsum hendrerit euismod quis rutrum nibh. Quisque non suscipit urna. Donec enim urna, facilisis vitae volutpat in, mattis at elit. Sed quis augue et dolor dignissim fringilla. Sed non massa eu neque tristique malesuada. ';
+    skcanvas.drawText(`Fetching Font data...`, 5, 450, fontPaint, font);
+    surface.flush();
 
-    let X = 280;
-    let Y = 190;
+    const context = CanvasKit.currentContext();
+
+    let paragraph = null;
+    let X = 250;
+    let Y = 250;
+    const str = 'The quick brown fox 🦊 ate a zesty hamburgerfons 🍔.\nThe 👩‍👩‍👧‍👧 laughed.';
 
     function drawFrame() {
+      if (robotoData && emojiData && !paragraph) {
+        const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData, emojiData]);
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+          textStyle: {
+            color: CanvasKit.BLACK,
+            fontFamilies: ['Roboto', 'Noto Color Emoji'],
+            fontSize: 50,
+          },
+          textAlign: CanvasKit.TextAlign.Left,
+          maxLines: 7,
+          ellipsis: '...',
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText(str);
+        paragraph = builder.build();
+      }
+      if (!paragraph) {
+        requestAnimationFrame(drawFrame);
+        return;
+      }
       CanvasKit.setCurrentContext(context);
-      skcanvas.clear(CanvasKit.TRANSPARENT);
+      skcanvas.clear(CanvasKit.WHITE);
 
-      const shapedText = new CanvasKit.ShapedText({
-        font: smallFont,
-        leftToRight: true,
-        text: TEXT,
-        width: X - 10,
-      });
+      const wrapTo = 350 + 150 * Math.sin(Date.now() / 2000);
+      paragraph.layout(wrapTo);
+      skcanvas.drawParagraph(paragraph, 0, 0);
+      skcanvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
 
-      skcanvas.drawRect(CanvasKit.LTRBRect(10, 10, X, Y), paint);
-      skcanvas.drawText(shapedText, 10, 10, textPaint, smallFont);
-      skcanvas.drawText('Try dragging the box!', 10, 380, textPaint, bigFont);
+      let posA = paragraph.getGlyphPositionAtCoordinate(X, Y);
+      const cp = str.codePointAt(posA.pos);
+      if (cp) {
+        const glyph = String.fromCodePoint(cp);
+        skcanvas.drawText(`At (${X.toFixed(2)}, ${Y.toFixed(2)}) glyph is '${glyph}'`, 5, 450, fontPaint, font);
+      }
 
       surface.flush();
-
-      shapedText.delete();
-
-      window.requestAnimationFrame(drawFrame);
+      requestAnimationFrame(drawFrame);
     }
-    window.requestAnimationFrame(drawFrame);
 
     // Make animation interactive
     let interact = (e) => {
       if (!e.pressure) {
         return;
       }
-      X = e.offsetX;
+      X = e.offsetX - 10;
       Y = e.offsetY;
     };
     document.getElementById('shaping').addEventListener('pointermove', interact);
