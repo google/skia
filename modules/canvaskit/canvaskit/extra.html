@@ -108,15 +108,6 @@
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/skottie_sample_webfont.json').then((resp) => {
-    resp.text().then((str) => {
-      webfontJSON = str;
-      SkottieExample(CanvasKit, 'sk_webfont', webfontJSON, fullBounds, {
-        'Roboto-Regular': robotoData,
-      });
-    });
-  });
-
   fetch('https://storage.googleapis.com/skia-cdn/misc/flightAnim.gif').then((resp) => {
     resp.arrayBuffer().then((buffer) => {
       flightAnimGif = buffer;
