@@ -46,6 +46,30 @@
       "revId": "96135511d02aa436eebd3bb69fc0aca0450ccadc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a42a04c_4c7b8cc4",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-04T21:49:52Z",
+      "side": 1,
+      "message": "MSVC won\u0027t bit pack unrelated types together, and may have packed all those `unsigned` bitfields in an `unsigned`.  Don\u0027t know about clang-cl, might mimic MSVC for ABI compat?\n\nI\u0027d try converting those bitfields to `uint16_t foo : bits`?",
+      "parentUuid": "fb8193e0_d51edac4",
+      "range": {
+        "startLine": 963,
+        "startChar": 4,
+        "endLine": 963,
+        "endChar": 44
+      },
+      "revId": "96135511d02aa436eebd3bb69fc0aca0450ccadc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
