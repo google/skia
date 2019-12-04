@@ -26,18 +26,30 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
 
     const SkISize YDimensions = proxies[yuvaIndices[SkYUVAIndex::kY_Index].fIndex]->dimensions();
 
-    GrSamplerState::Filter minimizeFilterMode = GrSamplerState::Filter::kMipMap == filterMode ?
-                                                GrSamplerState::Filter::kMipMap :
-                                                GrSamplerState::Filter::kBilerp;
+    // This promotion of nearest to bilinear for UV planes exists to mimic libjpeg[-turbo]'s
+    // do_fancy_upsampling option. However, skbug.com/9693.
+    GrSamplerState::Filter subsampledPlaneFilterMode = GrSamplerState::Filter::kMipMap == filterMode
+                                                               ? GrSamplerState::Filter::kMipMap
+                                                               : GrSamplerState::Filter::kBilerp;
 
     GrSamplerState::Filter filterModes[4];
     SkSize scales[4];
     for (int i = 0; i < numPlanes; ++i) {
         SkISize dimensions = proxies[i]->dimensions();
-        scales[i] = SkSize::Make(
-                SkIntToScalar(dimensions.width()) / SkIntToScalar(YDimensions.width()),
-                SkIntToScalar(dimensions.height()) / SkIntToScalar(YDimensions.height()));
-        filterModes[i] = (dimensions == YDimensions) ? filterMode : minimizeFilterMode;
+        // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of
+        // the image size divided by the subsampling factor (2). Our API for creating YUVA doesn't
+        // capture the intended subsampling (and we should fix that). This fixes up 2x subsampling
+        // for images with odd widths/heights (e.g. JPEG 420 or 422).
+        scales[i] = SkSize{dimensions.width()  / SkIntToScalar(YDimensions.width()),
+                           dimensions.height() / SkIntToScalar(YDimensions.height())};
+        if ((YDimensions.width() & 0b1) && dimensions.width() == YDimensions.width() / 2 + 1) {
+            scales[i].fWidth = 0.5f;
+        }
+        if ((YDimensions.height() & 0b1) && dimensions.height() == YDimensions.height() / 2 + 1) {
+            scales[i].fHeight = 0.5f;
+        }
+        // It seems the assumption here is the plane dimensions are smaller than the Y plane.
+        filterModes[i] = (dimensions == YDimensions) ? filterMode : subsampledPlaneFilterMode;
     }
 
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(

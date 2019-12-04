@@ -380,10 +380,10 @@ gm_sources = [
   "$_gm/xfermodes2.cpp",
   "$_gm/xfermodes3.cpp",
   "$_gm/yuvtorgbeffect.cpp",
+  "$_gm/yuv420_odd_dim.cpp",
 ]
 
 gl_gm_sources = [
   "$_gm/atlastext.cpp",
   "$_gm/rectangletexture.cpp",
 ]
-
