@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "54a91e17_0bfaebd1",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:19:29Z",
+      "side": 1,
+      "message": "Done; added count consts for GrAAType, and GrSamplerState enums. I did not bother asserting on the boolean enums.",
+      "parentUuid": "36017dc0_67696b03",
+      "range": {
+        "startLine": 332,
+        "startChar": 11,
+        "endLine": 334,
+        "endChar": 47
+      },
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3402dc4c_2d8ce6b4",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "b6c561cf_c4d32029",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:19:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3402dc4c_2d8ce6b4",
+      "range": {
+        "startLine": 349,
+        "startChar": 8,
+        "endLine": 349,
+        "endChar": 24
+      },
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "deaeecdc_d4f464ba",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
@@ -110,6 +158,24 @@
       "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efa623cf_3a3c0585",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:19:29Z",
+      "side": 1,
+      "message": "Now has comments on Metadata itself talking about op size and performance, and an additional comment in TextureOp\u0027s fields.",
+      "parentUuid": "deaeecdc_d4f464ba",
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
