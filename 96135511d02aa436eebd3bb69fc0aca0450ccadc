@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9336fd3c_7ce05e88",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-04T21:24:58Z",
+      "side": 1,
+      "message": "Just noticed this was removed. Is it not 8 on Windows? Should the other fields of Metadata all be unsigned bitfield, too?",
+      "range": {
+        "startLine": 963,
+        "startChar": 4,
+        "endLine": 963,
+        "endChar": 44
+      },
+      "revId": "96135511d02aa436eebd3bb69fc0aca0450ccadc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
