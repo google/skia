@@ -57,6 +57,10 @@ public:
     static sk_sp<GrContext> MakeGL(const GrContextOptions&);
     static sk_sp<GrContext> MakeGL();
 
+    /**
+     * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive unitl the returned
+     * GrContext is first destroyed or abandoned.
+     */
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
 
@@ -114,6 +118,9 @@ public:
      *
      * The typical use case for this function is that the underlying 3D context was lost and further
      * API calls may crash.
+     *
+     * For Vulkan, even if the device becomes lost, the VkQueue, VkDevice, or VkInstance used to
+     * create the GrContext must be alive before calling abandonContext.
      */
     void abandonContext() override;
 
@@ -130,6 +137,9 @@ public:
      * The typical use case for this function is that the client is going to destroy the 3D context
      * but can't guarantee that GrContext will be destroyed first (perhaps because it may be ref'ed
      * elsewhere by either the client or Skia objects).
+     *
+     * For Vulkan, even if the device becomes lost, the VkQueue, VkDevice, or VkInstance used to
+     * create the GrContext must be alive before calling releaseResourcesAndAbandonContext.
      */
     virtual void releaseResourcesAndAbandonContext();
 
@@ -385,8 +395,9 @@ public:
     * objects outside of Skia proper (i.e., Skia's caching system will not know about them.)
     *
     * It is the client's responsibility to delete all these objects (using deleteBackendTexture)
-    * before deleting the GrContext used to create them. Additionally, clients should only
-    * delete these objects on the thread for which that GrContext is active.
+    * before deleting the GrContext used to create them. If the backend is Vulkan, the textures must
+    * be deleted before abandoning the GrContext as well. Additionally, clients should only delete
+    * these objects on the thread for which that GrContext is active.
     *
     * The client is responsible for ensuring synchronization between different uses
     * of the backend object (i.e., wrapping it in a surface, rendering to it, deleting the

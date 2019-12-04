@@ -86,13 +86,6 @@ void GrVkCommandPool::releaseResources(GrVkGpu* gpu) {
     fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(this);
 }
 
-void GrVkCommandPool::abandonGPUData() const {
-    fPrimaryCommandBuffer->abandonGPUData();
-    for (const auto& buffer : fAvailableSecondaryBuffers) {
-        buffer->abandonGPUData();
-    }
-}
-
 void GrVkCommandPool::freeGPUData(GrVkGpu* gpu) const {
     // TODO: having freeGPUData virtual on GrVkResource be const seems like a bad restriction since
     // we are changing the internal objects of these classes when it is called. We should go back a

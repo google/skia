@@ -120,12 +120,6 @@ void GrVkSampler::freeGPUData(GrVkGpu* gpu) const {
     }
 }
 
-void GrVkSampler::abandonGPUData() const {
-    if (fYcbcrConversion) {
-        fYcbcrConversion->unrefAndAbandon();
-    }
-}
-
 GrVkSampler::Key GrVkSampler::GenerateKey(const GrSamplerState& samplerState,
                                           const GrVkYcbcrConversionInfo& ycbcrInfo) {
     return { GrSamplerState::GenerateKey(samplerState),

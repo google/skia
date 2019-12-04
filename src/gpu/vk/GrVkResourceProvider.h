@@ -164,11 +164,6 @@ public:
     // before deleting (see section 4.2.4 of the Vulkan spec).
     void destroyResources(bool deviceLost);
 
-    // Abandon any cached resources. To be used when the context/VkDevice is lost.
-    // For resource tracing to work properly, this should be called after unrefing all other
-    // resource usages.
-    void abandonResources();
-
     void backgroundReset(GrVkCommandPool* pool);
 
     void reset(GrVkCommandPool* pool);
@@ -188,7 +183,6 @@ private:
         PipelineStateCache(GrVkGpu* gpu);
         ~PipelineStateCache();
 
-        void abandon();
         void release();
         GrVkPipelineState* refPipelineState(GrRenderTarget*,
                                             const GrProgramInfo&,
@@ -234,7 +228,6 @@ private:
                                       const GrVkRenderPass::LoadStoreOps& stencilOps);
 
         void releaseResources(GrVkGpu* gpu);
-        void abandonResources();
 
     private:
         SkSTArray<4, GrVkRenderPass*> fRenderPasses;

@@ -52,8 +52,6 @@ private:
 
     GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
 
-    void abandonGPUData() const override;
-
     void freeGPUData(GrVkGpu* gpu) const override;
 
     bool fOpen = true;

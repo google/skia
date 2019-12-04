@@ -80,23 +80,6 @@ void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
     }
 }
 
-void GrVkPipelineState::abandonGPUResources() {
-    if (fPipeline) {
-        fPipeline->unrefAndAbandon();
-        fPipeline = nullptr;
-    }
-
-    if (fUniformBuffer) {
-        fUniformBuffer->abandon();
-        fUniformBuffer.reset();
-    }
-
-    if (fUniformDescriptorSet) {
-        fUniformDescriptorSet->unrefAndAbandon();
-        fUniformDescriptorSet = nullptr;
-    }
-}
-
 bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
                                            const GrRenderTarget* renderTarget,
                                            const GrProgramInfo& programInfo,

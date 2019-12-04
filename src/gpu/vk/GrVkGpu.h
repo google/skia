@@ -275,7 +275,6 @@ private:
     sk_sp<GrVkCaps>                                       fVkCaps;
     bool                                                  fDeviceIsLost = false;
 
-    VkInstance                                            fInstance;
     VkPhysicalDevice                                      fPhysicalDevice;
     VkDevice                                              fDevice;
     VkQueue                                               fQueue;    // Must be Graphics queue

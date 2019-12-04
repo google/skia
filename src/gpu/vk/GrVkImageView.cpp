@@ -69,9 +69,3 @@ void GrVkImageView::freeGPUData(GrVkGpu* gpu) const {
     }
 }
 
-void GrVkImageView::abandonGPUData() const {
-    if (fYcbcrConversion) {
-        fYcbcrConversion->unrefAndAbandon();
-    }
-}
-

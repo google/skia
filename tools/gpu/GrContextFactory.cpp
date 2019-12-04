@@ -86,10 +86,18 @@ void GrContextFactory::abandonContexts() {
             if (context.fTestContext) {
                 auto restore = context.fTestContext->makeCurrentAndAutoRestore();
                 context.fTestContext->testAbandon();
+            }
+            bool requiresEarlyAbandon = (context.fGrContext->backend() == GrBackendApi::kVulkan);
+            if (requiresEarlyAbandon) {
+                context.fGrContext->abandonContext();
+            }
+            if (context.fTestContext) {
                 delete(context.fTestContext);
                 context.fTestContext = nullptr;
             }
-            context.fGrContext->abandonContext();
+            if (!requiresEarlyAbandon) {
+                context.fGrContext->abandonContext();
+            }
             context.fAbandoned = true;
         }
     }
@@ -108,11 +116,11 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
                 restore = context.fTestContext->makeCurrentAndAutoRestore();
             }
             context.fGrContext->releaseResourcesAndAbandonContext();
-            context.fAbandoned = true;
             if (context.fTestContext) {
                 delete context.fTestContext;
                 context.fTestContext = nullptr;
             }
+            context.fAbandoned = true;
         }
     }
 }

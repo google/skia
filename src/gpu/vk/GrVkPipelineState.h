@@ -68,8 +68,6 @@ public:
 
     void freeGPUResources(GrVkGpu* gpu);
 
-    void abandonGPUResources();
-
 private:
     void writeUniformBuffers(const GrVkGpu* gpu);
 

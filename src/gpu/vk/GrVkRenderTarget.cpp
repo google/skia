@@ -363,35 +363,6 @@ void GrVkRenderTarget::releaseInternalObjects() {
     fGrSecondaryCommandBuffers.reset();
 }
 
-void GrVkRenderTarget::abandonInternalObjects() {
-    if (fMSAAImage) {
-        fMSAAImage->abandonImage();
-        fMSAAImage.reset();
-    }
-
-    if (fResolveAttachmentView) {
-        fResolveAttachmentView->unrefAndAbandon();
-        fResolveAttachmentView = nullptr;
-    }
-    if (fColorAttachmentView) {
-        fColorAttachmentView->unrefAndAbandon();
-        fColorAttachmentView = nullptr;
-    }
-    if (fCachedFramebuffer) {
-        fCachedFramebuffer->unrefAndAbandon();
-        fCachedFramebuffer = nullptr;
-    }
-    if (fCachedSimpleRenderPass) {
-        fCachedSimpleRenderPass->unrefAndAbandon();
-        fCachedSimpleRenderPass = nullptr;
-    }
-    for (int i = 0; i < fGrSecondaryCommandBuffers.count(); ++i) {
-        SkASSERT(fGrSecondaryCommandBuffers[i]);
-        fGrSecondaryCommandBuffers[i]->abandonGPUData();
-    }
-    fGrSecondaryCommandBuffers.reset();
-}
-
 void GrVkRenderTarget::onRelease() {
     this->releaseInternalObjects();
     this->releaseImage(this->getVkGpu());
@@ -399,11 +370,10 @@ void GrVkRenderTarget::onRelease() {
 }
 
 void GrVkRenderTarget::onAbandon() {
-    this->abandonInternalObjects();
-    this->abandonImage();
+    this->releaseInternalObjects();
+    this->releaseImage(this->getVkGpu());
     GrRenderTarget::onAbandon();
 }
-
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
