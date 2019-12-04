@@ -464,7 +464,7 @@ bool OneLineShaper::shape() {
             auto blockSpan = SkSpan<Block>(&block, 1);
 
             // Start from the beginning (hoping that it's a simple case one block - one run)
-            fHeight = block.fStyle.getHeight();
+            fHeight = block.fStyle.getHeightOverride() ? block.fStyle.getHeight() : 0;
             fAdvance = SkVector::Make(advanceX, 0);
             fCurrentText = block.fRange;
             fUnresolvedBlocks.emplace(RunBlock(block.fRange));
@@ -507,7 +507,7 @@ bool OneLineShaper::shape() {
                 return !fUnresolvedBlocks.empty();
             });
 
-            this->finish(block.fRange, block.fStyle.getHeight(), advanceX);
+            this->finish(block.fRange, fHeight, advanceX);
         });
 
         return true;
