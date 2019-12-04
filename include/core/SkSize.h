@@ -30,8 +30,8 @@ struct SkISize {
     /** Set the width and height to 0 */
     void setEmpty() { fWidth = fHeight = 0; }
 
-    int32_t width() const { return fWidth; }
-    int32_t height() const { return fHeight; }
+    constexpr int32_t width() const { return fWidth; }
+    constexpr int32_t height() const { return fHeight; }
 
     int64_t area() const { return fWidth * fHeight; }
 
