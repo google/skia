@@ -921,7 +921,7 @@ private:
     unsigned fAAType : 2;
     unsigned fDomain : 1;
     unsigned fColorType : 2;
-    GR_STATIC_ASSERT(GrQuadPerEdgeAA::kColorTypeCount <= 4);
+    static_assert(GrQuadPerEdgeAA::kColorTypeCount <= 4);
     unsigned fProxyCnt : 32 - 8;
 
     // This field must go last. When allocating this op, we will allocate extra space to hold

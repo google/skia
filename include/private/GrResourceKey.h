@@ -43,7 +43,7 @@ protected:
 
     /** Reset to an invalid key. */
     void reset() {
-        GR_STATIC_ASSERT((uint16_t)kInvalidDomain == kInvalidDomain);
+        static_assert((uint16_t)kInvalidDomain == kInvalidDomain);
         fKey.reset(kMetaDataCnt);
         fKey[kHash_MetaDataIdx] = 0;
         fKey[kDomainAndSize_MetaDataIdx] = kInvalidDomain;
@@ -118,7 +118,7 @@ protected:
             if (nullptr == fKey) {
                 return;
             }
-            GR_STATIC_ASSERT(0 == kHash_MetaDataIdx);
+            static_assert(0 == kHash_MetaDataIdx);
             uint32_t* hash = &fKey->fKey[kHash_MetaDataIdx];
             *hash = GrResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
             fKey->validate();
