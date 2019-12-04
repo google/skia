@@ -141,9 +141,10 @@ DEF_SAMPLE( return new ClipView(); )
 struct SkHalfPlane {
     SkScalar fA, fB, fC;
 
-    SkScalar operator()(SkScalar x, SkScalar y) const {
+    SkScalar eval(SkScalar x, SkScalar y) const {
         return fA * x + fB * y + fC;
     }
+    SkScalar operator()(SkScalar x, SkScalar y) const { return this->eval(x, y); }
 
     bool twoPts(SkPoint pts[2]) const {
         // normalize plane to help with the perpendicular step, below
@@ -172,11 +173,45 @@ struct SkHalfPlane {
         SkASSERT(SkScalarNearlyZero(this->operator()(pts[1].fX, pts[1].fY)));
         return true;
     }
+
+    enum Result {
+        kAllNegative,
+        kAllPositive,
+        kMixed
+    };
+    Result test(const SkRect& bounds) const {
+        SkPoint diagMin, diagMax;
+        if (fA >= 0) {
+            diagMin.fX = bounds.fLeft;
+            diagMax.fX = bounds.fRight;
+        } else {
+            diagMin.fX = bounds.fRight;
+            diagMax.fX = bounds.fLeft;
+        }
+        if (fB >= 0) {
+            diagMin.fY = bounds.fTop;
+            diagMax.fY = bounds.fBottom;
+        } else {
+            diagMin.fY = bounds.fBottom;
+            diagMax.fY = bounds.fTop;
+        }
+        SkScalar test = this->eval(diagMin.fX, diagMin.fY);
+        SkScalar sign = test*this->eval(diagMax.fX, diagMin.fY);
+        if (sign > 0) {
+            // the path is either all on one side of the half-plane or the other
+            if (test < 0) {
+                return kAllNegative;
+            } else {
+                return kAllPositive;
+            }
+        }
+        return kMixed;
+    }
 };
 
 #include "src/core/SkEdgeClipper.h"
 
-static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
+static void clip(const SkPath& path, SkPoint p0, SkPoint p1, SkPath* clippedPath) {
     SkMatrix mx, inv;
     SkVector v = p1 - p0;
     mx.setAll(v.fX, -v.fY, p0.fX,
@@ -191,9 +226,9 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
     SkRect clip = {-big, 0, big, big };
 
     struct Rec {
-        SkPath  fResult;
+        SkPath* fResult;
         SkPoint fPrev;
-    } rec;
+    } rec = { clippedPath, {0, 0} };
 
     SkEdgeClipper::ClipPath(rotated, clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
@@ -204,26 +239,26 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
         SkPath::Verb verb;
         while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
             if (newCtr) {
-                rec->fResult.moveTo(pts[0]);
+                rec->fResult->moveTo(pts[0]);
                 rec->fPrev = pts[0];
                 newCtr = false;
             }
 
             if (addLineTo || pts[0] != rec->fPrev) {
-                rec->fResult.lineTo(pts[0]);
+                rec->fResult->lineTo(pts[0]);
             }
 
             switch (verb) {
                 case SkPath::kLine_Verb:
-                    rec->fResult.lineTo (pts[1]);
+                    rec->fResult->lineTo(pts[1]);
                     rec->fPrev = pts[1];
                     break;
                 case SkPath::kQuad_Verb:
-                    rec->fResult.quadTo(pts[1], pts[2]);
+                    rec->fResult->quadTo(pts[1], pts[2]);
                     rec->fPrev = pts[2];
                     break;
                 case SkPath::kCubic_Verb:
-                    rec->fResult.cubicTo(pts[1], pts[2], pts[3]);
+                    rec->fResult->cubicTo(pts[1], pts[2], pts[3]);
                     rec->fPrev = pts[3];
                     break;
                 default: break;
@@ -232,50 +267,27 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
         }
     }, &rec);
 
-    rec.fResult.transform(mx);
-    return rec.fResult;
+    rec.fResult->transform(mx);
 }
 
-static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
-    // do a quick bounds check to see if we need to clip at all
-    const SkRect& bounds = path.getBounds();
-
-    // check whether the diagonal aligned with the normal crosses the plane
-    SkPoint diagMin, diagMax;
-    if (plane.fA >= 0) {
-        diagMin.fX = bounds.fLeft;
-        diagMax.fX = bounds.fRight;
-    } else {
-        diagMin.fX = bounds.fRight;
-        diagMax.fX = bounds.fLeft;
+// true means use clippedPath.
+// false means there was no clipping -- use the original path
+static bool clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPath) {
+    switch (plane.test(path.getBounds())) {
+        case SkHalfPlane::kAllPositive:
+            return false;
+        case SkHalfPlane::kMixed: {
+            SkPoint pts[2];
+            if (plane.twoPts(pts)) {
+                clip(path, pts[0], pts[1], clippedPath);
+                return true;
+            }
+        } break;
+        default: break; // handled outside of the switch
     }
-    if (plane.fB >= 0) {
-        diagMin.fY = bounds.fTop;
-        diagMax.fY = bounds.fBottom;
-    } else {
-        diagMin.fY = bounds.fBottom;
-        diagMax.fY = bounds.fTop;
-    }
-    SkScalar test = plane(diagMin.fX, diagMin.fY);
-    SkScalar sign = test*plane(diagMax.fX, diagMin.fY);
-    if (sign > 0) {
-        // the path is either all on one side of the half-plane or the other
-        if (test < 0) {
-            // completely culled
-            return SkPath();
-        } else {
-            // no clipping necessary
-            return path;
-        }
-    }
-
-    // quick check failed, we have to clip
-    SkPoint pts[2];
-    if (plane.twoPts(pts)) {
-        return clip(path, pts[0], pts[1]);
-    } else {
-        return SkPath();
-    }
+    // clipped out (or failed)
+    clippedPath->reset();
+    return true;
 }
 
 static void draw_halfplane(SkCanvas* canvas, SkPoint p0, SkPoint p1, SkColor c) {
@@ -319,7 +331,10 @@ class HalfPlaneView : public Sample {
         canvas->drawPath(fPath, paint);
 
         paint.setColor({0, 0, 0, 1}, nullptr);
-        canvas->drawPath(clip(fPath, fPts[0], fPts[1]), paint);
+
+        SkPath clippedPath;
+        clip(fPath, fPts[0], fPts[1], &clippedPath);
+        canvas->drawPath(clippedPath, paint);
 
         draw_halfplane(canvas, fPts[0], fPts[1], SK_ColorRED);
     }
@@ -430,6 +445,7 @@ static SkMatrix44 inv(const SkMatrix44& m) {
     return inverse;
 }
 
+#if 0   // Jim's general half-planes math
 static void half_planes(const SkMatrix44& m44, SkScalar W, SkScalar H, SkHalfPlane planes[6]) {
     float mx[16];
     m44.asColMajorf(mx);
@@ -450,18 +466,10 @@ static void half_planes(const SkMatrix44& m44, SkScalar W, SkScalar H, SkHalfPla
     planes[4] = { m - i, n - j, p - l }; // w - z
     planes[5] = { m + i, n + j, p + l }; // w + z
 }
+#endif
 
-static SkHalfPlane half_plane_w0(const SkMatrix44& m44, SkScalar W, SkScalar H) {
-    float mx[16];
-    m44.asColMajorf(mx);
-
-    SkScalar
-//            a = mx[0], b = mx[4], /* c = mx[ 8], */ d = mx[12],
-//             e = mx[1], f = mx[5], /* g = mx[ 9], */ h = mx[13],
-//             i = mx[2], j = mx[6], /* k = mx[10], */ l = mx[14],
-             m = mx[3], n = mx[7], /* o = mx[11], */ p = mx[15];
-
-    return { m, n, p - 0.05f };  // w = 0.05f
+static SkHalfPlane half_plane_w0(const SkMatrix& m) {
+    return { m[SkMatrix::kMPersp0], m[SkMatrix::kMPersp1], m[SkMatrix::kMPersp2] - 0.05f };
 }
 
 class HalfPlaneView3 : public Sample {
@@ -478,6 +486,7 @@ class HalfPlaneView3 : public Sample {
 
     SkPath fPath;
     sk_sp<SkShader> fShader;
+    bool fShowUnclipped = false;
 
     SkString name() override { return SkString("halfplane3"); }
 
@@ -514,8 +523,7 @@ class HalfPlaneView3 : public Sample {
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkMatrix44 mx44 = this->get44();
-        SkMatrix mx = mx44;
+        SkMatrix mx = this->get44();
 
         SkPaint paint;
         paint.setColor({0.75, 0.75, 0.75, 1});
@@ -523,29 +531,29 @@ class HalfPlaneView3 : public Sample {
 
         paint.setShader(fShader);
 
+        if (fShowUnclipped) {
+            canvas->save();
+            canvas->concat(mx);
+            paint.setAlphaf(0.33f);
+            canvas->drawPath(fPath, paint);
+            paint.setAlphaf(1.f);
+            canvas->restore();
+        }
+
+        SkHalfPlane hpw = half_plane_w0(mx);
+
+        SkColor planeColor = SK_ColorBLUE;
+        SkPath clippedPath, *path = &fPath;
+        if (clip(fPath, hpw, &clippedPath)) {
+            path = &clippedPath;
+            planeColor = SK_ColorRED;
+        }
         canvas->save();
         canvas->concat(mx);
-        paint.setAlphaf(0.33f);
-        canvas->drawPath(fPath, paint);
-        paint.setAlphaf(1.f);
+        canvas->drawPath(*path, paint);
         canvas->restore();
 
-        SkHalfPlane planes[6];
-        half_planes(mx44, 400, 400, planes);
-        SkHalfPlane hpw = half_plane_w0(mx44, 400, 400);
-
-        SkPath path = clip(fPath, hpw);//planes[4]);
-        canvas->save();
-        canvas->concat(mx);
-        canvas->drawPath(path, paint);
-        canvas->restore();
-
-//        for (auto& p : planes) {
-//            draw_halfplane(canvas, p, SK_ColorRED);
-//        }
-        draw_halfplane(canvas, planes[4], SK_ColorBLUE);
-//        draw_halfplane(canvas, planes[5], SK_ColorGREEN);
-        draw_halfplane(canvas, hpw, SK_ColorRED);
+        draw_halfplane(canvas, hpw, planeColor);
     }
 
     bool onChar(SkUnichar uni) override {
@@ -558,13 +566,15 @@ class HalfPlaneView3 : public Sample {
             case '-': this->rotate(0, 0,  delta); return true;
             case '+': this->rotate(0, 0, -delta); return true;
 
-            case 'i': fTrans.fZ += 0.1f; SkDebugf("ez %g\n", fTrans.fZ); return true;
-            case 'k': fTrans.fZ -= 0.1f; SkDebugf("ez %g\n", fTrans.fZ); return true;
+            case 'i': fTrans.fZ += 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
+            case 'k': fTrans.fZ -= 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
 
             case 'n': fNear += 0.1f; SkDebugf("near %g\n", fNear); return true;
             case 'N': fNear -= 0.1f; SkDebugf("near %g\n", fNear); return true;
             case 'f': fFar  += 0.1f; SkDebugf("far  %g\n", fFar); return true;
             case 'F': fFar  -= 0.1f; SkDebugf("far  %g\n", fFar); return true;
+
+            case 'u': fShowUnclipped = !fShowUnclipped; return true;
             default: break;
         }
         return false;
