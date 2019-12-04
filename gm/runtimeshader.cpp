@@ -61,3 +61,50 @@ class RuntimeShader : public skiagm::GM {
     }
 };
 DEF_GM(return new RuntimeShader;)
+
+#include "include/gpu/GrContext.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrRenderTargetContextPriv.h"
+#include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/ops/GrFillRectOp.h"
+
+namespace skiagm {
+
+static const char* kSrc = R"(
+void main(float x, float y, inout half4 color) {
+    color = half4(1 - color.rgb, color.a);
+}
+)";
+
+class RuntimeShader_GPU : public GpuGM {
+    SkString onShortName() override { return SkString("runtime_shader_gpu"); }
+    SkISize onISize() override { return { 256, 256 }; }
+
+    void onOnceBeforeDraw() override {
+        GetResourceAsBitmap("images/mandrill_256.png", &fBitmap);
+    }
+
+    void onDraw(GrContext* context, GrRenderTargetContext* rtc, SkCanvas* canvas) override {
+        auto texture = context->priv().proxyProvider()->createProxyFromBitmap(fBitmap,
+                                                                              GrMipMapped::kNo);
+        auto texFP = GrSimpleTextureEffect::Make(texture, fBitmap.alphaType(), SkMatrix());
+
+        static int kIndex = GrSkSLFP::NewIndex();
+        auto fp = GrSkSLFP::Make(context, kIndex, "RuntimeShader", kSrc, nullptr, 0);
+        fp->addChild(std::move(texFP));
+
+        SkRect rect = SkRect::MakeXYWH(0, 0, 256, 256);
+        GrPaint grPaint;
+        grPaint.addColorFragmentProcessor(std::move(fp));
+        rtc->priv().testingOnly_addDrawOp(GrFillRectOp::MakeNonAARect(context, std::move(grPaint),
+                                                                      SkMatrix::I(), rect));
+    }
+
+    SkBitmap fBitmap;
+};
+
+DEF_GM(return new RuntimeShader_GPU;)
+
+}
