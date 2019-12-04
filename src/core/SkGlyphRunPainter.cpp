@@ -96,34 +96,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
     SkPoint origin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
         const SkFont& runFont = glyphRun.font();
-#ifdef SK_SUPPORT_LEGACY_CPU_EMOJI
-        if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
 
-            SkStrikeSpec strikeSpec = SkStrikeSpec::MakePath(
-                    runFont, runPaint, props, fScalerContextFlags);
-
-            auto strike = strikeSpec.findOrCreateExclusiveStrike();
-
-            fDrawable.startSource(glyphRun.source(), origin);
-            strike->prepareForDrawingPathsCPU(&fDrawable);
-
-            // The paint we draw paths with must have the same anti-aliasing state as the runFont
-            // allowing the paths to have the same edging as the glyph masks.
-            SkPaint pathPaint = runPaint;
-            pathPaint.setAntiAlias(runFont.hasSomeAntiAliasing());
-
-            bitmapDevice->paintPaths(&fDrawable, strikeSpec.strikeToSourceRatio(), pathPaint);
-        } else {
-            SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
-                    runFont, runPaint, props, fScalerContextFlags, deviceMatrix);
-
-            auto strike = strikeSpec.findOrCreateExclusiveStrike();
-
-            fDrawable.startDevice(glyphRun.source(), origin, deviceMatrix, strike->roundingSpec());
-            strike->prepareForDrawingMasksCPU(&fDrawable);
-            bitmapDevice->paintMasks(&fDrawable, runPaint);
-        }
-#else
         fRejects.setSource(glyphRun.source());
 
         if (SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, deviceMatrix)) {
@@ -157,8 +130,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
         // TODO: have the mask stage above reject the glyphs that are too big, and handle the
         //  rejects in a more sophisticated stage.
-#endif
-
     }
 }
 
