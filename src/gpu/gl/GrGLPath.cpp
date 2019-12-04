@@ -224,13 +224,11 @@ void GrGLPath::InitPathObjectPathData(GrGLGpu* gpu,
         int verbCnt = skPath.countVerbs();
         int pointCnt = skPath.countPoints();
         int coordCnt = pointCnt * 2;
-        SkSTArray<16, GrGLubyte, true> pathCommands(verbCnt);
-        SkSTArray<16, GrGLfloat, true> pathCoords(coordCnt);
+        SkAutoSTArray<16, GrGLubyte> pathCommands(verbCnt);
+        SkAutoSTArray<16, GrGLfloat> pathCoords(coordCnt);
 
         static_assert(sizeof(SkPoint) == sizeof(GrGLfloat) * 2, "sk_point_not_two_floats");
 
-        pathCommands.resize_back(verbCnt);
-        pathCoords.resize_back(coordCnt);
         skPath.getPoints(reinterpret_cast<SkPoint*>(&pathCoords[0]), pointCnt);
         skPath.getVerbs(&pathCommands[0], verbCnt);
 
