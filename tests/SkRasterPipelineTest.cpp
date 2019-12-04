@@ -221,8 +221,9 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             p.append(SkRasterPipeline::store_f16, &dst);
             p.run(0,0, i,1);
             for (unsigned j = 0; j < i; j++) {
-                REPORTER_ASSERT(r,
-                                !memcmp(&data[j][0], &buffer[j][0], sizeof(buffer[j])));
+                for (int k = 0; k < 4; k++) {
+                    REPORTER_ASSERT(r, buffer[j][k] == data[j][k]);
+                }
             }
             for (int j = i; j < 4; j++) {
                 for (auto f : buffer[j]) {
