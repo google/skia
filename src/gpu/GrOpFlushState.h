@@ -172,7 +172,7 @@ private:
         const GrPipeline::FixedDynamicState* fFixedDynamicState = nullptr;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays = nullptr;
         const GrMesh* fMeshes = nullptr;
-        const GrOp* fOp = nullptr;
+        const GrOp* fOp1 = nullptr;
         int fMeshCnt = 0;
         GrPrimitiveType fPrimitiveType;
     };

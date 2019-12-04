@@ -787,7 +787,7 @@ GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
                                       geomProc,
                                       fixedDynamicState,
                                       nullptr, 0,
-                                      GrPrimitiveType::kTriangles);
+                                      GrPrimitiveType::kTriangles, false);
 }
 
 void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
