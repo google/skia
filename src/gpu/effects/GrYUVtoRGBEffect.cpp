@@ -30,19 +30,54 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
                                                 GrSamplerState::Filter::kMipMap :
                                                 GrSamplerState::Filter::kBilerp;
 
-    GrSamplerState::Filter filterModes[4];
-    SkSize scales[4];
+    std::unique_ptr<GrFragmentProcessor> planeFPs[4];
     for (int i = 0; i < numPlanes; ++i) {
         SkISize dimensions = proxies[i]->dimensions();
-        scales[i] = SkSize::Make(
-                SkIntToScalar(dimensions.width()) / SkIntToScalar(YDimensions.width()),
-                SkIntToScalar(dimensions.height()) / SkIntToScalar(YDimensions.height()));
-        filterModes[i] = (dimensions == YDimensions) ? filterMode : minimizeFilterMode;
+        SkTCopyOnFirstWrite<SkMatrix> planeMatrix(&localMatrix);
+        GrSamplerState::Filter planeFilter = filterMode;
+        SkRect planeDomain;
+        if (dimensions != YDimensions) {
+            float sx = (float)dimensions.width()  / YDimensions.width();
+            float sy = (float)dimensions.height() / YDimensions.height();
+            *planeMatrix.writable() = SkMatrix::MakeScale(sx, sy);
+            planeMatrix.writable()->preConcat(localMatrix);
+            planeFilter = minimizeFilterMode;
+            if (domain) {
+                planeDomain = {domain->fLeft   * sx,
+                               domain->fTop    * sy,
+                               domain->fRight  * sx,
+                               domain->fBottom * sy};
+            }
+        } else if (domain) {
+            planeDomain = *domain;
+        }
+        planeFPs[i] = GrSimpleTextureEffect::Make(proxies[i], kUnknown_SkAlphaType, *planeMatrix, planeFilter);
+        if (domain) {
+            SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
+            if (planeFilter != GrSamplerState::Filter::kNearest) {
+                // Inset by half a pixel for bilerp, after scaling to the size of the plane
+                planeDomain.inset(0.5f, 0.5f);
+            }
+            planeFPs[i] = GrDomainEffect::Make(std::move(planeFPs[i]), planeDomain, GrTextureDomain::kClamp_Mode, false);
+        }
     }
 
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(
-            proxies, scales, filterModes, numPlanes, yuvaIndices, yuvColorSpace, localMatrix,
-            domain));
+            planeFPs, numPlanes, yuvaIndices, yuvColorSpace));
+}
+
+static SkAlphaType alpha_type(const SkYUVAIndex yuvaIndices[4]) {
+    return yuvaIndices[3].fIndex >= 0 ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+}
+
+GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs[4], int numPlanes,
+                                   const SkYUVAIndex yuvaIndices[4], SkYUVColorSpace yuvColorSpace)
+        : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID, ModulateForClampedSamplerOptFlags(alpha_type(yuvaIndices)))
+        , fYUVColorSpace(yuvColorSpace) {
+    for (int i = 0; i < numPlanes; ++i) {
+        this->registerChildProcessor(std::move(planeFPs[i]));
+    }
+    std::copy_n(yuvaIndices, 4, fYUVAIndices);
 }
 
 #ifdef SK_DEBUG
@@ -66,26 +101,22 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            const GrYUVtoRGBEffect& _outer = args.fFp.cast<GrYUVtoRGBEffect>();
-            (void)_outer;
+            const GrYUVtoRGBEffect& yuvEffect = args.fFp.cast<GrYUVtoRGBEffect>();
 
-            if (kIdentity_SkYUVColorSpace != _outer.yuvColorSpace()) {
+            if (kIdentity_SkYUVColorSpace != yuvEffect.yuvColorSpace()) {
                 fColorSpaceMatrixVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
                                                                         kHalf4x4_GrSLType,
                                                                         "colorSpaceMatrix");
             }
 
-            int numSamplers = args.fTexSamplers.count();
+            int numPlanes = yuvEffect.numChildProcessors();
 
             SkString coords[4];
-            for (int i = 0; i < numSamplers; ++i) {
-                coords[i] = fragBuilder->ensureCoords2D(args.fTransformedCoords[i].fVaryingPoint);
-            }
-
             for (int i = 0; i < numSamplers; ++i) {
                 SkString sampleVar;
                 sampleVar.printf("tmp%d", i);
                 fragBuilder->codeAppendf("half4 %s;", sampleVar.c_str());
+                fragBuilder->
                 fGLDomains[i].sampleTexture(fragBuilder, args.fUniformHandler, args.fShaderCaps,
                         _outer.fDomains[i], sampleVar.c_str(), coords[i], args.fTexSamplers[i]);
             }
