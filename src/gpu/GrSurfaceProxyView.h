@@ -57,6 +57,12 @@ public:
         *this = {};
     }
 
+    // This does not reset the origin or proxy, so the View can still be used to access those
+    // properties associated with the detached proxy.
+    sk_sp<GrSurfaceProxy> detachProxy() {
+        return std::move(fProxy);
+    }
+
 private:
     sk_sp<GrSurfaceProxy> fProxy;
     GrSurfaceOrigin fOrigin = kTopLeft_GrSurfaceOrigin;
