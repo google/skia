@@ -317,8 +317,7 @@ int main(int argc, char** argv) {
         }
     }
     if (options.skp) {
-        SkSize size;
-        size = options.size;
+        auto size = SkSize::Make(options.size);
         SkPictureRecorder recorder;
         srand(0);
         draw(prepare_canvas(recorder.beginRecording(size.width(), size.height())));
