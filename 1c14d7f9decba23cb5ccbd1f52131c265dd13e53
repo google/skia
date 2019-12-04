@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bfef6d5_10f724f4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2019-12-04T18:40:04Z",
+      "side": 1,
+      "message": "Canvas.clipPath and Canvas.clipRect calls are both BW.\n\nClipping done by setting an Outline on the view is AA.",
+      "revId": "1c14d7f9decba23cb5ccbd1f52131c265dd13e53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
