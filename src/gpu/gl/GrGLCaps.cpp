@@ -631,14 +631,17 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
-    if (GR_IS_GR_GL(standard)) {
-        fFenceSyncSupport = (version >= GR_GL_VER(3, 2) || ctxInfo.hasExtension("GL_ARB_sync"));
+    if (ctxInfo.hasExtension("GL_ARB_sync") || ctxInfo.hasExtension("GL_APPLE_sync")) {
+        fFenceSyncSupport = true;
+    } else if (GR_IS_GR_GL(standard)) {
+        fFenceSyncSupport = (version >= GR_GL_VER(3, 2));
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fFenceSyncSupport = (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_APPLE_sync"));
+        fFenceSyncSupport = (version >= GR_GL_VER(3, 0));
     } else if (GR_IS_GR_WEBGL(standard)) {
         // Only in WebGL 2.0
         fFenceSyncSupport = version >= GR_GL_VER(2, 0);
     }
+
     // The same objects (GL sync objects) are used to implement GPU/CPU fence syncs and GPU/GPU
     // semaphores.
     fSemaphoreSupport = fFenceSyncSupport;
