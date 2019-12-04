@@ -1015,6 +1015,7 @@
 #include "../../docs/examples/Screen.cpp"
 #include "../../docs/examples/Shader_Methods_a.cpp"
 #include "../../docs/examples/Shader_Methods_b.cpp"
+#include "../../docs/examples/Shaper_with_font_fallback.cpp"
 #include "../../docs/examples/Soft_Light.cpp"
 #include "../../docs/examples/Src.cpp"
 #include "../../docs/examples/Src_Atop.cpp"
