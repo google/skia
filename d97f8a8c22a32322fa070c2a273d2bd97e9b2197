@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f29f5831_fc474350",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-04T20:13:19Z",
+      "side": 1,
+      "message": "some where in here you may want static asserts that the individual enums are smaller than the number of bits you\u0027re giving them.",
+      "range": {
+        "startLine": 332,
+        "startChar": 11,
+        "endLine": 334,
+        "endChar": 47
+      },
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
