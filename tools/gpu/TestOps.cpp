@@ -160,7 +160,9 @@ void TestRectOp::onPrepareDraws(Target* target) {
 }
 
 void TestRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, std::move(fProcessorSet));
+    const GrPipeline* pipeline = flushState->createPipeline(std::move(fProcessorSet));
+
+    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
 }
 
 }  // anonymous namespace

@@ -632,8 +632,12 @@ private:
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         }
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, std::move(fProcessorSet), pipelineFlags, fStencilSettings);
+
+        const GrPipeline* pipeline = flushState->createPipeline(std::move(fProcessorSet),
+                                                                pipelineFlags,
+                                                                fStencilSettings);
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
