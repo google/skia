@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4ccafb32_59c972b6",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-12-04T16:19:50Z",
+      "side": 0,
+      "message": "Yes. All the calls to GrTextBlob::Make have the same glyphRunList as the calls to this (generateFromGlyphRunList). I\u0027m planning to rationalize these APIs soon. generateFromGlyphRunList will probably disappear.",
+      "parentUuid": "6aefc3ac_0cccfaeb",
+      "range": {
+        "startLine": 469,
+        "startChar": 42,
+        "endLine": 469,
+        "endChar": 77
+      },
+      "revId": "00ae959342fb36b03fee6c629674e61bafc458d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5973c453_8df9070a",
         "filename": "src/core/SkGlyphRunPainter.cpp",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-12-03T23:21:00Z",
       "side": 0,
       "message": "So this seems to be the real change, instead of having the origin come in here the origin is already on the GrTextBlob.",
+      "range": {
+        "startLine": 471,
+        "startChar": 21,
+        "endLine": 471,
+        "endChar": 42
+      },
+      "revId": "00ae959342fb36b03fee6c629674e61bafc458d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66a7c83d_5617ecb0",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-12-04T16:19:50Z",
+      "side": 0,
+      "message": "The origin from glyphRunList is the same that is stored in the GrTextBlob.",
+      "parentUuid": "5973c453_8df9070a",
       "range": {
         "startLine": 471,
         "startChar": 21,
