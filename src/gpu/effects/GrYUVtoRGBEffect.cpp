@@ -34,9 +34,18 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
     SkSize scales[4];
     for (int i = 0; i < numPlanes; ++i) {
         SkISize dimensions = proxies[i]->dimensions();
-        scales[i] = SkSize::Make(
-                SkIntToScalar(dimensions.width()) / SkIntToScalar(YDimensions.width()),
-                SkIntToScalar(dimensions.height()) / SkIntToScalar(YDimensions.height()));
+        // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of the
+        // image size divided by the subsampling. Our API for creating YUVA doesn't capture the
+        // intended subsampling (and we should fix that). This fixes up 2x subsampling for images
+        // with odd widths/heights.
+        scales[i] = {dimensions.width()  / SkIntToScalar(YDimensions.width()),
+                     dimensions.height() / SkIntToScalar(YDimensions.height())};
+        if (YDimensions.width() & 0b1 && dimensions.width() == YDimensions.width() / 2 + 1) {
+            scales[i].fWidth = 0.5f;
+        }
+        if (YDimensions.height() & 0b1 && dimensions.height() == YDimensions.height() / 2 + 1) {
+            scales[i].fHeight = 0.5f;
+        }
         filterModes[i] = (dimensions == YDimensions) ? filterMode : minimizeFilterMode;
     }
 
