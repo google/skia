@@ -50,12 +50,14 @@ DEF_TEST(WindowRectangles, reporter) {
         B.addWindow(SkRectPriv::MakeILarge());
         REPORTER_ASSERT(reporter, B != A);
 
-        REPORTER_ASSERT(reporter, !memcmp(A.data(), windowData,
-                                          GrWindowRectangles::kMaxWindows * sizeof(SkIRect)));
-        REPORTER_ASSERT(reporter, !memcmp(B.data(), windowData,
-                                          (GrWindowRectangles::kMaxWindows - 1) * sizeof(SkIRect)));
-        REPORTER_ASSERT(reporter,
-                        B.data()[GrWindowRectangles::kMaxWindows - 1] == SkRectPriv::MakeILarge());
+        for (int i = 0; i < GrWindowRectangles::kMaxWindows - 1; i++) {
+            REPORTER_ASSERT(reporter, A.data()[i] == windowData[i]);
+            REPORTER_ASSERT(reporter, B.data()[i] == windowData[i]);
+        }
+        REPORTER_ASSERT(reporter, A.data()[GrWindowRectangles::kMaxWindows - 1]
+                             == windowData[GrWindowRectangles::kMaxWindows - 1]);
+        REPORTER_ASSERT(reporter, B.data()[GrWindowRectangles::kMaxWindows - 1]
+                             == SkRectPriv::MakeILarge());
     }
     {
         GrWindowRectangles A(wr), B(wr);
@@ -66,9 +68,10 @@ DEF_TEST(WindowRectangles, reporter) {
         B.addWindow(windowData[GrWindowRectangles::kMaxWindows - 1]);
         REPORTER_ASSERT(reporter, B == A);
         REPORTER_ASSERT(reporter, B.data() != A.data());
-        REPORTER_ASSERT(reporter, !memcmp(B.data(), A.data(),
-                                          GrWindowRectangles::kMaxWindows * sizeof(SkIRect)));
-        REPORTER_ASSERT(reporter, !memcmp(A.data(), windowData,
-                                          GrWindowRectangles::kMaxWindows * sizeof(SkIRect)));
+
+        for (int i = 0; i < GrWindowRectangles::kMaxWindows; i++) {
+            REPORTER_ASSERT(reporter, B.data()[i] ==   A.data()[i]);
+            REPORTER_ASSERT(reporter, A.data()[i] == windowData[i]);
+        }
     }
 }
