@@ -28,18 +28,6 @@ static inline uint32_t float_to_bits(float f) {
     return u;
 }
 
-// Exposes a particle's random generator as an external, readable value. read returns a float [0, 1)
-class SkRandomExternalValue : public SkParticleExternalValue {
-public:
-    SkRandomExternalValue(const char* name, SkSL::Compiler& compiler)
-        : SkParticleExternalValue(name, compiler, *compiler.context().fFloat_Type) {}
-
-    bool canRead() const override { return true; }
-    void read(int index, float* target) override {
-        *target = fRandom[index].nextF();
-    }
-};
-
 static const char* kCommonHeader =
 R"(
 struct Effect {
@@ -57,9 +45,15 @@ struct Effect {
   float4 color;
   float  frame;
   uint   flags;
+  uint   rand;
 };
 
 uniform float dt;
+
+float randf(inout uint seed) {
+  seed = seed * 1664525 + 1013904223;
+  return float(seed >> 4) / 0xFFFFFFF;
+}
 )";
 
 static const char* kParticleHeader =
@@ -75,6 +69,7 @@ struct Particle {
   float4 color;
   float  frame;
   uint   flags;
+  uint   rand;
 };
 
 uniform Effect effect;
@@ -126,10 +121,6 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
 
         SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
 
-        auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
-        compiler.registerExternalValue(rand.get());
-        externalValues.push_back(std::move(rand));
-
         for (const auto& binding : fBindings) {
             if (binding) {
                 auto value = binding->toValue(compiler);
@@ -165,9 +156,8 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     buildProgram(particleCode, &fParticleProgram);
 }
 
-SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
+SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params)
         : fParams(std::move(params))
-        , fRandom(random)
         , fLooping(false)
         , fCount(0)
         , fLastTime(-1.0)
@@ -178,7 +168,7 @@ SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const S
 
 void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVector heading,
                              float scale, SkVector velocity, float spin, SkColor4f color,
-                             float frame, uint32_t flags) {
+                             float frame, uint32_t flags, uint32_t random) {
     fCount = 0;
     fLastTime = now;
     fSpawnRemainder = 0.0f;
@@ -202,21 +192,26 @@ void SkParticleEffect::start(double now, bool looping, SkPoint position, SkVecto
     fState.fColor    = color;
     fState.fFrame    = frame;
     fState.fFlags    = flags;
+    fState.fRandom   = random;
 
     // Defer running effectSpawn until the first update (to reuse the code when looping)
+}
+
+// Numerical Recipes
+static uint32_t nr_rand(uint32_t x) {
+    return x * 1664525 + 1013904223;
 }
 
 // Spawns new effects that were requested by any *effect* script (copies default values from
 // the current effect state).
 void SkParticleEffect::processEffectSpawnRequests(double now) {
     for (const auto& spawnReq : fSpawnRequests) {
-        sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams),
-                                                               fRandom));
-        fRandom.nextU();
+        sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams)));
+        fState.fRandom = nr_rand(fState.fRandom);
 
         newEffect->start(now, spawnReq.fLoop, fState.fPosition, fState.fHeading, fState.fScale,
                          fState.fVelocity, fState.fSpin, fState.fColor, fState.fFrame,
-                         fState.fFlags);
+                         fState.fFlags, fState.fRandom);
         fSubEffects.push_back(std::move(newEffect));
     }
     fSpawnRequests.reset();
@@ -226,7 +221,6 @@ void SkParticleEffect::runEffectScript(double now, const char* entry) {
     if (const auto& byteCode = fParams->fEffectProgram.fByteCode) {
         if (auto fun = byteCode->getFunction(entry)) {
             for (const auto& value : fParams->fEffectProgram.fExternalValues) {
-                value->setRandom(&fRandom);
                 value->setEffect(this);
             }
             SkAssertResult(byteCode->run(fun, &fState.fAge, sizeof(EffectState) / sizeof(float),
@@ -241,8 +235,7 @@ void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
     const auto& data = fParticles.fData;
     for (const auto& spawnReq : fSpawnRequests) {
         int idx = start + spawnReq.fIndex;
-        sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams),
-                                                               fParticles.fRandom[idx]));
+        sk_sp<SkParticleEffect> newEffect(new SkParticleEffect(std::move(spawnReq.fParams)));
         newEffect->start(now, spawnReq.fLoop,
                          { data[SkParticles::kPositionX      ][idx],
                            data[SkParticles::kPositionY      ][idx] },
@@ -257,7 +250,8 @@ void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
                            data[SkParticles::kColorB         ][idx],
                            data[SkParticles::kColorA         ][idx] },
                            data[SkParticles::kSpriteFrame    ][idx],
-             float_to_bits(data[SkParticles::kFlags          ][idx]));
+             float_to_bits(data[SkParticles::kFlags          ][idx]),
+             float_to_bits(data[SkParticles::kRandom         ][idx]));
         fSubEffects.push_back(std::move(newEffect));
     }
     fSpawnRequests.reset();
@@ -270,9 +264,7 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
             for (int i = 0; i < SkParticles::kNumChannels; ++i) {
                 args[i] = fParticles.fData[i].get() + start;
             }
-            SkRandom* randomBase = fParticles.fRandom.get() + start;
             for (const auto& value : fParams->fParticleProgram.fExternalValues) {
-                value->setRandom(randomBase);
                 value->setEffect(this);
             }
             memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
@@ -386,7 +378,7 @@ void SkParticleEffect::advanceTime(double now) {
 
         for (int i = 0; i < numToSpawn; ++i) {
             // Mutate our SkRandom so each particle definitely gets a different generator
-            fRandom.nextU();
+            fState.fRandom = nr_rand(fState.fRandom);
             fParticles.fData[SkParticles::kAge            ][fCount] = 0.0f;
             fParticles.fData[SkParticles::kLifetime       ][fCount] = 0.0f;
             fParticles.fData[SkParticles::kPositionX      ][fCount] = fState.fPosition.fX;
@@ -403,7 +395,7 @@ void SkParticleEffect::advanceTime(double now) {
             fParticles.fData[SkParticles::kColorA         ][fCount] = fState.fColor.fA;
             fParticles.fData[SkParticles::kSpriteFrame    ][fCount] = fState.fFrame;
             fParticles.fData[SkParticles::kFlags          ][fCount] = bits_to_float(fState.fFlags);
-            fParticles.fRandom[fCount] = fRandom;
+            fParticles.fData[SkParticles::kRandom         ][fCount] = bits_to_float(fState.fRandom);
             fCount++;
         }
 
@@ -415,13 +407,13 @@ void SkParticleEffect::advanceTime(double now) {
         for (int i = spawnBase; i < fCount; ++i) {
             fParticles.fData[SkParticles::kLifetime][i] =
                     sk_ieee_float_divide(1.0f, fParticles.fData[SkParticles::kLifetime][i]);
-            fStableRandoms[i] = fParticles.fRandom[i];
+            fStableRandoms[i] = fParticles.fData[SkParticles::kRandom][i];
         }
     }
 
     // Restore all stable random generators so update affectors get consistent behavior each frame
     for (int i = 0; i < fCount; ++i) {
-        fParticles.fRandom[i] = fStableRandoms[i];
+        fParticles.fData[SkParticles::kRandom][i] = fStableRandoms[i];
     }
 
     // Run the update script
@@ -476,7 +468,6 @@ void SkParticleEffect::setCapacity(int capacity) {
     for (int i = 0; i < SkParticles::kNumChannels; ++i) {
         fParticles.fData[i].realloc(capacity);
     }
-    fParticles.fRandom.realloc(capacity);
     fStableRandoms.realloc(capacity);
 
     fCapacity = capacity;
