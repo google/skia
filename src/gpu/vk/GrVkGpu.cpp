@@ -222,9 +222,11 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     fResourceProvider.init();
 
     fCmdPool = fResourceProvider.findOrCreateCommandPool();
-    fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
-    SkASSERT(fCurrentCmdBuffer);
-    fCurrentCmdBuffer->begin(this);
+    if (fCmdPool) {
+        fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
+        SkASSERT(fCurrentCmdBuffer);
+        fCurrentCmdBuffer->begin(this);
+    }
 }
 
 void GrVkGpu::destroyResources() {
@@ -333,7 +335,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
-void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
+bool GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc,
                                   GrGpuFinishedContext finishedContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fCurrentCmdBuffer);
@@ -346,25 +348,41 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc
         if (finishedProc) {
             fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
         }
-        return;
+        return true;
     }
 
     fCurrentCmdBuffer->end(this);
+    SkASSERT(fCmdPool);
     fCmdPool->close();
-    fCurrentCmdBuffer->submitToQueue(this, fQueue, sync, fSemaphoresToSignal, fSemaphoresToWaitOn);
+    bool didSubmit = fCurrentCmdBuffer->submitToQueue(this, fQueue, fSemaphoresToSignal,
+                                                      fSemaphoresToWaitOn);
+
+    if (didSubmit && sync == kForce_SyncQueue) {
+        fCurrentCmdBuffer->forceSync(this);
+    }
 
     if (finishedProc) {
         // Make sure this is called after closing the current command pool
         fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedProc, finishedContext);
     }
 
-    // We must delete and drawables that have been waitint till submit for us to destroy.
+    // We must delete any drawables that had to wait until submit to destroy.
     fDrawables.reset();
 
-    for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
-        fSemaphoresToWaitOn[i]->unref(this);
+    // If we didn't submit the command buffer then we did not wait on any semaphores. We will
+    // continue to hold onto these semaphores and wait on them during the next command buffer
+    // submission.
+    if (didSubmit) {
+        for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
+            fSemaphoresToWaitOn[i]->unref(this);
+        }
+        fSemaphoresToWaitOn.reset();
     }
-    fSemaphoresToWaitOn.reset();
+
+    // Even if we did not submit the command buffer, we drop all the signal semaphores since we will
+    // not try to recover the work that wasn't submitted and instead just drop it all. The client
+    // will be notified that the semaphores were not submit so that they will not try to wait on
+    // them.
     for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
         fSemaphoresToSignal[i]->unref(this);
     }
@@ -374,8 +392,11 @@ void GrVkGpu::submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc
     fCmdPool->unref(this);
     fResourceProvider.checkCommandBuffers();
     fCmdPool = fResourceProvider.findOrCreateCommandPool();
-    fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
-    fCurrentCmdBuffer->begin(this);
+    if (fCmdPool) {
+        fCurrentCmdBuffer = fCmdPool->getPrimaryCommandBuffer();
+        fCurrentCmdBuffer->begin(this);
+    }
+    return didSubmit;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -441,7 +462,9 @@ bool GrVkGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
                                   VK_ACCESS_HOST_WRITE_BIT,
                                   VK_PIPELINE_STAGE_HOST_BIT,
                                   false);
-            this->submitCommandBuffer(kForce_SyncQueue);
+            if (!this->submitCommandBuffer(kForce_SyncQueue)) {
+                return false;
+            }
         }
         success = this->uploadTexDataLinear(vkTex, left, top, width, height, srcColorType,
                                             texels[0].fPixels, texels[0].fRowBytes);
@@ -1515,6 +1538,9 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                              int numMipLevels,
                                              GrVkImageInfo* info,
                                              GrProtected isProtected) {
+    if (!fCmdPool) {
+        return false;
+    }
     SkASSERT(texturable || renderable);
     if (!texturable) {
         SkASSERT(!data && numMipLevels == 1);
@@ -1942,13 +1968,13 @@ void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& 
     GrVkImageInfo info;
     if (rt.getVkImageInfo(&info)) {
         // something in the command buffer may still be using this, so force submit
-        this->submitCommandBuffer(kForce_SyncQueue);
+        SkAssertResult(this->submitCommandBuffer(kForce_SyncQueue));
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
     }
 }
 
 void GrVkGpu::testingOnly_flushGpuAndSync() {
-    this->submitCommandBuffer(kForce_SyncQueue);
+    SkAssertResult(this->submitCommandBuffer(kForce_SyncQueue));
 }
 #endif
 
@@ -2059,13 +2085,12 @@ bool GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
     }
 
     if (info.fFlags & kSyncCpu_GrFlushFlag) {
-        this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc, info.fFinishedContext);
+        return this->submitCommandBuffer(kForce_SyncQueue, info.fFinishedProc,
+                                         info.fFinishedContext);
     } else {
-        this->submitCommandBuffer(kSkip_SyncQueue, info.fFinishedProc, info.fFinishedContext);
+        return this->submitCommandBuffer(kSkip_SyncQueue, info.fFinishedProc,
+                                         info.fFinishedContext);
     }
-    // TODO: We may fail to wait on fences or submit command buffers. We should return false here if
-    // we fail any part of the submission.
-    return true;
 }
 
 static int get_surface_sample_cnt(GrSurface* surf) {
@@ -2405,7 +2430,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     // We need to submit the current command buffer to the Queue and make sure it finishes before
     // we can copy the data out of the buffer.
-    this->submitCommandBuffer(kForce_SyncQueue);
+    if (!this->submitCommandBuffer(kForce_SyncQueue)) {
+        return false;
+    }
     void* mappedMemory = transferBuffer->map();
     const GrVkAlloc& transAlloc = transferBuffer->alloc();
     GrVkMemory::InvalidateMappedAlloc(this, transAlloc, 0, transAlloc.fSize);
@@ -2593,6 +2620,9 @@ std::unique_ptr<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTextu
                               VK_ACCESS_SHADER_READ_BIT,
                               VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                               false);
+    // TODO: should we have a way to notify the caller that this has failed? Currently if the submit
+    // fails (caused by DEVICE_LOST) this will just cause us to fail the next use of the gpu.
+    // Eventually we will abandon the whole GPU if this fails.
     this->submitCommandBuffer(kSkip_SyncQueue);
 
     // The image layout change serves as a barrier, so no semaphore is needed.

@@ -70,11 +70,6 @@ public:
 
     GrVkPrimaryCommandBuffer* currentCommandBuffer() { return fCurrentCmdBuffer; }
 
-    enum SyncQueue {
-        kForce_SyncQueue,
-        kSkip_SyncQueue
-    };
-
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
@@ -166,6 +161,11 @@ public:
     void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
 private:
+    enum SyncQueue {
+        kForce_SyncQueue,
+        kSkip_SyncQueue
+    };
+
     GrVkGpu(GrContext*, const GrContextOptions&, const GrVkBackendContext&,
             sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion);
 
@@ -238,7 +238,7 @@ private:
     // fSemaphoreToSignal, we will add those signal semaphores to the submission of this command
     // buffer. If this GrVkGpu object has any semaphores in fSemaphoresToWaitOn, we will add those
     // wait semaphores to the submission of this command buffer.
-    void submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
+    bool submitCommandBuffer(SyncQueue sync, GrGpuFinishedProc finishedProc = nullptr,
                              GrGpuFinishedContext finishedContext = nullptr);
 
     void copySurfaceAsCopyImage(GrSurface* dst, GrSurface* src, GrVkImage* dstImage,

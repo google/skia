@@ -283,10 +283,13 @@ public:
                       uint32_t regionCount,
                       const VkImageResolve* regions);
 
-    void submitToQueue(GrVkGpu* gpu, VkQueue queue, GrVkGpu::SyncQueue sync,
+    bool submitToQueue(GrVkGpu* gpu, VkQueue queue,
                        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
                        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
-    bool finished(const GrVkGpu* gpu);
+
+    void forceSync(GrVkGpu* gpu);
+
+    bool finished(GrVkGpu* gpu);
 
     void addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc);
 
