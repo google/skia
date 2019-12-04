@@ -123,6 +123,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     vkClearColor.color.float32[3] = clearColor[3];
 
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
+        SkASSERT(fGpu->cmdPool());
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
         if (!fCurrentSecondaryCommandBuffer) {
             fCurrentRenderPass = nullptr;
@@ -240,6 +241,7 @@ void GrVkOpsRenderPass::reset() {
     if (fCurrentSecondaryCommandBuffer) {
         // The active GrVkCommandPool on the GrVkGpu should still be the same pool we got the
         // secondary command buffer from since we haven't submitted any work yet.
+        SkASSERT(fGpu->cmdPool());
         fCurrentSecondaryCommandBuffer.release()->recycle(fGpu->cmdPool());
     }
     if (fCurrentRenderPass) {
@@ -405,6 +407,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
 
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
         mustUseSecondaryCommandBuffer) {
+        SkASSERT(fGpu->cmdPool());
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
         if (!fCurrentSecondaryCommandBuffer) {
             fCurrentRenderPass = nullptr;
