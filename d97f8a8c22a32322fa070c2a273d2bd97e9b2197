@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "884d1521_bcd97513",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-04T20:35:45Z",
+      "side": 1,
+      "message": "How would you do that?",
+      "parentUuid": "f29f5831_fc474350",
+      "range": {
+        "startLine": 332,
+        "startChar": 11,
+        "endLine": 334,
+        "endChar": 47
+      },
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3402dc4c_2d8ce6b4",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-04T20:35:45Z",
+      "side": 1,
+      "message": "You can just use static_assert() without a message now. In fact I\u0027m making a CL that removes GR_STATIC_ASSERT.",
+      "range": {
+        "startLine": 349,
+        "startChar": 8,
+        "endLine": 349,
+        "endChar": 24
+      },
+      "revId": "d97f8a8c22a32322fa070c2a273d2bd97e9b2197",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "deaeecdc_d4f464ba",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 2
