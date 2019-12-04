@@ -25,6 +25,7 @@ template <size_t N> static size_t sk_align(size_t s) {
 
 sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
                                    GrStrikeCache* strikeCache,
+                                   const SkMatrix& viewMatrix,
                                    SkPoint origin,
                                    GrColor color,
                                    bool forceWForDistanceFields) {
@@ -44,7 +45,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     }
 
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-        size, strikeCache, origin, color, forceWForDistanceFields}};
+        size, strikeCache, viewMatrix, origin, color, forceWForDistanceFields}};
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);
@@ -352,13 +353,24 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
     }
 }
 
+static SkMatrix make_inverse(const SkMatrix& matrix) {
+    SkMatrix inverseMatrix;
+    if (!matrix.invert(&inverseMatrix)) {
+        inverseMatrix = SkMatrix::I();
+    }
+    return inverseMatrix;
+}
+
 GrTextBlob::GrTextBlob(size_t size,
                        GrStrikeCache* strikeCache,
+                       const SkMatrix& viewMatrix,
                        SkPoint origin,
                        GrColor color,
                        bool forceWForDistanceFields)
         : fSize{size}
         , fStrikeCache{strikeCache}
+        , fInitialViewMatrix{viewMatrix}
+        , fInitialViewMatrixInverse{make_inverse(viewMatrix)}
         , fInitialOrigin{origin}
         , fForceWForDistanceFields{forceWForDistanceFields}
         , fColor{color} { }
