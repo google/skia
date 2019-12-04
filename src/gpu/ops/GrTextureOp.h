@@ -59,7 +59,7 @@ public:
     static void AddTextureSetOps(GrRenderTargetContext*,
                                  const GrClip& clip,
                                  GrRecordingContext*,
-                                 const GrRenderTargetContext::TextureSetEntry[],
+                                 GrRenderTargetContext::TextureSetEntry[],
                                  int cnt,
                                  GrSamplerState::Filter,
                                  Saturate,

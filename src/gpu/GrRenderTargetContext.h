@@ -249,7 +249,7 @@ public:
      * If any entries provide a non-null fDstClip array, it will be read from immediately based on
      * fDstClipCount, so the pointer can become invalid after this returns.
      */
-    void drawTextureSet(const GrClip&, const TextureSetEntry[], int cnt, GrSamplerState::Filter,
+    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, GrSamplerState::Filter,
                         SkBlendMode mode, GrAA aa, SkCanvas::SrcRectConstraint,
                         const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform);
 
