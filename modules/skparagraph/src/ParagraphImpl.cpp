@@ -908,7 +908,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 for (size_t i = context.pos; i < context.pos + context.size; ++i) {
                     // TODO: this rounding is done to match Flutter tests. Must be removed..
                     auto end = littleRound(context.run->positionX(i) + context.fTextShift + offsetX);
-                    if (end > dx) {
+                    if (end >= dx) {
                         break;
                     }
                     found = i;
@@ -1093,18 +1093,24 @@ void ParagraphImpl::setState(InternalState state) {
 }
 
 InternalLineMetrics ParagraphImpl::computeEmptyMetrics() {
+    auto defaultTextStyle = paragraphStyle().getTextStyle();
+    auto typefaces = fontCollection()->findTypefaces(defaultTextStyle.getFontFamilies(),
+                                                     defaultTextStyle.getFontStyle());
+    auto typeface = typefaces.size() ? typefaces.front() : nullptr;
+    SkFont font(typeface, defaultTextStyle.getFontSize());
 
-  auto defaultTextStyle = paragraphStyle().getTextStyle();
+    InternalLineMetrics metrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
+    if (!paragraphStyle().getStrutStyle().getForceStrutHeight() &&
+        defaultTextStyle.getHeightOverride()) {
+        auto multiplier =
+                defaultTextStyle.getHeight() * defaultTextStyle.getFontSize() / metrics.height();
+        metrics = InternalLineMetrics(metrics.ascent() * multiplier,
+                                      metrics.descent() * multiplier,
+                                      metrics.leading() * multiplier);
+    }
 
-  auto typefaces = fontCollection()->findTypefaces(
-      defaultTextStyle.getFontFamilies(), defaultTextStyle.getFontStyle());
-  auto typeface = typefaces.size() ? typefaces.front() : nullptr;
-
-  SkFont font(typeface, defaultTextStyle.getFontSize());
-  InternalLineMetrics metrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
-  fStrutMetrics.updateLineMetrics(metrics);
-
-  return metrics;
+    fStrutMetrics.updateLineMetrics(metrics);
+    return metrics;
 }
 
 void ParagraphImpl::updateText(size_t from, SkString text) {

@@ -53,11 +53,9 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             }
             if (nextWordLength > maxWidth) {
                 // If the word is too long we can break it right now and hope it's enough
+                fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, nextWordLength);
                 fTooLongWord = true;
             }
-
-            // TODO: this is the place when we use hyphenation
-            fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, fTooLongWord ? maxWidth : nextWordLength);
             break;
         }
 
@@ -159,8 +157,8 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                      SkScalar maxWidth,
                                      const AddLineToParagraph& addLine) {
     fHeight = 0;
-    fMinIntrinsicWidth = 0;
-    fMaxIntrinsicWidth = 0;
+    fMinIntrinsicWidth = std::numeric_limits<SkScalar>::min();
+    fMaxIntrinsicWidth = std::numeric_limits<SkScalar>::min();
 
     auto span = parent->clusters();
     if (span.size() == 0) {
@@ -269,16 +267,32 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 
     // We finished formatting the text but we need to scan the rest for some numbers
-    auto cluster = fEndLine.endCluster();
-    while (cluster != end) {
-        fExceededMaxLines = true;
-        if (cluster->isHardBreak()) {
-            softLineMaxIntrinsicWidth = 0;
-        } else {
-            softLineMaxIntrinsicWidth += cluster->width();
-            fMaxIntrinsicWidth = SkTMax(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
+    if (fEndLine.breakCluster() != nullptr) {
+        auto lastWordLength = 0.0f;
+        auto cluster = fEndLine.breakCluster();
+        if (cluster != end) {
+            ++cluster;
         }
-        ++cluster;
+        while (cluster != end || cluster->endPos() < end->endPos()) {
+            fExceededMaxLines = true;
+            if (cluster->isHardBreak()) {
+                fMaxIntrinsicWidth = SkTMax(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
+                softLineMaxIntrinsicWidth = 0;
+
+                fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, lastWordLength);
+                lastWordLength = 0;
+            } else if (cluster->isSoftBreak()) {
+                softLineMaxIntrinsicWidth += cluster->width();
+                fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, lastWordLength);
+                lastWordLength = 0;
+            } else {
+                softLineMaxIntrinsicWidth += cluster->width();
+                lastWordLength += cluster->width();
+            }
+            ++cluster;
+        }
+        fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, lastWordLength);
+        fMaxIntrinsicWidth = SkTMax(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
     }
 
     if (fHardLineBreak) {
