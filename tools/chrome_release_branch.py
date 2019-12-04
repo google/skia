@@ -81,7 +81,8 @@ def update_infra_config(old_branch, new_branch):
                          '--delete', old_branch[len(REFS_HEADS_PREFIX):],
                          '--owner', owner,
                          '--exclude-trybots=chromium.*',
-                         '--exclude-trybots=.*Android_Framework.*'])
+                         '--exclude-trybots=.*Android_Framework.*',
+                         '--submit'])
 
 
 def main():
