@@ -1647,15 +1647,13 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text = "World domination is such an ugly phrase - I prefer to call it world optimisation";
+        std::u16string text = u"\u0068\u0301\u0350\u0312\u0357\u030C\u0369\u0305\u036C\u0304\u0310\u033F\u0366\u0350\u0343\u0364\u0369\u0311\u0309\u030E\u0365\u031B\u0340\u0337\u0335\u035E\u0334\u0328\u0360\u0360\u0315\u035F\u0340\u0340\u0362\u0360\u0322\u031B\u031B\u0337\u0340\u031E\u031F\u032A\u0331\u0345\u032F\u0332\u032E\u0333\u0353\u0320\u0345\u031C\u031F\u033C\u0325\u0355\u032C\u0325\u033Aa\u0307\u0312\u034B\u0308\u0312\u0346\u0313\u0346\u0304\u0307\u0344\u0305\u0342\u0368\u0346\u036A\u035B\u030F\u0365\u0307\u0340\u0328\u0322\u0361\u0489\u034F\u0328\u0334\u035F\u0335\u0362\u0489\u0360\u0358\u035E\u0360\u035D\u0341\u0337\u0337\u032E\u0326\u032D\u0359\u0318\u033C\u032F\u0333\u035A\u034D\u0319\u031C\u0353\u033C\u0345\u0359\u0331\u033B\u0331\u033C";
         ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(7);
-        paragraph_style.setEllipsis(u"\u2026");
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(40);
+        text_style.setFontSize(20);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
@@ -1677,19 +1675,20 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text = "";
+        const char* text = "0";
         ParagraphStyle paragraph_style;
         paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
-        //paragraph_style.setEllipsis(u"\u2026");
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(40);
+        text_style.setFontFamilies({SkString("Google Sans Display")});
+        text_style.setFontSize(160);
+        //text_style.setHeightOverride(true);
+        //text_style.setHeight(1.75);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(this->width());
+        paragraph->layout(94);
 
         paragraph->paint(canvas, 0, 0);
     }

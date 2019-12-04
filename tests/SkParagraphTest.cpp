@@ -197,7 +197,6 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
     }
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderParagraph.png");
@@ -297,7 +296,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[6].rect.bottom(), 50, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBaselineParagraph.png");
@@ -354,7 +352,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44.694f, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderAboveBaselineParagraph.png");
@@ -411,7 +408,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 56, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBelowBaselineParagraph.png");
@@ -468,7 +464,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 30.347f, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBottomParagraph.png");
@@ -523,7 +518,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 50, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderTopParagraph.png");
@@ -578,7 +572,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 30.468f, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderMiddleParagraph.png");
@@ -633,7 +626,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 40.234f, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderIdeographicBaselineParagraph.png");
@@ -687,7 +679,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 42.065f, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBreakParagraph.png");
@@ -823,7 +814,6 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[17].rect.bottom(), 113.5f, EPSILON100));
 }
 
-// Checked: DIFF+ (half of the letter spacing before the text???)
 DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderGetRectsParagraph.png");
@@ -1671,6 +1661,124 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 156, EPSILON100));
 }
 
+DEF_TEST_DISABLED(SkParagraph_JustifyRTLNewLine, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_JustifyRTLNewLine.png");
+    const char* text =
+            "אאא בּבּבּבּ אאאא\nבּבּ אאא בּבּבּ אאאאא בּבּבּבּ אאאא בּבּבּבּבּ "
+            "אאאאא בּבּבּבּבּ אאאבּבּבּבּבּבּאאאאא בּבּבּבּבּבּאאאאאבּבּבּבּבּבּ אאאאא בּבּבּבּבּ "
+            "אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ";
+
+    auto icu_text = icu::UnicodeString::fromUTF8(text);
+    std::u16string u16_text(icu_text.getBuffer(), icu_text.getBuffer() + icu_text.length());
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setMaxLines(14);
+    paragraph_style.setTextAlign(TextAlign::kJustify);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(26);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth - 100);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(1);
+
+    // Tests for GetRectsForRange()
+    RectHeightStyle rect_height_style = RectHeightStyle::kMax;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    paint.setColor(SK_ColorRED);
+    auto boxes = paragraph->getRectsForRange(0, 30, rect_height_style, rect_width_style);
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        canvas.get()->drawRect(boxes[i].rect, paint);
+    }
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 562, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 900, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 26, EPSILON100));
+
+    paint.setColor(SK_ColorBLUE);
+    boxes = paragraph->getRectsForRange(240, 250, rect_height_style, rect_width_style);
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        canvas.get()->drawRect(boxes[i].rect, paint);
+    }
+    REPORTER_ASSERT(reporter, boxes.size() == 1ull);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 68, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 130, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 120, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 156, EPSILON100));
+
+    // All lines should be justified to the width of the
+    // paragraph.
+    for (auto& line : impl->lines()) {
+        REPORTER_ASSERT(reporter,
+                        SkScalarNearlyEqual(line.width(), TestCanvasWidth - 100, EPSILON100));
+    }
+}
+
+DEF_TEST_DISABLED(SkParagraph_LeadingSpaceRTL, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_LeadingSpaceRTL.png");
+
+    const char* text = " leading space";
+
+    auto icu_text = icu::UnicodeString::fromUTF8(text);
+    std::u16string u16_text(icu_text.getBuffer(), icu_text.getBuffer() + icu_text.length());
+    const size_t len = strlen(text);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setMaxLines(14);
+    paragraph_style.setTextAlign(TextAlign::kJustify);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(26);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth - 100);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(1);
+
+    // Tests for GetRectsForRange()
+    RectHeightStyle rect_height_style = RectHeightStyle::kMax;
+    RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    paint.setColor(SK_ColorRED);
+    auto boxes = paragraph->getRectsForRange(0, 100, rect_height_style, rect_width_style);
+    for (size_t i = 0; i < boxes.size(); ++i) {
+        canvas.get()->drawRect(boxes[i].rect, paint);
+    }
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull);
+}
+
 // Checked: NO DIFF (some minor decoration differences, probably)
 DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -1792,7 +1900,7 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) {
-    // SkDebugf("TODO: Fix decorations\n");
+    SkDebugf("TODO: Add test for wavy decorations\n");
 }
 
 // Checked: NO DIFF
@@ -4374,11 +4482,6 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
     }
 }
 
-// TODO: Implement font features
-DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
-    // SkDebugf("TODO: Font features\n");
-}
-
 // Not in Minikin
 DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -5040,14 +5143,14 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
     canvas.get()->drawRect(SkRect::MakeXYWH(0, 0, 50, 500), paint);
 
     relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
-    relayout(3, false, 50, 30,  50, 950, SK_ColorBLUE);
-    relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  50, 950, SK_ColorGREEN);
+    relayout(3, false, 50, 30,  90, 950, SK_ColorBLUE);
+    relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  90, 950, SK_ColorGREEN);
 
     relayout(1, true, 50, 10, 950, 950, SK_ColorYELLOW);
-    relayout(3, true, 50, 30,  50, 950, SK_ColorMAGENTA);
+    relayout(3, true, 50, 30,  90, 950, SK_ColorMAGENTA);
     relayout(std::numeric_limits<size_t>::max(), true, 50, 20,  950, 950, SK_ColorCYAN);
 
     relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
-    relayout(3, false, 50, 30,  50, 950, SK_ColorBLUE);
-    relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  50, 950, SK_ColorGREEN);
+    relayout(3, false, 50, 30,  90, 950, SK_ColorBLUE);
+    relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  90, 950, SK_ColorGREEN);
 }

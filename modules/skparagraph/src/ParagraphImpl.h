@@ -199,6 +199,8 @@ public:
     InternalLineMetrics getEmptyMetrics() const { return fEmptyMetrics; }
     InternalLineMetrics getStrutMetrics() const { return fStrutMetrics; }
 
+    BlockRange findAllBlocks(TextRange textRange);
+
 private:
     friend class ParagraphBuilder;
     friend class ParagraphCacheKey;
@@ -209,7 +211,6 @@ private:
     friend class OneLineShaper;
 
     void calculateBoundaries(ClusterRange clusters, SkVector offset, SkVector advance);
-    BlockRange findAllBlocks(TextRange textRange);
     void extractStyles();
 
     void markGraphemes16();

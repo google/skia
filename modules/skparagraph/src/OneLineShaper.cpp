@@ -339,6 +339,7 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
                                              const ShapeSingleFontVisitor& visitor) {
     Block combinedBlock;
+
     for (auto& block : styleSpan) {
         SkASSERT(combinedBlock.fRange.width() == 0 ||
                  combinedBlock.fRange.end == block.fRange.start);
@@ -460,11 +461,12 @@ bool OneLineShaper::shape() {
         }
 
         iterateThroughFontStyles(styleSpan,
-                [this, &shaper, textDirection, limitlessWidth, &advanceX](Block block) {
+                [this, &shaper, textDirection, limitlessWidth, &advanceX]
+                (Block block) {
             auto blockSpan = SkSpan<Block>(&block, 1);
 
             // Start from the beginning (hoping that it's a simple case one block - one run)
-            fHeight = block.fStyle.getHeight();
+            fHeight = block.fStyle.getHeightOverride() ? block.fStyle.getHeight() : 0;
             fAdvance = SkVector::Make(advanceX, 0);
             fCurrentText = block.fRange;
             fUnresolvedBlocks.emplace(RunBlock(block.fRange));
@@ -495,8 +497,9 @@ bool OneLineShaper::shape() {
                     }
 
                     fCurrentText = unresolvedRange;
-                    shaper->shape(unresolvedText.begin(), unresolvedText.size(), fontIter, *bidi,
-                                  *script, lang, limitlessWidth, this);
+                    shaper->shape(unresolvedText.begin(), unresolvedText.size(),
+                            fontIter, *bidi,*script, lang,
+                            limitlessWidth, this);
 
                     // Take off the queue the block we tried to resolved -
                     // whatever happened, we have now smaller pieces of it to deal with
@@ -507,7 +510,7 @@ bool OneLineShaper::shape() {
                 return !fUnresolvedBlocks.empty();
             });
 
-            this->finish(block.fRange, block.fStyle.getHeight(), advanceX);
+            this->finish(block.fRange, fHeight, advanceX);
         });
 
         return true;
