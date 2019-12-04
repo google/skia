@@ -1592,6 +1592,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
 
     REPORTER_ASSERT(reporter, 0 == freed);
 
+    // We must delete the backend texture before abandoning the context in vulkan. We just do it
+    // for all the backends for consistency.
+    context->deleteBackendTexture(backend);
     context->abandonContext();
 
     REPORTER_ASSERT(reporter, 1 == freed);
@@ -1602,8 +1605,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon, reporter, ctxIn
     SkMessageBus<GrTextureFreedMessage>::Post(msg);
 
     context->purgeUnlockedResources(false);
-
-    context->deleteBackendTexture(backend);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
