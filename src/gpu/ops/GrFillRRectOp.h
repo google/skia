@@ -78,7 +78,7 @@ private:
     void writeInstanceData() {}  // Halt condition.
 
     // Create a GrProgramInfo object in the provided arena
-    GrProgramInfo* createProgramInfo(const GrCaps*,
+    GrProgramInfo* createProgramInfo(const GrCaps&,
                                      SkArenaAlloc*,
                                      const GrSurfaceProxyView* dstView,
                                      GrAppliedClip&&,

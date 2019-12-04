@@ -106,7 +106,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                       geomProc,
                                       fixedDynamicState,
                                       nullptr, 0,
-                                      primitiveType);
+                                      primitiveType, true);
 }
 
 

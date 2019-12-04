@@ -19,6 +19,7 @@
 #include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrDrawOpTest.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStyle.h"
@@ -849,6 +850,30 @@ public:
     }
 
 private:
+    GrGeometryProcessor* makeLineGP(const GrCaps&, SkArenaAlloc*,
+                                    const SkMatrix* geometryProcessorViewM,
+                                    const SkMatrix* geometryProcessorLocalM);
+    GrGeometryProcessor* makeQuadGP(const GrCaps&, SkArenaAlloc*,
+                                    const SkMatrix* geometryProcessorViewM,
+                                    const SkMatrix* geometryProcessorLocalM);
+    GrGeometryProcessor* makeConicGP(const GrCaps&, SkArenaAlloc*,
+                                     const SkMatrix* geometryProcessorViewM,
+                                     const SkMatrix* geometryProcessorLocalM);
+
+    GrPipeline* createPipeline(const GrCaps& caps,
+                               SkArenaAlloc* arena,
+                               const GrSurfaceProxyView* dstView,
+                               GrAppliedClip&& appliedClip,
+                               const GrXferProcessor::DstProxyView& dstProxyView);
+
+    GrProgramInfo* createProgramInfo(SkArenaAlloc* arena,
+                                     const GrSurfaceProxyView* dstView,
+                                     GrPipeline* pipeline,
+                                     GrGeometryProcessor* geomProc,
+                                     GrPipeline::FixedDynamicState* fixedDynamicState);
+
+    void onPrePrepareDraws(GrRecordingContext*, const GrSurfaceProxyView*,
+                           GrAppliedClip*, const GrXferProcessor::DstProxyView&) override;
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
@@ -908,10 +933,120 @@ private:
     SkPMColor4f fColor;
     uint8_t fCoverage;
 
+    GrMesh* fMeshes[3] = { nullptr, nullptr, nullptr };
+    GrProgramInfo* fProgramInfos[3] = { nullptr, nullptr, nullptr };
+
     typedef GrMeshDrawOp INHERITED;
 };
 
 }  // anonymous namespace
+
+GrGeometryProcessor* AAHairlineOp::makeLineGP(const GrCaps& caps, SkArenaAlloc* arena,
+                                              const SkMatrix* geometryProcessorViewM,
+                                              const SkMatrix* geometryProcessorLocalM) {
+    using namespace GrDefaultGeoProcFactory;
+
+    Color color(this->color());
+    LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
+                                                      : LocalCoords::kUnused_Type);
+    localCoords.fMatrix = geometryProcessorLocalM;
+    GrGeometryProcessor* lineGP = GrDefaultGeoProcFactory::Make(arena,
+                                                                caps.shaderCaps(),
+                                                                color, Coverage::kAttribute_Type,
+                                                                localCoords,
+                                                                *geometryProcessorViewM);
+    SkASSERT(sizeof(LineVertex) == lineGP->vertexStride());
+
+    return lineGP;
+}
+
+GrGeometryProcessor* AAHairlineOp::makeQuadGP(const GrCaps& caps, SkArenaAlloc* arena,
+                                              const SkMatrix* geometryProcessorViewM,
+                                              const SkMatrix* geometryProcessorLocalM) {
+    GrGeometryProcessor* quadGP = GrQuadEffect::Make(arena, this->color(),
+                                                     *geometryProcessorViewM,
+                                                     GrClipEdgeType::kHairlineAA,
+                                                     caps,
+                                                     *geometryProcessorLocalM,
+                                                     fHelper.usesLocalCoords(),
+                                                     this->coverage());
+    SkASSERT(sizeof(BezierVertex) == quadGP->vertexStride());
+
+    return quadGP;
+}
+
+GrGeometryProcessor* AAHairlineOp::makeConicGP(const GrCaps& caps, SkArenaAlloc* arena,
+                                               const SkMatrix* geometryProcessorViewM,
+                                               const SkMatrix* geometryProcessorLocalM) {
+    GrGeometryProcessor* conicGP = GrConicEffect::Make(arena, this->color(),
+                                                       *geometryProcessorViewM,
+                                                       GrClipEdgeType::kHairlineAA,
+                                                       caps,
+                                                       *geometryProcessorLocalM,
+                                                       fHelper.usesLocalCoords(),
+                                                       this->coverage());
+    SkASSERT(sizeof(BezierVertex) == conicGP->vertexStride());
+
+    return conicGP;
+}
+
+void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
+                                     const GrSurfaceProxyView* dstView,
+                                     GrAppliedClip* clip,
+                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+    SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+
+    // This is equivalent to a GrOpFlushState::detachAppliedClip
+    GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
+
+    fHelper.createProgramInfo(context->priv().caps(), arena, dstView,
+                              std::move(appliedClip), dstProxyView);
+
+}
+
+
+GrPipeline* AAHairlineOp::createPipeline(const GrCaps& caps,
+                                         SkArenaAlloc* arena,
+                                         const GrSurfaceProxyView* dstView,
+                                         GrAppliedClip&& appliedClip,
+                                         const GrXferProcessor::DstProxyView& dstProxyView) {
+    GrPipeline::InitArgs initArgs;
+    initArgs.fInputFlags = fHelper.pipelineFlags();
+    initArgs.fCaps = &caps;
+    initArgs.fDstProxyView = dstProxyView;
+    initArgs.fOutputSwizzle = dstView->swizzle();
+
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    if (appliedClip.scissorState().enabled()) {
+        fixedDynamicState = arena->make<GrPipeline::FixedDynamicState>(
+            appliedClip.scissorState().rect());
+    }
+
+    GrPipeline* pipeline = arena->make<GrPipeline>(initArgs,
+                                                   fHelper.processors() ? std::move(*fHelper.processors())
+                                                                        : GrProcessorSet::MakeEmptySet(),
+                                                   std::move(appliedClip));
+
+    return pipeline;
+}
+
+GrProgramInfo* AAHairlineOp::createProgramInfo(SkArenaAlloc* arena,
+                                               const GrSurfaceProxyView* dstView,
+                                               GrPipeline* pipeline,
+                                               GrGeometryProcessor* geomProc,
+                                               GrPipeline::FixedDynamicState* fixedDynamicState) {
+    GrRenderTargetProxy* dstProxy = dstView->asRenderTargetProxy();
+    return arena->make<GrProgramInfo>(dstProxy->numSamples(),
+                                      dstProxy->numStencilSamples(),
+                                      dstProxy->backendFormat(),
+                                      dstView->origin(),
+                                      pipeline,
+                                      geomProc,
+                                      fixedDynamicState,
+                                      nullptr, 0,
+                                      GrPrimitiveType::kTriangles, false);
+}
 
 void AAHairlineOp::onPrepareDraws(Target* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
@@ -960,24 +1095,15 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         return;
     }
 
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+
+    GrPipeline* pipeline = this->createPipeline(target->caps(), target->allocator(),
+                                                target->view(), target->detachAppliedClip(),
+                                                target->dstProxyView());
+
     // do lines first
     if (lineCount) {
-        GrGeometryProcessor* lineGP;
-        {
-            using namespace GrDefaultGeoProcFactory;
-
-            Color color(this->color());
-            LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
-                                                              : LocalCoords::kUnused_Type);
-            localCoords.fMatrix = geometryProcessorLocalM;
-            lineGP = GrDefaultGeoProcFactory::Make(target->allocator(), target->caps().shaderCaps(),
-                                                   color, Coverage::kAttribute_Type, localCoords,
-                                                   *geometryProcessorViewM);
-        }
-
         sk_sp<const GrBuffer> linesIndexBuffer = get_lines_index_buffer(target->resourceProvider());
-
-        SkASSERT(sizeof(LineVertex) == lineGP->vertexStride());
 
         GrMeshDrawOp::PatternHelper helper(target, GrPrimitiveType::kTriangles, sizeof(LineVertex),
                                            std::move(linesIndexBuffer), kLineSegNumVertices,
@@ -993,33 +1119,25 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             add_line(&lines[2*i], toSrc, this->coverage(), &verts);
         }
 
-        helper.recordDraw(target, lineGP);
+        if (!fProgramInfos[0]) {
+            GrGeometryProcessor* lineGP = this->makeLineGP(target->caps(), target->allocator(),
+                                                           geometryProcessorViewM,
+                                                           geometryProcessorLocalM);
+
+            fProgramInfos[0] = this->createProgramInfo(target->allocator(), target->view(),
+                                                       pipeline, lineGP, fixedDynamicState);
+        }
+
+        fMeshes[0] = helper.mesh();
+        //helper.recordDraw(target, lineGP);
     }
 
     if (quadCount || conicCount) {
-        GrGeometryProcessor* quadGP = GrQuadEffect::Make(target->allocator(), this->color(),
-                                                         *geometryProcessorViewM,
-                                                         GrClipEdgeType::kHairlineAA,
-                                                         target->caps(),
-                                                         *geometryProcessorLocalM,
-                                                         fHelper.usesLocalCoords(),
-                                                         this->coverage());
-
-        GrGeometryProcessor* conicGP = GrConicEffect::Make(target->allocator(), this->color(),
-                                                           *geometryProcessorViewM,
-                                                           GrClipEdgeType::kHairlineAA,
-                                                           target->caps(),
-                                                           *geometryProcessorLocalM,
-                                                           fHelper.usesLocalCoords(),
-                                                           this->coverage());
-
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
 
         sk_sp<const GrBuffer> quadsIndexBuffer = get_quads_index_buffer(target->resourceProvider());
 
-        SkASSERT(sizeof(BezierVertex) == quadGP->vertexStride());
-        SkASSERT(sizeof(BezierVertex) == conicGP->vertexStride());
         int vertexCount = kQuadNumVertices * quadAndConicCount;
         void* vertices = target->makeVertexSpace(sizeof(BezierVertex), vertexCount, &vertexBuffer,
                                                  &firstVertex);
@@ -1044,26 +1162,58 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
         }
 
         if (quadCount > 0) {
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-            mesh->setIndexedPatterned(quadsIndexBuffer, kIdxsPerQuad, kQuadNumVertices, quadCount,
-                                      kQuadsNumInIdxBuffer);
-            mesh->setVertexData(vertexBuffer, firstVertex);
-            target->recordDraw(quadGP, mesh, 1, GrPrimitiveType::kTriangles);
+            if (!fProgramInfos[1]) {
+                GrGeometryProcessor* quadGP = this->makeQuadGP(target->caps(), target->allocator(),
+                                                               geometryProcessorViewM,
+                                                               geometryProcessorLocalM);
+
+                fProgramInfos[1] = this->createProgramInfo(target->allocator(), target->view(),
+                                                           pipeline, quadGP, fixedDynamicState);
+            }
+
+            fMeshes[1] = target->allocMesh(GrPrimitiveType::kTriangles);
+            fMeshes[1]->setIndexedPatterned(quadsIndexBuffer,
+                                            kIdxsPerQuad, kQuadNumVertices,
+                                            quadCount, kQuadsNumInIdxBuffer);
+            fMeshes[1]->setVertexData(vertexBuffer, firstVertex);
+
+            //target->recordDraw(quadGP, mesh, 1, GrPrimitiveType::kTriangles);
             firstVertex += quadCount * kQuadNumVertices;
         }
 
         if (conicCount > 0) {
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-            mesh->setIndexedPatterned(std::move(quadsIndexBuffer), kIdxsPerQuad, kQuadNumVertices,
-                                      conicCount, kQuadsNumInIdxBuffer);
-            mesh->setVertexData(std::move(vertexBuffer), firstVertex);
-            target->recordDraw(conicGP, mesh, 1, GrPrimitiveType::kTriangles);
+            if (!fProgramInfos[2]) {
+                GrGeometryProcessor* conicGP = this->makeConicGP(target->caps(), target->allocator(),
+                                                                 geometryProcessorViewM,
+                                                                 geometryProcessorLocalM);
+
+                fProgramInfos[2] = this->createProgramInfo(target->allocator(), target->view(),
+                                                           pipeline, conicGP, fixedDynamicState);
+            }
+
+            fMeshes[2] = target->allocMesh(GrPrimitiveType::kTriangles);
+            fMeshes[2]->setIndexedPatterned(std::move(quadsIndexBuffer),
+                                            kIdxsPerQuad, kQuadNumVertices,
+                                            conicCount, kQuadsNumInIdxBuffer);
+            fMeshes[2]->setVertexData(std::move(vertexBuffer), firstVertex);
+
+//            target->recordDraw(conicGP, mesh, 1, GrPrimitiveType::kTriangles);
         }
     }
 }
 
 void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+#if 0
     fHelper.executeDrawsAndUploads(this, flushState, chainBounds);
+#else
+    for (int i = 0; i < 3; ++i) {
+        if (fMeshes[i]) {
+            SkASSERT(fProgramInfos[i]);
+
+            flushState->opsRenderPass()->draw(*fProgramInfos[i], fMeshes[i], 1, chainBounds);
+        }
+    }
+#endif
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
