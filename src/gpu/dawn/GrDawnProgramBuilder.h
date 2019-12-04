@@ -12,7 +12,7 @@
 #include "src/gpu/dawn/GrDawnUniformHandler.h"
 #include "src/gpu/dawn/GrDawnVaryingHandler.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
 class GrPipeline;

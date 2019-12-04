@@ -13,7 +13,7 @@
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrMesh.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 class GrDawnRenderTarget;

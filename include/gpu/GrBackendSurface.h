@@ -23,7 +23,7 @@ class GrVkImageLayout;
 class GrGLTextureParameters;
 
 #ifdef SK_DAWN
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #endif
 
 #ifdef SK_METAL

@@ -16,7 +16,7 @@
 static wgpu::TextureUsage kUsage = wgpu::TextureUsage::OutputAttachment |
                                    wgpu::TextureUsage::CopySrc;
 
-static void PrintDeviceError(DawnErrorType, const char* message, void*) {
+static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
     printf("Device error: %s\n", message);
     SkASSERT(false);
 }

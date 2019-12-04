@@ -11,7 +11,7 @@
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
 #include "src/gpu/dawn/GrDawnUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 #include "src/core/SkAutoMalloc.h"
 

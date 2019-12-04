@@ -463,7 +463,7 @@ bool GrDawnGpu::onCopySurface(GrSurface* dst,
     return true;
 }
 
-static void callback(DawnBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
+static void callback(WGPUBufferMapAsyncStatus status, const void* data, uint64_t dataLength,
                      void* userdata) {
     (*reinterpret_cast<const void**>(userdata)) = data;
 }

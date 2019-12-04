@@ -10,7 +10,7 @@
 
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 
