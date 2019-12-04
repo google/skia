@@ -908,7 +908,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 for (size_t i = context.pos; i < context.pos + context.size; ++i) {
                     // TODO: this rounding is done to match Flutter tests. Must be removed..
                     auto end = littleRound(context.run->positionX(i) + context.fTextShift + offsetX);
-                    if (end > dx) {
+                    if (end >= dx) {
                         break;
                     }
                     found = i;
