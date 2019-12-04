@@ -26,7 +26,7 @@ public:
                   const GrPipeline::FixedDynamicState* fixedDynamicState,
                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                   int numDynamicStateArrays,
-                  GrPrimitiveType primitiveType)
+                  GrPrimitiveType primitiveType, bool foo)
             : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
             , fIsMixedSampled(fNumRasterSamples > numSamples)
             , fBackendFormat(backendFormat)

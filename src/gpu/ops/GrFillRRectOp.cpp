@@ -459,7 +459,7 @@ void GrFillRRectOp::onPrePrepare(GrRecordingContext* context,
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
     // TODO: need to also give this to the recording context
-    fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView,
+    fProgramInfo = this->createProgramInfo(*context->priv().caps(), arena, dstView,
                                            std::move(appliedClip), dstProxyView);
 }
 
@@ -751,7 +751,7 @@ GrGLSLPrimitiveProcessor* GrFillRRectOp::Processor::createGLSLInstance(
     return new CoverageImpl();
 }
 
-GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
+GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps& caps,
                                                 SkArenaAlloc* arena,
                                                 const GrSurfaceProxyView* dstView,
                                                 GrAppliedClip&& appliedClip,
@@ -763,7 +763,7 @@ GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
     if (GrAAType::kMSAA == fAAType) {
         initArgs.fInputFlags = GrPipeline::InputFlags::kHWAntialias;
     }
-    initArgs.fCaps = caps;
+    initArgs.fCaps = &caps;
     initArgs.fDstProxyView = dstProxyView;
     initArgs.fOutputSwizzle = dstView->swizzle();
 
@@ -787,9 +787,10 @@ GrProgramInfo* GrFillRRectOp::createProgramInfo(const GrCaps* caps,
                                       geomProc,
                                       fixedDynamicState,
                                       nullptr, 0,
-                                      GrPrimitiveType::kTriangles);
+                                      GrPrimitiveType::kTriangles, false);
 }
 
+// TODO: It seems odd that we're ignoring chainBounds here
 void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
@@ -798,7 +799,7 @@ void GrFillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     if (!fProgramInfo) {
         const GrSurfaceProxyView* dstView = flushState->view();
 
-        fProgramInfo = this->createProgramInfo(&flushState->caps(),
+        fProgramInfo = this->createProgramInfo(flushState->caps(),
                                                flushState->allocator(),
                                                dstView,
                                                flushState->detachAppliedClip(),
