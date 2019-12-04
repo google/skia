@@ -168,7 +168,6 @@ private:
     }
 
     void releaseInternalObjects();
-    void abandonInternalObjects();
 
     const GrVkImageView*       fColorAttachmentView;
     std::unique_ptr<GrVkImage> fMSAAImage;

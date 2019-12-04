@@ -432,66 +432,6 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     fAvailableUniformBufferResources.reset();
 }
 
-void GrVkResourceProvider::abandonResources() {
-    SkTaskGroup* taskGroup = fGpu->getContext()->priv().getTaskGroup();
-    if (taskGroup) {
-        taskGroup->wait();
-    }
-
-    // Abandon all command pools
-    for (int i = 0; i < fActiveCommandPools.count(); ++i) {
-        SkASSERT(fActiveCommandPools[i]->unique());
-        fActiveCommandPools[i]->unrefAndAbandon();
-    }
-    fActiveCommandPools.reset();
-    for (int i = 0; i < fAvailableCommandPools.count(); ++i) {
-        SkASSERT(fAvailableCommandPools[i]->unique());
-        fAvailableCommandPools[i]->unrefAndAbandon();
-    }
-    fAvailableCommandPools.reset();
-
-    // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
-    for (int i = 0; i < fRenderPassArray.count(); ++i) {
-        fRenderPassArray[i].abandonResources();
-    }
-    fRenderPassArray.reset();
-
-    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
-        fExternalRenderPasses[i]->unrefAndAbandon();
-    }
-    fExternalRenderPasses.reset();
-
-    // Iterate through all store GrVkSamplers and unrefAndAbandon them before resetting the hash.
-    SkTDynamicHash<GrVkSampler, GrVkSampler::Key>::Iter iter(&fSamplers);
-    for (; !iter.done(); ++iter) {
-        (*iter).unrefAndAbandon();
-    }
-    fSamplers.reset();
-
-    for (decltype(fYcbcrConversions)::Iter iter(&fYcbcrConversions); !iter.done(); ++iter) {
-        (*iter).unrefAndAbandon();
-    }
-    fYcbcrConversions.reset();
-
-    fPipelineStateCache->abandon();
-
-    fPipelineCache = VK_NULL_HANDLE;
-
-    // We must abandon all command buffers and pipeline states before abandoning the
-    // GrVkDescriptorSetManagers
-    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        fDescriptorSetManagers[i]->abandon();
-    }
-    fDescriptorSetManagers.reset();
-
-    // release our uniform buffers
-    for (int i = 0; i < fAvailableUniformBufferResources.count(); ++i) {
-        SkASSERT(fAvailableUniformBufferResources[i]->unique());
-        fAvailableUniformBufferResources[i]->unrefAndAbandon();
-    }
-    fAvailableUniformBufferResources.reset();
-}
-
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(pool->unique());
@@ -587,11 +527,3 @@ void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources(GrVkGpu* gp
     }
 }
 
-void GrVkResourceProvider::CompatibleRenderPassSet::abandonResources() {
-    for (int i = 0; i < fRenderPasses.count(); ++i) {
-        if (fRenderPasses[i]) {
-            fRenderPasses[i]->unrefAndAbandon();
-            fRenderPasses[i] = nullptr;
-        }
-    }
-}

@@ -87,6 +87,7 @@ void GrVkImage::setImageLayout(const GrVkGpu* gpu, VkImageLayout newLayout,
                                VkAccessFlags dstAccessMask,
                                VkPipelineStageFlags dstStageMask,
                                bool byRegion, bool releaseFamilyQueue) {
+    SkASSERT(!gpu->isDeviceLost());
     SkASSERT(VK_IMAGE_LAYOUT_UNDEFINED != newLayout &&
              VK_IMAGE_LAYOUT_PREINITIALIZED != newLayout);
     VkImageLayout currentLayout = this->currentLayout();
@@ -227,7 +228,7 @@ void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
 }
 
 GrVkImage::~GrVkImage() {
-    // should have been released or abandoned first
+    // should have been released first
     SkASSERT(!fResource);
 }
 
@@ -248,7 +249,7 @@ void GrVkImage::prepareForExternal(GrVkGpu* gpu) {
 }
 
 void GrVkImage::releaseImage(GrVkGpu* gpu) {
-    if (fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
+    if (!gpu->isDeviceLost() && fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
         // The Vulkan spec is vague on what to put for the dstStageMask here. The spec for image
         // memory barrier says the dstStageMask must not be zero. However, in the spec when it talks
         // about family queue transfers it says the dstStageMask is ignored and should be set to
@@ -260,14 +261,6 @@ void GrVkImage::releaseImage(GrVkGpu* gpu) {
     if (fResource) {
         fResource->removeOwningTexture();
         fResource->unref(gpu);
-        fResource = nullptr;
-    }
-}
-
-void GrVkImage::abandonImage() {
-    if (fResource) {
-        fResource->removeOwningTexture();
-        fResource->unrefAndAbandon();
         fResource = nullptr;
     }
 }
@@ -319,10 +312,6 @@ void GrVkImage::Resource::notifyRemovedFromCommandBuffer() const {
 }
 
 void GrVkImage::BorrowedResource::freeGPUData(GrVkGpu* gpu) const {
-    this->invokeReleaseProc();
-}
-
-void GrVkImage::BorrowedResource::abandonGPUData() const {
     this->invokeReleaseProc();
 }
 
