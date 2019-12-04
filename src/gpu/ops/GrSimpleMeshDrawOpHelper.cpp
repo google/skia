@@ -108,13 +108,15 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
 
 void GrSimpleMeshDrawOpHelper::executeDrawsAndUploads(
         const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
+
+    const GrPipeline* pipeline;
     if (fProcessors) {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, std::move(*fProcessors), fPipelineFlags);
+        pipeline = flushState->createPipeline(std::move(*fProcessors), fPipelineFlags);
     } else {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags);
+        pipeline = flushState->createPipeline(GrProcessorSet::MakeEmptySet(), fPipelineFlags);
     }
+
+    flushState->executeDrawsAndUploadsForMeshDrawOp(op, chainBounds, pipeline);
 }
 
 #ifdef SK_DEBUG
@@ -188,13 +190,15 @@ bool GrSimpleMeshDrawOpHelperWithStencil::isCompatible(
 
 void GrSimpleMeshDrawOpHelperWithStencil::executeDrawsAndUploads(
         const GrOp* op, GrOpFlushState* flushState, const SkRect& chainBounds) {
+
+    const GrPipeline* pipeline;
     if (fProcessors) {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, std::move(*fProcessors), fPipelineFlags, fStencilSettings);
+        pipeline = flushState->createPipeline(std::move(*fProcessors), fPipelineFlags, fStencilSettings);
     } else {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                op, chainBounds, GrProcessorSet::MakeEmptySet(), fPipelineFlags, fStencilSettings);
+        pipeline = flushState->createPipeline(GrProcessorSet::MakeEmptySet(), fPipelineFlags, fStencilSettings);
     }
+
+    flushState->executeDrawsAndUploadsForMeshDrawOp(op, chainBounds, pipeline);
 }
 
 #ifdef SK_DEBUG

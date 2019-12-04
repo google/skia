@@ -393,8 +393,10 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 }
 
 void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    flushState->executeDrawsAndUploadsForMeshDrawOp(
-            this, chainBounds, std::move(fProcessors), GrPipeline::InputFlags::kNone);
+    const GrPipeline* pipeline = flushState->createPipeline(std::move(fProcessors),
+                                                            GrPipeline::InputFlags::kNone);
+
+    flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
 }
 
 void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {

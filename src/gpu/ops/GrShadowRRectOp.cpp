@@ -602,8 +602,9 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, GrProcessorSet::MakeEmptySet());
+        const GrPipeline* pipeline = flushState->createPipeline(GrProcessorSet::MakeEmptySet());
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

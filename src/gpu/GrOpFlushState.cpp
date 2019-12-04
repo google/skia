@@ -31,11 +31,9 @@ const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
 }
 
-void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
-        const GrOp* op, const SkRect& chainBounds, GrProcessorSet&& processorSet,
-        GrPipeline::InputFlags pipelineFlags, const GrUserStencilSettings* stencilSettings) {
-    SkASSERT(this->opsRenderPass());
-
+const GrPipeline* GrOpFlushState::createPipeline(GrProcessorSet&& processorSet,
+                                                 GrPipeline::InputFlags pipelineFlags,
+                                                 const GrUserStencilSettings* stencilSettings) {
     GrPipeline::InitArgs pipelineArgs;
     pipelineArgs.fInputFlags = pipelineFlags;
     pipelineArgs.fDstProxyView = this->dstProxyView();
@@ -45,6 +43,12 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     auto pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
                                                         std::move(processorSet),
                                                         this->detachAppliedClip());
+    return pipeline;
+}
+
+void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
+        const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline) {
+    SkASSERT(this->opsRenderPass());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();
