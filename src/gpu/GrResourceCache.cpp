@@ -645,15 +645,13 @@ void GrResourceCache::processFreedGpuResources() {
         SkASSERT(msgs[i].fOwningUniqueID == fContextUniqueID);
         uint32_t id = msgs[i].fTexture->uniqueID().asUInt();
         TextureAwaitingUnref* info = fTexturesAwaitingUnref.find(id);
-        // If we called release or abandon on the GrContext we will have already released our ref on
-        // the GrGpuResource. If then the message arrives before the actual GrContext gets destroyed
-        // we will try to process the message when we destroy the GrContext. This protects us from
-        // trying to unref the resource twice.
-        if (info) {
-            info->unref();
-            if (info->finished()) {
-                fTexturesAwaitingUnref.remove(id);
-            }
+        // If the GrContext was released or abandoned then fTexturesAwaitingUnfer should have been
+        // empty and we would have returned early above. Thus if we look for a texture that sent a
+        // message it should be a texture we are waiting on.
+        SkASSERT(info);
+        info->unref();
+        if (info->finished()) {
+            fTexturesAwaitingUnref.remove(id);
         }
     }
 }
