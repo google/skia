@@ -243,15 +243,13 @@ struct Block {
     Block(size_t start, size_t end, const TextStyle& style) : fRange(start, end), fStyle(style) {}
     Block(TextRange textRange, const TextStyle& style) : fRange(textRange), fStyle(style) {}
 
-    Block(const Block& other) {
-        fRange = other.fRange;
-        fStyle = other.fStyle;
-    }
+    Block(const Block& other) : fRange(other.fRange), fStyle(other.fStyle) {}
 
     void add(TextRange tail) {
         SkASSERT(fRange.end == tail.start);
         fRange = TextRange(fRange.start, fRange.start + fRange.width() + tail.width());
     }
+
     TextRange fRange;
     TextStyle fStyle;
 };
@@ -273,13 +271,12 @@ struct Placeholder {
             , fBlocksBefore(blocksBefore)
             , fTextBefore(textBefore) {}
 
-    Placeholder(const Placeholder& other) {
-        fRange = other.fRange;
-        fStyle = other.fStyle;
-        fTextStyle = other.fTextStyle;
-        fBlocksBefore = other.fBlocksBefore;
-        fTextBefore = other.fTextBefore;
-    }
+    Placeholder(const Placeholder& other)
+            : fRange(other.fRange)
+            , fStyle(other.fStyle)
+            , fTextStyle(other.fTextStyle)
+            , fBlocksBefore(other.fBlocksBefore)
+            , fTextBefore(other.fTextBefore) {}
 
     TextRange fRange;
     PlaceholderStyle fStyle;

@@ -84,8 +84,7 @@ bool TextStyle::equals(const TextStyle& other) const {
     if (fTextShadows.size() != other.fTextShadows.size()) {
         return false;
     }
-
-    for (int32_t i = 0; i < (int32_t)fTextShadows.size(); ++i) {
+    for (size_t i = 0; i < fTextShadows.size(); ++i) {
         if (fTextShadows[i] != other.fTextShadows[i]) {
             return false;
         }
@@ -134,7 +133,6 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
             // TODO: should not we take typefaces in account?
             return fFontStyle == other.fFontStyle && fFontFamilies == other.fFontFamilies &&
                    fFontSize == other.fFontSize && fHeight == other.fHeight;
-
         default:
             SkASSERT(false);
             return false;
