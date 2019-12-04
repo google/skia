@@ -157,7 +157,6 @@ public:
 
 protected:
     void releaseImage(GrVkGpu* gpu);
-    void abandonImage();
     bool hasResource() const { return fResource; }
 
     GrVkImageInfo          fInfo;
@@ -225,10 +224,6 @@ private:
 
     private:
         void freeGPUData(GrVkGpu* gpu) const override;
-        void abandonGPUData() const override {
-            this->invokeReleaseProc();
-            SkASSERT(!fReleaseHelper);
-        }
 
         VkImage        fImage;
         GrVkAlloc      fAlloc;
@@ -248,7 +243,6 @@ private:
         }
     private:
         void freeGPUData(GrVkGpu* gpu) const override;
-        void abandonGPUData() const override;
     };
 
     Resource* fResource;

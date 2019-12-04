@@ -20,7 +20,7 @@ class GrVkGpu;
 class GrVkBuffer : public SkNoncopyable {
 public:
     virtual ~GrVkBuffer() {
-        // either release or abandon should have been called by the owner of this object.
+        // release should have been called by the owner of this object.
         SkASSERT(!fResource);
         delete [] (unsigned char*)fMapPtr;
     }
@@ -95,7 +95,6 @@ protected:
     bool vkUpdateData(GrVkGpu* gpu, const void* src, size_t srcSizeInBytes,
                       bool* createdNewBuffer = nullptr);
 
-    void vkAbandon();
     void vkRelease(const GrVkGpu* gpu);
 
 private:

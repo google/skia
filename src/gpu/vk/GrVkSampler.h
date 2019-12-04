@@ -66,7 +66,6 @@ private:
             , fUniqueID(GenID()) {}
 
     void freeGPUData(GrVkGpu* gpu) const override;
-    void abandonGPUData() const override;
 
     static uint32_t GenID() {
         static std::atomic<uint32_t> nextID{1};
