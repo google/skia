@@ -77,6 +77,48 @@
     },
     {
       "key": {
+        "uuid": "fd9f6349_5ef19216",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:07:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a87e869f_1db878b6",
+      "range": {
+        "startLine": 73,
+        "startChar": 31,
+        "endLine": 73,
+        "endChar": 34
+      },
+      "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "632d9f53_74fe4d0c",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:07:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fb403c8_fadd7b75",
+      "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "178f4385_07ff2e4a",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 4
@@ -94,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "7822a24f_de7f7834",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:07:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "178f4385_07ff2e4a",
+      "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f49c163c_af7eab7f",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 4
@@ -108,6 +168,24 @@
       "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f3d343c_4d457142",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-04T21:07:15Z",
+      "side": 1,
+      "message": "I will leave it as is, if we didn\u0027t cache the FunctionTable pointer, we\u0027d either need to store the computed index, or we\u0027d need to store the DeviceMode and LocalMode that were chosen in reset().",
+      "parentUuid": "f49c163c_af7eab7f",
+      "revId": "6323a3bad56cf829c1d0b5a0f0e28ca88ff7e7f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
