@@ -330,7 +330,7 @@ sk_sp<sksg::Transform> LayerBuilder::doAttachTransform(const AnimationBuilder& a
         const auto camera_type = (*jtransform)["a"].is<skjson::NullValue>()
                 ? CameraAdapter::Type::kOneNode
                 : CameraAdapter::Type::kTwoNode;
-        auto camera_adapter = sk_make_sp<CameraAdapter>(abuilder.fSize, camera_type);
+        auto camera_adapter = sk_make_sp<CameraAdapter>(cbuilder->fSize, camera_type);
 
         abuilder.bindProperty<ScalarValue>(fJlayer["pe"],
             [camera_adapter] (const ScalarValue& pe) {
@@ -365,7 +365,7 @@ bool LayerBuilder::hasMotionBlur(const CompositionBuilder* cbuilder) const {
 sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& abuilder,
                                                       CompositionBuilder* cbuilder) {
     AnimationBuilder::LayerInfo layer_info = {
-        abuilder.fSize,
+        cbuilder->fSize,
         ParseDefault<float>(fJlayer["ip"], 0.0f),
         ParseDefault<float>(fJlayer["op"], 0.0f),
     };

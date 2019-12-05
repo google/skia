@@ -271,14 +271,14 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver,
                                    Animation::Builder::Stats* stats,
-                                   const SkSize& size, float duration, float framerate)
+                                   const SkSize& comp_size, float duration, float framerate)
     : fResourceProvider(std::move(rp))
     , fLazyFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
     , fMarkerObserver(std::move(mobserver))
     , fStats(stats)
-    , fSize(size)
+    , fCompSize(comp_size)
     , fDuration(duration)
     , fFrameRate(framerate)
     , fHasNontrivialBlending(false) {}
@@ -290,7 +290,7 @@ std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& 
     this->parseFonts(jroot["fonts"], jroot["chars"]);
 
     AutoScope ascope(this);
-    auto root = CompositionBuilder(*this, jroot).build(*this);
+    auto root = CompositionBuilder(*this, fCompSize, jroot).build(*this);
 
     auto animators = ascope.release();
     fStats->fAnimatorCount = animators.size();

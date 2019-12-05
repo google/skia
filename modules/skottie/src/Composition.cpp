@@ -120,7 +120,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAssetRef(
 }
 
 CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
-                                       const skjson::ObjectValue& jcomp) {
+                                       const SkSize& size,
+                                       const skjson::ObjectValue& jcomp)
+    : fSize(size) {
+
     // Optional motion blur params.
     if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
         static constexpr size_t kMaxSamplesPerFrame = 64;
@@ -163,7 +166,7 @@ CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
         fCameraTransform = fLayerBuilders[camera_builder_index].buildTransform(abuilder, this);
     } else if (ParseDefault<int>(jcomp["ddd"], 0)) {
         // Default/implicit camera when 3D layers are present.
-        fCameraTransform = CameraAdapter::MakeDefault(abuilder.fSize)->refTransform();
+        fCameraTransform = CameraAdapter::MakeDefault(fSize)->refTransform();
     }
 }
 
