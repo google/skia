@@ -43,11 +43,18 @@ public:
         when doing inline uploads to reset the image layout back to sampled. */
     void doUpload(GrDeferredTextureUploadFn&, bool shouldPrepareSurfaceForSampling = false);
 
+    static const GrPipeline* CreatePipeline(const GrCaps& caps,
+                                            SkArenaAlloc* arena,
+                                            const GrSurfaceProxyView* dstView,
+                                            GrAppliedClip&& appliedClip,
+                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            GrProcessorSet&&,
+                                            GrPipeline::InputFlags = GrPipeline::InputFlags::kNone,
+                                            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
-    void executeDrawsAndUploadsForMeshDrawOp(
-            const GrOp* op, const SkRect& chainBounds, GrProcessorSet&&,
-            GrPipeline::InputFlags = GrPipeline::InputFlags::kNone,
-            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+    void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& chainBounds,
+                                             const GrPipeline*);
 
     GrOpsRenderPass* opsRenderPass() { return fOpsRenderPass; }
     void setOpsRenderPass(GrOpsRenderPass* renderPass) { fOpsRenderPass = renderPass; }
