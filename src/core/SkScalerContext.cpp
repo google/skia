@@ -1115,7 +1115,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 SkDescriptor* SkScalerContext::MakeDescriptorForPaths(SkFontID typefaceID,
                                                       SkAutoDescriptor* ad) {
     SkScalerContextRec rec;
-    memset(&rec, 0, sizeof(rec));
+    memset((void*)&rec, 0, sizeof(rec));
     rec.fFontID = typefaceID;
     rec.fTextSize = SkFontPriv::kCanonicalTextSizeForPaths;
     rec.fPreScaleX = rec.fPost2x2[0][0] = rec.fPost2x2[1][1] = SK_Scalar1;

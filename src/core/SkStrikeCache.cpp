@@ -284,11 +284,11 @@ static bool loose_compare(const SkDescriptor& lhs, const SkDescriptor& rhs) {
     uint32_t size;
     auto ptr = lhs.findEntry(kRec_SkDescriptorTag, &size);
     SkScalerContextRec lhsRec;
-    std::memcpy(&lhsRec, ptr, size);
+    std::memcpy((void*)&lhsRec, ptr, size);
 
     ptr = rhs.findEntry(kRec_SkDescriptorTag, &size);
     SkScalerContextRec rhsRec;
-    std::memcpy(&rhsRec, ptr, size);
+    std::memcpy((void*)&rhsRec, ptr, size);
 
     // If these don't match, there's no way we can use these strikes interchangeably.
     // Note that a typeface from each renderer maps to a unique proxy typeface on the GPU,
