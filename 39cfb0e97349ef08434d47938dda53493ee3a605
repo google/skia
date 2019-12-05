@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "516fd237_2f376b03",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-05T19:29:09Z",
+      "side": 1,
+      "message": "This does not seem to be a related change to the rest of this CL. Additionally, I would *strongly* recommend not adding our fake pointer into SimpleImageInfo because a normal ImageInfo does not have an SkImage in it normally.\n\nIf you do really need it, I\u0027d recommend 1) doing it in a different CL and 2) renaming SimpleImageInfo. Otherwise, try to just pass in SkImage* as a parameter or something.",
+      "range": {
+        "startLine": 47,
+        "startChar": 1,
+        "endLine": 47,
+        "endChar": 25
+      },
+      "revId": "39cfb0e97349ef08434d47938dda53493ee3a605",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b471f81_55b5a8bb",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-05T19:29:09Z",
+      "side": 1,
+      "message": "nit: wrap to 100 cols",
+      "range": {
+        "startLine": 24,
+        "startChar": 100,
+        "endLine": 24,
+        "endChar": 108
+      },
+      "revId": "39cfb0e97349ef08434d47938dda53493ee3a605",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
