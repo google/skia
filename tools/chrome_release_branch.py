@@ -75,7 +75,8 @@ def update_infra_config(old_branch, new_branch):
     print >> sys.stderr, ('No configured git user; please run '
                           '"git config user.email <your email>".')
     sys.exit(1)
-  go.get(go.INFRA_GO+'/go/supported_branches/cmd/new-branch')
+  go.mod_download()
+  go.install(go.INFRA_GO+'/go/supported_branches/cmd/new-branch')
   subprocess.check_call(['new-branch',
                          '--branch', new_branch[len(REFS_HEADS_PREFIX):],
                          '--delete', old_branch[len(REFS_HEADS_PREFIX):],
