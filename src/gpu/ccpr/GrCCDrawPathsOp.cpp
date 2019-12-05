@@ -439,7 +439,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
     if (clip.scissorState().enabled()) {
         fixedDynamicState.fScissorRect = clip.scissorState().rect();
     }
-    GrPipeline pipeline(initArgs, std::move(fProcessors), std::move(clip));
+    GrPipeline* pipeline = nullptr; // (initArgs, std::move(fProcessors), std::move(clip));
 
     int baseInstance = fBaseInstance;
     SkASSERT(baseInstance >= 0);  // Make sure setupResources() has been called.
@@ -453,7 +453,7 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState, const SkRect& chainB
                                        atlas->textureSwizzle(), atlas->origin(),
                                        fViewMatrixIfUsingLocalCoords);
             fixedDynamicState.fPrimitiveProcessorTextures = &atlas;
-            pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
+            pathProc.drawPaths(flushState, *pipeline, &fixedDynamicState, *resources, baseInstance,
                                range.fEndInstanceIdx, this->bounds());
         }
 

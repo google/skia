@@ -14,6 +14,7 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetPriv.h"
 #include "src/gpu/ops/GrDrawPathOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 static constexpr GrUserStencilSettings kCoverPass{
         GrUserStencilSettings::StaticInit<
@@ -43,6 +44,7 @@ SkString GrDrawPathOp::dumpInfo() const {
 }
 #endif
 
+#if 0
 GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& state) {
     GrPipeline::InitArgs args;
     if (fDoAA) {
@@ -54,6 +56,7 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
     args.fOutputSwizzle = state.drawOpArgs().outputSwizzle();
     return args;
 }
+#endif
 
 const GrProcessorSet::Analysis& GrDrawPathOpBase::doProcessorAnalysis(
         const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
@@ -87,34 +90,46 @@ std::unique_ptr<GrDrawOp> GrDrawPathOp::Make(GrRecordingContext* context,
     return pool->allocate<GrDrawPathOp>(viewMatrix, std::move(paint), aa, std::move(path));
 }
 
-void GrDrawPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    GrAppliedClip appliedClip = state->detachAppliedClip();
+void GrDrawPathOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+//    GrAppliedClip appliedClip = flushState->detachAppliedClip();
 
     GrPipeline::FixedDynamicState* fixedDynamicState = nullptr, storage;
 
-    if (appliedClip.scissorState().enabled()) {
-        storage.fScissorRect = appliedClip.scissorState().rect();
+    const GrAppliedClip* appliedClip1 = flushState->appliedClip();
+    if (appliedClip1->scissorState().enabled()) {
+        storage.fScissorRect = appliedClip1->scissorState().rect();
         fixedDynamicState = &storage;
     }
 
-    GrPipeline pipeline(this->pipelineInitArgs(*state), this->detachProcessors(),
-                        std::move(appliedClip));
+    GrPipeline::InputFlags pipelineFlags = GrPipeline::InputFlags::kNone;
+    if (this->doAA()) {
+        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+    }
+
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                             this->detachProcessors(),
+                                                             pipelineFlags,
+                                                             &kCoverPass);
+
+//    GrPipeline pipeline(this->pipelineInitArgs(*flushState), this->detachProcessors(),
+//                        std::move(appliedClip));
+
     sk_sp<GrPathProcessor> pathProc(GrPathProcessor::Create(this->color(), this->viewMatrix()));
 
-    GrProgramInfo programInfo(state->proxy()->numSamples(),
-                              state->proxy()->numStencilSamples(),
-                              state->proxy()->backendFormat(),
-                              state->view()->origin(),
-                              &pipeline,
+    GrProgramInfo programInfo(flushState->proxy()->numSamples(),
+                              flushState->proxy()->numStencilSamples(),
+                              flushState->proxy()->backendFormat(),
+                              flushState->view()->origin(),
+                              pipeline,
                               pathProc.get(),
                               fixedDynamicState,
                               nullptr, 0,
                               GrPrimitiveType::kPath);
 
     GrStencilSettings stencil;
-    init_stencil_pass_settings(*state, this->fillType(), &stencil);
-    state->gpu()->pathRendering()->drawPath(state->drawOpArgs().proxy()->peekRenderTarget(),
-                                            programInfo, stencil, fPath.get());
+    init_stencil_pass_settings(*flushState, this->fillType(), &stencil);
+    flushState->gpu()->pathRendering()->drawPath(flushState->drawOpArgs().proxy()->peekRenderTarget(),
+                                                 programInfo, stencil, fPath.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////

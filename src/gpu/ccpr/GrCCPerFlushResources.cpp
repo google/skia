@@ -90,7 +90,8 @@ public:
                                    srcProxy->textureSwizzle(), srcProxy->origin());
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
-                            flushState->drawOpArgs().outputSwizzle());
+                            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kNone,
+                            &GrUserStencilSettings::kUnused, true);
         GrPipeline::FixedDynamicState dynamicState;
         dynamicState.fPrimitiveProcessorTextures = &srcProxy;
 
@@ -133,7 +134,9 @@ public:
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         ProcessorType proc;
         GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
-                            flushState->drawOpArgs().outputSwizzle());
+                            flushState->drawOpArgs().outputSwizzle(),
+                            GrPipeline::InputFlags::kNone, &GrUserStencilSettings::kUnused, false);
+
         fResources->filler().drawFills(flushState, &proc, pipeline, fFillBatchID, fDrawBounds);
         fResources->stroker().drawStrokes(flushState, &proc, fStrokeBatchID, fDrawBounds);
     }

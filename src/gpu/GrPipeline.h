@@ -91,25 +91,20 @@ public:
     };
 
     /**
-     * Creates a simple pipeline with default settings and no processors. The provided blend mode
-     * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
-     * specify a scissor rectangle through the DynamicState struct.
-     **/
+    * Creates a simple pipeline with default settings and no processors. The provided blend mode
+    * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
+    * specify a scissor rectangle through the DynamicState struct.
+    **/
     GrPipeline(GrScissorTest scissor, SkBlendMode blend, const GrSwizzle& outputSwizzle,
-               InputFlags flags = InputFlags::kNone,
-               const GrUserStencilSettings* stencil = &GrUserStencilSettings::kUnused)
-            : GrPipeline(scissor, GrPorterDuffXPFactory::MakeNoCoverageXP(blend), outputSwizzle,
-                         flags, stencil) {
+               InputFlags flags /*= InputFlags::kNone */,
+               const GrUserStencilSettings* stencil /*= &GrUserStencilSettings::kUnused*/, bool foo)
+        : GrPipeline(scissor, GrPorterDuffXPFactory::MakeNoCoverageXP(blend), outputSwizzle,
+                     flags, stencil, foo) {
     }
 
     GrPipeline(GrScissorTest, sk_sp<const GrXferProcessor>, const GrSwizzle& outputSwizzle,
-               InputFlags = InputFlags::kNone,
-               const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
-
-    GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
-
-    GrPipeline(const GrPipeline&) = delete;
-    GrPipeline& operator=(const GrPipeline&) = delete;
+               InputFlags /*= InputFlags::kNone */,
+               const GrUserStencilSettings* /*= &GrUserStencilSettings::kUnused */, bool foo);
 
     /// @}
 
@@ -215,7 +210,21 @@ public:
 
     void visitProxies(const GrOp::VisitProxyFunc&) const;
 
+    static const GrPipeline* Make(SkArenaAlloc* arena, const InitArgs& args,
+                                  GrProcessorSet&& processorSet, GrAppliedClip&& appliedClip) {
+        return arena->make<GrPipeline>(args,
+                                       std::move(processorSet),
+                                       std::move(appliedClip));
+    }
+
 private:
+    friend class SkArenaAlloc; // for ctors
+
+    GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
+
+    GrPipeline(const GrPipeline&) = delete;
+    GrPipeline& operator=(const GrPipeline&) = delete;
+
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
 
     /** This is a continuation of the public "InputFlags" enum. */

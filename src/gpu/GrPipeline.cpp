@@ -72,7 +72,7 @@ GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& 
 
 GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> xp,
                        const GrSwizzle& outputSwizzle, InputFlags inputFlags,
-                       const GrUserStencilSettings* userStencil)
+                       const GrUserStencilSettings* userStencil, bool foo)
         : fWindowRectsState()
         , fUserStencilSettings(userStencil)
         , fFlags((Flags)inputFlags)

@@ -119,10 +119,9 @@ static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
 void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkIRect drawBoundsRect = SkIRect::MakeWH(fDrawBounds.width(), fDrawBounds.height());
 
-    GrPipeline pipeline(
-            GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
-            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kHWAntialias,
-            &kIncrDecrStencil);
+    GrPipeline pipeline(GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
+                        flushState->drawOpArgs().outputSwizzle(),
+                        GrPipeline::InputFlags::kHWAntialias, &kIncrDecrStencil, true);
 
     GrSampleMaskProcessor sampleMaskProc;
 
@@ -145,7 +144,7 @@ void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chain
 
     GrPipeline resolvePipeline(GrScissorTest::kEnabled, SkBlendMode::kSrc,
                                flushState->drawOpArgs().outputSwizzle(), noHWAA,
-                               stencilResolveSettings);
+                               stencilResolveSettings, true);
     GrPipeline::FixedDynamicState scissorRectState(drawBoundsRect);
 
     GrMesh mesh(GrPrimitiveType::kTriangleStrip);
