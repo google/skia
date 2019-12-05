@@ -27,6 +27,7 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 /**
  * This is a GPU-backend specific test for dynamic pipeline state. It draws boxes using dynamic

@@ -134,6 +134,7 @@ public:
         ProcessorType proc;
         GrPipeline pipeline(GrScissorTest::kEnabled, SkBlendMode::kPlus,
                             flushState->drawOpArgs().outputSwizzle());
+
         fResources->filler().drawFills(flushState, &proc, pipeline, fFillBatchID, fDrawBounds);
         fResources->stroker().drawStrokes(flushState, &proc, fStrokeBatchID, fDrawBounds);
     }
