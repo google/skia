@@ -237,10 +237,10 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
         "Advanced",
         "Advanced Coherent",
     };
-    GR_STATIC_ASSERT(0 == kBasic_BlendEquationSupport);
-    GR_STATIC_ASSERT(1 == kAdvanced_BlendEquationSupport);
-    GR_STATIC_ASSERT(2 == kAdvancedCoherent_BlendEquationSupport);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kBlendEquationSupportNames) == kLast_BlendEquationSupport + 1);
+    static_assert(0 == kBasic_BlendEquationSupport);
+    static_assert(1 == kAdvanced_BlendEquationSupport);
+    static_assert(2 == kAdvancedCoherent_BlendEquationSupport);
+    static_assert(SK_ARRAY_COUNT(kBlendEquationSupportNames) == kLast_BlendEquationSupport + 1);
 
     writer->appendString("Blend Equation Support",
                          kBlendEquationSupportNames[fBlendEquationSupport]);
