@@ -603,14 +603,14 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
         GR_GL_EQUAL,            // kEqual
         GR_GL_NOTEQUAL,         // kNotEqual
     };
-    static_assert(0 == (int)GrStencilTest::kAlways);
-    static_assert(1 == (int)GrStencilTest::kNever);
-    static_assert(2 == (int)GrStencilTest::kGreater);
-    static_assert(3 == (int)GrStencilTest::kGEqual);
-    static_assert(4 == (int)GrStencilTest::kLess);
-    static_assert(5 == (int)GrStencilTest::kLEqual);
-    static_assert(6 == (int)GrStencilTest::kEqual);
-    static_assert(7 == (int)GrStencilTest::kNotEqual);
+    GR_STATIC_ASSERT(0 == (int)GrStencilTest::kAlways);
+    GR_STATIC_ASSERT(1 == (int)GrStencilTest::kNever);
+    GR_STATIC_ASSERT(2 == (int)GrStencilTest::kGreater);
+    GR_STATIC_ASSERT(3 == (int)GrStencilTest::kGEqual);
+    GR_STATIC_ASSERT(4 == (int)GrStencilTest::kLess);
+    GR_STATIC_ASSERT(5 == (int)GrStencilTest::kLEqual);
+    GR_STATIC_ASSERT(6 == (int)GrStencilTest::kEqual);
+    GR_STATIC_ASSERT(7 == (int)GrStencilTest::kNotEqual);
     SkASSERT(test < (GrStencilTest)kGrStencilTestCount);
 
     return gTable[(int)test];

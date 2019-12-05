@@ -179,7 +179,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 // Start at various repetitions within the patterned index buffer to exercise base
                 // index.
                 while (i < kBoxCount) {
-                    static_assert(kIndexPatternRepeatCount >= 3);
+                    GR_STATIC_ASSERT(kIndexPatternRepeatCount >= 3);
                     int repetitionCount = SkTMin(3 - baseRepetition, kBoxCount - i);
 
                     GrMesh mesh(GrPrimitiveType::kTriangles);

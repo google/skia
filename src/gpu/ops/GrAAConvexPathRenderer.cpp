@@ -48,15 +48,15 @@ struct Segment {
     SkVector fMid;
 
     int countPoints() {
-        static_assert(0 == kLine && 1 == kQuad);
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fType + 1;
     }
     const SkPoint& endPt() const {
-        static_assert(0 == kLine && 1 == kQuad);
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fPts[fType];
     }
     const SkPoint& endNorm() const {
-        static_assert(0 == kLine && 1 == kQuad);
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fNorms[fType];
     }
 };

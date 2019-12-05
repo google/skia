@@ -230,12 +230,12 @@ public:
     void init();
 
     int countPoints() {
-        static_assert(0 == kLine && 1 == kQuad);
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fType + 2;
     }
 
     const SkPoint& endPt() const {
-        static_assert(0 == kLine && 1 == kQuad);
+        GR_STATIC_ASSERT(0 == kLine && 1 == kQuad);
         return fPts[fType + 1];
     }
 };

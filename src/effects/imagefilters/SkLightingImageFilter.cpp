@@ -49,7 +49,7 @@ const SkScalar gOneQuarter = 0.25f;
 #if SK_SUPPORT_GPU
 static void setUniformPoint3(const GrGLSLProgramDataManager& pdman, UniformHandle uni,
                              const SkPoint3& point) {
-    static_assert(sizeof(SkPoint3) == 3 * sizeof(float));
+    GR_STATIC_ASSERT(sizeof(SkPoint3) == 3 * sizeof(float));
     pdman.set3fv(uni, 1, &point.fX);
 }
 

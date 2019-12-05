@@ -1105,22 +1105,22 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
         "IMG MS To Texture",
         "EXT MS To Texture",
     };
-    static_assert(0 == kNone_MSFBOType);
-    static_assert(1 == kStandard_MSFBOType);
-    static_assert(2 == kES_Apple_MSFBOType);
-    static_assert(3 == kES_IMG_MsToTexture_MSFBOType);
-    static_assert(4 == kES_EXT_MsToTexture_MSFBOType);
-    static_assert(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
+    GR_STATIC_ASSERT(0 == kNone_MSFBOType);
+    GR_STATIC_ASSERT(1 == kStandard_MSFBOType);
+    GR_STATIC_ASSERT(2 == kES_Apple_MSFBOType);
+    GR_STATIC_ASSERT(3 == kES_IMG_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(4 == kES_EXT_MsToTexture_MSFBOType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
     static const char* kInvalidateFBTypeStr[] = {
         "None",
         "Discard",
         "Invalidate",
     };
-    static_assert(0 == kNone_InvalidateFBType);
-    static_assert(1 == kDiscard_InvalidateFBType);
-    static_assert(2 == kInvalidate_InvalidateFBType);
-    static_assert(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
+    GR_STATIC_ASSERT(0 == kNone_InvalidateFBType);
+    GR_STATIC_ASSERT(1 == kDiscard_InvalidateFBType);
+    GR_STATIC_ASSERT(2 == kInvalidate_InvalidateFBType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
 
     static const char* kMapBufferTypeStr[] = {
         "None",
@@ -1128,11 +1128,11 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
         "MapBufferRange",
         "Chromium",
     };
-    static_assert(0 == kNone_MapBufferType);
-    static_assert(1 == kMapBuffer_MapBufferType);
-    static_assert(2 == kMapBufferRange_MapBufferType);
-    static_assert(3 == kChromium_MapBufferType);
-    static_assert(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
+    GR_STATIC_ASSERT(0 == kNone_MapBufferType);
+    GR_STATIC_ASSERT(1 == kMapBuffer_MapBufferType);
+    GR_STATIC_ASSERT(2 == kMapBufferRange_MapBufferType);
+    GR_STATIC_ASSERT(3 == kChromium_MapBufferType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
 
     writer->appendBool("Core Profile", fIsCoreProfile);
     writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
