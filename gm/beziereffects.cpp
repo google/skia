@@ -46,6 +46,7 @@
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 #include <memory>
 #include <utility>
@@ -81,8 +82,11 @@ protected:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, std::move(fProcessorSet));
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 std::move(fProcessorSet),
+                                                                 GrPipeline::InputFlags::kNone);
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     GrClipEdgeType edgeType() const { return fEdgeType; }
