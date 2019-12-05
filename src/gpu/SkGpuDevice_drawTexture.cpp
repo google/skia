@@ -489,17 +489,21 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
 
     SkAutoTArray<GrRenderTargetContext::TextureSetEntry> textures(count);
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
-    // issue the accumulated 'n' draws starting at 'base'.
-    int base = 0, n = 0;
-    auto draw = [&] {
+    // issue the accumulated 'n' draws starting at 'base'. 'p' represents the number of proxy
+    // switches that occur within the 'n' entries.
+    int base = 0, n = 0, p = 0;
+    auto draw = [&](int nextBase) {
         if (n > 0) {
             auto textureXform = GrColorSpaceXform::Make(
                     set[base].fImage->colorSpace(), set[base].fImage->alphaType(),
                     fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
-            fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n,
+            fRenderTargetContext->drawTextureSet(this->clip(), textures.get() + base, n, p,
                                                  filter, mode, GrAA::kYes, constraint,
                                                  this->localToDevice(), std::move(textureXform));
         }
+        base = nextBase;
+        n = 0;
+        p = 0;
     };
     int dstClipIndex = 0;
     for (int i = 0; i < count; ++i) {
@@ -514,9 +518,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         // The default SkBaseDevice implementation is based on drawImageRect which does not allow
         // non-sorted src rects. TODO: Decide this is OK or make sure we handle it.
         if (!set[i].fSrcRect.isSorted()) {
-            draw();
-            base = i + 1;
-            n = 0;
+            draw(i + 1);
             continue;
         }
 
@@ -536,9 +538,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
         if (!proxy) {
             // This image can't go through the texture op, send through general image pipeline
             // after flushing current batch.
-            draw();
-            base = i + 1;
-            n = 0;
+            draw(i + 1);
             SkTCopyOnFirstWrite<SkPaint> entryPaint(paint);
             if (set[i].fAlpha != 1.f) {
                 auto paintAlpha = paint.getAlphaf();
@@ -571,14 +571,18 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
                     textures[base].fProxyView.proxy()) ||
              set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
              !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
-            draw();
-            base = i;
-            n = 1;
-        } else {
-            ++n;
+            draw(i);
+        }
+        // Whether or not we submitted a draw in the above if(), this ith entry is in the current
+        // set being accumulated so increment n, and increment p if proxies are different.
+        ++n;
+        if (n == 1 || textures[i - 1].fProxyView.proxy() != textures[i].fProxyView.proxy()) {
+            // First proxy or a different proxy (that is compatible, otherwise we'd have drawn up
+            // to i - 1).
+            ++p;
         }
     }
-    draw();
+    draw(count);
 }
 
 // TODO (michaelludwig) - to be removed when drawBitmapRect doesn't need it anymore
