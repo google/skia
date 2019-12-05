@@ -4,9 +4,14 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
-Milestone 80
+Milestone 81
 
 <Insert new notes here- top is most recent.>
+
+* * *
+
+Milestone 80
+
   * For Vulkan backend, we now require that the VkDevice, Queue, and Instance outlive
     either the destruction or abandoning of the GrContext. Additionally, all
     GrBackendTextures created via GrContext::createBackendTexture calls must be deleted
