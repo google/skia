@@ -30,6 +30,7 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrDashOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 using AAMode = GrDashOp::AAMode;
 
@@ -632,8 +633,13 @@ private:
         if (AAMode::kCoverageWithMSAA == fAAMode) {
             pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         }
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, std::move(fProcessorSet), pipelineFlags, fStencilSettings);
+
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
+                                                                 std::move(fProcessorSet),
+                                                                 pipelineFlags,
+                                                                 fStencilSettings);
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
