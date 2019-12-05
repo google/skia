@@ -5,6 +5,42 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 80
+------------
+
+  * Removed SkSize& SkSize::operator=(const SkISize&)
+    https://review.skia.org/257880
+
+  * SkISize width() and height() now constexpr
+    https://review.skia.org/257680
+
+  * Added SkMatrix::MakeTrans(SkVector) and SkRect::makeOffset(SkVector).
+    https://review.skia.org/255782
+
+  * Added SkImageInfo::MakeA8(SkISize) and added optional color space parameter to
+    SkImageInfo::MakeN32Premul(SkISize).
+
+  * Added dimensions() and getFrameCount() to SkAnimatedImage
+    https://review.skia.org/253542
+
+  * Removed SkMatrix44 version of toXYZD50 from SkColorSpace. Switched to skcms types in
+    transferFn, invTrasnferFn, and gamutTransformTo functions.
+    https://review.skia.org/252596
+
+  * Removed rotation and YUV support from SkColorMatrix
+    https://review.skia.org/252188
+
+  * Added kBT2020_SkYUVColorSpace. This is BT.2020's YCbCr conversion (non-constant-luminance).
+    https://review.skia.org/252160
+
+  * Remove old async read pixels APIs
+    https://review.skia.org/251198
+
+  * Expose SkBlendModeCoeff and SkBlendMode_AsCoeff for Porter-Duff blend modes.
+    https://review.skia.org/252600
+
+* * *
+
 Milestone 79
 ------------
 
