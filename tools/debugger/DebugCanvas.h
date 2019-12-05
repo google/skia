@@ -16,11 +16,13 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTArray.h"
 #include "tools/UrlDataManager.h"
+#include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
 class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
+class DebugLayerManager;
 
 class DebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
@@ -29,6 +31,11 @@ public:
     DebugCanvas(SkIRect bounds);
 
     ~DebugCanvas() override;
+
+    /**
+     * Provide a DebugLayerManager for mskp files containing layer information
+     */
+    void setLayerManager(DebugLayerManager* lm) { fLayerManager = lm; }
 
     /**
      * Enable or disable overdraw visualization
@@ -206,6 +213,16 @@ private:
     bool    fOverdrawViz;
     SkColor fClipVizColor;
     bool    fDrawGpuOpBounds;
+
+    // When not negative, indicates the render node id of the layer represented by the next
+    // drawPicture call.
+    // Why can't I count on the constructor alone to always initialize these?
+    int         fnextDrawPictureLayerId = -1;
+    int         fnextDrawImageRectLayerId = -1;
+    SkIRect     fnextDrawPictureDirtyRect;
+    // may be null, in which case layer annotations can be ignored.
+    DebugLayerManager* fLayerManager = nullptr;
+
 
     /**
         Adds the command to the class' vector of commands.
