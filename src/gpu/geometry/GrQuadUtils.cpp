@@ -31,24 +31,34 @@ static AI V4f next_ccw(const V4f& v) {
 
 // Replaces zero-length 'bad' edge vectors with the reversed opposite edge vector.
 // e3 may be null if only 2D edges need to be corrected for.
+template<bool threeD>
 static AI void correct_bad_edges(const M4f& bad, V4f* e1, V4f* e2, V4f* e3) {
     if (any(bad)) {
         // Want opposite edges, L B T R -> R T B L but with flipped sign to preserve winding
         *e1 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e1), *e1);
         *e2 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e2), *e2);
-        if (e3) {
+        if constexpr (threeD) {
+            SkASSERT(e3);
             *e3 = if_then_else(bad, -skvx::shuffle<3, 2, 1, 0>(*e3), *e3);
+        } else {
+            SkASSERT(!e3);
+            (void) e3; // Silence GCC warning
         }
     }
 }
 
 // Replace 'bad' coordinates by rotating CCW to get the next point. c3 may be null for 2D points.
+template<bool threeD>
 static AI void correct_bad_coords(const M4f& bad, V4f* c1, V4f* c2, V4f* c3) {
     if (any(bad)) {
         *c1 = if_then_else(bad, next_ccw(*c1), *c1);
         *c2 = if_then_else(bad, next_ccw(*c2), *c2);
-        if (c3) {
+        if constexpr (threeD) {
+            SkASSERT(c3);
             *c3 = if_then_else(bad, next_ccw(*c3), *c3);
+        } else {
+            SkASSERT(!c3);
+            (void) c3; // Silence GCC warning
         }
     }
 }
@@ -413,18 +423,25 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
 
 //** EdgeVectors implementation
 
+template<TessellationHelper::DeviceMode kDM>
 void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
                                             const skvx::Vec<4, float>& ys,
                                             const skvx::Vec<4, float>& ws,
                                             GrQuad::Type quadType) {
     // Calculate all projected edge vector values for this quad.
-    if (quadType == GrQuad::Type::kPerspective) {
+    if constexpr (kDM == DeviceMode::kRectilinear) {
+        SkASSERT(quadType <= GrQuad::Type::kRectilinear);
+        fX2D = xs;
+        fY2D = ys;
+    } else if (quadType < GrQuad::Type::kPerspective) {
+        // Same as above, but can't be part of constexpr-if since it uses 'quadType'.
+        SkASSERT(quadType == GrQuad::Type::kGeneral);
+        fX2D = xs;
+        fY2D = ys;
+    } else {
         V4f iw = 1.0 / ws;
         fX2D = xs * iw;
         fY2D = ys * iw;
-    } else {
-        fX2D = xs;
-        fY2D = ys;
     }
 
     fDX = next_ccw(fX2D) - fX2D;
@@ -436,7 +453,10 @@ void TessellationHelper::EdgeVectors::reset(const skvx::Vec<4, float>& xs,
     fDY *= fInvLengths;
 
     // Calculate angles between vectors
-    if (quadType <= GrQuad::Type::kRectilinear) {
+    if constexpr (kDM == DeviceMode::kRectilinear) {
+        // NOTE: Technically this assignment isn't strictly necessary since kRectilinear
+        // functions will never read fInvSinTheta or fCosTheta
+        SkASSERT(quadType <= GrQuad::Type::kRectilinear);
         fCosTheta = 0.f;
         fInvSinTheta = 1.f;
     } else {
@@ -453,7 +473,7 @@ void TessellationHelper::EdgeEquations::reset(const EdgeVectors& edgeVectors) {
     V4f dx = edgeVectors.fDX;
     V4f dy = edgeVectors.fDY;
     // Correct for bad edges by copying adjacent edge information into the bad component
-    correct_bad_edges(edgeVectors.fInvLengths >= 1.f / kTolerance, &dx, &dy, nullptr);
+    correct_bad_edges<false>(edgeVectors.fInvLengths >= 1.f / kTolerance, &dx, &dy, nullptr);
 
     V4f c = mad(dx, edgeVectors.fY2D, -dy * edgeVectors.fX2D);
     // Make sure normals point into the shape
@@ -499,7 +519,7 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
     V4f denom = fA * next_cw(fB) - fB * next_cw(fA);
     V4f px = (fB * next_cw(oc) - oc * next_cw(fB)) / denom;
     V4f py = (oc * next_cw(fA) - fA * next_cw(oc)) / denom;
-    correct_bad_coords(abs(denom) < kTolerance, &px, &py, nullptr);
+    correct_bad_coords<false>(abs(denom) < kTolerance, &px, &py, nullptr);
 
     // Calculate the signed distances from these 4 corners to the other two edges that did not
     // define the intersection. So p(0) is compared to e3,e1, p(1) to e3,e2 , p(2) to e0,e1, and
@@ -578,13 +598,15 @@ int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEd
 
 //** OutsetRequest implementation
 
+template<TessellationHelper::DeviceMode kDM>
 void TessellationHelper::OutsetRequest::reset(const EdgeVectors& edgeVectors, GrQuad::Type quadType,
                                               const skvx::Vec<4, float>& edgeDistances) {
     fEdgeDistances = edgeDistances;
 
     // Based on the edge distances, determine if it's acceptable to use fInvSinTheta to
     // calculate the inset or outset geometry.
-    if (quadType <= GrQuad::Type::kRectilinear) {
+    if constexpr (kDM == DeviceMode::kRectilinear) {
+        SkASSERT(quadType <= GrQuad::Type::kRectilinear);
         // Since it's rectangular, the width (edge[1] or edge[2]) collapses if subtracting
         // (dist[0] + dist[3]) makes the new width negative (minus for inset, outsetting will
         // never be degenerate in this case). The same applies for height (edge[0] or edge[3])
@@ -631,44 +653,63 @@ void TessellationHelper::OutsetRequest::reset(const EdgeVectors& edgeVectors, Gr
 
 //** Vertices implementation
 
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
 void TessellationHelper::Vertices::reset(const GrQuad& deviceQuad, const GrQuad* localQuad) {
     // Set vertices to match the device and local quad
     fX = deviceQuad.x4f();
     fY = deviceQuad.y4f();
-    fW = deviceQuad.w4f();
+    // Skip w when in the fast path, since they will never be used for rectilinear insets/outsets
+    if constexpr (kDM != DeviceMode::kRectilinear) {
+        fW = deviceQuad.w4f();
+    } else {
+        SkASSERT(deviceQuad.quadType() <= GrQuad::Type::kRectilinear);
+    }
 
-    if (localQuad) {
+    if constexpr (kLM != LocalMode::kNone) {
+        SkASSERT(localQuad);
         fU = localQuad->x4f();
         fV = localQuad->y4f();
-        fR = localQuad->w4f();
-        fUVRCount = localQuad->hasPerspective() ? 3 : 2;
-    } else {
-        fUVRCount = 0;
-    }
+        if constexpr (kLM == LocalMode::kUVR) {
+            fR = localQuad->w4f();
+        } else {
+            SkASSERT(localQuad->quadType() < GrQuad::Type::kPerspective);
+        }
+    } // Else do nothing, localQuad is ignored entirely
 }
 
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
 void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
                                              GrQuad* localOut, GrQuad::Type localType) const {
     SkASSERT(deviceOut);
-    SkASSERT(fUVRCount == 0 || localOut);
 
     fX.store(deviceOut->xs());
     fY.store(deviceOut->ys());
-    if (deviceType == GrQuad::Type::kPerspective) {
-        fW.store(deviceOut->ws());
+    if constexpr (kDM != DeviceMode::kRectilinear) {
+        if (deviceType == GrQuad::Type::kPerspective) {
+            fW.store(deviceOut->ws());
+        }
+    } else {
+        SkASSERT(deviceType <= GrQuad::Type::kRectilinear);
     }
     deviceOut->setQuadType(deviceType); // This sets ws == 1 when device type != perspective
 
-    if (fUVRCount > 0) {
+    if constexpr (kLM != LocalMode::kNone) {
+        SkASSERT(localOut);
         fU.store(localOut->xs());
         fV.store(localOut->ys());
-        if (fUVRCount == 3) {
-            fR.store(localOut->ws());
+        if constexpr (kLM == LocalMode::kUVR) {
+            if (localType == GrQuad::Type::kPerspective) {
+                fR.store(localOut->ws());
+            }
+        } else {
+            SkASSERT(localType < GrQuad::Type::kPerspective);
         }
-        localOut->setQuadType(localType);
+
+        localOut->setQuadType(localType); // This sets ws == 1 when local type != perspective
     }
 }
 
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
 void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
                                              const V4f& signedEdgeDistances) {
     // This shouldn't be called if fInvSinTheta is close to infinity (cosTheta close to 1).
@@ -679,13 +720,19 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
     // inwards and the cw-rotated edge points outwards, hence the minus-sign.
     // The edge distances are rotated compared to the corner outsets and (dx, dy), since if
     // the edge is "on" both its corners need to be moved along their other edge vectors.
-    V4f signedOutsets = -edgeVectors.fInvSinTheta * next_cw(signedEdgeDistances);
-    V4f signedOutsetsCW = edgeVectors.fInvSinTheta * signedEdgeDistances;
+    V4f signedOutsets = -next_cw(signedEdgeDistances);
+    V4f signedOutsetsCW = signedEdgeDistances;
+    if constexpr (kDM == DeviceMode::kAny) {
+        // Must scale by inv sin theta (when kDM == kRectilinear, inv sin theta is 1, so there's no
+        // need for these multiplies).
+        signedOutsets *= edgeVectors.fInvSinTheta;
+        signedOutsetsCW *= edgeVectors.fInvSinTheta;
+    }
 
     // x = x + outset * mask * next_cw(xdiff) - outset * next_cw(mask) * xdiff
     fX += mad(signedOutsetsCW, next_cw(edgeVectors.fDX), signedOutsets * edgeVectors.fDX);
     fY += mad(signedOutsetsCW, next_cw(edgeVectors.fDY), signedOutsets * edgeVectors.fDY);
-    if (fUVRCount > 0) {
+    if constexpr (kLM != LocalMode::kNone) {
         // We want to extend the texture coords by the same proportion as the positions.
         signedOutsets *= edgeVectors.fInvLengths;
         signedOutsetsCW *= next_cw(edgeVectors.fInvLengths);
@@ -693,25 +740,26 @@ void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
         V4f dv = next_ccw(fV) - fV;
         fU += mad(signedOutsetsCW, next_cw(du), signedOutsets * du);
         fV += mad(signedOutsetsCW, next_cw(dv), signedOutsets * dv);
-        if (fUVRCount == 3) {
+        if constexpr (kLM == LocalMode::kUVR) {
             V4f dr = next_ccw(fR) - fR;
             fR += mad(signedOutsetsCW, next_cw(dr), signedOutsets * dr);
         }
     }
 }
 
+template<TessellationHelper::LocalMode kLM>
 void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const M4f& mask) {
     // Left to right, in device space, for each point
     V4f e1x = skvx::shuffle<2, 3, 2, 3>(fX) - skvx::shuffle<0, 1, 0, 1>(fX);
     V4f e1y = skvx::shuffle<2, 3, 2, 3>(fY) - skvx::shuffle<0, 1, 0, 1>(fY);
     V4f e1w = skvx::shuffle<2, 3, 2, 3>(fW) - skvx::shuffle<0, 1, 0, 1>(fW);
-    correct_bad_edges(mad(e1x, e1x, e1y * e1y) < kTolerance * kTolerance, &e1x, &e1y, &e1w);
+    correct_bad_edges<true>(mad(e1x, e1x, e1y * e1y) < kTolerance * kTolerance, &e1x, &e1y, &e1w);
 
     // // Top to bottom, in device space, for each point
     V4f e2x = skvx::shuffle<1, 1, 3, 3>(fX) - skvx::shuffle<0, 0, 2, 2>(fX);
     V4f e2y = skvx::shuffle<1, 1, 3, 3>(fY) - skvx::shuffle<0, 0, 2, 2>(fY);
     V4f e2w = skvx::shuffle<1, 1, 3, 3>(fW) - skvx::shuffle<0, 0, 2, 2>(fW);
-    correct_bad_edges(mad(e2x, e2x, e2y * e2y) < kTolerance * kTolerance, &e2x, &e2y, &e2w);
+    correct_bad_edges<true>(mad(e2x, e2x, e2y * e2y) < kTolerance * kTolerance, &e2x, &e2y, &e2w);
 
     // Can only move along e1 and e2 to reach the new 2D point, so we have
     // x2d = (x + a*e1x + b*e2x) / (w + a*e1w + b*e2w) and
@@ -780,27 +828,35 @@ void TessellationHelper::Vertices::moveTo(const V4f& x2d, const V4f& y2d, const 
     fX += a * e1x + b * e2x;
     fY += a * e1y + b * e2y;
     fW += a * e1w + b * e2w;
-    correct_bad_coords(abs(denom) < kTolerance, &fX, &fY, &fW);
+    correct_bad_coords<true>(abs(denom) < kTolerance, &fX, &fY, &fW);
 
-    if (fUVRCount > 0) {
+    if constexpr (kLM != LocalMode::kNone) {
         // Calculate R here so it can be corrected with U and V in case it's needed later
         V4f e1u = skvx::shuffle<2, 3, 2, 3>(fU) - skvx::shuffle<0, 1, 0, 1>(fU);
         V4f e1v = skvx::shuffle<2, 3, 2, 3>(fV) - skvx::shuffle<0, 1, 0, 1>(fV);
-        V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
-        correct_bad_edges(mad(e1u, e1u, e1v * e1v) < kTolerance * kTolerance, &e1u, &e1v, &e1r);
-
         V4f e2u = skvx::shuffle<1, 1, 3, 3>(fU) - skvx::shuffle<0, 0, 2, 2>(fU);
         V4f e2v = skvx::shuffle<1, 1, 3, 3>(fV) - skvx::shuffle<0, 0, 2, 2>(fV);
-        V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
-        correct_bad_edges(mad(e2u, e2u, e2v * e2v) < kTolerance * kTolerance, &e2u, &e2v, &e2r);
 
-        fU += a * e1u + b * e2u;
-        fV += a * e1v + b * e2v;
-        if (fUVRCount == 3) {
-            fR += a * e1r + b * e2r;
-            correct_bad_coords(abs(denom) < kTolerance, &fU, &fV, &fR);
+        if constexpr (kLM == LocalMode::kUV) {
+            correct_bad_edges<false>(mad(e1u, e1u, e1v * e1v) < kTolerance * kTolerance,
+                                     &e1u, &e1v, nullptr);
+            correct_bad_edges<false>(mad(e2u, e2u, e2v * e2v) < kTolerance * kTolerance,
+                                     &e2u, &e2v, nullptr);
+            fU += a * e1u + b * e2u;
+            fV += a * e1v + b * e2v;
+            correct_bad_coords<false>(abs(denom) < kTolerance, &fU, &fV, nullptr);
         } else {
-            correct_bad_coords(abs(denom) < kTolerance, &fU, &fV, nullptr);
+            V4f e1r = skvx::shuffle<2, 3, 2, 3>(fR) - skvx::shuffle<0, 1, 0, 1>(fR);
+            V4f e2r = skvx::shuffle<1, 1, 3, 3>(fR) - skvx::shuffle<0, 0, 2, 2>(fR);
+            correct_bad_edges<true>(mad(e1u, e1u, e1v * e1v) < kTolerance * kTolerance,
+                                    &e1u, &e1v, &e1r);
+            correct_bad_edges<true>(mad(e2u, e2u, e2v * e2v) < kTolerance * kTolerance,
+                                    &e2u, &e2v, &e2r);
+
+            fU += a * e1u + b * e2u;
+            fV += a * e1v + b * e2v;
+            fR += a * e1r + b * e2r;
+            correct_bad_coords<true>(abs(denom) < kTolerance, &fU, &fV, &fR);
         }
     }
 }
@@ -816,53 +872,32 @@ void TessellationHelper::reset(const GrQuad& deviceQuad, const GrQuad* localQuad
     fOutsetRequestValid = false;
     fEdgeEquationsValid = false;
 
-    // Compute vertex properties that are always needed for a quad, so no point in doing it lazily.
-    fOriginal.reset(deviceQuad, localQuad);
-    fEdgeVectors.reset(fOriginal.fX, fOriginal.fY, fOriginal.fW, fDeviceType);
+    // Select processing functions that are most optimal for the given quad
+    DeviceMode dm = deviceQuad.quadType() <= GrQuad::Type::kRectilinear ? DeviceMode::kRectilinear
+                                                                        : DeviceMode::kAny;
+    LocalMode lm = localQuad ? (localQuad->hasPerspective() ? LocalMode::kUVR
+                                                            : LocalMode::kUV)
+                             : LocalMode::kNone;
+    fFunctions = GetFunctionTable(dm, lm);
+    SkASSERT(fFunctions);
 
-    fVerticesValid = true;
+    // Compute fixed geometric properties of the quads
+    fFunctions->fResetProc(this, deviceQuad, localQuad);
 }
 
 V4f TessellationHelper::inset(const skvx::Vec<4, float>& edgeDistances,
                               GrQuad* deviceInset, GrQuad* localInset) {
-    SkASSERT(fVerticesValid);
-
-    Vertices inset = fOriginal;
-    const OutsetRequest& request = this->getOutsetRequest(edgeDistances);
-    int vertexCount;
-    if (request.fInsetDegenerate) {
-        vertexCount = this->adjustDegenerateVertices(-request.fEdgeDistances, &inset);
-    } else {
-        this->adjustVertices(-request.fEdgeDistances, &inset);
-        vertexCount = 4;
-    }
-
-    inset.asGrQuads(deviceInset, fDeviceType, localInset, fLocalType);
-    if (vertexCount < 3) {
-        // The interior has less than a full pixel's area so estimate reduced coverage using
-        // the distance of the inset's projected corners to the original edges.
-        return this->getEdgeEquations().estimateCoverage(inset.fX / inset.fW,
-                                                         inset.fY / inset.fW);
-    } else {
-        return 1.f;
-    }
+    SkASSERT(fFunctions); // reset() must be called before first inset()
+    return fFunctions->fInsetProc(this, edgeDistances, deviceInset, localInset);
 }
 
 void TessellationHelper::outset(const skvx::Vec<4, float>& edgeDistances,
                                 GrQuad* deviceOutset, GrQuad* localOutset) {
-    SkASSERT(fVerticesValid);
-
-    Vertices outset = fOriginal;
-    const OutsetRequest& request = this->getOutsetRequest(edgeDistances);
-    if (request.fOutsetDegenerate) {
-        this->adjustDegenerateVertices(request.fEdgeDistances, &outset);
-    } else {
-        this->adjustVertices(request.fEdgeDistances, &outset);
-    }
-
-    outset.asGrQuads(deviceOutset, fDeviceType, localOutset, fLocalType);
+    SkASSERT(fFunctions); // reset() must be called before first outset()
+    fFunctions->fOutsetProc(this, edgeDistances, deviceOutset, localOutset);
 }
 
+template<TessellationHelper::DeviceMode kDM>
 const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
         const skvx::Vec<4, float>& edgeDistances) {
     // Much of the code assumes that we start from positive distances and apply it unmodified to
@@ -871,7 +906,7 @@ const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
 
     // Rebuild outset request if invalid or if the edge distances have changed.
     if (!fOutsetRequestValid || any(edgeDistances != fOutsetRequest.fEdgeDistances)) {
-        fOutsetRequest.reset(fEdgeVectors, fDeviceType, edgeDistances);
+        fOutsetRequest.reset<kDM>(fEdgeVectors, fDeviceType, edgeDistances);
         fOutsetRequestValid = true;
     }
     return fOutsetRequest;
@@ -885,36 +920,43 @@ const TessellationHelper::EdgeEquations& TessellationHelper::getEdgeEquations() 
     return fEdgeEquations;
 }
 
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
 void TessellationHelper::adjustVertices(const skvx::Vec<4, float>& signedEdgeDistances,
                                         Vertices* vertices) {
     SkASSERT(vertices);
-    SkASSERT(vertices->fUVRCount == 0 || vertices->fUVRCount == 2 || vertices->fUVRCount == 3);
 
-    if (fDeviceType < GrQuad::Type::kPerspective) {
+    if constexpr (kDM == DeviceMode::kRectilinear) {
         // For non-perspective, non-degenerate quads, moveAlong is correct and most efficient
-        vertices->moveAlong(fEdgeVectors, signedEdgeDistances);
+        SkASSERT(fDeviceType <= GrQuad::Type::kRectilinear);
+        vertices->moveAlong<kDM, kLM>(fEdgeVectors, signedEdgeDistances);
+    } else if (fDeviceType < GrQuad::Type::kPerspective) {
+        // This is the same as above, but can't be part of the constexpr-if since it depends on
+        // fDeviceType (but the only non-perspective type left is kGeneral).
+        SkASSERT(fDeviceType == GrQuad::Type::kGeneral);
+        vertices->moveAlong<kDM, kLM>(fEdgeVectors, signedEdgeDistances);
     } else {
         // For perspective, non-degenerate quads, use moveAlong for the projected points and then
         // reconstruct Ws with moveTo.
-        Vertices projected = { fEdgeVectors.fX2D, fEdgeVectors.fY2D, /*w*/ 1.f, 0.f, 0.f, 0.f, 0 };
-        projected.moveAlong(fEdgeVectors, signedEdgeDistances);
-        vertices->moveTo(projected.fX, projected.fY, signedEdgeDistances != 0.f);
+        Vertices projected = { fEdgeVectors.fX2D, fEdgeVectors.fY2D, /*w*/ 1.f, 0.f, 0.f, 0.f };
+        projected.moveAlong<kDM, LocalMode::kNone>(fEdgeVectors, signedEdgeDistances);
+        vertices->moveTo<kLM>(projected.fX, projected.fY, signedEdgeDistances != 0.f);
     }
 }
 
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
 int TessellationHelper::adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
                                                  Vertices* vertices) {
     SkASSERT(vertices);
-    SkASSERT(vertices->fUVRCount == 0 || vertices->fUVRCount == 2 || vertices->fUVRCount == 3);
 
-    if (fDeviceType <= GrQuad::Type::kRectilinear) {
+    if constexpr (kDM == DeviceMode::kRectilinear) {
         // For rectilinear, degenerate quads, can use moveAlong if the edge distances are adjusted
         // to not cross over each other.
+        SkASSERT(fDeviceType <= GrQuad::Type::kRectilinear);
         SkASSERT(all(signedEdgeDistances <= 0.f)); // Only way rectilinear can degenerate is insets
         V4f halfLengths = -0.5f / next_cw(fEdgeVectors.fInvLengths); // Negate to inset
         M4f crossedEdges = halfLengths > signedEdgeDistances;
         V4f safeInsets = if_then_else(crossedEdges, halfLengths, signedEdgeDistances);
-        vertices->moveAlong(fEdgeVectors, safeInsets);
+        vertices->moveAlong<kDM, kLM>(fEdgeVectors, safeInsets);
 
         // A degenerate rectilinear quad is either a point (both w and h crossed), or a line
         return all(crossedEdges) ? 1 : 2;
@@ -925,9 +967,80 @@ int TessellationHelper::adjustDegenerateVertices(const skvx::Vec<4, float>& sign
         V4f y2d = fEdgeVectors.fY2D;
         int vertexCount = this->getEdgeEquations().computeDegenerateQuad(signedEdgeDistances,
                                                                          &x2d, &y2d);
-        vertices->moveTo(x2d, y2d, signedEdgeDistances != 0.f);
+        vertices->moveTo<kLM>(x2d, y2d, signedEdgeDistances != 0.f);
         return vertexCount;
     }
 }
+
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
+void TessellationHelper::Reset(TessellationHelper* t,
+                               const GrQuad& deviceQuad,
+                               const GrQuad* localQuad) {
+    t->fOriginal.reset<kDM, kLM>(deviceQuad, localQuad);
+    t->fEdgeVectors.reset<kDM>(t->fOriginal.fX, t->fOriginal.fY, t->fOriginal.fW, t->fDeviceType);
+}
+
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
+V4f TessellationHelper::Inset(TessellationHelper* t, const skvx::Vec<4, float>& edgeDistances,
+                              GrQuad* deviceInset, GrQuad* localInset) {
+    Vertices inset = t->fOriginal;
+    const OutsetRequest& request = t->getOutsetRequest<kDM>(edgeDistances);
+    int vertexCount;
+    if (request.fInsetDegenerate) {
+        vertexCount = t->adjustDegenerateVertices<kDM, kLM>(-request.fEdgeDistances, &inset);
+    } else {
+        t->adjustVertices<kDM, kLM>(-request.fEdgeDistances, &inset);
+        vertexCount = 4;
+    }
+
+    inset.asGrQuads<kDM, kLM>(deviceInset, t->fDeviceType, localInset, t->fLocalType);
+    if (vertexCount < 3) {
+        // The interior has less than a full pixel's area so estimate reduced coverage using
+        // the distance of the inset's projected corners to the original edges.
+        if constexpr (kDM == DeviceMode::kRectilinear) {
+            return t->getEdgeEquations().estimateCoverage(inset.fX, inset.fY);
+        } else {
+            return t->getEdgeEquations().estimateCoverage(inset.fX / inset.fW, inset.fY / inset.fW);
+        }
+    } else {
+        return 1.f;
+    }
+}
+
+template<TessellationHelper::DeviceMode kDM, TessellationHelper::LocalMode kLM>
+void TessellationHelper::Outset(TessellationHelper* t, const skvx::Vec<4, float>& edgeDistances,
+                                GrQuad* deviceOutset, GrQuad* localOutset) {
+    Vertices outset = t->fOriginal;
+    const OutsetRequest& request = t->getOutsetRequest<kDM>(edgeDistances);
+    if constexpr (kDM == DeviceMode::kRectilinear) {
+        // Rectilinear outsetting is never degenerate, so avoid the branch and inclusion of
+        // adjustDegenerateVertices().
+        SkASSERT(!request.fOutsetDegenerate);
+        t->adjustVertices<kDM, kLM>(request.fEdgeDistances, &outset);
+    } else if (request.fOutsetDegenerate) {
+        t->adjustDegenerateVertices<kDM, kLM>(request.fEdgeDistances, &outset);
+    } else {
+        t->adjustVertices<kDM, kLM>(request.fEdgeDistances, &outset);
+    }
+
+    outset.asGrQuads<kDM, kLM>(deviceOutset, t->fDeviceType, localOutset, t->fLocalType);
+}
+
+// The initialization order in this array must match the index calculated in GetFunctionTable.
+TessellationHelper::FunctionTable TessellationHelper::kFunctionTables[] = {
+    FunctionTable(FunctionTable::Config<DeviceMode::kRectilinear, LocalMode::kNone>()),
+    FunctionTable(FunctionTable::Config<DeviceMode::kAny,         LocalMode::kNone>()),
+    FunctionTable(FunctionTable::Config<DeviceMode::kRectilinear, LocalMode::kUV>()),
+    FunctionTable(FunctionTable::Config<DeviceMode::kAny,         LocalMode::kUV>()),
+    FunctionTable(FunctionTable::Config<DeviceMode::kRectilinear, LocalMode::kUVR>()),
+    FunctionTable(FunctionTable::Config<DeviceMode::kAny,         LocalMode::kUVR>())
+};
+
+const TessellationHelper::FunctionTable* TessellationHelper::GetFunctionTable(DeviceMode devMode,
+                                                                              LocalMode localMode) {
+    int index = ((int) localMode << 1) + (int) devMode;
+    return &(kFunctionTables[index]);
+}
+
 
 }; // namespace GrQuadUtils
