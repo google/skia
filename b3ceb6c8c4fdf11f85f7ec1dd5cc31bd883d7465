@@ -22,6 +22,30 @@
       "revId": "b3ceb6c8c4fdf11f85f7ec1dd5cc31bd883d7465",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "333af24b_758479be",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-05T22:46:40Z",
+      "side": 1,
+      "message": "If I put it there it is difficult to see where the predicate ends and the expression block begins.",
+      "parentUuid": "d62b6f73_816e9ea3",
+      "range": {
+        "startLine": 1332,
+        "startChar": 8,
+        "endLine": 1332,
+        "endChar": 9
+      },
+      "revId": "b3ceb6c8c4fdf11f85f7ec1dd5cc31bd883d7465",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
