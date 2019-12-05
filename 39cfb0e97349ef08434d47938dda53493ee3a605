@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fdd4a279_b4f68f5f",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-12-05T21:51:25Z",
+      "side": 1,
+      "message": "Sorry about that. It is unrelated. My aim was to show some identifier of the image to the user in the command list that could allow it to be matched to the images in the resource tab, where I\u0027m also showing the pointer. Showing the pointer was a simple way to have a number that\u0027s the same between these two places. The next best alternative seemed to be to create a new URLDataManager that can be used by DebugCanvas (without breaking it in skiaserve) I\u0027ll move it into it\u0027s own cl",
+      "parentUuid": "516fd237_2f376b03",
+      "range": {
+        "startLine": 47,
+        "startChar": 1,
+        "endLine": 47,
+        "endChar": 25
+      },
+      "revId": "39cfb0e97349ef08434d47938dda53493ee3a605",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b471f81_55b5a8bb",
         "filename": "tools/debugger/DebugLayerManager.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "39cfb0e97349ef08434d47938dda53493ee3a605",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7a886bf_c0c765d9",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-12-05T21:51:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b471f81_55b5a8bb",
+      "range": {
+        "startLine": 24,
+        "startChar": 100,
+        "endLine": 24,
+        "endChar": 108
+      },
+      "revId": "39cfb0e97349ef08434d47938dda53493ee3a605",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
