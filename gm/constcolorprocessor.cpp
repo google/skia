@@ -89,7 +89,7 @@ protected:
             "kModulateRGBA",
             "kModulateA",
         };
-        GR_STATIC_ASSERT(SK_ARRAY_COUNT(kModeStrs) == GrConstColorProcessor::kInputModeCnt);
+        static_assert(SK_ARRAY_COUNT(kModeStrs) == GrConstColorProcessor::kInputModeCnt);
 
         SkScalar y = kPad;
         SkScalar x = kPad;

@@ -111,7 +111,7 @@ static sk_sp<const GrBuffer> get_lines_index_buffer(GrResourceProvider* resource
 
 // Takes 178th time of logf on Z600 / VC2010
 static int get_float_exp(float x) {
-    GR_STATIC_ASSERT(sizeof(int) == sizeof(float));
+    static_assert(sizeof(int) == sizeof(float));
 #ifdef SK_DEBUG
     static bool tested;
     if (!tested) {
@@ -487,7 +487,7 @@ struct BezierVertex {
     };
 };
 
-GR_STATIC_ASSERT(sizeof(BezierVertex) == 3 * sizeof(SkPoint));
+static_assert(sizeof(BezierVertex) == 3 * sizeof(SkPoint));
 
 static void intersect_lines(const SkPoint& ptA, const SkVector& normA,
                             const SkPoint& ptB, const SkVector& normB,
