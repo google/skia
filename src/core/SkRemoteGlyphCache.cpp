@@ -44,7 +44,7 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
         uint32_t size;
         auto ptr = source_desc->findEntry(kRec_SkDescriptorTag, &size);
         SkScalerContextRec rec;
-        std::memcpy(&rec, ptr, size);
+        std::memcpy((void*)&rec, ptr, size);
         rec.fFontID = font_id;
         desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     }
@@ -602,7 +602,7 @@ SkStrikeServer::RemoteStrike* SkStrikeServer::getOrCreateCache(
                     [&desc](){
                         auto ptr = desc.findEntry(kRec_SkDescriptorTag, nullptr);
                         SkScalerContextRec rec;
-                        std::memcpy(&rec, ptr, sizeof(rec));
+                        std::memcpy((void*)&rec, ptr, sizeof(rec));
                         return rec.dump();
                     }().c_str()
             )
