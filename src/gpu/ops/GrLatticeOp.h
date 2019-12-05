@@ -25,7 +25,7 @@ namespace GrLatticeOp {
 std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext*,
                                     GrPaint&&,
                                     const SkMatrix& viewMatrix,
-                                    sk_sp<GrTextureProxy>,
+                                    GrSurfaceProxyView view,
                                     GrColorType srcColorType,
                                     sk_sp<GrColorSpaceXform>,
                                     GrSamplerState::Filter,

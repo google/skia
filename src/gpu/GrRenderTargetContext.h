@@ -431,7 +431,7 @@ public:
     void drawImageLattice(const GrClip&,
                           GrPaint&&,
                           const SkMatrix& viewMatrix,
-                          sk_sp<GrTextureProxy>,
+                          GrSurfaceProxyView,
                           GrColorType srcColorType,
                           sk_sp<GrColorSpaceXform>,
                           GrSamplerState::Filter,

@@ -1460,7 +1460,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
 void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                              GrPaint&& paint,
                                              const SkMatrix& viewMatrix,
-                                             sk_sp<GrTextureProxy> image,
+                                             GrSurfaceProxyView view,
                                              GrColorType srcColorType,
                                              sk_sp<GrColorSpaceXform> csxf,
                                              GrSamplerState::Filter filter,
@@ -1474,7 +1474,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     std::unique_ptr<GrDrawOp> op =
-            GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(image),
+            GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(view),
                                    srcColorType, std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
 }
