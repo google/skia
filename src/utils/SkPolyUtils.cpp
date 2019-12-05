@@ -1613,7 +1613,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     for (int currIndex = 0; currIndex < polygonSize; ++currIndex) {
         int nextIndex = (currIndex + 1) % polygonSize;
 
-        SkDEBUGCODE(memset(&triangulationVertices[currIndex], 0, sizeof(TriangulationVertex)));
+        triangulationVertices[currIndex] = TriangulationVertex{};
         triangulationVertices[currIndex].fPosition = polygonVerts[currIndex];
         triangulationVertices[currIndex].fIndex = currIndex;
         triangulationVertices[currIndex].fPrevIndex = prevIndex;
