@@ -178,9 +178,47 @@ private:
 
     typedef GM INHERITED;
 };
+DEF_GM(return new PerspShadersGM(true);)
+DEF_GM(return new PerspShadersGM(false);)
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new PerspShadersGM(true);)
-DEF_GM(return new PerspShadersGM(false);)
+#include "tools/Resources.h"
+
+static SkPath make_path() {
+    SkRandom rand;
+    auto rand_pt = [&rand]() { return SkPoint{rand.nextF() * 400, rand.nextF() * 400}; };
+
+    SkPath path;
+    for (int i = 0; i < 4; ++i) {
+        path.moveTo(rand_pt()).quadTo(rand_pt(), rand_pt())
+            .quadTo(rand_pt(), rand_pt()).lineTo(rand_pt());
+    }
+    return path;
+}
+
+DEF_SIMPLE_GM(perspective_clip, canvas, 800, 800) {
+    SkPath path = make_path();
+    auto shader = GetResourceAsImage("images/mandrill_128.png")
+                                    ->makeShader(SkMatrix::MakeScale(3, 3));
+
+    SkPaint paint;
+    paint.setColor({0.75, 0.75, 0.75, 1});
+    canvas->drawPath(path, paint);
+
+    // This is a crazy perspective matrix, derived from halfplanes3, to draw a shape where
+    // part of it is "behind" the viewer, hence showing the need for "half-plane" clipping
+    // when in perspective.
+    SkMatrix mx;
+    const SkScalar array[] = {
+        -1.7866f,  1.3357f, 273.0295f,
+        -1.0820f,  1.3186f, 135.5196f,
+        -0.0047f, -0.0015f,  2.1485f,
+    };
+    mx.set9(array);
+
+    paint.setShader(shader);
+    canvas->concat(mx);
+    canvas->drawPath(path, paint);
 }
