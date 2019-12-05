@@ -6,9 +6,12 @@
  */
 
 #include "include/gpu/GrContext.h"
+#include "src/core/SkLRUCache.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrProgramDesc.h"
+#include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
@@ -66,6 +69,74 @@ private:
         SkASSERT(0);   // the DDL Recorders should never invoke this
         return nullptr;
     }
+
+    // Add to the set of unique program infos required by this DDL
+    void recordProgramInfo(const GrProgramInfo* programInfo) final {
+        const GrCaps* caps = this->caps();
+
+        if (this->backend() == GrBackendApi::kVulkan) {
+            // Currently, Vulkan requires a live renderTarget to compute the key
+            return;
+        }
+
+        if (programInfo->requestedFeatures() & GrProcessor::CustomFeatures::kSampleLocations) {
+            // Sample locations require a live renderTarget to compute the key
+            return;
+        }
+
+        GrProgramDesc desc = caps->makeDesc(nullptr, *programInfo);
+        if (desc.isValid()) {
+            return;
+        }
+
+        fProgramInfoMap.add(desc, programInfo);
+    }
+
+    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) final {
+        SkASSERT(dst->isEmpty());
+
+        fProgramInfoMap.toArray(dst);
+    }
+
+
+private:
+    class ProgramInfoMap : public ::SkNoncopyable {
+        typedef const GrProgramInfo* CacheValue;
+
+    public:
+        // All the programInfo data should be stored in the record-time arena so there is no
+        // need to ref them here or to delete them in the destructor.
+        ProgramInfoMap() : fMap(10) {}
+        ~ProgramInfoMap() {}
+
+        void add(const GrProgramDesc& desc, const GrProgramInfo* programInfo) {
+            SkASSERT(desc.isValid());
+
+            const CacheValue* preExisting = fMap.find(desc);
+            if (preExisting) {
+                return;
+            }
+
+            fMap.insert(desc, programInfo);
+        }
+
+        void toArray(SkTDArray<const GrProgramInfo*>* dst) {
+            fMap.foreach([dst](CacheValue* programInfo) {
+                             dst->push_back(*programInfo);
+                         });
+        }
+
+    private:
+        struct DescHash {
+            uint32_t operator()(const GrProgramDesc& desc) const {
+                return SkOpts::hash_fn(desc.asKey(), desc.keyLength(), 0);
+            }
+        };
+
+        SkLRUCache<GrProgramDesc, CacheValue, DescHash> fMap;
+    };
+
+    ProgramInfoMap fProgramInfoMap;
 
     typedef GrContext INHERITED;
 };

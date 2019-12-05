@@ -49,6 +49,14 @@ public:
     SkArenaAlloc* recordTimeAllocator() { return fContext->recordTimeAllocator(); }
     std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
 
+    void recordProgramInfo(const GrProgramInfo* programInfo) {
+        fContext->recordProgramInfo(programInfo);
+    }
+
+    void detachProgramInfos(SkTDArray<const GrProgramInfo*>* dst) {
+        fContext->detachProgramInfos(dst);
+    }
+
     GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
