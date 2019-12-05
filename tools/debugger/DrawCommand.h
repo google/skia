@@ -23,6 +23,8 @@
 #include "src/utils/SkJSONWriter.h"
 #include "tools/UrlDataManager.h"
 
+class DebugLayerManager;
+
 class DrawCommand {
 public:
     enum OpType {
@@ -43,6 +45,7 @@ public:
         kDrawImageLattice_OpType,
         kDrawImageNine_OpType,
         kDrawImageRect_OpType,
+        kDrawImageRectLayer_OpType, // unique to DebugCanvas
         kDrawOval_OpType,
         kDrawArc_OpType,
         kDrawPaint_OpType,
@@ -361,6 +364,30 @@ public:
 
 private:
     sk_sp<const SkImage>        fImage;
+    SkTLazy<SkRect>             fSrc;
+    SkRect                      fDst;
+    SkTLazy<SkPaint>            fPaint;
+    SkCanvas::SrcRectConstraint fConstraint;
+
+    typedef DrawCommand INHERITED;
+};
+
+// Command for resolving the deferred SkImage representing an android layer
+class DrawImageRectLayerCommand : public DrawCommand {
+public:
+    DrawImageRectLayerCommand(DebugLayerManager*          layerManager,
+                              const int                   nodeId,
+                              const SkRect*               src,
+                              const SkRect&               dst,
+                              const SkPaint*              paint,
+                              SkCanvas::SrcRectConstraint constraint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+
+private:
+    DebugLayerManager*          fLayerManager;
+    int                         fNodeId;
     SkTLazy<SkRect>             fSrc;
     SkRect                      fDst;
     SkTLazy<SkPaint>            fPaint;
