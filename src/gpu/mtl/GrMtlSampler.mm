@@ -47,9 +47,9 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
         MTLSamplerMinMagFilterLinear
     };
 
-    GR_STATIC_ASSERT((int)GrSamplerState::Filter::kNearest == 0);
-    GR_STATIC_ASSERT((int)GrSamplerState::Filter::kBilerp == 1);
-    GR_STATIC_ASSERT((int)GrSamplerState::Filter::kMipMap == 2);
+    static_assert((int)GrSamplerState::Filter::kNearest == 0);
+    static_assert((int)GrSamplerState::Filter::kBilerp == 1);
+    static_assert((int)GrSamplerState::Filter::kMipMap == 2);
 
     auto samplerDesc = [[MTLSamplerDescriptor alloc] init];
     samplerDesc.rAddressMode = MTLSamplerAddressModeClampToEdge;

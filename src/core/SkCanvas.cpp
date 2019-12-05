@@ -54,9 +54,6 @@
 #define RETURN_ON_NULL(ptr)     do { if (nullptr == (ptr)) return; } while (0)
 #define RETURN_ON_FALSE(pred)   do { if (!(pred)) return; } while (0)
 
-// This is a test: static_assert with no message is a c++17 feature.
-static_assert(true);
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*

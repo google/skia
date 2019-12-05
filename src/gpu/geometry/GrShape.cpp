@@ -185,8 +185,8 @@ static int path_key_from_data_size(const SkPath& path) {
     const int pointCnt = path.countPoints();
     const int conicWeightCnt = SkPathPriv::ConicWeightCnt(path);
 
-    GR_STATIC_ASSERT(sizeof(SkPoint) == 2 * sizeof(uint32_t));
-    GR_STATIC_ASSERT(sizeof(SkScalar) == sizeof(uint32_t));
+    static_assert(sizeof(SkPoint) == 2 * sizeof(uint32_t));
+    static_assert(sizeof(SkScalar) == sizeof(uint32_t));
     // 2 is for the verb cnt and a fill type. Each verb is a byte but we'll pad the verb data out to
     // a uint32_t length.
     return 2 + (SkAlign4(verbCnt) >> 2) + 2 * pointCnt + conicWeightCnt;
@@ -211,10 +211,10 @@ static void write_path_key_from_data(const SkPath& path, uint32_t* origKey) {
     key += verbKeySize >> 2;
 
     memcpy(key, SkPathPriv::PointData(path), sizeof(SkPoint) * pointCnt);
-    GR_STATIC_ASSERT(sizeof(SkPoint) == 2 * sizeof(uint32_t));
+    static_assert(sizeof(SkPoint) == 2 * sizeof(uint32_t));
     key += 2 * pointCnt;
     sk_careful_memcpy(key, SkPathPriv::ConicWeightData(path), sizeof(SkScalar) * conicWeightCnt);
-    GR_STATIC_ASSERT(sizeof(SkScalar) == sizeof(uint32_t));
+    static_assert(sizeof(SkScalar) == sizeof(uint32_t));
     SkDEBUGCODE(key += conicWeightCnt);
     SkASSERT(key - origKey == path_key_from_data_size(path));
 }
@@ -230,15 +230,15 @@ int GrShape::unstyledKeySize() const {
             return 1;
         case Type::kRRect:
             SkASSERT(!fInheritedKey.count());
-            GR_STATIC_ASSERT(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
+            static_assert(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
             // + 1 for the direction, start index, and inverseness.
             return SkRRect::kSizeInMemory / sizeof(uint32_t) + 1;
         case Type::kArc:
             SkASSERT(!fInheritedKey.count());
-            GR_STATIC_ASSERT(0 == sizeof(fArcData) % sizeof(uint32_t));
+            static_assert(0 == sizeof(fArcData) % sizeof(uint32_t));
             return sizeof(fArcData) / sizeof(uint32_t);
         case Type::kLine:
-            GR_STATIC_ASSERT(2 * sizeof(uint32_t) == sizeof(SkPoint));
+            static_assert(2 * sizeof(uint32_t) == sizeof(SkPoint));
             // 4 for the end points and 1 for the inverseness
             return 5;
         case Type::kPath: {

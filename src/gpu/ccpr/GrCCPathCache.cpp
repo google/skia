@@ -147,7 +147,7 @@ public:
             memcpy(&out[kStrokeWidthIdx], &width, sizeof(float));
             memcpy(&out[kStrokeMiterIdx], &miterLimit, sizeof(float));
             out[kStrokeCapJoinIdx] = (stroke.getCap() << 16) | stroke.getJoin();
-            GR_STATIC_ASSERT(sizeof(out[kStrokeWidthIdx]) == sizeof(float));
+            static_assert(sizeof(out[kStrokeWidthIdx]) == sizeof(float));
         }
 
         // Shape unstyled key.

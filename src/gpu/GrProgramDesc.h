@@ -113,7 +113,7 @@ protected:
         // portions added by the platform-specific backends.
         uint32_t fInitialKeyLength : 27;
     };
-    GR_STATIC_ASSERT(sizeof(KeyHeader) == 8);
+    static_assert(sizeof(KeyHeader) == 8);
 
     const KeyHeader& header() const { return *this->atOffset<KeyHeader, kHeaderOffset>(); }
 
