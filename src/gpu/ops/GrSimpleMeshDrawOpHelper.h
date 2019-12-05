@@ -122,11 +122,19 @@ public:
         fAAType = static_cast<unsigned>(aaType);
     }
 
-    void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
+    static const GrPipeline* CreatePipeline(
+            GrOpFlushState*,
+            GrProcessorSet&&,
+            GrPipeline::InputFlags fPipelineFlags,
+            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
-protected:
+    GrProcessorSet detachProcessorSet() {
+        return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
+    }
+
     GrPipeline::InputFlags pipelineFlags() const { return fPipelineFlags; }
 
+protected:
     GrProcessorSet::Analysis finalizeProcessors(
             const GrCaps& caps, const GrAppliedClip*, const GrUserStencilSettings*,
             bool hasMixedSampledCoverage, GrClampType, GrProcessorAnalysisCoverage geometryCoverage,
@@ -185,16 +193,18 @@ public:
     using GrSimpleMeshDrawOpHelper::isTrivial;
     using GrSimpleMeshDrawOpHelper::usesLocalCoords;
     using GrSimpleMeshDrawOpHelper::compatibleWithCoverageAsAlpha;
+    using GrSimpleMeshDrawOpHelper::detachProcessorSet;
+    using GrSimpleMeshDrawOpHelper::pipelineFlags;
 
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
                       const SkRect& thisBounds, const SkRect& thatBounds,
                       bool ignoreAAType = false) const;
 
-    void executeDrawsAndUploads(const GrOp*, GrOpFlushState*, const SkRect& chainBounds);
-
 #ifdef SK_DEBUG
     SkString dumpInfo() const;
 #endif
+
+    const GrUserStencilSettings* stencilSettings() const { return fStencilSettings; }
 
 private:
     const GrUserStencilSettings* fStencilSettings;

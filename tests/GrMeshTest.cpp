@@ -28,6 +28,7 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
@@ -417,7 +418,22 @@ sk_sp<const GrBuffer> DrawMeshHelper::getIndexBuffer() {
 }
 
 void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType) {
-    GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc, GrSwizzle::RGBA());
+    GrProcessorSet processorSet(SkBlendMode::kSrc);
+
+    // TODO: add a GrProcessorSet testing helper to make this easier
+    SkPMColor4f overrideColor;
+    processorSet.finalize(GrProcessorAnalysisColor(),
+                          GrProcessorAnalysisCoverage::kNone,
+                          fState->appliedClip(),
+                          nullptr,
+                          false,
+                          fState->caps(),
+                          GrClampType::kAuto,
+                          &overrideColor);
+
+    auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(fState,
+                                                             std::move(processorSet),
+                                                             GrPipeline::InputFlags::kNone);
 
     GrGeometryProcessor* mtp = GrMeshTestProcessor::Make(fState->allocator(),
                                                          mesh.isInstanced(), mesh.hasVertexData());
@@ -426,7 +442,7 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
                               fState->proxy()->numStencilSamples(),
                               fState->proxy()->backendFormat(),
                               fState->view()->origin(),
-                              &pipeline,
+                              pipeline,
                               mtp,
                               nullptr, nullptr, 0, primitiveType);
 
