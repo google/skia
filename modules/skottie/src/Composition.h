@@ -19,7 +19,7 @@ namespace internal {
 
 class CompositionBuilder final : SkNoncopyable {
 public:
-    CompositionBuilder(const AnimationBuilder&, const skjson::ObjectValue&);
+    CompositionBuilder(const AnimationBuilder&, const SkSize&, const skjson::ObjectValue&);
     ~CompositionBuilder();
 
     sk_sp<sksg::RenderNode> build(const AnimationBuilder&);
@@ -33,6 +33,8 @@ private:
     sk_sp<sksg::RenderNode> popMatte();
 
     friend class LayerBuilder;
+
+    const SkSize                fSize;
 
     SkSTArray<64, LayerBuilder> fLayerBuilders;
     SkTHashMap<int, size_t>     fLayerIndexMap; // Maps layer "ind" to layer builder index.
