@@ -20,9 +20,7 @@
  */
 class GrGLSLColorSpaceXformHelper : public SkNoncopyable {
 public:
-    GrGLSLColorSpaceXformHelper() {
-        memset(&fFlags, 0, sizeof(fFlags));
-    }
+    GrGLSLColorSpaceXformHelper() {}
 
     void emitCode(GrGLSLUniformHandler* uniformHandler, const GrColorSpaceXform* colorSpaceXform,
                   uint32_t visibility = kFragment_GrShaderFlag) {
