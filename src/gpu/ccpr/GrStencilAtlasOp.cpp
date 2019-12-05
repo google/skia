@@ -119,10 +119,9 @@ static constexpr GrUserStencilSettings kResolveStencilCoverageAndReset(
 void GrStencilAtlasOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     SkIRect drawBoundsRect = SkIRect::MakeWH(fDrawBounds.width(), fDrawBounds.height());
 
-    GrPipeline pipeline(
-            GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
-            flushState->drawOpArgs().outputSwizzle(), GrPipeline::InputFlags::kHWAntialias,
-            &kIncrDecrStencil);
+    GrPipeline pipeline(GrScissorTest::kEnabled, GrDisableColorXPFactory::MakeXferProcessor(),
+                        flushState->drawOpArgs().outputSwizzle(),
+                        GrPipeline::InputFlags::kHWAntialias, &kIncrDecrStencil);
 
     GrSampleMaskProcessor sampleMaskProc;
 

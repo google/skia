@@ -91,15 +91,15 @@ public:
     };
 
     /**
-     * Creates a simple pipeline with default settings and no processors. The provided blend mode
-     * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
-     * specify a scissor rectangle through the DynamicState struct.
-     **/
+    * Creates a simple pipeline with default settings and no processors. The provided blend mode
+    * must be "Porter Duff" (<= kLastCoeffMode). If using GrScissorTest::kEnabled, the caller must
+    * specify a scissor rectangle through the DynamicState struct.
+    **/
     GrPipeline(GrScissorTest scissor, SkBlendMode blend, const GrSwizzle& outputSwizzle,
                InputFlags flags = InputFlags::kNone,
                const GrUserStencilSettings* stencil = &GrUserStencilSettings::kUnused)
-            : GrPipeline(scissor, GrPorterDuffXPFactory::MakeNoCoverageXP(blend), outputSwizzle,
-                         flags, stencil) {
+        : GrPipeline(scissor, GrPorterDuffXPFactory::MakeNoCoverageXP(blend), outputSwizzle,
+                     flags, stencil) {
     }
 
     GrPipeline(GrScissorTest, sk_sp<const GrXferProcessor>, const GrSwizzle& outputSwizzle,
@@ -216,6 +216,8 @@ public:
     void visitProxies(const GrOp::VisitProxyFunc&) const;
 
 private:
+    friend class SkArenaAlloc; // for ctors
+
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;
 
     /** This is a continuation of the public "InputFlags" enum. */
