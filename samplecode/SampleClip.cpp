@@ -506,6 +506,7 @@ class HalfPlaneView3 : public Sample {
     void onDrawContent(SkCanvas* canvas) override {
         SkMatrix mx = this->get44();
 
+        mx.dump();
         SkPaint paint;
         paint.setColor({0.75, 0.75, 0.75, 1});
         canvas->drawPath(fPath, paint);
