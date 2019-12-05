@@ -188,12 +188,19 @@ DEF_GM(return new PerspShadersGM(false);)
 
 static SkPath make_path() {
     SkRandom rand;
-    auto rand_pt = [&rand]() { return SkPoint{rand.nextF() * 400, rand.nextF() * 400}; };
+    auto rand_pt = [&rand]() {
+        auto x = rand.nextF();
+        auto y = rand.nextF();
+        return SkPoint{x * 400, y * 400};
+    };
 
     SkPath path;
     for (int i = 0; i < 4; ++i) {
-        path.moveTo(rand_pt()).quadTo(rand_pt(), rand_pt())
-            .quadTo(rand_pt(), rand_pt()).lineTo(rand_pt());
+        SkPoint pts[6];
+        for (auto& p : pts) {
+            p = rand_pt();
+        }
+        path.moveTo(pts[0]).quadTo(pts[1], pts[2]).quadTo(pts[3], pts[4]).lineTo(pts[5]);
     }
     return path;
 }
