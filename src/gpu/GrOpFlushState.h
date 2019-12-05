@@ -44,10 +44,8 @@ public:
     void doUpload(GrDeferredTextureUploadFn&, bool shouldPrepareSurfaceForSampling = false);
 
     /** Called as ops are executed. Must be called in the same order as the ops were prepared. */
-    void executeDrawsAndUploadsForMeshDrawOp(
-            const GrOp* op, const SkRect& chainBounds, GrProcessorSet&&,
-            GrPipeline::InputFlags = GrPipeline::InputFlags::kNone,
-            const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+    void executeDrawsAndUploadsForMeshDrawOp(const GrOp* op, const SkRect& chainBounds,
+                                             const GrPipeline*);
 
     GrOpsRenderPass* opsRenderPass() { return fOpsRenderPass; }
     void setOpsRenderPass(GrOpsRenderPass* renderPass) { fOpsRenderPass = renderPass; }
