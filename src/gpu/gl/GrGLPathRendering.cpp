@@ -23,12 +23,12 @@
 // implementation. The call has a result value, and thus waiting for the call completion is needed.
 static const GrGLsizei kPathIDPreallocationAmount = 65536;
 
-static_assert(0 == GrPathRendering::kNone_PathTransformType);
-static_assert(1 == GrPathRendering::kTranslateX_PathTransformType);
-static_assert(2 == GrPathRendering::kTranslateY_PathTransformType);
-static_assert(3 == GrPathRendering::kTranslate_PathTransformType);
-static_assert(4 == GrPathRendering::kAffine_PathTransformType);
-static_assert(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
+GR_STATIC_ASSERT(0 == GrPathRendering::kNone_PathTransformType);
+GR_STATIC_ASSERT(1 == GrPathRendering::kTranslateX_PathTransformType);
+GR_STATIC_ASSERT(2 == GrPathRendering::kTranslateY_PathTransformType);
+GR_STATIC_ASSERT(3 == GrPathRendering::kTranslate_PathTransformType);
+GR_STATIC_ASSERT(4 == GrPathRendering::kAffine_PathTransformType);
+GR_STATIC_ASSERT(GrPathRendering::kAffine_PathTransformType == GrPathRendering::kLast_PathTransformType);
 
 #ifdef SK_DEBUG
 

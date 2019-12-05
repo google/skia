@@ -319,7 +319,7 @@ private:
         int instanceCount = fShapes.count();
 
         static constexpr int kMaxTextures = GrDistanceFieldPathGeoProc::kMaxTextures;
-        static_assert(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
+        GR_STATIC_ASSERT(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
 
         FlushInfo flushInfo;
         flushInfo.fFixedDynamicState = target->makeFixedDynamicState(kMaxTextures);

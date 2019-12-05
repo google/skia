@@ -192,7 +192,7 @@ public:
          * computed key. The returned will be limited to the lower kDomainKeyBits bits.
          */
         static uint32_t DomainKey(const GrTextureDomain& domain) {
-            static_assert(kModeCount <= (1 << kModeBits));
+            GR_STATIC_ASSERT(kModeCount <= (1 << kModeBits));
             return domain.modeX() | (domain.modeY() << kModeBits);
         }
 

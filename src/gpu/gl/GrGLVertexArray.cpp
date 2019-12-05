@@ -16,7 +16,7 @@ struct AttribLayout {
     uint16_t    fType;
 };
 
-static_assert(4 == sizeof(AttribLayout));
+GR_STATIC_ASSERT(4 == sizeof(AttribLayout));
 
 static AttribLayout attrib_layout(GrVertexAttribType type) {
     switch (type) {

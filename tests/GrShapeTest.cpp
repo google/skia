@@ -62,7 +62,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     static constexpr int kRes = 2000;
     // This tolerance is in units of 1/kRes fractions of the bounds width/height.
     static constexpr int kTol = 2;
-    static_assert(kRes % 4 == 0);
+    GR_STATIC_ASSERT(kRes % 4 == 0);
     SkImageInfo info = SkImageInfo::MakeA8(kRes, kRes);
     sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
     surface->getCanvas()->clear(0x0);

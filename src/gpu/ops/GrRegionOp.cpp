@@ -198,7 +198,7 @@ GR_DRAW_OP_TEST_DEFINE(RegionOp) {
             op = SkRegion::kReplace_Op;
         } else {
             // Pick an other than replace.
-            static_assert(SkRegion::kLastOp == SkRegion::kReplace_Op);
+            GR_STATIC_ASSERT(SkRegion::kLastOp == SkRegion::kReplace_Op);
             op = (SkRegion::Op)random->nextULessThan(SkRegion::kLastOp);
         }
         region.op(rect, op);
