@@ -467,7 +467,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     auto resolvedProvider = fResourceProvider
             ? fResourceProvider : sk_make_sp<NullResourceProvider>();
 
-    memset(&fStats, 0, sizeof(struct Stats));
+    fStats = Stats{};
 
     fStats.fJsonSize = data_len;
     const auto t0 = std::chrono::steady_clock::now();
