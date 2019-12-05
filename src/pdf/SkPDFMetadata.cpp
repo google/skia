@@ -162,7 +162,7 @@ SkUUID SkPDFMetadata::CreateUUID(const SkPDF::Metadata& metadata) {
     digest.data[8] = (digest.data[6] & 0x3F) | 0x80;
     static_assert(sizeof(digest) == sizeof(SkUUID), "uuid_size");
     SkUUID uuid;
-    memcpy(&uuid, &digest, sizeof(digest));
+    memcpy((void*)&uuid, &digest, sizeof(digest));
     return uuid;
 }
 
