@@ -268,7 +268,7 @@ public:
         auto iter = fQuads.metadata();
         while(iter.next()) {
             auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor, clampType, caps);
-            fMetadata.fColorType = SkTMax(fMetadata.fColorType, static_cast<unsigned>(colorType));
+            fMetadata.fColorType = SkTMax(fMetadata.fColorType, static_cast<uint16_t>(colorType));
         }
         return GrProcessorSet::EmptySetAnalysis();
     }
@@ -287,8 +287,8 @@ private:
         ColorDomainAndAA(const SkPMColor4f& color, const SkRect& domainRect, GrQuadAAFlags aaFlags)
                 : fColor(color)
                 , fDomainRect(domainRect)
-                , fAAFlags(static_cast<unsigned>(aaFlags)) {
-            SkASSERT(fAAFlags == static_cast<unsigned>(aaFlags));
+                , fAAFlags(static_cast<uint16_t>(aaFlags)) {
+            SkASSERT(fAAFlags == static_cast<uint16_t>(aaFlags));
         }
 
         SkPMColor4f fColor;
@@ -318,23 +318,24 @@ private:
                 : fSwizzle(swizzle)
                 , fProxyCount(1)
                 , fTotalQuadCount(1)
-                , fFilter(static_cast<unsigned>(filter))
-                , fAAType(static_cast<unsigned>(GrAAType::kNone))
-                , fColorType(static_cast<unsigned>(ColorType::kNone))
-                , fDomain(static_cast<unsigned>(domain))
-                , fSaturate(static_cast<unsigned>(saturate)) {}
+                , fFilter(static_cast<uint16_t>(filter))
+                , fAAType(static_cast<uint16_t>(GrAAType::kNone))
+                , fColorType(static_cast<uint16_t>(ColorType::kNone))
+                , fDomain(static_cast<uint16_t>(domain))
+                , fSaturate(static_cast<uint16_t>(saturate)) {}
 
-        GrSwizzle fSwizzle;
+        GrSwizzle fSwizzle; // sizeof(GrSwizzle) == uint16_t
         uint16_t  fProxyCount;
         // This will be >= fProxyCount, since a proxy may be drawn multiple times
         uint16_t  fTotalQuadCount;
 
-        unsigned  fFilter     : 2; // GrSamplerState::Filter
-        unsigned  fAAType     : 2; // GrAAType
-        unsigned  fColorType  : 2; // GrQuadPerEdgeAA::ColorType
-        unsigned  fDomain     : 1; // bool
-        unsigned  fSaturate   : 1; // bool
-        // unsigned  fUnused     : 8;
+        // These must be based on uint16_t to help MSVC's pack bitfields optimally
+        uint16_t  fFilter     : 2; // GrSamplerState::Filter
+        uint16_t  fAAType     : 2; // GrAAType
+        uint16_t  fColorType  : 2; // GrQuadPerEdgeAA::ColorType
+        uint16_t  fDomain     : 1; // bool
+        uint16_t  fSaturate   : 1; // bool
+        uint16_t  fUnused     : 8; // # of bits left before Metadata exceeds 8 bytes
 
         GrSamplerState::Filter filter() const {
             return static_cast<GrSamplerState::Filter>(fFilter);
@@ -350,6 +351,7 @@ private:
         static_assert(kGrAATypeCount <= 4);
         static_assert(GrQuadPerEdgeAA::kColorTypeCount <= 4);
     };
+    static_assert(sizeof(Metadata) == 8);
 
     // This descriptor is used in both onPrePrepareDraws and onPrepareDraws.
     //
@@ -439,7 +441,7 @@ private:
         // Clean up disparities between the overall aa type and edge configuration and apply
         // optimizations based on the rect and matrix when appropriate
         GrQuadUtils::ResolveAAType(aaType, aaFlags, dstQuad, &aaType, &aaFlags);
-        fMetadata.fAAType = static_cast<unsigned>(aaType);
+        fMetadata.fAAType = static_cast<uint16_t>(aaType);
 
         // We expect our caller to have already caught this optimization.
         SkASSERT(!domainRect ||
@@ -451,7 +453,7 @@ private:
         if (domainRect && filter == GrSamplerState::Filter::kNearest &&
             aaType != GrAAType::kCoverage) {
             domainRect = nullptr;
-            fMetadata.fDomain = static_cast<unsigned>(Domain::kNo);
+            fMetadata.fDomain = static_cast<uint16_t>(Domain::kNo);
         }
 
         // Normalize src coordinates and the domain (if set)
@@ -597,9 +599,9 @@ private:
             }
         }
 
-        fMetadata.fAAType = static_cast<unsigned>(netAAType);
-        fMetadata.fFilter = static_cast<unsigned>(netFilter);
-        fMetadata.fDomain = static_cast<unsigned>(netDomain);
+        fMetadata.fAAType = static_cast<uint16_t>(netAAType);
+        fMetadata.fFilter = static_cast<uint16_t>(netFilter);
+        fMetadata.fDomain = static_cast<uint16_t>(netDomain);
 
         this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
     }
@@ -943,7 +945,7 @@ private:
         fMetadata.fDomain |= that->fMetadata.fDomain;
         fMetadata.fColorType = SkTMax(fMetadata.fColorType, that->fMetadata.fColorType);
         if (upgradeToCoverageAAOnMerge) {
-            fMetadata.fAAType = static_cast<unsigned>(GrAAType::kCoverage);
+            fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
         }
 
         // Concatenate quad lists together
