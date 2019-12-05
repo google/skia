@@ -16,6 +16,7 @@ class GrBackendFormat;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
+class GrProgramInfo;
 class GrRecordingContextPriv;
 class GrStrikeCache;
 class GrSurfaceContext;
@@ -54,6 +55,9 @@ protected:
     // This entry point should only be used for DDL creation where we want the ops' data's lifetime
     // to match that of the DDL.
     std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
+
+    virtual void recordProgramInfo(const GrProgramInfo*) {}
+    virtual void detachProgramInfos(SkTDArray<const GrProgramInfo*>*) {}
 
     GrStrikeCache* getGrStrikeCache() { return fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache();
