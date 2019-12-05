@@ -662,3 +662,152 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
 }
 
 #endif
+
+DEF_TEST(Skottie_Image_Loading, reporter) {
+    class TestResourceProvider final : public skresources::ResourceProvider {
+    public:
+        TestResourceProvider(sk_sp<skresources::ImageAsset> single_asset,
+                             sk_sp<skresources::ImageAsset>  multi_asset)
+            : fSingleFrameAsset(std::move(single_asset))
+            , fMultiFrameAsset (std::move( multi_asset)) {}
+
+    private:
+        sk_sp<ImageAsset> loadImageAsset(const char path[],
+                                         const char name[],
+                                         const char id[]) const {
+            return strcmp(id, "single_frame")
+                    ? fMultiFrameAsset
+                    : fSingleFrameAsset;
+        }
+
+        const sk_sp<skresources::ImageAsset> fSingleFrameAsset,
+                                             fMultiFrameAsset;
+    };
+
+    auto make_animation = [&reporter] (sk_sp<skresources::ImageAsset> single_asset,
+                                       sk_sp<skresources::ImageAsset>  multi_asset,
+                                       bool deferred_image_loading) {
+        static constexpr char json[] = R"({
+                                         "v": "5.2.1",
+                                         "w": 100,
+                                         "h": 100,
+                                         "fr": 10,
+                                         "ip": 0,
+                                         "op": 100,
+                                         "assets": [
+                                           {
+                                             "id": "single_frame",
+                                             "p" : "single_frame.png",
+                                             "u" : "images/",
+                                             "w" : 500,
+                                             "h" : 500
+                                           },
+                                           {
+                                             "id": "multi_frame",
+                                             "p" : "multi_frame.png",
+                                             "u" : "images/",
+                                             "w" : 500,
+                                             "h" : 500
+                                           }
+                                         ],
+                                         "layers": [
+                                           {
+                                             "ty": 2,
+                                             "refId": "single_frame",
+                                             "ind": 0,
+                                             "ip": 0,
+                                             "op": 100,
+                                             "ks": {}
+                                           },
+                                           {
+                                             "ty": 2,
+                                             "refId": "multi_frame",
+                                             "ind": 1,
+                                             "ip": 0,
+                                             "op": 100,
+                                             "ks": {}
+                                           }
+                                         ]
+                                       })";
+
+        SkMemoryStream stream(json, strlen(json));
+
+        const auto flags = deferred_image_loading
+            ? static_cast<uint32_t>(skottie::Animation::Builder::kDeferImageLoading)
+            : 0;
+        auto animation =
+            skottie::Animation::Builder(flags)
+                .setResourceProvider(sk_make_sp<TestResourceProvider>(std::move(single_asset),
+                                                                      std::move( multi_asset)))
+                .make(&stream);
+
+        REPORTER_ASSERT(reporter, animation);
+
+        return  animation;
+    };
+
+    class TestAsset final : public skresources::ImageAsset {
+    public:
+        explicit TestAsset(bool multi_frame) : fMultiFrame(multi_frame) {}
+
+        const std::vector<float>& requestedFrames() const { return fRequestedFrames; }
+
+    private:
+        bool isMultiFrame() override { return fMultiFrame; }
+
+        sk_sp<SkImage> getFrame(float t) override {
+            fRequestedFrames.push_back(t);
+
+            return SkSurface::MakeRasterN32Premul(10, 10)->makeImageSnapshot();
+        }
+
+        const bool fMultiFrame;
+
+        std::vector<float> fRequestedFrames;
+    };
+
+    {
+        auto single_asset = sk_make_sp<TestAsset>(false),
+              multi_asset = sk_make_sp<TestAsset>(true);
+
+        // Default image loading: single-frame images are loaded upfront, multi-frame images are
+        // loaded on-demand.
+        auto animation = make_animation(single_asset, multi_asset, false);
+
+        REPORTER_ASSERT(reporter, single_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter,  multi_asset->requestedFrames().size() == 0);
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(single_asset->requestedFrames()[0]));
+
+        animation->seekFrameTime(1);
+        REPORTER_ASSERT(reporter, single_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter,  multi_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(multi_asset->requestedFrames()[0], 1));
+
+        animation->seekFrameTime(2);
+        REPORTER_ASSERT(reporter, single_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter,  multi_asset->requestedFrames().size() == 2);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(multi_asset->requestedFrames()[1], 2));
+    }
+
+    {
+        auto single_asset = sk_make_sp<TestAsset>(false),
+              multi_asset = sk_make_sp<TestAsset>(true);
+
+        // Deferred image loading: both single-frame and multi-frame images are loaded on-demand.
+        auto animation = make_animation(single_asset, multi_asset, true);
+
+        REPORTER_ASSERT(reporter, single_asset->requestedFrames().size() == 0);
+        REPORTER_ASSERT(reporter,  multi_asset->requestedFrames().size() == 0);
+
+        animation->seekFrameTime(1);
+        REPORTER_ASSERT(reporter, single_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter,  multi_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(single_asset->requestedFrames()[0], 1));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual (multi_asset->requestedFrames()[0], 1));
+
+        animation->seekFrameTime(2);
+        REPORTER_ASSERT(reporter, single_asset->requestedFrames().size() == 1);
+        REPORTER_ASSERT(reporter,  multi_asset->requestedFrames().size() == 2);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(multi_asset->requestedFrames()[1], 2));
+    }
+}

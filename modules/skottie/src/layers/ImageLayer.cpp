@@ -24,6 +24,42 @@ SkMatrix image_matrix(const sk_sp<SkImage>& image, const SkISize& dest_size) {
                  : SkMatrix::I();
 }
 
+class ImageAnimator final : public sksg::Animator {
+public:
+    ImageAnimator(sk_sp<ImageAsset> asset,
+                  sk_sp<sksg::Image> image_node,
+                  sk_sp<sksg::Matrix<SkMatrix>> image_transform_node,
+                  const SkISize& asset_size,
+                  float time_bias, float time_scale)
+        : fAsset(std::move(asset))
+        , fImageNode(std::move(image_node))
+        , fImageTransformNode(std::move(image_transform_node))
+        , fAssetSize(asset_size)
+        , fTimeBias(time_bias)
+        , fTimeScale(time_scale)
+        , fIsMultiframe(fAsset->isMultiFrame()) {}
+
+    void onTick(float t) override {
+        if (!fIsMultiframe && fImageNode->getImage()) {
+            // Single frame already resolved.
+            return;
+        }
+
+        auto frame = fAsset->getFrame((t + fTimeBias) * fTimeScale);
+        fImageTransformNode->setMatrix(image_matrix(frame, fAssetSize));
+        fImageNode->setImage(std::move(frame));
+    }
+
+private:
+    const sk_sp<ImageAsset>             fAsset;
+    const sk_sp<sksg::Image>            fImageNode;
+    const sk_sp<sksg::Matrix<SkMatrix>> fImageTransformNode;
+    const SkISize                       fAssetSize;
+    const float                         fTimeBias,
+                                        fTimeScale;
+    const bool                          fIsMultiframe;
+};
+
 } // namespace
 
 const AnimationBuilder::ImageAssetInfo*
@@ -66,8 +102,20 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
     // Optional image transform (mapping the intrinsic image size to declared asset size).
     sk_sp<sksg::Matrix<SkMatrix>> image_transform;
 
-    if (!asset_info->fAsset->isMultiFrame()) {
-        // Single-frame asset -> we can resolve the frame upfront.
+    const auto requires_animator = (fFlags & Animation::Builder::kDeferImageLoading)
+                                    || asset_info->fAsset->isMultiFrame();
+    if (requires_animator) {
+        // We don't know the intrinsic image size yet (plus, in the general case,
+        // the size may change from frame to frame) -> we always prepare a scaling transform.
+        image_transform = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
+        fCurrentAnimatorScope->push_back(sk_make_sp<ImageAnimator>(asset_info->fAsset,
+                                                                   image_node,
+                                                                   image_transform,
+                                                                   asset_info->fSize,
+                                                                   -layer_info->fInPoint,
+                                                                   1 / fFrameRate));
+    } else {
+        // No animator needed, resolve the (only) frame upfront.
         auto frame = asset_info->fAsset->getFrame(0);
         if (!frame) {
             this->log(Logger::Level::kError, nullptr, "Could not load single-frame image asset.");
@@ -79,45 +127,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         }
 
         image_node->setImage(std::move(frame));
-    } else {
-        class MultiFrameAnimator final : public sksg::Animator {
-        public:
-            MultiFrameAnimator(sk_sp<ImageAsset> asset,
-                               sk_sp<sksg::Image> image_node,
-                               sk_sp<sksg::Matrix<SkMatrix>> image_transform_node,
-                               const SkISize& asset_size,
-                               float time_bias, float time_scale)
-                : fAsset(std::move(asset))
-                , fImageNode(std::move(image_node))
-                , fImageTransformNode(std::move(image_transform_node))
-                , fAssetSize(asset_size)
-                , fTimeBias(time_bias)
-                , fTimeScale(time_scale) {}
-
-            void onTick(float t) override {
-                auto frame = fAsset->getFrame((t + fTimeBias) * fTimeScale);
-                fImageTransformNode->setMatrix(image_matrix(frame, fAssetSize));
-                fImageNode->setImage(std::move(frame));
-            }
-
-        private:
-            const sk_sp<ImageAsset>             fAsset;
-            const sk_sp<sksg::Image>            fImageNode;
-            const sk_sp<sksg::Matrix<SkMatrix>> fImageTransformNode;
-            const SkISize                       fAssetSize;
-            const float                         fTimeBias,
-                                                fTimeScale;
-        };
-
-        // We don't know the intrinsic image size yet (plus, in the general case,
-        // the size may change from frame to frame) -> we always prepare a scaling transform.
-        image_transform = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
-        fCurrentAnimatorScope->push_back(sk_make_sp<MultiFrameAnimator>(asset_info->fAsset,
-                                                                        image_node,
-                                                                        image_transform,
-                                                                        asset_info->fSize,
-                                                                        -layer_info->fInPoint,
-                                                                        1 / fFrameRate));
     }
 
     // Image layers are sized explicitly.
