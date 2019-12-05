@@ -350,13 +350,6 @@ config("warnings") {
     cflags_cc += [
       "-Wnon-virtual-dtor",
       "-Wno-noexcept-type",
-
-      # GCC 8+ bundles a number of fundamentally different warnings under this same flag,
-      # ranging from false positive (only copying a prefix of SkRRect from serialized form)
-      # to possibly useful (memcpy() with non-trivial types).  Annoyingly you can't really
-      # break them up any finer.
-      # TODO(mtklein): suppress / fix each site as appropriate?
-      "-Wno-class-memaccess",
     ]
   }
 
