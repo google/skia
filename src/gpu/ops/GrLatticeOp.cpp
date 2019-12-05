@@ -30,11 +30,11 @@ namespace {
 class LatticeGP : public GrGeometryProcessor {
 public:
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
-                                     const GrTextureProxy* proxy,
+                                     const GrSurfaceProxyView& view,
                                      sk_sp<GrColorSpaceXform> csxf,
                                      GrSamplerState::Filter filter,
                                      bool wideColor) {
-        return arena->make<LatticeGP>(proxy, std::move(csxf), filter, wideColor);
+        return arena->make<LatticeGP>(view, std::move(csxf), filter, wideColor);
     }
 
     const char* name() const override { return "LatticeGP"; }
@@ -94,13 +94,13 @@ public:
 private:
     friend class ::SkArenaAlloc; // for access to ctor
 
-    LatticeGP(const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
+    LatticeGP(const GrSurfaceProxyView& view, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter, bool wideColor)
             : INHERITED(kLatticeGP_ClassID)
             , fColorSpaceXform(std::move(csxf)) {
 
         fSampler.reset(GrSamplerState(GrSamplerState::WrapMode::kClamp, filter),
-                       proxy->backendFormat(), proxy->textureSwizzle());
+                       view.proxy()->backendFormat(), view.swizzle());
         this->setTextureSamplerCnt(1);
         fInPosition = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         fInTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
@@ -132,27 +132,27 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
-                                          sk_sp<GrTextureProxy> proxy,
+                                          GrSurfaceProxyView view,
                                           GrColorType srcColorType,
                                           sk_sp<GrColorSpaceXform> colorSpaceXForm,
                                           GrSamplerState::Filter filter,
                                           std::unique_ptr<SkLatticeIter> iter,
                                           const SkRect& dst) {
-        SkASSERT(proxy);
+        SkASSERT(view.proxy());
         return Helper::FactoryHelper<NonAALatticeOp>(context, std::move(paint), viewMatrix,
-                                                     std::move(proxy), srcColorType,
+                                                     std::move(view), srcColorType,
                                                      std::move(colorSpaceXForm), filter,
                                                      std::move(iter), dst);
     }
 
     NonAALatticeOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
-                   const SkMatrix& viewMatrix, sk_sp<GrTextureProxy> proxy,
+                   const SkMatrix& viewMatrix, GrSurfaceProxyView view,
                    GrColorType srcColorType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                    GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
                    const SkRect& dst)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kNone)
-            , fProxy(std::move(proxy))
+            , fView(std::move(view))
             , fSrcColorType(srcColorType)
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fFilter(filter) {
@@ -170,7 +170,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override {
         bool mipped = (GrSamplerState::Filter::kMipMap == fFilter);
-        func(fProxy.get(), GrMipMapped(mipped));
+        func(fView.proxy(), GrMipMapped(mipped));
         fHelper.visitProxies(func);
     }
 
@@ -209,7 +209,7 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        auto gp = LatticeGP::Make(target->allocator(), fProxy.get(), fColorSpaceXform,
+        auto gp = LatticeGP::Make(target->allocator(), fView, fColorSpaceXform,
                                   fFilter, fWideColor);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
@@ -251,8 +251,8 @@ private:
             SkIRect srcR;
             SkRect dstR;
             SkPoint* patchPositions = reinterpret_cast<SkPoint*>(vertices.fPtr);
-            Sk4f scales(1.f / fProxy->width(), 1.f / fProxy->height(),
-                        1.f / fProxy->width(), 1.f / fProxy->height());
+            Sk4f scales(1.f / fView.proxy()->width(), 1.f / fView.proxy()->height(),
+                        1.f / fView.proxy()->width(), 1.f / fView.proxy()->height());
             static const Sk4f kDomainOffsets(0.5f, 0.5f, -0.5f, -0.5f);
             static const Sk4f kFlipOffsets(0.f, 1.f, 0.f, 1.f);
             static const Sk4f kFlipMuls(1.f, -1.f, 1.f, -1.f);
@@ -262,7 +262,7 @@ private:
                 Sk4f domain = coords + kDomainOffsets;
                 coords *= scales;
                 domain *= scales;
-                if (fProxy->origin() == kBottomLeft_GrSurfaceOrigin) {
+                if (fView.origin() == kBottomLeft_GrSurfaceOrigin) {
                     coords = kFlipMuls * coords + kFlipOffsets;
                     domain = SkNx_shuffle<0, 3, 2, 1>(kFlipMuls * domain + kFlipOffsets);
                 }
@@ -285,7 +285,7 @@ private:
             }
         }
         auto fixedDynamicState = target->makeFixedDynamicState(1);
-        fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
+        fixedDynamicState->fPrimitiveProcessorTextures[0] = fView.proxy();
         helper.recordDraw(target, gp, fixedDynamicState);
     }
 
@@ -295,7 +295,7 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
-        if (fProxy != that->fProxy) {
+        if (fView != that->fView) {
             return CombineResult::kCannotCombine;
         }
         if (fFilter != that->fFilter) {
@@ -322,7 +322,7 @@ private:
 
     Helper fHelper;
     SkSTArray<1, Patch, true> fPatches;
-    sk_sp<GrTextureProxy> fProxy;
+    GrSurfaceProxyView fView;
     GrColorType fSrcColorType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     GrSamplerState::Filter fFilter;
@@ -337,13 +337,13 @@ namespace GrLatticeOp {
 std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
                                     GrPaint&& paint,
                                     const SkMatrix& viewMatrix,
-                                    sk_sp<GrTextureProxy> proxy,
+                                    GrSurfaceProxyView view,
                                     GrColorType srcColorType,
                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                                     GrSamplerState::Filter filter,
                                     std::unique_ptr<SkLatticeIter> iter,
                                     const SkRect& dst) {
-    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(proxy),
+    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view),
                                 srcColorType, std::move(colorSpaceXform), filter, std::move(iter),
                                 dst);
 }
@@ -463,7 +463,12 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     auto csxf = GrTest::TestColorXform(random);
     GrSamplerState::Filter filter =
             random->nextBool() ? GrSamplerState::Filter::kNearest : GrSamplerState::Filter::kBilerp;
-    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(proxy),
+
+    GrSurfaceProxyView view(
+            std::move(proxy), origin,
+            context->priv().caps()->getTextureSwizzle(format, GrColorType::kRGBA_8888));
+
+    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view),
                                 GrColorType::kRGBA_8888, std::move(csxf), filter, std::move(iter),
                                 dst);
 }
