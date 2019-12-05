@@ -40,6 +40,7 @@ public:
                                bool forceW) {
         return GrTextBlob::Make(
                 glyphRunList.totalGlyphCount(),
+                1,
                 strikeCache,
                 viewMatrix,
                 glyphRunList.origin(),
