@@ -161,9 +161,6 @@ private:
     // instances that copy a path mask from a 16-bit coverage count atlas into an 8-bit literal
     // coverage atlas.)
     struct CopyPathRange {
-        CopyPathRange() = default;
-        CopyPathRange(sk_sp<GrTextureProxy> srcProxy, int count)
-                : fSrcProxy(std::move(srcProxy)), fCount(count) {}
         sk_sp<GrTextureProxy> fSrcProxy;
         int fCount;
     };
