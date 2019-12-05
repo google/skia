@@ -1720,7 +1720,7 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
 
         // Copy args into stack
         for (int i = 0; i < argCount; ++i) {
-            memcpy(stack + i, args[i], w * sizeof(float));
+            memcpy((void*)(stack + i), args[i], w * sizeof(float));
         }
 
         bool stripedOutput = true;
