@@ -553,8 +553,10 @@ size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
         return 0;
     }
 
+    // The extra (void*) tells GCC not to worry that kSizeInMemory < sizeof(SkRRect).
+
     SkRRect raw;
-    memcpy(&raw, buffer, kSizeInMemory);
+    memcpy((void*)&raw, buffer, kSizeInMemory);
     this->setRectRadii(raw.fRect, raw.fRadii);
     return kSizeInMemory;
 }
