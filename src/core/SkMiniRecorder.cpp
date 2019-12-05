@@ -47,9 +47,9 @@ static SkRect bounds(const DrawTextBlob& op) {
 template <typename T>
 class SkMiniPicture final : public SkPicture {
 public:
-    SkMiniPicture(const SkRect* cull, T* op) : fCull(cull ? *cull : bounds(*op)) {
-        memcpy(&fOp, op, sizeof(fOp));  // We take ownership of op's guts.
-    }
+    SkMiniPicture(const SkRect* cull, T&& op)
+        : fCull(cull ? *cull : bounds(op))
+        , fOp(std::move(op)) {}
 
     void playback(SkCanvas* c, AbortCallback*) const override {
         SkRecords::Draw(c, nullptr, nullptr, 0, nullptr)(fOp);
@@ -96,10 +96,11 @@ bool SkMiniRecorder::drawTextBlob(const SkTextBlob* b, SkScalar x, SkScalar y, c
 
 
 sk_sp<SkPicture> SkMiniRecorder::detachAsPicture(const SkRect* cull) {
-#define CASE(Type)              \
-    case State::k##Type:        \
-        fState = State::kEmpty; \
-        return sk_make_sp<SkMiniPicture<Type>>(cull, reinterpret_cast<Type*>(fBuffer.get()))
+#define CASE(Type)                                   \
+    case State::k##Type:                             \
+        fState = State::kEmpty;                      \
+        return sk_make_sp<SkMiniPicture<Type>>(cull, \
+                                               std::move(*reinterpret_cast<Type*>(fBuffer.get())))
 
     static SkOnce once;
     static SkPicture* empty;
