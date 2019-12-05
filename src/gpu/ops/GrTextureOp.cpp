@@ -833,8 +833,16 @@ private:
         auto pipelineFlags = (GrAAType::kMSAA == this->aaType())
                 ? GrPipeline::InputFlags::kHWAntialias
                 : GrPipeline::InputFlags::kNone;
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, GrProcessorSet::MakeEmptySet(), pipelineFlags);
+
+        const GrPipeline* pipeline = GrOpFlushState::CreatePipeline(flushState->caps(),
+                                                                    flushState->allocator(),
+                                                                    flushState->view(),
+                                                                    flushState->detachAppliedClip(),
+                                                                    flushState->dstProxyView(),
+                                                                    GrProcessorSet::MakeEmptySet(),
+                                                                    pipelineFlags);
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

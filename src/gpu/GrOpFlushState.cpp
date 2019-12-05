@@ -31,20 +31,29 @@ const GrCaps& GrOpFlushState::caps() const {
     return *fGpu->caps();
 }
 
-void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
-        const GrOp* op, const SkRect& chainBounds, GrProcessorSet&& processorSet,
-        GrPipeline::InputFlags pipelineFlags, const GrUserStencilSettings* stencilSettings) {
-    SkASSERT(this->opsRenderPass());
-
+const GrPipeline* GrOpFlushState::CreatePipeline(const GrCaps& caps,
+                                                 SkArenaAlloc* arena,
+                                                 const GrSurfaceProxyView* dstView,
+                                                 GrAppliedClip&& appliedClip,
+                                                 const GrXferProcessor::DstProxyView& dstProxyView,
+                                                 GrProcessorSet&& processorSet,
+                                                 GrPipeline::InputFlags pipelineFlags,
+                                                 const GrUserStencilSettings* stencilSettings) {
     GrPipeline::InitArgs pipelineArgs;
     pipelineArgs.fInputFlags = pipelineFlags;
-    pipelineArgs.fDstProxyView = this->dstProxyView();
-    pipelineArgs.fCaps = &this->caps();
+    pipelineArgs.fDstProxyView = dstProxyView;
+    pipelineArgs.fCaps = &caps;
     pipelineArgs.fUserStencil = stencilSettings;
-    pipelineArgs.fOutputSwizzle = this->drawOpArgs().outputSwizzle();
-    auto pipeline = this->allocator()->make<GrPipeline>(pipelineArgs,
-                                                        std::move(processorSet),
-                                                        this->detachAppliedClip());
+    pipelineArgs.fOutputSwizzle = dstView->swizzle();
+    auto pipeline = arena->make<GrPipeline>(pipelineArgs,
+                                            std::move(processorSet),
+                                            std::move(appliedClip));
+    return pipeline;
+}
+
+void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
+        const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline) {
+    SkASSERT(this->opsRenderPass());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
         GrDeferredUploadToken drawToken = fTokenTracker->nextTokenToFlush();

@@ -81,8 +81,14 @@ protected:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        flushState->executeDrawsAndUploadsForMeshDrawOp(
-                this, chainBounds, std::move(fProcessorSet));
+        const GrPipeline* pipeline = GrOpFlushState::CreatePipeline(flushState->caps(),
+                                                                    flushState->allocator(),
+                                                                    flushState->view(),
+                                                                    flushState->detachAppliedClip(),
+                                                                    flushState->dstProxyView(),
+                                                                    std::move(fProcessorSet));
+
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
     GrClipEdgeType edgeType() const { return fEdgeType; }
