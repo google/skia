@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "60db1cda_f4a746d2",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-12-06T14:31:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e14a4007_e236d256",
+      "range": {
+        "startLine": 533,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 5
+      },
+      "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36b01eec_89f9dd60",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 3
@@ -93,6 +117,30 @@
       "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1008f0b_0c80a7fc",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2019-12-06T14:31:25Z",
+      "side": 1,
+      "message": "\u003e I\u0027m still not 100% confident I understand what the rowsDecoded parameter does\n\nThe idea is that we can avoid initializing all pixel memory up front, just to write over it later. If the codec doesn\u0027t initialize all the rows (i.e. because the encoded image was incomplete), then we can just initialize the remaining rows. rowsDecoded is telling the client how many rows were initialized (rowsInitialized would probably be a better name for it) so they can then initialize just the remaining rows. SkWuffsCodec initializes all the rows, which is why it just sets rowsDecoded to the output height.\n\n\u003e It\u0027s a slight change in behavior for two pass decoding. Previously, *rowsDecoded could be unchanged for e.g. a SkCodec::kIncompleteInput result on a dependent frame.\n\nAh, the new behavior is correct. Even if it\u0027s a dependent frame, we\u0027ve initialized all the pixel memory, and there is no need for the client to do it.",
+      "parentUuid": "4c635b62_8680cad2",
+      "range": {
+        "startLine": 625,
+        "startChar": 0,
+        "endLine": 627,
+        "endChar": 5
+      },
+      "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
