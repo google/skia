@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1745515_936bd343",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-06T15:51:16Z",
+      "side": 1,
+      "message": "add comments on what these do",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 72
+      },
+      "revId": "e69a7377ae0b4c99d7368e3fe32449e55c2ca801",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f4d9e6a_275c7e84",
+        "filename": "include/private/SkDeferredDisplayList.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-06T15:51:16Z",
+      "side": 1,
+      "message": "Lets not add this function yet until we decide on how to expose the precompile to chrome. This file is essentially public in terms of how Chrome uses it.",
+      "range": {
+        "startLine": 60,
+        "startChar": 1,
+        "endLine": 62,
+        "endChar": 5
+      },
+      "revId": "e69a7377ae0b4c99d7368e3fe32449e55c2ca801",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
