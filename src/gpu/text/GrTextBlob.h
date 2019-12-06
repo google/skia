@@ -224,14 +224,31 @@ public:
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
                              bool needsGlyphTransform);
 
+    struct ARGB2DVertex {
+        SkPoint devicePos;
+        SkIPoint16 atlasPos;
+    };
+    struct ARGB3DVertex {
+        SkPoint3 devicePos;
+        SkIPoint16 atlasPos;
+    };
+    struct Mask2DVertex {
+        SkPoint devicePos;
+        GrColor color;
+        SkIPoint16 atlasPos;
+    };
+    struct SDFT3DVertex {
+        SkPoint devicePos;
+        GrColor color;
+        SkIPoint16 atlasPos;
+    };
+
     // position + local coord
-    static const size_t kColorTextVASize = sizeof(SkPoint) + sizeof(SkIPoint16);
-    static const size_t kColorTextPerspectiveVASize = sizeof(SkPoint3) + sizeof(SkIPoint16);
-    static const size_t kGrayTextVASize = sizeof(SkPoint) + sizeof(GrColor) + sizeof(SkIPoint16);
-    static const size_t kGrayTextDFPerspectiveVASize =
-            sizeof(SkPoint3) + sizeof(GrColor) + sizeof(SkIPoint16);
+    static const size_t kColorTextVASize = sizeof(ARGB2DVertex);
+    static const size_t kColorTextPerspectiveVASize = sizeof(ARGB3DVertex);
+    static const size_t kGrayTextVASize = sizeof(Mask2DVertex);
+    static const size_t kGrayTextDFPerspectiveVASize = sizeof(SDFT3DVertex);
     static const size_t kLCDTextVASize = kGrayTextVASize;
-    static const size_t kMaxVASize = kGrayTextDFPerspectiveVASize;
     static const int kVerticesPerGlyph = 4;
 
     static void AssertEqual(const GrTextBlob&, const GrTextBlob&);
