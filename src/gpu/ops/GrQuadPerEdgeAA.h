@@ -30,7 +30,7 @@ namespace GrQuadPerEdgeAA {
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Domain : bool { kNo = false, kYes = true };
-    enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
+    enum class ColorType { kNone, kByte, kFloat, kLast = kFloat };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
     enum class IndexBufferOption {

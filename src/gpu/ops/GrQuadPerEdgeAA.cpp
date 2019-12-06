@@ -40,7 +40,7 @@ static void write_quad_generic(GrVertexWriter* vb, const GrQuadPerEdgeAA::Vertex
 
         // save color
         if (spec.hasVertexColors()) {
-            bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+            bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
             vb->write(GrVertexColor(
                 color * (mode == GrQuadPerEdgeAA::CoverageMode::kWithColor ? coverage[i] : 1.f),
                 wide));
@@ -85,7 +85,7 @@ static void write_2d_color(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexSpec
     // accumulate local coords conservatively (paint not trivial), and then after analysis realize
     // the processors don't need local coordinates.
 
-    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
@@ -130,7 +130,7 @@ static void write_2d_color_uv(GrVertexWriter* vb, const GrQuadPerEdgeAA::VertexS
     SkASSERT(!spec.hasDomain());
     SkASSERT(localQuad);
 
-    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
@@ -203,7 +203,7 @@ static void write_2d_color_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::
     SkASSERT(spec.hasDomain());
     SkASSERT(localQuad);
 
-    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kHalf;
+    bool wide = spec.colorType() == GrQuadPerEdgeAA::ColorType::kFloat;
     for (int i = 0; i < 4; ++i) {
         // If this is not coverage-with-alpha, make sure coverage == 1 so it doesn't do anything
         SkASSERT(spec.coverageMode() == GrQuadPerEdgeAA::CoverageMode::kWithColor ||
@@ -253,7 +253,7 @@ ColorType MinColorType(SkPMColor4f color, GrClampType clampType, const GrCaps& c
     if (color == SK_PMColor4fWHITE) {
         return ColorType::kNone;
     } else {
-        return SkPMColor4fNeedsWideColor(color, clampType, caps) ? ColorType::kHalf
+        return SkPMColor4fNeedsWideColor(color, clampType, caps) ? ColorType::kFloat
                                                                  : ColorType::kByte;
     }
 }
@@ -509,8 +509,8 @@ size_t VertexSpec::vertexSize() const {
 
     if (ColorType::kByte == this->colorType()) {
         count += GrVertexAttribTypeSize(kUByte4_norm_GrVertexAttribType);
-    } else if (ColorType::kHalf == this->colorType()) {
-        count += GrVertexAttribTypeSize(kHalf4_GrVertexAttribType);
+    } else if (ColorType::kFloat == this->colorType()) {
+        count += GrVertexAttribTypeSize(kFloat4_GrVertexAttribType);
     }
 
     if (this->hasDomain()) {
@@ -790,8 +790,8 @@ private:
 
         if (ColorType::kByte == spec.colorType()) {
             fColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-        } else if (ColorType::kHalf == spec.colorType()) {
-            fColor = {"color", kHalf4_GrVertexAttribType, kHalf4_GrSLType};
+        } else if (ColorType::kFloat == spec.colorType()) {
+            fColor = {"color", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
         }
 
         if (spec.hasDomain()) {
