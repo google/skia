@@ -173,10 +173,9 @@ public:
 
     // Make an empty GrTextBlob, with all the invariants set to make the right decisions when
     // adding SubRuns.
-    static sk_sp<GrTextBlob> Make(int glyphCount,
+    static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
                                   GrStrikeCache* strikeCache,
                                   const SkMatrix& viewMatrix,
-                                  SkPoint origin,
                                   GrColor color,
                                   bool forceWForDistanceFields);
 

@@ -39,10 +39,9 @@ public:
                                GrColor color,
                                bool forceW) {
         return GrTextBlob::Make(
-                glyphRunList.totalGlyphCount(),
+                glyphRunList,
                 strikeCache,
                 viewMatrix,
-                glyphRunList.origin(),
                 color,
                 forceW);
     }

@@ -216,10 +216,9 @@ void* GrTextBlob::operator new(size_t, void* p) { return p; }
 
 GrTextBlob::~GrTextBlob() = default;
 
-sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
+sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                                    GrStrikeCache* strikeCache,
                                    const SkMatrix& viewMatrix,
-                                   SkPoint origin,
                                    GrColor color,
                                    bool forceWForDistanceFields) {
 
@@ -232,6 +231,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
 
     size_t quadSize = kVerticesPerGlyph * vertexSize;
 
+    size_t glyphCount = glyphRunList.totalGlyphCount();
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
     size_t verticesCount = glyphCount * quadSize;
@@ -244,7 +244,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
     void* allocation = ::operator new (size);
 
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-        size, strikeCache, viewMatrix, origin, color, forceWForDistanceFields}};
+        size, strikeCache, viewMatrix, glyphRunList.origin(), color, forceWForDistanceFields}};
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertex);
