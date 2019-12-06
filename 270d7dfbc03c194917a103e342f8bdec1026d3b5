@@ -22,6 +22,30 @@
       "revId": "270d7dfbc03c194917a103e342f8bdec1026d3b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeed9bbd_804e00ff",
+        "filename": "tests/GrMeshTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-06T16:04:06Z",
+      "side": 1,
+      "message": "All the CCPR ops are special cases. They all create everything on the stack since their lifetimes are very short (i.e., only during the flush). Although this is just a test-only Op, I would like to make all the ops be uniform so, if this one is going to keep up, it needs to create its pipeline w/in the arena.",
+      "parentUuid": "5800d001_fc169af7",
+      "range": {
+        "startLine": 421,
+        "startChar": 3,
+        "endLine": 436,
+        "endChar": 92
+      },
+      "revId": "270d7dfbc03c194917a103e342f8bdec1026d3b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
