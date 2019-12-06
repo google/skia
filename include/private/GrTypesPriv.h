@@ -59,7 +59,18 @@ enum GrPixelConfig {
     kAlpha_half_as_Red_GrPixelConfig,
     kRGBA_half_GrPixelConfig,
     kRGBA_half_Clamped_GrPixelConfig,
+    //--
     kRGB_ETC1_GrPixelConfig,
+    //--
+    kSRGB_ETC2_GrPixelConfig,
+    kRGBA_ETC2_GrPixelConfig,
+    kSRGBA_ETC2_GrPixelConfig,
+    //--
+    kRGB_BC1_GrPixelConfig,
+    kSRGB_BC1_GrPixelConfig,
+    kRGBA_BC1_GrPixelConfig,
+    kSRGBA_BC1_GrPixelConfig,
+    //--
     kAlpha_16_GrPixelConfig,
     kRG_1616_GrPixelConfig,
     kRGBA_16161616_GrPixelConfig,
@@ -806,23 +817,12 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
- * Utility functions for GrPixelConfig
- */
-
-static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::CompressionType compression) {
-    switch (compression) {
-        case SkImage::kETC1_CompressionType: return kRGB_ETC1_GrPixelConfig;
-    }
-    SkUNREACHABLE;
-}
-
-/**
  * Returns the data size for the given SkImage::CompressionType
  */
 static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
                                                 SkISize dimensions) {
     switch (compressionType) {
-        case SkImage::kETC1_CompressionType:
+        case SkImage::CompressionType::kETC1_old:
             SkASSERT((dimensions.width() & 3) == 0);
             SkASSERT((dimensions.height() & 3) == 0);
             return (dimensions.width() >> 2) * (dimensions.height() >> 2) * 8;
@@ -980,6 +980,28 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kR_F16:            return kRed_SkColorTypeComponentFlag;
         case GrColorType::kGray_F16:         return kGray_SkColorTypeComponentFlag;
     }
+    SkUNREACHABLE;
+}
+
+/**
+ * Utility function for GrPixelConfig
+ */
+static constexpr GrPixelConfig GrCompressionTypePixelConfig(GrColorType colorType, SkImage::sRGB srgb,
+                                                            SkImage::CompressionType compression) {
+    SkASSERT(colorType == GrColorType::kRGBA_8888 ||
+             colorType == GrColorType::kRGBA_8888_SRGB ||
+             colorType == GrColorType::kRGB_888x);
+
+    switch (compression) {
+        case SkImage::CompressionType::kETC1_old:
+            SkASSERT(srgb == SkImage::sRGB::kNo && colorType == GrColorType::kRGB_888x);
+            return kRGB_ETC1_GrPixelConfig;
+        case SkImage::CompressionType::kETC2:
+            return srgb == SkImage::sRGB::kNo ? kRGBA_ETC2_GrPixelConfig : (kUnknown_GrPixelConfig);
+        case SkImage::CompressionType::kBC1:
+            return srgb == SkImage::sRGB::kYes ? kUnknown_GrPixelConfig : kUnknown_GrPixelConfig;
+    }
+
     SkUNREACHABLE;
 }
 
@@ -1225,10 +1247,21 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
             return GrColorType::kRGBA_F16;
         case kRGBA_half_Clamped_GrPixelConfig:
             return GrColorType::kRGBA_F16_Clamped;
+        //---
         case kRGB_ETC1_GrPixelConfig:
             // We may need a roughly equivalent color type for a compressed texture. This should be
             // the logical format for decompressing the data into.
             return GrColorType::kRGB_888x;
+        //---
+        case kSRGB_ETC2_GrPixelConfig:  return GrColorType::kRGB_888x; // ??
+        case kRGBA_ETC2_GrPixelConfig:  return GrColorType::kRGBA_8888;
+        case kSRGBA_ETC2_GrPixelConfig: return GrColorType::kRGBA_8888_SRGB;
+        //--
+        case kRGB_BC1_GrPixelConfig:    return GrColorType::kRGB_888x;
+        case kSRGB_BC1_GrPixelConfig:   return GrColorType::kRGB_888x; // ??
+        case kRGBA_BC1_GrPixelConfig:   return GrColorType::kRGBA_8888;
+        case kSRGBA_BC1_GrPixelConfig:  return GrColorType::kRGBA_8888_SRGB;
+        //---
         case kAlpha_8_as_Alpha_GrPixelConfig:
             return GrColorType::kAlpha_8;
         case kAlpha_8_as_Red_GrPixelConfig:

@@ -232,9 +232,19 @@ public:
     }
 
     // Experimental
-    enum CompressionType {
-        kETC1_CompressionType,
-        kLast_CompressionType = kETC1_CompressionType,
+    enum class CompressionType {
+        kNone,
+        kETC1_old,
+        kETC2,
+        kBC1,
+    };
+
+    /*
+     * Who wants sRGB?
+     */
+    enum class sRGB : bool {
+        kNo = false,
+        kYes = true
     };
 
     /** Creates a GPU-backed SkImage from compressed data.
@@ -251,6 +261,22 @@ public:
     */
     static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
                                              int width, int height, CompressionType type);
+
+    /*
+            Metal                    |                 Vulkan                |             Skia
+        MTLPixelFormatETC2_RGB8      | VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK    -> kRGB_888x_SkColorType/sRGB::kNo/kETC1_old_CompressionType
+        MTLPixelFormatETC2_RGB8_sRGB | VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK     -> kRGB_888x_SkColorType/sRGB::kYes/kETC2_CompressionType
+        MTLPixelFormatEAC_RGBA8      | VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK  -> kRGBA_8888_SkColorType/sRGB::kNo/kETC2_CompressionType
+        MTLPixelFormatEAC_RGBA8_sRGB | VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK   -> kRGBA_8888_SkColorType/sRGB::kYes/kETC2_CompressionType
+        *
+                                     | VK_FORMAT_BC1_RGB_UNORM_BLOCK        -> kRGB_888x_SkColorType/sRGB::kNo/kBC1_CompressionType
+                                     | VK_FORMAT_BC1_RGB_SRGB_BLOCK         -> kRGB_888x_SkColorType/sRGB::kYes/kBC1_CompressionType
+        MTLPixelFormatBC1_RGBA       | VK_FORMAT_BC1_RGBA_UNORM_BLOCK       -> kRGBA_8888_SkColorType/sRGB::kNo/kBC1_CompressionType
+        MTLPixelFormatBC1_RGBA_sRGB  | VK_FORMAT_BC1_RGBA_SRGB_BLOCK        -> kRGBA_8888_SkColorType/sRGB::kYes/kBC1_CompressionType
+     */
+    static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
+                                             SkColorType colorType, int width, int height,
+                                             sRGB, CompressionType);
 
     /** User function called when supplied texture may be deleted.
     */

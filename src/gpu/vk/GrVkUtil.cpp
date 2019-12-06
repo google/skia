@@ -38,7 +38,17 @@ bool GrVkFormatColorTypePairIsValid(VkFormat format, GrColorType colorType) {
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return GrColorType::kRGB_888x == colorType;
         case VK_FORMAT_R16G16B16A16_UNORM:        return GrColorType::kRGBA_16161616 == colorType;
         case VK_FORMAT_R16G16_SFLOAT:             return GrColorType::kRG_F16 == colorType;
+        //--
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:   return GrColorType::kRGB_888x == colorType;
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:    return GrColorType::kRGB_888x == colorType; //??
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK: return GrColorType::kRGBA_8888 == colorType;
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:  return GrColorType::kRGBA_8888_SRGB == colorType;
+        //--
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:       return GrColorType::kRGB_888x == colorType;
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:        return GrColorType::kRGB_888x == colorType; //??
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:      return GrColorType::kRGBA_8888 == colorType;
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:       return GrColorType::kRGBA_8888_SRGB == colorType;
+        //--
         default:                                  return false;
     }
 
@@ -58,7 +68,17 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_B4G4R4A4_UNORM_PACK16:
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:
         case VK_FORMAT_R8_UNORM:
+            //--
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+        //--
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
+        //--
         case VK_FORMAT_R16G16B16A16_SFLOAT:
         case VK_FORMAT_R16_SFLOAT:
         case VK_FORMAT_R16_UNORM:
@@ -173,6 +193,13 @@ bool GrInstallVkShaderModule(GrVkGpu* gpu,
 bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     switch (vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
             return true;
         default:
             return false;
@@ -182,7 +209,18 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
 bool GrVkFormatToCompressionType(VkFormat vkFormat, SkImage::CompressionType* compressionType) {
     switch (vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
             *compressionType = SkImage::kETC1_CompressionType;
+            return true;
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+            *compressionType = SkImage::kETC2_CompressionType;
+            return true;
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
+            *compressionType = SkImage::kBC1_CompressionType;
             return true;
         default:
             return false;

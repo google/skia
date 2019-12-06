@@ -121,7 +121,9 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
-size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height) {
+size_t GrCompressedDataSize(SkImage::CompressionType type,
+                            SkImage::sRGB srgb,
+                            int width, int height) {
     switch (type) {
         case SkImage::kETC1_CompressionType:
             int numBlocks = num_ETC1_blocks(width, height);
