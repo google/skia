@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0674315_72efcdf4",
+        "filename": "src/gpu/SkGr.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-06T17:02:09Z",
+      "side": 1,
+      "message": "Is kNone still the correct condition? For kAuto and kManual, we are effectively clamping the vertex input color before executing the shader and color filter. If we always used the wide color when it didn\u0027t fit, kAuto and kManual would clamp at the very end, which probably has more intuitive results.",
+      "range": {
+        "startLine": 72,
+        "startChar": 11,
+        "endLine": 72,
+        "endChar": 42
+      },
+      "revId": "d5f759a60d11a51e2837ce245d48451634c7f69a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1022e9f9_185edcc1",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 795,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-06T17:02:09Z",
+      "side": 1,
+      "message": "if (ColorType::kNone !\u003d spec.colorType()) {\n    fColor \u003d MakeColorAttribute(\"color\", ColorType::kFloat \u003d\u003d spec.colorType());\n}",
+      "range": {
+        "startLine": 791,
+        "startChar": 2,
+        "endLine": 795,
+        "endChar": 9
+      },
+      "revId": "d5f759a60d11a51e2837ce245d48451634c7f69a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "182cf4a6_594ca367",
+        "filename": "src/gpu/ops/GrQuadPerEdgeAA.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-06T17:02:09Z",
+      "side": 1,
+      "message": "Maybe we name this kWide so that it is independent of float vs. half (in the event we switch back)? Maybe it\u0027s better to stay explicit though.",
+      "range": {
+        "startLine": 33,
+        "startChar": 41,
+        "endLine": 33,
+        "endChar": 47
+      },
+      "revId": "d5f759a60d11a51e2837ce245d48451634c7f69a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
