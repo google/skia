@@ -143,9 +143,7 @@ GrProcessorSet::Analysis GrFillRRectOp::finalize(
     SkPMColor4f finalColor = analysis.inputColorIsOverridden() ? overrideColor : fOriginalColor;
     if (!SkPMColor4fFitsInBytes(finalColor)) {
         fFlags |= Flags::kWideColor;
-        uint32_t halfColor[2];
-        SkFloatToHalf_finite_ftz(Sk4f::Load(finalColor.vec())).store(&halfColor);
-        this->writeInstanceData(halfColor[0], halfColor[1]);
+        this->writeInstanceData(finalColor);
     } else {
         this->writeInstanceData(finalColor.toBytes_RGBA());
     }

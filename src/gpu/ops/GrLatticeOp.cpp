@@ -203,7 +203,7 @@ public:
                 caps, clip, hasMixedSampledCoverage, clampType, GrProcessorAnalysisCoverage::kNone,
                 &analysisColor);
         analysisColor.isConstant(&fPatches[0].fColor);
-        fWideColor = SkPMColor4fNeedsWideColor(fPatches[0].fColor, clampType, caps);
+        fWideColor = !fPatches[0].fColor.fitsInBytes();
         return result;
     }
 

@@ -146,7 +146,7 @@ public:
         iter = fQuads.metadata();
         SkPMColor4f colorOverride;
         if (quadColors.isConstant(&colorOverride)) {
-            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride, clampType, caps);
+            fColorType = GrQuadPerEdgeAA::MinColorType(colorOverride);
             while(iter.next()) {
                 iter->fColor = colorOverride;
             }
@@ -154,8 +154,7 @@ public:
             // Otherwise compute the color type needed as the max over all quads.
             fColorType = ColorType::kNone;
             while(iter.next()) {
-                fColorType = SkTMax(fColorType,
-                                    GrQuadPerEdgeAA::MinColorType(iter->fColor, clampType, caps));
+                fColorType = SkTMax(fColorType, GrQuadPerEdgeAA::MinColorType(iter->fColor));
             }
         }
         // Most SkShaders' FPs multiply their calculated color by the paint color or alpha. We want
