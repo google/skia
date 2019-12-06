@@ -59,6 +59,14 @@ public:
     const SkDeferredDisplayListPriv priv() const;
 
 private:
+#if SK_SUPPORT_GPU
+    // TODO: we should probably also store the GrProgramDescs - since we already have
+    // them
+    SK_API const SkTDArray<const GrProgramInfo*>& programInfos() const {
+        return fProgramInfos;
+    }
+#endif
+
     friend class GrDrawingManager; // for access to 'fRenderTasks', 'fLazyProxyData', 'fOpPOD'
     friend class SkDeferredDisplayListRecorder; // for access to 'fLazyProxyData'
     friend class SkDeferredDisplayListPriv;
@@ -72,6 +80,10 @@ private:
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
     std::unique_ptr<SkArenaAlloc>   fRecordTimeData;
+
+    // The program infos should be stored in 'fRecordTimeData' so do not need to be ref counted
+    // or deleted in the destructor.
+    SkTDArray<const GrProgramInfo*> fProgramInfos;
 #endif
     sk_sp<LazyProxyData>            fLazyProxyData;
 };
