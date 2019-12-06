@@ -3514,7 +3514,7 @@ struct SkHalfPlane {
             diagMax.fY = bounds.fTop;
         }
         SkScalar test = this->eval(diagMin.fX, diagMin.fY);
-        SkScalar sign = test*this->eval(diagMax.fX, diagMin.fY);
+        SkScalar sign = test*this->eval(diagMax.fX, diagMax.fY);
         if (sign > 0) {
             // the path is either all on one side of the half-plane or the other
             if (test < 0) {
