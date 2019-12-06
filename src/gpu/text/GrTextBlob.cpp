@@ -222,16 +222,13 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
                                    SkPoint origin,
                                    GrColor color,
                                    bool forceWForDistanceFields) {
-    // Default to no perspective. Implies one of the following vertex formats: kColorTextVASize,
-    // kGrayTextVASize, kLCDTextVASize.
-    static_assert(kColorTextVASize <= kGrayTextVASize && kLCDTextVASize <= kGrayTextVASize);
-    size_t quadSize = kVerticesPerGlyph * kGrayTextVASize;
+
+    size_t vertexSize = sizeof(std::aligned_union_t<0, Mask2DVertex, ARGB2DVertex>);
     if (viewMatrix.hasPerspective() || forceWForDistanceFields) {
-        // Perspective. Implies one of the following vertex formats: kColorTextPerspectiveVASize,
-        // kGrayTextDFPerspectiveVASize.
-        static_assert(kColorTextPerspectiveVASize <= kGrayTextDFPerspectiveVASize);
-        quadSize = kVerticesPerGlyph * kGrayTextDFPerspectiveVASize;
+        vertexSize = sizeof(std::aligned_union_t<0, SDFT3DVertex, ARGB3DVertex>);
     }
+
+    size_t quadSize = kVerticesPerGlyph * vertexSize;
 
     // We allocate size for the GrTextBlob itself, plus size for the vertices array,
     // and size for the glyphIds array.
@@ -306,12 +303,12 @@ void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
 size_t GrTextBlob::GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {
     switch (maskFormat) {
         case kA8_GrMaskFormat:
-            return hasWCoord ? kGrayTextDFPerspectiveVASize : kGrayTextVASize;
+            return hasWCoord ? sizeof(SDFT3DVertex) : sizeof(Mask2DVertex);
         case kARGB_GrMaskFormat:
-            return hasWCoord ? kColorTextPerspectiveVASize : kColorTextVASize;
+            return hasWCoord ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
         default:
             SkASSERT(!hasWCoord);
-            return kLCDTextVASize;
+            return sizeof(Mask2DVertex);
     }
 }
 
