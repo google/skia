@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fce88f4_dc07eb97",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-06T16:38:29Z",
+      "side": 1,
+      "message": "I might find this clearer if this were called something like proxySwitchCnt since it\u0027s my understanding that the sequence ABCA would have a value of 4 not 3. I guess switch might not be exactly the right word since the first entry is counted as a \"switch\". Maybe proxyRunCount?.",
+      "range": {
+        "startLine": 256,
+        "startChar": 71,
+        "endLine": 256,
+        "endChar": 79
+      },
+      "revId": "2879e75719af9082804be5ad18a621d22d7f9889",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
