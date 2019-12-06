@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e25990c_b61bf158",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-06T18:44:17Z",
+      "side": 1,
+      "message": "Probably should say RVO rather than inlining.",
+      "range": {
+        "startLine": 533,
+        "startChar": 62,
+        "endLine": 533,
+        "endChar": 70
+      },
+      "revId": "062e8e6ded7d60b5435ad6805f411ca673891728",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
