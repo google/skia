@@ -4,15 +4,26 @@
 
 import("../../gn/ios.gni")
 
-if (is_ios && skia_use_metal) {
+if (is_ios) {
   ios_app_bundle("skottie_ios") {
     sources = [
-      "SkMetalViewBridge.h",
-      "SkMetalViewBridge.mm",
-      "SkottieMtkView.h",
-      "SkottieMtkView.mm",
       "main.mm",
+      "SkAnimationDraw.h",
+      "SkTimeKeeper.h",
     ]
+    if (skia_use_metal) {
+      sources += [
+        "SkMetalViewBridge.h",
+        "SkMetalViewBridge.mm",
+        "SkottieMtkView.h",
+        "SkottieMtkView.mm",
+      ]
+    } else {
+      sources += [
+        "SkottieUIView.h",
+        "SkottieUIView.mm",
+      ]
+    }
     data_sources = [
       "../../resources/skottie/skottie-3d-rotation-order.json",
       "../../resources/skottie/skottie-camera-parent-3.json",
@@ -36,10 +47,15 @@ if (is_ios && skia_use_metal) {
       "-w",
     ]
     libs = [
-      "Metal.framework",
-      "MetalKit.framework",
       "UIKit.framework",
+      "Foundation.framework",
     ]
+    if (skia_use_metal) {
+      libs += [
+        "Metal.framework",
+        "MetalKit.framework",
+      ]
+    }
     launchscreen = "../../platform_tools/ios/app/LaunchScreen.storyboard"
   }
 }
