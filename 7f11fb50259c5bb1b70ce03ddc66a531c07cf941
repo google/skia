@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74f7eaf3_f94155d0",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-06T21:38:25Z",
+      "side": 0,
+      "message": "I don\u0027t think these are actually more efficient anywhere.",
+      "range": {
+        "startLine": 172,
+        "startChar": 11,
+        "endLine": 172,
+        "endChar": 25
+      },
+      "revId": "7f11fb50259c5bb1b70ce03ddc66a531c07cf941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
