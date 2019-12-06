@@ -458,9 +458,10 @@ void GrFillRRectOp::onPrePrepare(GrRecordingContext* context,
     // This is equivalent to a GrOpFlushState::detachAppliedClip
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip();
 
-    // TODO: need to also give this to the recording context
     fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, dstView,
                                            std::move(appliedClip), dstProxyView);
+
+    context->priv().recordProgramInfo(fProgramInfo);
 }
 
 void GrFillRRectOp::onPrepare(GrOpFlushState* flushState) {
