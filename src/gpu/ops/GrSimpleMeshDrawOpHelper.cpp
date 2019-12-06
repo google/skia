@@ -74,7 +74,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
             caps, clip, hasMixedSampledCoverage, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
     if (wideColor) {
-        *wideColor = SkPMColor4fNeedsWideColor(*geometryColor, clampType, caps);
+        *wideColor = !geometryColor->fitsInBytes();
     }
     return result;
 }
@@ -174,7 +174,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelperWithStencil::finalizeProcessors
             caps, clip, hasMixedSampledCoverage, clampType, geometryCoverage, &color);
     color.isConstant(geometryColor);
     if (wideColor) {
-        *wideColor = SkPMColor4fNeedsWideColor(*geometryColor, clampType, caps);
+        *wideColor = !geometryColor->fitsInBytes();
     }
     return result;
 }
