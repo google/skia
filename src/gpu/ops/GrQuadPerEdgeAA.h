@@ -30,7 +30,7 @@ namespace GrQuadPerEdgeAA {
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Domain : bool { kNo = false, kYes = true };
-    enum class ColorType { kNone, kByte, kHalf, kLast = kHalf };
+    enum class ColorType { kNone, kByte, kFloat, kLast = kFloat };
     static const int kColorTypeCount = static_cast<int>(ColorType::kLast) + 1;
 
     enum class IndexBufferOption {
@@ -44,7 +44,7 @@ namespace GrQuadPerEdgeAA {
     IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads);
 
     // Gets the minimum ColorType that can represent a color.
-    ColorType MinColorType(SkPMColor4f, GrClampType, const GrCaps&);
+    ColorType MinColorType(SkPMColor4f);
 
     // Specifies the vertex configuration for an op that renders per-edge AA quads. The vertex
     // order (when enabled) is device position, color, local position, domain, aa edge equations.
