@@ -95,6 +95,12 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                              component, component, bounds, bounds, bounds, bounds);
                     break;
                 }
+                case GrTextureDomain::kMirrorRepeat_Mode: {
+                    // Deferring supporting kMirrorRepeat until we use DomainEffects as
+                    // child processors.
+                    SkASSERT(false);
+                    break;
+                }
                 case GrTextureDomain::kDecal_Mode: {
                     fragBuilder->codeAppendf("if (coord.%s >= %s.x && coord.%s <= %s.y) {",
                                              component, bounds, component, bounds);
