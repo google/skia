@@ -492,6 +492,57 @@ public:
         return this->createBackendTexture(&srcData, 1, renderable, isProtected);
     }
 
+    GrBackendFormat defaultCompressedBackendFormat() const;
+
+    // If possible, create an uninitialized backend texture. The client should ensure that the
+    // returned backend texture is valid.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_UNDEFINED.
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    const GrBackendFormat&,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
+    // If possible, create an uninitialized backend texture. The client should ensure that the
+    // returned backend texture is valid.
+    // If successful, the created backend texture will be compatible with the provided
+    // SkColorType (c.f. defaultBackendFormat).
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_UNDEFINED.
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    SkColorType,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
+    // If possible, create a backend texture initialized to a particular color. The client should
+    // ensure that the returned backend texture is valid.
+    // If successful, the created backend texture will be compatible with the provided
+    // SkColorType (c.f. defaultBackendFormat).
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if renderable is kNo
+    //  and VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL if renderable is kYes
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    SkColorType,
+                                                    const SkColor4f& color,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
+    // If possible, create a backend texture initialized with the provided pixmap data. The client
+    // should ensure that the returned backend texture is valid.
+    // If successful, the created backend texture will be compatible with the provided
+    // pixmap(s). Compatible, in this case, means that the backend format will be the result
+    // of calling defaultBackendFormat on the base pixmap's colortype.
+    // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
+    // the data for all the mipmap levels must be provided. In the mipmapped case all the
+    // colortypes of the provided pixmaps must be the same. Additionally, all the miplevels
+    // must be sized correctly (please see SkMipMap::ComputeLevelSize and ComputeLevelCount).
+    // Note: the pixmap's alphatypes and colorspaces are ignored.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    // regardless of the renderability setting
+    GrBackendTexture createCompressedBackendTexture(const SkPixmap srcData[], int numLevels,
+                                                    GrRenderable, GrProtected);
+
     void deleteBackendTexture(GrBackendTexture);
 
     // This interface allows clients to pre-compile shaders and populate the runtime program cache.

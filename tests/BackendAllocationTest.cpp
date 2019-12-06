@@ -881,11 +881,13 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
     constexpr SkColor4f kTransCol { 0, 0.25f, 0.75f, 0.5f };
     constexpr SkColor4f kGrayCol { 0.75f, 0.75f, 0.75f, 1 };
 
-    struct {
+    typedef struct {
         GrColorType fColorType;
         VkFormat    fFormat;
         SkColor4f   fColor;
-    } combinations[] = {
+    } Combo;
+
+    Combo combinations[] = {
         { GrColorType::kRGBA_8888,        VK_FORMAT_R8G8B8A8_UNORM,           SkColors::kRed      },
         { GrColorType::kRGBA_8888_SRGB,   VK_FORMAT_R8G8B8A8_SRGB,            SkColors::kRed      },
 
@@ -921,6 +923,54 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest, reporter, ctxInfo) {
         { GrColorType::kRGBA_16161616,    VK_FORMAT_R16G16B16A16_UNORM,       SkColors::kLtGray   },
         { GrColorType::kRG_F16,           VK_FORMAT_R16G16_SFLOAT,            SkColors::kYellow   },
     };
+
+#if 0
+    VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK = 147,
+        VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK = 148,
+        VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK = 149,
+        VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK = 150,
+        VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK = 151,
+        VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK = 152,
+#endif
+
+    {
+        Combo compressedCombinations[] = {
+            { GrColorType::kRGBA_8888, VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, SkColors::kRed },
+            { GrColorType::kRGBA_8888, VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK,  SkColors::kRed },
+        };
+
+        for (auto combo : compressedCombinations) {
+            if (vkCaps->isVkFormatTexturable(combo.fFormat)) {
+                continue;
+            }
+
+            GrBackendFormat format = GrBackendFormat::MakeVk(combo.fFormat);
+
+            for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
+                if (GrMipMapped::kYes == mipMapped && !vkCaps->mipMapSupport()) {
+                    continue;
+                }
+
+
+                {
+                    auto uninitCreateMtd = [format](GrContext* context,
+                                                    GrMipMapped mipMapped,
+                                                    GrRenderable renderable) {
+                        SkASSERT(GrRenderable::kNo == renderable);
+
+                        GrBackendTexture beTex = context->createCompressedBackendTexture(32, 32, format,
+                                                                                         mipMapped,
+                                                                                         GrProtected::kNo);
+                        check_vk_layout(beTex, VkLayout::kUndefined);
+                        return beTex;
+                    };
+
+                    test_wrapping(context, reporter, uninitCreateMtd,
+                                  combo.fColorType, mipMapped, GrRenderable::kNo);
+                }
+            }
+        }
+    }
 
     for (auto combo : combinations) {
         if (!vkCaps->isVkFormatTexturable(combo.fFormat)) {
