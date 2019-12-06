@@ -205,8 +205,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
         // If the line is empty with the hard line break, let's take the paragraph font (flutter???)
         if (fHardLineBreak && fEndLine.width() == 0) {
-            auto emptyMetrics = parent->computeEmptyMetrics();
-            fEndLine.setMetrics(emptyMetrics);
+            fEndLine.setMetrics(parent->getEmptyMetrics());
         }
 
         // Deal with placeholder clusters == runs[@size==1]

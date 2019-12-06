@@ -196,7 +196,7 @@ public:
     void updateForegroundPaint(size_t from, size_t to, SkPaint paint) override;
     void updateBackgroundPaint(size_t from, size_t to, SkPaint paint) override;
 
-    InternalLineMetrics computeEmptyMetrics();
+    InternalLineMetrics getEmptyMetrics() const { return fEmptyMetrics; }
     InternalLineMetrics getStrutMetrics() const { return fStrutMetrics; }
 
 private:
@@ -214,6 +214,8 @@ private:
 
     void markGraphemes16();
     void markGraphemes();
+
+    void computeEmptyMetrics();
 
     // Input
     SkTArray<StyleBlock<SkScalar>> fLetterSpaceStyles;
@@ -241,6 +243,7 @@ private:
 
     SkTArray<ResolvedFontDescriptor> fFontSwitches;
 
+    InternalLineMetrics fEmptyMetrics;
     InternalLineMetrics fStrutMetrics;
 
     SkScalar fOldWidth;
