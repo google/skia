@@ -223,9 +223,9 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
                                    GrColor color,
                                    bool forceWForDistanceFields) {
 
-    size_t vertexSize = sizeof(std::aligned_union_t<0, Mask2DVertex, ARGB2DVertex>);
+    size_t vertexSize = sizeof(skstd::aligned_union_t<0, Mask2DVertex, ARGB2DVertex>);
     if (viewMatrix.hasPerspective() || forceWForDistanceFields) {
-        vertexSize = sizeof(std::aligned_union_t<0, SDFT3DVertex, ARGB3DVertex>);
+        vertexSize = sizeof(skstd::aligned_union_t<0, SDFT3DVertex, ARGB3DVertex>);
     }
 
     size_t quadSize = kVerticesPerGlyph * vertexSize;
