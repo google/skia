@@ -95,18 +95,18 @@ public:
     explicit GrVertexColor(const SkPMColor4f& color, bool wideColor)
             : fWideColor(wideColor) {
         if (wideColor) {
-            SkFloatToHalf_finite_ftz(Sk4f::Load(color.vec())).store(&fColor);
+            memcpy(fColor, color.vec(), sizeof(fColor));
         } else {
             fColor[0] = color.toBytes_RGBA();
         }
     }
 
-    size_t size() const { return fWideColor ? 8 : 4; }
+    size_t size() const { return fWideColor ? 16 : 4; }
 
 private:
     friend struct GrVertexWriter;
 
-    uint32_t fColor[2];
+    uint32_t fColor[4];
     bool     fWideColor;
 };
 

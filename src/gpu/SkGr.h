@@ -68,10 +68,8 @@ SkColor4f SkColor4fPrepForDst(SkColor4f, const GrColorInfo&);
 /** Returns true if half-floats are required to store the color in a vertex (and half-floats
     are supported). */
 static inline bool SkPMColor4fNeedsWideColor(SkPMColor4f color, GrClampType clampType,
-                                             const GrCaps& caps) {
-    return GrClampType::kNone == clampType &&
-        caps.halfFloatVertexAttributeSupport() &&
-        !color.fitsInBytes();
+                                             const GrCaps&) {
+    return GrClampType::kNone == clampType && !color.fitsInBytes();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
