@@ -1755,7 +1755,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fBuiltin) {
-        auto found = fIntrinsics->find(function.fName);
+        auto found = fIntrinsics->find(function.description());
         if (found != fIntrinsics->end() && !found->second.second) {
             found->second.second = true;
             const FunctionDeclaration* old = fCurrentFunction;
