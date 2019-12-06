@@ -41,9 +41,6 @@ template <typename T> using result_of_t = typename std::result_of<T>::type;
 
 template <typename... T> using common_type_t = typename std::common_type<T...>::type;
 
-template <size_t size, typename... T> using aligned_union_t
-    = typename std::aligned_union<size, T...>::type;
-
 template <std::size_t... Ints> struct index_sequence {
     using type = index_sequence;
     using value_type = std::size_t;
