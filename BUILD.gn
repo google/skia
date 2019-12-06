@@ -2502,6 +2502,9 @@ if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
       "experimental/minimal_ios_mtl_skia_app",
     ]
   }
+}
+
+if (is_ios && !skia_enable_flutter_defines) {
   group("skottie_ios") {
     deps = [
       "experimental/skottie_ios",
