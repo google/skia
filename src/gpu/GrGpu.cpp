@@ -775,10 +775,12 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
+#if 0
     if (caps->isFormatCompressed(format)) {
         // Compressed formats must go through the createCompressedBackendTexture API
         return {};
     }
+#endif
 
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
         auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
