@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "78afd5c4_02e907d7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10562
+      },
+      "writtenOn": "2019-12-06T18:20:15Z",
+      "side": 1,
+      "message": "Bug: chromium:985500",
+      "revId": "d5f759a60d11a51e2837ce245d48451634c7f69a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c0674315_72efcdf4",
         "filename": "src/gpu/SkGr.h",
         "patchSetId": 1
