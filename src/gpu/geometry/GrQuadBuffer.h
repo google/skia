@@ -7,30 +7,29 @@
 #ifndef GrQuadBuffer_DEFINED
 #define GrQuadBuffer_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/geometry/GrQuad.h"
 
-template<typename T>
+enum class InlineFirstQuad : bool {
+    kNo = false,
+    kYes = true
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Header, Block, and InlineBlock are internal structs to the GrQuadBuffer template.
+// However, they do not themselves depend on the template parameters so are defined outside
+// of their scope to avoid duplication (and allow )
+
+template<typename T, InlineFirstQuad kInline>
 class GrQuadBuffer {
 public:
     GrQuadBuffer()
             : fCount(0)
-            , fDeviceType(GrQuad::Type::kAxisAligned)
-            , fLocalType(GrQuad::Type::kAxisAligned) {
-        // Pre-allocate space for 1 2D device-space quad, metadata, and header
-        fData.reserve(this->entrySize(fDeviceType, nullptr));
-    }
-
-    // Reserves space for the given number of entries; if 'needsLocals' is true, space will be
-    // reserved for each entry to also have a 2D local quad. The reserved space assumes 2D device
-    // quad for simplicity. Since this buffer has a variable bitrate encoding for quads, this may
-    // over or under reserve, but pre-allocating still helps when possible.
-    GrQuadBuffer(int count, bool needsLocals = false)
-            : fCount(0)
-            , fDeviceType(GrQuad::Type::kAxisAligned)
-            , fLocalType(GrQuad::Type::kAxisAligned) {
-        int entrySize = this->entrySize(fDeviceType, needsLocals ? &fLocalType : nullptr);
-        fData.reserve(count * entrySize);
+            , fDeviceType(static_cast<uint32_t>(GrQuad::Type::kAxisAligned))
+            , fLocalType(static_cast<uint32_t>(GrQuad::Type::kAxisAligned)) {
+        // A fullsize block will be allocated on the first append if fHead is null.
+        fHead = kInline == InlineFirstQuad::kYes ? &fFirstQuad.fBlock : nullptr;
+        fTail = fHead;
     }
 
     // The number of device-space quads (and metadata, and optional local quads) that are in the
@@ -38,11 +37,11 @@ public:
     int count() const { return fCount; }
 
     // The most general type for the device-space quads in this buffer
-    GrQuad::Type deviceQuadType() const { return fDeviceType; }
+    GrQuad::Type deviceQuadType() const { return static_cast<GrQuad::Type>(fDeviceType); }
 
     // The most general type for the local quads; if no local quads are ever added, this will
     // return kAxisAligned.
-    GrQuad::Type localQuadType() const { return fLocalType; }
+    GrQuad::Type localQuadType() const { return static_cast<GrQuad::Type>(fLocalType); }
 
     // Append the given 'deviceQuad' to this buffer, with its associated 'metadata'. If 'localQuad'
     // is not null, the local coordinates will also be attached to the entry. When an entry
@@ -94,6 +93,7 @@ public:
         GrQuad fLocalQuad;
 
         const GrQuadBuffer<T>* fBuffer;
+        // FIXME this iteration will get a little trickier
         // The pointer to the current entry to read metadata/header details from
         const char* fCurrentEntry;
         // The pointer to replace fCurrentEntry when next() is called, cached since it is calculated
@@ -128,6 +128,8 @@ public:
 
     private:
         GrQuadBuffer<T>* fBuffer;
+        // FIXME this iteration also gets trickier (may not need to hold on to the GrQuadBuffer pointer
+        // though since we can just iterate over the linked blocks at this point).
         char* fCurrentEntry;
 
         SkDEBUGCODE(int fExpectedCount;)
@@ -140,19 +142,61 @@ public:
     MetadataIter metadata() { return MetadataIter(this); }
 
 private:
-    struct alignas(int32_t) Header {
-        unsigned fDeviceType : 2;
-        unsigned fLocalType  : 2; // Ignore if fHasLocals is false
-        unsigned fHasLocals  : 1;
+
+    // Header per entry in a block. This is 4 byte aligned to match all of the floats that the
+    // block will be storing, even though it currently only holds 5 bits of data.
+    struct alignas(uint32_t) Header {
+        uint32_t fDeviceType : 2;
+        uint32_t fLocalType  : 2; // Ignore if fHasLocals is false
+        uint32_t fHasLocals  : 1;
         // Known value to detect if iteration doesn't properly advance through the buffer
-        SkDEBUGCODE(unsigned fSentinel : 27;)
+        SkDEBUGCODE(uint32_t fSentinel : 27;)
     };
-    static_assert(sizeof(Header) == sizeof(int32_t), "Header should be 4 bytes");
+    static_assert(sizeof(Header) == sizeof(uint32_t), "Header should be 4 bytes");
+
+    struct Block {
+        // The next block in the linked list of blocks. A block should not have new quads added to
+        // its data if it already has a next block.
+        Block* fNext;
+        // Size of fData, which is dynamic and allocated on the arena.
+        uint32_t fBlockSize : 16;
+        // Index of the next quad entry to be appended to the block.
+        uint32_t fIndex     : 16;
+        // Must be at the end because it fills the allocation from the arena. fBlockSize and fIndex
+        // are bit fields of int32_t to avoid padding between fIndex and fData.
+        // fData stores contiguous Headers, T's, and float coordinates (all 4 byte aligned).
+        uint32_t fData[1];
+
+        int remaining() const { return fBlockSize - fIndex; }
+    };
+    static_assert(sizeof(Block) == 16);
+
+    template<int kBlockSize>
+    struct InlineBlock {
+        InlineBlock() {
+            fBlock.fNext = nullptr;
+            fBlock.fBlockSize = kBlockSize;
+            fBlock.fIndex = 0;
+        }
+
+        Block fBlock;
+        // The rest of fData (subtract one since Block holds the first uint32_t of fData already).
+        uint32_t fRemaining[kBlockSize - 1];
+    };
+
+    // If the GrQuadBuffer is not inlining a block, it shouldn't increase the size of the type.
+    template struct InlineBlock<0> {};
+    static_assert(sizeof(InlineBlock<0>) == 0);
 
     static constexpr unsigned kSentinel = 0xbaffe;
     static constexpr int kMetaSize = sizeof(Header) + sizeof(T);
     static constexpr int k2DQuadFloats = 8;
     static constexpr int k3DQuadFloats = 12;
+
+    // If inlining, hold onto enough bytes to store a 3D quad with 2D local coords and the metadata
+    static constexpr int kInlineBlockSize = kInline == InlineFirstQuad::kYes
+            ? (kMetaSize + sizeof(float) * (k2DQuadFloats + k3DQuadFloats))
+            : 0;
 
     // Each logical entry in the buffer is a variable length tuple storing device coordinates,
     // optional local coordinates, and metadata. An entry always has a header that defines the
@@ -169,11 +213,21 @@ private:
     // FIXME (michaelludwig) - Since this is intended only for ops, can we use the arena to
     //      allocate storage for the quad buffer? Since this is forward-iteration only, could also
     //      explore a linked-list structure for concatenating quads when batching ops
-    SkTDArray<char> fData;
+    // SkSTArray<kMetaSize + sizeof(float) * 2 * k2DQuadFloats, char, true> fData;
 
-    int fCount; // Number of (device, local, metadata) entries
-    GrQuad::Type fDeviceType; // Most general type of all entries
-    GrQuad::Type fLocalType;
+    InlineBlock<kInlineBlockSize> fFirstQuad;
+    // These either point to fFirstQuad's fBlock, or to a block allocated in an SkArenaAlloc.
+    Block*                        fHead;
+    Block*                        fTail;
+
+    // GrTextureOp's performance is highly sensitive to op size, so make this as small as possible.
+    // Packing everything into 32 bits doesn't really limit us since the quad index buffers are
+    // much smaller than the 28 bits for this 'count'.
+    uint32_t fDeviceType : 2; // GrQuad::Type
+    uint32_t fLocalType  : 2; // ""
+    uint32_t fCount      : 28;
+
+    static_assert(GrQuad::TypeCount <= 4);
 
     inline int entrySize(GrQuad::Type deviceType, const GrQuad::Type* localType) const {
         int size = kMetaSize;
@@ -266,15 +320,37 @@ void GrQuadBuffer<T>::append(const GrQuad& deviceQuad, T&& metadata, const GrQua
     GrQuad::Type localType = localQuad ? localQuad->quadType() : GrQuad::Type::kAxisAligned;
     int entrySize = this->entrySize(deviceQuad.quadType(), localQuad ? &localType : nullptr);
 
+    // If we don't have a head, or entrySize doesn't fit in remaining on tail, we allocate
+    // a new block of some size(?) --> fixed size, or fibonacci like the arena? definitely some
+    // strat in being pessimestic at first and then growing more when we realize we have a large
+    // amount of ops that are batchable.
+    //
+    // So we then allocate, which is standard set head or set tail's next to the new block, tail
+    // becomes the new block.
+    //
+    // Then we're left with our current tail that definitely has enough room to fit 'entrySize'
+    // bytes. At this point, we ought to be able to write into the block's fData basically the
+    // same as the old char* fData.
+
+    //
+    // Hmm, remaining() ought to be in bytes, since we will likely be using makeBytesAlignedTo()
+    // to get the new Block and then placement new it. (if we actually placement new it, we need
+    // to give it a useful constructor. Which will also make InlineBlock easier).
+
+    // Since we have some flexibility in how we expand to our next block, it would be nice if
+    // we could ask the SkArenaAllocator for how much is left on one of its pages. If the page
+    // size is less than we'd have requested, but not unreasonable, might as well request that
+    // so we don't waste space. If we continue to batch, the next append will get the big page.
+
     // Fill in the entry, as described in fData's declaration
-    char* entry = fData.append(entrySize);
+    char* entry = fData.push_back_n(entrySize);
     // First the header
     Header* h = this->header(entry);
-    h->fDeviceType = static_cast<unsigned>(deviceQuad.quadType());
-    h->fHasLocals = static_cast<unsigned>(localQuad != nullptr);
-    h->fLocalType = static_cast<unsigned>(localQuad ? localQuad->quadType()
+    h->fDeviceType = static_cast<uint32_t>(deviceQuad.quadType());
+    h->fHasLocals = static_cast<uint32_t>(localQuad != nullptr);
+    h->fLocalType = static_cast<uint32_t>(localQuad ? localQuad->quadType()
                                                     : GrQuad::Type::kAxisAligned);
-    SkDEBUGCODE(h->fSentinel = static_cast<unsigned>(kSentinel);)
+    SkDEBUGCODE(h->fSentinel = static_cast<uint32_t>(kSentinel);)
 
     // Second, the fixed-size metadata
     static_assert(alignof(T) == 4, "Metadata must be 4 byte aligned");
@@ -300,7 +376,17 @@ void GrQuadBuffer<T>::append(const GrQuad& deviceQuad, T&& metadata, const GrQua
 
 template<typename T>
 void GrQuadBuffer<T>::concat(const GrQuadBuffer<T>& that) {
-    fData.append(that.fData.count(), that.fData.begin());
+
+    // FIXME when concatenating two quad buffers, what do we do??
+    // Regardless of first quad policy, we should consume blocks from 'that'
+    // and memcpy them into the tail block until there's no more room.
+    // But we only memcpy if the whole block were to fit, so once done with
+    // the copy phase, we're left with 0 or more complete blocks. If we have
+    // > 0, the first one becomes the next block of this's tail block and
+    // this's tail block is updated to the tail block of 'that'.
+
+    char* begin = fData.push_back_n(that.fData.count());
+    memcpy(begin, that.fData.begin(), that.fData.count() * sizeof(char));
     fCount += that.fCount;
     if (that.fDeviceType > fDeviceType) {
         fDeviceType = that.fDeviceType;
