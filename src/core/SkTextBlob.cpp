@@ -772,6 +772,9 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
     // Note: we deliberately promote this to fully positioned blobs, since we'd have to pay the
     // same cost down stream (i.e. computing bounds), so its cheaper to pay the cost once now.
     const int count = font.countText(text, byteLength, encoding);
+    if (count < 1) {
+        return nullptr;
+    }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPos(font, count);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
@@ -783,6 +786,9 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromPosText(const void* text, size_t byteLengt
                                               const SkPoint pos[], const SkFont& font,
                                               SkTextEncoding encoding) {
     const int count = font.countText(text, byteLength, encoding);
+    if (count < 1) {
+        return nullptr;
+    }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPos(font, count);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
@@ -794,6 +800,9 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromPosTextH(const void* text, size_t byteLeng
                                                const SkScalar xpos[], SkScalar constY,
                                                const SkFont& font, SkTextEncoding encoding) {
     const int count = font.countText(text, byteLength, encoding);
+    if (count < 1) {
+        return nullptr;
+    }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPosH(font, count, constY);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);
@@ -805,6 +814,9 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromRSXform(const void* text, size_t byteLengt
                                               const SkRSXform xform[], const SkFont& font,
                                               SkTextEncoding encoding) {
     const int count = font.countText(text, byteLength, encoding);
+    if (count < 1) {
+        return nullptr;
+    }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunRSXform(font, count);
     font.textToGlyphs(text, byteLength, encoding, buffer.glyphs, count);

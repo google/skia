@@ -181,6 +181,9 @@ void add_to_text_blob_w_len(SkTextBlobBuilder* builder,
                             SkScalar           x,
                             SkScalar           y) {
     int  count = font.countText(text, len, encoding);
+    if (count < 1) {
+        return;
+    }
     auto run   = builder->allocRun(font, count, x, y);
     font.textToGlyphs(text, len, encoding, run.glyphs, count);
 }
