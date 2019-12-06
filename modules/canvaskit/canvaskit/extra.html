@@ -23,6 +23,10 @@
 <canvas id=sk_webfont width=500 height=500
         title='This shows loading of a custom font (e.g. WebFont)'></canvas>
 
+<h2> RT Shader </h2>
+<canvas id=rtshader width=300 height=300></canvas>
+
+
 <h2> Particles </h2>
 <canvas id=particles width=500 height=500></canvas>
 
@@ -68,6 +72,8 @@
     ParticlesAPI1(CanvasKit);
 
     ParagraphAPI1(CanvasKit, robotoData);
+
+    RTShaderAPI1(CanvasKit);
   });
 
   fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
@@ -348,5 +354,39 @@ const curves = {
 
     document.getElementById('para1').addEventListener('pointermove', interact);
     return surface;
+  }
+
+  function RTShaderAPI1(CanvasKit) {
+    if (!CanvasKit) {
+      return;
+    }
+    const prog = `
+
+  layout(ctype=SkRect) uniform half4 gColor;
+
+  void main(float x, float y, inout half4 color) {
+      color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
+  }
+`;
+    const surface = CanvasKit.MakeCanvasSurface('rtshader');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const canvas = surface.getCanvas();
+
+    const fact = CanvasKit._RTShaderFactory.MakeFromProgram(prog, true);
+    const rot = CanvasKit.SkMatrix.rotated(90, 128, 128);
+    const shader = fact.make([1, 0, 0, 1], rot);
+
+    const paint = new CanvasKit.SkPaint();
+    paint.setShader(shader);
+    canvas.drawRect(CanvasKit.LTRBRect(0, 0, 256, 256), paint);
+
+    surface.flush();
+    shader.delete();
+    paint.delete();
+    fact.delete();
   }
 </script>

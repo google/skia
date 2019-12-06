@@ -216,6 +216,16 @@ CanvasKit.onRuntimeInitialized = function() {
     return m;
   }
 
+  CanvasKit._RTShaderFactory.prototype.make = function(floats, matrix) {
+    var fptr = copy1dArray(floats, CanvasKit.HEAPF32);
+    // Our array has 4 bytes per float, so be sure to account for that before
+    // sending it over the wire.
+    if (!matrix) {
+      return this._make(fptr, floats.length * 4);
+    }
+    return this._make(fptr, floats.length * 4, matrix);
+  }
+
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
     // note input angles are degrees.

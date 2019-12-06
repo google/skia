@@ -530,8 +530,10 @@ public:
     operator bool() const { return !fFPStack.empty(); }
     bool operator!=(const EndIter&) { return (bool)*this; }
 
+    // Hopefully this does not actually get called because of RVO.
+    IterBase(const IterBase&) = default;
+
     // Because each iterator carries a stack we want to avoid copies.
-    IterBase(const IterBase&) = delete;
     IterBase& operator=(const IterBase&) = delete;
 
 protected:
