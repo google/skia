@@ -863,7 +863,8 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip& clip,
     fRenderTargetContext->addOp(std::move(op));
 }
 
-void GrRenderTargetContext::drawTextureSet(const GrClip& clip, TextureSetEntry set[], int cnt,
+void GrRenderTargetContext::drawTextureSet(const GrClip& clip, TextureSetEntry set[],
+                                           int cnt, int proxyRunCnt,
                                            GrSamplerState::Filter filter, SkBlendMode mode,
                                            GrAA aa, SkCanvas::SrcRectConstraint constraint,
                                            const SkMatrix& viewMatrix,
@@ -880,8 +881,8 @@ void GrRenderTargetContext::drawTextureSet(const GrClip& clip, TextureSetEntry s
     auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
     auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
                                                       : GrTextureOp::Saturate::kNo;
-    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, filter, saturate, mode, aaType,
-                                  constraint, viewMatrix, std::move(texXform));
+    GrTextureOp::AddTextureSetOps(this, clip, fContext, set, cnt, proxyRunCnt, filter, saturate,
+                                  mode, aaType, constraint, viewMatrix, std::move(texXform));
 }
 
 void GrRenderTargetContext::drawVertices(const GrClip& clip,
