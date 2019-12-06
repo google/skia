@@ -132,6 +132,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fClusters.reset();
         fGraphemes.reset();
         this->markGraphemes();
+        this->computeEmptyMetrics();
 
         if (!this->shapeTextIntoEndlessLine()) {
 
@@ -140,15 +141,14 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
             this->fLines.reset();
 
             // Set the important values that are not zero
-            auto emptyMetrics = computeEmptyMetrics();
             fWidth = floorWidth;
-            fHeight = emptyMetrics.height();
+            fHeight = fEmptyMetrics.height();
             if (fParagraphStyle.getStrutStyle().getStrutEnabled() &&
                 fParagraphStyle.getStrutStyle().getForceStrutHeight()) {
                 fHeight = fStrutMetrics.height();
             }
-            fAlphabeticBaseline = emptyMetrics.alphabeticBaseline();
-            fIdeographicBaseline = emptyMetrics.ideographicBaseline();
+            fAlphabeticBaseline = fEmptyMetrics.alphabeticBaseline();
+            fIdeographicBaseline = fEmptyMetrics.ideographicBaseline();
             fMinIntrinsicWidth = 0;
             fMaxIntrinsicWidth = 0;
             this->fOldWidth = floorWidth;
@@ -384,7 +384,6 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 }
 
 void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
-
     TextWrapper textWrapper;
     textWrapper.breakTextIntoLines(
             this,
@@ -413,8 +412,8 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
     fWidth = maxWidth;
     fMaxIntrinsicWidth = textWrapper.maxIntrinsicWidth();
     fMinIntrinsicWidth = textWrapper.minIntrinsicWidth();
-    fAlphabeticBaseline = fLines.empty() ? 0 : fLines.front().alphabeticBaseline();
-    fIdeographicBaseline = fLines.empty() ? 0 : fLines.front().ideographicBaseline();
+    fAlphabeticBaseline = fLines.empty() ? fEmptyMetrics.alphabeticBaseline() : fLines.front().alphabeticBaseline();
+    fIdeographicBaseline = fLines.empty() ? fEmptyMetrics.ideographicBaseline() : fLines.front().ideographicBaseline();
     fExceededMaxLines = textWrapper.exceededMaxLines();
 }
 
@@ -1092,8 +1091,7 @@ void ParagraphImpl::setState(InternalState state) {
 
 }
 
-InternalLineMetrics ParagraphImpl::computeEmptyMetrics() {
-
+void ParagraphImpl::computeEmptyMetrics() {
   auto defaultTextStyle = paragraphStyle().getTextStyle();
 
   auto typefaces = fontCollection()->findTypefaces(
@@ -1101,10 +1099,8 @@ InternalLineMetrics ParagraphImpl::computeEmptyMetrics() {
   auto typeface = typefaces.size() ? typefaces.front() : nullptr;
 
   SkFont font(typeface, defaultTextStyle.getFontSize());
-  InternalLineMetrics metrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
-  fStrutMetrics.updateLineMetrics(metrics);
-
-  return metrics;
+  fEmptyMetrics = InternalLineMetrics(font, paragraphStyle().getStrutStyle().getForceStrutHeight());
+  fStrutMetrics.updateLineMetrics(fEmptyMetrics);
 }
 
 void ParagraphImpl::updateText(size_t from, SkString text) {
