@@ -88,6 +88,9 @@ public:
             fCount = length >> 1;
         } else {
             fCount = font.countText(text, length, encoding);
+            if (fCount < 0) {
+                fCount = 0;
+            }
             fStorage.reset(fCount);
             font.textToGlyphs(text, length, encoding, fStorage.get(), fCount);
             fGlyphs = fStorage.get();
