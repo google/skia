@@ -3,6 +3,9 @@
 
 #include "experimental/skottie_ios/SkottieMtkView.h"
 
+#include "experimental/skottie_ios/SkAnimationDraw.h"
+#include "experimental/skottie_ios/SkTimeKeeper.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
@@ -13,49 +16,26 @@
 #include "experimental/skottie_ios/SkMetalViewBridge.h"
 
 @implementation SkottieMtkView {
-    sk_sp<skottie::Animation> fAnimation; // owner
-    CGSize fSize;
-    double fStartTime; // used when running
-    float fAnimationMoment; // when paused.
-    SkMatrix fMatrix;
-    SkSize fAnimationSize;
-    bool fPaused;
+    SkAnimationDraw fDraw;
+    SkTimeKeeper fClock;
 }
 
 - (void)drawRect:(CGRect)rect {
     [super drawRect:rect];
     // TODO(halcanary): Use the rect and the InvalidationController to speed up rendering.
-    if (!fAnimation || ![[self currentDrawable] texture] || ![self grContext]) {
+    if (!fDraw || ![[self currentDrawable] texture] || ![self grContext]) {
         return;
     }
     CGSize size = [self drawableSize];
-    if (size.width != fSize.width || size.height != fSize.height) {
-        // Cache the current matrix; change only if size changes.
-        if (fAnimationSize.width() > 0 && fAnimationSize.height() > 0) {
-            float scale = std::min(size.width / fAnimationSize.width(),
-                                   size.height / fAnimationSize.height());
-            fMatrix.setScaleTranslate(
-                    scale, scale,
-                    ((float)size.width  - fAnimationSize.width()  * scale) * 0.5f,
-                    ((float)size.height - fAnimationSize.height() * scale) * 0.5f);
-        } else {
-            fMatrix = SkMatrix();
-        }
-        fSize = size;
-    }
-    SkPaint whitePaint(SkColors::kWhite);
-    if (!fPaused) {
-        fAnimation->seekFrameTime([self currentTime], nullptr);
+    if (!fClock.paused()) {
+        fDraw.seek(fClock.currentTime());
     }
     sk_sp<SkSurface> surface = SkMtkViewToSurface(self, [self grContext]);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
     }
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->concat(fMatrix);
-    canvas->drawRect(SkRect{0, 0, fAnimationSize.width(), fAnimationSize.height()}, whitePaint);
-    fAnimation->render(canvas);
+    fDraw.draw(SkSize{(float)size.width, (float)size.height}, surface->getCanvas());
     surface->flush();
     surface = nullptr;
 
@@ -65,60 +45,31 @@
 }
 
 - (BOOL)loadAnimation:(NSData*) data {
-    skottie::Animation::Builder builder;
-    fAnimation = builder.make((const char*)[data bytes], (size_t)[data length]);
-    fStartTime = SkTime::GetNSecs();
-    fAnimationMoment = 0;
-    fSize = {0, 0};
-    fAnimationSize = fAnimation ? fAnimation->size() : SkSize{0, 0};
-    return fAnimation != nullptr;
+    fDraw.load((const void*)[data bytes], (size_t)[data length]);
+    fClock.setDuration(fDraw.duration());
+    return (BOOL)fDraw;
 }
 
-- (float)animationDurationSeconds {
-    return fAnimation ? fAnimation->duration() : 0;
-}
+- (void)setStopAtEnd:stop{ fClock.setStopAtEnd(stop); }
 
-- (float)currentTime {
-    if (!fAnimation) {
-        return 0;
-    }
-    if (fPaused) {
-        return fAnimationMoment;
-    }
-    double time = 1e-9 * (SkTime::GetNSecs() - fStartTime);
-    double duration = fAnimation->duration();
-    if ([self stopAtEnd] && time >= duration) {
-        fPaused = true;
-        fAnimationMoment = duration;
-        return fAnimationMoment;
-    }
-    return std::fmod(time, duration);
-}
+- (float)animationDurationSeconds { return fClock.duration(); }
+
+- (float)currentTime { return fDraw ? fClock.currentTime() : 0; }
 
 - (void)seek:(float)seconds {
-    if (fAnimation) {
-        if (fPaused) {
-            fAnimationMoment = std::fmod(seconds, fAnimation->duration());
-            fAnimation->seekFrameTime(fAnimationMoment);
-        } else {
-            fStartTime = SkTime::GetNSecs() - 1e9 * seconds;
-        }
+    if (fDraw) {
+        fClock.seek(seconds);
+        [self setNeedsDisplay];
     }
 }
 
-- (CGSize)size { return {(CGFloat)fAnimationSize.width(), (CGFloat)fAnimationSize.height()}; }
+- (CGSize)size { return {(CGFloat)fDraw.size().width(), (CGFloat)fDraw.size().height()}; }
 
 - (BOOL)togglePaused {
-    if (fPaused) {
-        double offset = fAnimationMoment >= fAnimation->duration() ? 0 : -1e9 * fAnimationMoment;
-        fStartTime = SkTime::GetNSecs() + offset;
-        fPaused = false;
-    } else {
-        fAnimationMoment = [self currentTime];
-        fPaused = true;
-    }
-    return fPaused;
+    fClock.togglePaused();
+    [self setNeedsDisplay];
+    return fClock.paused();
 }
 
-- (BOOL)isPaused { return fPaused; }
+- (BOOL)isPaused { return fClock.paused(); }
 @end
