@@ -248,10 +248,15 @@ public:
      *
      * If any entries provide a non-null fDstClip array, it will be read from immediately based on
      * fDstClipCount, so the pointer can become invalid after this returns.
+     *
+     * 'proxyCnt' is the number of proxy changes encountered in the entry array. Technically this
+     * can be inferred from the array within this function, but the information is already known
+     * by SkGpuDevice, so no need to incur another iteration over the array.
      */
-    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, GrSamplerState::Filter,
-                        SkBlendMode mode, GrAA aa, SkCanvas::SrcRectConstraint,
-                        const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform);
+    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, int proxyCnt,
+                        GrSamplerState::Filter, SkBlendMode mode, GrAA aa,
+                        SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
+                        sk_sp<GrColorSpaceXform> texXform);
 
     /**
      * Draw a roundrect using a paint.

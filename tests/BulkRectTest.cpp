@@ -109,12 +109,13 @@ static void bulk_texture_rect_create_test(skiatest::Reporter* reporter, GrContex
     }
 
     GrTextureOp::AddTextureSetOps(rtc.get(), GrNoClip(), context, set, requestedTotNumQuads,
-                                     GrSamplerState::Filter::kNearest,
-                                     GrTextureOp::Saturate::kYes,
-                                     blendMode,
-                                     overallAA,
-                                     SkCanvas::kStrict_SrcRectConstraint,
-                                     SkMatrix::I(), nullptr);
+                                  requestedTotNumQuads, // We alternate so proxyCnt == cnt
+                                  GrSamplerState::Filter::kNearest,
+                                  GrTextureOp::Saturate::kYes,
+                                  blendMode,
+                                  overallAA,
+                                  SkCanvas::kStrict_SrcRectConstraint,
+                                  SkMatrix::I(), nullptr);
 
     GrOpsTask* opsTask = rtc->testingOnly_PeekLastOpsTask();
     int actualNumOps = opsTask->numOpChains();
