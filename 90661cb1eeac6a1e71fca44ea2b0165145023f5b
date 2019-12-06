@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e14a4007_e236d256",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-12-06T00:19:18Z",
+      "side": 1,
+      "message": "Sorry. Done.",
+      "parentUuid": "17f39972_7b739c2d",
+      "range": {
+        "startLine": 533,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 5
+      },
+      "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "36b01eec_89f9dd60",
         "filename": "src/codec/SkWuffsCodec.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2019-12-02T14:42:40Z",
       "side": 1,
       "message": "Why not move this into onIncrementalDecode? Then -OnePass and -TwoPass don\u0027t need that parameter.",
+      "range": {
+        "startLine": 625,
+        "startChar": 0,
+        "endLine": 627,
+        "endChar": 5
+      },
+      "revId": "90661cb1eeac6a1e71fca44ea2b0165145023f5b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c635b62_8680cad2",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2019-12-06T00:19:18Z",
+      "side": 1,
+      "message": "It\u0027s a slight change in behavior for two pass decoding. Previously, *rowsDecoded could be unchanged for e.g. a SkCodec::kIncompleteInput result on a dependent frame.\n\nI\u0027m still not 100% confident I understand what the rowsDecoded parameter does, so I\u0027m not sure if this behavior change would break something subtle. If you\u0027re OK with it, though, then Done.",
+      "parentUuid": "36b01eec_89f9dd60",
       "range": {
         "startLine": 625,
         "startChar": 0,
