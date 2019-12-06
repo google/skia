@@ -614,9 +614,9 @@ private:
             fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
             fViewCountPairs[p].fQuadCnt++;
         }
-        // The # of proxy switches should match what was provided (-1 because we incremented p
+        // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
-        SkASSERT(p == fMetadata.fProxyCount - 1);
+        SkASSERT((p + 1) == fMetadata.fProxyCount);
         SkASSERT(fQuads.count() == fMetadata.fTotalQuadCount);
 
         // All the quads have been recorded, but some domains need to be fixed
