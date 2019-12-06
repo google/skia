@@ -1325,15 +1325,44 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     return tex;
 }
 
+static SkImage::CompressionType wtf(GrGLFormat glFormat) {
+    switch (glFormat) {
+        case kCOMPRESSED_ETC1_RGB8_1: return SkImage::CompressionType::kETC1_old;
+        //---
+        case kCOMPRESSED_RGB8_ETC2_1: return SkImage::CompressionType::kETC1_old;
+
+        case kCOMPRESSED_SRGB8_ETC2:  // fall through
+        case kCOMPRESSED_RGBA8_ETC2:  // fall through
+        case kCOMPRESSED_SRGBA8_ETC2: return SkImage::CompressionType::kETC2;
+        //---
+        case kCOMPRESSED_RGB8_BC1:
+        case kCOMPRESSED_SRGB8_BC1:
+        case kCOMPRESSED_RGBA8_BC1:
+        case kCOMPRESSED_SRGBA8_BC1:  return SkImage::CompressionType::kBC1;
+    }
+
+    return SkImage::CompressionType::kNone;
+}
+
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
                                                     const GrBackendFormat& format,
-                                                    SkImage::CompressionType compression,
+                                                    SkImage::CompressionType compression1,
                                                     SkBudgeted budgeted, const void* data) {
+
+    SkImage::CompressionType compression2;
+    if (this->caps()->isFormatCompressed(format, &compression2)) {
+        return nullptr;
+    }
+
+    SkASSERT(compression1 == compression2);
+
+    bool isSRGB = this->caps()->isFormatSRGB(format);
+
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
     desc.fSize = {width, height};
     desc.fTarget = GR_GL_TEXTURE_2D;
-    desc.fConfig = GrCompressionTypePixelConfig(compression);
+    desc.fConfig = GrCompressionTypePixelConfig(compression, isSRGB ? SkImage::sRGB::kYes : SkImage::sRGB::kNo);
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat, compression, &initialState,
