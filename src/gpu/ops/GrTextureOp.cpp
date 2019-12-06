@@ -267,8 +267,13 @@ public:
         SkASSERT(fMetadata.colorType() == ColorType::kNone);
         auto iter = fQuads.metadata();
         while(iter.next()) {
+<<<<<<< HEAD   (0af13b [canvaskit] update shaping example to have emoji)
             auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor, clampType, caps);
             fMetadata.fColorType = SkTMax(fMetadata.fColorType, static_cast<unsigned>(colorType));
+=======
+            auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor);
+            fMetadata.fColorType = SkTMax(fMetadata.fColorType, static_cast<uint16_t>(colorType));
+>>>>>>> CHANGE (2715bf Switch to float vertex colors for wide color vertex attribs)
         }
         return GrProcessorSet::EmptySetAnalysis();
     }
