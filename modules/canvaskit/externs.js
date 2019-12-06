@@ -124,6 +124,14 @@ var CanvasKit = {
 		_getRectsForRange: function() {},
 	},
 
+	_RTShaderFactory: {
+		// public API (from C++ bindings)
+		MakeFromProgram: function() {},
+
+		// private API
+		_make: function() {},
+	},
+
 	ParagraphStyle: function() {},
 	RSXFormBuilder: function() {},
 	SkColorBuilder: function() {},
@@ -783,6 +791,8 @@ CanvasKit.SkColorBuilder.prototype.build = function() {};
 CanvasKit.SkColorBuilder.prototype.delete = function() {};
 CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
+
+CanvasKit._RTShaderFactory.prototype.make = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
