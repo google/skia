@@ -71,6 +71,8 @@ struct GrVertexWriter {
         this->write(color.fColor[0]);
         if (color.fWideColor) {
             this->write(color.fColor[1]);
+            this->write(color.fColor[2]);
+            this->write(color.fColor[3]);
         }
         this->write(remainder...);
     }

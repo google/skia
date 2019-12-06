@@ -287,7 +287,7 @@ public:
         SkASSERT(fMetadata.colorType() == ColorType::kNone);
         auto iter = fQuads.metadata();
         while(iter.next()) {
-            auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor, clampType, caps);
+            auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor);
             fMetadata.fColorType = SkTMax(fMetadata.fColorType, static_cast<uint16_t>(colorType));
         }
         return GrProcessorSet::EmptySetAnalysis();
