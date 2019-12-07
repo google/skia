@@ -35,6 +35,22 @@
 
 #define SK_WUFFS_CODEC_BUFFER_SIZE 4096
 
+// Configuring a Skia build with
+// SK_WUFFS_FAVORS_PERFORMANCE_OVER_ADDITIONAL_MEMORY_SAFETY can improve decode
+// performance by some fixed amount (independent of the image size), which can
+// be a noticeable proportional improvement if the input is relatively small.
+//
+// The Wuffs library is still memory-safe either way, in that there are no
+// out-of-bounds reads or writes, and the library endeavours not to read
+// uninitialized memory. There are just fewer compiler-enforced guarantees
+// against reading uninitialized memory. For more detail, see
+// https://github.com/google/wuffs/blob/master/doc/note/initialization.md#partial-zero-initialization
+#if defined(SK_WUFFS_FAVORS_PERFORMANCE_OVER_ADDITIONAL_MEMORY_SAFETY)
+#define SK_WUFFS_INITIALIZE_FLAGS WUFFS_INITIALIZE__LEAVE_INTERNAL_BUFFERS_UNINITIALIZED
+#else
+#define SK_WUFFS_INITIALIZE_FLAGS WUFFS_INITIALIZE__DEFAULT_OPTIONS
+#endif
+
 static bool fill_buffer(wuffs_base__io_buffer* b, SkStream* s) {
     b->compact();
     size_t num_read = s->read(b->data.ptr + b->meta.wi, b->data.len - b->meta.wi);
@@ -91,8 +107,10 @@ static SkCodec::Result reset_and_decode_image_config(wuffs_gif__decoder*       d
                                                      wuffs_base__image_config* imgcfg,
                                                      wuffs_base__io_buffer*    b,
                                                      SkStream*                 s) {
-    // Calling decoder->initialize will memset it to zero.
-    const char* status = decoder->initialize(sizeof__wuffs_gif__decoder(), WUFFS_VERSION, 0);
+    // Calling decoder->initialize will memset most or all of it to zero,
+    // depending on SK_WUFFS_INITIALIZE_FLAGS.
+    const char* status =
+        decoder->initialize(sizeof__wuffs_gif__decoder(), WUFFS_VERSION, SK_WUFFS_INITIALIZE_FLAGS);
     if (status != nullptr) {
         SkCodecPrintf("initialize: %s", status);
         return SkCodec::kInternalError;
