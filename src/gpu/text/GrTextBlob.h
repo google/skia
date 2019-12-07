@@ -138,6 +138,7 @@ public:
 
         const SkStrikeSpec& strikeSpec() const;
 
+        SubRun* fNextSubRun{nullptr};
         const SubRunType fType;
         GrTextBlob* const fBlob;
         const GrMaskFormat fMaskFormat;
@@ -292,12 +293,14 @@ private:
         SkPaint::Join fJoin;
     };
 
-    GrTextBlob(size_t size,
+    GrTextBlob(size_t allocSize,
                GrStrikeCache* strikeCache,
                const SkMatrix& viewMatrix,
                SkPoint origin,
                GrColor color,
                bool forceWForDistanceFields);
+
+    void insertSubRun(SubRun* subRun);
 
     std::unique_ptr<GrAtlasTextOp> makeOp(
             SubRun& info, int glyphCount,
@@ -352,9 +355,6 @@ private:
     // Number of glyphs stored in fGlyphs while accumulating SubRuns.
     uint32_t fGlyphsCursor{0};
 
-    // Assume one run per text blob.
-    SkSTArray<1, SubRun> fSubRuns;
-
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
@@ -367,6 +367,10 @@ private:
     SkScalar fMinMaxScale{SK_ScalarMax};
 
     uint8_t fTextType{0};
+
+    SubRun* fFirstSubRun{nullptr};
+    SubRun* fLastSubRun{nullptr};
+    SkArenaAlloc fAlloc;
 };
 
 /**
