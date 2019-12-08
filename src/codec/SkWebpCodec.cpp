@@ -220,12 +220,12 @@ int SkWebpCodec::onGetRepetitionCount() {
         return 0;
     }
 
-    const int repCount = WebPDemuxGetI(fDemux.get(), WEBP_FF_LOOP_COUNT);
-    if (0 == repCount) {
+    const int loopCount = WebPDemuxGetI(fDemux.get(), WEBP_FF_LOOP_COUNT);
+    if (0 == loopCount) {
         return kRepetitionCountInfinite;
     }
 
-    return repCount;
+    return loopCount - 1;
 }
 
 int SkWebpCodec::onGetFrameCount() {
