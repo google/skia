@@ -732,6 +732,39 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
         SkMatrix translate = SkMatrix::MakeTrans(dirty_rect.min_incl_x, dirty_rect.min_incl_y);
         draw.drawBitmap(src, translate, nullptr, paint);
     }
+
+    if (result == SkCodec::kSuccess) {
+        // On success, we are done using the "two pass" pixel buffer for this
+        // frame. We have the option of releasing its memory, but there is a
+        // trade-off. If decoding a subsequent frame will also need "two pass"
+        // decoding, it would have to re-allocate the buffer instead of just
+        // re-using it. On the other hand, if there is no subsequent frame, and
+        // the SkWuffsCodec object isn't deleted soon, then we are holding
+        // megabytes of memory longer than we need to.
+        //
+        // For example, when the Chromium web browser decodes the <img> tags in
+        // a HTML page, the SkCodec object can live until navigating away from
+        // the page, which can be much longer than when the pixels are fully
+        // decoded, especially for a still (non-animated) image. Even for
+        // looping animations, caching the decoded frames (at the higher HTML
+        // renderer layer) may mean that each frame is only decoded once (at
+        // the lower SkCodec layer), in sequence.
+        //
+        // The heuristic we use here is to free the memory if we have decoded
+        // the last frame of the animation (or, for still images, the only
+        // frame). The output of the next decode request (if any) should be the
+        // same either way, but the steady state memory use should hopefully be
+        // lower than always keeping the fTwoPassPixbufPtr buffer up until the
+        // SkWuffsCodec destructor runs.
+        //
+        // This only applies to "two pass" decoding. "One pass" decoding does
+        // not allocate, free or otherwise use fTwoPassPixbufPtr.
+        if (fFramesComplete && (static_cast<size_t>(options().fFrameIndex) == fFrames.size() - 1)) {
+            fTwoPassPixbufPtr.reset(nullptr);
+            fTwoPassPixbufLen = 0;
+        }
+    }
+
     return result;
 }
 
