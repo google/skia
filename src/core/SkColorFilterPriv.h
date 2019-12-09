@@ -42,6 +42,9 @@ public:
      */
     sk_sp<SkColorFilter> make(sk_sp<SkData> inputs);
 
+    /** Can be used to test that the provided SkSL string compiles without error. */
+    bool testCompile() const;
+
 private:
     int fIndex;
     SkString fSkSL;

@@ -493,6 +493,14 @@ sk_sp<SkColorFilter> SkRuntimeColorFilterFactory::make(sk_sp<SkData> inputs) {
                                                          fCpuFunc));
 }
 
+bool SkRuntimeColorFilterFactory::testCompile() const {
+    SkSL::Program::Settings settings;
+    SkSL::Compiler compiler;
+    auto program = compiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                           SkSL::String(fSkSL.c_str(), fSkSL.size()), settings);
+    return program && !compiler.errorCount();
+}
+
 #endif // SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
