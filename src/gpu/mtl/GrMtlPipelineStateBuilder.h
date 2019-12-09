@@ -21,6 +21,7 @@ class GrProgramInfo;
 class GrMtlCaps;
 class GrMtlGpu;
 class GrMtlPipelineState;
+class SkReader32;
 
 class GrMtlPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -48,10 +49,17 @@ private:
 
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
-    id<MTLLibrary> createMtlShaderLibrary(const GrGLSLShaderBuilder& builder,
-                                          SkSL::Program::Kind kind,
-                                          const SkSL::Program::Settings& settings,
-                                          GrProgramDesc* desc);
+    id<MTLLibrary> generateMtlShaderLibrary(const SkSL::String& sksl,
+                                            SkSL::Program::Kind kind,
+                                            const SkSL::Program::Settings& settings,
+                                            GrProgramDesc* desc,
+                                            SkSL::String* msl,
+                                            SkSL::Program::Inputs* inputs);
+    id<MTLLibrary> compileMtlShaderLibrary(const SkSL::String& shader,
+                                           SkSL::Program::Inputs inputs);
+    void storeShadersInCache(const SkSL::String shaders[], const SkSL::Program::Inputs inputs[],
+                             bool isSkSL);
+    void loadShadersFromCache(SkReader32* cached, __strong id<MTLLibrary> outLibraries[]);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
