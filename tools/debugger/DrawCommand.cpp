@@ -88,6 +88,7 @@
 #define DEBUGCANVAS_ATTRIBUTE_COLORFILTER "colorfilter"
 #define DEBUGCANVAS_ATTRIBUTE_IMAGEFILTER "imagefilter"
 #define DEBUGCANVAS_ATTRIBUTE_IMAGE "image"
+#define DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS "imageAddress"
 #define DEBUGCANVAS_ATTRIBUTE_BITMAP "bitmap"
 #define DEBUGCANVAS_ATTRIBUTE_SRC "src"
 #define DEBUGCANVAS_ATTRIBUTE_DST "dst"
@@ -1318,6 +1319,9 @@ void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     flatten(*fImage, writer, urlDataManager);
     writer.endObject();  // image
 
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
+    writer.appendU64((uint64_t)fImage.get());
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     MakeJsonPoint(writer, fLeft, fTop);
     if (fPaint.isValid()) {
@@ -1374,6 +1378,9 @@ void DrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDa
     flatten(*fImage, writer, urlDataManager);
     writer.endObject();  // image
 
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
+    writer.appendU64((uint64_t)fImage.get());
+
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_LATTICE);
     MakeJsonLattice(writer, fLattice);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
@@ -1419,6 +1426,9 @@ void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataM
     writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
     flatten(*fImage, writer, urlDataManager);
     writer.endObject();  // image
+
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
+    writer.appendU64((uint64_t)fImage.get());
 
     if (fSrc.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
@@ -1467,6 +1477,9 @@ void DrawImageNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataM
     writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
     flatten(*fImage, writer, urlDataManager);
     writer.endObject();  // image
+
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
+    writer.appendU64((uint64_t)fImage.get());
 
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_CENTER);
     MakeJsonIRect(writer, fCenter);
