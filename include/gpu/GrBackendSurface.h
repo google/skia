@@ -83,9 +83,8 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrColorType colorType) {
-        return GrBackendFormat(colorType);
-    }
+    static GrBackendFormat MakeMock(GrColorType colorType,
+                                    SkImage::CompressionType compression); // = SkImage::kNone_CompressionType);
 
     bool operator==(const GrBackendFormat& that) const;
     bool operator!=(const GrBackendFormat& that) const { return !(*this == that); }
@@ -127,7 +126,8 @@ public:
      * If the backend API is Mock this gets the format as a GrColorType. Otherwise, returns
      * GrColorType::kUnknown.
      */
-    GrColorType asMockColorType() const;
+    GrColorType asMockColorType1() const;
+    SkImage::CompressionType asMockCompressionType() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
     // GrBackendFormat was for Vulkan and it originally had a GrVkYcbcrConversionInfo, we will
@@ -154,7 +154,7 @@ private:
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
 
-    GrBackendFormat(GrColorType colorType);
+    GrBackendFormat(GrColorType, SkImage::CompressionType);
 
     GrBackendApi fBackend = GrBackendApi::kMock;
     bool         fValid = false;
@@ -172,7 +172,10 @@ private:
 #ifdef SK_METAL
         GrMTLPixelFormat fMtlFormat;
 #endif
-        GrColorType      fMockColorType;
+        struct {
+            GrColorType              fColorType;
+            SkImage::CompressionType fCompressionType;
+        }                fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
 };

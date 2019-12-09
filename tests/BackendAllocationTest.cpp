@@ -124,7 +124,7 @@ static bool isBGRA(const GrBackendFormat& format) {
 #endif
         }
         case GrBackendApi::kMock:
-            return format.asMockColorType() == GrColorType::kBGRA_8888;
+            return format.asMockColorType1() == GrColorType::kBGRA_8888;
     }
     SkUNREACHABLE;
 }

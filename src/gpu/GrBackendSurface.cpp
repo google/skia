@@ -55,7 +55,7 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
             break;
 #endif
         case GrBackendApi::kMock:
-            fMockColorType = that.fMockColorType;
+            fMock = that.fMock;
             break;
         default:
             SK_ABORT("Unknown GrBackend");
@@ -164,19 +164,29 @@ GrMTLPixelFormat GrBackendFormat::asMtlFormat() const {
 }
 #endif
 
-GrBackendFormat::GrBackendFormat(GrColorType colorType)
+GrBackendFormat::GrBackendFormat(GrColorType colorType, SkImage::CompressionType compression)
         : fBackend(GrBackendApi::kMock)
         , fValid(true)
         , fTextureType(GrTextureType::k2D) {
-    fMockColorType = colorType;
+    fMock.fColorType = colorType;
+    fMock.fCompressionType = compression;
 }
 
-GrColorType GrBackendFormat::asMockColorType() const {
+GrColorType GrBackendFormat::asMockColorType1() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        return fMockColorType;
+        return fMock.fColorType;
     }
     return GrColorType::kUnknown;
 }
+
+SkImage::CompressionType GrBackendFormat::asMockCompressionType() const {
+    if (this->isValid() && GrBackendApi::kMock == fBackend) {
+        return fMock.fCompressionType;
+    }
+
+    return SkImage::kNone_CompressionType;
+}
+
 
 GrBackendFormat GrBackendFormat::makeTexture2D() const {
     GrBackendFormat copy = *this;
@@ -191,6 +201,11 @@ GrBackendFormat GrBackendFormat::makeTexture2D() const {
     }
     copy.fTextureType = GrTextureType::k2D;
     return copy;
+}
+
+GrBackendFormat GrBackendFormat::MakeMock(GrColorType colorType,
+                                          SkImage::CompressionType compression) {
+    return GrBackendFormat(colorType, compression);
 }
 
 bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
@@ -226,7 +241,8 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
             break;
 #endif
         case GrBackendApi::kMock:
-            return fMockColorType == that.fMockColorType;
+            return fMock.fColorType == that.fMock.fColorType &&
+                   fMock.fCompressionType == that.fMock.fCompressionType;
         default:
             SK_ABORT("Unknown GrBackend");
     }
@@ -276,7 +292,8 @@ SkString GrBackendFormat::toStr() const {
 #endif
             break;
         case GrBackendApi::kMock:
-            str.append(GrColorTypeToStr(fMockColorType));
+            str.append(GrColorTypeToStr(fMock.fColorType));
+            str.append(GrCompressionTypeToStr(fMock.fCompressionType));
             break;
     }
 
@@ -497,7 +514,7 @@ bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
         // Specifically, tests that rely on CanvasResourceProviderTextureGpuMemoryBuffer.
         // If that code ever goes away (or ideally becomes backend-agnostic), this can go away.
         *outInfo = GrGLTextureInfo{ GR_GL_TEXTURE_2D,
-                                    static_cast<GrGLuint>(fMockInfo.fID),
+                                    static_cast<GrGLuint>(fMockInfo.id()),
                                     GR_GL_RGBA8 };
         return true;
     }
@@ -549,7 +566,7 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
             return this->fMtlInfo.fTexture == that.fMtlInfo.fTexture;
 #endif
         case GrBackendApi::kMock:
-            return fMockInfo.fID == that.fMockInfo.fID;
+            return fMockInfo.id() == that.fMockInfo.id();
         default:
             return false;
     }

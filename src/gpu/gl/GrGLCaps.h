@@ -643,6 +643,7 @@ private:
 
         FormatType fFormatType = FormatType::kUnknown;
 
+
         // Not defined for uncompressed formats. Passed to glCompressedTexImage...
         GrGLenum fCompressedInternalFormat = 0;
 

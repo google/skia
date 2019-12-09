@@ -1348,6 +1348,51 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     return tex;
 }
 
+GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                           const GrBackendFormat& format,
+                                                           const BackendTextureData* data,
+                                                           int numMipLevels,
+                                                           GrProtected isProtected) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
+    this->handleDirtyContext();
+
+    GrGLFormat glFormat = format.asGLFormat();
+    if (glFormat == GrGLFormat::kUnknown) {
+        return {};
+    }
+
+    SkImage::CompressionType compression;
+    if (!GrGLFormatToCompressionType(glFormat, &compression)) {
+        // Un-compressed formats go through onCreateBackendTexture
+        return {};
+    }
+
+    GrGLTextureInfo info;
+    GrGLTextureParameters::SamplerOverriddenState initialState;
+
+    info.fTarget = GR_GL_TEXTURE_2D;
+    info.fFormat = GrGLFormatToEnum(glFormat);
+    info.fID = this->createCompressedTexture2D(dimensions, glFormat,
+                                               compression, &initialState,
+                                               data);
+    if (!info.fID) {
+        return {};
+    }
+
+    auto parameters = sk_make_sp<GrGLTextureParameters>();
+    // The non-sampler params are still at their default values.
+    parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
+                    fResetTimestampForTextureParameters);
+
+    auto mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
+                            std::move(parameters));
+}
+
 namespace {
 
 const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
@@ -3588,11 +3633,16 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const BackendTextureData* data,
                                                  int numMipLevels,
                                                  GrProtected isProtected) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
     this->handleDirtyContext();
 
     GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
-        return GrBackendTexture();  // invalid
+        return {};
     }
 
     // Compressed formats go through onCreateCompressedBackendTexture
@@ -3666,6 +3716,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
     auto parameters = sk_make_sp<GrGLTextureParameters>();
+    // The non-sampler params are still at their default values.
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
 

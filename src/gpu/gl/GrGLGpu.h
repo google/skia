@@ -186,6 +186,12 @@ private:
                                             int numMipLevels,
                                             GrProtected) override;
 
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize,
+                                                      const GrBackendFormat&,
+                                                      const BackendTextureData*,
+                                                      int numMipLevels,
+                                                      GrProtected) override;
+
     void onResetContext(uint32_t resetBits) override;
 
     void onResetTextureBindings() override;
