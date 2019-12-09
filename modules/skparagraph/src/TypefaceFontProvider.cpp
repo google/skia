@@ -17,7 +17,7 @@ void TypefaceFontProvider::onGetFamilyName(int index, SkString* familyName) cons
 SkFontStyleSet* TypefaceFontProvider::onMatchFamily(const char familyName[]) const {
     auto found = fRegisteredFamilies.find(SkString(familyName));
     if (found) {
-      return (*found).get();
+      return SkRef((*found).get());
     }
     return nullptr;
 }
