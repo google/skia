@@ -32,12 +32,6 @@ struct GrGlyph;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
-// With this flag enabled, the GrTextContext will, as a sanity check, regenerate every blob
-// that comes in to verify the integrity of its cache
-// This is of dubious value, and maybe should be removed. I checked it on 11/21/2019, and many
-// tests failed.
-#define CACHE_SANITY_CHECK 0
-
 /*
  * A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
  * on the GPU.  These are initially created with valid positions and colors, but invalid
@@ -48,7 +42,6 @@ class SkTextBlobRunIterator;
  * The only thing(aside from a memcopy) required to flush a GrTextBlob is to ensure that
  * the GrAtlas will not evict anything the Blob needs.
  *
- * *WARNING* If you add new fields to this struct, then you may need to to update AssertEqual
  */
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
 public:
@@ -247,8 +240,6 @@ public:
     };
 
     static const int kVerticesPerGlyph = 4;
-
-    static void AssertEqual(const GrTextBlob&, const GrTextBlob&);
 
     // This function will only be called when we are generating a blob from scratch.
     // The color here is the GrPaint color, and it is used to determine whether we
