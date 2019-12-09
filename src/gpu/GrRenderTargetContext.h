@@ -253,7 +253,7 @@ public:
      * can be inferred from the array within this function, but the information is already known
      * by SkGpuDevice, so no need to incur another iteration over the array.
      */
-    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, int proxyCnt,
+    void drawTextureSet(const GrClip&, TextureSetEntry[], int cnt, int proxyRunCnt,
                         GrSamplerState::Filter, SkBlendMode mode, GrAA aa,
                         SkCanvas::SrcRectConstraint, const SkMatrix& viewMatrix,
                         sk_sp<GrColorSpaceXform> texXform);
