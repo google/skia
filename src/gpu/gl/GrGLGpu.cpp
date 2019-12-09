@@ -1348,6 +1348,35 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     return tex;
 }
 
+GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                           const GrBackendFormat& format,
+                                                           const BackendTextureData* data,
+                                                           int numMipLevels,
+                                                           GrProtected isProtected) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
+    GrGLTextureParameters::SamplerOverriddenState initialState;
+    GrGLTexture::Desc desc;
+    desc.fSize = {width, height};
+    desc.fTarget = GR_GL_TEXTURE_2D;
+    desc.fConfig = GrCompressionTypePixelConfig(compression);
+    desc.fOwnership = GrBackendObjectOwnership::kOwned;
+    desc.fFormat = format.asGLFormat();
+    desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat, compression, &initialState,
+                                               data);
+    if (!desc.fID) {
+        return nullptr;
+    }
+    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, GrMipMapsStatus::kNotAllocated);
+    // The non-sampler params are still at their default values.
+    tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
+                           fResetTimestampForTextureParameters);
+    return tex;
+}
+
 namespace {
 
 const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
@@ -3588,6 +3617,11 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const BackendTextureData* data,
                                                  int numMipLevels,
                                                  GrProtected isProtected) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
     this->handleDirtyContext();
 
     GrGLFormat glFormat = format.asGLFormat();
