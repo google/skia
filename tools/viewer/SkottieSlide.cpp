@@ -107,6 +107,7 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     fTimeBase       = 0; // force a time reset
 
     if (fAnimation) {
+        fAnimation->seek(0);
         SkDebugf("Loaded Bodymovin animation v: %s, size: [%f %f]\n",
                  fAnimation->version().c_str(),
                  fAnimation->size().width(),
