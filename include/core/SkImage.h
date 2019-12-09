@@ -232,10 +232,15 @@ public:
     }
 
     // Experimental
-    enum CompressionType {
-        kETC1_CompressionType,
-        kLast_CompressionType = kETC1_CompressionType,
+    enum class CompressionType {
+        kNone,
+        kETC1,
+        kLast = kETC1,
     };
+
+    static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
+
+    static const CompressionType kETC1_CompressionType = CompressionType::kETC1;
 
     /** Creates a GPU-backed SkImage from compressed data.
 
