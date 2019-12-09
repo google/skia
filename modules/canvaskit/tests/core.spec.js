@@ -325,4 +325,34 @@ describe('Core canvas behavior', function() {
         }));
     });
 
+    it('can combine shaders', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface');
+            if (!surface) {
+                done();
+                return;
+            }
+            const canvas = surface.getCanvas();
+
+            const rShader = CanvasKit.SkShader.Color(CanvasKit.Color(255, 0, 0, 1.0));
+            const gShader = CanvasKit.SkShader.Color(CanvasKit.Color(0, 255, 0, 0.6));
+            const bShader = CanvasKit.SkShader.Color(CanvasKit.Color(0, 0, 255, 1.0));
+
+            const rgShader = CanvasKit.SkShader.Blend(CanvasKit.BlendMode.SrcOver, rShader, gShader);
+
+            const p = new CanvasKit.SkPaint();
+            p.setShader(rgShader);
+            canvas.drawPaint(p);
+
+            const gbShader = CanvasKit.SkShader.Lerp(0.5, gShader, bShader);
+
+            p.setShader(gbShader);
+            canvas.drawRect(CanvasKit.LTRBRect(5, 100, 300, 400), p);
+
+
+            reportSurface(surface, 'combined_shaders', done);
+        }));
+    });
+
 });

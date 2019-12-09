@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkContourMeasureIter` and `SkContourMeasure` as an alternative to `SkPathMeasure`.
  - CanvasKit image decode cache helpers: getDecodeCacheLimitBytes(), setDecodeCacheLimitBytes(),
    and getDecodeCacheUsedBytes().
+ - `SkShader.Blend`, `SkShader.Color`, `SkShader.Empty`, `SkShader.Lerp`.
 
 ### Changed
  - The returned values from `SkParagraph.getRectsForRange` now have direction with value

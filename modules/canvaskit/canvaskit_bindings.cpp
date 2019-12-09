@@ -1333,7 +1333,25 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
     class_<SkShader>("SkShader")
-        .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>");
+        .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>")
+        .class_function("_Blend", optional_override([](SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src)->sk_sp<SkShader> {
+            return SkShaders::Blend(mode, dst, src, nullptr);
+        }))
+        .class_function("_Blend", optional_override([](SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                                       SimpleMatrix sm)->sk_sp<SkShader> {
+            auto m = toSkMatrix(sm);
+            return SkShaders::Blend(mode, dst, src, &m);
+        }))
+        .class_function("Color", select_overload<sk_sp<SkShader>(SkColor)>(&SkShaders::Color))
+        .class_function("Empty", &SkShaders::Empty)
+        .class_function("_Lerp", optional_override([](float t, sk_sp<SkShader> dst, sk_sp<SkShader> src)->sk_sp<SkShader> {
+            return SkShaders::Lerp(t, dst, src, nullptr);
+        }))
+        .class_function("_Lerp", optional_override([](float t, sk_sp<SkShader> dst, sk_sp<SkShader> src,
+                                                      SimpleMatrix sm)->sk_sp<SkShader> {
+            auto m = toSkMatrix(sm);
+            return SkShaders::Lerp(t, dst, src, &m);
+        }));
 
     class_<SkRuntimeShaderFactory>("_RTShaderFactory")
         .class_function("MakeFromProgram", optional_override([](std::string sksl, bool isOpaque)->SkRuntimeShaderFactory {
