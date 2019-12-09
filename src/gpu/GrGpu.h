@@ -502,6 +502,12 @@ public:
                                           int numMipLevels,
                                           GrProtected isProtected);
 
+    GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
+                                                    const GrBackendFormat&,
+                                                    const BackendTextureData* data,
+                                                    int numMipLevels,
+                                                    GrProtected isProtected);
+
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
