@@ -276,10 +276,10 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
 
-        const sk_sp<GrTextureProxy>* proxies = fAtlas->getProxies();
+        const GrSurfaceProxyView* views = fAtlas->getViews();
         for (uint32_t i = 0; i < fAtlas->numActivePages(); ++i) {
-            SkASSERT(proxies[i]);
-            func(proxies[i].get(), GrMipMapped::kNo);
+            SkASSERT(views[i].proxy());
+            func(views[i].proxy(), GrMipMapped::kNo);
         }
     }
 
@@ -324,12 +324,12 @@ private:
         FlushInfo flushInfo;
         flushInfo.fFixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
         int numActiveProxies = fAtlas->numActivePages();
-        const auto proxies = fAtlas->getProxies();
+        const auto views = fAtlas->getViews();
         for (int i = 0; i < numActiveProxies; ++i) {
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
-            flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
-            target->sampledProxyArray()->push_back(proxies[i].get());
+            flushInfo.fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
+            target->sampledProxyArray()->push_back(views[i].proxy());
         }
 
         // Setup GrGeometryProcessor
@@ -354,7 +354,7 @@ private:
                 matrix = &SkMatrix::I();
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(target->allocator(),
-                    *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getProxies(),
+                    *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getViews(),
                     fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
@@ -365,7 +365,7 @@ private:
             }
 
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
-                    *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getProxies(),
+                    *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getViews(),
                     fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
                     invert, false);
         }
@@ -776,22 +776,22 @@ private:
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
         int numAtlasTextures = SkToInt(fAtlas->numActivePages());
-        auto proxies = fAtlas->getProxies();
+        const auto views = fAtlas->getViews();
         if (gp->numTextureSamplers() != numAtlasTextures) {
             for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
-                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
                 // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
                 // proxies don't get added during the visitProxies call. Thus we add them here.
-                target->sampledProxyArray()->push_back(proxies[i].get());
+                target->sampledProxyArray()->push_back(views[i].proxy());
             }
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
-                reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampBilerp());
+                reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewViews(
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::ClampBilerp());
             } else {
-                reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(
-                    fAtlas->getProxies(), fAtlas->numActivePages(), GrSamplerState::ClampNearest());
+                reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::ClampNearest());
             }
         }
 
