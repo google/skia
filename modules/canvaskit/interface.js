@@ -852,6 +852,20 @@ CanvasKit.onRuntimeInitialized = function() {
     data.delete();
   }
 
+  CanvasKit.SkShader.Blend = function(mode, dst, src, localMatrix) {
+    if (!localMatrix) {
+      return this._Blend(mode, dst, src);
+    }
+    return this._Blend(mode, dst, src, localMatrix);
+  }
+
+  CanvasKit.SkShader.Lerp = function(t, dst, src, localMatrix) {
+    if (!localMatrix) {
+      return this._Lerp(t, dst, src);
+    }
+    return this._Lerp(t, dst, src, localMatrix);
+  }
+
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
     // Set up SkPictureRecorder
     var spr = new CanvasKit.SkPictureRecorder();

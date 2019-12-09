@@ -408,6 +408,16 @@ var CanvasKit = {
 		ry4: {},
 	},
 
+	SkShader: {
+		Blend: function() {},
+		Color: function() {},
+		Empty: function() {},
+		Lerp: function() {},
+
+		_Blend: function() {},
+		_Lerp: function() {},
+	},
+
 	SkSurface: {
 		// public API (from C++ bindings)
 		/** @return {CanvasKit.SkCanvas} */
