@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95a36c68_c75cfe02",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-09T20:36:42Z",
+      "side": 1,
+      "message": "bikeshed/optional: call this imageIdentifier to remove any temptation to dereference it and make the purpose more clear.",
+      "range": {
+        "startLine": 45,
+        "startChar": 12,
+        "endLine": 45,
+        "endChar": 24
+      },
+      "revId": "6b703c14182b44f97aed699b86d4171737944935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54ae3d7f_9f5fa689",
+        "filename": "tools/debugger/DrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1323,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-09T20:36:42Z",
+      "side": 1,
+      "message": "Is this 64 bits here because it could run on either 64 bit architectures or 32 bit ones? Does this work ok in the 32bit world of WASM?",
+      "range": {
+        "startLine": 1323,
+        "startChar": 11,
+        "endLine": 1323,
+        "endChar": 20
+      },
+      "revId": "6b703c14182b44f97aed699b86d4171737944935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
