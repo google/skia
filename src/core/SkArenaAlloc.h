@@ -133,6 +133,19 @@ public:
         return objStart;
     }
 
+    // Only use makeAtleastBytesAlignedTo when allocating a flexibly sized array, where it's
+    // important to make effective use of the arena's blocks. If the current block has at least
+    // 'minSize' bytes, it will allocate min(remaining, maxSize). If there is not enough room for
+    // 'minSize' a new block will be made and a maxSize array will be returned. The size of the
+    // returned array is reported in 'allocated'.
+    void* makeAtleastBytesAlignedTo(size_t minSize, size_t maxSize, size_t align,
+                                    size_t* allocated) {
+        AssertRelease(SkTFitsIn<uint32_t>(minSize) && SkTFitsIn<uint32_t>(maxSize));
+        auto objStart = this->allocAtleast(ToU32(minSize), ToU32(maxSize), ToU32(align), allocated);
+        fCursor = objStart + *allocated;
+        return objStart;
+    }
+
     // Destroy all allocated objects, free any heap allocations.
     void reset();
 
@@ -157,14 +170,46 @@ private:
     void ensureSpace(uint32_t size, uint32_t alignment);
 
     char* allocObject(uint32_t size, uint32_t alignment) {
+        // uintptr_t mask = alignment - 1;
+        // uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+        // uintptr_t totalSize = size + alignedOffset;
+        // AssertRelease(totalSize >= size);
+        // if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
+        //     this->ensureSpace(size, alignment);
+        //     alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+        // }
+        // return fCursor + alignedOffset;
+        size_t allocated;
+        char* out = this->allocAtleast(size, size, alignment, &allocated);
+        AssertRelease(allocated == size);
+        return out;
+    }
+
+    char* allocAtleast(uint32_t minSize, uint32_t maxSize, uint32_t alignment, size_t* allocated) {
         uintptr_t mask = alignment - 1;
         uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
-        uintptr_t totalSize = size + alignedOffset;
-        AssertRelease(totalSize >= size);
-        if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
-            this->ensureSpace(size, alignment);
-            alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+        // Start by trying to fit the max size in the current block
+        uintptr_t totalMaxSize = maxSize + alignedOffset;
+        AssertRelease(totalMaxSize >= maxSize);
+        uintptr_t remaining = static_cast<uintptr_t>(fEnd - fCursor);
+        if (totalMaxSize > remaining) {
+            // Max allocation won't fit, try to use remaining in the cursor if >= minSize
+            uintptr_t totalMinSize = minSize + alignedOffset;
+            if (totalMinSize > remaining) {
+                // Need a new block, request the max size
+                this->ensureSpace(maxSize, alignment);
+                alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+                *allocated = maxSize;
+            } else {
+                // Fit into the rest of the block, in multiples of 'alignment'.
+                *allocated = static_cast<size_t>((remaining - alignedOffset) & ~mask);
+                AssertRelease(fCursor + alignedOffset + *allocated <= fEnd &&
+                              *allocated % alignment == 0);
+            }
+        } else {
+            *allocated = maxSize;
         }
+
         return fCursor + alignedOffset;
     }
 
