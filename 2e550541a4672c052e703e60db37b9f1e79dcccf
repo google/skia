@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68b66059_8642fa07",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-09T17:16:14Z",
+      "side": 1,
+      "message": "Should make this more descriptive. Seems this is adding support for font features, modifying the way the empty metrics are calculated and allowing the intrinsic sizes to be less than zero? These don\u0027t seem immediately related, can this be split up into a few different changes?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 13
+      },
+      "revId": "2e550541a4672c052e703e60db37b9f1e79dcccf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
