@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f75849b9_a8772356",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-09T14:38:32Z",
+      "side": 1,
+      "message": "nit: add link to emscripten documentation about register_vector.",
+      "revId": "38c1375ee95da799baf8a3aeff7ecac6db456735",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
