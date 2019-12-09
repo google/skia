@@ -24,8 +24,7 @@ public:
     GrSkSLFPFactoryCache(sk_sp<const GrShaderCaps> shaderCaps) : fShaderCaps(shaderCaps) {}
     ~GrSkSLFPFactoryCache();
 
-    sk_sp<GrSkSLFPFactory> findOrCreate(int index, const char* name, const char* skSL,
-                                        SkSL::Program::Kind kind);
+    sk_sp<GrSkSLFPFactory> findOrCreate(int index, const char* name, SkSL::Program* baseProgram);
 
 private:
     // Returns a factory by its numeric index, or null if no such factory exists. Indices are

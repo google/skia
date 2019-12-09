@@ -85,25 +85,29 @@ public:
      * 'NewIndex()'. Each given SkSL string should have a single, statically defined index
      * associated with it.
      */
-    static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext_Base* context,
-                   int index,
-                   const char* name,
-                   const char* sksl,
-                   const void* inputs,
-                   size_t inputSize,
-                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind,
-                   const SkMatrix* matrix = nullptr);
+    static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
+                                          int index,
+                                          const char* name,
+                                          const char* sksl,
+                                          const void* inputs,
+                                          size_t inputSize,
+                                          const SkMatrix* matrix = nullptr);
 
-    static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext_Base* context,
-                   int index,
-                   const char* name,
-                   SkString sksl,
-                   const void* inputs,
-                   size_t inputSize,
-                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind,
-                   const SkMatrix* matrix = nullptr);
+    static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
+                                          int index,
+                                          const char* name,
+                                          SkString sksl,
+                                          const void* inputs,
+                                          size_t inputSize,
+                                          const SkMatrix* matrix = nullptr);
+
+    static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
+                                          int index,
+                                          const char* name,
+                                          SkSL::Program* baseProgram,
+                                          const void* inputs,
+                                          size_t inputSize,
+                                          const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
 
@@ -113,8 +117,8 @@ public:
 
 private:
     GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
-             SkSL::Program::Kind kind, int fIndex, const char* name, const char* sksl,
-             SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
+             int fIndex, const char* name, SkSL::Program* baseProgram,
+             const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -130,21 +134,11 @@ private:
 
     mutable sk_sp<GrSkSLFPFactory> fFactory;
 
-    SkSL::Program::Kind fKind;
-
     int fIndex;
 
     const char* fName;
 
-    // For object lifetime purposes, we have fields for the SkSL as both a const char* and a
-    // SkString. The const char* is the one we actually use, but it may point to the SkString's
-    // bytes. Since GrSkSLFPs are frequently created from constant strings, this allows us to
-    // generally avoid the overhead of copying the bytes into an SkString (in which case fSkSLString
-    // is the empty string), while still allowing the GrSkSLFP to manage the string's lifetime when
-    // needed.
-    SkString fSkSLString;
-
-    const char* fSkSL;
+    std::shared_ptr<SkSL::Program> fBaseProgram;
 
     const std::unique_ptr<int8_t[]> fInputs;
 
@@ -176,13 +170,10 @@ public:
      * the produced shaders to differ), so it is important to reuse the same factory instance for
      * the same shader in order to avoid repeatedly re-parsing the SkSL.
      */
-    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl,
-                    SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
+    GrSkSLFPFactory(const char* name, SkSL::Program* baseProgram);
 
     const SkSL::Program* getSpecialization(const SkSL::String& key, const void* inputs,
                                            size_t inputSize);
-
-    SkSL::Program::Kind fKind;
 
     const char* fName;
 
