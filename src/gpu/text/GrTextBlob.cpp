@@ -243,10 +243,6 @@ sk_sp<GrTextBlob> GrTextBlob::Make(int glyphCount,
 
     void* allocation = ::operator new (size);
 
-    if (CACHE_SANITY_CHECK) {
-        sk_bzero(allocation, size);
-    }
-
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
         size, strikeCache, viewMatrix, origin, color, forceWForDistanceFields}};
 
@@ -527,57 +523,6 @@ void GrTextBlob::computeSubRunBounds(SkRect* outBounds, const GrTextBlob::SubRun
 
         // Due to floating point numerical inaccuracies, we have to round out here
         outBounds->roundOut(outBounds);
-    }
-}
-
-void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
-    SkASSERT_RELEASE(l.fSize == r.fSize);
-
-    SkASSERT_RELEASE(l.fBlurRec.fSigma == r.fBlurRec.fSigma);
-    SkASSERT_RELEASE(l.fBlurRec.fStyle == r.fBlurRec.fStyle);
-
-    SkASSERT_RELEASE(l.fStrokeInfo.fFrameWidth == r.fStrokeInfo.fFrameWidth);
-    SkASSERT_RELEASE(l.fStrokeInfo.fMiterLimit == r.fStrokeInfo.fMiterLimit);
-    SkASSERT_RELEASE(l.fStrokeInfo.fJoin == r.fStrokeInfo.fJoin);
-
-    SkASSERT_RELEASE(l.fKey == r.fKey);
-    //SkASSERT_RELEASE(l.fPaintColor == r.fPaintColor); // Colors might not actually be identical
-    SkASSERT_RELEASE(l.fMaxMinScale == r.fMaxMinScale);
-    SkASSERT_RELEASE(l.fMinMaxScale == r.fMinMaxScale);
-    SkASSERT_RELEASE(l.fTextType == r.fTextType);
-
-    for(auto t : SkMakeZip(l.fSubRuns, r.fSubRuns)) {
-        const SubRun& lSubRun = std::get<0>(t);
-        const SubRun& rSubRun = std::get<1>(t);
-        SkASSERT(lSubRun.drawAsPaths() == rSubRun.drawAsPaths());
-        if (!lSubRun.drawAsPaths()) {
-
-            // TODO we can do this check, but we have to apply the VM to the old vertex bounds
-            //SkASSERT_RELEASE(lSubRun.vertexBounds() == rSubRun.vertexBounds());
-
-            if (lSubRun.strike()) {
-                SkASSERT_RELEASE(rSubRun.strike());
-                SkASSERT_RELEASE(GrTextStrike::GetKey(*lSubRun.strike()) ==
-                                 GrTextStrike::GetKey(*rSubRun.strike()));
-
-            } else {
-                SkASSERT_RELEASE(!rSubRun.strike());
-            }
-
-            SkASSERT_RELEASE(lSubRun.vertexStartIndex() == rSubRun.vertexStartIndex());
-            SkASSERT_RELEASE(lSubRun.glyphStartIndex() == rSubRun.glyphStartIndex());
-            SkASSERT_RELEASE(lSubRun.maskFormat() == rSubRun.maskFormat());
-            SkASSERT_RELEASE(lSubRun.drawAsDistanceFields() == rSubRun.drawAsDistanceFields());
-            SkASSERT_RELEASE(lSubRun.hasUseLCDText() == rSubRun.hasUseLCDText());
-        } else {
-            SkASSERT_RELEASE(lSubRun.fPaths.size() == rSubRun.fPaths.size());
-            for(auto p : SkMakeZip(lSubRun.fPaths, rSubRun.fPaths)) {
-                const PathGlyph& lPath = std::get<0>(p);
-                const PathGlyph& rPath = std::get<1>(p);
-                SkASSERT_RELEASE(lPath.fPath == rPath.fPath);
-                // We can't assert that these have the same translations
-            }
-        }
     }
 }
 

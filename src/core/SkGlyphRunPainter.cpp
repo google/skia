@@ -343,17 +343,6 @@ void GrTextContext::drawGlyphRunList(
                     glyphRunList, target->glyphPainter());
         } else {
             textBlobCache->makeMRU(cacheBlob.get());
-
-            if (CACHE_SANITY_CHECK) {
-                sk_sp<GrTextBlob> sanityBlob(textBlobCache->makeBlob(
-                        glyphRunList, grStrikeCache, viewMatrix, color, forceW));
-                sanityBlob->setupKey(key, blurRec, listPaint);
-                cacheBlob->generateFromGlyphRunList(
-                        *context->priv().caps()->shaderCaps(), fOptions,
-                        listPaint, viewMatrix, props, glyphRunList,
-                        target->glyphPainter());
-                GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
-            }
         }
     } else {
         if (canCache) {
