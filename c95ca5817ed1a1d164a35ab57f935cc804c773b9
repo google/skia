@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "90380d4d_27575293",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-09T21:11:25Z",
+      "side": 1,
+      "message": "buhleet!",
+      "revId": "c95ca5817ed1a1d164a35ab57f935cc804c773b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
