@@ -22,6 +22,30 @@
       "revId": "7f11fb50259c5bb1b70ce03ddc66a531c07cf941",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa902a2_f11d2943",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-09T14:46:32Z",
+      "side": 0,
+      "message": "That makes sense, and the new append code is certainly simpler for it.",
+      "parentUuid": "74f7eaf3_f94155d0",
+      "range": {
+        "startLine": 172,
+        "startChar": 11,
+        "endLine": 172,
+        "endChar": 25
+      },
+      "revId": "7f11fb50259c5bb1b70ce03ddc66a531c07cf941",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

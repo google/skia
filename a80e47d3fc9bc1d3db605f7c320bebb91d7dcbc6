@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66726c9d_d21361b5",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-09T14:46:32Z",
+      "side": 1,
+      "message": "// Clamp x coordinate to the domain stored in the x and z components of fDomainName.",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 166,
+        "endChar": 6
+      },
+      "revId": "a80e47d3fc9bc1d3db605f7c320bebb91d7dcbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1c2746f_15e68ecf",
+        "filename": "src/gpu/effects/GrTextureDomain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-09T14:46:32Z",
+      "side": 1,
+      "message": "// Clamp y coordinate to the domain stored in the y and w components of fDomainName.\n\n(maybe these comments are too redundant, and just a new line between the end of X and start of Y would be sufficient to show the two logical blocks).",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 6
+      },
+      "revId": "a80e47d3fc9bc1d3db605f7c320bebb91d7dcbc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
