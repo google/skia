@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5573af2f_937748fe",
+        "filename": "src/utils/mac/SkCreateCGImageRef.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-09T22:12:53Z",
+      "side": 1,
+      "message": "Can we share between bitmap and pixmap at a higher level? Can\u0027t we (early on) convert one to the other, and then have a single path?",
+      "range": {
+        "startLine": 109,
+        "startChar": 18,
+        "endLine": 109,
+        "endChar": 35
+      },
+      "revId": "078cb3297e28f82687262524b326c8e00059e849",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
