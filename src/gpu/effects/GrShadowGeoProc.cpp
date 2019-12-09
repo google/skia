@@ -7,6 +7,7 @@
 
 #include "src/gpu/effects/GrShadowGeoProc.h"
 
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
@@ -61,16 +62,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrTextureProxy* lut)
+GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
         : INHERITED(kGrRRectShadowGeoProc_ClassID) {
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
     fInShadowParams = {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
-    SkASSERT(lut);
-    fLUTTextureSampler.reset(GrSamplerState::ClampBilerp(), lut->backendFormat(),
-                             lut->textureSwizzle());
+    SkASSERT(lutView.proxy());
+    fLUTTextureSampler.reset(GrSamplerState::ClampBilerp(), lutView.proxy()->backendFormat(),
+                             lutView.swizzle());
     this->setTextureSamplerCnt(1);
 }
 
@@ -84,7 +85,11 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {
-    return GrRRectShadowGeoProc::Make(d->allocator(),
-                                      d->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx).get());
+    sk_sp<GrSurfaceProxy> proxy = d->textureProxy(GrProcessorUnitTest::kAlphaTextureIdx);
+    GrSurfaceOrigin origin = proxy->origin();
+    const GrSwizzle& swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
+    return GrRRectShadowGeoProc::Make(d->allocator(), view);
 }
 #endif
