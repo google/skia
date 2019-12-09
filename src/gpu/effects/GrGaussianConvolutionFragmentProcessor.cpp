@@ -89,6 +89,9 @@ void GrGLConvolutionEffect::emitCode(EmitArgs& args) {
                                              component, component, bounds, bounds);
                     break;
                 }
+                // Deferring implementing kMirrorRepeat until we use DomainEffects as
+                // child processors. Fallback to Repeat.
+                case GrTextureDomain::kMirrorRepeat_Mode:
                 case GrTextureDomain::kRepeat_Mode: {
                     fragBuilder->codeAppendf("coordSampled.%s = "
                                              "mod(coord.%s - %s.x, %s.y - %s.x) + %s.x;\n",
