@@ -38,8 +38,10 @@ public:
         // read texels outside of the domain.  We could perform additional texture reads and filter
         // in the shader, but are not currently doing this for performance reasons
         kRepeat_Mode,
+        // Mirror wrap texture coordinates. NOTE: suffers the same filtering limitation as kRepeat.
+        kMirrorRepeat_Mode,
 
-        kLastMode = kRepeat_Mode
+        kLastMode = kMirrorRepeat_Mode
     };
     static const int kModeCount = kLastMode + 1;
 
@@ -183,7 +185,7 @@ public:
                      bool filterIfDecal);
 
         enum {
-            kModeBits = 2, // See DomainKey().
+            kModeBits = 3,  // See DomainKey().
             kDomainKeyBits = 4
         };
 

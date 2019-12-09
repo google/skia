@@ -324,9 +324,10 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                                               GrSamplerState::Filter::kBilerp);
         if (GrTextureDomain::kIgnore_Mode != mode && i == 1) {
             // GrDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
-            GrTextureDomain::Mode modeForScaling = GrTextureDomain::kRepeat_Mode == mode
-                                                                ? GrTextureDomain::kDecal_Mode
-                                                                : mode;
+            GrTextureDomain::Mode modeForScaling = (GrTextureDomain::kRepeat_Mode == mode ||
+                                                    GrTextureDomain::kMirrorRepeat_Mode == mode)
+                                                           ? GrTextureDomain::kDecal_Mode
+                                                           : mode;
 
             SkRect domain = SkRect::Make(*contentRect);
             domain.inset((i < scaleFactorX) ? SK_ScalarHalf + SK_ScalarNearlyZero : 0.0f,
