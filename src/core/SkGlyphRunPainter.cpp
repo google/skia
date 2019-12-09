@@ -279,31 +279,32 @@ void GrTextContext::drawGlyphRunList(
         GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
         const SkMatrix& viewMatrix, const SkSurfaceProps& props,
         const SkGlyphRunList& glyphRunList) {
-    SkPoint origin = glyphRunList.origin();
-
-    // Get the first paint to use as the key paint.
-    const SkPaint& listPaint = glyphRunList.paint();
-
-    SkPMColor4f filteredColor = generate_filtered_color(listPaint, target->colorInfo());
-    GrColor color = generate_filtered_color(listPaint, target->colorInfo()).toBytes_RGBA();
-
+    auto contextPriv = context->priv();
     // If we have been abandoned, then don't draw
-    if (context->priv().abandoned()) {
+    if (contextPriv.abandoned()) {
         return;
     }
+    auto grStrikeCache = contextPriv.getGrStrikeCache();
+    GrTextBlobCache* textBlobCache = contextPriv.getTextBlobCache();
+
+    // Get the first paint to use as the key paint.
+    const SkPaint& blobPaint = glyphRunList.paint();
+
+    const GrColorInfo& colorInfo = target->colorInfo();
+    SkPMColor4f filteredColor = generate_filtered_color(blobPaint, colorInfo);
+    GrColor color = filteredColor.toBytes_RGBA();
+
+    SkPoint origin = glyphRunList.origin();
 
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
-    const SkMaskFilter* mf = listPaint.getMaskFilter();
-    bool canCache = glyphRunList.canCache() && !(listPaint.getPathEffect() ||
-                                                 (mf && !as_MFB(mf)->asABlur(&blurRec)));
-    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorInfo());
+    const SkMaskFilter* mf = blobPaint.getMaskFilter();
+    bool canCache = glyphRunList.canCache() && !(blobPaint.getPathEffect() ||
+                                                (mf && !as_MFB(mf)->asABlur(&blurRec)));
+    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(colorInfo);
 
-    auto grStrikeCache = context->priv().getGrStrikeCache();
-    GrTextBlobCache* textBlobCache = context->priv().getTextBlobCache();
-
-    sk_sp<GrTextBlob> cacheBlob;
+    sk_sp<GrTextBlob> cachedBlob;
     GrTextBlob::Key key;
     if (canCache) {
         bool hasLCD = glyphRunList.anyRunsLCD();
@@ -316,61 +317,61 @@ void GrTextContext::drawGlyphRunList(
         // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to
         // ensure we always match the same key
         GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
-                                 ComputeCanonicalColor(listPaint, hasLCD);
+                                 ComputeCanonicalColor(blobPaint, hasLCD);
 
         key.fPixelGeometry = pixelGeometry;
         key.fUniqueID = glyphRunList.uniqueID();
-        key.fStyle = listPaint.getStyle();
+        key.fStyle = blobPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
-        cacheBlob = textBlobCache->find(key);
+        cachedBlob = textBlobCache->find(key);
     }
 
     bool forceW = fOptions.fDistanceFieldVerticesAlwaysHaveW;
-    if (cacheBlob) {
-        if (cacheBlob->mustRegenerate(listPaint, glyphRunList.anyRunsSubpixelPositioned(),
-                                      blurRec, viewMatrix, origin.x(),origin.y())) {
+    if (cachedBlob) {
+        if (cachedBlob->mustRegenerate(blobPaint, glyphRunList.anyRunsSubpixelPositioned(),
+                                       blurRec, viewMatrix, origin.x(), origin.y())) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
-            textBlobCache->remove(cacheBlob.get());
-            cacheBlob = textBlobCache->makeCachedBlob(
+            textBlobCache->remove(cachedBlob.get());
+            cachedBlob = textBlobCache->makeCachedBlob(
                     glyphRunList, grStrikeCache, key, blurRec, viewMatrix, color, forceW);
-            cacheBlob->generateFromGlyphRunList(
+            cachedBlob->generateFromGlyphRunList(
                     *context->priv().caps()->shaderCaps(), fOptions,
-                    listPaint, viewMatrix, props,
+                    blobPaint, viewMatrix, props,
                     glyphRunList, target->glyphPainter());
         } else {
-            textBlobCache->makeMRU(cacheBlob.get());
+            textBlobCache->makeMRU(cachedBlob.get());
 
             if (CACHE_SANITY_CHECK) {
                 sk_sp<GrTextBlob> sanityBlob(textBlobCache->makeBlob(
                         glyphRunList, grStrikeCache, viewMatrix, color, forceW));
-                sanityBlob->setupKey(key, blurRec, listPaint);
-                cacheBlob->generateFromGlyphRunList(
+                sanityBlob->setupKey(key, blurRec, blobPaint);
+                cachedBlob->generateFromGlyphRunList(
                         *context->priv().caps()->shaderCaps(), fOptions,
-                        listPaint, viewMatrix, props, glyphRunList,
+                        blobPaint, viewMatrix, props, glyphRunList,
                         target->glyphPainter());
-                GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
+                GrTextBlob::AssertEqual(*sanityBlob, *cachedBlob);
             }
         }
     } else {
         if (canCache) {
-            cacheBlob = textBlobCache->makeCachedBlob(
+            cachedBlob = textBlobCache->makeCachedBlob(
                     glyphRunList, grStrikeCache, key, blurRec, viewMatrix, color, forceW);
         } else {
-            cacheBlob = textBlobCache->makeBlob(
+            cachedBlob = textBlobCache->makeBlob(
                     glyphRunList, grStrikeCache, viewMatrix, color, forceW);
         }
-        cacheBlob->generateFromGlyphRunList(
-                *context->priv().caps()->shaderCaps(), fOptions, listPaint,
+        cachedBlob->generateFromGlyphRunList(
+                *context->priv().caps()->shaderCaps(), fOptions, blobPaint,
                 viewMatrix, props, glyphRunList,
                 target->glyphPainter());
     }
 
-    cacheBlob->flush(target, props, fDistanceAdjustTable.get(), listPaint, filteredColor,
-                     clip, viewMatrix, origin.x(), origin.y());
+    cachedBlob->flush(target, props, fDistanceAdjustTable.get(), blobPaint, filteredColor,
+                      clip, viewMatrix, origin.x(), origin.y());
 }
 
 #if GR_TEST_UTILS
