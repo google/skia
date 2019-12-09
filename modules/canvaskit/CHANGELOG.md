@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2019-12-09
+
 ### Added
  - `SkContourMeasureIter` and `SkContourMeasure` as an alternative to `SkPathMeasure`.
  - CanvasKit image decode cache helpers: getDecodeCacheLimitBytes(), setDecodeCacheLimitBytes(),
