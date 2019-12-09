@@ -8,14 +8,16 @@
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 
 #include "include/gpu/GrContext.h"
+#include "src/core/SkReader32.h"
 #include "src/gpu/GrAutoLocaleSetter.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrPersistentCacheUtils.h"
+#include "src/gpu/GrRenderTargetPriv.h"
+#include "src/gpu/GrShaderUtils.h"
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
-
-#include "src/gpu/GrRenderTargetPriv.h"
 
 #import <simd/simd.h>
 
@@ -58,18 +60,62 @@ void GrMtlPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }
 
-id<MTLLibrary> GrMtlPipelineStateBuilder::createMtlShaderLibrary(
-        const GrGLSLShaderBuilder& builder,
+static constexpr SkFourByteTag kMSL_Tag = SkSetFourByteTag('M', 'S', 'L', ' ');
+static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
+
+
+void GrMtlPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
+                                                    __strong id<MTLLibrary> outLibraries[]) {
+    SkSL::String shaders[kGrShaderTypeCount];
+    SkSL::Program::Inputs inputs[kGrShaderTypeCount];
+
+    GrPersistentCacheUtils::UnpackCachedShaders(cached, shaders, inputs, kGrShaderTypeCount);
+
+    outLibraries[kVertex_GrShaderType] = this->compileMtlShaderLibrary(
+                                              shaders[kVertex_GrShaderType],
+                                              inputs[kVertex_GrShaderType]);
+    outLibraries[kFragment_GrShaderType] = this->compileMtlShaderLibrary(
+                                                shaders[kFragment_GrShaderType],
+                                                inputs[kFragment_GrShaderType]);
+
+    // Geometry shaders are not supported
+    SkASSERT(shaders[kGeometry_GrShaderType].empty());
+
+    SkASSERT(outLibraries[kVertex_GrShaderType]);
+    SkASSERT(outLibraries[kFragment_GrShaderType]);
+}
+
+void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
+                                                    const SkSL::Program::Inputs inputs[],
+                                                    bool isSkSL) {
+    // TODO: Determine which key parameters are necessary
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
+                                                this->desc()->keyLength());
+    sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kMSL_Tag,
+                                                                   shaders,
+                                                                   inputs, kGrShaderTypeCount);
+    fGpu->getContext()->priv().getPersistentCache()->store(*key, *data);
+}
+
+id<MTLLibrary> GrMtlPipelineStateBuilder::generateMtlShaderLibrary(
+        const SkSL::String& shader,
         SkSL::Program::Kind kind,
         const SkSL::Program::Settings& settings,
-        GrProgramDesc* desc) {
-    SkSL::Program::Inputs inputs;
-    id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, builder.fCompilerString.c_str(),
-                                                             kind, settings, &inputs);
-    if (shaderLibrary == nil) {
-        return nil;
+        GrProgramDesc* desc,
+        SkSL::String* msl,
+        SkSL::Program::Inputs* inputs) {
+    id<MTLLibrary> shaderLibrary = GrGenerateMtlShaderLibrary(fGpu, shader,
+                                                              kind, settings, msl, inputs);
+    if (shaderLibrary != nil && inputs->fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
-    if (inputs.fRTHeight) {
+    return shaderLibrary;
+}
+
+id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(const SkSL::String& shader,
+                                                                  SkSL::Program::Inputs inputs) {
+    id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader);
+    if (shaderLibrary != nil && inputs.fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     return shaderLibrary;
@@ -343,6 +389,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
                                                         const GrProgramInfo& programInfo,
                                                         GrProgramDesc* desc) {
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
     fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
@@ -357,25 +404,79 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     settings.fSharpenTextures = fGpu->getContext()->priv().options().fSharpenMipmappedTextures;
     SkASSERT(!this->fragColorIsInOut());
 
-    // TODO: Store shaders in cache
-    id<MTLLibrary> vertexLibrary = nil;
-    id<MTLLibrary> fragmentLibrary = nil;
-    vertexLibrary = this->createMtlShaderLibrary(fVS,
-                                                 SkSL::Program::kVertex_Kind,
-                                                 settings,
-                                                 desc);
-    fragmentLibrary = this->createMtlShaderLibrary(fFS,
-                                                   SkSL::Program::kFragment_Kind,
-                                                   settings,
-                                                   desc);
-    SkASSERT(!this->primitiveProcessor().willUseGeoShader());
-
-    if (!vertexLibrary || !fragmentLibrary) {
-        return nullptr;
+    sk_sp<SkData> cached;
+    SkReader32 reader;
+    SkFourByteTag shaderType = 0;
+    auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
+    if (persistentCache) {
+        // TODO: Determine which key parameters are necessary
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->keyLength());
+        cached = persistentCache->load(*key);
+        if (cached) {
+            reader.setMemory(cached->data(), cached->size());
+            shaderType = reader.readU32();
+        }
     }
 
-    id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];
-    id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName: @"fragmentMain"];
+    SkSL::String shaders[kGrShaderTypeCount];
+    if (kMSL_Tag == shaderType) {
+        this->loadShadersFromCache(&reader, shaderLibraries);
+    } else {
+        SkSL::Program::Inputs inputs[kGrShaderTypeCount];
+
+        SkSL::String* sksl[kGrShaderTypeCount] = {
+            &fVS.fCompilerString,
+            nullptr,              // geometry shaders not supported
+            &fFS.fCompilerString,
+        };
+        SkSL::String cached_sksl[kGrShaderTypeCount];
+        if (kSKSL_Tag == shaderType) {
+            GrPersistentCacheUtils::UnpackCachedShaders(&reader, cached_sksl, inputs,
+                                                        kGrShaderTypeCount);
+            for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                sksl[i] = &cached_sksl[i];
+            }
+        }
+
+        shaderLibraries[kVertex_GrShaderType] = this->generateMtlShaderLibrary(
+                                                     *sksl[kVertex_GrShaderType],
+                                                     SkSL::Program::kVertex_Kind,
+                                                     settings,
+                                                     desc,
+                                                     &shaders[kVertex_GrShaderType],
+                                                     &inputs[kVertex_GrShaderType]);
+        shaderLibraries[kFragment_GrShaderType] = this->generateMtlShaderLibrary(
+                                                       *sksl[kFragment_GrShaderType],
+                                                       SkSL::Program::kFragment_Kind,
+                                                       settings,
+                                                       desc,
+                                                       &shaders[kFragment_GrShaderType],
+                                                       &inputs[kFragment_GrShaderType]);
+
+        // Geometry shaders are not supported
+        SkASSERT(!this->primitiveProcessor().willUseGeoShader());
+
+        if (!shaderLibraries[kVertex_GrShaderType] || !shaderLibraries[kFragment_GrShaderType]) {
+            return nullptr;
+        }
+
+        if (persistentCache && !cached) {
+            bool isSkSL = false;
+            if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
+                    GrContextOptions::ShaderCacheStrategy::kSkSL) {
+                for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                    shaders[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
+                }
+                isSkSL = true;
+            }
+            this->storeShadersInCache(shaders, inputs, isSkSL);
+        }
+    }
+
+    id<MTLFunction> vertexFunction =
+            [shaderLibraries[kVertex_GrShaderType] newFunctionWithName: @"vertexMain"];
+    id<MTLFunction> fragmentFunction =
+            [shaderLibraries[kFragment_GrShaderType] newFunctionWithName: @"fragmentMain"];
 
     if (vertexFunction == nil) {
         SkDebugf("Couldn't find vertexMain() in library\n");
