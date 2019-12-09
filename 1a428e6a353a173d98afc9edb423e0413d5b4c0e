@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "516ef1c8_e6184131",
+        "filename": "src/gpu/ops/GrShadowRRectOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-09T20:52:27Z",
+      "side": 1,
+      "message": "std::move? or does it then complain about copy elision optimizations?",
+      "range": {
+        "startLine": 197,
+        "startChar": 27,
+        "endLine": 197,
+        "endChar": 38
+      },
+      "revId": "1a428e6a353a173d98afc9edb423e0413d5b4c0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
