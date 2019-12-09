@@ -43,6 +43,13 @@ public:
         }
         return fProxy->asTextureProxy();
     }
+    sk_sp<GrTextureProxy> asTextureProxyRef() const {
+        if (!fProxy) {
+            return nullptr;
+        }
+        return sk_ref_sp<GrTextureProxy>(fProxy->asTextureProxy());
+    }
+
     GrRenderTargetProxy* asRenderTargetProxy() const {
         if (!fProxy) {
             return nullptr;

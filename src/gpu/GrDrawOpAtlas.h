@@ -125,7 +125,7 @@ public:
                          int width, int height,
                          const void* image, SkIPoint16* loc);
 
-    const sk_sp<GrTextureProxy>* getProxies() const { return fProxies; }
+    const GrSurfaceProxyView* getViews() const { return fViews; }
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
@@ -412,7 +412,7 @@ private:
         PlotList fPlotList;
     };
     // proxies kept separate to make it easier to pass them up to client
-    sk_sp<GrTextureProxy> fProxies[kMaxMultitexturePages];
+    GrSurfaceProxyView fViews[kMaxMultitexturePages];
     Page fPages[kMaxMultitexturePages];
     uint32_t fMaxPages;
 

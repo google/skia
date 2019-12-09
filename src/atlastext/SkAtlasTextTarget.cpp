@@ -224,7 +224,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     auto resourceProvider = context.grContext()->priv().resourceProvider();
 
     unsigned int numProxies;
-    if (!atlasManager->getProxies(kA8_GrMaskFormat, &numProxies)) {
+    if (!atlasManager->getViews(kA8_GrMaskFormat, &numProxies)) {
         return;
     }
 
