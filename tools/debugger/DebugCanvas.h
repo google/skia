@@ -16,11 +16,13 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTArray.h"
 #include "tools/UrlDataManager.h"
+#include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
 class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
+class DebugLayerManager;
 
 class DebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
@@ -29,6 +31,14 @@ public:
     DebugCanvas(SkIRect bounds);
 
     ~DebugCanvas() override;
+
+    /**
+     * Provide a DebugLayerManager for mskp files containing layer information
+     * when set this DebugCanvas will attempt to parse layer info from annotations.
+     * it will store layer pictures to the layer manager, and interpret some drawImageRects
+     * as layer draws, deferring to the layer manager for images.
+     */
+    void setLayerManager(DebugLayerManager* lm) { fLayerManager = lm; }
 
     /**
      * Enable or disable overdraw visualization
@@ -54,6 +64,8 @@ public:
 
     /**
         Executes the draw calls up to the specified index.
+        Does not clear the canvas to transparent black first,
+        if needed, caller should do that first.
         @param canvas  The canvas being drawn to
         @param index  The index of the final command being executed
         @param m an optional Mth gpu op to highlight, or -1
@@ -206,6 +218,14 @@ private:
     bool    fOverdrawViz;
     SkColor fClipVizColor;
     bool    fDrawGpuOpBounds;
+
+    // When not negative, indicates the render node id of the layer represented by the next
+    // drawPicture call.
+    int         fnextDrawPictureLayerId = -1;
+    int         fnextDrawImageRectLayerId = -1;
+    SkIRect     fnextDrawPictureDirtyRect;
+    // may be null, in which case layer annotations are ignored.
+    DebugLayerManager* fLayerManager = nullptr;
 
     /**
         Adds the command to the class' vector of commands.
