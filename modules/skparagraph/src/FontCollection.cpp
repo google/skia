@@ -102,7 +102,7 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const SkString& familyName, SkFo
         }
 
         for (int i = 0; i < set->count(); ++i) {
-            set->createTypeface(i);
+            sk_sp<SkTypeface> tmp(set->createTypeface(i));
         }
 
         sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
