@@ -155,13 +155,22 @@ DEF_TEST(Codec_frames, r) {
         { "images/blendBG.webp", 7,
             { 0, kNoFrame, kNoFrame, kNoFrame, 4, 4 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
-            { 525, 500, 525, 437, 609, 729, 444 }, 7,
+            { 525, 500, 525, 437, 609, 729, 444 },
+#ifdef SK_LEGACY_WEBP_LOOP_COUNT
+            7,
+#else
+            6,
+#endif
             { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
         { "images/required.webp", 7,
             { 0, 1, 1, kNoFrame, 4, 4 },
             { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
             { 100, 100, 100, 100, 100, 100, 100 },
+#ifdef SK_LEGACY_WEBP_LOOP_COUNT
             1,
+#else
+            0,
+#endif
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
     };
 
