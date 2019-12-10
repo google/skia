@@ -502,6 +502,12 @@ public:
                                           int numMipLevels,
                                           GrProtected isProtected);
 
+    GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
+                                                    const GrBackendFormat&,
+                                                    const BackendTextureData* data,
+                                                    int numMipLevels,
+                                                    GrProtected isProtected);
+
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
@@ -589,6 +595,12 @@ private:
                                                     const BackendTextureData*,
                                                     int numMipLevels,
                                                     GrProtected isProtected) = 0;
+
+    virtual GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                              const GrBackendFormat&,
+                                                              const BackendTextureData*,
+                                                              int numMipLevels,
+                                                              GrProtected isProtected) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.

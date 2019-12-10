@@ -45,6 +45,12 @@ public:
                                             const BackendTextureData* data,
                                             int numMipLevels,
                                             GrProtected isProtected) override;
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                      const GrBackendFormat&,
+                                                      const BackendTextureData*,
+                                                      int numMipLevels,
+                                                      GrProtected isProtected) override;
+
     void deleteBackendTexture(const GrBackendTexture&) override;
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
