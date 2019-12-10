@@ -23,6 +23,7 @@ public:
 
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;
+    void resize(SkScalar, SkScalar) override;
 
     SkISize getDimensions() const override;
 
@@ -33,14 +34,21 @@ public:
     bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
 
 private:
-    SkString                           fPath;
+    SkRect UIArea() const;
+    void renderUI();
+
+    const SkString                     fPath;
+
     sk_sp<skottie::Animation>          fAnimation;
     skottie::Animation::Builder::Stats fAnimationStats;
     sksg::InvalidationController       fInvalController;
-    SkSize                             fWinSize = SkSize::MakeEmpty();
-    SkMSec                             fTimeBase  = 0;
+    SkSize                             fWinSize            = SkSize::MakeEmpty();
+    SkMSec                             fTimeBase           = 0;
+    float                              fCurrentFrame       = 0;
     bool                               fShowAnimationInval = false,
-                                       fShowAnimationStats = false;
+                                       fShowAnimationStats = false,
+                                       fShowUI             = false,
+                                       fDraggingProgress   = false;
 
     typedef Slide INHERITED;
 };
