@@ -11,6 +11,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkTime.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/utils/SkOSPath.h"
@@ -110,6 +111,7 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
 
     if (fAnimation) {
         fAnimation->seek(0);
+        fFrameTimes.resize(SkScalarCeilToInt(fAnimation->duration() * fAnimation->fps()));
         SkDebugf("Loaded Bodymovin animation v: %s, size: [%f %f]\n",
                  fAnimation->version().c_str(),
                  fAnimation->size().width(),
@@ -137,7 +139,15 @@ void SkottieSlide::draw(SkCanvas* canvas) {
     if (fAnimation) {
         SkAutoCanvasRestore acr(canvas, true);
         const auto dstR = SkRect::MakeSize(fWinSize);
-        fAnimation->render(canvas, &dstR);
+
+        {
+            const auto t0 = SkTime::GetNSecs();
+            fAnimation->render(canvas, &dstR);
+
+            // TODO: this does not capture GPU flush time!
+            const auto  frame_index  = SkToSizeT(SkScalarRoundToInt(fCurrentFrame));
+            fFrameTimes[frame_index] = static_cast<float>((SkTime::GetNSecs() - t0) * 1e-6);
+        }
 
         if (fShowAnimationStats) {
             draw_stats_box(canvas, fAnimationStats);
@@ -226,7 +236,8 @@ SkRect SkottieSlide::UIArea() const {
 }
 
 void SkottieSlide::renderUI() {
-    static constexpr auto kUI_opacity = 0.35f;
+    static constexpr auto kUI_opacity     = 0.35f,
+                          kUI_hist_height = 50.0f;
 
     ImGui::SetNextWindowBgAlpha(kUI_opacity);
     if (ImGui::Begin("Skottie Controls", nullptr, ImGuiWindowFlags_NoDecoration |
@@ -240,7 +251,10 @@ void SkottieSlide::renderUI() {
         ImGui::SetWindowSize(ImVec2(ui_area.width(), ui_area.height()));
 
         ImGui::PushItemWidth(-1);
-        ImGui::SliderFloat("", &fCurrentFrame, 0, fAnimation->duration() * fAnimation->fps());
+
+        ImGui::PlotHistogram("", fFrameTimes.data(), fFrameTimes.size(),
+                             0, nullptr, FLT_MAX, FLT_MAX, ImVec2(0, kUI_hist_height));
+        ImGui::SliderFloat("", &fCurrentFrame, 0, fAnimation->duration() * fAnimation->fps() - 1);
         fDraggingProgress = ImGui::IsItemActive();
 
         ImGui::PopItemWidth();

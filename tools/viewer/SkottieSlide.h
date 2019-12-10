@@ -14,6 +14,8 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 
+#include <vector>
+
 namespace sksg    { class Scene;     }
 
 class SkottieSlide : public Slide {
@@ -42,6 +44,7 @@ private:
     sk_sp<skottie::Animation>          fAnimation;
     skottie::Animation::Builder::Stats fAnimationStats;
     sksg::InvalidationController       fInvalController;
+    std::vector<float>                 fFrameTimes;
     SkSize                             fWinSize            = SkSize::MakeEmpty();
     SkMSec                             fTimeBase           = 0;
     float                              fCurrentFrame       = 0;
