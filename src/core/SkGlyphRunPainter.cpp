@@ -321,12 +321,10 @@ void GrTextContext::drawGlyphRunList(
         GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
                                  ComputeCanonicalColor(blobPaint, hasLCD);
 
-        key.fPixelGeometry = pixelGeometry;
         key.fUniqueID = glyphRunList.uniqueID();
         key.fStyle = blobPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
-        key.fScalerContextFlags = scalerContextFlags;
         cachedBlob = textBlobCache->find(key);
     }
 
