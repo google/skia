@@ -16,6 +16,29 @@
       "revId": "38c1375ee95da799baf8a3aeff7ecac6db456735",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fb47367_13b4971c",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-10T17:20:05Z",
+      "side": 1,
+      "message": "Why no longer const?  (I guess const doesn\u0027t really make sense for a stack variable?)",
+      "range": {
+        "startLine": 94,
+        "startChar": 39,
+        "endLine": 94,
+        "endChar": 44
+      },
+      "revId": "38c1375ee95da799baf8a3aeff7ecac6db456735",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

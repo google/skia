@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecc89662_10bab620",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-10T17:20:05Z",
+      "side": 1,
+      "message": "remove if unused",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 6
+      },
+      "revId": "00bd1c211acac41c7070cbd80eb563773248a454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23f22791_282a896d",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-10T17:20:05Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 124,
+        "startChar": 3,
+        "endLine": 124,
+        "endChar": 8
+      },
+      "revId": "00bd1c211acac41c7070cbd80eb563773248a454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
