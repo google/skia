@@ -19,25 +19,31 @@ steps:
   #- name: 'gcr.io/cloud-builders/git'
   #  args: ['checkout', 'FETCH_HEAD']
 
+API
   - name: 'debian:testing-slim'
     args: ['mkdir', '-p', '--mode=0777', './__doxygen_staging']
 
+API
   - name: 'debian:testing-slim'
     args: ['ls', '-al', '/']
 
+API
   - name: 'gcr.io/skia-public/doxygen:testing-slim'
     dir: './tools/doxygen'
     args: ['doxygen', 'ProdDoxyfile']
     timeout: 600s
 
+OK
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
     timeout: 7200s
 
+OK
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-wasm-release:prod', './docker/skia-wasm-release']
     timeout: 7200s
 
+FIDDLER
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/fiddlek'
     env:
@@ -46,6 +52,7 @@ steps:
     args: ['./build_fiddler_release']
     timeout: 600s
 
+DEBUGGER
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
     env:
@@ -54,6 +61,7 @@ steps:
     args: ['make', 'release_ci']
     timeout: 600s
 
+DEBUGGER-ASSETS
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/debugger-assets'
     env:
@@ -62,6 +70,7 @@ steps:
     args: ['make', 'release_ci']
     timeout: 600s
 
+API
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/api'
     env:
@@ -70,6 +79,8 @@ steps:
     args: ['make', 'release_ci']
     timeout: 600s
 
+
+SKIA_WASM_PRODUCTS STUFF
   # We can't (easily) run docker inside of docker, which is how we get
   # the build artifacts out of skia-wasm-release when running locally.
   - name: 'gcr.io/cloud-builders/docker'
@@ -78,6 +89,7 @@ steps:
            'sh', '-c', 'cp -r /tmp/* /OUT']
     dir: 'wasm-products'
 
+JSFIDDLE
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '--volume', '/workspace/wasm-products:/OUT',
            '--volume', '/workspace/__jsfiddle_staging:/workspace/__jsfiddle_staging',
@@ -89,6 +101,7 @@ steps:
     dir: 'wasm-products'
     timeout: 600s
 
+SKOTTIE
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '--volume', '/workspace/wasm-products:/OUT',
            '--volume', '/workspace/__skottie_staging:/workspace/__skottie_staging',
@@ -100,6 +113,7 @@ steps:
     dir: 'wasm-products'
     timeout: 600s
 
+PARTICLES
   - name: 'gcr.io/cloud-builders/docker'
     args: ['run', '--volume', '/workspace/wasm-products:/OUT',
            '--volume', '/workspace/__particles_staging:/workspace/__particles_staging',
@@ -111,41 +125,59 @@ steps:
     dir: 'wasm-products'
     timeout: 600s
 
+FIDDLER
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
     timeout: 600s
 
+SKOTTIE
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA', '/workspace/__skottie_staging']
     timeout: 600s
 
+PARTICLES
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA', '/workspace/__particles_staging']
     timeout: 600s
 
+DEBUGGER
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA', '/workspace/__debugger_staging']
     timeout: 600s
 
+DEBUGGER-ASSETS
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger-assets:$COMMIT_SHA', '/workspace/__debugger_assets_staging']
     timeout: 600s
+
+JSFIDDLE
 
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA', '/workspace/__jsfiddle_staging']
     timeout: 600s
 
+API
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA', '/workspace/__api_staging']
     timeout: 600s
 images:
+FIDDLER
   - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
-  - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
-  - 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA'
+DEBUGGER
   - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
+DEBUGGER-ASSETS
   - 'gcr.io/$PROJECT_ID/debugger-assets:$COMMIT_SHA'
+====== SKIA-WASM STUFF ======
+JSFIDDLE
   - 'gcr.io/$PROJECT_ID/jsfiddle:$COMMIT_SHA'
+SKOTTIE
+  - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
+PARTICLES
+  - 'gcr.io/$PROJECT_ID/particles:$COMMIT_SHA'
+============================
+API
   - 'gcr.io/$PROJECT_ID/api:$COMMIT_SHA'
+OK
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
   - 'gcr.io/$PROJECT_ID/skia-wasm-release:prod'
 timeout: 7200s
