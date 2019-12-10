@@ -487,7 +487,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
         sk_sp<SkData> data) {
 
     GrSurfaceDesc desc;
-    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
+    desc.fConfig = GrCompressionTypeToPixelConfig(compressionType);
     desc.fWidth = width;
     desc.fHeight = height;
 
