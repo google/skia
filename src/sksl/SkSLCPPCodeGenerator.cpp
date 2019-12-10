@@ -1018,9 +1018,11 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                     String nameString(decl.fVar->fName);
                     const char* name = nameString.c_str();
                     if (decl.fVar->fType.kind() == Type::kSampler_Kind) {
-                        this->writef("        GrSurfaceProxy& %sProxy = "
-                                     "*_outer.textureSampler(%d).proxy();\n",
+                        this->writef("        const GrSurfaceProxyView& %sView = "
+                                     "_outer.textureSampler(%d).view();\n",
                                      name, samplerIndex);
+                        this->writef("        GrSurfaceProxy& %sProxy = *%sView.proxy();\n",
+                                     name, name);
                         this->writef("        GrTexture& %s = *%sProxy.peekTexture();\n",
                                      name, name);
                         this->writef("        (void) %s;\n", name);

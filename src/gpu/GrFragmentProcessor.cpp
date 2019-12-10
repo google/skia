@@ -50,7 +50,7 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
 void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) {
     for (auto [sampler, fp] : FPTextureSamplerRange(*this)) {
         bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
-        func(sampler.proxy(), GrMipMapped(mipped));
+        func(sampler.view().proxy(), GrMipMapped(mipped));
     }
 }
 
@@ -412,17 +412,39 @@ GrFragmentProcessor::CIter::CIter(const GrPipeline& pipeline) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrSurfaceProxy> proxy,
-                                                    const GrSamplerState& samplerState) {
-    this->reset(std::move(proxy), samplerState);
-}
-
-void GrFragmentProcessor::TextureSampler::reset(sk_sp<GrSurfaceProxy> proxy,
-                                                const GrSamplerState& samplerState) {
-    SkASSERT(proxy->asTextureProxy());
-    fProxy = std::move(proxy);
-    fSamplerState = samplerState;
+GrFragmentProcessor::TextureSampler::TextureSampler(GrSurfaceProxyView view,
+                                                    const GrSamplerState& samplerState)
+        : fView(std::move(view))
+        , fSamplerState(samplerState) {
+    GrSurfaceProxy* proxy = this->proxy();
     fSamplerState.setFilterMode(
             SkTMin(samplerState.filter(),
-                   GrTextureProxy::HighestFilterMode(fProxy->backendFormat().textureType())));
+                   GrTextureProxy::HighestFilterMode(proxy->backendFormat().textureType())));
 }
+
+GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrSurfaceProxy> proxy,
+                                                    const GrSamplerState& samplerState) {
+    SkASSERT(proxy->asTextureProxy());
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    fView = GrSurfaceProxyView(std::move(proxy), origin, swizzle);
+
+    fSamplerState = samplerState;
+    GrSurfaceProxy* surfProxy = this->proxy();
+    fSamplerState.setFilterMode(
+            SkTMin(samplerState.filter(),
+                   GrTextureProxy::HighestFilterMode(surfProxy->backendFormat().textureType())));
+}
+
+#if GR_TEST_UTILS
+void GrFragmentProcessor::TextureSampler::set(GrSurfaceProxyView view,
+                                              const GrSamplerState& samplerState) {
+    SkASSERT(view.proxy()->asTextureProxy());
+    fView = std::move(view);
+    fSamplerState = samplerState;
+
+    fSamplerState.setFilterMode(
+            SkTMin(samplerState.filter(),
+                   GrTextureProxy::HighestFilterMode(this->proxy()->backendFormat().textureType())));
+}
+#endif

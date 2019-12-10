@@ -116,7 +116,7 @@ void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
     // This iteration includes any clip coverage FPs
     for (auto [sampler, fp] : GrFragmentProcessor::PipelineTextureSamplerRange(*this)) {
         bool mipped = (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter());
-        func(sampler.proxy(), GrMipMapped(mipped));
+        func(sampler.view().proxy(), GrMipMapped(mipped));
     }
     if (fDstProxyView.asTextureProxy()) {
         func(fDstProxyView.asTextureProxy(), GrMipMapped::kNo);
