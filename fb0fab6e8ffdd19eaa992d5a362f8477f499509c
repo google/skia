@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d1076470_8398d8c5",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-10T18:38:05Z",
+      "side": 1,
+      "message": "Good point(s) - I\u0027ve add a GrIsCompressionTypeSRGB method. As part of this process I would like to add support for some of the sRGB compressed formats.",
+      "parentUuid": "6e114c94_a875a7f9",
+      "range": {
+        "startLine": 1077,
+        "startChar": 0,
+        "endLine": 1086,
+        "endChar": 1
+      },
+      "revId": "fb0fab6e8ffdd19eaa992d5a362f8477f499509c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37ffcee2_b76f44e9",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "74e1c794_29f55b3a",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-10T18:38:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37ffcee2_b76f44e9",
+      "range": {
+        "startLine": 1301,
+        "startChar": 37,
+        "endLine": 1301,
+        "endChar": 49
+      },
+      "revId": "fb0fab6e8ffdd19eaa992d5a362f8477f499509c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d3c2f52_a99824bf",
         "filename": "src/gpu/mock/GrMockCaps.h",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2019-12-10T18:26:20Z",
       "side": 1,
       "message": "will this ever be true? Can we just return false for compressed? In other words I think we can just remove this whole added block and just check the colorType encoding (which for compressed will be unorm for unknown colorType)",
+      "range": {
+        "startLine": 45,
+        "startChar": 12,
+        "endLine": 45,
+        "endChar": 93
+      },
+      "revId": "fb0fab6e8ffdd19eaa992d5a362f8477f499509c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2dbc1bd_ba2aab29",
+        "filename": "src/gpu/mock/GrMockCaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-10T18:38:05Z",
+      "side": 1,
+      "message": "I intend to add the SRGB compressed formats.",
+      "parentUuid": "6d3c2f52_a99824bf",
       "range": {
         "startLine": 45,
         "startChar": 12,
