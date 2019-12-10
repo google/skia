@@ -1261,7 +1261,7 @@ bool GrVkCaps::isFormatCompressed(const GrBackendFormat& format,
     switch (vkFormat) {
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
             // ETC2 uses the same compression layout as ETC1
-            *compressionTypePtr = SkImage::kETC1_CompressionType;
+            *compressionTypePtr = SkImage::CompressionType::kETC1;
             return true;
         default:
             return false;
@@ -1666,10 +1666,13 @@ GrBackendFormat GrVkCaps::onGetDefaultBackendFormat(GrColorType ct,
 GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
         SkImage::CompressionType compressionType) const {
     switch (compressionType) {
-        case SkImage::kETC1_CompressionType:
+        case SkImage::CompressionType::kNone:
+            return {};
+        case SkImage::CompressionType::kETC1:
             return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
     }
-    SK_ABORT("Invalid compression type");
+
+    SkUNREACHABLE;
 }
 
 GrSwizzle GrVkCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {

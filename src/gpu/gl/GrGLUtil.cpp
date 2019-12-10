@@ -650,7 +650,7 @@ bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* co
     switch (format) {
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            *compressionType = SkImage::kETC1_CompressionType;
+            *compressionType = SkImage::CompressionType::kETC1;
             return true;
 
         case GrGLFormat::kRGBA8:
