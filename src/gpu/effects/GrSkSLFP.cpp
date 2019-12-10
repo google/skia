@@ -18,13 +18,12 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl,
-                                 SkSL::Program::Kind kind)
-        : fKind(kind)
-        , fName(name) {
+GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
+        : fName(name) {
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
-    fBaseProgram = fCompiler.convertProgram(fKind, SkSL::String(sksl), settings);
+    fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                            SkSL::String(sksl), settings);
     if (fCompiler.errorCount()) {
         SkDebugf("%s\n", fCompiler.errorText().c_str());
     }
@@ -378,29 +377,27 @@ public:
 };
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
-                                         const char* sksl, const void* inputs,
-                                         size_t inputSize, SkSL::Program::Kind kind,
+                                         const char* sksl, const void* inputs, size_t inputSize,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  kind, index, name, sksl, SkString(),
+                                                  index, name, sksl, SkString(),
                                                   inputs, inputSize, matrix));
 }
 
 std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
                                          SkString sksl, const void* inputs, size_t inputSize,
-                                         SkSL::Program::Kind kind, const SkMatrix* matrix) {
+                                         const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  kind, index, name, nullptr, std::move(sksl),
+                                                  index, name, nullptr, std::move(sksl),
                                                   inputs, inputSize, matrix));
 }
 
 GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
-                   SkSL::Program::Kind kind, int index, const char* name, const char* sksl,
+                   int index, const char* name, const char* sksl,
                    SkString skslString, const void* inputs, size_t inputSize,
                    const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(factoryCache)
-        , fKind(kind)
         , fIndex(index)
         , fName(name)
         , fSkSLString(skslString)
@@ -420,7 +417,6 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(other.fFactoryCache)
         , fFactory(other.fFactory)
-        , fKind(other.fKind)
         , fIndex(other.fIndex)
         , fName(other.fName)
         , fSkSLString(other.fSkSLString)
@@ -442,7 +438,7 @@ const char* GrSkSLFP::name() const {
 
 void GrSkSLFP::createFactory() const {
     if (!fFactory) {
-        fFactory = fFactoryCache->findOrCreate(fIndex, fName, fSkSL, fKind);
+        fFactory = fFactoryCache->findOrCreate(fIndex, fName, fSkSL);
     }
 }
 
@@ -564,15 +560,13 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
 GrSkSLFPFactoryCache::~GrSkSLFPFactoryCache() {}
 
 sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::findOrCreate(int index, const char* name,
-                                                          const char* skSL,
-                                                          SkSL::Program::Kind kind) {
+                                                          const char* skSL) {
     // acquire lock for checking/adding to cache
     SkAutoMutexExclusive ame(fCacheMutex);
 
     sk_sp<GrSkSLFPFactory> factory = this->get(index);
     if (!factory) {
-        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, fShaderCaps.get(),
-                                                             skSL, kind));
+        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, fShaderCaps.get(), skSL));
         this->set(index, factory);
     }
 

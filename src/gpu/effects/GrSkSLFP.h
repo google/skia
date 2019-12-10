@@ -92,7 +92,6 @@ public:
                    const char* sksl,
                    const void* inputs,
                    size_t inputSize,
-                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind,
                    const SkMatrix* matrix = nullptr);
 
     static std::unique_ptr<GrSkSLFP> Make(
@@ -102,7 +101,6 @@ public:
                    SkString sksl,
                    const void* inputs,
                    size_t inputSize,
-                   SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind,
                    const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
@@ -113,7 +111,7 @@ public:
 
 private:
     GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
-             SkSL::Program::Kind kind, int fIndex, const char* name, const char* sksl,
+             int fIndex, const char* name, const char* sksl,
              SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
@@ -129,8 +127,6 @@ private:
     sk_sp<GrSkSLFPFactoryCache> fFactoryCache;
 
     mutable sk_sp<GrSkSLFPFactory> fFactory;
-
-    SkSL::Program::Kind fKind;
 
     int fIndex;
 
@@ -176,13 +172,10 @@ public:
      * the produced shaders to differ), so it is important to reuse the same factory instance for
      * the same shader in order to avoid repeatedly re-parsing the SkSL.
      */
-    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl,
-                    SkSL::Program::Kind kind = SkSL::Program::kPipelineStage_Kind);
+    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl);
 
     const SkSL::Program* getSpecialization(const SkSL::String& key, const void* inputs,
                                            size_t inputSize);
-
-    SkSL::Program::Kind fKind;
 
     const char* fName;
 
