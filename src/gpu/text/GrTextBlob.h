@@ -180,14 +180,6 @@ public:
                                   GrColor color,
                                   bool forceWForDistanceFields);
 
-    void generateFromGlyphRunList(const GrShaderCaps& shaderCaps,
-                                  const GrTextContext::Options& options,
-                                  const SkPaint& paint,
-                                  const SkMatrix& viewMatrix,
-                                  const SkSurfaceProps& props,
-                                  const SkGlyphRunList& glyphRunList,
-                                  SkGlyphRunListPainter* glyphPainter);
-
     // Key manipulation functions
     void setupKey(const GrTextBlob::Key& key,
                   const SkMaskFilterBase::BlurRec& blurRec,
@@ -241,12 +233,6 @@ public:
 
     static const int kVerticesPerGlyph = 4;
 
-    // This function will only be called when we are generating a blob from scratch.
-    // The color here is the GrPaint color, and it is used to determine whether we
-    // have to regenerate LCD text blobs.
-    // We use this color vs the SkPaint color because it has the color filter applied.
-    void initReusableBlob(SkColor luminanceColor);
-
     const Key& key() const;
     size_t size() const;
 
@@ -298,6 +284,7 @@ private:
                const SkMatrix& viewMatrix,
                SkPoint origin,
                GrColor color,
+               SkColor initialLuminance,
                bool forceWForDistanceFields);
 
     void insertSubRun(SubRun* subRun);
@@ -345,6 +332,7 @@ private:
 
     // The color of the text to draw for solid colors.
     const GrColor fColor;
+    const SkColor fInitialLuminance;
 
     // Pool of bytes for vertex data.
     char* fVertices;
@@ -358,7 +346,6 @@ private:
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
-    SkColor fLuminanceColor;
 
     // We can reuse distance field text, but only if the new view matrix would not result in
     // a mip change.  Because there can be multiple runs in a blob, we track the overall

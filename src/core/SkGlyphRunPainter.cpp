@@ -331,6 +331,8 @@ void GrTextContext::drawGlyphRunList(
     }
 
     bool forceW = fOptions.fDistanceFieldVerticesAlwaysHaveW;
+    bool supportsSDFT = context->priv().caps()->shaderCaps()->supportsDistanceFieldText();
+    SkGlyphRunListPainter* painter = target->glyphPainter();
     if (cachedBlob) {
         if (cachedBlob->mustRegenerate(blobPaint, glyphRunList.anyRunsSubpixelPositioned(),
                                        blurRec, viewMatrix, origin.x(), origin.y())) {
@@ -341,10 +343,9 @@ void GrTextContext::drawGlyphRunList(
             cachedBlob = textBlobCache->makeCachedBlob(
                     glyphRunList, grStrikeCache, key, blurRec, viewMatrix,
                     initialVertexColor, forceW);
-            cachedBlob->generateFromGlyphRunList(
-                    *context->priv().caps()->shaderCaps(), fOptions,
-                    blobPaint, viewMatrix, props,
-                    glyphRunList, target->glyphPainter());
+
+            painter->processGlyphRunList(
+                    glyphRunList, viewMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
         } else {
             textBlobCache->makeMRU(cachedBlob.get());
         }
@@ -357,10 +358,8 @@ void GrTextContext::drawGlyphRunList(
             cachedBlob = textBlobCache->makeBlob(
                     glyphRunList, grStrikeCache, viewMatrix, initialVertexColor, forceW);
         }
-        cachedBlob->generateFromGlyphRunList(
-                *context->priv().caps()->shaderCaps(), fOptions, blobPaint,
-                viewMatrix, props, glyphRunList,
-                target->glyphPainter());
+        painter->processGlyphRunList(
+                glyphRunList, viewMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
     cachedBlob->flush(target, props, fDistanceAdjustTable.get(), blobPaint, drawingColor,
@@ -404,10 +403,10 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     if (!glyphRunList.empty()) {
         blob = direct->priv().getTextBlobCache()->makeBlob(
                 glyphRunList, strikeCache, viewMatrix, color, false);
-        blob->generateFromGlyphRunList(
-                *context->priv().caps()->shaderCaps(), textContext->fOptions,
-                skPaint, viewMatrix, surfaceProps,
-                glyphRunList, rtc->textTarget()->glyphPainter());
+        SkGlyphRunListPainter* painter = rtc->textTarget()->glyphPainter();
+        painter->processGlyphRunList(glyphRunList, viewMatrix, surfaceProps,
+                context->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
+                textContext->fOptions, blob.get());
     }
 
     return blob->test_makeOp(textLen, viewMatrix, x, y, skPaint, filteredColor, surfaceProps,
