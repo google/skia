@@ -41,15 +41,15 @@ public:
         return format;
     }
 
-    // if getProxies returns nullptr, the client must not try to use other functions on the
+    // if getViews returns nullptr, the client must not try to use other functions on the
     // GrStrikeCache which use the atlas.  This function *must* be called first, before other
     // functions which use the atlas. Note that we can have proxies available but none active
     // (i.e., none instantiated).
-    const sk_sp<GrTextureProxy>* getProxies(GrMaskFormat format, unsigned int* numActiveProxies) {
+    const GrSurfaceProxyView* getViews(GrMaskFormat format, unsigned int* numActiveProxies) {
         format = this->resolveMaskFormat(format);
         if (this->initAtlas(format)) {
             *numActiveProxies = this->getAtlas(format)->numActivePages();
-            return this->getAtlas(format)->getProxies();
+            return this->getAtlas(format)->getViews();
         }
         *numActiveProxies = 0;
         return nullptr;

@@ -131,9 +131,9 @@ void GrAtlasManager::dump(GrContext* context) const {
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            const sk_sp<GrTextureProxy>* proxies = fAtlases[i]->getProxies();
+            const GrSurfaceProxyView* views = fAtlases[i]->getViews();
             for (uint32_t pageIdx = 0; pageIdx < fAtlases[i]->numActivePages(); ++pageIdx) {
-                SkASSERT(proxies[pageIdx]);
+                SkASSERT(views[pageIdx].proxy());
                 SkString filename;
 #ifdef SK_BUILD_FOR_ANDROID
                 filename.printf("/sdcard/fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
@@ -141,7 +141,7 @@ void GrAtlasManager::dump(GrContext* context) const {
                 filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
                 auto ct = mask_format_to_gr_color_type(AtlasIndexToMaskFormat(i));
-                save_pixels(context, proxies[pageIdx].get(), ct, filename.c_str());
+                save_pixels(context, views[pageIdx].proxy(), ct, filename.c_str());
             }
         }
     }

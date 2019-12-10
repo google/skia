@@ -290,24 +290,24 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     GrMaskFormat maskFormat = this->maskFormat();
 
-    unsigned int numActiveProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
-    if (!proxies) {
+    unsigned int numActiveViews;
+    const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
+    if (!views) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
-    SkASSERT(proxies[0]);
+    SkASSERT(views[0].proxy());
 
     static constexpr int kMaxTextures = GrBitmapTextGeoProc::kMaxTextures;
     GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
     GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
 
     auto fixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
-    for (unsigned i = 0; i < numActiveProxies; ++i) {
-        fixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+    for (unsigned i = 0; i < numActiveViews; ++i) {
+        fixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
         // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the proxies
         // don't get added during the visitProxies call. Thus we add them here.
-        target->sampledProxyArray()->push_back(proxies[i].get());
+        target->sampledProxyArray()->push_back(views[i].proxy());
     }
 
     FlushInfo flushInfo;
@@ -317,12 +317,12 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
                                                               *target->caps().shaderCaps(),
-                                                              proxies, numActiveProxies);
+                                                              views, numActiveViews);
     } else {
         GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
                                                            : GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
-            *target->caps().shaderCaps(), this->color(), false, proxies, numActiveProxies,
+            *target->caps().shaderCaps(), this->color(), false, views, numActiveViews,
             samplerState, maskFormat, localMatrix, vmPerspective);
     }
 
@@ -411,34 +411,34 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
     GrMaskFormat maskFormat = this->maskFormat();
 
-    unsigned int numActiveProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
-    SkASSERT(proxies);
+    unsigned int numActiveViews;
+    const GrSurfaceProxyView* views = atlasManager->getViews(maskFormat, &numActiveViews);
+    SkASSERT(views);
     // Something has gone terribly wrong, bail
-    if (!proxies || 0 == numActiveProxies) {
+    if (!views || 0 == numActiveViews) {
         return;
     }
-    if (gp->numTextureSamplers() != (int) numActiveProxies) {
+    if (gp->numTextureSamplers() != (int) numActiveViews) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
-        for (unsigned i = gp->numTextureSamplers(); i < numActiveProxies; ++i) {
-            flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+        for (unsigned i = gp->numTextureSamplers(); i < numActiveViews; ++i) {
+            flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = views[i].proxy();
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
-            target->sampledProxyArray()->push_back(proxies[i].get());
+            target->sampledProxyArray()->push_back(views[i].proxy());
         }
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
-                reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
-                    proxies, numActiveProxies, GrSamplerState::ClampBilerp());
+                reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewViews(
+                    views, numActiveViews, GrSamplerState::ClampBilerp());
             } else {
-                reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewProxies(
-                    proxies, numActiveProxies, GrSamplerState::ClampBilerp());
+                reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewViews(
+                    views, numActiveViews, GrSamplerState::ClampBilerp());
             }
         } else {
             GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
                                                                : GrSamplerState::ClampNearest();
-            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(proxies, numActiveProxies,
+            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews,
                                                                       samplerState);
         }
     }
@@ -534,8 +534,8 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
 // (see comments in GrTextContext::ComputeCanonicalColor)
 GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                      const GrShaderCaps& caps,
-                                                     const sk_sp<GrTextureProxy>* proxies,
-                                                     unsigned int numActiveProxies) const {
+                                                     const GrSurfaceProxyView* views,
+                                                     unsigned int numActiveViews) const {
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
@@ -559,7 +559,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, proxies, numActiveProxies,
+        return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, views, numActiveViews,
                                                    GrSamplerState::ClampBilerp(), widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
@@ -571,11 +571,11 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, proxies, numActiveProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
                                                   GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, proxies, numActiveProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
                                                   GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif

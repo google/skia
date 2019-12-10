@@ -154,8 +154,8 @@ private:
 
     GrGeometryProcessor* setupDfProcessor(SkArenaAlloc* arena,
                                           const GrShaderCaps& caps,
-                                          const sk_sp<GrTextureProxy>* proxies,
-                                          unsigned int numActiveProxies) const;
+                                          const GrSurfaceProxyView* views,
+                                          unsigned int numActiveViews) const;
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;

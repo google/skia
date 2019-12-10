@@ -50,7 +50,7 @@ static const int kAtlasSize = kNumPlots * kPlotSize;
 int GrDrawOpAtlas::numAllocated_TestingOnly() const {
     int count = 0;
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        if (fProxies[i]->isInstantiated()) {
+        if (fViews[i].proxy()->isInstantiated()) {
             ++count;
         }
     }
@@ -223,7 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     // in the preparation of the text op
     auto atlasManager = context->priv().getAtlasManager();
     unsigned int numProxies;
-    atlasManager->getProxies(kA8_GrMaskFormat, &numProxies);
+    atlasManager->getViews(kA8_GrMaskFormat, &numProxies);
     atlasManager->setMaxPages_TestingOnly(0);
 
     flushState.setOpArgs(&opArgs);

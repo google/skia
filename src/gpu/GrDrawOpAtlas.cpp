@@ -32,7 +32,7 @@
 void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvider) {
     for (uint32_t i = 0; i < fNumActivePages; ++i) {
         // All the atlas pages are now instantiated at flush time in the activeNewPage method.
-        SkASSERT(fProxies[i] && fProxies[i]->isInstantiated());
+        SkASSERT(fViews[i].proxy() && fViews[i].proxy()->isInstantiated());
     }
 }
 
@@ -49,7 +49,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
     std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType, width,
                                                            height, plotWidth, plotHeight,
                                                            allowMultitexturing));
-    if (!atlas->getProxies()[0]) {
+    if (!atlas->getViews()[0].proxy()) {
         return nullptr;
     }
 
@@ -227,8 +227,8 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
-        GrTextureProxy* proxy = fProxies[pageIdx].get();
-        SkASSERT(proxy->isInstantiated());  // This is occurring at flush time
+        GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
+        SkASSERT(proxy && proxy->isInstantiated());  // This is occurring at flush time
 
         GrDeferredUploadToken lastUploadToken = target->addASAPUpload(
                 [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
@@ -243,14 +243,14 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
 bool GrDrawOpAtlas::uploadToPage(const GrCaps& caps, unsigned int pageIdx, AtlasID* id,
                                  GrDeferredUploadTarget* target, int width, int height,
                                  const void* image, SkIPoint16* loc) {
-    SkASSERT(fProxies[pageIdx] && fProxies[pageIdx]->isInstantiated());
+    SkASSERT(fViews[pageIdx].proxy() && fViews[pageIdx].proxy()->isInstantiated());
 
     // look through all allocated plots for one we can share, in Most Recently Refed order
     PlotList::Iter plotIter;
     plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
 
     for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
-        SkASSERT(caps.bytesPerPixel(fProxies[pageIdx]->backendFormat()) == plot->bpp());
+        SkASSERT(caps.bytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) == plot->bpp());
 
         if (plot->addSubImage(width, height, image, loc)) {
             return this->updatePlot(target, id, plot);
@@ -298,7 +298,8 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
             SkASSERT(plot);
             if (plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush()) {
                 this->processEvictionAndResetRects(plot);
-                SkASSERT(caps.bytesPerPixel(fProxies[pageIdx]->backendFormat()) == plot->bpp());
+                SkASSERT(caps.bytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) ==
+                         plot->bpp());
                 SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, loc);
                 SkASSERT(verify);
                 if (!this->updatePlot(target, id, plot)) {
@@ -353,7 +354,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     newPlot.reset(plot->clone());
 
     fPages[pageIdx].fPlotList.addToHead(newPlot.get());
-    SkASSERT(caps.bytesPerPixel(fProxies[pageIdx]->backendFormat()) == newPlot->bpp());
+    SkASSERT(caps.bytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) == newPlot->bpp());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, loc);
     SkASSERT(verify);
 
@@ -362,8 +363,8 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     // With c+14 we could move sk_sp into lambda to only ref once.
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
 
-    GrTextureProxy* proxy = fProxies[pageIdx].get();
-    SkASSERT(proxy->isInstantiated());
+    GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
+    SkASSERT(proxy && proxy->isInstantiated());
 
     GrDeferredUploadToken lastUploadToken = target->addInlineUpload(
             [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
@@ -532,13 +533,15 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        fProxies[i] = proxyProvider->createProxy(
+        sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
                 fFormat, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                 SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
                 GrInternalSurfaceFlags::kNone, GrSurfaceProxy::UseAllocator::kNo);
-        if (!fProxies[i]) {
+        if (!proxy) {
             return false;
         }
+        GrSwizzle swizzle = proxyProvider->caps()->getTextureSwizzle(fFormat, fColorType);
+        fViews[i] = GrSurfaceProxyView(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
 
         // set up allocated plots
         fPages[i].fPlotArray.reset(new sk_sp<Plot>[ numPlotsX * numPlotsY ]);
@@ -565,7 +568,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
 bool GrDrawOpAtlas::activateNewPage(GrResourceProvider* resourceProvider) {
     SkASSERT(fNumActivePages < this->maxPages());
 
-    if (!fProxies[fNumActivePages]->instantiate(resourceProvider)) {
+    if (!fViews[fNumActivePages].proxy()->instantiate(resourceProvider)) {
         return false;
     }
 
@@ -605,7 +608,7 @@ inline void GrDrawOpAtlas::deactivateLastPage() {
     }
 
     // remove ref to the backing texture
-    fProxies[lastPageIndex]->deinstantiate();
+    fViews[lastPageIndex].proxy()->deinstantiate();
     --fNumActivePages;
 }
 
