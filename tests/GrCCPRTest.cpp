@@ -306,7 +306,7 @@ static int get_mock_texture_id(const GrTexture* texture) {
 
     GrMockTextureInfo info;
     backingTexture.getMockTextureInfo(&info);
-    return info.fID;
+    return info.id();
 }
 
 // Base class for cache path unit tests.
