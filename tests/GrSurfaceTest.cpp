@@ -94,7 +94,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             SkImage::CompressionType type;
             switch (config) {
                 case kRGB_ETC1_GrPixelConfig:
-                    type = SkImage::kETC1_CompressionType;
+                    type = SkImage::CompressionType::kETC1;
                     break;
                 default:
                     SK_ABORT("Unexpected config");
@@ -106,7 +106,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
             return rp->createCompressedTexture(width, height, format,
-                                               SkImage::kETC1_CompressionType,
+                                               SkImage::CompressionType::kETC1,
                                                SkBudgeted::kNo, data.get());
         } else {
             GrSurfaceDesc desc;
