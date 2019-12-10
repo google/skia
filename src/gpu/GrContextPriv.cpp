@@ -285,14 +285,15 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
     }
 
     unsigned int numActiveProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(format, &numActiveProxies);
-    if (index >= numActiveProxies || !proxies || !proxies[index]) {
+    const GrSurfaceProxyView* views = atlasManager->getViews(format, &numActiveProxies);
+    if (index >= numActiveProxies || !views || !views[index].proxy()) {
         return nullptr;
     }
 
-    SkASSERT(proxies[index]->priv().isExact());
+    SkASSERT(views[index].proxy()->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         kPremul_SkAlphaType, proxies[index], nullptr));
+                                         kPremul_SkAlphaType, views[index].asTextureProxyRef(),
+                                         nullptr));
     return image;
 }
 
