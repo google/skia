@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b69f2bfa_1aaf61b4",
+        "filename": "experimental/skottie_ios/SkottieUiView.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-12-10T18:27:28Z",
+      "side": 1,
+      "message": "This naming looks a little odd -- maybe SkottieUIView instead?",
+      "range": {
+        "startLine": 10,
+        "startChar": 11,
+        "endLine": 10,
+        "endChar": 24
+      },
+      "revId": "e4b2fe93b5eebd84422652476b49b54faf10ea73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9954a6b5_7bb1ca84",
+        "filename": "experimental/skottie_ios/main.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-12-10T18:27:28Z",
+      "side": 1,
+      "message": "Nit: Usually we left-justify the pre-processor commands regardless of the surrounding indentation.",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 23
+      },
+      "revId": "e4b2fe93b5eebd84422652476b49b54faf10ea73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
