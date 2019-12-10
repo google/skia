@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2486acbf_20a62146",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-10T15:23:37Z",
+      "side": 1,
+      "message": "view[i].swizzle()?",
+      "range": {
+        "startLine": 158,
+        "startChar": 66,
+        "endLine": 158,
+        "endChar": 87
+      },
+      "revId": "33996304e2465f44125d940307ea1879984ebf76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e50abdaf_c8cf5e4c",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-10T15:23:37Z",
+      "side": 1,
+      "message": "view[i].swizzle()?",
+      "range": {
+        "startLine": 180,
+        "startChar": 71,
+        "endLine": 180,
+        "endChar": 91
+      },
+      "revId": "33996304e2465f44125d940307ea1879984ebf76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
