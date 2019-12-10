@@ -26,22 +26,21 @@ def create_asset(target_dir):
   raw_input()
   subprocess.check_call([
     "sudo","apt-get","install",
-    "libstdc++-4.8-dev-armhf-cross",
-    "libgcc-4.8-dev-armhf-cross",
+    "libstdc++-6-dev-armhf-cross",
+    "libgcc-6-dev-armhf-cross",
     "binutils-arm-linux-gnueabihf"
   ])
 
 
   shutil.copytree('/usr/arm-linux-gnueabihf', target_dir)
-  shutil.copytree('/usr/lib/gcc-cross/arm-linux-gnueabihf/4.8.4',
-    os.path.join(target_dir, 'gcc-cross'))
-  # copy_tree allows copying into a dir that exists
-  # We need to augment the toolchain with some lib*.so that help ld
-  # do its magic as well as some includes that may be useful.
-  dir_util.copy_tree('/usr/x86_64-linux-gnu/arm-linux-gnueabihf/lib',
-                     os.path.join(target_dir, 'lib'))
-  dir_util.copy_tree('/usr/x86_64-linux-gnu/arm-linux-gnueabihf/include',
-                     os.path.join(target_dir, 'include'))
+  shutil.copytree('/usr/lib/gcc-cross/arm-linux-gnueabihf/6',
+                  os.path.join(target_dir, 'gcc-cross'))
+
+  # Libs needed to link:
+  shutil.copy('/usr/lib/x86_64-linux-gnu/libbfd-2.28-armhf.so',
+              os.path.join(target_dir, 'lib'))
+  shutil.copy('/usr/lib/x86_64-linux-gnu/libopcodes-2.28-armhf.so',
+              os.path.join(target_dir, 'lib'))
 
   # The file paths in libpthread.so and libc.so start off as absolute file
   # paths (e.g. /usr/arm-linux-gnueabihf/lib/libpthread.so.0), which won't
