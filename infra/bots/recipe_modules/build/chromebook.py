@@ -31,9 +31,8 @@ def compile_fn(api, checkout_root, out_dir):
       '--sysroot=%s' % sysroot_dir,
       '-I%s' % gl_dir.join('include'),
       '-I%s' % sysroot_dir.join('include'),
-      '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4'),
-      '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
-                                'arm-linux-gnueabihf'),
+      '-I%s' % sysroot_dir.join('include', 'c++', '6'),
+      '-I%s' % sysroot_dir.join('include', 'c++', '6', 'arm-linux-gnueabihf'),
       '-DMESA_EGL_NO_X11_HEADERS',
       '-U_GLIBCXX_DEBUG',
     ]
@@ -41,6 +40,7 @@ def compile_fn(api, checkout_root, out_dir):
     extra_ldflags = [
       '--target=armv7a-linux-gnueabihf',
       '--sysroot=%s' % sysroot_dir,
+      '-static-libstdc++', '-static-libgcc',
       # use sysroot's ld which can properly link things.
       '-B%s' % sysroot_dir.join('bin'),
       # helps locate crt*.o
@@ -49,8 +49,6 @@ def compile_fn(api, checkout_root, out_dir):
       '-L%s' % sysroot_dir.join('gcc-cross'),
       '-L%s' % sysroot_dir.join('lib'),
       '-L%s' % gl_dir.join('lib'),
-      # Explicitly do not use lld for cross compiling like this - I observed
-      # failures like "Unrecognized reloc 41" and couldn't find out why.
     ]
   else:
     gl_dir = api.vars.slave_dir.join('chromebook_x86_64_gles')
