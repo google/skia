@@ -18,6 +18,8 @@
 
 #include <cmath>
 
+#include "imgui.h"
+
 static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
     static constexpr SkScalar kTextSize = 20;
@@ -122,6 +124,10 @@ void SkottieSlide::unload() {
     fAnimation.reset();
 }
 
+void SkottieSlide::resize(SkScalar w, SkScalar h) {
+    fWinSize = { w, h };
+}
+
 SkISize SkottieSlide::getDimensions() const {
     // We always scale to fill the window.
     return fWinSize.toCeil();
@@ -154,6 +160,10 @@ void SkottieSlide::draw(SkCanvas* canvas) {
                 canvas->drawRect(bounds, stroke);
             }
         }
+        if (fShowUI) {
+            this->renderUI();
+        }
+
     }
 }
 
@@ -166,9 +176,18 @@ bool SkottieSlide::animate(double nanos) {
 
     if (fAnimation) {
         fInvalController.reset();
-        const auto t = msec - fTimeBase;
-        const auto d = fAnimation->duration() * 1000;
-        fAnimation->seek(std::fmod(t, d) / d, &fInvalController);
+
+        if (!fDraggingProgress) {
+            // Clock-driven progress: update current frame.
+            const double t_sec = (msec - fTimeBase) / 1000.0;
+            fCurrentFrame = std::fmod(t_sec, fAnimation->duration()) * fAnimation->fps();
+        } else {
+            // Slider-driven progress: update the time origin.
+            fTimeBase = TimeUtils::NanosToMSec(nanos)
+                      - static_cast<SkMSec>(fCurrentFrame / fAnimation->fps() * 1000);
+        }
+
+        fAnimation->seekFrame(fCurrentFrame);
     }
     return true;
 }
@@ -195,7 +214,38 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui:
         break;
     }
 
+    fShowUI = this->UIArea().contains(x, y);
+
     return false;
+}
+
+SkRect SkottieSlide::UIArea() const {
+    static constexpr float kUIHeight = 150.0f;
+
+    return SkRect::MakeXYWH(0, fWinSize.height() - kUIHeight, fWinSize.width(), kUIHeight);
+}
+
+void SkottieSlide::renderUI() {
+    static constexpr auto kUI_opacity = 0.35f;
+
+    ImGui::SetNextWindowBgAlpha(kUI_opacity);
+    if (ImGui::Begin("Skottie Controls", nullptr, ImGuiWindowFlags_NoDecoration |
+                                                  ImGuiWindowFlags_NoResize |
+                                                  ImGuiWindowFlags_NoMove |
+                                                  ImGuiWindowFlags_NoSavedSettings |
+                                                  ImGuiWindowFlags_NoFocusOnAppearing |
+                                                  ImGuiWindowFlags_NoNav)) {
+        const auto ui_area = this->UIArea();
+        ImGui::SetWindowPos(ImVec2(ui_area.x(), ui_area.y()));
+        ImGui::SetWindowSize(ImVec2(ui_area.width(), ui_area.height()));
+
+        ImGui::PushItemWidth(-1);
+        ImGui::SliderFloat("", &fCurrentFrame, 0, fAnimation->duration() * fAnimation->fps());
+        fDraggingProgress = ImGui::IsItemActive();
+
+        ImGui::PopItemWidth();
+    }
+    ImGui::End();
 }
 
 #endif // SK_ENABLE_SKOTTIE
