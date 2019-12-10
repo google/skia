@@ -13,6 +13,7 @@
 #include "src/gpu/GrProcessor.h"
 
 class GrGLRRectShadowGeoProc;
+class GrSurfaceProxyView;
 
 /**
  * The output color of this effect is a coverage mask for a rrect shadow,
@@ -20,8 +21,8 @@ class GrGLRRectShadowGeoProc;
  */
 class GrRRectShadowGeoProc : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const GrTextureProxy* lut) {
-        return arena->make<GrRRectShadowGeoProc>(lut);
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, const GrSurfaceProxyView& lutView) {
+        return arena->make<GrRRectShadowGeoProc>(lutView);
     }
 
     const char* name() const override { return "RRectShadow"; }
@@ -38,7 +39,7 @@ public:
 private:
     friend class ::SkArenaAlloc; // for access to ctor
 
-    GrRRectShadowGeoProc(const GrTextureProxy* lut);
+    GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView);
 
     const TextureSampler& onTextureSampler(int i) const override { return fLUTTextureSampler; }
 
@@ -53,6 +54,5 @@ private:
 
     typedef GrGeometryProcessor INHERITED;
 };
-
 
 #endif
