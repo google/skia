@@ -536,7 +536,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(int width, int height,
     }
 
     GrSurfaceDesc desc;
-    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
+    desc.fConfig = GrCompressionTypeToPixelConfig(compressionType);
     desc.fWidth = width;
     desc.fHeight = height;
     auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc,

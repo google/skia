@@ -1055,7 +1055,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
     imageDesc.fIsProtected = GrProtected::kNo;
 
     GrSurfaceDesc desc;
-    desc.fConfig = GrCompressionTypePixelConfig(compressionType);
+    desc.fConfig = GrCompressionTypeToPixelConfig(compressionType);
     desc.fWidth = width;
     desc.fHeight = height;
     auto tex = GrVkTexture::MakeNewTexture(this, budgeted, desc, imageDesc,

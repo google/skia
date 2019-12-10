@@ -806,18 +806,6 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
- * Utility functions for GrPixelConfig
- */
-
-static constexpr GrPixelConfig GrCompressionTypePixelConfig(SkImage::CompressionType compression) {
-    switch (compression) {
-        case SkImage::CompressionType::kNone: return kUnknown_GrPixelConfig;
-        case SkImage::CompressionType::kETC1: return kRGB_ETC1_GrPixelConfig;
-    }
-    SkUNREACHABLE;
-}
-
-/**
  * Returns the data size for the given SkImage::CompressionType
  */
 static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
@@ -1287,6 +1275,15 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
     SkUNREACHABLE;
 }
 
+static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::CompressionType::kNone: return kUnknown_GrPixelConfig;
+        case SkImage::CompressionType::kETC1: return kRGB_ETC1_GrPixelConfig;
+    }
+
+    SkUNREACHABLE;
+}
+
 /**
  * Ref-counted object that calls a callback from its destructor.
  */
@@ -1348,6 +1345,14 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kR_16:             return "kR_16";
         case GrColorType::kR_F16:            return "kR_F16";
         case GrColorType::kGray_F16:         return "kGray_F16";
+    }
+    SkUNREACHABLE;
+}
+
+static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::CompressionType::kNone:          return "kNone";
+        case SkImage::CompressionType::kETC1:          return "kETC1";
     }
     SkUNREACHABLE;
 }

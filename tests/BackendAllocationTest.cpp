@@ -123,8 +123,14 @@ static bool isBGRA(const GrBackendFormat& format) {
             return false;
 #endif
         }
-        case GrBackendApi::kMock:
+        case GrBackendApi::kMock: {
+            SkImage::CompressionType compression = format.asMockCompressionType();
+            if (compression != SkImage::CompressionType::kNone) {
+                return false; // No compressed formats are BGRA
+            }
+
             return format.asMockColorType() == GrColorType::kBGRA_8888;
+        }
     }
     SkUNREACHABLE;
 }
