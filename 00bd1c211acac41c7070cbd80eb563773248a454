@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8fb54f24_2826b2c0",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-12-10T19:05:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecc89662_10bab620",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 6
+      },
+      "revId": "00bd1c211acac41c7070cbd80eb563773248a454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23f22791_282a896d",
         "filename": "tools/debugger/DebugLayerManager.h",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "00bd1c211acac41c7070cbd80eb563773248a454",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d20c748_87100bbd",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-12-10T19:05:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23f22791_282a896d",
+      "range": {
+        "startLine": 124,
+        "startChar": 3,
+        "endLine": 124,
+        "endChar": 8
+      },
+      "revId": "00bd1c211acac41c7070cbd80eb563773248a454",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
