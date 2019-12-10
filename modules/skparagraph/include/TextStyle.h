@@ -89,6 +89,16 @@ enum class PlaceholderAlignment {
   kMiddle,
 };
 
+struct FontFeature {
+    FontFeature(const SkString name, int value) : fName(name), fValue(value) { }
+    FontFeature(const FontFeature& other) : fName(other.fName), fValue(other.fValue) { }
+    bool operator==(const FontFeature& other) const {
+        return fName == other.fName && fValue == other.fValue;
+    }
+    SkString fName;
+    int fValue;
+};
+
 struct PlaceholderStyle {
     PlaceholderStyle() { }
     PlaceholderStyle(SkScalar width, SkScalar height, PlaceholderAlignment alignment,
@@ -170,6 +180,13 @@ public:
     void addShadow(TextShadow shadow) { fTextShadows.emplace_back(shadow); }
     void resetShadows() { fTextShadows.clear(); }
 
+    // Font features
+    size_t getFontFeatureNumber() const { return fFontFeatures.size(); }
+    std::vector<FontFeature> getFontFeatures() const { return fFontFeatures; }
+    void addFontFeature(const SkString& fontFeature, int value)
+        { fFontFeatures.emplace_back(fontFeature, value); }
+    void resetFontFeatures() { fFontFeatures.clear(); }
+
     SkScalar getFontSize() const { return fFontSize; }
     void setFontSize(SkScalar size) { fFontSize = size; }
 
@@ -231,6 +248,8 @@ private:
 
     sk_sp<SkTypeface> fTypeface;
     bool fIsPlaceholder;
+
+    std::vector<FontFeature> fFontFeatures;
 };
 
 typedef size_t TextIndex;
