@@ -18,10 +18,9 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
+GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const char* sksl)
         : fName(name) {
     SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
     fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(sksl), settings);
     if (fCompiler.errorCount()) {
@@ -58,8 +57,9 @@ static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
     return std::make_tuple(type, arrayCount);
 }
 
-const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key, const void* inputs,
-                                                        size_t inputSize) {
+const SkSL::Program* GrSkSLFPFactory::getSpecialization(const GrShaderCaps* shaderCaps,
+                                                        const SkSL::String& key,
+                                                        const void* inputs, size_t inputSize) {
     const auto& found = fSpecializations.find(key);
     if (found != fSpecializations.end()) {
         return found->second.get();
@@ -116,6 +116,7 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
         SkDebugf("%s\n", fCompiler.errorText().c_str());
         SkASSERT(false);
     }
+    specialized->fSettings.fCaps = shaderCaps;
     const SkSL::Program* result = specialized.get();
     fSpecializations.insert(std::make_pair(key, std::move(specialized)));
     return result;
@@ -380,6 +381,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          const char* sksl, const void* inputs, size_t inputSize,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
+                                                  context->priv().caps()->refShaderCaps(),
                                                   index, name, sksl, SkString(),
                                                   inputs, inputSize, matrix));
 }
@@ -388,16 +390,18 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          SkString sksl, const void* inputs, size_t inputSize,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
+                                                  context->priv().caps()->refShaderCaps(),
                                                   index, name, nullptr, std::move(sksl),
                                                   inputs, inputSize, matrix));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
+GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<const GrShaderCaps> shaderCaps,
                    int index, const char* name, const char* sksl,
                    SkString skslString, const void* inputs, size_t inputSize,
                    const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(factoryCache)
+        , fShaderCaps(std::move(shaderCaps))
         , fIndex(index)
         , fName(name)
         , fSkSLString(skslString)
@@ -416,6 +420,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(other.fFactoryCache)
+        , fShaderCaps(other.fShaderCaps)
         , fFactory(other.fFactory)
         , fIndex(other.fIndex)
         , fName(other.fName)
@@ -448,7 +453,8 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     this->createFactory();
-    const SkSL::Program* specialized = fFactory->getSpecialization(fKey, fInputs.get(), fInputSize);
+    const SkSL::Program* specialized = fFactory->getSpecialization(fShaderCaps.get(), fKey,
+                                                                   fInputs.get(), fInputSize);
     SkSL::String glsl;
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
     std::vector<SkSL::Compiler::GLSLFunction> functions;
@@ -566,7 +572,7 @@ sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::findOrCreate(int index, const char*
 
     sk_sp<GrSkSLFPFactory> factory = this->get(index);
     if (!factory) {
-        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, fShaderCaps.get(), skSL));
+        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, skSL));
         this->set(index, factory);
     }
 
