@@ -339,6 +339,23 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
                                              const ShapeSingleFontVisitor& visitor) {
     Block combinedBlock;
+    SkTArray<SkShaper::Feature> features;
+
+    auto addFeatures = [&features](const Block& block) {
+        for (auto& ff : block.fStyle.getFontFeatures()) {
+            if (ff.fName.size() != 4) {
+                SkDEBUGF("Incorrect font feature: %s=%d\n", ff.fName.c_str(), ff.fValue);
+                continue;
+            }
+            SkShaper::Feature feature = {
+                SkSetFourByteTag(ff.fName[0], ff.fName[1], ff.fName[2], ff.fName[3]),
+                SkToU32(ff.fValue),
+                block.fRange.start,
+                block.fRange.end
+            };
+            features.emplace_back(feature);
+        }
+    };
 
     for (auto& block : styleSpan) {
         SkASSERT(combinedBlock.fRange.width() == 0 ||
@@ -347,17 +364,20 @@ void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
         if (!combinedBlock.fRange.empty()) {
             if (block.fStyle.matchOneAttribute(StyleType::kFont, combinedBlock.fStyle)) {
                 combinedBlock.add(block.fRange);
+                addFeatures(block);
                 continue;
             }
             // Resolve all characters in the block for this style
-            visitor(combinedBlock);
+            visitor(combinedBlock, features);
         }
 
         combinedBlock.fRange = block.fRange;
         combinedBlock.fStyle = block.fStyle;
+        features.reset();
+        addFeatures(block);
     }
 
-    visitor(combinedBlock);
+    visitor(combinedBlock, features);
 #ifdef SK_DEBUG
     //printState();
 #endif
@@ -462,7 +482,7 @@ bool OneLineShaper::shape() {
 
         iterateThroughFontStyles(styleSpan,
                 [this, &shaper, textDirection, limitlessWidth, &advanceX]
-                (Block block) {
+                (Block block, SkTArray<SkShaper::Feature> features) {
             auto blockSpan = SkSpan<Block>(&block, 1);
 
             // Start from the beginning (hoping that it's a simple case one block - one run)
@@ -499,6 +519,7 @@ bool OneLineShaper::shape() {
                     fCurrentText = unresolvedRange;
                     shaper->shape(unresolvedText.begin(), unresolvedText.size(),
                             fontIter, *bidi,*script, lang,
+                            features.data(), features.size(),
                             limitlessWidth, this);
 
                     // Take off the queue the block we tried to resolved -

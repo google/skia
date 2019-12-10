@@ -4482,6 +4482,56 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
     }
 }
 
+DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    TestCanvas canvas("SkParagraph_FontFeaturesParagraph.png");
+
+    const char* text = "12ab\n";
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.turnHintingOff();
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    TextStyle text_style;
+    text_style.setFontStyle(SkFontStyle::Italic());
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setColor(SK_ColorBLACK);
+
+    text_style.addFontFeature(SkString("tnum"), 1);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    text_style.resetFontFeatures();
+    text_style.addFontFeature(SkString("tnum"), 0);
+    text_style.addFontFeature(SkString("pnum"), 1);
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    builder.pop();
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(TestCanvasWidth);
+
+    paragraph->paint(canvas.get(), 10.0, 15.0);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 3ull);
+
+    auto& tnum_line = impl->lines()[0];
+    auto& pnum_line = impl->lines()[1];
+
+    REPORTER_ASSERT(reporter, tnum_line.clusters().width() == 4ull);
+    REPORTER_ASSERT(reporter, pnum_line.clusters().width() == 4ull);
+    // Tabular numbers should have equal widths.
+    REPORTER_ASSERT(reporter, impl->clusters()[0].width() == impl->clusters()[1].width());
+    // Proportional numbers should have variable widths.
+    REPORTER_ASSERT(reporter, impl->clusters()[5].width() != impl->clusters()[6].width());
+    // Alphabetic characters should be unaffected.
+    REPORTER_ASSERT(reporter, impl->clusters()[2].width() == impl->clusters()[7].width());
+}
+
 // Not in Minikin
 DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();

@@ -40,6 +40,7 @@ TextStyle:: TextStyle(const TextStyle& other, bool placeholder) {
     fForeground = other.fForeground;
     fHeightOverride = other.fHeightOverride;
     fIsPlaceholder = placeholder;
+    fFontFeatures = other.fFontFeatures;
 }
 
 bool TextStyle::equals(const TextStyle& other) const {
@@ -86,6 +87,14 @@ bool TextStyle::equals(const TextStyle& other) const {
     }
     for (size_t i = 0; i < fTextShadows.size(); ++i) {
         if (fTextShadows[i] != other.fTextShadows[i]) {
+            return false;
+        }
+    }
+    if (fFontFeatures.size() != other.fFontFeatures.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < fFontFeatures.size(); ++i) {
+        if (!(fFontFeatures[i] == other.fFontFeatures[i])) {
             return false;
         }
     }
