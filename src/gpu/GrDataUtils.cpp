@@ -123,7 +123,9 @@ static int num_ETC1_blocks(int w, int h) {
 
 size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height) {
     switch (type) {
-        case SkImage::kETC1_CompressionType:
+        case SkImage::CompressionType::kNone:
+            return 0;
+        case SkImage::CompressionType::kETC1:
             int numBlocks = num_ETC1_blocks(width, height);
             return numBlocks * sizeof(ETC1Block);
     }
@@ -132,7 +134,9 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height
 
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
-        case SkImage::kETC1_CompressionType:
+        case SkImage::CompressionType::kNone:
+            return 0;
+        case SkImage::CompressionType::kETC1:
             int numBlocksWidth = num_ETC1_blocks_w(width);
             return numBlocksWidth * sizeof(ETC1Block);
     }
@@ -193,7 +197,7 @@ void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int ba
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     int currentWidth = baseWidth;
     int currentHeight = baseHeight;
-    if (SkImage::kETC1_CompressionType == type) {
+    if (SkImage::CompressionType::kETC1 == type) {
         fillin_ETC1_with_color(currentWidth, currentHeight, colorf, dstPixels);
     }
 }

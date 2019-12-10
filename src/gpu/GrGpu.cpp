@@ -276,7 +276,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 size_t dataSize) {
     // If we ever add a new CompressionType, we should add a check here to make sure the
     // GrBackendFormat and CompressionType are compatible with eachother.
-    SkASSERT(compressionType == SkImage::kETC1_CompressionType);
+    SkASSERT(compressionType == SkImage::CompressionType::kETC1);
 
     this->handleDirtyContext();
     if (width  < 1 || width  > this->caps()->maxTextureSize() ||
@@ -802,4 +802,44 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
 
     return this->onCreateBackendTexture(dimensions, format, renderable, data, numMipLevels,
                                         isProtected);
+}
+
+GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
+                                                       const GrBackendFormat& format,
+                                                       const BackendTextureData* data,
+                                                       int numMipLevels,
+                                                       GrProtected isProtected) {
+    const GrCaps* caps = this->caps();
+
+    if (!format.isValid()) {
+        return {};
+    }
+
+    if (!caps->isFormatCompressed(format)) {
+        // Un-compressed formats must go through the createBackendTexture API
+        return {};
+    }
+
+    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+        auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
+        if (!caps->areColorTypeAndFormatCompatible(ct, format)) {
+            return {};
+        }
+    }
+
+    if (dimensions.isEmpty() || dimensions.width()  > caps->maxTextureSize() ||
+        dimensions.height() > caps->maxTextureSize()) {
+        return {};
+    }
+
+    if (numMipLevels > 1 && !this->caps()->mipMapSupport()) {
+        return {};
+    }
+
+    if (!MipMapsAreCorrect(dimensions, data, numMipLevels)) {
+        return {};
+    }
+
+    return this->onCreateCompressedBackendTexture(dimensions, format, data, numMipLevels,
+                                                  isProtected);
 }
