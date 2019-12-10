@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37ffcee2_b76f44e9",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-10T18:26:20Z",
+      "side": 1,
+      "message": "this is duplicate of another function",
+      "range": {
+        "startLine": 1301,
+        "startChar": 37,
+        "endLine": 1301,
+        "endChar": 49
+      },
+      "revId": "fb0fab6e8ffdd19eaa992d5a362f8477f499509c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d3c2f52_a99824bf",
+        "filename": "src/gpu/mock/GrMockCaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-10T18:26:20Z",
+      "side": 1,
+      "message": "will this ever be true? Can we just return false for compressed? In other words I think we can just remove this whole added block and just check the colorType encoding (which for compressed will be unorm for unknown colorType)",
+      "range": {
+        "startLine": 45,
+        "startChar": 12,
+        "endLine": 45,
+        "endChar": 93
+      },
+      "revId": "fb0fab6e8ffdd19eaa992d5a362f8477f499509c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
