@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16af772f_f2b83ab2",
+        "filename": "src/gpu/mock/GrMockCaps.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-10T19:31:48Z",
+      "side": 1,
+      "message": "If we have SkImage::CompressionType::kNone perhaps this function should just return the enum value rather than use an out param for the compression type?",
+      "range": {
+        "startLine": 52,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 27
+      },
+      "revId": "22fb39d685e0fa8aa3653c1bebd287adb87bfa0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
