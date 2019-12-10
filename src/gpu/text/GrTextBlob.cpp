@@ -243,33 +243,16 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
 
     void* allocation = ::operator new (allocationSize);
 
+    SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(glyphRunList.paint());
     sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
             subRunsSize, strikeCache, viewMatrix, glyphRunList.origin(),
-            color, forceWForDistanceFields}};
+            color, initialLuminance, forceWForDistanceFields}};
 
     // setup offsets for vertices / glyphs
     blob->fVertices = SkTAddOffset<char>(blob.get(), vertexOffset);
     blob->fGlyphs   = SkTAddOffset<GrGlyph*>(blob.get(), glyphsOffset);
 
     return blob;
-}
-
-void GrTextBlob::generateFromGlyphRunList(const GrShaderCaps& shaderCaps,
-                                          const GrTextContext::Options& options,
-                                          const SkPaint& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkSurfaceProps& props,
-                                          const SkGlyphRunList& glyphRunList,
-                                          SkGlyphRunListPainter* glyphPainter) {
-    const SkPaint& runPaint = glyphRunList.paint();
-    this->initReusableBlob(SkPaintPriv::ComputeLuminanceColor(runPaint));
-
-    glyphPainter->processGlyphRunList(glyphRunList,
-                                      viewMatrix,
-                                      props,
-                                      shaderCaps.supportsDistanceFieldText(),
-                                      options,
-                                      this);
 }
 
 void GrTextBlob::setupKey(const GrTextBlob::Key& key, const SkMaskFilterBase::BlurRec& blurRec,
@@ -320,7 +303,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     // to regenerate the blob on any color change
     // We use the grPaint to get any color filter effects
     if (fKey.fCanonicalColor == SK_ColorTRANSPARENT &&
-        fLuminanceColor != SkPaintPriv::ComputeLuminanceColor(paint)) {
+        fInitialLuminance != SkPaintPriv::ComputeLuminanceColor(paint)) {
         return true;
     }
 
@@ -530,10 +513,6 @@ void GrTextBlob::computeSubRunBounds(SkRect* outBounds, const GrTextBlob::SubRun
     }
 }
 
-void GrTextBlob::initReusableBlob(SkColor luminanceColor) {
-    fLuminanceColor = luminanceColor;
-}
-
 const GrTextBlob::Key& GrTextBlob::key() const { return fKey; }
 size_t GrTextBlob::size() const { return fSize; }
 
@@ -636,6 +615,7 @@ GrTextBlob::GrTextBlob(size_t allocSize,
                        const SkMatrix& viewMatrix,
                        SkPoint origin,
                        GrColor color,
+                       SkColor initialLuminance,
                        bool forceWForDistanceFields)
         : fSize{allocSize}
         , fStrikeCache{strikeCache}
@@ -644,6 +624,7 @@ GrTextBlob::GrTextBlob(size_t allocSize,
         , fInitialOrigin{origin}
         , fForceWForDistanceFields{forceWForDistanceFields}
         , fColor{color}
+        , fInitialLuminance{initialLuminance}
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 
 void GrTextBlob::insertSubRun(SubRun* subRun) {
