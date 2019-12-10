@@ -16,27 +16,50 @@ class GrBackendFormat;
 struct GrMockTextureInfo {
     GrMockTextureInfo()
         : fColorType(GrColorType::kUnknown)
+        , fCompressionType(SkImage::CompressionType::kNone)
         , fID(0) {}
 
-    GrMockTextureInfo(GrColorType colorType, int id)
+    GrMockTextureInfo(GrColorType colorType,
+                      SkImage::CompressionType compressionType,
+                      int id)
             : fColorType(colorType)
+            , fCompressionType(compressionType)
             , fID(id) {
         SkASSERT(fID);
+        if (fCompressionType != SkImage::CompressionType::kNone) {
+            SkASSERT(colorType == GrColorType::kUnknown);
+        }
     }
 
     bool operator==(const GrMockTextureInfo& that) const {
         return fColorType == that.fColorType &&
+               fCompressionType == that.fCompressionType &&
                fID == that.fID;
     }
 
     GrPixelConfig pixelConfig() const {
-        return GrColorTypeToPixelConfig(fColorType);
+        if (fCompressionType == SkImage::CompressionType::kNone) {
+            return GrColorTypeToPixelConfig(fColorType);
+        } else {
+            return GrCompressionTypeToPixelConfig(fCompressionType);
+        }
     }
 
     GrBackendFormat getBackendFormat() const;
 
-    GrColorType   fColorType;
-    int           fID;
+    SkImage::CompressionType compressionType() const { return fCompressionType; }
+
+    GrColorType colorType() const {
+        SkASSERT(fCompressionType == SkImage::CompressionType::kNone);
+        return fColorType;
+    }
+
+    int id() const { return fID; }
+
+private:
+    GrColorType              fColorType;
+    SkImage::CompressionType fCompressionType;
+    int                      fID;
 };
 
 struct GrMockRenderTargetInfo {
@@ -84,6 +107,8 @@ struct GrMockOptions {
         fConfigOptions[(int)GrColorType::kBGR_565].fTexturable = true;
 
         fConfigOptions[(int)GrColorType::kBGRA_8888] = fConfigOptions[(int)GrColorType::kRGBA_8888];
+
+        fCompressedOptions[(int)SkImage::CompressionType::kETC1].fTexturable = true;
     }
 
     struct ConfigOptions {
@@ -101,6 +126,7 @@ struct GrMockOptions {
     int fMaxRenderTargetSize = 2048;
     int fMaxVertexAttributes = 16;
     ConfigOptions fConfigOptions[kGrColorTypeCnt];
+    ConfigOptions fCompressedOptions[SkImage::kCompressionTypeCount];
 
     // GrShaderCaps options.
     bool fGeometryShaderSupport = false;
