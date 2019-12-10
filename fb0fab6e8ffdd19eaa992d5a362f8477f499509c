@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "6e114c94_a875a7f9",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-10T18:26:44Z",
+      "side": 1,
+      "message": "This feels like a bit of a misfit to me. It isn\u0027t really Unorm encoded, it\u0027s ETC1 encoded.\n\nDigging a little, I\u0027m not convinced we need GrCaps::isFormatSRGB(). One use is purely GL-specific and could use GrGLFormat. The other would go away as soon as we add a SRGB SkColorType.\n\nMaybe in the short term GrMockCaps could just report compressiontypes arent srgb? Or have GrIsCompressionTypeSRGB(SkImage::CompressionType) { return false; }?",
+      "range": {
+        "startLine": 1077,
+        "startChar": 0,
+        "endLine": 1086,
+        "endChar": 1
+      },
+      "revId": "fb0fab6e8ffdd19eaa992d5a362f8477f499509c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "37ffcee2_b76f44e9",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 6
