@@ -1028,7 +1028,9 @@ GrBackendFormat GrMtlCaps::onGetDefaultBackendFormat(GrColorType ct,
 GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
         SkImage::CompressionType compressionType) const {
     switch (compressionType) {
-        case SkImage::kETC1_CompressionType:
+        case SkImage::CompressionType::kNone:
+            return {};
+        case SkImage::CompressionType::kETC1:
 #ifdef SK_BUILD_FOR_MAC
             return {};
 #else
