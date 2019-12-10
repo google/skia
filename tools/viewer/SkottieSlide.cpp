@@ -140,12 +140,13 @@ void SkottieSlide::draw(SkCanvas* canvas) {
         SkAutoCanvasRestore acr(canvas, true);
         const auto dstR = SkRect::MakeSize(fWinSize);
 
+
         {
             const auto t0 = SkTime::GetNSecs();
             fAnimation->render(canvas, &dstR);
 
             // TODO: this does not capture GPU flush time!
-            const auto  frame_index  = SkToSizeT(SkScalarRoundToInt(fCurrentFrame));
+            const auto  frame_index  = static_cast<size_t>(fCurrentFrame);
             fFrameTimes[frame_index] = static_cast<float>((SkTime::GetNSecs() - t0) * 1e-6);
         }
 
@@ -178,23 +179,30 @@ void SkottieSlide::draw(SkCanvas* canvas) {
 }
 
 bool SkottieSlide::animate(double nanos) {
-    SkMSec msec = TimeUtils::NanosToMSec(nanos);
-    if (fTimeBase == 0) {
+    if (!fTimeBase) {
         // Reset the animation time.
-        fTimeBase = msec;
+        fTimeBase = nanos;
     }
 
     if (fAnimation) {
         fInvalController.reset();
 
+        const auto frame_count = fAnimation->duration() * fAnimation->fps();
+
         if (!fDraggingProgress) {
             // Clock-driven progress: update current frame.
-            const double t_sec = (msec - fTimeBase) / 1000.0;
-            fCurrentFrame = std::fmod(t_sec, fAnimation->duration()) * fAnimation->fps();
+            const double t_sec = (nanos - fTimeBase) * 1e-9;
+            fCurrentFrame = std::fmod(t_sec * fAnimation->fps(), frame_count);
         } else {
             // Slider-driven progress: update the time origin.
-            fTimeBase = TimeUtils::NanosToMSec(nanos)
-                      - static_cast<SkMSec>(fCurrentFrame / fAnimation->fps() * 1000);
+            fTimeBase = nanos - fCurrentFrame / fAnimation->fps() * 1e9;
+        }
+
+        // Sanitize and rate-lock the current frame.
+        fCurrentFrame = SkTPin<float>(fCurrentFrame, 0.0f, frame_count - 1);
+        if (fFrameRate > 0) {
+            const auto fps_scale = fFrameRate / fAnimation->fps();
+            fCurrentFrame = std::trunc(fCurrentFrame * fps_scale) / fps_scale;
         }
 
         fAnimation->seekFrame(fCurrentFrame);
@@ -230,7 +238,7 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui:
 }
 
 SkRect SkottieSlide::UIArea() const {
-    static constexpr float kUIHeight = 150.0f;
+    static constexpr float kUIHeight = 120.0f;
 
     return SkRect::MakeXYWH(0, fWinSize.height() - kUIHeight, fWinSize.width(), kUIHeight);
 }
@@ -238,6 +246,17 @@ SkRect SkottieSlide::UIArea() const {
 void SkottieSlide::renderUI() {
     static constexpr auto kUI_opacity     = 0.35f,
                           kUI_hist_height = 50.0f;
+
+    auto add_frame_rate_option = [this](const char* label, double rate) {
+        const auto is_selected = (fFrameRate == rate);
+        if (ImGui::Selectable(label, is_selected)) {
+            fFrameRate      = rate;
+            fFrameRateLabel = label;
+        }
+        if (is_selected) {
+            ImGui::SetItemDefaultFocus();
+        }
+    };
 
     ImGui::SetNextWindowBgAlpha(kUI_opacity);
     if (ImGui::Begin("Skottie Controls", nullptr, ImGuiWindowFlags_NoDecoration |
@@ -250,14 +269,27 @@ void SkottieSlide::renderUI() {
         ImGui::SetWindowPos(ImVec2(ui_area.x(), ui_area.y()));
         ImGui::SetWindowSize(ImVec2(ui_area.width(), ui_area.height()));
 
-        ImGui::PushItemWidth(-1);
+        {
+            ImGui::PushItemWidth(-1);
 
-        ImGui::PlotHistogram("", fFrameTimes.data(), fFrameTimes.size(),
-                             0, nullptr, FLT_MAX, FLT_MAX, ImVec2(0, kUI_hist_height));
-        ImGui::SliderFloat("", &fCurrentFrame, 0, fAnimation->duration() * fAnimation->fps() - 1);
-        fDraggingProgress = ImGui::IsItemActive();
+            ImGui::PlotHistogram("", fFrameTimes.data(), fFrameTimes.size(),
+                                 0, nullptr, FLT_MAX, FLT_MAX, ImVec2(0, kUI_hist_height));
+            ImGui::SliderFloat("", &fCurrentFrame, 0, fAnimation->duration() * fAnimation->fps() - 1);
+            fDraggingProgress = ImGui::IsItemActive();
 
-        ImGui::PopItemWidth();
+            ImGui::PopItemWidth();
+        }
+        ImGui::PushItemWidth(100);
+        if (ImGui::BeginCombo("Frame rate", fFrameRateLabel)) {
+            add_frame_rate_option("", 0.0);
+            add_frame_rate_option("Native", fAnimation->fps());
+            add_frame_rate_option( "1",  1.0);
+            add_frame_rate_option("15", 15.0);
+            add_frame_rate_option("24", 24.0);
+            add_frame_rate_option("30", 30.0);
+            add_frame_rate_option("60", 60.0);
+            ImGui::EndCombo();
+        }
     }
     ImGui::End();
 }
