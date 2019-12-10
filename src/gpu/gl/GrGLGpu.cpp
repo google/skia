@@ -1333,7 +1333,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     GrGLTexture::Desc desc;
     desc.fSize = {width, height};
     desc.fTarget = GR_GL_TEXTURE_2D;
-    desc.fConfig = GrCompressionTypePixelConfig(compression);
+    desc.fConfig = GrCompressionTypeToPixelConfig(compression);
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat, compression, &initialState,
