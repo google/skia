@@ -254,7 +254,7 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
-            new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy())));
+            new ColorTableEffect(sk_ref_sp(fTextureSampler.view().proxy())));
     }
 
 private:
