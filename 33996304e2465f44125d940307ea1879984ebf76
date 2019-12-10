@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "577d74e7_9dd55bf7",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-10T20:03:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2486acbf_20a62146",
+      "range": {
+        "startLine": 158,
+        "startChar": 66,
+        "endLine": 158,
+        "endChar": 87
+      },
+      "revId": "33996304e2465f44125d940307ea1879984ebf76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e50abdaf_c8cf5e4c",
         "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "33996304e2465f44125d940307ea1879984ebf76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1dc8fb82_3c33b19e",
+        "filename": "src/gpu/effects/GrBitmapTextGeoProc.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-10T20:03:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e50abdaf_c8cf5e4c",
+      "range": {
+        "startLine": 180,
+        "startChar": 71,
+        "endLine": 180,
+        "endChar": 91
+      },
+      "revId": "33996304e2465f44125d940307ea1879984ebf76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
