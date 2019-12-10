@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86bd3830_6d219579",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-10T15:36:23Z",
+      "side": 1,
+      "message": "nit: space\n\nalso, can this be named subRunsOffset, since that\u0027s what it actually is?",
+      "range": {
+        "startLine": 243,
+        "startChar": 46,
+        "endLine": 243,
+        "endChar": 48
+      },
+      "revId": "a57c269c820bfb1671d1e91c6cfeb03479ed9d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1d6e5ec_75c36d2f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-10T15:36:23Z",
+      "side": 1,
+      "message": "nit: remove sp since above doesn\u0027t line up anyway",
+      "range": {
+        "startLine": 246,
+        "startChar": 47,
+        "endLine": 246,
+        "endChar": 48
+      },
+      "revId": "a57c269c820bfb1671d1e91c6cfeb03479ed9d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de8a2001_fe9d53aa",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-10T15:36:23Z",
+      "side": 1,
+      "message": "not a nit: remove this stupidly misleading bunch of whitespace. It makes it look at a glance that this \u0027glyphs\u0027 expression is part of the calculation on the previous line.\n\nAlso, just for simplicity and clarity, can we consistently do\n\nsize_t blobOffset \u003d 0;\nsize_t blobSize \u003d blobStart + sizeof(GrTextBlob);\n\nsize_t currentOffset \u003d sk_align\u003calignof(Current)\u003e(previousOffset + previousSize);\nsize_t currentSize \u003d currentCount * sizeof(Current);\n\nbonus points for writing it even more obviously.",
+      "range": {
+        "startLine": 247,
+        "startChar": 20,
+        "endLine": 247,
+        "endChar": 48
+      },
+      "revId": "a57c269c820bfb1671d1e91c6cfeb03479ed9d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cabd7c02_0ae58210",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-10T15:36:23Z",
+      "side": 1,
+      "message": "this is unfortunate formatting, if necessary, put more on this line.",
+      "range": {
+        "startLine": 428,
+        "startChar": 24,
+        "endLine": 428,
+        "endChar": 28
+      },
+      "revId": "a57c269c820bfb1671d1e91c6cfeb03479ed9d8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
