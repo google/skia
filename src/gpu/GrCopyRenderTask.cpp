@@ -28,7 +28,7 @@ sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrSurfaceProxyView srcView,
         return nullptr;
     }
 
-    if (caps->isFormatCompressed(dstProxy->backendFormat())) {
+    if (caps->compressionType(dstProxy->backendFormat()) != SkImage::CompressionType::kNone) {
         return nullptr;
     }
 
