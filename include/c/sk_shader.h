@@ -72,6 +72,11 @@ SK_C_API sk_shader_t* sk_shader_new_perlin_noise_turbulence(
     int numOctaves,
     float seed,
     const sk_isize_t* tileSize);
+SK_C_API sk_shader_t* sk_shader_new_perlin_noise_improved_noise(
+    float baseFrequencyX,
+    float baseFrequencyY,
+    int numOctaves,
+    float z);
 SK_C_API sk_shader_t* sk_shader_new_compose(
     sk_shader_t* shaderA,
     sk_shader_t* shaderB);
