@@ -93,20 +93,40 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             }
             SkImage::CompressionType type;
             switch (config) {
-                case kRGB_ETC1_GrPixelConfig:
-                    type = SkImage::CompressionType::kETC1;
+                case kETC2_RGB8_UNORM_GrPixelConfig:
+                    type = SkImage::CompressionType::kETC2_RGB8_UNORM;
                     break;
+                case kETC2_RGB8_SRGB_GrPixelConfig:
+                    type = SkImage::CompressionType::kETC2_RGB8_SRGB;
+                    break;
+                case kETC2_RGBA8_UNORM_GrPixelConfig:
+                    type = SkImage::CompressionType::kETC2_RGBA8_UNORM;
+                    break;
+                case kETC2_RGBA8_SRGB_GrPixelConfig:
+                    type = SkImage::CompressionType::kETC2_RGBA8_SRGB;
+                    break;
+
+                case kBC1_RGB8_UNORM_GrPixelConfig:
+                    type = SkImage::CompressionType::kBC1_RGB8_UNORM;
+                    break;
+                case kBC1_RGB8_SRGB_GrPixelConfig:
+                    type = SkImage::CompressionType::kBC1_RGB8_SRGB;
+                    break;
+                case kBC1_RGBA8_UNORM_GrPixelConfig:
+                    type = SkImage::CompressionType::kBC1_RGBA8_UNORM;
+                    break;
+                case kBC1_RGBA8_SRGB_GrPixelConfig:
+                    type = SkImage::CompressionType::kBC1_RGBA8_SRGB;
+                    break;
+
                 default:
                     SK_ABORT("Unexpected config");
             }
-            // Only supported compression type right now.
-            SkASSERT(config == kRGB_ETC1_GrPixelConfig);
             auto size = GrCompressedDataSize(type, width, height);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(width, height, format,
-                                               SkImage::CompressionType::kETC1,
+            return rp->createCompressedTexture(width, height, format, type,
                                                SkBudgeted::kNo, data.get());
         } else {
             GrSurfaceDesc desc;
