@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6a52e70_7073c479",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-10T18:03:56Z",
+      "side": 1,
+      "message": "Yahoo! I\u0027d like the be able to use static_assert w/o the message.",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 10
+      },
+      "revId": "ca347217d123ac10d93fdc5004d9726ef0faca82",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
