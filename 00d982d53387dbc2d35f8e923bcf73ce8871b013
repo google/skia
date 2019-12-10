@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59b6718d_1709dabd",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-10T20:21:05Z",
+      "side": 1,
+      "message": "#1",
+      "revId": "00d982d53387dbc2d35f8e923bcf73ce8871b013",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "772eca9a_fb45df99",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-10T20:21:05Z",
+      "side": 1,
+      "message": "#2",
+      "revId": "00d982d53387dbc2d35f8e923bcf73ce8871b013",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
