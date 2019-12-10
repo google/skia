@@ -150,7 +150,7 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(const GrSurfaceDesc& desc,
                                             GrProtected isProtected,
                                             int mipLevelCount,
                                             uint32_t levelClearMask) {
-    if (this->caps()->isFormatCompressed(format)) {
+    if (this->caps()->compressionType(format) != SkImage::CompressionType::kNone) {
         // Call GrGpu::createCompressedTexture.
         return nullptr;
     }
@@ -446,7 +446,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
         }
     }
 
-    if (this->caps()->isFormatCompressed(surface->backendFormat())) {
+    if (this->caps()->compressionType(surface->backendFormat()) != SkImage::CompressionType::kNone) {
         return false;
     }
 
@@ -775,7 +775,7 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (caps->isFormatCompressed(format)) {
+    if (caps->compressionType(format) != SkImage::CompressionType::kNone) {
         // Compressed formats must go through the createCompressedBackendTexture API
         return {};
     }
