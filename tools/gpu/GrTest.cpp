@@ -145,6 +145,20 @@ int GrCCCachedAtlas::testingOnly_peekOnFlushRefCnt() const { return fOnFlushRefC
 
 //////////////////////////////////////////////////////////////////////////////
 
+void GrDrawingManager::testingOnly_setSuppressAllocationWarnings() {
+    fSuppressAllocationWarnings = true;
+}
+
+bool GrDrawingManager::testingOnly_getSuppressAllocationWarnings() const {
+    return fSuppressAllocationWarnings;
+}
+
+bool GrOnFlushResourceProvider::testingOnly_getSuppressAllocationWarnings() const {
+    return fDrawingMgr->testingOnly_getSuppressAllocationWarnings();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern std::unique_ptr<GrDrawOp> Op##__Test(GrPaint&&, SkRandom*, \
                                                 GrRecordingContext*, int numSamples)

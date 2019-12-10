@@ -116,6 +116,10 @@ public:
 
 #if GR_TEST_UTILS
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
+
+    // Used by tests that induce intentional allocation failures, in order to keep the output clean.
+    void testingOnly_setSuppressAllocationWarnings();
+    bool testingOnly_getSuppressAllocationWarnings() const;
 #endif
 
     void moveRenderTasksToDDL(SkDeferredDisplayList* ddl);
@@ -243,6 +247,10 @@ private:
     // DDL replaying.
     // Note: we do not expect a whole lot of these per flush
     std::set<GrSurfaceProxy*> fDDLTargets;
+
+#ifdef GR_TEST_UTILS
+    bool fSuppressAllocationWarnings = false;
+#endif
 };
 
 #endif
