@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce7dbeb0_70e06469",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-11T13:17:02Z",
+      "side": 1,
+      "message": "part of me still feels like there are cases missing in this update. Like if someone has a view matrix:\n\n[a b 0]\n[c 0 0]\n[0 0 1]\n\nwe will basically have reverse \u003d a \u003c 0\n\nBut if say we premul the matrix by\n[1 0 0]\n[0 -1 0]\n[0 0 1]\nI would assume we\u0027d want to reverse our decision on on \"reverse\" (unless my thought on how this works is wrong). But This would still be revers \u003d a \u003c 0",
+      "range": {
+        "startLine": 1116,
+        "startChar": 7,
+        "endLine": 1116,
+        "endChar": 81
+      },
+      "revId": "3c0a9b171c3cd2c6bf567da47b76dceeb31cb164",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
