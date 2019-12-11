@@ -32,7 +32,7 @@ public:
     struct Geometry {
         SkMatrix    fViewMatrix;
         SkIRect     fClipRect;
-        Blob*       fBlob;
+        GrTextBlob* fBlob;
         SkScalar    fX;
         SkScalar    fY;
         GrTextBlob::SubRun* fSubRunPtr;
