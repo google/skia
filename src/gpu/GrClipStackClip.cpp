@@ -7,7 +7,6 @@
 
 #include "include/private/SkTo.h"
 #include "src/core/SkClipOpPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAppliedClip.h"
@@ -508,7 +507,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
                                            SkBudgeted::kYes,
                                            GrProtected::kNo);
 
-        auto uploader = skstd::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
+        auto uploader = std::make_unique<GrTDeferredProxyUploader<ClipMaskData>>(reducedClip);
         GrTDeferredProxyUploader<ClipMaskData>* uploaderRaw = uploader.get();
         auto drawAndUploadMask = [uploaderRaw, maskSpaceIBounds] {
             TRACE_EVENT0("skia.gpu", "Threaded SW Clip Mask Render");

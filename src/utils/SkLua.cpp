@@ -32,7 +32,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkMakeUnique.h"
 #include <new>
 
 extern "C" {
@@ -1771,7 +1770,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!filename) {
         return 0;
     }
-    auto file = skstd::make_unique<SkFILEWStream>(filename);
+    auto file = std::make_unique<SkFILEWStream>(filename);
     if (!file->isValid()) {
         return 0;
     }

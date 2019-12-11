@@ -11,7 +11,6 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/SkDeferredDisplayList.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
@@ -82,7 +81,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     if (fGpu) {
         fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
         fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner());
-        fMappedBufferManager = skstd::make_unique<GrClientMappedBufferManager>(this->contextID());
+        fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());
     }
 
     if (fResourceCache) {
@@ -94,7 +93,7 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
     // DDL TODO: we need to think through how the task group & persistent cache
     // get passed on to/shared between all the DDLRecorders created with this context.
     if (this->options().fExecutor) {
-        fTaskGroup = skstd::make_unique<SkTaskGroup>(*this->options().fExecutor);
+        fTaskGroup = std::make_unique<SkTaskGroup>(*this->options().fExecutor);
     }
 
     fPersistentCache = this->options().fPersistentCache;

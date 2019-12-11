@@ -12,7 +12,6 @@
 #include "include/core/SkImage.h"
 #include "include/utils/SkAnimCodecPlayer.h"
 #include "include/utils/SkBase64.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 
@@ -21,7 +20,7 @@ namespace skresources {
 sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
         return sk_sp<MultiFrameImageAsset>(
-              new MultiFrameImageAsset(skstd::make_unique<SkAnimCodecPlayer>(std::move(codec)),
+              new MultiFrameImageAsset(std::make_unique<SkAnimCodecPlayer>(std::move(codec)),
                                                                              predecode));
     }
 

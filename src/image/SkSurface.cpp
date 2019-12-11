@@ -12,7 +12,6 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/image/SkSurface_Base.h"
 
 static SkPixelGeometry compute_default_geometry() {
@@ -212,7 +211,7 @@ void SkSurface_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info, const 
             std::unique_ptr<const char[]> fData;
             size_t fRowBytes;
         };
-        callback(context, skstd::make_unique<Result>(std::move(data), rowBytes));
+        callback(context, std::make_unique<Result>(std::move(data), rowBytes));
     } else {
         callback(context, nullptr);
     }

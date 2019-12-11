@@ -14,7 +14,6 @@
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
@@ -291,7 +290,7 @@ std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     if (!stream) {
         return nullptr;
     }
-    return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+    return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
 void SkTypeface::unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
