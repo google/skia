@@ -18,26 +18,27 @@
     #define VALIDATE
 #endif
 
-void GrOpMemoryPool::release(std::unique_ptr<GrOp> op) {
-    GrOp* tmp = op.release();
-    SkASSERT(tmp);
-    tmp->~GrOp();
-    fMemoryPool.release(tmp);
+std::unique_ptr<GrMemoryPool> GrMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
+    if (preallocSize < kHeaderSize) {
+        return nullptr;
+    }
+    static constexpr size_t kPoolSize = GrSizeAlignUp(sizeof(GrMemoryPool), kAlignment);
+    size_t size = kPoolSize + preallocSize;
+    void* mem = operator new(size);
+    void* preallocStart = static_cast<char*>(mem) + kPoolSize;
+    return std::unique_ptr<GrMemoryPool>(new (mem) GrMemoryPool(preallocStart, preallocSize, minAllocSize));
 }
 
-constexpr size_t GrMemoryPool::kSmallestMinAllocSize;
-
-GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
+GrMemoryPool::GrMemoryPool(void* preallocStart, size_t preallocSize, size_t minAllocSize) {
     SkDEBUGCODE(fAllocationCnt = 0);
     SkDEBUGCODE(fAllocBlockCnt = 0);
 
     minAllocSize = SkTMax<size_t>(GrSizeAlignUp(minAllocSize, kAlignment), kSmallestMinAllocSize);
-    preallocSize = SkTMax<size_t>(GrSizeAlignUp(preallocSize, kAlignment), minAllocSize);
 
     fMinAllocSize = minAllocSize;
     fSize = 0;
 
-    fHead = CreateBlock(preallocSize);
+    fHead = InitBlock(preallocStart, preallocSize);
     fTail = fHead;
     fHead->fNext = nullptr;
     fHead->fPrev = nullptr;
@@ -62,7 +63,7 @@ GrMemoryPool::~GrMemoryPool() {
     SkASSERT(0 == fAllocationCnt);
     SkASSERT(fHead == fTail);
     SkASSERT(0 == fHead->fLiveCount);
-    DeleteBlock(fHead);
+    SkASSERT(kAssignedMarker == fHead->fBlockSentinal);
 };
 
 void* GrMemoryPool::allocate(size_t size) {
@@ -150,10 +151,12 @@ void GrMemoryPool::release(void* p) {
 
 GrMemoryPool::BlockHeader* GrMemoryPool::CreateBlock(size_t blockSize) {
     blockSize = SkTMax<size_t>(blockSize, kHeaderSize);
-    BlockHeader* block =
-        reinterpret_cast<BlockHeader*>(sk_malloc_throw(blockSize));
-    // we assume malloc gives us aligned memory
-    SkASSERT(!(reinterpret_cast<intptr_t>(block) % kAlignment));
+    return InitBlock(sk_malloc_throw(blockSize), blockSize);
+}
+
+auto GrMemoryPool::InitBlock(void *mem, size_t blockSize) -> BlockHeader* {
+    SkASSERT(!(reinterpret_cast<intptr_t>(mem) % kAlignment));
+    auto block = reinterpret_cast<BlockHeader*>(mem);
     SkDEBUGCODE(block->fBlockSentinal = kAssignedMarker);
     block->fLiveCount = 0;
     block->fFreeSize = blockSize - kHeaderSize;
@@ -215,3 +218,32 @@ void GrMemoryPool::validate() {
     SkASSERT(fAllocBlockCnt != 0 || fSize == 0);
 #endif
 }
+
+static constexpr size_t kOpPoolSize = GrSizeAlignUp(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
+
+sk_sp<GrOpMemoryPool> GrOpMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
+    if (preallocSize < GrMemoryPool::kHeaderSize) {
+        return nullptr;
+    }
+    static constexpr size_t kOpPoolSize = GrSizeAlignUp(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
+    static constexpr size_t kPoolSize = GrSizeAlignUp(sizeof(GrMemoryPool), GrMemoryPool::kAlignment);
+    size_t size = kOpPoolSize + kPoolSize + preallocSize;
+    void* mem = operator new(size);
+    void* memPoolPtr = static_cast<char*>(mem) + kOpPoolSize;
+    void* preallocStart = static_cast<char*>(mem) + kOpPoolSize + kPoolSize;
+    new (memPoolPtr) GrMemoryPool(preallocStart, preallocSize, minAllocSize);
+    return sk_sp<GrOpMemoryPool>(new (mem) GrOpMemoryPool());
+}
+
+void GrOpMemoryPool::release(std::unique_ptr<GrOp> op) {
+    GrOp* tmp = op.release();
+    SkASSERT(tmp);
+    tmp->~GrOp();
+    this->pool()->release(tmp);
+}
+
+GrMemoryPool* GrOpMemoryPool::pool() const {
+    auto addr = reinterpret_cast<const char*>(this) + kOpPoolSize;
+    return reinterpret_cast<GrMemoryPool*>(const_cast<char*>(addr));
+}
+

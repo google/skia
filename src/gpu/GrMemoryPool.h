@@ -21,10 +21,13 @@
  * requests. It is optimized for allocate / release speed over memory
  * efficiency. The interface is designed to be used to implement operator new
  * and delete overrides. All allocations are expected to be released before the
- * pool's destructor is called. Allocations will be 8-byte aligned.
+ * pool's destructor is called. Allocations will be aligned to
+ * sizeof(std::max_align_t).
  */
 class GrMemoryPool {
 public:
+    static constexpr size_t kAlignment = alignof(std::max_align_t);
+
     /**
      * Prealloc size is the amount of space to allocate at pool creation
      * time and keep around until pool destruction. The min alloc size is
@@ -37,7 +40,7 @@ public:
      * Both sizes is what the pool will end up allocating from the system, and
      * portions of the allocated memory is used for internal bookkeeping.
      */
-    GrMemoryPool(size_t preallocSize, size_t minAllocSize);
+    static std::unique_ptr<GrMemoryPool> Make(size_t preallocSize, size_t minAllocSize);
 
     ~GrMemoryPool();
 
@@ -72,9 +75,12 @@ public:
     constexpr static size_t kSmallestMinAllocSize = 1 << 10;
 
 private:
+    GrMemoryPool(void* preallocStart, size_t preallocSize, size_t minAllocSize);
+
     struct BlockHeader;
 
     static BlockHeader* CreateBlock(size_t size);
+    static BlockHeader* InitBlock(void *mem, size_t blockSize);
 
     static void DeleteBlock(BlockHeader* block);
 
@@ -115,13 +121,10 @@ private:
     SkTHashSet<int32_t>               fAllocatedIDs;
 #endif
 
-protected:
-    enum {
-        // We assume this alignment is good enough for everybody.
-        kAlignment    = 8,
-        kHeaderSize   = GrSizeAlignUp(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GrSizeAlignUp(sizeof(AllocHeader), kAlignment),
-    };
+    friend class GrOpMemoryPool;
+
+    static constexpr size_t kHeaderSize  = GrSizeAlignUp(sizeof(BlockHeader), kAlignment);
+    static constexpr size_t kPerAllocPad = GrSizeAlignUp(sizeof(AllocHeader), kAlignment);
 };
 
 class GrOp;
@@ -130,26 +133,24 @@ class GrOp;
 // ref counting
 class GrOpMemoryPool : public SkRefCnt {
 public:
-    GrOpMemoryPool(size_t preallocSize, size_t minAllocSize)
-            : fMemoryPool(preallocSize, minAllocSize) {
-    }
+    static sk_sp<GrOpMemoryPool> Make(size_t preallocSize, size_t minAllocSize);
 
     template <typename Op, typename... OpArgs>
     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
-        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
+        char* mem = (char*) this->pool()->allocate(sizeof(Op));
         return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
     }
 
-    void* allocate(size_t size) {
-        return fMemoryPool.allocate(size);
-    }
+    void* allocate(size_t size) { return this->pool()->allocate(size); }
 
     void release(std::unique_ptr<GrOp> op);
 
-    bool isEmpty() const { return fMemoryPool.isEmpty(); }
+    bool isEmpty() const { return this->pool()->isEmpty(); }
 
 private:
-    GrMemoryPool fMemoryPool;
+    GrMemoryPool* pool() const;
+
+    GrOpMemoryPool() = default;
 };
 
 #endif
