@@ -34,7 +34,6 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
@@ -44,6 +43,7 @@
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
 #include "src/gpu/effects/generated/GrSaturateProcessor.h"
 #include "src/image/SkImage_Base.h"
+#include "src/shaders/SkRTShader.h"
 #include "src/shaders/SkShaderBase.h"
 
 GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
@@ -469,8 +469,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         grPaint->numColorFragmentProcessors() > 0) {
         int32_t ditherRange = dither_range_type_for_config(ct);
         if (ditherRange >= 0) {
-            static int ditherIndex = GrSkSLFP::NewIndex();
-            auto ditherFP = GrSkSLFP::Make(context, ditherIndex, "Dither", SKSL_DITHER_SRC,
+            static auto ditherEffect = SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC));
+            auto ditherFP = GrSkSLFP::Make(context, ditherEffect, "Dither",
                                            &ditherRange, sizeof(ditherRange));
             if (ditherFP) {
                 grPaint->addColorFragmentProcessor(std::move(ditherFP));

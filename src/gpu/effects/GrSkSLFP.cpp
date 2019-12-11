@@ -10,43 +10,13 @@
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrContext_Base.h"
 #include "src/gpu/GrBaseContextPriv.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
+#include "src/shaders/SkRTShader.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
-
-GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const char* sksl)
-        : fName(name) {
-    SkSL::Program::Settings settings;
-    fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                            SkSL::String(sksl), settings);
-    if (fCompiler.errorCount()) {
-        SkDebugf("%s\n", fCompiler.errorText().c_str());
-    }
-    SkASSERT(fBaseProgram);
-    SkASSERT(!fCompiler.errorCount());
-    for (const auto& e : *fBaseProgram) {
-        if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
-            SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
-            for (const auto& varStatement : v.fVars) {
-                const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
-                if ((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) ||
-                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)) {
-                    fInAndUniformVars.push_back(&var);
-                }
-                // "in uniform" doesn't make sense outside of .fp files
-                SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
-                         (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
-                // "layout(key)" doesn't make sense outside of .fp files; all 'in' variables are
-                // part of the key
-                SkASSERT(!var.fModifiers.fLayout.fKey);
-            }
-        }
-    }
-}
 
 static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
     int arrayCount = 0;
@@ -55,62 +25,6 @@ static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
         type = &type->componentType();
     }
     return std::make_tuple(type, arrayCount);
-}
-
-std::unique_ptr<SkSL::Program> GrSkSLFPFactory::getSpecialization(const void* inputs,
-                                                                  size_t inputSize) {
-    std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
-    size_t offset = 0;
-    for (const auto& v : fInAndUniformVars) {
-        auto [type, arrayCount] = strip_array(&v->fType);
-        arrayCount = SkTMax(1, arrayCount);
-        SkSL::String name(v->fName);
-        if (type == fCompiler.context().fInt_Type.get() ||
-            type == fCompiler.context().fShort_Type.get()) {
-            offset = SkAlign4(offset);
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                int32_t v = *(int32_t*)(((uint8_t*)inputs) + offset);
-                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
-            }
-            offset += sizeof(int32_t) * arrayCount;
-        } else if (type == fCompiler.context().fFloat_Type.get() ||
-                   type == fCompiler.context().fHalf_Type.get()) {
-            offset = SkAlign4(offset);
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                float v = *(float*)(((uint8_t*)inputs) + offset);
-                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
-            }
-            offset += sizeof(float) * arrayCount;
-        } else if (type == fCompiler.context().fBool_Type.get()) {
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                bool v = *(((bool*)inputs) + offset);
-                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
-            }
-            offset += sizeof(bool) * arrayCount;
-        } else if (type == fCompiler.context().fFloat2_Type.get() ||
-                   type == fCompiler.context().fHalf2_Type.get()) {
-            offset = SkAlign4(offset) + sizeof(float) * 2 * arrayCount;
-        } else if (type == fCompiler.context().fFloat3_Type.get() ||
-                   type == fCompiler.context().fHalf3_Type.get()) {
-            offset = SkAlign4(offset) + sizeof(float) * 3 * arrayCount;
-        } else if (type == fCompiler.context().fFloat4_Type.get() ||
-                   type == fCompiler.context().fHalf4_Type.get()) {
-            offset = SkAlign4(offset) + sizeof(float) * 4 * arrayCount;
-        } else if (type == fCompiler.context().fFragmentProcessor_Type.get()) {
-            // do nothing
-        } else {
-            printf("can't handle input var: %s\n", SkSL::String(v->fType.fName).c_str());
-            SkASSERT(false);
-        }
-    }
-
-    std::unique_ptr<SkSL::Program> specialized = fCompiler.specialize(*fBaseProgram, inputMap);
-    bool optimized = fCompiler.optimize(*specialized);
-    if (!optimized) {
-        SkDebugf("%s\n", fCompiler.errorText().c_str());
-        SkASSERT(false);
-    }
-    return specialized;
 }
 
 static std::tuple<SkSL::Layout::CType, int> get_ctype(const SkSL::Context& context,
@@ -287,7 +201,7 @@ public:
         size_t offset = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         char* inputs = (char*) outer.fInputs.get();
-        for (const auto& v : outer.fFactory->fInAndUniformVars) {
+        for (const auto& v : outer.fEffect->fInAndUniformVars) {
             auto [ctype, arrayCount] = get_ctype(fContext, *v);
             arrayCount = SkTMax(1, arrayCount);
             switch (ctype) {
@@ -368,35 +282,20 @@ public:
     std::vector<SkString> fFunctionNames;
 };
 
-std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
-                                         const char* sksl, const void* inputs, size_t inputSize,
+std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, sk_sp<SkRuntimeEffect> effect,
+                                         const char* name, const void* inputs, size_t inputSize,
                                          const SkMatrix* matrix) {
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  context->priv().caps()->refShaderCaps(),
-                                                  index, name, sksl, SkString(),
-                                                  inputs, inputSize, matrix));
+    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().caps()->refShaderCaps(),
+                                                  std::move(effect), name, inputs, inputSize,
+                                                  matrix));
 }
 
-std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, const char* name,
-                                         SkString sksl, const void* inputs, size_t inputSize,
-                                         const SkMatrix* matrix) {
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
-                                                  context->priv().caps()->refShaderCaps(),
-                                                  index, name, nullptr, std::move(sksl),
-                                                  inputs, inputSize, matrix));
-}
-
-GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<const GrShaderCaps> shaderCaps,
-                   int index, const char* name, const char* sksl,
-                   SkString skslString, const void* inputs, size_t inputSize,
-                   const SkMatrix* matrix)
+GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> effect,
+                   const char* name, const void* inputs, size_t inputSize, const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
-        , fFactoryCache(factoryCache)
         , fShaderCaps(std::move(shaderCaps))
-        , fIndex(index)
+        , fEffect(std::move(effect))
         , fName(name)
-        , fSkSLString(skslString)
-        , fSkSL(sksl ? sksl : fSkSLString.c_str())
         , fInputs(new int8_t[inputSize])
         , fInputSize(inputSize) {
     if (fInputSize) {
@@ -410,13 +309,9 @@ GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<const GrShade
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
-        , fFactoryCache(other.fFactoryCache)
         , fShaderCaps(other.fShaderCaps)
-        , fFactory(other.fFactory)
-        , fIndex(other.fIndex)
+        , fEffect(other.fEffect)
         , fName(other.fName)
-        , fSkSLString(other.fSkSLString)
-        , fSkSL(other.fSkSL)
         , fInputs(new int8_t[other.fInputSize])
         , fInputSize(other.fInputSize) {
     if (fInputSize) {
@@ -432,40 +327,33 @@ const char* GrSkSLFP::name() const {
     return fName;
 }
 
-void GrSkSLFP::createFactory() const {
-    if (!fFactory) {
-        fFactory = fFactoryCache->findOrCreate(fIndex, fName, fSkSL);
-    }
-}
-
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
     this->registerChildProcessor(std::move(child));
 }
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
-    this->createFactory();
-    auto specialized = fFactory->getSpecialization(fInputs.get(), fInputSize);
+    auto specialized = fEffect->getSpecialization(fInputs.get(), fInputSize);
     specialized->fSettings.fCaps = fShaderCaps.get();
 
     SkSL::String glsl;
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
     std::vector<SkSL::Compiler::GLSLFunction> functions;
-    if (!fFactory->fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs, &functions)) {
-        printf("%s\n", fFactory->fCompiler.errorText().c_str());
+    if (!fEffect->fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs, &functions)) {
+        printf("%s\n", fEffect->fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInAndUniformVars, glsl,
+    // TODO: This needs to keep a ref on the effect, too, if it's going to use the in/uniforms?
+    return new GrGLSLSkSLFP(specialized->fContext.get(), &fEffect->fInAndUniformVars, glsl,
                             formatArgs, functions);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                      GrProcessorKeyBuilder* b) const {
-    this->createFactory();
-    b->add32(fIndex);
+    b->add32(fEffect->fIndex);
     size_t offset = 0;
     char* inputs = (char*) fInputs.get();
-    const SkSL::Context& context = fFactory->fCompiler.context();
-    for (const auto& v : fFactory->fInAndUniformVars) {
+    const SkSL::Context& context = fEffect->fCompiler.context();
+    for (const auto& v : fEffect->fInAndUniformVars) {
         if (&v->fType == context.fFragmentProcessor_Type.get()) {
             continue;
         }
@@ -528,8 +416,8 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
-    SkASSERT(fIndex != sk.fIndex || fInputSize == sk.fInputSize);
-    return fIndex == sk.fIndex &&
+    SkASSERT(fEffect->fIndex != sk.fEffect->fIndex || fInputSize == sk.fInputSize);
+    return fEffect->fIndex == sk.fEffect->fIndex &&
             !memcmp(fInputs.get(), sk.fInputs.get(), fInputSize);
 }
 
@@ -542,37 +430,6 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
 }
 
 /**************************************************************************************************/
-GrSkSLFPFactoryCache::~GrSkSLFPFactoryCache() {}
-
-sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::findOrCreate(int index, const char* name,
-                                                          const char* skSL) {
-    // acquire lock for checking/adding to cache
-    SkAutoMutexExclusive ame(fCacheMutex);
-
-    sk_sp<GrSkSLFPFactory> factory = this->get(index);
-    if (!factory) {
-        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, skSL));
-        this->set(index, factory);
-    }
-
-    return factory;
-}
-
-sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::get(int index) {
-    if (index >= (int) fFactories.size()) {
-        return nullptr;
-    }
-
-    return fFactories[index];
-}
-
-void GrSkSLFPFactoryCache::set(int index, sk_sp<GrSkSLFPFactory> factory) {
-    while (index >= (int) fFactories.size()) {
-        fFactories.emplace_back();
-    }
-    SkASSERT(!fFactories[index]);
-    fFactories[index] = std::move(factory);
-}
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
@@ -592,38 +449,35 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
     int type = d->fRandom->nextULessThan(3);
     switch (type) {
         case 0: {
-            static int ditherIndex = NewIndex();
+            static auto ditherEffect = SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC));
             int rangeType = d->fRandom->nextULessThan(3);
-            std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(d->context(), ditherIndex, "Dither",
-                                                              SKSL_DITHER_SRC, &rangeType,
-                                                              sizeof(rangeType));
+            auto result = GrSkSLFP::Make(d->context(), ditherEffect, "Dither",
+                                         &rangeType, sizeof(rangeType));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
         case 1: {
-            static int arithmeticIndex = NewIndex();
+            static auto arithmeticEffect = SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC));
             ArithmeticFPInputs inputs;
             inputs.k[0] = d->fRandom->nextF();
             inputs.k[1] = d->fRandom->nextF();
             inputs.k[2] = d->fRandom->nextF();
             inputs.k[3] = d->fRandom->nextF();
             inputs.enforcePMColor = d->fRandom->nextBool();
-            std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(d->context(), arithmeticIndex,
-                                                              "Arithmetic", SKSL_ARITHMETIC_SRC,
-                                                              &inputs, sizeof(inputs));
+            auto result = GrSkSLFP::Make(d->context(), arithmeticEffect, "Arithmetic",
+                                         &inputs, sizeof(inputs));
             result->addChild(GrConstColorProcessor::Make(
                                                         SK_PMColor4fWHITE,
                                                         GrConstColorProcessor::InputMode::kIgnore));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
         case 2: {
-            static int overdrawIndex = NewIndex();
+            static auto overdrawEffect = SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC));
             SkPMColor inputs[6];
             for (int i = 0; i < 6; ++i) {
                 inputs[i] = d->fRandom->nextU();
             }
-            std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(d->context(), overdrawIndex,
-                                                              "Overdraw", SKSL_OVERDRAW_SRC,
-                                                              &inputs, sizeof(inputs));
+            auto result = GrSkSLFP::Make(d->context(), overdrawEffect, "Overdraw",
+                                         &inputs, sizeof(inputs));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
     }

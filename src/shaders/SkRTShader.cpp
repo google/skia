@@ -20,30 +20,28 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/SkGr.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/generated/GrMixerEffect.h"
 
-static inline uint32_t new_sksl_unique_id() {
+static inline int new_sksl_index() {
     return GrSkSLFP::NewIndex();
 }
 #else
-static inline uint32_t new_sksl_unique_id() {
+static inline int new_sksl_index() {
     return 0;   // not used w/o GPU
 }
 #endif
 
-SkRTShader::SkRTShader(int index, SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-                       bool isOpaque)
-    : SkShaderBase(localMatrix)
-    , fSkSL(std::move(sksl))
-    , fInputs(std::move(inputs))
-    , fUniqueID(index)
-    , fIsOpaque(isOpaque)
-{}
+SkRTShader::SkRTShader(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs,
+                       const SkMatrix* localMatrix, bool isOpaque)
+        : SkShaderBase(localMatrix)
+        , fEffect(std::move(effect))
+        , fIsOpaque(isOpaque)
+        , fInputs(std::move(inputs)) {
+}
 
 bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     SkMatrix inverse;
@@ -59,17 +57,13 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
 
     SkAutoMutexExclusive ama(fByteCodeMutex);
     if (!fByteCode) {
-        SkSL::Compiler c;
-        auto prog = c.convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                     SkSL::String(fSkSL.c_str()),
-                                     SkSL::Program::Settings());
-        if (c.errorCount()) {
-            SkDebugf("%s\n", c.errorText().c_str());
-            return false;
-        }
-        fByteCode = c.toByteCode(*prog);
-        if (c.errorCount()) {
-            SkDebugf("%s\n", c.errorText().c_str());
+        // TODO: Need to make this safe and fast. I think we (currently) need to reuse the original
+        // Compiler object, to ensure that type checks are against the same Context. A Context
+        // singleton could get around that. Otherwise, we need to guard usage of the effect's
+        // compiler, in case multiple threads are doing second-stage compiles.
+        fByteCode = fEffect->fCompiler.toByteCode(*fEffect->fBaseProgram);
+        if (fEffect->fCompiler.errorCount()) {
+            SkDebugf("%s\n", fEffect->fCompiler.errorText().c_str());
             return false;
         }
         SkASSERT(fByteCode);
@@ -100,7 +94,7 @@ void SkRTShader::flatten(SkWriteBuffer& buffer) const {
         flags |= kHasLocalMatrix_Flag;
     }
 
-    buffer.writeString(fSkSL.c_str());
+    buffer.writeString(fEffect->fSkSL.c_str());
     if (fInputs) {
         buffer.writeDataAsByteArray(fInputs.get());
     } else {
@@ -113,11 +107,6 @@ void SkRTShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
-    // We don't have a way to ensure that indices are consistent and correct when deserializing.
-    // Perhaps we should have a hash table to map strings to indices? For now, all shaders get a
-    // new unique ID after serialization.
-    int index = new_sksl_unique_id();
-
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
@@ -130,8 +119,11 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         localMPtr = &localM;
     }
 
-    return sk_sp<SkFlattenable>(new SkRTShader(index, std::move(sksl), std::move(inputs),
-                                               localMPtr, isOpaque));
+    // We don't have a way to ensure that indices are consistent and correct when deserializing.
+    // Perhaps we should have a hash table to map strings to indices? For now, all shaders get a
+    // new unique ID after serialization.
+    return sk_sp<SkFlattenable>(new SkRTShader(SkRuntimeEffect::Make(std::move(sksl)),
+                                               std::move(inputs), localMPtr, isOpaque));
 }
 
 #if SK_SUPPORT_GPU
@@ -140,17 +132,117 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
-    return GrSkSLFP::Make(args.fContext, fUniqueID, "runtime-shader", fSkSL,
+    return GrSkSLFP::Make(args.fContext, fEffect, "runtime-shader",
                           fInputs->data(), fInputs->size(), &matrix);
 }
 #endif
 
+sk_sp<SkRuntimeEffect> SkRuntimeEffect::Make(SkString sksl) {
+    return sk_sp<SkRuntimeEffect>(new SkRuntimeEffect(std::move(sksl)));
+}
+
+SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
+        : fIndex(new_sksl_index())
+        , fSkSL(std::move(sksl)) {
+    fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                            SkSL::String(fSkSL.c_str(), fSkSL.size()),
+                                            SkSL::Program::Settings());
+    if (!fBaseProgram) {
+        return;
+    }
+    SkASSERT(!fCompiler.errorCount());
+
+    for (const auto& e : *fBaseProgram) {
+        if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
+            SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
+            for (const auto& varStatement : v.fVars) {
+                const SkSL::Variable& var = *((SkSL::VarDeclaration&) * varStatement).fVar;
+                if ((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) ||
+                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)) {
+                    fInAndUniformVars.push_back(&var);
+                }
+                // "in uniform" doesn't make sense outside of .fp files
+                SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
+                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
+                // "layout(key)" doesn't make sense outside of .fp files; all 'in' variables are
+                // part of the key
+                SkASSERT(!var.fModifiers.fLayout.fKey);
+            }
+        }
+    }
+}
+
+static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
+    int arrayCount = 0;
+    if (type->kind() == SkSL::Type::kArray_Kind) {
+        arrayCount = type->columns();
+        type = &type->componentType();
+    }
+    return std::make_tuple(type, arrayCount);
+}
+
+std::unique_ptr<SkSL::Program> SkRuntimeEffect::getSpecialization(const void* inputs,
+                                                                  size_t inputSize) {
+    std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
+    size_t offset = 0;
+    for (const auto& v : fInAndUniformVars) {
+        auto [type, arrayCount] = strip_array(&v->fType);
+        arrayCount = SkTMax(1, arrayCount);
+        SkSL::String name(v->fName);
+        if (type == fCompiler.context().fInt_Type.get() ||
+            type == fCompiler.context().fShort_Type.get()) {
+            offset = SkAlign4(offset);
+            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                int32_t v = *(int32_t*)(((uint8_t*)inputs) + offset);
+                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            }
+            offset += sizeof(int32_t) * arrayCount;
+        } else if (type == fCompiler.context().fFloat_Type.get() ||
+                   type == fCompiler.context().fHalf_Type.get()) {
+            offset = SkAlign4(offset);
+            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                float v = *(float*)(((uint8_t*)inputs) + offset);
+                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            }
+            offset += sizeof(float) * arrayCount;
+        } else if (type == fCompiler.context().fBool_Type.get()) {
+            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                bool v = *(((bool*)inputs) + offset);
+                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            }
+            offset += sizeof(bool) * arrayCount;
+        } else if (type == fCompiler.context().fFloat2_Type.get() ||
+                   type == fCompiler.context().fHalf2_Type.get()) {
+            offset = SkAlign4(offset) + sizeof(float) * 2 * arrayCount;
+        } else if (type == fCompiler.context().fFloat3_Type.get() ||
+                   type == fCompiler.context().fHalf3_Type.get()) {
+            offset = SkAlign4(offset) + sizeof(float) * 3 * arrayCount;
+        } else if (type == fCompiler.context().fFloat4_Type.get() ||
+                   type == fCompiler.context().fHalf4_Type.get()) {
+            offset = SkAlign4(offset) + sizeof(float) * 4 * arrayCount;
+        } else if (type == fCompiler.context().fFragmentProcessor_Type.get()) {
+            // do nothing
+        } else {
+            printf("can't handle input var: %s\n", SkSL::String(v->fType.fName).c_str());
+            SkASSERT(false);
+        }
+    }
+
+    std::unique_ptr<SkSL::Program> specialized = fCompiler.specialize(*fBaseProgram, inputMap);
+    bool optimized = fCompiler.optimize(*specialized);
+    if (!optimized) {
+        SkDebugf("%s\n", fCompiler.errorText().c_str());
+        SkASSERT(false);
+    }
+    return specialized;
+}
+
 SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
-    : fIndex(new_sksl_unique_id())
-    , fSkSL(std::move(sksl))
+    : fEffect(SkRuntimeEffect::Make(std::move(sksl)))
     , fIsOpaque(isOpaque) {}
 
 sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
-    return sk_sp<SkShader>(
-            new SkRTShader(fIndex, fSkSL, std::move(inputs), localMatrix, fIsOpaque));
+    return fEffect && fEffect->isValid()
+        ? sk_sp<SkShader>(new SkRTShader(fEffect, std::move(inputs), localMatrix, fIsOpaque))
+        : nullptr;
 }
