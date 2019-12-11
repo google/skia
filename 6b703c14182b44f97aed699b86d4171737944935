@@ -45,6 +45,30 @@
       "revId": "6b703c14182b44f97aed699b86d4171737944935",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99e2db2e_ac4a74f6",
+        "filename": "tools/debugger/DrawCommand.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1323,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-12-11T20:36:23Z",
+      "side": 1,
+      "message": "Yeah, I thought better to use 64-bit anywhere I\u0027m forced to pick a size. It works.",
+      "parentUuid": "54ae3d7f_9f5fa689",
+      "range": {
+        "startLine": 1323,
+        "startChar": 11,
+        "endLine": 1323,
+        "endChar": 20
+      },
+      "revId": "6b703c14182b44f97aed699b86d4171737944935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
