@@ -272,7 +272,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 const GrBackendFormat& format,
                                                 SkImage::CompressionType compressionType,
-                                                SkBudgeted budgeted, const void* data,
+                                                SkBudgeted budgeted,
+                                                const void* data,
                                                 size_t dataSize) {
     // If we ever add a new CompressionType, we should add a check here to make sure the
     // GrBackendFormat and CompressionType are compatible with eachother.
@@ -291,7 +292,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
     if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
-    if (dataSize < GrCompressedDataSize(compressionType, width, height)) {
+    if (dataSize < GrCompressedDataSize(compressionType, {width, height})) {
         return nullptr;
     }
     return this->onCreateCompressedTexture(width, height, format, compressionType, budgeted, data);
@@ -763,6 +764,24 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data
     return true;
 }
 
+bool GrGpu::CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType compressionType,
+                                    int numLevels, size_t dataSize) {
+    if (numLevels != 1 &&
+        numLevels != SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1) {
+        return false;
+    }
+
+    size_t computedSize = 0;
+    for (int i = 1; i < numLevels; ++i) {
+        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+
+        // TODO: Are there any alignment issues here
+        computedSize += GrCompressedDataSize(compressionType, dimensions);
+    }
+
+    return computedSize == dataSize;
+}
+
 GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              GrRenderable renderable,
@@ -802,4 +821,45 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
 
     return this->onCreateBackendTexture(dimensions, format, renderable, data, numMipLevels,
                                         isProtected);
+}
+
+GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
+                                                       const GrBackendFormat& format,
+                                                       const BackendTextureData* data,
+                                                       int numMipLevels,
+                                                       GrProtected isProtected) {
+    const GrCaps* caps = this->caps();
+
+    if (!format.isValid()) {
+        return {};
+    }
+
+    SkImage::CompressionType compressionType;
+    if (!caps->isFormatCompressed(format, &compressionType)) {
+        // Un-compressed formats must go through the createBackendTexture API
+        return {};
+    }
+
+#ifdef SK_DEBUG
+    if (data) {
+        SkASSERT(data->type() != BackendTextureData::Type::kPixmaps);
+    }
+#endif
+
+    if (dimensions.isEmpty() ||
+        dimensions.width()  > caps->maxTextureSize() ||
+        dimensions.height() > caps->maxTextureSize()) {
+        return {};
+    }
+
+    if (numMipLevels > 1 && !this->caps()->mipMapSupport()) {
+        return {};
+    }
+
+    if (!CompressedDataIsCorrect(dimensions, compressionType, numMipLevels, dataSize)) {
+        return {};
+    }
+
+    return this->onCreateCompressedBackendTexture(dimensions, format, data, numMipLevels,
+                                                  isProtected);
 }

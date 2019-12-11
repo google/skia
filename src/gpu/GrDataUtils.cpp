@@ -121,12 +121,12 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
-size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height) {
+size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions) {
     switch (type) {
         case SkImage::CompressionType::kNone:
             return 0;
         case SkImage::CompressionType::kETC1:
-            int numBlocks = num_ETC1_blocks(width, height);
+            int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
             return numBlocks * sizeof(ETC1Block);
     }
     SkUNREACHABLE;
