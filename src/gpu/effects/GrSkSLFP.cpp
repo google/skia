@@ -18,10 +18,9 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
+GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const char* sksl)
         : fName(name) {
     SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
     fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(sksl), settings);
     if (fCompiler.errorCount()) {
@@ -58,13 +57,8 @@ static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
     return std::make_tuple(type, arrayCount);
 }
 
-const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key, const void* inputs,
-                                                        size_t inputSize) {
-    const auto& found = fSpecializations.find(key);
-    if (found != fSpecializations.end()) {
-        return found->second.get();
-    }
-
+std::unique_ptr<SkSL::Program> GrSkSLFPFactory::getSpecialization(const void* inputs,
+                                                                  size_t inputSize) {
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     size_t offset = 0;
     for (const auto& v : fInAndUniformVars) {
@@ -116,9 +110,7 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
         SkDebugf("%s\n", fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    const SkSL::Program* result = specialized.get();
-    fSpecializations.insert(std::make_pair(key, std::move(specialized)));
-    return result;
+    return specialized;
 }
 
 static std::tuple<SkSL::Layout::CType, int> get_ctype(const SkSL::Context& context,
@@ -380,6 +372,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          const char* sksl, const void* inputs, size_t inputSize,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
+                                                  context->priv().caps()->refShaderCaps(),
                                                   index, name, sksl, SkString(),
                                                   inputs, inputSize, matrix));
 }
@@ -388,16 +381,18 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(GrContext_Base* context, int index, con
                                          SkString sksl, const void* inputs, size_t inputSize,
                                          const SkMatrix* matrix) {
     return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(context->priv().fpFactoryCache(),
+                                                  context->priv().caps()->refShaderCaps(),
                                                   index, name, nullptr, std::move(sksl),
                                                   inputs, inputSize, matrix));
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
+GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<const GrShaderCaps> shaderCaps,
                    int index, const char* name, const char* sksl,
                    SkString skslString, const void* inputs, size_t inputSize,
                    const SkMatrix* matrix)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(factoryCache)
+        , fShaderCaps(std::move(shaderCaps))
         , fIndex(index)
         , fName(name)
         , fSkSLString(skslString)
@@ -416,6 +411,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, kNone_OptimizationFlags)
         , fFactoryCache(other.fFactoryCache)
+        , fShaderCaps(other.fShaderCaps)
         , fFactory(other.fFactory)
         , fIndex(other.fIndex)
         , fName(other.fName)
@@ -448,7 +444,9 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     this->createFactory();
-    const SkSL::Program* specialized = fFactory->getSpecialization(fKey, fInputs.get(), fInputSize);
+    auto specialized = fFactory->getSpecialization(fInputs.get(), fInputSize);
+    specialized->fSettings.fCaps = fShaderCaps.get();
+
     SkSL::String glsl;
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
     std::vector<SkSL::Compiler::GLSLFunction> functions;
@@ -458,19 +456,6 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     }
     return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInAndUniformVars, glsl,
                             formatArgs, functions);
-}
-
-static void copy_floats_key(char* inputs, GrProcessorKeyBuilder* b, bool isIn, int count,
-                            size_t* offset, SkSL::String* key) {
-    if (isIn) {
-        for (size_t i = 0; i < sizeof(float) * count; ++i) {
-            (*key) += inputs[*offset + i];
-            b->add32(*(int32_t*) (inputs + *offset));
-            (*offset) += sizeof(float);
-        }
-    } else {
-        (*offset) += sizeof(float) * count;
-    }
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -489,7 +474,6 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
             switch (ctype) {
                 case SkSL::Layout::CType::kBool:
                     if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                        fKey += inputs[offset];
                         b->add32(inputs[offset]);
                     }
                     ++offset;
@@ -497,10 +481,6 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 case SkSL::Layout::CType::kInt32: {
                     offset = SkAlign4(offset);
                     if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                        fKey += inputs[offset + 0];
-                        fKey += inputs[offset + 1];
-                        fKey += inputs[offset + 2];
-                        fKey += inputs[offset + 3];
                         b->add32(*(int32_t*)(inputs + offset));
                     }
                     offset += sizeof(int32_t);
@@ -509,28 +489,33 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 case SkSL::Layout::CType::kFloat: {
                     offset = SkAlign4(offset);
                     if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                        fKey += inputs[offset + 0];
-                        fKey += inputs[offset + 1];
-                        fKey += inputs[offset + 2];
-                        fKey += inputs[offset + 3];
                         b->add32(*(float*)(inputs + offset));
                     }
                     offset += sizeof(float);
                     break;
                 }
                 case SkSL::Layout::CType::kFloat2:
-                    copy_floats_key(inputs, b, v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag, 2,
-                                    &offset, &fKey);
+                    offset = SkAlign4(offset);
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                        memcpy(b->add32n(2), inputs + offset, 2 * sizeof(float));
+                    }
+                    offset += 2 * sizeof(float);
                     break;
                 case SkSL::Layout::CType::kFloat3:
-                    copy_floats_key(inputs, b, v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag, 3,
-                                    &offset, &fKey);
+                    offset = SkAlign4(offset);
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                        memcpy(b->add32n(3), inputs + offset, 3 * sizeof(float));
+                    }
+                    offset += 3 * sizeof(float);
                     break;
                 case SkSL::Layout::CType::kSkPMColor:
                 case SkSL::Layout::CType::kSkPMColor4f:
                 case SkSL::Layout::CType::kSkRect:
-                    copy_floats_key(inputs, b, v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag, 4,
-                                    &offset, &fKey);
+                    offset = SkAlign4(offset);
+                    if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
+                        memcpy(b->add32n(4), inputs + offset, 4 * sizeof(float));
+                    }
+                    offset += 4 * sizeof(float);
                     break;
                 default:
                     // unsupported input var type
@@ -566,7 +551,7 @@ sk_sp<GrSkSLFPFactory> GrSkSLFPFactoryCache::findOrCreate(int index, const char*
 
     sk_sp<GrSkSLFPFactory> factory = this->get(index);
     if (!factory) {
-        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, fShaderCaps.get(), skSL));
+        factory = sk_sp<GrSkSLFPFactory>(new GrSkSLFPFactory(name, skSL));
         this->set(index, factory);
     }
 
