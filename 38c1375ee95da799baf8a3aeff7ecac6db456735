@@ -39,6 +39,30 @@
       "revId": "38c1375ee95da799baf8a3aeff7ecac6db456735",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2aa8a77_8723cc41",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2019-12-11T15:50:29Z",
+      "side": 1,
+      "message": "I don\u0027t really know honestly, I\u0027ve seen answers going both ways on whether one should use const in these situations.",
+      "parentUuid": "6fb47367_13b4971c",
+      "range": {
+        "startLine": 94,
+        "startChar": 39,
+        "endLine": 94,
+        "endChar": 44
+      },
+      "revId": "38c1375ee95da799baf8a3aeff7ecac6db456735",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
