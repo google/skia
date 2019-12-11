@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPath.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRegionPriv.h"
 
@@ -72,7 +73,7 @@ void SkConservativeClip::opRect(const SkRect& localRect, const SkMatrix& ctm,
             break;
         case kContinue_MutateResult: {
             SkRect devRect;
-            ctm.mapRect(&devRect, localRect);
+            SkPathPriv::PerspectiveSafeMapRect(localRect, ctm, &devRect);
             ir = doAA ? devRect.roundOut() : devRect.round();
         } break;
     }
@@ -266,7 +267,7 @@ bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect&
     if (matrix.isIdentity()) {
         devPath = path;
     } else {
-        path.transform(matrix, &devPath);
+        SkPathPriv::PerspectiveSafeTransform(path, matrix, &devPath);
         devPath.setIsVolatile(true);
     }
     if (SkRegion::kIntersect_Op == op) {

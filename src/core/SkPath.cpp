@@ -3615,3 +3615,56 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
     clippedPath->reset();
     return true;
 }
+
+// true means we have written to clippedPath
+bool SkPathPriv::PerspectiveClip(const SkRect& rect, const SkMatrix& matrix, SkPath* clippedPath) {
+    if (!matrix.hasPerspective()) {
+        return false;
+    }
+
+    constexpr SkScalar kW0PlaneDistance = 0.05f;
+    const SkHalfPlane plane {
+        matrix[SkMatrix::kMPersp0],
+        matrix[SkMatrix::kMPersp1],
+        matrix[SkMatrix::kMPersp2] - kW0PlaneDistance
+    };
+
+    switch (plane.test(rect)) {
+        case SkHalfPlane::kAllPositive:
+            return false;
+        case SkHalfPlane::kMixed: {
+            SkPoint pts[2];
+            if (plane.twoPts(pts)) {
+                SkPath path;
+                path.addRect(rect);
+                clip(path, pts[0], pts[1], clippedPath);
+                return true;
+            }
+        } break;
+        default: break; // handled outside of the switch
+    }
+    // clipped out (or failed)
+    clippedPath->reset();
+    return true;
+}
+
+void SkPathPriv::PerspectiveSafeTransform(const SkPath& src, const SkMatrix& matrix, SkPath* dst) {
+    SkPath perspectiveClipped;
+    if (PerspectiveClip(src, matrix, &perspectiveClipped)) {
+        perspectiveClipped.transform(matrix, dst);
+    } else {
+        src.transform(matrix, dst);
+    }
+}
+
+bool SkPathPriv::PerspectiveSafeMapRect(const SkRect& src, const SkMatrix& matrix, SkRect* dst) {
+    if (matrix.hasPerspective()) {
+        SkPath perspectiveClipped;
+        if (PerspectiveClip(src, matrix, &perspectiveClipped)) {
+            perspectiveClipped.transform(matrix);
+            *dst = perspectiveClipped.getBounds();
+            return false;
+        }
+    }
+    return matrix.mapRect(dst, src);
+}

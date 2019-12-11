@@ -326,6 +326,21 @@ public:
      *  If no clipping is needed, returns false and "result" is left unchanged.
      */
     static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
+    static bool PerspectiveClip(const SkRect& rect, const SkMatrix& matrix, SkPath* clippedRect);
+
+    /**
+     *  Similar to src.transform(mx, result), except that it does this safely in the presence
+     *  of perspective in mx. i.e. if src needs to be pre-clipped, this is performed.
+     *  See PerspectiveClip for this pre-set.
+     */
+    static void PerspectiveSafeTransform(const SkPath& src, const SkMatrix& mx, SkPath* result);
+
+    /**
+     *  Similar to mx.mapRect(src), except that it does this safely in the presence
+     *  of perspective in mx. i.e. if src needs to be pre-clipped, this is performed.
+     *  See PerspectiveClip for this pre-set.
+     */
+    static bool PerspectiveSafeMapRect(const SkRect& src, const SkMatrix& mx, SkRect* dst);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
