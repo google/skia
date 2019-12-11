@@ -4,16 +4,13 @@
 #include "include/core/SkTypes.h"
 
 #ifdef SK_METAL
-    #include "experimental/skottie_ios/SkMetalViewBridge.h"
-    #include "experimental/skottie_ios/SkottieMtkView.h"
-
-    #include "include/gpu/GrContext.h"
-    #include "include/gpu/GrContextOptions.h"
+    #include "tools/skottie_ios_app/SkMetalViewBridge.h"
+    #include "tools/skottie_ios_app/SkottieMtkView.h"
 
     #import <Metal/Metal.h>
     #import <MetalKit/MetalKit.h>
 #else
-    #include "experimental/skottie_ios/SkottieUIView.h"
+    #include "tools/skottie_ios_app/SkottieUIView.h"
 #endif
 
 #import <UIKit/UIKit.h>
@@ -81,7 +78,7 @@ static UIStackView* make_skottie_stack(CGFloat width) {
 
 @implementation AppViewController {
     #ifdef SK_METAL
-    sk_sp<GrContext> fGrContext;
+    GrContextHolder fGrContext;
     #endif
 }
 
@@ -99,9 +96,7 @@ static UIStackView* make_skottie_stack(CGFloat width) {
             return;
         }
         [self setMetalQueue:[[self metalDevice] newCommandQueue]];
-        GrContextOptions grContextOptions;  // set different options here.
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue],
-                                              grContextOptions);
+        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue]);
     }
     [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width,
                                           [self metalDevice], [self metalQueue], fGrContext.get())];
