@@ -18,7 +18,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkAnimCodecPlayer.h"
-#include "src/core/SkMakeUnique.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -481,7 +480,7 @@ DEF_TEST(AnimCodecPlayer, r) {
         auto codec = SkCodec::MakeFromData(GetResourceAsData(test.fFile));
         REPORTER_ASSERT(r, codec);
 
-        auto player = skstd::make_unique<SkAnimCodecPlayer>(std::move(codec));
+        auto player = std::make_unique<SkAnimCodecPlayer>(std::move(codec));
         if (player->duration() != test.fDuration) {
             printf("*** %d vs %d\n", player->duration(), test.fDuration);
         }

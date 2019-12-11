@@ -18,7 +18,6 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkNormalSource.h"
 #include "src/core/SkOSFile.h"
@@ -386,7 +385,7 @@ static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
         } else {
             SkFixed axis = SK_FixedSqrt2;
             sk_sp<SkTypeface> typeface(SkTypeface::MakeFromFontData(
-                skstd::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
+                std::make_unique<SkFontData>(std::move(distortable), 0, &axis, 1)));
             if (!typeface) {
                 INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
             } else {

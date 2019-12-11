@@ -18,7 +18,6 @@
 #include "src/codec/SkJpegCodec.h"
 #include "src/codec/SkRawCodec.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/core/SkTaskGroup.h"
 

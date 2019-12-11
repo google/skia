@@ -17,7 +17,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkMakeUnique.h"
 #include "tools/ToolUtils.h"
 
 namespace {
@@ -66,7 +65,7 @@ const MakerT makers[] = {
 
     // SkImage_Lazy
     [](SkCanvas*, const SkImageInfo& info) -> sk_sp<SkImage> {
-        return SkImage::MakeFromGenerator(skstd::make_unique<MaskGenerator>(info));
+        return SkImage::MakeFromGenerator(std::make_unique<MaskGenerator>(info));
     },
 };
 

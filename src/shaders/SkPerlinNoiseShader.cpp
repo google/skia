@@ -12,7 +12,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -1414,7 +1413,7 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());
 
     std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> paintingData =
-        skstd::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
+        std::make_unique<SkPerlinNoiseShaderImpl::PaintingData>(fTileSize,
                                                                   fSeed,
                                                                   fBaseFrequencyX,
                                                                   fBaseFrequencyY,

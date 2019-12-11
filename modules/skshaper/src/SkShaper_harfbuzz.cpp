@@ -25,7 +25,6 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkTDPQueue.h"
 #include "src/utils/SkUTF.h"
@@ -762,12 +761,12 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool cor
     }
 
     if (correct) {
-        return skstd::make_unique<ShaperDrivenWrapper>(std::move(buffer),
+        return std::make_unique<ShaperDrivenWrapper>(std::move(buffer),
                                                        std::move(lineBreakIterator),
                                                        std::move(graphemeBreakIterator),
                                                        std::move(fontmgr));
     } else {
-        return skstd::make_unique<ShapeThenWrap>(std::move(buffer),
+        return std::make_unique<ShapeThenWrap>(std::move(buffer),
                                                  std::move(lineBreakIterator),
                                                  std::move(graphemeBreakIterator),
                                                  std::move(fontmgr));
@@ -1432,12 +1431,12 @@ SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bid
         return nullptr;
     }
 
-    return skstd::make_unique<IcuBiDiRunIterator>(utf8, utf8 + utf8Bytes, std::move(bidi));
+    return std::make_unique<IcuBiDiRunIterator>(utf8, utf8 + utf8Bytes, std::move(bidi));
 }
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
-    return skstd::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
+    return std::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
 }
 
 std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fontmgr) {
@@ -1459,6 +1458,6 @@ std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> 
         return nullptr;
     }
 
-    return skstd::make_unique<ShapeDontWrapOrReorder>(std::move(buffer), nullptr, nullptr,
+    return std::make_unique<ShapeDontWrapOrReorder>(std::move(buffer), nullptr, nullptr,
                                                       std::move(fontmgr));
 }

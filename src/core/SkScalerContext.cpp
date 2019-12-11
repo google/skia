@@ -20,7 +20,6 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathPriv.h"
@@ -903,7 +902,7 @@ std::unique_ptr<SkScalerContext> SkTypeface::createScalerContext(
 {
     std::unique_ptr<SkScalerContext> c(this->onCreateScalerContext(effects, desc));
     if (!c && !allowFailure) {
-        c = skstd::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
+        c = std::make_unique<SkScalerContext_Empty>(sk_ref_sp(const_cast<SkTypeface*>(this)),
                                                       effects, desc);
     }
 

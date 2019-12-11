@@ -12,7 +12,6 @@
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkReflected.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -126,7 +125,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
 
         SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
 
-        auto rand = skstd::make_unique<SkRandomExternalValue>("rand", compiler);
+        auto rand = std::make_unique<SkRandomExternalValue>("rand", compiler);
         compiler.registerExternalValue(rand.get());
         externalValues.push_back(std::move(rand));
 

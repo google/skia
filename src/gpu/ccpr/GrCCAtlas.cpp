@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkIPoint16.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
@@ -111,7 +110,7 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
         fHeight = SkTMin(specs.fMinHeight + kPadding, fMaxTextureSize);
     }
 
-    fTopNode = skstd::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
+    fTopNode = std::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
     fTextureProxy = MakeLazyAtlasProxy(
             [this](GrResourceProvider* resourceProvider, GrPixelConfig pixelConfig,
@@ -163,11 +162,11 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
         if (fHeight <= fWidth) {
             int top = fHeight;
             fHeight = SkTMin(fHeight * 2, fMaxTextureSize);
-            fTopNode = skstd::make_unique<Node>(std::move(fTopNode), 0, top, fWidth, fHeight);
+            fTopNode = std::make_unique<Node>(std::move(fTopNode), 0, top, fWidth, fHeight);
         } else {
             int left = fWidth;
             fWidth = SkTMin(fWidth * 2, fMaxTextureSize);
-            fTopNode = skstd::make_unique<Node>(std::move(fTopNode), left, 0, fWidth, fHeight);
+            fTopNode = std::make_unique<Node>(std::move(fTopNode), left, 0, fWidth, fHeight);
         }
     } while (!fTopNode->addRect(w, h, loc, fMaxTextureSize));
 

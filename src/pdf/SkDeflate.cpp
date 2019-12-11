@@ -10,7 +10,6 @@
 #include "include/core/SkData.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTraceEvent.h"
 
 #include "zlib.h"
@@ -66,7 +65,7 @@ struct SkDeflateWStream::Impl {
 SkDeflateWStream::SkDeflateWStream(SkWStream* out,
                                    int compressionLevel,
                                    bool gzip)
-    : fImpl(skstd::make_unique<SkDeflateWStream::Impl>()) {
+    : fImpl(std::make_unique<SkDeflateWStream::Impl>()) {
     fImpl->fOut = out;
     fImpl->fInBufferIndex = 0;
     if (!fImpl->fOut) {

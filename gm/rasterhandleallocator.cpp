@@ -11,7 +11,6 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkSurface.h"
-#include "src/core/SkMakeUnique.h"
 
 class GraphicsPort {
 protected:
@@ -298,7 +297,7 @@ DEF_SIMPLE_GM(rasterallocator, canvas, 600, 300) {
 
     const SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     std::unique_ptr<SkCanvas> nativeCanvas =
-        SkRasterHandleAllocator::MakeCanvas(skstd::make_unique<MyAllocator>(), info);
+        SkRasterHandleAllocator::MakeCanvas(std::make_unique<MyAllocator>(), info);
     MyPort nativePort(nativeCanvas.get());
     doDraw(&nativePort);
 

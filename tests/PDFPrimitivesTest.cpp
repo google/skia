@@ -22,7 +22,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilter_Base.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/pdf/SkClusterator.h"

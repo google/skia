@@ -30,7 +30,6 @@
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScopeExit.h"
@@ -1020,7 +1019,7 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() {
         fActiveStackState = SkPDFGraphicStackState();
     }
     if (fContent.bytesWritten() == 0) {
-        return skstd::make_unique<SkMemoryStream>();
+        return std::make_unique<SkMemoryStream>();
     }
     SkDynamicMemoryWStream buffer;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {

@@ -12,7 +12,6 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/core/SkMakeUnique.h"
 #include "tools/Resources.h"
 
 #include <cmath>
@@ -102,7 +101,7 @@ protected:
 
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream("skottie/skottie_sample_search.json")) {
-            fPropManager = skstd::make_unique<skottie_utils::CustomPropertyManager>();
+            fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
             fAnimation   = skottie::Animation::Builder()
                               .setPropertyObserver(fPropManager->getPropertyObserver())
                               .make(stream.get());

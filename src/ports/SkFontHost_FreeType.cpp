@@ -22,7 +22,6 @@
 #include "src/core/SkFDot6.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkScalerContext.h"
@@ -699,7 +698,7 @@ static bool isAxisAligned(const SkScalerContextRec& rec) {
 
 SkScalerContext* SkTypeface_FreeType::onCreateScalerContext(const SkScalerContextEffects& effects,
                                                             const SkDescriptor* desc) const {
-    auto c = skstd::make_unique<SkScalerContext_FreeType>(
+    auto c = std::make_unique<SkScalerContext_FreeType>(
             sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
     if (!c->success()) {
         return nullptr;
@@ -722,7 +721,7 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(
                                axisValues, name);
     int ttcIndex;
     std::unique_ptr<SkStreamAsset> stream = this->openStream(&ttcIndex);
-    return skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, axisValues.get(),
+    return std::make_unique<SkFontData>(std::move(stream), ttcIndex, axisValues.get(),
                                           axisDefinitions.count());
 }
 

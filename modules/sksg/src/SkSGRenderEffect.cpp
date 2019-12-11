@@ -10,7 +10,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkShader.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskFilterBase.h"
 
 namespace sksg {
@@ -178,7 +177,7 @@ void ImageFilterEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) con
 }
 
 ImageFilter::ImageFilter(sk_sp<ImageFilter> input)
-    : ImageFilter(input ? skstd::make_unique<InputsT>(1, std::move(input)) : nullptr) {}
+    : ImageFilter(input ? std::make_unique<InputsT>(1, std::move(input)) : nullptr) {}
 
 ImageFilter::ImageFilter(std::unique_ptr<InputsT> inputs)
     : INHERITED(kBubbleDamage_Trait)

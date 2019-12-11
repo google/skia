@@ -17,7 +17,6 @@
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkLatticeIter.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkSurfacePriv.h"
@@ -1676,7 +1675,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
         auto ii = SkImageInfo::Make(rect.size(), colorType,
                                     this->colorInfo().alphaType(),
                                     this->colorInfo().refColorSpace());
-        auto result = skstd::make_unique<AsyncReadResult>(0);
+        auto result = std::make_unique<AsyncReadResult>(0);
         std::unique_ptr<char[]> data(new char[ii.computeMinByteSize()]);
         SkPixmap pm(ii, data.get(), ii.minRowBytes());
         result->addCpuPlane(std::move(data), pm.rowBytes());
@@ -1707,7 +1706,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
                                             std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        auto result = skstd::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
+        auto result = std::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
         size_t rowBytes = context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType);
         if (!result->addTransferResult(context->fTransferResult, context->fSize, rowBytes,
                                        context->fMappedBufferManager)) {
@@ -1906,7 +1905,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
                                             std::move(vTransfer)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        auto result = skstd::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
+        auto result = std::make_unique<AsyncReadResult>(context->fMappedBufferManager->inboxID());
         auto manager = context->fMappedBufferManager;
         size_t rowBytes = SkToSizeT(context->fSize.width());
         if (!result->addTransferResult(context->fYTransfer, context->fSize, rowBytes, manager)) {

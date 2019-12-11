@@ -14,7 +14,6 @@
 #include "include/private/SkOnce.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkEnumerate.h"
-#include "src/core/SkMakeUnique.h"
 #include <cctype>
 
 SkStrike::SkStrike(

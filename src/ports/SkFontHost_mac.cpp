@@ -39,7 +39,6 @@
 #include "src/core/SkEndian.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkTypefaceCache.h"
@@ -2086,10 +2085,10 @@ std::unique_ptr<SkFontData> SkTypeface_Mac::onMakeFontData() const {
     CFIndex cgAxisCount;
     SkAutoSTMalloc<4, SkFixed> axisValues;
     if (get_variations(fFontRef.get(), &cgAxisCount, &axisValues)) {
-        return skstd::make_unique<SkFontData>(std::move(stream), index,
+        return std::make_unique<SkFontData>(std::move(stream), index,
                                               axisValues.get(), cgAxisCount);
     }
-    return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
+    return std::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 }
 
 /** Creates a CT variation dictionary {tag, value} from a CG variation dictionary {name, value}. */
