@@ -5,8 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include <src/gpu/effects/generated/GrSimpleTextureEffect.h>
+#include "src/core/SkMatrixPriv.h"
 
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -64,7 +65,7 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
      * favorite overall spline - this is now commonly known as the Mitchell filter, and is the
      * source of the specific weights below.
      *
-     * This is GLSL, so the matrix is column-major (transposed from standard matrix notation).
+     * This is SkSL, so the matrix is column-major (transposed from standard matrix notation).
      */
     fragBuilder->codeAppend("half4x4 kMitchellCoefficients = half4x4("
                             " 1.0 / 18.0,  16.0 / 18.0,   1.0 / 18.0,  0.0 / 18.0,"
@@ -162,32 +163,71 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                     processor.textureSampler(0).samplerState());
 }
 
-GrBicubicEffect::GrBicubicEffect(sk_sp<GrSurfaceProxy> proxy, const SkMatrix& matrix,
-                                 const SkRect& domain, const GrSamplerState::WrapMode wrapModes[2],
-                                 GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
-                                 Direction direction, SkAlphaType alphaType)
-        : INHERITED{kGrBicubicEffect_ClassID,
-                    ModulateForSamplerOptFlags(
-                            alphaType, GrTextureDomain::IsDecalSampled(wrapModes, modeX, modeY))}
-        , fCoordTransform(matrix, proxy.get())
-        , fDomain(proxy.get(), domain, modeX, modeY)
-        , fTextureSampler(std::move(proxy),
-                          GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
-        , fAlphaType(alphaType)
+static GrTextureDomain::Mode wrap_mode_to_domain_mode(const GrSamplerState::WrapMode wrap) {
+    switch (wrap) {
+        case GrSamplerState::WrapMode::kClamp:
+            return GrTextureDomain::kClamp_Mode;
+        case GrSamplerState::WrapMode::kRepeat:
+            return GrTextureDomain::kRepeat_Mode;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return GrTextureDomain::kMirrorRepeat_Mode;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            return GrTextureDomain::kDecal_Mode;
+    }
+    SkUNREACHABLE;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(sk_sp<GrSurfaceProxy> proxy,
+                                                           const GrCaps* caps,
+                                                           const SkMatrix& matrix,
+                                                           const GrSamplerState::WrapMode wrapModes[2],
+                                                           Direction direction,
+                                                           SkAlphaType alphaType,
+                                                           const SkRect* domain) {
+    GrTextureDomain::Mode modeX = GrTextureDomain::kIgnore_Mode;
+    GrTextureDomain::Mode modeY = GrTextureDomain::kIgnore_Mode;
+    SkRect domainRect;
+    if (domain) {
+        SkASSERT(proxy->getBoundsRect().contains(*domain));
+        domainRect = *domain;
+    } else {
+        domainRect = proxy->getBoundsRect();
+    }
+    GrSamplerState::WrapMode actualWrapModes[2] = {wrapModes[0], wrapModes[1]};
+    bool requireDomain = false;
+    if (domainRect.left() != 0 || domainRect.right() != proxy->backingStoreDimensions().width() ||
+        (wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder && !caps->clampToBorderSupport())) {
+        modeX = wrap_mode_to_domain_mode(wrapModes[0]);
+        actualWrapModes[0] = GrSamplerState::WrapMode::kClamp;
+        requireDomain = true;
+    }
+    if (domainRect.top() != 0 || domainRect.bottom() != proxy->backingStoreDimensions().height() ||
+        (wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder && !caps->clampToBorderSupport())) {
+        modeY = wrap_mode_to_domain_mode(wrapModes[1]);
+        actualWrapModes[1] = GrSamplerState::WrapMode::kClamp;
+        requireDomain = true;
+    }
+    auto sampler = GrSamplerState(actualWrapModes, GrSamplerState::Filter::kNearest);
+    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), alphaType, matrix, sampler);
+    if (requireDomain) {
+        fp = GrDomainEffect::Make(std::move(fp), domainRect, modeX, modeY, false);
+    }
+    return std::unique_ptr<GrFragmentProcessor>(new GrBicubicEffect(std::move(fp), direction));
+}
+
+GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp, Direction direction)
+        : INHERITED{kGrBicubicEffect_ClassID, ProcessorOptimizationFlags(fp.get()))
         , fDirection(direction) {
-    this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
+    fp->setSampledWithExplicitCoords(true);
+    this->registerChildProcessor(std::move(fp));
 }
 
 GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         : INHERITED(kGrBicubicEffect_ClassID, that.optimizationFlags())
-        , fCoordTransform(that.fCoordTransform)
-        , fDomain(that.fDomain)
-        , fTextureSampler(that.fTextureSampler)
-        , fAlphaType(that.fAlphaType)
         , fDirection(that.fDirection) {
-    this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
+    auto child = this->childProcessor(0).clone();
+    child->setSampledWithExplicitCoords(true);
+    this->registerChildProcessor(std::move(child));
 }
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -201,7 +241,7 @@ GrGLSLFragmentProcessor* GrBicubicEffect::onCreateGLSLInstance() const  {
 
 bool GrBicubicEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrBicubicEffect& s = sBase.cast<GrBicubicEffect>();
-    return fDomain == s.fDomain && fDirection == s.fDirection && fAlphaType == s.fAlphaType;
+    return fDirection == s.fDirection;
 }
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
