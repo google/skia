@@ -128,7 +128,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         return nullptr;
     }
 
-    if (this->caps()->isFormatCompressed(format)) {
+    if (this->caps()->compressionType(format) != SkImage::CompressionType::kNone) {
         // TODO: Allow this to go to GrResourceProvider::createCompressedTexture() once we no longer
         // rely on GrColorType to get to GrPixelConfig. Currently this will cause
         // makeConfigSpecific() to assert because GrColorTypeToPixelConfig() never returns a
@@ -439,7 +439,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
                                                    GrSurfaceProxy::UseAllocator useAllocator) {
     const GrCaps* caps = this->caps();
 
-    if (caps->isFormatCompressed(format)) {
+    if (caps->compressionType(format) != SkImage::CompressionType::kNone) {
         // Deferred proxies for compressed textures are not supported.
         return nullptr;
     }
