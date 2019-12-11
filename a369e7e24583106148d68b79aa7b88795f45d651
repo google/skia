@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96ebc83d_938475cf",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-11T22:26:35Z",
+      "side": 1,
+      "message": "Just use std::make_unique here?",
+      "range": {
+        "startLine": 125,
+        "startChar": 24,
+        "endLine": 125,
+        "endChar": 90
+      },
+      "revId": "a369e7e24583106148d68b79aa7b88795f45d651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73dc930e_3d514501",
+        "filename": "src/gpu/GrRecordingContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-11T22:26:35Z",
+      "side": 1,
+      "message": "Seems like we could ditch this assert",
+      "range": {
+        "startLine": 128,
+        "startChar": 4,
+        "endLine": 128,
+        "endChar": 28
+      },
+      "revId": "a369e7e24583106148d68b79aa7b88795f45d651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
