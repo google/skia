@@ -9,6 +9,7 @@
 
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkMipMap.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
@@ -121,15 +122,30 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
-size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height) {
+size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions, GrMipMapped mipMapped) {
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
+    size_t totalSize = 0;
     switch (type) {
         case SkImage::CompressionType::kNone:
-            return 0;
-        case SkImage::CompressionType::kETC1:
-            int numBlocks = num_ETC1_blocks(width, height);
-            return numBlocks * sizeof(ETC1Block);
+            break;
+        case SkImage::CompressionType::kETC1: {
+            for (int i = 0; i < numMipLevels; ++i) {
+                // TODO: add a compressedSingleLevelDataSize method
+                int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
+
+                // TODO: Are there any alignment issues here
+                totalSize += numBlocks * sizeof(ETC1Block);
+
+                dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+            }
+        }
     }
-    SkUNREACHABLE;
+
+    return totalSize;
 }
 
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
@@ -192,13 +208,29 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
     return combinedBufferSize;
 }
 
-void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int baseHeight,
+void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
+                            GrMipMapped mipMapped,
                             char* dstPixels, const SkColor4f& colorf) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    int currentWidth = baseWidth;
-    int currentHeight = baseHeight;
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
     if (SkImage::CompressionType::kETC1 == type) {
-        fillin_ETC1_with_color(currentWidth, currentHeight, colorf, dstPixels);
+        size_t offset = 0;
+
+        for (int i = 0; i < numMipLevels; ++i) {
+            fillin_ETC1_with_color(dimensions.width(), dimensions.height(), colorf, &dstPixels[offset]);
+
+            // TODO: add a compressedSingleLevelDataSize method
+            int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
+
+            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+
+            offset += numBlocks * sizeof(ETC1Block);
+        }
     }
 }
 
