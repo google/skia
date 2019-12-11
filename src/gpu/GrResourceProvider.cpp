@@ -175,7 +175,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
     // Currently we don't recycle compressed textures as scratch. Additionally all compressed
     // textures should be created through the createCompressedTexture function.
-    SkASSERT(!this->caps()->isFormatCompressed(format));
+    SkASSERT(this->caps()->isFormatCompressed(format));
 
     // TODO: Support GrMipMapped::kYes in scratch texture lookup here.
     sk_sp<GrTexture> tex = this->getExactScratch(
@@ -230,7 +230,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
 
     // Currently we don't recycle compressed textures as scratch. Additionally all compressed
     // textures should be created through the createCompressedTexture function.
-    SkASSERT(!this->caps()->isFormatCompressed(format));
+    SkASSERT(this->caps()->isFormatCompressed(format));
 
     if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
                                       renderTargetSampleCnt, GrMipMapped::kNo)) {
@@ -260,7 +260,7 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
                                                        GrProtected isProtected) {
     ASSERT_SINGLE_OWNER
     SkASSERT(!this->isAbandoned());
-    SkASSERT(!this->caps()->isFormatCompressed(format));
+    SkASSERT(this->caps()->isFormatCompressed(format));
     SkASSERT(fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
                                           renderable, renderTargetSampleCnt, GrMipMapped::kNo));
 

@@ -84,7 +84,7 @@ bool GrTexture::StealBackendTexture(sk_sp<GrTexture> texture,
 }
 
 void GrTexture::computeScratchKey(GrScratchKey* key) const {
-    if (!this->getGpu()->caps()->isFormatCompressed(this->backendFormat())) {
+    if (this->getGpu()->caps()->isFormatCompressed(this->backendFormat())) {
         int sampleCount = 1;
         GrRenderable renderable = GrRenderable::kNo;
         if (const auto* rt = this->asRenderTarget()) {
