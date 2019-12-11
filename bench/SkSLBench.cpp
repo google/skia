@@ -115,3 +115,30 @@ DEF_BENCH(return new SkSLBench("huge", R"(
         }
     }
 )"); )
+
+class SkSLCompilerBench : public Benchmark {
+public:
+    SkSLCompilerBench() {}
+
+protected:
+    const char* onGetName() override {
+        return "sksl_compiler_constructor";
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        for (int i = 0; i < loops; i++) {
+            SkSL::Compiler compiler;
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+DEF_BENCH(return new SkSLCompilerBench();)
