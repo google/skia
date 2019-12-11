@@ -13,6 +13,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/utils/SkJSONWriter.h"
 #include "tools/debugger/DebugCanvas.h"
+#include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
 #include "include/gpu/GrContext.h"
@@ -20,23 +21,28 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
+#include <string>
+
 #define SKDEBUGCANVAS_VERSION 1
 #define SKDEBUGCANVAS_ATTRIBUTE_VERSION "version"
 #define SKDEBUGCANVAS_ATTRIBUTE_COMMANDS "commands"
 #define SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL "auditTrail"
 
+namespace {
+    // Constants used in Annotations by Android for keeping track of layers
+    static constexpr char kOffscreenLayerDraw[] = "OffscreenLayerDraw";
+    static constexpr char kSurfaceID[] = "SurfaceID";
+} // namespace
+
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
-    DebugPaintFilterCanvas(SkCanvas* canvas, bool overdrawViz)
-            : INHERITED(canvas), fOverdrawViz(overdrawViz) {}
+    DebugPaintFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) {}
 
 protected:
     bool onFilter(SkPaint& paint) const override {
-        if (fOverdrawViz) {
-            paint.setColor(SK_ColorRED);
-            paint.setAlpha(0x08);
-            paint.setBlendMode(SkBlendMode::kSrcOver);
-        }
+        paint.setColor(SK_ColorRED);
+        paint.setAlpha(0x08);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
         return true;
     }
 
@@ -48,7 +54,6 @@ protected:
     }
 
 private:
-    bool fOverdrawViz;
 
     typedef SkPaintFilterCanvas INHERITED;
 };
@@ -57,7 +62,9 @@ DebugCanvas::DebugCanvas(int width, int height)
         : INHERITED(width, height)
         , fOverdrawViz(false)
         , fClipVizColor(SK_ColorTRANSPARENT)
-        , fDrawGpuOpBounds(false) {
+        , fDrawGpuOpBounds(false)
+        , fnextDrawPictureLayerId(-1)
+        , fnextDrawImageRectLayerId(-1) {
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
     // operations. This can lead to problems in the debugger which expects all
     // the operations in the captured skp to appear in the debug canvas. To
@@ -77,7 +84,9 @@ DebugCanvas::DebugCanvas(int width, int height)
     this->INHERITED::onClipRect(large, kReplace_SkClipOp, kHard_ClipEdgeStyle);
 }
 
-DebugCanvas::DebugCanvas(SkIRect bounds) { DebugCanvas(bounds.width(), bounds.height()); }
+DebugCanvas::DebugCanvas(SkIRect bounds) {
+    DebugCanvas(bounds.width(), bounds.height());
+}
 
 DebugCanvas::~DebugCanvas() { fCommandVector.deleteAll(); }
 
@@ -98,13 +107,13 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     SkRect windowRect = SkRect::MakeWH(SkIntToScalar(originalCanvas->getBaseLayerSize().width()),
                                        SkIntToScalar(originalCanvas->getBaseLayerSize().height()));
 
-    originalCanvas->clear(SK_ColorTRANSPARENT);
     originalCanvas->resetMatrix();
     if (!windowRect.isEmpty()) {
         originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
     }
 
-    DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz);
+    DebugPaintFilterCanvas filterCanvas(originalCanvas);
+    SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
 
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
@@ -114,18 +123,17 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
 
     for (int i = 0; i <= index; i++) {
-        // We need to flush any pending operations, or they might combine with commands below.
-        // Previous operations were not registered with the audit trail when they were
-        // created, so if we allow them to combine, the audit trail will fail to find them.
-        filterCanvas.flush();
-
         GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
+            // We need to flush any pending operations, or they might combine with commands below.
+            // Previous operations were not registered with the audit trail when they were
+            // created, so if we allow them to combine, the audit trail will fail to find them.
+            finalCanvas->flush();
             acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
 
         if (fCommandVector[i]->isVisible()) {
-            fCommandVector[i]->execute(&filterCanvas);
+            fCommandVector[i]->execute(finalCanvas);
         }
         if (at && acb) {
             delete acb;
@@ -308,6 +316,23 @@ void DebugCanvas::didConcat(const SkMatrix& matrix) {
 }
 
 void DebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData* value) {
+    // Parse layer-releated annotations added in SkiaPipeline.cpp and RenderNodeDrawable.cpp
+    // the format of the annotations is <Indicator|RenderNodeId>
+    SkTArray<SkString> tokens;
+    SkStrSplit(key, "|", kStrict_SkStrSplitMode, &tokens);
+    if (tokens.size() == 2) {
+        if (tokens[0].equals(kOffscreenLayerDraw)) {
+            // Indicates that the next drawPicture command contains the SkPicture to render the node
+            // at this id in an offscreen buffer.
+            fnextDrawPictureLayerId = std::stoi(tokens[1].c_str());
+            fnextDrawPictureDirtyRect = rect.roundOut();
+            return; // don't record it
+        } else if (tokens[0].equals(kSurfaceID)) {
+            // Indicates that the following drawImageRect should draw the offscreen buffer.
+            fnextDrawImageRectLayerId = std::stoi(tokens[1].c_str());
+            return; // don't record it
+        }
+    }
     this->addDrawCommand(new DrawAnnotationCommand(rect, key, sk_ref_sp(value)));
 }
 
@@ -360,7 +385,22 @@ void DebugCanvas::onDrawImageRect(const SkImage*    image,
                                   const SkRect&     dst,
                                   const SkPaint*    paint,
                                   SrcRectConstraint constraint) {
-    this->addDrawCommand(new DrawImageRectCommand(image, src, dst, paint, constraint));
+    if (fnextDrawImageRectLayerId != -1 && fLayerManager) {
+        // This drawImageRect command would have drawn the offscreen buffer for a layer.
+        // On Android, we recorded an SkPicture of the commands that drew to the layer.
+        // To render the layer as it would have looked on the frame this DebugCanvas draws, we need
+        // to call fLayerManager->getLayerAsImage(id). This must be done just before
+        // drawTo(command), since it depends on the index into the layer's commands
+        // (managed by fLayerManager)
+        // Instead of adding a DrawImageRectCommand, we need a deferred command, that when
+        // executed, will call drawImageRect(fLayerManager->getLayerAsImage())
+        this->addDrawCommand(new DrawImageRectLayerCommand(
+            fLayerManager, fnextDrawImageRectLayerId, fFrame, src, dst, paint, constraint));
+    } else {
+        this->addDrawCommand(new DrawImageRectCommand(image, src, dst, paint, constraint));
+    }
+    // Reset expectation so next drawImageRect is not special.
+    fnextDrawImageRectLayerId = -1;
 }
 
 void DebugCanvas::onDrawImageNine(const SkImage* image,
@@ -401,10 +441,16 @@ void DebugCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 void DebugCanvas::onDrawPicture(const SkPicture* picture,
                                 const SkMatrix*  matrix,
                                 const SkPaint*   paint) {
-    this->addDrawCommand(new BeginDrawPictureCommand(picture, matrix, paint));
-    SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
-    picture->playback(this);
-    this->addDrawCommand(new EndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
+    if (fnextDrawPictureLayerId != -1 && fLayerManager) {
+        fLayerManager->storeSkPicture(fnextDrawPictureLayerId, fFrame, sk_ref_sp(picture),
+           fnextDrawPictureDirtyRect);
+    } else {
+        this->addDrawCommand(new BeginDrawPictureCommand(picture, matrix, paint));
+        SkAutoCanvasMatrixPaint acmp(this, matrix, paint, picture->cullRect());
+        picture->playback(this);
+        this->addDrawCommand(new EndDrawPictureCommand(SkToBool(matrix) || SkToBool(paint)));
+    }
+    fnextDrawPictureLayerId = -1;
 }
 
 void DebugCanvas::onDrawPoints(PointMode      mode,
