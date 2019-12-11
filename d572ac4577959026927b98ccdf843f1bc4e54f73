@@ -22,6 +22,30 @@
       "revId": "d572ac4577959026927b98ccdf843f1bc4e54f73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03f9a7cb_186935dd",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-11T18:45:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "422bb974_858f17b6",
+      "range": {
+        "startLine": 1024,
+        "startChar": 46,
+        "endLine": 1024,
+        "endChar": 87
+      },
+      "revId": "d572ac4577959026927b98ccdf843f1bc4e54f73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
