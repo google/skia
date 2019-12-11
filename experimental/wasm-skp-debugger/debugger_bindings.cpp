@@ -105,13 +105,19 @@ class SkpDebugPlayer {
     const SkIRect& getBounds() { return fBounds; }
 
     void setOverdrawVis(bool on) {
-      frames[fp]->setOverdrawViz(on);
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setOverdrawViz(on);
+      }
     }
     void setGpuOpBounds(bool on) {
-      frames[fp]->setDrawGpuOpBounds(on);
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setDrawGpuOpBounds(on);
+      }
     }
     void setClipVizColor(JSColor color) {
-      frames[fp]->setClipVizColor(SkColor(color));
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setClipVizColor(SkColor(color));
+      }
     }
     void deleteCommand(int index) {
       frames[fp]->deleteDrawCommandAt(index);
