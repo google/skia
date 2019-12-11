@@ -34,6 +34,24 @@
       "revId": "5ec01c25e3abb6f88773db8522677188d9272a34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "584c892f_f4322e98",
+        "filename": "tests/SkFlexibleArraysTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-11T18:50:37Z",
+      "side": 1,
+      "message": "I\u0027m sugggesting we test that we got the size/count we expected.",
+      "parentUuid": "759fd0ef_7d368501",
+      "revId": "5ec01c25e3abb6f88773db8522677188d9272a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
