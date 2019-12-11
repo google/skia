@@ -16,7 +16,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -53,9 +52,9 @@ static void textblobcache_overbudget_CB(void* data) {
     direct->flush();
 }
 
-bool GrRecordingContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> cache) {
+bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
 
-    if (!INHERITED::init(std::move(caps), std::move(cache))) {
+    if (!INHERITED::init(std::move(caps))) {
         return false;
     }
 
@@ -327,10 +326,6 @@ sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
 
 std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachRecordTimeAllocator() {
     return fContext->detachRecordTimeAllocator();
-}
-
-sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
-    return fContext->fpFactoryCache();
 }
 
 sk_sp<GrOpMemoryPool> GrRecordingContextPriv::refOpMemoryPool() {
