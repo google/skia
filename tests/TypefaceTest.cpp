@@ -242,7 +242,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
     constexpr SkScalar minAxisInDistortable = 0.5;
     constexpr SkScalar defAxisInDistortable = 1;
     constexpr SkScalar maxAxisInDistortable = 2;
-    constexpr bool axisIsHiddenInDistortable = false;
+    constexpr bool axisIsHiddenInDistortable = true;
 
     sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
 
