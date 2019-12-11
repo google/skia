@@ -173,12 +173,18 @@ private:
 
     void destroyResources();
 
-    GrBackendTexture onCreateBackendTexture(SkISize,
+    GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData*,
                                             int numMipLevels,
                                             GrProtected) override;
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                      const GrBackendFormat&,
+                                                      const BackendTextureData*,
+                                                      int numMipLevels,
+                                                      GrProtected) override;
+
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
                                      const GrBackendFormat& format,
                                      GrRenderable,

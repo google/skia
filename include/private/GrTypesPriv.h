@@ -1074,6 +1074,17 @@ private:
     }
 };
 
+static constexpr GrColorTypeEncoding GrCompressionTypeEncoding(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::CompressionType::kETC1:
+            return GrColorTypeEncoding::kUnorm;
+        default:
+            SK_ABORT("Unexpected compression type");
+    }
+
+    SkUNREACHABLE;
+}
+
 static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:
@@ -1287,6 +1298,15 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
     SkUNREACHABLE;
 }
 
+static constexpr GrPixelConfig GrCompressionToPixelConfig(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::CompressionType::kNone: return kUnknown_GrPixelConfig;
+        case SkImage::CompressionType::kETC1: return kRGB_ETC1_GrPixelConfig;
+    }
+
+    SkUNREACHABLE;
+}
+
 /**
  * Ref-counted object that calls a callback from its destructor.
  */
@@ -1348,6 +1368,14 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kR_16:             return "kR_16";
         case GrColorType::kR_F16:            return "kR_F16";
         case GrColorType::kGray_F16:         return "kGray_F16";
+    }
+    SkUNREACHABLE;
+}
+
+static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::CompressionType::kNone:          return "kNone";
+        case SkImage::CompressionType::kETC1:          return "kETC1";
     }
     SkUNREACHABLE;
 }
