@@ -256,11 +256,6 @@ auto SkGlyphRunListPainter::ensureBuffers(const SkGlyphRunList& glyphRunList) ->
     return ScopedBuffers(this, size);
 }
 
-SkGlyphRunListPainter::ScopedBuffers
-SkGlyphRunListPainter::ensureBuffers(const SkGlyphRun& glyphRun) {
-    return ScopedBuffers(this, glyphRun.runSize());
-}
-
 #if SK_SUPPORT_GPU
 // -- GrTextContext --------------------------------------------------------------------------------
 SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& colorInfo) {

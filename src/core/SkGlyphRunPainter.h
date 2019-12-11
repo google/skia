@@ -102,9 +102,6 @@ private:
 
     ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRunList& glyphRunList);
 
-    // TODO: Remove once I can hoist ensureBuffers above the list for loop in all cases.
-    ScopedBuffers SK_WARN_UNUSED_RESULT ensureBuffers(const SkGlyphRun& glyphRun);
-
     // The props as on the actual device.
     const SkSurfaceProps fDeviceProps;
     // The props for when the bitmap device can't draw LCD text.
