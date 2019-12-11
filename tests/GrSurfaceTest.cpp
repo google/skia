@@ -101,7 +101,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             }
             // Only supported compression type right now.
             SkASSERT(config == kRGB_ETC1_GrPixelConfig);
-            auto size = GrCompressedDataSize(type, width, height);
+            auto size = GrCompressedDataSize(type, { width, height });
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
