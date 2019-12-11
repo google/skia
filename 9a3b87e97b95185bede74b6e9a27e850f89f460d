@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c268272d_fbe2c528",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-11T22:29:25Z",
+      "side": 1,
+      "message": "This makes me happy.",
+      "range": {
+        "startLine": 429,
+        "startChar": 0,
+        "endLine": 429,
+        "endChar": 79
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "004e7b81_5115ea70",
+        "filename": "src/effects/SkOverdrawColorFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-11T22:29:25Z",
+      "side": 1,
+      "message": "It\u0027s nice that this code has no idea about indices.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 89
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c355f41_6bbe5b54",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-11T22:29:25Z",
+      "side": 1,
+      "message": "is it?",
+      "range": {
+        "startLine": 335,
+        "startChar": 17,
+        "endLine": 335,
+        "endChar": 21
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd1f806e_8f7cafa2",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-11T22:29:25Z",
+      "side": 1,
+      "message": "There are some references to the now old way of doing things in here.",
+      "range": {
+        "startLine": 32,
+        "startChar": 1,
+        "endLine": 77,
+        "endChar": 7
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
