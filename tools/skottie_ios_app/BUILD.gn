@@ -5,7 +5,12 @@
 import("../../gn/ios.gni")
 
 if (is_ios) {
-  ios_app_bundle("skottie_ios") {
+  group("skottie_ios_app") {
+    deps = [
+      ":skottie_example",
+    ]
+  }
+  ios_app_bundle("skottie_example") {
     sources = [
       "SkAnimationDraw.h",
       "SkTimeKeeper.h",
