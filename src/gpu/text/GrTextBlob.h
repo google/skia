@@ -32,22 +32,21 @@ struct GrGlyph;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
-/*
- * A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
- * on the GPU.  These are initially created with valid positions and colors, but invalid
- * texture coordinates.  The GrTextBlob itself has a few Blob-wide properties, and also
- * consists of a number of runs.  Runs inside a blob are flushed individually so they can be
- * reordered.
- *
- * The only thing(aside from a memcopy) required to flush a GrTextBlob is to ensure that
- * the GrAtlas will not evict anything the Blob needs.
- *
- */
+
+// A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
+// on the GPU.  These are initially created with valid positions and colors, but invalid
+// texture coordinates.
+//
+// A GrTextBlob contains a number of SubRuns that are created in the blob's arena. Each SubRun
+// tracks its own GrGlyph* and vertex data. The memory is organized in the arena in the following
+// way so that the pointers for the GrGlyph* and vertex data are known before creating the SubRun.
+//
+//  GrGlyph*... | vertexData... | SubRun | GrGlyph*... | vertexData... | SubRun  etc.
+//
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
 public:
     class SubRun;
     class VertexRegenerator;
-    using SubRunBufferSpec = std::tuple<uint32_t, uint32_t, size_t, size_t>;
 
     enum SubRunType {
         kDirectMask,
@@ -250,15 +249,6 @@ private:
     const GrColor fColor;
     const SkColor fInitialLuminance;
 
-    // Pool of bytes for vertex data.
-    char* fVertices;
-    // How much (in bytes) of the vertex data is used while accumulating SubRuns.
-    size_t fVerticesCursor{0};
-    // Pointers to every glyph that will be drawn.
-    GrGlyph** fGlyphs;
-    // Number of glyphs stored in fGlyphs while accumulating SubRuns.
-    uint32_t fGlyphsCursor{0};
-
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
@@ -291,8 +281,7 @@ public:
      * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
      * SkGlyphCache.
      */
-    VertexRegenerator(GrResourceProvider*, GrTextBlob*,
-            GrTextBlob::SubRun* subRun,
+    VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
@@ -322,7 +311,6 @@ private:
 
     GrResourceProvider* fResourceProvider;
     const SkMatrix& fViewMatrix;
-    GrTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
     GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;

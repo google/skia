@@ -28,11 +28,10 @@ public:
     static const int kVerticesPerGlyph = GrTextBlob::kVerticesPerGlyph;
     static const int kIndicesPerGlyph = 6;
 
-    typedef GrTextBlob Blob;
     struct Geometry {
         SkMatrix    fViewMatrix;
         SkIRect     fClipRect;
-        Blob*       fBlob;
+        GrTextBlob* fBlob;
         SkScalar    fX;
         SkScalar    fY;
         GrTextBlob::SubRun* fSubRunPtr;
