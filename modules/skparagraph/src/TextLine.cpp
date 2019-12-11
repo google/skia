@@ -7,7 +7,6 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
-#include "src/core/SkMakeUnique.h"
 
 namespace skia {
 namespace textlayout {

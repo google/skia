@@ -16,7 +16,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrContextPriv.h"

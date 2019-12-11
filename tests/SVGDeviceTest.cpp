@@ -24,7 +24,6 @@
 #include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParse.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
@@ -39,9 +38,9 @@
 
 static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom, uint32_t flags = 0) {
     auto svgDevice = SkSVGDevice::Make(SkISize::Make(100, 100),
-                                       skstd::make_unique<SkXMLParserWriter>(dom->beginParsing()),
+                                       std::make_unique<SkXMLParserWriter>(dom->beginParsing()),
                                        flags);
-    return svgDevice ? skstd::make_unique<SkCanvas>(svgDevice)
+    return svgDevice ? std::make_unique<SkCanvas>(svgDevice)
                      : nullptr;
 }
 

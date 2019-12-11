@@ -12,7 +12,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrResourceKey.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"

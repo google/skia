@@ -13,7 +13,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkMakeUnique.h"
 
 #include <new>
 #include <type_traits>

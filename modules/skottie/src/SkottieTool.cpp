@@ -13,7 +13,6 @@
 #include "include/encode/SkPngEncoder.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
@@ -48,7 +47,7 @@ namespace {
 
 std::unique_ptr<SkFILEWStream> MakeFrameStream(size_t idx, const char* ext) {
     const auto frame_file = SkStringPrintf("0%06d.%s", idx, ext);
-    auto stream = skstd::make_unique<SkFILEWStream>(SkOSPath::Join(FLAGS_writePath[0],
+    auto stream = std::make_unique<SkFILEWStream>(SkOSPath::Join(FLAGS_writePath[0],
                                                                    frame_file.c_str()).c_str());
     if (!stream->isValid()) {
         return nullptr;
@@ -235,7 +234,7 @@ std::unique_ptr<Sink> MakeSink(const char* fmt, const SkMatrix& scale_matrix) {
     if (0 == strcmp(fmt,  "png")) return  PNGSink::Make(scale_matrix);
     if (0 == strcmp(fmt,  "skp")) return  SKPSink::Make(scale_matrix);
     if (0 == strcmp(fmt, "null")) return NullSink::Make(scale_matrix);
-    if (0 == strcmp(fmt,  "mp4")) return skstd::make_unique<MP4Sink>(scale_matrix);
+    if (0 == strcmp(fmt,  "mp4")) return std::make_unique<MP4Sink>(scale_matrix);
 
     SkDebugf("Unknown format: %s\n", FLAGS_format[0]);
     return nullptr;

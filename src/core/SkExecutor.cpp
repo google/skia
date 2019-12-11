@@ -10,7 +10,6 @@
 #include "include/private/SkSemaphore.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
-#include "src/core/SkMakeUnique.h"
 #include <deque>
 #include <thread>
 
@@ -143,9 +142,9 @@ private:
 
 std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads) {
     using WorkList = std::deque<std::function<void(void)>>;
-    return skstd::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
 }
 std::unique_ptr<SkExecutor> SkExecutor::MakeLIFOThreadPool(int threads) {
     using WorkList = SkTArray<std::function<void(void)>>;
-    return skstd::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
 }

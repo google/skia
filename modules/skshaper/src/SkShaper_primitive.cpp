@@ -10,7 +10,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/utils/SkUTF.h"
 
 class SkShaperPrimitive : public SkShaper {
@@ -42,7 +41,7 @@ private:
 };
 
 std::unique_ptr<SkShaper> SkShaper::MakePrimitive() {
-    return skstd::make_unique<SkShaperPrimitive>();
+    return std::make_unique<SkShaperPrimitive>();
 }
 
 static inline bool is_breaking_whitespace(SkUnichar c) {

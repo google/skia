@@ -10,7 +10,6 @@
 #include "include/core/SkPath.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRectPriv.h"
 #include "tools/fonts/RandomScalerContext.h"
 

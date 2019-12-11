@@ -7,7 +7,6 @@
 
 #include "include/core/SkYUVAIndex.h"
 #include "src/codec/SkCodecImageGenerator.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkPixmapPriv.h"
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(sk_sp<SkData> data) {

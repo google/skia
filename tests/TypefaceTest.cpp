@@ -16,7 +16,6 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/sfnt/SkSFNTHeader.h"
@@ -119,8 +118,8 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
 DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
     SkFontDescriptor desc;
     SkFixed axis = -SK_Fixed1;
-    auto font = skstd::make_unique<SkMemoryStream>("a", 1, false);
-    desc.setFontData(skstd::make_unique<SkFontData>(std::move(font), 0, &axis, 1));
+    auto font = std::make_unique<SkMemoryStream>("a", 1, false);
+    desc.setFontData(std::make_unique<SkFontData>(std::move(font), 0, &axis, 1));
 
     SkDynamicMemoryWStream stream;
     desc.serialize(&stream);

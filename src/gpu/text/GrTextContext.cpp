@@ -14,7 +14,6 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkGlyphRun.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/gpu/GrCaps.h"
