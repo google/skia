@@ -344,10 +344,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // each of these is a SubRun
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
-        Blob* blob = args.fBlob;
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, blob, args.fSubRunPtr, args.fViewMatrix, args.fX, args.fY,
+                resourceProvider, args.fSubRunPtr, args.fViewMatrix, args.fX, args.fY,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
                 atlasManager);
         bool done = false;
@@ -521,7 +520,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     memcpy(&fGeoData[fGeoCount], that->fGeoData.get(), that->fGeoCount * sizeof(Geometry));
 #ifdef SK_DEBUG
     for (int i = 0; i < that->fGeoCount; ++i) {
-        that->fGeoData.get()[i].fBlob = (Blob*)0x1;
+        that->fGeoData.get()[i].fBlob = (GrTextBlob*)0x1;
     }
 #endif
     that->fGeoCount = 0;
