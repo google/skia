@@ -65,7 +65,7 @@ static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
 
 void GrMtlPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
-                                                    __strong id<MTLLibrary> outLibraries[]) {
+                                                     __strong id<MTLLibrary> outLibraries[]) {
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
@@ -88,9 +88,11 @@ void GrMtlPipelineStateBuilder::loadShadersFromCache(SkReader32* cached,
 void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
                                                     const SkSL::Program::Inputs inputs[],
                                                     bool isSkSL) {
-    // TODO: Determine which key parameters are necessary
+    // Here we shear off the Mtl-specific portion of the Desc in order to create the
+    // persistent key. This is because Mtl only caches the MSL code, not the fully compiled
+    // program, and that only depends on the base GrProgramDesc data.
     sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
-                                                this->desc()->keyLength());
+                                                this->desc()->initialKeyLength());
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kMSL_Tag,
                                                                    shaders,
                                                                    inputs, kGrShaderTypeCount);
@@ -409,8 +411,10 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     SkFourByteTag shaderType = 0;
     auto persistentCache = fGpu->getContext()->priv().getPersistentCache();
     if (persistentCache) {
-        // TODO: Determine which key parameters are necessary
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->keyLength());
+        // Here we shear off the Mtl-specific portion of the Desc in order to create the
+        // persistent key. This is because Mtl only caches the MSL code, not the fully compiled
+        // program, and that only depends on the base GrProgramDesc data.
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength());
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());
