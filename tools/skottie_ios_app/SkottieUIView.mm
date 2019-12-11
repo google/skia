@@ -1,10 +1,10 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/skottie_ios/SkottieUIView.h"
+#include "tools/skottie_ios_app/SkottieUIView.h"
 
-#include "experimental/skottie_ios/SkAnimationDraw.h"
-#include "experimental/skottie_ios/SkTimeKeeper.h"
+#include "tools/skottie_ios_app/SkAnimationDraw.h"
+#include "tools/skottie_ios_app/SkTimeKeeper.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
