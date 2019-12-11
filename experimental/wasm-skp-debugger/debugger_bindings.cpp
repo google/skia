@@ -104,15 +104,25 @@ class SkpDebugPlayer {
 
     const SkIRect& getBounds() { return fBounds; }
 
+    // The following three operations apply to every frame because they are overdraw features.
+    // There is only one toggle for them on the app, they are global settings.
     void setOverdrawVis(bool on) {
-      frames[fp]->setOverdrawViz(on);
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setOverdrawViz(on);
+      }
     }
     void setGpuOpBounds(bool on) {
-      frames[fp]->setDrawGpuOpBounds(on);
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setDrawGpuOpBounds(on);
+      }
     }
     void setClipVizColor(JSColor color) {
-      frames[fp]->setClipVizColor(SkColor(color));
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setClipVizColor(SkColor(color));
+      }
     }
+    // The two operations below only apply to the current frame, because they concern the command
+    // list, which is unique to each frame.
     void deleteCommand(int index) {
       frames[fp]->deleteDrawCommandAt(index);
     }

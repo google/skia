@@ -27,16 +27,13 @@
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
 public:
-    DebugPaintFilterCanvas(SkCanvas* canvas, bool overdrawViz)
-            : INHERITED(canvas), fOverdrawViz(overdrawViz) {}
+    DebugPaintFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) {}
 
 protected:
     bool onFilter(SkPaint& paint) const override {
-        if (fOverdrawViz) {
-            paint.setColor(SK_ColorRED);
-            paint.setAlpha(0x08);
-            paint.setBlendMode(SkBlendMode::kSrcOver);
-        }
+        paint.setColor(SK_ColorRED);
+        paint.setAlpha(0x08);
+        paint.setBlendMode(SkBlendMode::kSrcOver);
         return true;
     }
 
@@ -48,7 +45,6 @@ protected:
     }
 
 private:
-    bool fOverdrawViz;
 
     typedef SkPaintFilterCanvas INHERITED;
 };
@@ -104,7 +100,8 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
     }
 
-    DebugPaintFilterCanvas filterCanvas(originalCanvas, fOverdrawViz);
+    DebugPaintFilterCanvas filterCanvas(originalCanvas);
+    SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
 
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
@@ -114,18 +111,16 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
 
     for (int i = 0; i <= index; i++) {
-        // We need to flush any pending operations, or they might combine with commands below.
-        // Previous operations were not registered with the audit trail when they were
-        // created, so if we allow them to combine, the audit trail will fail to find them.
-        filterCanvas.flush();
-
         GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
+            // We need to flush any pending operations, or they might combine with commands below.
+            // Previous operations were not registered with the audit trail when they were
+            // created, so if we allow them to combine, the audit trail will fail to find them.
+            finalCanvas->flush();
             acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
-
         if (fCommandVector[i]->isVisible()) {
-            fCommandVector[i]->execute(&filterCanvas);
+            fCommandVector[i]->execute(finalCanvas);
         }
         if (at && acb) {
             delete acb;
@@ -133,27 +128,27 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
-        filterCanvas.save();
+        finalCanvas->save();
 #define LARGE_COORD 1000000000
-        filterCanvas.clipRect(
+        finalCanvas->clipRect(
                 SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
                 kReverseDifference_SkClipOp);
         SkPaint clipPaint;
         clipPaint.setColor(fClipVizColor);
-        filterCanvas.drawPaint(clipPaint);
-        filterCanvas.restore();
+        finalCanvas->drawPaint(clipPaint);
+        finalCanvas->restore();
     }
 
-    fMatrix = filterCanvas.getTotalMatrix();
-    fClip   = filterCanvas.getDeviceClipBounds();
-    filterCanvas.restoreToCount(saveCount);
+    fMatrix = finalCanvas->getTotalMatrix();
+    fClip   = finalCanvas->getDeviceClipBounds();
+    finalCanvas->restoreToCount(saveCount);
 
     // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
         // GrAuditTrail
         GrAuditTrail::AutoEnable ae(at);
-        filterCanvas.flush();
+        finalCanvas->flush();
 
         // we pick three colorblind-safe colors, 75% alpha
         static const SkColor kTotalBounds     = SkColorSetARGB(0xC0, 0x6A, 0x3D, 0x9A);
@@ -174,6 +169,9 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             // the client wants us to draw the mth op
             at->getBoundsByOpsTaskID(&childrenBounds.push_back(), m);
         }
+        // Shift the rects half a pixel, so they appear as exactly 1px thick lines.
+        finalCanvas->save();
+        finalCanvas->translate(0.5, -0.5);
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
@@ -183,7 +181,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
                 continue;
             }
             paint.setColor(kTotalBounds);
-            filterCanvas.drawRect(childrenBounds[i].fBounds, paint);
+            finalCanvas->drawRect(childrenBounds[i].fBounds, paint);
             for (int j = 0; j < childrenBounds[i].fOps.count(); j++) {
                 const GrAuditTrail::OpInfo::Op& op = childrenBounds[i].fOps[j];
                 if (op.fClientID != index) {
@@ -191,9 +189,10 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
                 } else {
                     paint.setColor(kCommandOpBounds);
                 }
-                filterCanvas.drawRect(op.fBounds, paint);
+                finalCanvas->drawRect(op.fBounds, paint);
             }
         }
+        finalCanvas->restore();
     }
     this->cleanupAuditTrail(originalCanvas);
 }
