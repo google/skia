@@ -263,3 +263,83 @@ DEF_SIMPLE_GM(crbug_888453, canvas, 480, 150) {
         x += 2 * r + 4;
     }
 }
+
+DEF_SIMPLE_GM(circular_arc_stroke_matrix, canvas, 820, 1090) {
+    static constexpr SkScalar kRadius = 40.f;
+    static constexpr SkScalar kStrokeWidth = 5.f;
+    static constexpr SkScalar kStart = 89.f;
+    static constexpr SkScalar kSweep = 180.f/SK_ScalarPI; // one radian
+
+    SkTArray<SkMatrix> matrices;
+    matrices.push_back().setRotate(kRadius, kRadius, 45.f);
+    matrices.push_back(SkMatrix::I());
+    matrices.push_back().setAll(-1,  0,  2*kRadius,
+                                 0,  1,  0,
+                                 0,  0,  1);
+    matrices.push_back().setAll( 1,  0,  0,
+                                 0, -1,  2*kRadius,
+                                 0,  0,  1);
+    matrices.push_back().setAll( 1,  0,  0,
+                                 0, -1,  2*kRadius,
+                                 0,  0,  1);
+    matrices.push_back().setAll( 0, -1,  2*kRadius,
+                                -1,  0,  2*kRadius,
+                                 0,  0,  1);
+    matrices.push_back().setAll( 0, -1,  2*kRadius,
+                                 1,  0,  0,
+                                 0,  0,  1);
+    matrices.push_back().setAll( 0,  1,  0,
+                                 1,  0,  0,
+                                 0,  0,  1);
+    matrices.push_back().setAll( 0,  1,  0,
+                                -1,  0,  2*kRadius,
+                                 0,  0,  1);
+    int baseMatrixCnt = matrices.count();
+
+
+    SkMatrix tinyCW;
+    tinyCW.setRotate(0.001f, kRadius, kRadius);
+    for (int i = 0; i < baseMatrixCnt; ++i) {
+        matrices.push_back().setConcat(matrices[i], tinyCW);
+    }
+    SkMatrix tinyCCW;
+    tinyCCW.setRotate(-0.001f, kRadius, kRadius);
+    for (int i = 0; i < baseMatrixCnt; ++i) {
+        matrices.push_back().setConcat(matrices[i], tinyCCW);
+    }
+    SkMatrix cw45;
+    cw45.setRotate(45.f, kRadius, kRadius);
+    for (int i = 0; i < baseMatrixCnt; ++i) {
+        matrices.push_back().setConcat(matrices[i], cw45);
+    }
+
+    int x = 0;
+    int y = 0;
+    static constexpr SkScalar kPad = 2*kStrokeWidth;
+    canvas->translate(kPad, kPad);
+    auto bounds = SkRect::MakeWH(2*kRadius, 2*kRadius);
+    for (auto cap : {SkPaint::kRound_Cap, SkPaint::kButt_Cap, SkPaint::kSquare_Cap}) {
+        for (const auto& m : matrices) {
+            SkPaint paint;
+            paint.setStrokeCap(cap);
+            paint.setAntiAlias(true);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(kStrokeWidth);
+            canvas->save();
+                canvas->translate(x * (2*kRadius + kPad), y * (2*kRadius + kPad));
+                canvas->concat(m);
+                paint.setColor(SK_ColorRED);
+                paint.setAlpha(0x80);
+                canvas->drawArc(bounds, kStart, kSweep, false, paint);
+                paint.setColor(SK_ColorBLUE);
+                paint.setAlpha(0x80);
+                canvas->drawArc(bounds, kStart, kSweep - 360.f, false, paint);
+            canvas->restore();
+            ++x;
+            if (x == baseMatrixCnt) {
+                x = 0;
+                ++y;
+            }
+        }
+    }
+}
