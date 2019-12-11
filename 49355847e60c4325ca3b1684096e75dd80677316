@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5704421_b78e4dfc",
+        "filename": "modules/skottie/src/effects/InvertEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-11T16:02:45Z",
+      "side": 1,
+      "message": "Might help readability to call these scale, translate?",
+      "range": {
+        "startLine": 48,
+        "startChar": 31,
+        "endLine": 48,
+        "endChar": 37
+      },
+      "revId": "49355847e60c4325ca3b1684096e75dd80677316",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
