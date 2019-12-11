@@ -5,14 +5,19 @@
 
 #import <MetalKit/MetalKit.h>
 
+#include <memory>
+
 class SkSurface;
 class GrContext;
-class GrContextOptions;
 template <typename T> class sk_sp;
 
 sk_sp<SkSurface> SkMtkViewToSurface(MTKView*, GrContext*);
 
-sk_sp<GrContext> SkMetalDeviceToGrContext(id<MTLDevice>, id<MTLCommandQueue>, const GrContextOptions&);
+struct GrContextRelease { void operator()(GrContext*); };
+
+using GrContextHolder = std::unique_ptr<GrContext, GrContextRelease>;
+
+GrContextHolder SkMetalDeviceToGrContext(id<MTLDevice>, id<MTLCommandQueue>);
 
 void SkMtkViewConfigForSkia(MTKView*);
 
