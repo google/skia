@@ -43,6 +43,8 @@ private:
                                                        sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachHueSaturationEffect (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachInvertEffect        (const skjson::ArrayValue&,
+                                                       sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachLevelsEffect        (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachLinearWipeEffect    (const skjson::ArrayValue&,
