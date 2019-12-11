@@ -33,9 +33,9 @@ size_t GrSurface::ComputeSize(const GrCaps& caps,
         dimensions = GrResourceProvider::MakeApprox(dimensions);
     }
 
-    // Just setting a defualt value here to appease warnings on uninitialized object.
-    SkImage::CompressionType compressionType = SkImage::CompressionType::kNone;
-    if (caps.isFormatCompressed(format, &compressionType)) {
+    // Just setting a default value here to appease warnings on uninitialized object.
+    SkImage::CompressionType compressionType = caps.compressionType1(format);
+    if (compressionType != SkImage::CompressionType::kNone) {
         colorSize = GrCompressedFormatDataSize(compressionType, dimensions);
     } else {
         colorSize = (size_t)dimensions.width() * dimensions.height() * caps.bytesPerPixel(format);
