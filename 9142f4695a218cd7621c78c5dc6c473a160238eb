@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1492d163_76475eab",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-11T20:07:24Z",
+      "side": 1,
+      "message": "Why do these use fp and the above iterate? Might be worth a comment explaining the lack of symmetry.",
+      "revId": "9142f4695a218cd7621c78c5dc6c473a160238eb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
