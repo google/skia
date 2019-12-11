@@ -890,7 +890,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
 
     SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
 
-    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
+    size_t dataSize = GrCompressedDataSize(compressionType, { width, height }, GrMipMapped::kNo);
 
     // allocate buffer to hold our mip data
     sk_sp<GrVkTransferBuffer> transferBuffer =
@@ -1070,6 +1070,19 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
     }
 
     return tex;
+}
+
+GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                           const GrBackendFormat& format,
+                                                           const BackendTextureData*,
+                                                           GrMipMapped,
+                                                           GrProtected) {
+    VkFormat pixelFormat;
+    if (!format.asVkFormat(&pixelFormat)) {
+        return {};
+    }
+
+    return {};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1609,7 +1622,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     set_image_layout(this->vkInterface(), cmdBuffer, info, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                      numMipLevels, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-    if (data->type() == BackendTextureData::Type::kPixmaps) {
+    SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
+    if (data->type() == BackendTextureData::Type::kPixmaps1) {
         size_t bytesPerPixel = fVkCaps->bytesPerPixel(vkFormat);
         SkASSERT(!dimensions.isEmpty());
 
@@ -1678,7 +1692,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
         VK_CALL(CmdCopyBufferToImage(cmdBuffer, buffer, info->fImage, info->fImageLayout,
                                      regions.count(), regions.begin()));
     } else {
-        SkASSERT(data->type() == BackendTextureData::Type::kColor);
+        SkASSERT(data->type() == BackendTextureData::Type::kColor1);
         VkClearColorValue vkColor;
         SkColor4f color = data->color();
         // If we ever support SINT or UINT formats this needs to be updated to use the int32 and
@@ -1697,7 +1711,7 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                    &vkColor, 1, &range));
     }
 
-    if (data->type() == BackendTextureData::Type::kColor && renderable) {
+    if (data->type() == BackendTextureData::Type::kColor1 && renderable) {
         // Change image layout to color-attachment-optimal since if we use this texture as a
         // borrowed texture within Ganesh we are probably going to render to it
         set_image_layout(this->vkInterface(), cmdBuffer, info,
