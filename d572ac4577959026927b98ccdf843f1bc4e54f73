@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "422bb974_858f17b6",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-11T15:28:53Z",
+      "side": 1,
+      "message": "Do we need to create this local variable any more for the generated files? The updated .fps in this CL just use the origin off of %sView; anybody that needs the dimensions could call %sView.proxy(). If we\u0027ve got a lot of fps that access %sProxy directly, then it\u0027s probably not worth it.",
+      "range": {
+        "startLine": 1024,
+        "startChar": 46,
+        "endLine": 1024,
+        "endChar": 87
+      },
+      "revId": "d572ac4577959026927b98ccdf843f1bc4e54f73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
