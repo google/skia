@@ -646,12 +646,11 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* compressionType) {
+SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
     switch (format) {
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            *compressionType = SkImage::CompressionType::kETC1;
-            return true;
+            return SkImage::CompressionType::kETC1;
 
         case GrGLFormat::kRGBA8:
         case GrGLFormat::kR8:
@@ -672,7 +671,7 @@ bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* co
         case GrGLFormat::kRGBA16:
         case GrGLFormat::kRG16F:
         case GrGLFormat::kUnknown:
-            return false;
+            return SkImage::CompressionType::kNone;
     }
     SkUNREACHABLE;
 }
