@@ -8,7 +8,6 @@
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
 
 #include "include/gpu/GrTexture.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/ccpr/GrCCClipPath.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -26,7 +25,7 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, IsCoverageCou
 }
 
 std::unique_ptr<GrFragmentProcessor> GrCCClipProcessor::clone() const {
-    return skstd::make_unique<GrCCClipProcessor>(
+    return std::make_unique<GrCCClipProcessor>(
             fClipPath, IsCoverageCount(fIsCoverageCount), MustCheckBounds(fMustCheckBounds));
 }
 

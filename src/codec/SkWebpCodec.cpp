@@ -16,7 +16,6 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkSampler.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkStreamPriv.h"
 

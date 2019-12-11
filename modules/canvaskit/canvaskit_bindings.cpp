@@ -51,7 +51,6 @@
 #include "include/utils/SkShadowUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkFontMgrPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkResourceCache.h"
 #include "src/shaders/SkRTShader.h"
 

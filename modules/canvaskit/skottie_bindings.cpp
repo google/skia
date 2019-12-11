@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
-#include "src/core/SkMakeUnique.h"
 
 #include <string>
 #include <vector>
@@ -86,7 +85,7 @@ class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
                                         sk_sp<skottie::ResourceProvider> rp) {
-        auto mgr = skstd::make_unique<skottie_utils::CustomPropertyManager>();
+        auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>();
         auto animation = skottie::Animation::Builder()
                             .setMarkerObserver(mgr->getMarkerObserver())
                             .setPropertyObserver(mgr->getPropertyObserver())

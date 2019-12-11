@@ -241,7 +241,6 @@ skia_core_sources = [
   "$_src/core/SkLocalMatrixImageFilter.h",
   "$_src/core/SkMD5.cpp",
   "$_src/core/SkMD5.h",
-  "$_src/core/SkMakeUnique.h",
   "$_src/core/SkMalloc.cpp",
   "$_src/core/SkMallocPixelRef.cpp",
   "$_src/core/SkMask.cpp",
