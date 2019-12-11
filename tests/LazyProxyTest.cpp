@@ -131,9 +131,10 @@ public:
                 , fProxyProvider(proxyProvider)
                 , fTest(test)
                 , fAtlas(atlas) {
+            static const GrColorType kColorType = GrColorType::kAlpha_F16;
+            static const GrSurfaceOrigin kOrigin = kBottomLeft_GrSurfaceOrigin;
             const GrBackendFormat format =
-                ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_F16,
-                                                            GrRenderable::kYes);
+                ctx->priv().caps()->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
             fLazyProxy = GrProxyProvider::MakeFullyLazyProxy(
                     [this](GrResourceProvider* rp) -> GrSurfaceProxy::LazyCallbackResult {
                         REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
@@ -141,10 +142,12 @@ public:
                         fAtlas->instantiate(rp);
                         return sk_ref_sp(fAtlas->peekTexture());
                     },
-                    format, GrRenderable::kYes, 1, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
+                    format, GrRenderable::kYes, 1, GrProtected::kNo, kOrigin,
                     kAlpha_half_GrPixelConfig, *proxyProvider->caps(),
                     GrSurfaceProxy::UseAllocator::kYes);
-            fAccess.reset(fLazyProxy, GrSamplerState::ClampNearest());
+            GrSwizzle swizzle = ctx->priv().caps()->getTextureSwizzle(format, kColorType);
+            fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, swizzle),
+                        GrSamplerState::ClampNearest());
             this->setTextureSamplerCnt(1);
         }
 
