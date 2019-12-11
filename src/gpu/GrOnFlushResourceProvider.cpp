@@ -133,3 +133,9 @@ uint32_t GrOnFlushResourceProvider::contextID() const {
 const GrCaps* GrOnFlushResourceProvider::caps() const {
     return fDrawingMgr->getContext()->priv().caps();
 }
+
+#if GR_TEST_UTILS
+bool GrOnFlushResourceProvider::testingOnly_getSuppressAllocationWarnings() const {
+    return fDrawingMgr->getContext()->testingOnly_getSuppressAllocationWarnings();
+}
+#endif
