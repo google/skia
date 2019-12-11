@@ -230,8 +230,6 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrProxyProvider* proxyProvid
         if (!blurProfile) {
             return nullptr;
         }
-
-        SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
     }
 
@@ -300,8 +298,8 @@ private:
         (void)textureRadius;
         auto solidRadius = _outer.solidRadius;
         (void)solidRadius;
-        GrSurfaceProxy& blurProfileSamplerProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& blurProfileSampler = *blurProfileSamplerProxy.peekTexture();
+        const GrSurfaceProxyView& blurProfileSamplerView = _outer.textureSampler(0).view();
+        GrTexture& blurProfileSampler = *blurProfileSamplerView.proxy()->peekTexture();
         (void)blurProfileSampler;
         UniformHandle& circleData = circleDataVar;
         (void)circleData;

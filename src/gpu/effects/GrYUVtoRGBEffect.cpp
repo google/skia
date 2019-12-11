@@ -100,8 +100,8 @@ SkString GrYUVtoRGBEffect::dumpInfo() const {
     SkString str;
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
         str.appendf("%d: %d %d ", i,
-                    this->textureSampler(i).proxy()->uniqueID().asUInt(),
-                    this->textureSampler(i).proxy()->underlyingUniqueID().asUInt());
+                    this->textureSampler(i).view().proxy()->uniqueID().asUInt(),
+                    this->textureSampler(i).view().proxy()->underlyingUniqueID().asUInt());
     }
     str.appendf("\n");
 

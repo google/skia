@@ -21,7 +21,7 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, IsCoverageCou
         , fIsCoverageCount(IsCoverageCount::kYes == isCoverageCount)
         , fMustCheckBounds(MustCheckBounds::kYes == mustCheckBounds)
         , fAtlasAccess(sk_ref_sp(fClipPath->atlasLazyProxy())) {
-    SkASSERT(fAtlasAccess.proxy());
+    SkASSERT(fAtlasAccess.view().proxy());
     this->setTextureSamplerCnt(1);
 }
 
