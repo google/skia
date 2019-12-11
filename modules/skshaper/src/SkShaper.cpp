@@ -13,7 +13,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"
 
@@ -42,7 +41,7 @@ SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLe
         return bidi;
     }
 #endif
-    return skstd::make_unique<SkShaper::TrivialBiDiRunIterator>(bidiLevel, utf8Bytes);
+    return std::make_unique<SkShaper::TrivialBiDiRunIterator>(bidiLevel, utf8Bytes);
 }
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
@@ -54,7 +53,7 @@ SkShaper::MakeScriptRunIterator(const char* utf8, size_t utf8Bytes, SkFourByteTa
         return script;
     }
 #endif
-    return skstd::make_unique<SkShaper::TrivialScriptRunIterator>(scriptTag, utf8Bytes);
+    return std::make_unique<SkShaper::TrivialScriptRunIterator>(scriptTag, utf8Bytes);
 }
 
 SkShaper::SkShaper() {}
@@ -165,7 +164,7 @@ std::unique_ptr<SkShaper::FontRunIterator>
 SkShaper::MakeFontMgrRunIterator(const char* utf8, size_t utf8Bytes,
                                  const SkFont& font, sk_sp<SkFontMgr> fallback)
 {
-    return skstd::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback));
+    return std::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback));
 }
 
 std::unique_ptr<SkShaper::FontRunIterator>
@@ -174,13 +173,13 @@ SkShaper::MakeFontMgrRunIterator(const char* utf8, size_t utf8Bytes, const SkFon
                                  const char* requestName, SkFontStyle requestStyle,
                                  const SkShaper::LanguageRunIterator* language)
 {
-    return skstd::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback),
+    return std::make_unique<FontMgrRunIterator>(utf8, utf8Bytes, font, std::move(fallback),
                                                   requestName, requestStyle, language);
 }
 
 std::unique_ptr<SkShaper::LanguageRunIterator>
 SkShaper::MakeStdLanguageRunIterator(const char* utf8, size_t utf8Bytes) {
-    return skstd::make_unique<TrivialLanguageRunIterator>(std::locale().name().c_str(), utf8Bytes);
+    return std::make_unique<TrivialLanguageRunIterator>(std::locale().name().c_str(), utf8Bytes);
 }
 
 void SkTextBlobBuilderRunHandler::beginLine() {

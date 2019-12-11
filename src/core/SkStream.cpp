@@ -13,7 +13,6 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkStreamPriv.h"
@@ -286,15 +285,15 @@ SkMemoryStream::SkMemoryStream(sk_sp<SkData> data) : fData(std::move(data)) {
 }
 
 std::unique_ptr<SkMemoryStream> SkMemoryStream::MakeCopy(const void* data, size_t length) {
-    return skstd::make_unique<SkMemoryStream>(data, length, true);
+    return std::make_unique<SkMemoryStream>(data, length, true);
 }
 
 std::unique_ptr<SkMemoryStream> SkMemoryStream::MakeDirect(const void* data, size_t length) {
-    return skstd::make_unique<SkMemoryStream>(data, length, false);
+    return std::make_unique<SkMemoryStream>(data, length, false);
 }
 
 std::unique_ptr<SkMemoryStream> SkMemoryStream::Make(sk_sp<SkData> data) {
-    return skstd::make_unique<SkMemoryStream>(std::move(data));
+    return std::make_unique<SkMemoryStream>(std::move(data));
 }
 
 void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
@@ -872,7 +871,7 @@ std::unique_ptr<SkStreamAsset> SkDynamicMemoryWStream::detachAsStream() {
         SkASSERT(0 == fBytesWrittenBeforeTail);
     }
     std::unique_ptr<SkStreamAsset> stream
-            = skstd::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
+            = std::make_unique<SkBlockMemoryStream>(sk_make_sp<SkBlockMemoryRefCnt>(fHead),
                                                       this->bytesWritten());
     fHead = nullptr;    // signal reset() to not free anything
     this->reset();
@@ -896,11 +895,11 @@ static sk_sp<SkData> mmap_filename(const char path[]) {
 std::unique_ptr<SkStreamAsset> SkStream::MakeFromFile(const char path[]) {
     auto data(mmap_filename(path));
     if (data) {
-        return skstd::make_unique<SkMemoryStream>(std::move(data));
+        return std::make_unique<SkMemoryStream>(std::move(data));
     }
 
     // If we get here, then our attempt at using mmap failed, so try normal file access.
-    auto stream = skstd::make_unique<SkFILEStream>(path);
+    auto stream = std::make_unique<SkFILEStream>(path);
     if (!stream->isValid()) {
         return nullptr;
     }

@@ -13,7 +13,6 @@
 #include "include/ports/SkFontMgr_FontConfigInterface.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkFontConfigTypeface.h"
@@ -35,11 +34,11 @@ std::unique_ptr<SkStreamAsset> SkTypeface_FCI::onOpenStream(int* ttcIndex) const
 
 std::unique_ptr<SkFontData> SkTypeface_FCI::onMakeFontData() const {
     if (fFontData) {
-        return skstd::make_unique<SkFontData>(*fFontData);
+        return std::make_unique<SkFontData>(*fFontData);
     }
 
     const SkFontConfigInterface::FontIdentity& id = this->getIdentity();
-    return skstd::make_unique<SkFontData>(std::unique_ptr<SkStreamAsset>(fFCI->openStream(id)),
+    return std::make_unique<SkFontData>(std::unique_ptr<SkStreamAsset>(fFCI->openStream(id)),
                                           id.fTTCIndex, nullptr, 0);
 }
 
@@ -243,7 +242,7 @@ protected:
             return nullptr;
         }
 
-        auto fontData = skstd::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
+        auto fontData = std::make_unique<SkFontData>(std::move(stream), ttcIndex, nullptr, 0);
         return sk_sp<SkTypeface>(SkTypeface_FCI::Create(std::move(fontData), std::move(name),
                                                         style, isFixedPitch));
     }
@@ -273,7 +272,7 @@ protected:
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 
-        auto fontData = skstd::make_unique<SkFontData>(std::move(stream),
+        auto fontData = std::make_unique<SkFontData>(std::move(stream),
                                                        args.getCollectionIndex(),
                                                        axisValues.get(),
                                                        axisDefinitions.count());

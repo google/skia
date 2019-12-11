@@ -8,7 +8,6 @@
 #include "src/core/SkGlyph.h"
 
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkScalerContext.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsQuad.h"

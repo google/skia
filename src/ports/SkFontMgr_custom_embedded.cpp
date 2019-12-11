@@ -7,7 +7,6 @@
 
 #include "include/core/SkStream.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/ports/SkFontMgr_custom.h"
 
 struct SkEmbeddedResource { const uint8_t* data; size_t size; };
@@ -77,7 +76,7 @@ static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
                                 const uint8_t* data, size_t size, int index,
                                 SkFontMgr_Custom::Families* families)
 {
-    auto stream = skstd::make_unique<SkMemoryStream>(data, size, false);
+    auto stream = std::make_unique<SkMemoryStream>(data, size, false);
 
     int numFaces;
     if (!scanner.recognizedFont(stream.get(), &numFaces)) {
@@ -101,7 +100,7 @@ static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
             addTo = new SkFontStyleSet_Custom(realname);
             families->push_back().reset(addTo);
         }
-        auto data = skstd::make_unique<SkFontData>(std::move(stream), faceIndex, nullptr, 0);
+        auto data = std::make_unique<SkFontData>(std::move(stream), faceIndex, nullptr, 0);
         addTo->appendTypeface(sk_make_sp<SkTypeface_Stream>(std::move(data),
                                                             style, isFixedPitch,
                                                             true, realname));

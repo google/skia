@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkVptr.h"
 #include "tests/Test.h"
 
@@ -33,10 +32,10 @@ namespace {
 }
 
 DEF_TEST(Vptr, r) {
-    std::unique_ptr<Base> a = skstd::make_unique<SubclassA>(21),
-                          b = skstd::make_unique<SubclassB>(),
-                          c = skstd::make_unique<SubclassA>(22),
-                          d = skstd::make_unique<SubclassB>();
+    std::unique_ptr<Base> a = std::make_unique<SubclassA>(21),
+                          b = std::make_unique<SubclassB>(),
+                          c = std::make_unique<SubclassA>(22),
+                          d = std::make_unique<SubclassB>();
 
     // These 4 objects all have unique identities.
     REPORTER_ASSERT(r, a != b);

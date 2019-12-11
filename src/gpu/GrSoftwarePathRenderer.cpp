@@ -6,7 +6,6 @@
  */
 
 #include "include/private/SkSemaphore.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -343,7 +342,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
                 return false;
             }
 
-            auto uploader = skstd::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
+            auto uploader = std::make_unique<GrTDeferredProxyUploader<SoftwarePathData>>(
                     *boundsForMask, *args.fViewMatrix, *args.fShape, aa);
             GrTDeferredProxyUploader<SoftwarePathData>* uploaderRaw = uploader.get();
 

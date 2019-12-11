@@ -12,7 +12,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkMakeUnique.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -76,7 +75,7 @@ DEF_TEST(Codec_end, r) {
         SkMemoryStream stream(std::move(multiData));
         for (int i = 0; i < kNumImages; ++i) {
             std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(
-                                                   skstd::make_unique<UnowningStream>(&stream)));
+                                                   std::make_unique<UnowningStream>(&stream)));
             if (!codec) {
                 ERRORF(r, "Failed to create a codec from %s, iteration %i", path, i);
                 continue;

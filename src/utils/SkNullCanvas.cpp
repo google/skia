@@ -9,7 +9,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/utils/SkNWayCanvas.h"
-#include "src/core/SkMakeUnique.h"
 
 std::unique_ptr<SkCanvas> SkMakeNullCanvas() {
     // An N-Way canvas forwards calls to N canvas's. When N == 0 it's

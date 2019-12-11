@@ -19,7 +19,6 @@
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGText.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/core/SkMakeUnique.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <cmath>
@@ -329,7 +328,7 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
 
     const auto focusRect = SkRect::MakeSize(fWinSize).makeInset(kFocusInset.width(),
                                                                 kFocusInset.height());
-    fFocusController = skstd::make_unique<FocusController>(this, focusRect);
+    fFocusController = std::make_unique<FocusController>(this, focusRect);
 }
 
 void SlideDir::unload() {

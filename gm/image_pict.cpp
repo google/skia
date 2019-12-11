@@ -28,7 +28,6 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
-#include "src/core/SkMakeUnique.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceContext.h"
@@ -156,7 +155,7 @@ static std::unique_ptr<SkImageGenerator> make_ras_generator(GrContext*, sk_sp<Sk
     canvas.clear(0);
     canvas.translate(-100, -100);
     canvas.drawPicture(pic);
-    return skstd::make_unique<RasterGenerator>(bm);
+    return std::make_unique<RasterGenerator>(bm);
 }
 
 class EmptyGenerator : public SkImageGenerator {
@@ -212,9 +211,9 @@ static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_s
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
     if (!ctx) {
-        return skstd::make_unique<EmptyGenerator>(info);
+        return std::make_unique<EmptyGenerator>(info);
     }
-    return skstd::make_unique<TextureGenerator>(ctx, info, pic);
+    return std::make_unique<TextureGenerator>(ctx, info, pic);
 }
 
 class ImageCacheratorGM : public skiagm::GM {
