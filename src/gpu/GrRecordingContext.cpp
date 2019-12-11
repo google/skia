@@ -125,7 +125,7 @@ sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
         // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
         // memory.
-        fOpMemoryPool = sk_sp<GrOpMemoryPool>(new GrOpMemoryPool(16384, 16384));
+        fOpMemoryPool = GrOpMemoryPool::Make(16384, 16384);
     }
 
     SkASSERT(fOpMemoryPool);
