@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf119ddc_7a8ae8d9",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2485,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-11T20:39:53Z",
+      "side": 1,
+      "message": "Everything in this block was moved out of SkFontMgr_Mac and put into this anonymous namespace. This allows the SkTypeface_Mac methods to re-use bits of this as well as makes it more obvious that these functions are more generally useful and don\u0027t depend on anything in SkFontMgr_Mac.",
+      "revId": "a7961f9c5640a7d1e4dfbbe29ecd8dc510c7796f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
