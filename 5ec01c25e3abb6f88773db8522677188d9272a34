@@ -16,6 +16,24 @@
       "revId": "5ec01c25e3abb6f88773db8522677188d9272a34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "759fd0ef_7d368501",
+        "filename": "tests/SkFlexibleArraysTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-12-11T18:46:43Z",
+      "side": 1,
+      "message": "zip has size().",
+      "parentUuid": "a5ad9c48_fae575b8",
+      "revId": "5ec01c25e3abb6f88773db8522677188d9272a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
