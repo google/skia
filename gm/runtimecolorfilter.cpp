@@ -15,8 +15,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "src/core/SkColorFilterPriv.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
 #include "tools/Resources.h"
 
 #include <stddef.h>
@@ -43,7 +41,7 @@ static void runtimeCpuFunc(float color[4], const void* context) {
     color[2] = 0;
 }
 
-DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
+DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 512, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
@@ -55,20 +53,9 @@ DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 768, 256) {
     SkPaint p;
     p.setColorFilter(cf1);
     canvas->drawImage(img, 256, 0, &p);
-
-    static constexpr size_t kBufferSize = 512;
-    char buffer[kBufferSize];
-    SkBinaryWriteBuffer wb(buffer, kBufferSize);
-    wb.writeFlattenable(cf1.get());
-    SkReadBuffer rb(buffer, kBufferSize);
-    auto cf2 = rb.readColorFilter();
-    if (cf2) {
-        p.setColorFilter(cf2);
-        canvas->drawImage(img, 512, 0, &p);
-    }
 }
 
-DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
+DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 512, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
@@ -80,17 +67,6 @@ DEF_SIMPLE_GM(runtimecolorfilter_interpreted, canvas, 768, 256) {
     SkPaint p;
     p.setColorFilter(cf1);
     canvas->drawImage(img, 256, 0, &p);
-
-    static constexpr size_t kBufferSize = 512;
-    char buffer[kBufferSize];
-    SkBinaryWriteBuffer wb(buffer, kBufferSize);
-    wb.writeFlattenable(cf1.get());
-    SkReadBuffer rb(buffer, kBufferSize);
-    auto cf2 = rb.readColorFilter();
-    if (cf2) {
-        p.setColorFilter(cf2);
-        canvas->drawImage(img, 512, 0, &p);
-    }
 }
 
 // These need to be static for some dm caching tests in DM...
