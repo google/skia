@@ -73,7 +73,7 @@ protected:
         SkASSERT(caps && !FPFactoryCache);
         SkASSERT(!fThreadSafeProxy);
 
-        FPFactoryCache.reset(new GrSkSLFPFactoryCache(caps->refShaderCaps()));
+        FPFactoryCache.reset(new GrSkSLFPFactoryCache());
         fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
                                                               this->options(),
                                                               this->contextID(),
