@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ee05570_4b3cb396",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-11T19:41:40Z",
+      "side": 0,
+      "message": "These GMs were manually testing the same thing that our serialization via-configs test, which is silly. It also breaks the shader cache configs, because I\u0027ve removed (at least for now) the dangerous re-use of IDs when serializing runtime effects.",
+      "revId": "ea20e27dc451bd44c691413d94c60061fa3fbf28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
