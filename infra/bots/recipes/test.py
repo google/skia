@@ -282,6 +282,13 @@ def dm_flags(api, bot):
         blacklist('gltestprecompile gm _ atlastext')
         blacklist('gltestprecompile gm _ dftext')
         blacklist('gltestprecompile gm _ glyph_pos_h_b')
+        # These tests serialize SkRuntimeEffect, which produces new FP indices
+        blacklist('gltestpersistentcache gm _ runtimecolorfilter')
+        blacklist('gltestpersistentcache gm _ runtimecolorfilter_interpreted')
+        blacklist('gltestglslcache gm _ runtimecolorfilter')
+        blacklist('gltestglslcache gm _ runtimecolorfilter_interpreted')
+        blacklist('gltestprecompile gm _ runtimecolorfilter')
+        blacklist('gltestprecompile gm _ runtimecolorfilter_interpreted')
 
     # We also test the SkSL precompile config on Pixel2XL as a representative
     # Android device - this feature is primarily used by Flutter.

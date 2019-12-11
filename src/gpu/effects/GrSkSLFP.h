@@ -24,20 +24,10 @@
 
 class GrContext_Base;
 class GrShaderCaps;
-class GrSkSLFPFactory;
-class GrSkSLFPFactoryCache;
+class SkRuntimeEffect;
 
 class GrSkSLFP : public GrFragmentProcessor {
 public:
-    /**
-     * Returns a new unique identifier. Each different SkSL fragment processor should call
-     * NewIndex once, statically, and use this index for all calls to Make.
-     */
-    static int NewIndex() {
-        static std::atomic<int> nextIndex{0};
-        return nextIndex++;
-    }
-
     /**
      * Creates a new fragment processor from an SkSL source string and a struct of inputs to the
      * program. The input struct's type is derived from the 'in' and 'uniform' variables in the SkSL
@@ -85,23 +75,12 @@ public:
      * 'NewIndex()'. Each given SkSL string should have a single, statically defined index
      * associated with it.
      */
-    static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext_Base* context,
-                   int index,
-                   const char* name,
-                   const char* sksl,
-                   const void* inputs,
-                   size_t inputSize,
-                   const SkMatrix* matrix = nullptr);
-
-    static std::unique_ptr<GrSkSLFP> Make(
-                   GrContext_Base* context,
-                   int index,
-                   const char* name,
-                   SkString sksl,
-                   const void* inputs,
-                   size_t inputSize,
-                   const SkMatrix* matrix = nullptr);
+    static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
+                                          sk_sp<SkRuntimeEffect> effect,
+                                          const char* name,
+                                          const void* inputs,
+                                          size_t inputSize,
+                                          const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
 
@@ -110,9 +89,8 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<const GrShaderCaps> shaderCaps,
-             int fIndex, const char* name, const char* sksl,
-             SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
+    GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> effect,
+             const char* name, const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -122,30 +100,13 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    void createFactory() const;
+    sk_sp<const GrShaderCaps> fShaderCaps;
 
-    sk_sp<GrSkSLFPFactoryCache> fFactoryCache;
-    sk_sp<const GrShaderCaps>   fShaderCaps;
-
-    mutable sk_sp<GrSkSLFPFactory> fFactory;
-
-    int fIndex;
-
-    const char* fName;
-
-    // For object lifetime purposes, we have fields for the SkSL as both a const char* and a
-    // SkString. The const char* is the one we actually use, but it may point to the SkString's
-    // bytes. Since GrSkSLFPs are frequently created from constant strings, this allows us to
-    // generally avoid the overhead of copying the bytes into an SkString (in which case fSkSLString
-    // is the empty string), while still allowing the GrSkSLFP to manage the string's lifetime when
-    // needed.
-    SkString fSkSLString;
-
-    const char* fSkSL;
+    sk_sp<SkRuntimeEffect> fEffect;
+    const char*            fName;
 
     const std::unique_ptr<int8_t[]> fInputs;
-
-    size_t fInputSize;
+    size_t                          fInputSize;
 
     GrCoordTransform fCoordTransform;
 
@@ -156,34 +117,6 @@ private:
     friend class GrGLSLSkSLFP;
 
     friend class GrSkSLFPFactory;
-};
-
-/**
- * Produces GrFragmentProcessors from SkSL code. As the shader code produced from the SkSL depends
- * upon the inputs to the SkSL (static if's, etc.) we first create a factory for a given SkSL
- * string, then use that to create the actual GrFragmentProcessor.
- */
-class GrSkSLFPFactory : public SkNVRefCnt<GrSkSLFPFactory> {
-public:
-    /**
-     * Constructs a GrSkSLFPFactory for a given SkSL source string. Creating a factory will
-     * preprocess the SkSL and determine which of its inputs are declared "key" (meaning they cause
-     * the produced shaders to differ), so it is important to reuse the same factory instance for
-     * the same shader in order to avoid repeatedly re-parsing the SkSL.
-     */
-    GrSkSLFPFactory(const char* name, const char* sksl);
-
-    std::unique_ptr<SkSL::Program> getSpecialization(const void* inputs, size_t inputSize);
-
-    const char* fName;
-
-    SkSL::Compiler fCompiler;
-
-    std::shared_ptr<SkSL::Program> fBaseProgram;
-
-    std::vector<const SkSL::Variable*> fInAndUniformVars;
-
-    friend class GrSkSLFP;
 };
 
 #endif
