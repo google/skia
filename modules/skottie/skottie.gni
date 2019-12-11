@@ -35,6 +35,7 @@ skia_skottie_sources = [
   "$_src/effects/GaussianBlurEffect.cpp",
   "$_src/effects/GradientEffect.cpp",
   "$_src/effects/HueSaturationEffect.cpp",
+  "$_src/effects/InvertEffect.cpp",
   "$_src/effects/LevelsEffect.cpp",
   "$_src/effects/LinearWipeEffect.cpp",
   "$_src/effects/MotionBlurEffect.cpp",
