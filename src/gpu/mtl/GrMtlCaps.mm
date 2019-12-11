@@ -322,7 +322,7 @@ bool GrMtlCaps::isFormatCompressed(const GrBackendFormat& format,
     switch (GrBackendFormatAsMTLPixelFormat(format)) {
         case MTLPixelFormatETC2_RGB8:
             // ETC2 uses the same compression layout as ETC1
-            *compressionTypePtr = SkImage::kETC1_CompressionType;
+            *compressionTypePtr = SkImage::CompressionType::kETC1;
             return true;
         default:
             return false;

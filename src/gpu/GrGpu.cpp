@@ -272,7 +272,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 const GrBackendFormat& format,
                                                 SkImage::CompressionType compressionType,
-                                                SkBudgeted budgeted, const void* data,
+                                                SkBudgeted budgeted,
+                                                const void* data,
                                                 size_t dataSize) {
     // If we ever add a new CompressionType, we should add a check here to make sure the
     // GrBackendFormat and CompressionType are compatible with eachother.
@@ -291,7 +292,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
     if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
-    if (dataSize < GrCompressedDataSize(compressionType, width, height)) {
+    if (dataSize < GrCompressedDataSize(compressionType, {width, height})) {
         return nullptr;
     }
     return this->onCreateCompressedTexture(width, height, format, compressionType, budgeted, data);
@@ -317,6 +318,27 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
 
     return this->onWrapBackendTexture(backendTex, colorType, ownership, cacheable, ioType);
 }
+
+sk_sp<GrTexture> GrGpu::wrapCompressedBackendTexture(const GrBackendTexture& backendTex,
+                                                     GrWrapOwnership ownership, GrWrapCacheable cacheable,
+                                                     GrIOType ioType) {
+    SkASSERT(ioType != kWrite_GrIOType);
+    this->handleDirtyContext();
+
+    const GrCaps* caps = this->caps();
+    SkASSERT(caps);
+
+    if (!caps->isFormatTexturable(backendTex.getBackendFormat())) {
+        return nullptr;
+    }
+    if (backendTex.width() > caps->maxTextureSize() ||
+        backendTex.height() > caps->maxTextureSize()) {
+        return nullptr;
+    }
+
+    return this->onWrapCompressedBackendTexture(backendTex, ownership, cacheable, ioType);
+}
+
 
 sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                      int sampleCnt, GrColorType colorType,
@@ -741,9 +763,15 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data
         return false;
     }
 
-    if (!data || data->type() != BackendTextureData::Type::kPixmaps) {
+    if (!data || data->type() == BackendTextureData::Type::kColor1) {
         return true;
     }
+
+    if (data->type() == BackendTextureData::Type::kCompressed) {
+        return false;
+    }
+
+    SkASSERT(data->type() == BackendTextureData::Type::kPixmaps1);
 
     if (data->pixmap(0).dimensions() != dimensions) {
         return false;
@@ -763,6 +791,34 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data
     return true;
 }
 
+bool GrGpu::CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType compressionType,
+                                    int numLevels, const BackendTextureData* data) {
+    if (numLevels != 1 &&
+        numLevels != SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1) {
+        return false;
+    }
+
+    if (!data || data->type() == BackendTextureData::Type::kColor1) {
+        return true;
+    }
+
+    if (data->type() == BackendTextureData::Type::kPixmaps1) {
+        return false;
+    }
+
+    SkASSERT(data->type() == BackendTextureData::Type::kCompressed);
+
+    size_t computedSize = 0;
+    for (int i = 1; i < numLevels; ++i) {
+        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+
+        // TODO: Are there any alignment issues here
+        computedSize += GrCompressedDataSize(compressionType, dimensions);
+    }
+
+    return computedSize == data->size();
+}
+
 GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              GrRenderable renderable,
@@ -780,7 +836,7 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (data && data->type() == BackendTextureData::Type::kPixmaps) {
+    if (data && data->type() == BackendTextureData::Type::kPixmaps1) {
         auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());
         if (!caps->areColorTypeAndFormatCompatible(ct, format)) {
             return {};
@@ -802,4 +858,39 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
 
     return this->onCreateBackendTexture(dimensions, format, renderable, data, numMipLevels,
                                         isProtected);
+}
+
+GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
+                                                       const GrBackendFormat& format,
+                                                       const BackendTextureData* data,
+                                                       int numMipLevels,
+                                                       GrProtected isProtected) {
+    const GrCaps* caps = this->caps();
+
+    if (!format.isValid()) {
+        return {};
+    }
+
+    SkImage::CompressionType compressionType;
+    if (!caps->isFormatCompressed(format, &compressionType)) {
+        // Uncompressed formats must go through the createBackendTexture API
+        return {};
+    }
+
+    if (dimensions.isEmpty() ||
+        dimensions.width()  > caps->maxTextureSize() ||
+        dimensions.height() > caps->maxTextureSize()) {
+        return {};
+    }
+
+    if (numMipLevels > 1 && !this->caps()->mipMapSupport()) {
+        return {};
+    }
+
+    if (!CompressedDataIsCorrect(dimensions, compressionType, numMipLevels, data)) {
+        return {};
+    }
+
+    return this->onCreateCompressedBackendTexture(dimensions, format, data, numMipLevels,
+                                                  isProtected);
 }

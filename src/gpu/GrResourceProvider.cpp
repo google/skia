@@ -293,6 +293,19 @@ sk_sp<GrTexture> GrResourceProvider::wrapBackendTexture(const GrBackendTexture& 
     return fGpu->wrapBackendTexture(tex, colorType, ownership, cacheable, ioType);
 }
 
+sk_sp<GrTexture> GrResourceProvider::wrapCompressedBackendTexture(const GrBackendTexture& tex,
+                                                                  GrWrapOwnership ownership,
+                                                                  GrWrapCacheable cacheable,
+                                                                  GrIOType ioType) {
+    ASSERT_SINGLE_OWNER
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    return fGpu->wrapCompressedBackendTexture(tex, ownership, cacheable, ioType);
+}
+
+
 sk_sp<GrTexture> GrResourceProvider::wrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                                   int sampleCnt,
                                                                   GrColorType colorType,
