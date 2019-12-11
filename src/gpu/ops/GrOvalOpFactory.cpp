@@ -1111,9 +1111,12 @@ public:
             stopPoint.normalize();
 
             // If the matrix included scale (on one axis) we need to swap our start and end points
-            if ((viewMatrix.getScaleX() < 0) != (viewMatrix.getScaleY() < 0)) {
-                using std::swap;
-                swap(startPoint, stopPoint);
+            // the upper left 2x2 could be of the form [sx 0; 0 sy] or [0 kx; ky 0].
+            bool reverse = (viewMatrix.getScaleX())
+                    ? (viewMatrix.getScaleX() < 0) != (viewMatrix.getScaleY() < 0)
+                    : (viewMatrix.getSkewX()  < 0) == (viewMatrix.getSkewY()  < 0);
+            if (reverse) {
+                std::swap(startPoint, stopPoint);
             }
 
             fRoundCaps = style.strokeRec().getWidth() > 0 &&
