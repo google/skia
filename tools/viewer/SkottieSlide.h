@@ -46,7 +46,9 @@ private:
     sksg::InvalidationController       fInvalController;
     std::vector<float>                 fFrameTimes;
     SkSize                             fWinSize            = SkSize::MakeEmpty();
-    SkMSec                             fTimeBase           = 0;
+    double                             fTimeBase           = 0,
+                                       fFrameRate          = 0;
+    const char*                        fFrameRateLabel     = nullptr;
     float                              fCurrentFrame       = 0;
     bool                               fShowAnimationInval = false,
                                        fShowAnimationStats = false,
