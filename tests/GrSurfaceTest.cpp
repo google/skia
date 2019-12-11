@@ -86,8 +86,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
         GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
-        bool compressed = rp->caps()->isFormatCompressed(format);
-        if (compressed) {
+        SkImage::CompressionType compression = rp->caps()->compressionType(format);
+        if (compression != SkImage::CompressionType::kNone) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }
@@ -147,9 +147,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             // support check is working
             {
 
-                bool compressed = caps->isFormatCompressed(combo.fFormat);
+                SkImage::CompressionType compression = caps->compressionType(combo.fFormat);
                 bool isTexturable;
-                if (compressed) {
+                if (compression != SkImage::CompressionType::kNone) {
                     isTexturable = caps->isFormatTexturable(combo.fFormat);
                 } else {
                     isTexturable = caps->isFormatTexturableAndUploadable(combo.fColorType,
@@ -167,7 +167,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 // Check that the lack of mipmap support blocks the creation of mipmapped
                 // proxies
                 bool expectedMipMapability = isTexturable && caps->mipMapSupport() &&
-                                              !caps->isFormatCompressed(combo.fFormat);
+                                                compression != SkImage::CompressionType::kNone;
 
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                         combo.fFormat, desc, GrRenderable::kNo, 1, origin, GrMipMapped::kYes,
