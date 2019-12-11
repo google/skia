@@ -47,7 +47,6 @@ class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainter
 public:
     class SubRun;
     class VertexRegenerator;
-    using SubRunBufferSpec = std::tuple<uint32_t, uint32_t, size_t, size_t>;
 
     enum SubRunType {
         kDirectMask,
@@ -252,15 +251,6 @@ private:
     const GrColor fColor;
     const SkColor fInitialLuminance;
 
-    // Pool of bytes for vertex data.
-    char* fVertices;
-    // How much (in bytes) of the vertex data is used while accumulating SubRuns.
-    size_t fVerticesCursor{0};
-    // Pointers to every glyph that will be drawn.
-    GrGlyph** fGlyphs;
-    // Number of glyphs stored in fGlyphs while accumulating SubRuns.
-    uint32_t fGlyphsCursor{0};
-
     SkMaskFilterBase::BlurRec fBlurRec;
     StrokeInfo fStrokeInfo;
     Key fKey;
@@ -293,8 +283,7 @@ public:
      * SkAutoGlyphCache is reused then it can save the cost of multiple detach/attach operations of
      * SkGlyphCache.
      */
-    VertexRegenerator(GrResourceProvider*, GrTextBlob*,
-            GrTextBlob::SubRun* subRun,
+    VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
@@ -324,7 +313,6 @@ private:
 
     GrResourceProvider* fResourceProvider;
     const SkMatrix& fViewMatrix;
-    GrTextBlob* fBlob;
     GrDeferredUploadTarget* fUploadTarget;
     GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;
