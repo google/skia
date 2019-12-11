@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b24841c_7d68d39f",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-11T19:16:59Z",
+      "side": 1,
+      "message": "Does something yell at us if we don\u0027t do this?",
+      "range": {
+        "startLine": 407,
+        "startChar": 9,
+        "endLine": 408,
+        "endChar": 25
+      },
+      "revId": "025976ec22c82a59df514c5db31e1266cd80a42d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d65e3674_685d296b",
+        "filename": "public.bzl",
+        "patchSetId": 1
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-11T19:16:59Z",
+      "side": 1,
+      "message": "Same?",
+      "range": {
+        "startLine": 411,
+        "startChar": 12,
+        "endLine": 411,
+        "endChar": 33
+      },
+      "revId": "025976ec22c82a59df514c5db31e1266cd80a42d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
