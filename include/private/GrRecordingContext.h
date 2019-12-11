@@ -37,6 +37,12 @@ public:
     GrRecordingContextPriv priv();
     const GrRecordingContextPriv priv() const;
 
+#if GR_TEST_UTILS
+    // Used by tests that induce intentional allocation failures, in order to keep the output clean.
+    void testingOnly_setSuppressAllocationWarnings() { fSuppressAllocationWarnings = true; }
+    bool testingOnly_getSuppressAllocationWarnings() const { return fSuppressAllocationWarnings; }
+#endif
+
 protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
@@ -149,6 +155,10 @@ private:
     std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
 
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
+
+#ifdef GR_TEST_UTILS
+    bool fSuppressAllocationWarnings = false;
+#endif
 
     typedef GrImageContext INHERITED;
 };

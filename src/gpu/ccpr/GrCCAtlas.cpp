@@ -243,8 +243,13 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
             ? GrColorType::kAlpha_F16 : GrColorType::kAlpha_8;
     auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, colorType, nullptr, nullptr);
     if (!rtc) {
-        SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
-                 fWidth, fHeight);
+#if GR_TEST_UTILS
+        if (!onFlushRP->testingOnly_getSuppressAllocationWarnings())
+#endif
+        {
+            SkDebugf("WARNING: failed to allocate a %ix%i atlas. Some paths will not be drawn.\n",
+                     fWidth, fHeight);
+        }
         return nullptr;
     }
 

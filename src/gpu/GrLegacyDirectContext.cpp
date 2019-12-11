@@ -11,6 +11,7 @@
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrSkSLFPFactoryCache.h"
 
@@ -171,6 +172,13 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
     if (!context->init(context->fGpu->refCaps(), nullptr)) {
         return nullptr;
     }
+
+#if GR_TEST_UTILS
+    if (mockOptions && mockOptions->fFailTextureAllocations) {
+        context->testingOnly_setSuppressAllocationWarnings();
+    }
+#endif
+
     return context;
 }
 
