@@ -581,7 +581,6 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
         renderTask->prePrepare(fContext);
     }
 
-    ddl->fOpMemoryPool = fContext->priv().detachOpMemoryPool();
     ddl->fRecordTimeData = fContext->priv().detachRecordTimeAllocator();
 
     fContext->priv().detachProgramInfos(&ddl->fProgramInfos);
@@ -681,7 +680,7 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     GrSurfaceProxy* proxy = surfaceView.proxy();
     this->closeRenderTasksForNewRenderTask(proxy);
 
-    sk_sp<GrOpsTask> opsTask(new GrOpsTask(fContext->priv().opMemoryPool(),
+    sk_sp<GrOpsTask> opsTask(new GrOpsTask(fContext->priv().refOpMemoryPool(),
                                            std::move(surfaceView), fContext->priv().auditTrail()));
     SkASSERT(proxy->getLastRenderTask() == opsTask.get());
 

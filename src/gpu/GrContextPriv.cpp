@@ -41,6 +41,10 @@ sk_sp<GrSkSLFPFactoryCache> GrContextPriv::fpFactoryCache() {
     return fContext->fpFactoryCache();
 }
 
+sk_sp<GrOpMemoryPool> GrContextPriv::refOpMemoryPool() {
+    return fContext->refOpMemoryPool();
+}
+
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }

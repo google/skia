@@ -210,7 +210,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                 GrOpFlushState flushState(context->priv().getGpu(),
                                           context->priv().resourceProvider(),
                                           &tracker);
-                GrOpsTask opsTask(context->priv().opMemoryPool(),
+                GrOpsTask opsTask(context->priv().refOpMemoryPool(),
                                   GrSurfaceProxyView(proxy, kOrigin, outSwizzle),
                                   context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
