@@ -43,10 +43,6 @@ public:
         return this->asTextureProxyRef(context);
     }
 
-    // TODO: Once SkImage_GpuYUVA stores GrProxySurfaceViews see if we can make this just return a
-    // const ref instead.
-    virtual GrSurfaceProxyView asSurfaceProxyView(GrRecordingContext* context) const = 0;
-
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
 
