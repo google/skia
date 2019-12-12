@@ -21,23 +21,27 @@
  * requests. It is optimized for allocate / release speed over memory
  * efficiency. The interface is designed to be used to implement operator new
  * and delete overrides. All allocations are expected to be released before the
- * pool's destructor is called. Allocations will be 8-byte aligned.
+ * pool's destructor is called. Allocations will be aligned to
+ * sizeof(std::max_align_t).
  */
 class GrMemoryPool {
 public:
+    // Guaranteed alignment of pointer returned by allocate().
+    static constexpr size_t kAlignment = alignof(std::max_align_t);
+    // Minimum size this class will allocate at once.
+    static constexpr size_t kMinAllocationSize = 1 << 10;
+
     /**
      * Prealloc size is the amount of space to allocate at pool creation
      * time and keep around until pool destruction. The min alloc size is
      * the smallest allowed size of additional allocations. Both sizes are
-     * adjusted to ensure that:
-     *   1. they are are 8-byte aligned
-     *   2. minAllocSize >= kSmallestMinAllocSize
-     *   3. preallocSize >= minAllocSize
+     * adjusted to ensure that they are at least as large as kMinAllocationSize.
      *
-     * Both sizes is what the pool will end up allocating from the system, and
+     * Both sizes are what the pool will end up allocating from the system, and
      * portions of the allocated memory is used for internal bookkeeping.
      */
-    GrMemoryPool(size_t preallocSize, size_t minAllocSize);
+    static std::unique_ptr<GrMemoryPool> Make(size_t preallocSize, size_t minAllocSize);
+    void operator delete(void* p) { ::operator delete(p); }
 
     ~GrMemoryPool();
 
@@ -66,15 +70,14 @@ public:
      */
     size_t preallocSize() const { return fHead->fSize; }
 
-    /**
-     * Minimum value of minAllocSize constructor argument.
-     */
-    constexpr static size_t kSmallestMinAllocSize = 1 << 10;
 
 private:
+    GrMemoryPool(void* preallocStart, size_t preallocSize, size_t minAllocSize);
+
     struct BlockHeader;
 
     static BlockHeader* CreateBlock(size_t size);
+    static BlockHeader* InitBlock(void* mem, size_t blockSize);
 
     static void DeleteBlock(BlockHeader* block);
 
@@ -115,39 +118,37 @@ private:
     SkTHashSet<int32_t>               fAllocatedIDs;
 #endif
 
-protected:
-    enum {
-        // We assume this alignment is good enough for everybody.
-        kAlignment    = 8,
-        kHeaderSize   = GrSizeAlignUp(sizeof(BlockHeader), kAlignment),
-        kPerAllocPad  = GrSizeAlignUp(sizeof(AllocHeader), kAlignment),
-    };
+    friend class GrOpMemoryPool;
+
+    static constexpr size_t kHeaderSize  = GrSizeAlignUp(sizeof(BlockHeader), kAlignment);
+    static constexpr size_t kPerAllocPad = GrSizeAlignUp(sizeof(AllocHeader), kAlignment);
 };
 
 class GrOp;
 
 class GrOpMemoryPool {
 public:
-    GrOpMemoryPool(size_t preallocSize, size_t minAllocSize)
-            : fMemoryPool(preallocSize, minAllocSize) {
-    }
+    static std::unique_ptr<GrOpMemoryPool> Make(size_t preallocSize, size_t minAllocSize);
+    void operator delete(void* p) { ::operator delete(p); }
+
+    ~GrOpMemoryPool();
 
     template <typename Op, typename... OpArgs>
     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
-        char* mem = (char*) fMemoryPool.allocate(sizeof(Op));
+        auto mem = this->pool()->allocate(sizeof(Op));
         return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
     }
 
-    void* allocate(size_t size) {
-        return fMemoryPool.allocate(size);
-    }
+    void* allocate(size_t size) { return this->pool()->allocate(size); }
 
     void release(std::unique_ptr<GrOp> op);
 
-    bool isEmpty() const { return fMemoryPool.isEmpty(); }
+    bool isEmpty() const { return this->pool()->isEmpty(); }
 
 private:
-    GrMemoryPool fMemoryPool;
+    GrMemoryPool* pool() const;
+
+    GrOpMemoryPool() = default;
 };
 
 #endif

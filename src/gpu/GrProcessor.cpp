@@ -116,7 +116,7 @@ public:
 #endif
 
     GrMemoryPool* pool() const {
-        static GrMemoryPool* gPool = new GrMemoryPool(4096, 4096);
+        static GrMemoryPool* gPool = GrMemoryPool::Make(4096, 4096).release();
         return gPool;
     }
 };
