@@ -28,6 +28,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
+#include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/JsonWriteBuffer.h"
 
 #define DEBUGCANVAS_ATTRIBUTE_COMMAND "command"
@@ -125,6 +126,7 @@
 #define DEBUGCANVAS_ATTRIBUTE_AMBIENTCOLOR "ambientColor"
 #define DEBUGCANVAS_ATTRIBUTE_SPOTCOLOR "spotColor"
 #define DEBUGCANVAS_ATTRIBUTE_LIGHTRADIUS "lightRadius"
+#define DEBUGCANVAS_ATTRIBUTE_LAYERNODEID "layerNodeId"
 
 #define DEBUGCANVAS_VERB_MOVE "move"
 #define DEBUGCANVAS_VERB_LINE "line"
@@ -225,6 +227,7 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kDrawImageLattice_OpType: return "DrawImageLattice";
         case kDrawImageNine_OpType: return "DrawImageNine";
         case kDrawImageRect_OpType: return "DrawImageRect";
+        case kDrawImageRectLayer_OpType: return "DrawImageRectLayer";
         case kDrawOval_OpType: return "DrawOval";
         case kDrawPaint_OpType: return "DrawPaint";
         case kDrawPatch_OpType: return "DrawPatch";
@@ -1429,6 +1432,65 @@ void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataM
 
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
     writer.appendU64((uint64_t)fImage.get());
+
+    if (fSrc.isValid()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
+        MakeJsonRect(writer, *fSrc);
+    }
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_DST);
+    MakeJsonRect(writer, fDst);
+    if (fPaint.isValid()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_PAINT);
+        MakeJsonPaint(writer, *fPaint, urlDataManager);
+    }
+    if (fConstraint == SkCanvas::kStrict_SrcRectConstraint) {
+        writer.appendBool(DEBUGCANVAS_ATTRIBUTE_STRICT, true);
+    }
+
+    SkString desc;
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, str_append(&desc, fDst)->c_str());
+}
+
+DrawImageRectLayerCommand::DrawImageRectLayerCommand(DebugLayerManager*    layerManager,
+                                                     const int                   nodeId,
+                                                     const int                   frame,
+                                                     const SkRect*               src,
+                                                     const SkRect&               dst,
+                                                     const SkPaint*              paint,
+                                                     SkCanvas::SrcRectConstraint constraint)
+        : INHERITED(kDrawImageRectLayer_OpType)
+        , fLayerManager(layerManager)
+        , fNodeId(nodeId)
+        , fFrame(frame)
+        , fSrc(src)
+        , fDst(dst)
+        , fPaint(paint)
+        , fConstraint(constraint) {}
+
+void DrawImageRectLayerCommand::execute(SkCanvas* canvas) const {
+    sk_sp<SkImage> snapshot = fLayerManager->getLayerAsImage(fNodeId, fFrame);
+    canvas->legacy_drawImageRect(
+            snapshot.get(), fSrc.getMaybeNull(), fDst, fPaint.getMaybeNull(), fConstraint);
+}
+
+bool DrawImageRectLayerCommand::render(SkCanvas* canvas) const {
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->clear(0xFFFFFFFF);
+
+    xlate_and_scale_to_bounds(canvas, fDst);
+
+    this->execute(canvas);
+    return true;
+}
+
+void DrawImageRectLayerCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
+    INHERITED::toJSON(writer, urlDataManager);
+
+    // Don't append an image attribute here, the image can be rendered in as many different ways
+    // as there are commands in the layer, at least. the urlDataManager would save each one under
+    // a different URL.
+    // Append the node id, and the layer inspector of the debugger will know what to do with it.
+    writer.appendS64(DEBUGCANVAS_ATTRIBUTE_LAYERNODEID, fNodeId);
 
     if (fSrc.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
