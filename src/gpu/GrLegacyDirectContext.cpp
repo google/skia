@@ -12,7 +12,6 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrGpu.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -69,17 +68,16 @@ public:
     }
 
 protected:
-    bool init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) override {
-        SkASSERT(caps && !FPFactoryCache);
+    bool init(sk_sp<const GrCaps> caps) override {
+        SkASSERT(caps);
         SkASSERT(!fThreadSafeProxy);
 
-        FPFactoryCache.reset(new GrSkSLFPFactoryCache(caps->refShaderCaps()));
         fThreadSafeProxy = GrContextThreadSafeProxyPriv::Make(this->backend(),
                                                               this->options(),
                                                               this->contextID(),
-                                                              caps, FPFactoryCache);
+                                                              caps);
 
-        if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
+        if (!INHERITED::init(std::move(caps))) {
             return false;
         }
 
@@ -147,7 +145,7 @@ sk_sp<GrContext> GrContext::MakeGL(sk_sp<const GrGLInterface> interface,
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
+    if (!context->init(context->fGpu->refCaps())) {
         return nullptr;
     }
     return context;
@@ -168,7 +166,7 @@ sk_sp<GrContext> GrContext::MakeMock(const GrMockOptions* mockOptions,
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
+    if (!context->init(context->fGpu->refCaps())) {
         return nullptr;
     }
 
@@ -201,7 +199,7 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
+    if (!context->init(context->fGpu->refCaps())) {
         return nullptr;
     }
     return context;
@@ -224,7 +222,7 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
+    if (!context->init(context->fGpu->refCaps())) {
         return nullptr;
     }
     return context;
@@ -245,7 +243,7 @@ sk_sp<GrContext> GrContext::MakeDawn(const wgpu::Device& device, const GrContext
         return nullptr;
     }
 
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
+    if (!context->init(context->fGpu->refCaps())) {
         return nullptr;
     }
     return context;
