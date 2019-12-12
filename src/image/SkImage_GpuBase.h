@@ -16,6 +16,7 @@
 #include "src/image/SkImage_Base.h"
 
 class GrColorSpaceXform;
+class GrSurfaceProxyView;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {
@@ -41,6 +42,10 @@ public:
         *uniqueID = this->uniqueID();
         return this->asTextureProxyRef(context);
     }
+
+    // TODO: Once SkImage_GpuYUVA stores GrProxySurfaceViews see if we can make this just return a
+    // const ref instead.
+    virtual GrSurfaceProxyView asSurfaceProxyView(GrRecordingContext* context) const = 0;
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                          GrSurfaceOrigin* origin) const final;
