@@ -126,6 +126,10 @@ private:
         return fContext->internal().grContext()->priv().opMemoryPool();
     }
 
+    SkArenaAlloc* recordTimeAllocator() {
+        return fContext->internal().grContext()->priv().recordTimeAllocator();
+    }
+
     uint32_t fColor;
     using SkAtlasTextTarget::fWidth;
     using SkAtlasTextTarget::fHeight;
@@ -178,9 +182,10 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     int n = SkTMin(kMaxBatchLookBack, fOps.count());
 
     GrOpMemoryPool* pool = this->opMemoryPool();
+    SkArenaAlloc* arena = this->recordTimeAllocator();
     for (int i = 0; i < n; ++i) {
         GrAtlasTextOp* other = fOps.fromBack(i).get();
-        if (other->combineIfPossible(op.get(), caps) == GrOp::CombineResult::kMerged) {
+        if (other->combineIfPossible(op.get(), arena, caps) == GrOp::CombineResult::kMerged) {
             pool->release(std::move(op));
             return;
         }

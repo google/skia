@@ -95,7 +95,8 @@ public:
         kCannotCombine
     };
 
-    CombineResult combineIfPossible(GrOp* that, const GrCaps& caps);
+    // The arena is the same record time allocator available when the op was created.
+    CombineResult combineIfPossible(GrOp* that, SkArenaAlloc* arena, const GrCaps& caps);
 
     const SkRect& bounds() const {
         SkASSERT(kUninitialized_BoundsFlag != fBoundsFlags);
@@ -288,7 +289,7 @@ private:
         return fBounds.joinPossiblyEmptyRect(that.fBounds);
     }
 
-    virtual CombineResult onCombineIfPossible(GrOp*, const GrCaps&) {
+    virtual CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) {
         return CombineResult::kCannotCombine;
     }
 

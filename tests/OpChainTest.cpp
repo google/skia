@@ -130,7 +130,10 @@ private:
         }
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc* arena, const GrCaps&) override {
+        // This op doesn't use the record time allocator, but make sure the GrOpsTask is sending it
+        SkASSERT(arena);
+        (void) arena;
         auto that = t->cast<TestOp>();
         int v0 = fValueRanges[0].fValue;
         int v1 = that->fValueRanges[0].fValue;
@@ -211,6 +214,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                           context->priv().resourceProvider(),
                                           &tracker);
                 GrOpsTask opsTask(context->priv().opMemoryPool(),
+                                  context->priv().recordTimeAllocator(),
                                   GrSurfaceProxyView(proxy, kOrigin, outSwizzle),
                                   context->priv().auditTrail());
                 // This assumes the particular values of kRanges.
