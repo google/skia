@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5e9df66_4f7d3e30",
+        "filename": "src/gpu/GrMemoryPool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-12T14:42:44Z",
+      "side": 1,
+      "message": "Do we also need to GrSizeAlignUp the preallocSizes, or not worry about any excess bytes since we\u0027ve aligned the preallocStart in the line below?",
+      "range": {
+        "startLine": 22,
+        "startChar": 3,
+        "endLine": 22,
+        "endChar": 61
+      },
+      "revId": "a5ec771347535a8b239774be0090cf09a2b67722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
