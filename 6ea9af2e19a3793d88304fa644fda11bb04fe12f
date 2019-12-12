@@ -22,6 +22,30 @@
       "revId": "6ea9af2e19a3793d88304fa644fda11bb04fe12f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7058f0c_c1ab9ec2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1490,
+      "author": {
+        "id": 10579
+      },
+      "writtenOn": "2019-12-12T16:30:47Z",
+      "side": 1,
+      "message": "I pushed a new version which wraps the line. Thanks!",
+      "parentUuid": "466e0c08_a530f8f2",
+      "range": {
+        "startLine": 1490,
+        "startChar": 93,
+        "endLine": 1490,
+        "endChar": 108
+      },
+      "revId": "6ea9af2e19a3793d88304fa644fda11bb04fe12f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
