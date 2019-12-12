@@ -39,18 +39,16 @@ public:
 #endif
     }
 
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     // It is the creator's responsibility to ref the MTLEvent passed in here, via __bridge_retained.
     // The other end will wrap this BackendSemaphore and take the ref, via __bridge_transfer.
     void initMetal(GrMTLHandle event, uint64_t value) {
         fBackend = GrBackendApi::kMetal;
         fMtlEvent = event;
         fMtlValue = value;
-#ifdef SK_METAL
         fIsInitialized = true;
-#else
-        fIsInitialized = false;
-#endif
     }
+#endif
 
     bool isInitialized() const { return fIsInitialized; }
 

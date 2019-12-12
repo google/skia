@@ -22,7 +22,7 @@
 
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
-#include "src/gpu/mtl/GrMtlCppUtil.h"
+#include "src/gpu/GrMtlCppUtil.h"
 #endif
 
 // Test wrapping of GrBackendObjects in SkSurfaces and SkImages (non-static since used in Mtl test)
@@ -102,7 +102,7 @@ static bool isBGRA(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kMetal:
 #ifdef SK_METAL
-            return GrMtlFormatIsBGRA(format.asMtlFormat());
+            return 0 == strcmp("BGRA8Unorm", GrMtlFormatToStr(format.asMtlFormat()));
 #else
             return false;
 #endif
