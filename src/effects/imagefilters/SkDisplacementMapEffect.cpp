@@ -648,15 +648,15 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
 void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                           const GrFragmentProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
-    const auto& view = displacementMap.textureSampler(1).view();
-    SkISize texDimensions = view.proxy()->backingStoreDimensions();
+    GrSurfaceProxy* proxy = displacementMap.textureSampler(1).proxy();
+    SkISize texDimensions = proxy->backingStoreDimensions();
 
     SkScalar scaleX = displacementMap.scale().fX / texDimensions.width();
     SkScalar scaleY = displacementMap.scale().fY / texDimensions.height();
     pdman.set2f(fScaleUni, SkScalarToFloat(scaleX),
-                view.origin() == kTopLeft_GrSurfaceOrigin ?
+                proxy->origin() == kTopLeft_GrSurfaceOrigin ?
                 SkScalarToFloat(scaleY) : SkScalarToFloat(-scaleY));
-    fGLDomain.setData(pdman, displacementMap.domain(), view,
+    fGLDomain.setData(pdman, displacementMap.domain(), proxy,
                       displacementMap.textureSampler(1).samplerState());
 }
 
