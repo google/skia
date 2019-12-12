@@ -374,6 +374,59 @@ std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFrag
     bool filterIfDecal = filter != GrSamplerState::Filter::kNearest;
     return Make(std::move(fp), domain, modeX, modeY, filterIfDecal);
 }
+
+static GrTextureDomain::Mode wrap_mode_to_domain_mode(const GrSamplerState::WrapMode wrap) {
+    switch (wrap) {
+        case GrSamplerState::WrapMode::kClamp:
+            return GrTextureDomain::kClamp_Mode;
+        case GrSamplerState::WrapMode::kRepeat:
+            return GrTextureDomain::kRepeat_Mode;
+        case GrSamplerState::WrapMode::kMirrorRepeat:
+            return GrTextureDomain::kMirrorRepeat_Mode;
+        case GrSamplerState::WrapMode::kClampToBorder:
+            return GrTextureDomain::kDecal_Mode;
+    }
+    SkUNREACHABLE;
+}
+
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::MakeTexture(sk_sp<GrTextureProxy> proxy,
+                                                                 SkAlphaType alphaType,
+                                                                 const SkMatrix& matrix,
+                                                                 const GrSamplerState& sampler,
+                                                                 const SkIRect* domain,
+                                                                 const GrCaps& caps) {
+    auto domainModeX = GrTextureDomain::kIgnore_Mode;
+    auto domainModeY = GrTextureDomain::kIgnore_Mode;
+    SkIRect domainRect;
+    if (domain) {
+        SkASSERT(proxy->getBoundsRect().contains(*domain));
+        domainRect = *domain;
+    } else {
+        domainRect = SkIRect::MakeSize(proxy->dimensions());
+    }
+    GrSamplerState::WrapMode modes[2] = {sampler.wrapModeX(), sampler.wrapModeY()};
+    bool requireDomain = false;
+    if (domainRect.left() != 0 || domainRect.right() != proxy->backingStoreDimensions().width() ||
+        (modes[0] == GrSamplerState::WrapMode::kClampToBorder && !caps.clampToBorderSupport())) {
+        domainModeX = wrap_mode_to_domain_mode(modes[0]);
+        modes[0] = GrSamplerState::WrapMode::kClamp;
+        requireDomain = true;
+    }
+    if (domainRect.top() != 0 || domainRect.bottom() != proxy->backingStoreDimensions().height() ||
+        (modes[1] == GrSamplerState::WrapMode::kClampToBorder && !caps.clampToBorderSupport())) {
+        domainModeY = wrap_mode_to_domain_mode(modes[1]);
+        modes[1] = GrSamplerState::WrapMode::kClamp;
+        requireDomain = true;
+    }
+    auto s = GrSamplerState(modes, sampler.filter());
+    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), alphaType, matrix, s);
+    if (requireDomain) {
+        auto domain = GrTextureDomain::MakeTexelDomain(domainRect, domainModeX, domainModeY);
+        fp = GrDomainEffect::Make(std::move(fp), domain, domainModeX, domainModeY, sampler.filter());
+    }
+    return fp;
+}
+
 GrFragmentProcessor::OptimizationFlags GrDomainEffect::Flags(GrFragmentProcessor* fp,
                                                              GrTextureDomain::Mode modeX,
                                                              GrTextureDomain::Mode modeY) {
