@@ -15,6 +15,17 @@
 struct SkRSXform;
 struct SkPoint3;
 
+/**
+ *  When we transform points through a matrix containing perspective (the bottom row is something
+ *  other than 0,0,1), the bruteforce math can produce confusing results (since we might divide
+ *  by 0, or a negative w value). By default, methods that map rects and paths will apply
+ *  perspective clipping, but this can be changed by specifying kYes to those methods.
+ */
+enum class SkApplyPerspectiveClip {
+    kNo,    //!< Don't pre-clip the geometry before applying the (perspective) matrix
+    kYes,   //!< Do pre-clip the geometry before applying the (perspective) matrix
+};
+
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
     SkPoint and vectors with translation, scaling, skewing, rotation, and
@@ -1453,11 +1464,13 @@ public:
 
         @param dst  storage for bounds of mapped SkPoint
         @param src  SkRect to map
+        @param pc   whether to apply perspective clipping
         @return     true if dst is equivalent to mapped src
 
         example: https://fiddle.skia.org/c/@Matrix_mapRect
     */
-    bool mapRect(SkRect* dst, const SkRect& src) const;
+    bool mapRect(SkRect* dst, const SkRect& src,
+                 SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
 
     /** Sets rect to bounds of rect corners mapped by SkMatrix.
         Returns true if mapped corners are computed rect corners.
@@ -1465,10 +1478,11 @@ public:
         Returned value is the same as calling rectStaysRect().
 
         @param rect  rectangle to map, and storage for bounds of mapped corners
+        @param pc    whether to apply perspective clipping
         @return      true if result is equivalent to mapped rect
     */
-    bool mapRect(SkRect* rect) const {
-        return this->mapRect(rect, *rect);
+    bool mapRect(SkRect* rect, SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
+        return this->mapRect(rect, *rect, pc);
     }
 
     /** Returns bounds of src corners mapped by SkMatrix.
@@ -1476,9 +1490,10 @@ public:
         @param src  rectangle to map
         @return     mapped bounds
     */
-    SkRect mapRect(const SkRect& src) const {
+    SkRect mapRect(const SkRect& src,
+                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
         SkRect dst;
-        (void)this->mapRect(&dst, src);
+        (void)this->mapRect(&dst, src, pc);
         return dst;
     }
 
@@ -1506,6 +1521,9 @@ public:
 
         @param dst   storage for mapped corner SkPoint
         @param rect  SkRect to map
+
+        Note: this does not perform perspective clipping (as that might result in more than
+              4 points, so results are suspect if the matrix contains perspective.
     */
     void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
         // This could potentially be faster if we only transformed each x and y of the rect once.
