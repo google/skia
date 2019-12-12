@@ -13,6 +13,7 @@
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
+#include "include/private/SkTHash.h"
 
 
 class GrAtlasManager;
@@ -59,8 +60,8 @@ public:
     // If a TextStrike is abandoned by the cache, then the caller must get a new strike
     bool isAbandoned() const { return fIsAbandoned; }
 
-    static const SkDescriptor& GetKey(const GrTextStrike& strike) {
-        return *strike.fFontScalerKey.getDesc();
+    static const SkDescriptor& GetKey(const GrTextStrike* strike) {
+        return *strike->fFontScalerKey.getDesc();
     }
 
     static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
@@ -92,7 +93,7 @@ public:
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
     sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
-        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.find(desc));
+        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.findOrNull(desc));
         if (!strike) {
             strike = this->generateStrike(desc);
         }
@@ -109,11 +110,12 @@ private:
     sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
         // 'fCache' get the construction ref
         sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(desc));
-        fCache.add(strike.get());
+        fCache.set(strike.get());
         return strike;
     }
 
-    using StrikeHash = SkTDynamicHash<GrTextStrike, SkDescriptor>;
+    using StrikeHash1 = SkTDynamicHash<GrTextStrike, SkDescriptor>;
+    using StrikeHash = SkTHashTable<GrTextStrike*, SkDescriptor, GrTextStrike>;
 
     StrikeHash fCache;
     GrTextStrike* fPreserveStrike;
