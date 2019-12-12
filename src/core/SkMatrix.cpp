@@ -16,6 +16,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathPriv.h"
 
 #include <cstddef>
 #include <utility>
@@ -1125,7 +1126,7 @@ void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
     sort_as_rect(Sk4f::Load(&src.fLeft) * scale + trans).store(&dst->fLeft);
 }
 
-bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
+bool SkMatrix::mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip pc) const {
     SkASSERT(dst);
 
     if (this->getType() <= kTranslate_Mask) {
@@ -1138,6 +1139,12 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
     if (this->isScaleTranslate()) {
         this->mapRectScaleTranslate(dst, src);
         return true;
+    } else if (pc == SkApplyPerspectiveClip::kYes && this->hasPerspective()) {
+        SkPath path;
+        path.addRect(src);
+        path.transform(*this);
+        *dst = path.getBounds();
+        return false;
     } else {
         SkPoint quad[4];
 
