@@ -408,7 +408,7 @@ def metal_objc_srcs():
             "src/**/*.h",
             "src/gpu/mtl/**/*.mm",
             "third_party/**/*.h",
-        ]
+        ],
     ) + [
         "src/image/SkSurface_GpuMtl.mm",
     ]
