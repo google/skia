@@ -108,6 +108,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrImageTextureMaker.cpp",
   "$_src/gpu/GrImageTextureMaker.h",
   "$_src/gpu/GrLegacyDirectContext.cpp",
+  "$_src/gpu/GrLegacyDirectContext.h",
   "$_src/gpu/GrMemoryPool.cpp",
   "$_src/gpu/GrMemoryPool.h",
   "$_src/gpu/GrMesh.h",
@@ -750,6 +751,11 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnVaryingHandler.h",
 ]
 
+skia_gpu_apple_sources = [
+  "$_src/gpu/GrMtlCppUtil.h",
+  "$_src/gpu/GrMtlCppUtil.mm",
+]
+
 skia_metal_sources = [
   "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlBuffer.h",
@@ -758,7 +764,6 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlCaps.mm",
   "$_src/gpu/mtl/GrMtlCommandBuffer.h",
   "$_src/gpu/mtl/GrMtlCommandBuffer.mm",
-  "$_src/gpu/mtl/GrMtlCppUtil.h",
   "$_src/gpu/mtl/GrMtlDepthStencil.h",
   "$_src/gpu/mtl/GrMtlDepthStencil.mm",
   "$_src/gpu/mtl/GrMtlGpu.h",
@@ -781,6 +786,7 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlSemaphore.mm",
   "$_src/gpu/mtl/GrMtlStencilAttachment.h",
   "$_src/gpu/mtl/GrMtlStencilAttachment.mm",
+  "$_src/gpu/mtl/GrMtlSurface.mm",
   "$_src/gpu/mtl/GrMtlTexture.h",
   "$_src/gpu/mtl/GrMtlTexture.mm",
   "$_src/gpu/mtl/GrMtlTextureRenderTarget.h",
@@ -793,7 +799,6 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlUtil.mm",
   "$_src/gpu/mtl/GrMtlVaryingHandler.h",
   "$_src/gpu/mtl/GrMtlVaryingHandler.mm",
-  "$_src/image/SkSurface_GpuMtl.mm",
 ]
 
 skia_native_gpu_sources = [

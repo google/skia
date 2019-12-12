@@ -64,7 +64,7 @@ public:
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
     static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     /**
      * Makes a GrContext which uses Metal as the backend. The device parameter is an MTLDevice
      * and queue is an MTLCommandQueue which should be used by the backend. These objects must
@@ -72,7 +72,10 @@ public:
      * GrContext is destroyed.
      */
     static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
-    static sk_sp<GrContext> MakeMetal(void* device, void* queue);
+    static sk_sp<GrContext> MakeMetal(void* device, void* queue) {
+        return GrContext::MakeMetal(device, queue, GrContextOptions());
+    }
+
 #endif
 
 #ifdef SK_DAWN
