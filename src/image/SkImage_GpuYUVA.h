@@ -35,6 +35,8 @@ public:
     GrTextureProxy* peekProxy() const override;
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const override;
 
+    GrSurfaceProxyView asSurfaceProxyView(GrRecordingContext* context) const override;
+
     virtual bool onIsTextureBacked() const override { return fProxies[0] || fRGBProxy; }
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrRecordingContext*,
