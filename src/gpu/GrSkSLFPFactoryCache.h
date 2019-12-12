@@ -11,6 +11,7 @@
 #include <vector>
 #include "include/core/SkRefCnt.h"
 
+class GrShaderCaps;
 class GrSkSLFPFactory;
 
 // This is a cache used by GrSkSLFP to retain GrSkSLFPFactory instances, so we don't have to
@@ -20,6 +21,7 @@ class GrSkSLFPFactory;
 // onGetGLSLProcessorKey.
 class GrSkSLFPFactoryCache : public SkNVRefCnt<GrSkSLFPFactoryCache> {
 public:
+    GrSkSLFPFactoryCache(sk_sp<const GrShaderCaps> shaderCaps) : fShaderCaps(shaderCaps) {}
     ~GrSkSLFPFactoryCache();
 
     sk_sp<GrSkSLFPFactory> findOrCreate(int index, const char* name, const char* skSL);
@@ -35,6 +37,7 @@ private:
     mutable SkMutex fCacheMutex;
 
     std::vector<sk_sp<GrSkSLFPFactory>> fFactories;
+    sk_sp<const GrShaderCaps> fShaderCaps;
 };
 
 #endif

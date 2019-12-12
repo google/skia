@@ -110,7 +110,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, sk_sp<const GrShaderCaps> shaderCaps,
+    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache,
              int fIndex, const char* name, const char* sksl,
              SkString skslString, const void* inputs, size_t inputSize, const SkMatrix* matrix);
 
@@ -125,7 +125,6 @@ private:
     void createFactory() const;
 
     sk_sp<GrSkSLFPFactoryCache> fFactoryCache;
-    sk_sp<const GrShaderCaps>   fShaderCaps;
 
     mutable sk_sp<GrSkSLFPFactory> fFactory;
 
@@ -149,6 +148,8 @@ private:
 
     GrCoordTransform fCoordTransform;
 
+    mutable SkSL::String fKey;
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
@@ -171,9 +172,10 @@ public:
      * the produced shaders to differ), so it is important to reuse the same factory instance for
      * the same shader in order to avoid repeatedly re-parsing the SkSL.
      */
-    GrSkSLFPFactory(const char* name, const char* sksl);
+    GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl);
 
-    std::unique_ptr<SkSL::Program> getSpecialization(const void* inputs, size_t inputSize);
+    const SkSL::Program* getSpecialization(const SkSL::String& key, const void* inputs,
+                                           size_t inputSize);
 
     const char* fName;
 
@@ -182,6 +184,8 @@ public:
     std::shared_ptr<SkSL::Program> fBaseProgram;
 
     std::vector<const SkSL::Variable*> fInAndUniformVars;
+
+    std::unordered_map<SkSL::String, std::unique_ptr<const SkSL::Program>> fSpecializations;
 
     friend class GrSkSLFP;
 };
