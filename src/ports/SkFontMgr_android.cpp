@@ -554,6 +554,7 @@ private:
             family->fallbackFamilies.foreach([this, isolated, &familyIndex]
                 (SkString, std::unique_ptr<FontFamily>* fallbackFamily) {
                     addFamily(*(*fallbackFamily).get(), isolated, familyIndex++);
+                    return false;
                 }
             );
         }

@@ -30,7 +30,7 @@ DEF_TEST(HashMap, r) {
     REPORTER_ASSERT(r, found);
     REPORTER_ASSERT(r, *found == 4.0);
 
-    map.foreach([](int key, double* d){ *d = -key; });
+    map.foreach([](int key, double* d){ *d = -key; return false; });
     REPORTER_ASSERT(r, count(map) == 1);
 
     found = map.find(3);
@@ -198,4 +198,35 @@ DEF_TEST(HashFindOrNull, r) {
     table.set(&seven);
 
     REPORTER_ASSERT(r, &seven == table.findOrNull(7));
+}
+
+DEF_TEST(HashForEachRemove, r) {
+
+
+    struct HashTraits {
+        static int GetKey(const int e) { return e; }
+        static uint32_t Hash(int key) { return 0; }
+    };
+
+    SkTHashTable<int, int, HashTraits> table;
+
+    for (int i = 0; i < 10; i++) {
+        table.set(i);
+    }
+
+    REPORTER_ASSERT(r, table.count() == 10);
+
+    table.foreach([](int* i) {
+        // Do not remove.
+        return false;
+    });
+
+    REPORTER_ASSERT(r, table.count() == 10);
+
+    table.foreach([](int* i) {
+        // table.remove(*i);
+        return true;
+    });
+
+    REPORTER_ASSERT(r, table.count() == 0);
 }
