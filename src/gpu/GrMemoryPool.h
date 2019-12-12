@@ -126,9 +126,7 @@ protected:
 
 class GrOp;
 
-// DDL TODO: for the DLL use case this could probably be the non-intrinsic-based style of
-// ref counting
-class GrOpMemoryPool : public SkRefCnt {
+class GrOpMemoryPool {
 public:
     GrOpMemoryPool(size_t preallocSize, size_t minAllocSize)
             : fMemoryPool(preallocSize, minAllocSize) {

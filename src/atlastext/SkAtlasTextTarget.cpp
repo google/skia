@@ -85,9 +85,7 @@ public:
                               void* handle)
             : GrTextTarget(width, height, kColorInfo)
             , SkAtlasTextTarget(std::move(context), width, height, handle)
-            , fGlyphPainter(kProps, kColorInfo) {
-        fOpMemoryPool = fContext->internal().grContext()->priv().refOpMemoryPool();
-    }
+            , fGlyphPainter(kProps, kColorInfo) {}
 
     ~SkInternalAtlasTextTarget() override {
         this->deleteOps();
@@ -124,11 +122,14 @@ public:
 private:
     void deleteOps();
 
+    GrOpMemoryPool* opMemoryPool() {
+        return fContext->internal().grContext()->priv().opMemoryPool();
+    }
+
     uint32_t fColor;
     using SkAtlasTextTarget::fWidth;
     using SkAtlasTextTarget::fHeight;
     SkTArray<std::unique_ptr<GrAtlasTextOp>, true> fOps;
-    sk_sp<GrOpMemoryPool> fOpMemoryPool;
     SkGlyphRunListPainter fGlyphPainter;
 };
 
@@ -175,10 +176,12 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     const GrCaps& caps = *this->context()->internal().grContext()->priv().caps();
     op->finalizeForTextTarget(fColor, caps);
     int n = SkTMin(kMaxBatchLookBack, fOps.count());
+
+    GrOpMemoryPool* pool = this->opMemoryPool();
     for (int i = 0; i < n; ++i) {
         GrAtlasTextOp* other = fOps.fromBack(i).get();
         if (other->combineIfPossible(op.get(), caps) == GrOp::CombineResult::kMerged) {
-            fOpMemoryPool->release(std::move(op));
+            pool->release(std::move(op));
             return;
         }
         if (GrRectsOverlap(op->bounds(), other->bounds())) {
@@ -189,9 +192,10 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
 }
 
 void SkInternalAtlasTextTarget::deleteOps() {
+    GrOpMemoryPool* pool = this->opMemoryPool();
     for (int i = 0; i < fOps.count(); ++i) {
         if (fOps[i]) {
-            fOpMemoryPool->release(std::move(fOps[i]));
+            pool->release(std::move(fOps[i]));
         }
     }
     fOps.reset();
