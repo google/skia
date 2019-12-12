@@ -15,6 +15,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/gpu/text/GrStrikeCache.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
@@ -22,40 +23,36 @@ GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
                     GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
 
 GrStrikeCache::~GrStrikeCache() {
-    StrikeHash::Iter iter(&fCache);
-    while (!iter.done()) {
-        (*iter).fIsAbandoned = true;
-        (*iter).unref();
-        ++iter;
-    }
+    fCache.foreach([](GrTextStrike** strike){
+        (*strike)->fIsAbandoned = true;
+        (*strike)->unref();
+    });
 }
 
 void GrStrikeCache::freeAll() {
-    StrikeHash::Iter iter(&fCache);
-    while (!iter.done()) {
-        (*iter).fIsAbandoned = true;
-        (*iter).unref();
-        ++iter;
-    }
-    fCache.rewind();
+    fCache.foreach([](GrTextStrike** strike){
+        (*strike)->fIsAbandoned = true;
+        (*strike)->unref();
+    });
+    fCache.reset();
 }
 
 void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     GrStrikeCache* grStrikeCache = reinterpret_cast<GrStrikeCache*>(ptr);
 
-    StrikeHash::Iter iter(&grStrikeCache->fCache);
-    for (; !iter.done(); ++iter) {
-        GrTextStrike* strike = &*iter;
+    grStrikeCache->fCache.mutate([grStrikeCache, id](GrTextStrike** strikePtrPtr){
+        GrTextStrike* strike = *strikePtrPtr;
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
         if (strike != grStrikeCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            grStrikeCache->fCache.remove(GrTextStrike::GetKey(*strike));
             strike->fIsAbandoned = true;
             strike->unref();
+            return false;  // Remove this entry from the cache.
         }
-    }
+        return true;  // Keep this entry in the cache.
+    });
 }
 
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
