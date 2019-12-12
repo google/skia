@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d986015_3ff974a4",
+        "filename": "tests/GrMemoryPoolTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-12T02:21:05Z",
+      "side": 0,
+      "message": "We had this rule before but I\u0027m not sure why. Maybe it mattered in the past. It doesn\u0027t now so I removed it.",
+      "range": {
+        "startLine": 272,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 5
+      },
+      "revId": "3517aa7b14ad52aa662bf38932f2ba358a9f8318",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

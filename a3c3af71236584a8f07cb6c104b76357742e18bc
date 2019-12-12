@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5461302c_cf006808",
+        "filename": "bench/GrMemoryPoolBench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-12T02:21:05Z",
+      "side": 1,
+      "message": "It seems kinda bad that this benchmark creates these global pools. I thought about fixing it but then thought that we\u0027re probably targeting removal of this class entirely in the not too distant future and so didn\u0027t bother.",
+      "revId": "a3c3af71236584a8f07cb6c104b76357742e18bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
