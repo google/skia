@@ -199,3 +199,34 @@ DEF_TEST(HashFindOrNull, r) {
 
     REPORTER_ASSERT(r, &seven == table.findOrNull(7));
 }
+
+DEF_TEST(HashFilter, r) {
+
+
+    struct HashTraits {
+        static int GetKey(const int e) { return e; }
+        static uint32_t Hash(int key) { return 0; }
+    };
+
+    SkTHashTable<int, int, HashTraits> table;
+
+    for (int i = 0; i < 10; i++) {
+        table.set(i);
+    }
+
+    REPORTER_ASSERT(r, table.count() == 10);
+
+    table.mutate([](int* i) {
+        // Do not remove.
+        return true;
+    });
+
+    REPORTER_ASSERT(r, table.count() == 10);
+
+    table.mutate([](int* i) {
+        // table.remove(*i);
+        return false;
+    });
+
+    REPORTER_ASSERT(r, table.count() == 0);
+}
