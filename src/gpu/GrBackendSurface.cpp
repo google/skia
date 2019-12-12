@@ -20,9 +20,10 @@
 #include "src/gpu/vk/GrVkImageLayout.h"
 #include "src/gpu/vk/GrVkUtil.h"
 #endif
-#ifdef SK_METAL
+
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #include "include/gpu/mtl/GrMtlTypes.h"
-#include "src/gpu/mtl/GrMtlCppUtil.h"
+#include "src/gpu/GrMtlCppUtil.h"
 #endif
 
 GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
@@ -44,7 +45,7 @@ GrBackendFormat::GrBackendFormat(const GrBackendFormat& that)
             fVk = that.fVk;
             break;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             fMtlFormat = that.fMtlFormat;
             break;
@@ -147,7 +148,7 @@ bool GrBackendFormat::asDawnFormat(wgpu::TextureFormat* format) const {
 }
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 GrBackendFormat::GrBackendFormat(GrMTLPixelFormat mtlFormat)
         : fBackend(GrBackendApi::kMetal)
         , fValid(true)
@@ -237,7 +238,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
                    fVk.fYcbcrConversionInfo == that.fVk.fYcbcrConversionInfo;
             break;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             return fMtlFormat == that.fMtlFormat;
             break;
@@ -289,7 +290,7 @@ SkString GrBackendFormat::toStr() const {
 #endif
             break;
         case GrBackendApi::kMetal:
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
             str.append(GrMtlFormatToStr(fMtlFormat));
 #endif
             break;
@@ -364,7 +365,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fVkInfo(vkInfo, layout.release()) {}
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
@@ -445,7 +446,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
             fVkInfo.assign(that.fVkInfo, this->isValid());
             break;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             fMtlInfo = that.fMtlInfo;
             break;
@@ -502,7 +503,7 @@ sk_sp<GrVkImageLayout> GrBackendTexture::getGrVkImageLayout() const {
 }
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 bool GrBackendTexture::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
         *outInfo = fMtlInfo;
@@ -569,7 +570,7 @@ bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
         case GrBackendApi::kVulkan:
             return fVkInfo.snapImageInfo().fImage == that.fVkInfo.snapImageInfo().fImage;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             return this->fMtlInfo.fTexture == that.fMtlInfo.fTexture;
 #endif
@@ -604,7 +605,7 @@ GrBackendFormat GrBackendTexture::getBackendFormat() const {
             return GrBackendFormat::MakeDawn(fDawnInfo.fFormat);
         }
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal: {
             GrMtlTextureInfo mtlInfo;
             SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
@@ -642,7 +643,7 @@ bool GrBackendTexture::TestingOnly_Equals(const GrBackendTexture& t0, const GrBa
         case GrBackendApi::kVulkan:
             return t0.fVkInfo == t1.fVkInfo;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             return t0.fMtlInfo == t1.fMtlInfo;
 #endif
@@ -709,7 +710,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fVkInfo(vkInfo, layout.release()) {}
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -798,7 +799,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
             fDawnInfo = that.fDawnInfo;
             break;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             fMtlInfo = that.fMtlInfo;
             break;
@@ -850,7 +851,7 @@ sk_sp<GrVkImageLayout> GrBackendRenderTarget::getGrVkImageLayout() const {
 }
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 bool GrBackendRenderTarget::getMtlTextureInfo(GrMtlTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kMetal == fBackend) {
         *outInfo = fMtlInfo;
@@ -889,7 +890,7 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
             return GrBackendFormat::MakeVk(info.fFormat);
         }
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal: {
             GrMtlTextureInfo mtlInfo;
             SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
@@ -944,7 +945,7 @@ bool GrBackendRenderTarget::TestingOnly_Equals(const GrBackendRenderTarget& r0,
         case GrBackendApi::kVulkan:
             return r0.fVkInfo == r1.fVkInfo;
 #endif
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         case GrBackendApi::kMetal:
             return r0.fMtlInfo == r1.fMtlInfo;
 #endif

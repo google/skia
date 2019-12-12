@@ -10,13 +10,16 @@
 
 #include "include/gpu/mtl/GrMtlTypes.h"
 
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+
 // Utilities that can be used from cpp files (rather than .mm).
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&);
 
 #if GR_TEST_UTILS
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);
-bool GrMtlFormatIsBGRA(GrMTLPixelFormat mtlFormat);
+#endif
+
 #endif
 
 #endif
