@@ -23,6 +23,7 @@ void GrTextBlobCache::freeAll() {
         for (const auto& blob : entry->fBlobs) {
             fBlobList.remove(blob.get());
         }
+        return false;
     });
 
     fBlobIDCache.reset();

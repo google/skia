@@ -2390,6 +2390,7 @@ namespace skvm {
                 a->word(imm);
             }
             mark_line(++line);   // 2,3,4...
+            return false;
         });
 
         bytes_masks.foreach([&](int imm, LabelAndReg* entry) {
@@ -2403,6 +2404,7 @@ namespace skvm {
             a->bytes(mask, sizeof(mask));
         #endif
             mark_line(++line);
+            return false;
         });
 
         if (!iota.label.references.empty()) {
