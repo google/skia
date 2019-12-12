@@ -363,7 +363,8 @@ bool LayerBuilder::hasMotionBlur(const CompositionBuilder* cbuilder) const {
 }
 
 sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& abuilder,
-                                                      CompositionBuilder* cbuilder) {
+                                                      CompositionBuilder* cbuilder,
+                                                      const LayerBuilder* prev_layer) {
     AnimationBuilder::LayerInfo layer_info = {
         cbuilder->fSize,
         ParseDefault<float>(fJlayer["ip"], 0.0f),
@@ -475,25 +476,30 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     abuilder.fCurrentAnimatorScope->push_back(std::move(controller));
 
-    if (!layer) {
+    // Stash the content tree in case it is needed for later mattes.
+    fContentTree = layer;
+
+    if (!layer || ParseDefault<bool>(fJlayer["td"], false)) {
+        // If |layer| is a matte, we apply it as a mask to the next layer.
         return nullptr;
     }
 
-    if (auto matte = cbuilder->popMatte()) {
-        // There is a pending matte (|layer| is a matte target).
-        static constexpr sksg::MaskEffect::Mode gMaskModes[] = {
-            sksg::MaskEffect::Mode::kAlphaNormal, // tt: 1
-            sksg::MaskEffect::Mode::kAlphaInvert, // tt: 2
-            sksg::MaskEffect::Mode::kLumaNormal,  // tt: 3
-            sksg::MaskEffect::Mode::kLumaInvert,  // tt: 4
-        };
-        const auto matteType = ParseDefault<size_t>(fJlayer["tt"], 1) - 1;
+    static constexpr sksg::MaskEffect::Mode gMatteModes[] = {
+        sksg::MaskEffect::Mode::kAlphaNormal, // tt: 1
+        sksg::MaskEffect::Mode::kAlphaInvert, // tt: 2
+        sksg::MaskEffect::Mode::kLumaNormal,  // tt: 3
+        sksg::MaskEffect::Mode::kLumaInvert,  // tt: 4
+    };
 
-        if (matteType < SK_ARRAY_COUNT(gMaskModes)) {
-            layer = sksg::MaskEffect::Make(std::move(layer),
-                                           std::move(matte),
-                                           gMaskModes[matteType]);
-        }
+    int matte_mode;
+    if (Parse(fJlayer["tt"], &matte_mode)
+        && prev_layer
+        && matte_mode > 0
+        && SkToSizeT(matte_mode) <= SK_ARRAY_COUNT(gMatteModes)) {
+        // The current layer is masked with the previous one.
+        layer = sksg::MaskEffect::Make(std::move(layer),
+                                       prev_layer->fContentTree,
+                                       gMatteModes[matte_mode - 1]);
     }
 
     // Optional blend mode.  The attachment point is important for matte interactions:
@@ -501,12 +507,6 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     //   - for matte targets (masked layers), the blend mode is applied post-masking
     //     (wrapping the MaskEffect above)
     layer = abuilder.attachBlendMode(fJlayer, std::move(layer));
-
-    if (ParseDefault<bool>(fJlayer["td"], false)) {
-        // |layer| is a matte.  We apply it as a mask to the next layer.
-        cbuilder->pushMatte(std::move(layer));
-        return nullptr;
-    }
 
     return layer;
 }

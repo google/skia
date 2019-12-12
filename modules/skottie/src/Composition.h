@@ -29,8 +29,7 @@ private:
 
     const sk_sp<sksg::Transform>& getCameraTransform() const { return fCameraTransform; }
 
-    void pushMatte(sk_sp<sksg::RenderNode>);
-    sk_sp<sksg::RenderNode> popMatte();
+    const sk_sp<sksg::RenderNode>& lastLayer() const { return fLastLayer; }
 
     friend class LayerBuilder;
 
@@ -40,7 +39,7 @@ private:
     SkTHashMap<int, size_t>     fLayerIndexMap; // Maps layer "ind" to layer builder index.
 
     sk_sp<sksg::Transform>      fCameraTransform;
-    sk_sp<sksg::RenderNode>     fCurrentMatte;  // Tracks the current/active matte.
+    sk_sp<sksg::RenderNode>     fLastLayer;     // Tracks the last attached layer.
 
     size_t                      fMotionBlurSamples = 1;
     float                       fMotionBlurAngle   = 0,
