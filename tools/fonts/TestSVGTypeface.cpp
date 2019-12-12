@@ -1416,7 +1416,10 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
 
     // The colors must be written in order, the 'index' is ignored by ttx.
     SkAutoTMalloc<SkColor> colorsInOrder(colors.count());
-    colors.foreach ([&colorsInOrder](const SkColor& c, const int* i) { colorsInOrder[*i] = c; });
+    colors.foreach ([&colorsInOrder](const SkColor& c, const int* i) {
+        colorsInOrder[*i] = c;
+        return false;
+    });
     out->writeText("  <CPAL>\n");
     out->writeText("    <version value=\"0\"/>\n");
     out->writeText("    <numPaletteEntries value=\"");
