@@ -82,7 +82,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
     // TODO: Should only need format here but need to determine compression type from format
     // without config.
-    auto createTexture = [](int width, int height, GrColorType colorType,
+    auto createTexture = [](SkISize dimensions, GrColorType colorType,
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
         GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
@@ -101,17 +101,17 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             }
             // Only supported compression type right now.
             SkASSERT(config == kRGB_ETC1_GrPixelConfig);
-            auto size = GrCompressedDataSize(type, width, height);
+            auto size = GrCompressedDataSize(type, dimensions, GrMipMapped::kNo);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
-            GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(width, height, format,
-                                               SkImage::CompressionType::kETC1,
+            GrFillInCompressedData(type, dimensions, GrMipMapped::kNo, (char*)data->writable_data(), color);
+            return rp->createCompressedTexture(dimensions.width(), dimensions.height(),
+                                               format, SkImage::CompressionType::kETC1,
                                                SkBudgeted::kNo, data.get());
         } else {
             GrSurfaceDesc desc;
-            desc.fWidth = width;
-            desc.fHeight = height;
+            desc.fWidth = dimensions.width();
+            desc.fHeight = dimensions.height();
             desc.fConfig = config;
             return rp->createTexture(desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo,
                                      GrProtected::kNo);
@@ -156,7 +156,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                                                          combo.fFormat);
                 }
 
-                sk_sp<GrSurface> tex = createTexture(kW, kH, combo.fColorType, combo.fFormat,
+                sk_sp<GrSurface> tex = createTexture({kW, kH}, combo.fColorType, combo.fFormat,
                                                      GrRenderable::kNo, resourceProvider);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isTexturable,
                                 "ct:%s format:%s, tex:%d, isTexturable:%d",

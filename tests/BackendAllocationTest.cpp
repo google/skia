@@ -16,6 +16,8 @@
 #include "tools/ToolUtils.h"
 
 #ifdef SK_GL
+#include "src/gpu/gl/GrGLCaps.h"
+#include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #endif
@@ -123,8 +125,14 @@ static bool isBGRA(const GrBackendFormat& format) {
             return false;
 #endif
         }
-        case GrBackendApi::kMock:
+        case GrBackendApi::kMock: {
+            SkImage::CompressionType compression = format.asMockCompressionType();
+            if (compression != SkImage::CompressionType::kNone) {
+                return false; // No compressed formats are BGRA
+            }
+
             return format.asMockColorType() == GrColorType::kBGRA_8888;
+        }
     }
     SkUNREACHABLE;
 }
@@ -718,10 +726,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
 
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef SK_GL
-
-#include "src/gpu/gl/GrGLCaps.h"
-#include "src/gpu/gl/GrGLDefines.h"
-#include "src/gpu/gl/GrGLUtil.h"
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest, reporter, ctxInfo) {
     sk_gpu_test::GLTestContext* glCtx = ctxInfo.glContext();
