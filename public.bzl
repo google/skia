@@ -401,17 +401,11 @@ def gl_srcs(os_conditions):
 def skia_srcs(os_conditions):
     return base_srcs() + ports_srcs(os_conditions) + gl_srcs(os_conditions)
 
+def gpu_objc_srcs():
+    return ["src/gpu/GrMtlCppUtil.mm"] + skia_all_hdrs()
+
 def metal_objc_srcs():
-    return native.glob(
-        [
-            "include/**/*.h",
-            "src/**/*.h",
-            "src/gpu/mtl/**/*.mm",
-            "third_party/**/*.h",
-        ],
-    ) + [
-        "src/image/SkSurface_GpuMtl.mm",
-    ]
+    return native.glob(["src/gpu/mtl/**/*.mm"]) + skia_all_hdrs()
 
 ################################################################################
 ## INCLUDES
