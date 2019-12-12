@@ -87,7 +87,7 @@ void GrAtlasTextOp::init() {
     if (this->usesDistanceFields()) {
         bool isLCD = this->isLCD();
 
-        const SkMatrix& viewMatrix = geo.fViewMatrix;
+        const SkMatrix& viewMatrix = geo.fDrawingMatrix;
 
         fDFGPFlags = viewMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
         fDFGPFlags |= viewMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
@@ -107,8 +107,8 @@ void GrAtlasTextOp::init() {
     }
 
     SkRect bounds;
-    geo.fBlob->computeSubRunBounds(&bounds, *geo.fSubRunPtr, geo.fViewMatrix, geo.fX, geo.fY,
-                                   fNeedsGlyphTransform);
+    geo.fBlob->computeSubRunBounds(
+            &bounds, *geo.fSubRunPtr, geo.fDrawingMatrix, geo.fDrawingOrigin, fNeedsGlyphTransform);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
@@ -126,8 +126,8 @@ SkString GrAtlasTextOp::dumpInfo() const {
         str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f\n",
                     i,
                     fGeoData[i].fColor.toBytes_RGBA(),
-                    fGeoData[i].fX,
-                    fGeoData[i].fY);
+                    fGeoData[i].fDrawingOrigin.x(),
+                    fGeoData[i].fDrawingOrigin.y());
     }
 
     str += fProcessors.dumpProcessors();
@@ -281,7 +281,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // if we have RGB, then we won't have any SkShaders so no need to use a localmatrix.
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
-    if (this->usesLocalCoords() && !fGeoData[0].fViewMatrix.invert(&localMatrix)) {
+    if (this->usesLocalCoords() && !fGeoData[0].fDrawingMatrix.invert(&localMatrix)) {
         return;
     }
 
@@ -313,7 +313,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     FlushInfo flushInfo;
     flushInfo.fFixedDynamicState = fixedDynamicState;
 
-    bool vmPerspective = fGeoData[0].fViewMatrix.hasPerspective();
+    bool vmPerspective = fGeoData[0].fDrawingMatrix.hasPerspective();
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
                                                               *target->caps().shaderCaps(),
@@ -346,7 +346,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         const Geometry& args = fGeoData[i];
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, args.fSubRunPtr, args.fViewMatrix, args.fX, args.fY,
+                resourceProvider, args.fSubRunPtr, args.fDrawingMatrix, args.fDrawingOrigin,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
                 atlasManager);
         bool done = false;
@@ -366,19 +366,19 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
                            result.fGlyphsRegenerated);
             }
-            if (fNeedsGlyphTransform && !args.fViewMatrix.isIdentity()) {
+            if (fNeedsGlyphTransform && !args.fDrawingMatrix.isIdentity()) {
                 // We always do the distance field view matrix transformation after copying rather
                 // than during blob vertex generation time in the blob as handling successive
                 // arbitrary transformations would be complicated and accumulate error.
-                if (args.fViewMatrix.hasPerspective()) {
+                if (args.fDrawingMatrix.hasPerspective()) {
                     auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
                     SkMatrixPriv::MapHomogeneousPointsWithStride(
-                            args.fViewMatrix, pos, vertexStride, pos, vertexStride,
+                            args.fDrawingMatrix, pos, vertexStride, pos, vertexStride,
                             result.fGlyphsRegenerated * kVerticesPerGlyph);
                 } else {
                     auto* pos = reinterpret_cast<SkPoint*>(currVertex);
                     SkMatrixPriv::MapPointsWithStride(
-                            args.fViewMatrix, pos, vertexStride,
+                            args.fDrawingMatrix, pos, vertexStride,
                             result.fGlyphsRegenerated * kVerticesPerGlyph);
                 }
             }
@@ -462,8 +462,8 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
         return CombineResult::kCannotCombine;
     }
 
-    const SkMatrix& thisFirstMatrix = fGeoData[0].fViewMatrix;
-    const SkMatrix& thatFirstMatrix = that->fGeoData[0].fViewMatrix;
+    const SkMatrix& thisFirstMatrix = fGeoData[0].fDrawingMatrix;
+    const SkMatrix& thatFirstMatrix = that->fGeoData[0].fDrawingMatrix;
 
     if (this->usesLocalCoords() && !thisFirstMatrix.cheapEqualTo(thatFirstMatrix)) {
         return CombineResult::kCannotCombine;
@@ -540,7 +540,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
     SkMatrix localMatrix = SkMatrix::I();
     if (this->usesLocalCoords()) {
         // If this fails we'll just use I().
-        bool result = fGeoData[0].fViewMatrix.invert(&localMatrix);
+        bool result = fGeoData[0].fDrawingMatrix.invert(&localMatrix);
         (void)result;
     }
 
