@@ -9,20 +9,16 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
+#include "include/gpu/GrSurface.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
+#include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/image/SkSurface_Gpu.h"
 
-#if SK_SUPPORT_GPU
-
-#include "include/gpu/GrSurface.h"
-#include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
-
-#ifdef SK_METAL
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
@@ -108,6 +104,3 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
     return surface;
 }
-#endif
-
-#endif
