@@ -58,8 +58,8 @@ public:
 
     // from GrRecordingContext
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
-
     GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
+    SkArenaAlloc* recordTimeAllocator() { return fContext->recordTimeAllocator(); }
 
     GrStrikeCache* getGrStrikeCache() { return fContext->getGrStrikeCache(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
