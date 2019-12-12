@@ -1542,7 +1542,7 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
     }
 }
 
-void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
+void SkPath::transform(const SkMatrix& matrix, SkPath* dst, PerspectiveClip pc) const {
     if (matrix.isIdentity()) {
         if (dst != nullptr && dst != this) {
             *dst = *this;
@@ -1559,7 +1559,15 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         SkPath  tmp;
         tmp.fFillType = fFillType;
 
-        SkPath::Iter    iter(*this, false);
+        SkPath clipped;
+        const SkPath* src = this;
+        if (pc == PerspectiveClip::kPerform &&
+            SkPathPriv::PerspectiveClip(*this, matrix, &clipped))
+        {
+            src = &clipped;
+        }
+
+        SkPath::Iter    iter(*src, false);
         SkPoint         pts[4];
         SkPath::Verb    verb;
 
@@ -3584,6 +3592,7 @@ static void clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPa
         }
     }, &rec);
 
+    rec.fResult->setFillType(path.getFillType());
     rec.fResult->transform(mx);
 }
 

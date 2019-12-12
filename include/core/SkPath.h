@@ -1416,6 +1416,11 @@ public:
         this->offset(dx, dy, this);
     }
 
+    enum class PerspectiveClip {
+        kPerform,
+        kIgnore
+    };
+
     /** Transforms verb array, SkPoint array, and weight by matrix.
         transform may change verbs and increase their number.
         Transformed SkPath replaces dst; if dst is nullptr, original data
@@ -1426,7 +1431,8 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_transform
     */
-    void transform(const SkMatrix& matrix, SkPath* dst) const;
+    void transform(const SkMatrix& matrix, SkPath* dst,
+                   PerspectiveClip = PerspectiveClip::kPerform) const;
 
     /** Transforms verb array, SkPoint array, and weight by matrix.
         transform may change verbs and increase their number.
@@ -1434,8 +1440,8 @@ public:
 
         @param matrix  SkMatrix to apply to SkPath
     */
-    void transform(const SkMatrix& matrix) {
-        this->transform(matrix, this);
+    void transform(const SkMatrix& matrix, PerspectiveClip pc = PerspectiveClip::kPerform) {
+        this->transform(matrix, this, pc);
     }
 
     /** Returns last point on SkPath in lastPt. Returns false if SkPoint array is empty,
