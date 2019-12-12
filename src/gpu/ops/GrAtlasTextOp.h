@@ -29,11 +29,10 @@ public:
     static const int kIndicesPerGlyph = 6;
 
     struct Geometry {
-        SkMatrix    fViewMatrix;
+        SkMatrix    fDrawingMatrix;
         SkIRect     fClipRect;
         GrTextBlob* fBlob;
-        SkScalar    fX;
-        SkScalar    fY;
+        SkPoint     fDrawingOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
     };
