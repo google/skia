@@ -956,12 +956,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     // avoid possibly allocating a new path in transform if we can
     SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath;
 
-    // pre-clip if needed right before we apply the CTM
-    SkPath perspectiveClippedPath;
-    if (SkPathPriv::PerspectiveClip(*pathPtr, *matrix, &perspectiveClippedPath)) {
-        pathPtr = &perspectiveClippedPath;
-    }
-
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
