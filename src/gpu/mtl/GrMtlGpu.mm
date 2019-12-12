@@ -27,6 +27,21 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
+/**
+ * Maps a MTLPixelFormat into the CompressionType enum if applicable.
+ */
+bool mtl_format_to_compression_type(MTLPixelFormat mtlFormat,
+                                    SkImage::CompressionType* compressionType) {
+    switch (mtlFormat) {
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:
+            *compressionType = SkImage::kETC1_CompressionType;
+            return true;
+#endif
+        default:
+            return false;
+    }
+}
 static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     // Mac OSX
 #ifdef SK_BUILD_FOR_MAC
@@ -550,7 +565,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(int width, int height,
     SkASSERT(mtlTexture);
 
     SkImage::CompressionType textureCompressionType;
-    if (!GrMtlFormatToCompressionType(mtlTexture.pixelFormat, &textureCompressionType) ||
+    if (!mtl_format_to_compression_type(mtlTexture.pixelFormat, &textureCompressionType) ||
         textureCompressionType != compressionType) {
         return nullptr;
     }

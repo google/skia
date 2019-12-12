@@ -18,7 +18,7 @@
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/mock/GrMockGpu.h"
 #include "src/gpu/text/GrStrikeCache.h"
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #include "src/gpu/mtl/GrMtlTrampoline.h"
 #endif
 #ifdef SK_VULKAN
@@ -203,24 +203,11 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
 #endif
 }
 
-#ifdef SK_METAL
-sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
-    GrContextOptions defaultOptions;
-    return MakeMetal(device, queue, defaultOptions);
-}
+#if !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_IOS)
+sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) { return nullptr; }
 
 sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
-
-    context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
-    if (!context->fGpu) {
-        return nullptr;
-    }
-
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
-        return nullptr;
-    }
-    return context;
+    return nullptr;
 }
 #endif
 

@@ -102,7 +102,7 @@ static bool isBGRA(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kMetal:
 #ifdef SK_METAL
-            return GrMtlFormatIsBGRA(format.asMtlFormat());
+            return 0 == strcmp("BGRA8Unorm", GrMtlFormatToStr(format.asMtlFormat()));
 #else
             return false;
 #endif

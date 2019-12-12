@@ -22,7 +22,7 @@
 #include "include/gpu/GrSurface.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 

@@ -750,6 +750,10 @@ skia_dawn_sources = [
   "$_src/gpu/dawn/GrDawnVaryingHandler.h",
 ]
 
+skia_gpu_apple_sources = [
+  "$_src//gpu/mtl/GrMtlCppUtil.mm",
+]
+
 skia_metal_sources = [
   "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlBuffer.h",

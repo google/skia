@@ -19,7 +19,7 @@ typedef const void*  GrMTLHandle;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 /**
  * Types for interacting with Metal resources created externally to Skia.
  * This is used by GrBackendObjects.

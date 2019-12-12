@@ -23,3 +23,21 @@ sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
                           (__bridge id<MTLCommandQueue>)queue);
 }
 
+sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
+    GrContextOptions defaultOptions;
+    return MakeMetal(device, queue, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
+
+    context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
+    if (!context->fGpu) {
+        return nullptr;
+    }
+
+    if (!context->init(context->fGpu->refCaps(), nullptr)) {
+        return nullptr;
+    }
+    return context;
+}
