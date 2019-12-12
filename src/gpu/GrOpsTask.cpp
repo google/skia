@@ -352,11 +352,11 @@ inline void GrOpsTask::OpChain::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrOpsTask::GrOpsTask(sk_sp<GrOpMemoryPool> opMemoryPool,
+GrOpsTask::GrOpsTask(GrOpMemoryPool* opMemoryPool,
                      GrSurfaceProxyView view,
                      GrAuditTrail* auditTrail)
         : GrRenderTask(std::move(view))
-        , fOpMemoryPool(std::move(opMemoryPool))
+        , fOpMemoryPool(opMemoryPool)
         , fAuditTrail(auditTrail)
         , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
@@ -366,7 +366,7 @@ GrOpsTask::GrOpsTask(sk_sp<GrOpMemoryPool> opMemoryPool,
 
 void GrOpsTask::deleteOps() {
     for (auto& chain : fOpChains) {
-        chain.deleteOps(fOpMemoryPool.get());
+        chain.deleteOps(fOpMemoryPool);
     }
     fOpChains.reset();
 }
@@ -815,7 +815,7 @@ void GrOpsTask::recordOp(
         while (true) {
             OpChain& candidate = fOpChains.fromBack(i);
             op = candidate.appendOp(std::move(op), processorAnalysis, dstProxyView, clip, caps,
-                                    fOpMemoryPool.get(), fAuditTrail);
+                                    fOpMemoryPool, fAuditTrail);
             if (!op) {
                 return;
             }
@@ -850,7 +850,7 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
         int j = i + 1;
         while (true) {
             OpChain& candidate = fOpChains[j];
-            if (candidate.prependChain(&chain, caps, fOpMemoryPool.get(), fAuditTrail)) {
+            if (candidate.prependChain(&chain, caps, fOpMemoryPool, fAuditTrail)) {
                 break;
             }
             // Stop traversing if we would cause a painter's order violation.
