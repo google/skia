@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8e1f5ec_e2c0e45c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-12T21:37:45Z",
+      "side": 1,
+      "message": "It turns out that the settings values are cached on the initial compile, and baked in later, when optimize() is called. The obvious fix is to just re-compile the shader from scratch when building for GPU. I figured that if we\u0027re doing all the other steps (specialization, SkSL generation, re-parsing, emitting GLSL, calling the driver), that doing the first parse isn\u0027t that much more overhead right now. (Eventually, we probably want to reconsider this all...)\n\nHowever, the specialized program has pointers into data structures in the original program, so I had to move all this into one function to manage object lifetime properly. The outputs of this function are completely encapsulated, though, and don\u0027t depend on any of the temporary programs created here.",
+      "revId": "b6c1c8f5b844bf83a3c4fcec0b1bee907bb7b732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8869f97c_f85b3806",
+        "filename": "src/effects/SkOverdrawColorFilter.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-12T21:37:45Z",
+      "side": 1,
+      "message": "The next big piece (that I started, but decided to save for a follow-up CL) is to stop storing SkSL::Type objects (in fInAndUniformVars), and instead pre-parse those into a simpler struct for the public API (including offset into data blob, name, CPU type, uniform type). That would eliminate another long-lived pointer into a compiler-owned structure, and make it easier for clients to ask about the layout of uniforms they need to supply.\n\nAs part of that, I\u0027m *strongly* recommending that we remove \u0027layout(ctype)\u0027 from runtime SkSL. It really doesn\u0027t make any sense (we don\u0027t generate code, so it only affects how we interpret the input blob), and complicates the variable handling code quite a bit (we need to do the same alterations to data in setData, and we need to account for the different-from-expected size when walking the inputs). It would require this one spot to actually expand the color array to floats before passing it to the FP.",
+      "revId": "b6c1c8f5b844bf83a3c4fcec0b1bee907bb7b732",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "adcb2164_31f9b597",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-12T21:37:45Z",
+      "side": 1,
+      "message": "We were discussing this in the office - we really need to push this pattern into the Compiler itself, as part of making it stateless. (It currently stores/mutates error information on the object, as well as mutating the symbol tables of the IR generator every time it\u0027s used).",
+      "parentUuid": "c268272d_fbe2c528",
+      "range": {
+        "startLine": 429,
+        "startChar": 0,
+        "endLine": 429,
+        "endChar": 79
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "004e7b81_5115ea70",
         "filename": "src/effects/SkOverdrawColorFilter.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b8a5567_b9d0674b",
+        "filename": "src/effects/SkOverdrawColorFilter.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-12T21:37:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "004e7b81_5115ea70",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 89
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f8efef65_5dc9e614",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-12T21:37:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c355f41_6bbe5b54",
+      "range": {
+        "startLine": 335,
+        "startChar": 17,
+        "endLine": 335,
+        "endChar": 21
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd1f806e_8f7cafa2",
         "filename": "src/gpu/effects/GrSkSLFP.h",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc426ca7_b692fc45",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-12T21:37:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd1f806e_8f7cafa2",
+      "range": {
+        "startLine": 32,
+        "startChar": 1,
+        "endLine": 77,
+        "endChar": 7
+      },
+      "revId": "9a3b87e97b95185bede74b6e9a27e850f89f460d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
