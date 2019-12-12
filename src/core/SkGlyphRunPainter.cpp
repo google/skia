@@ -272,7 +272,7 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& col
 
 void GrTextContext::drawGlyphRunList(
         GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
-        const SkMatrix& viewMatrix, const SkSurfaceProps& props,
+        const SkMatrix& drawingMatrix, const SkSurfaceProps& props,
         const SkGlyphRunList& glyphRunList) {
     auto contextPriv = context->priv();
     // If we have been abandoned, then don't draw
@@ -291,7 +291,7 @@ void GrTextContext::drawGlyphRunList(
     // When creating the a new blob, use the GrColor calculated from the drawingColor.
     GrColor initialVertexColor = drawingColor.toBytes_RGBA();
 
-    SkPoint origin = glyphRunList.origin();
+    SkPoint drawingOrigin = glyphRunList.origin();
 
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
@@ -322,35 +322,35 @@ void GrTextContext::drawGlyphRunList(
     SkGlyphRunListPainter* painter = target->glyphPainter();
     if (cachedBlob) {
         if (cachedBlob->mustRegenerate(blobPaint, glyphRunList.anyRunsSubpixelPositioned(),
-                                       blurRec, viewMatrix, origin.x(), origin.y())) {
+                                       blurRec, drawingMatrix, drawingOrigin.x(), drawingOrigin.y())) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
             textBlobCache->remove(cachedBlob.get());
             cachedBlob = textBlobCache->makeCachedBlob(
-                    glyphRunList, grStrikeCache, key, blurRec, viewMatrix,
+                    glyphRunList, grStrikeCache, key, blurRec, drawingMatrix,
                     initialVertexColor, forceW);
 
             painter->processGlyphRunList(
-                    glyphRunList, viewMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
+                    glyphRunList, drawingMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
         } else {
             textBlobCache->makeMRU(cachedBlob.get());
         }
     } else {
         if (canCache) {
             cachedBlob = textBlobCache->makeCachedBlob(
-                    glyphRunList, grStrikeCache, key, blurRec, viewMatrix,
+                    glyphRunList, grStrikeCache, key, blurRec, drawingMatrix,
                     initialVertexColor, forceW);
         } else {
             cachedBlob = textBlobCache->makeBlob(
-                    glyphRunList, grStrikeCache, viewMatrix, initialVertexColor, forceW);
+                    glyphRunList, grStrikeCache, drawingMatrix, initialVertexColor, forceW);
         }
         painter->processGlyphRunList(
-                glyphRunList, viewMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
+                glyphRunList, drawingMatrix, props, supportsSDFT, fOptions, cachedBlob.get());
     }
 
     cachedBlob->flush(target, props, fDistanceAdjustTable.get(), blobPaint, drawingColor,
-                      clip, viewMatrix, origin.x(), origin.y());
+                      clip, drawingMatrix, drawingOrigin);
 }
 
 #if GR_TEST_UTILS
@@ -396,7 +396,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 textContext->fOptions, blob.get());
     }
 
-    return blob->test_makeOp(textLen, viewMatrix, x, y, skPaint, filteredColor, surfaceProps,
+    return blob->test_makeOp(textLen, viewMatrix, origin, skPaint, filteredColor, surfaceProps,
                              textContext->dfAdjustTable(), rtc->textTarget());
 }
 
