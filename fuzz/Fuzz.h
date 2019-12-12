@@ -13,6 +13,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTFitsIn.h"
 #include "tools/Registry.h"
 
 #include <limits>
@@ -98,9 +99,14 @@ inline void Fuzz::next(Arg* first, Args... rest) {
 
 template <typename T, typename Min, typename Max>
 inline void Fuzz::nextRange(T* value, Min min, Max max) {
-    this->next(value);
-    if (*value < (T)min) { *value = (T)min; }
-    if (*value > (T)max) { *value = (T)max; }
+    // UBSAN worries if we make an enum with out of range values, even temporarily.
+    using Raw = typename sk_strip_enum<T>::type;
+    Raw raw;
+    this->next(&raw);
+
+    if (raw < (Raw)min) { raw = (Raw)min; }
+    if (raw > (Raw)max) { raw = (Raw)max; }
+    *value = (T)raw;
 }
 
 template <typename T>
