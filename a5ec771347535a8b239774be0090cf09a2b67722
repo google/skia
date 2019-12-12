@@ -22,6 +22,30 @@
       "revId": "a5ec771347535a8b239774be0090cf09a2b67722",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c1858f0_4ff115fe",
+        "filename": "src/gpu/GrMemoryPool.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-12T16:04:37Z",
+      "side": 1,
+      "message": "I\u0027m not sure why the old code felt the need to align the sizes of the allocations rather than just the start address.",
+      "parentUuid": "e5e9df66_4f7d3e30",
+      "range": {
+        "startLine": 22,
+        "startChar": 3,
+        "endLine": 22,
+        "endChar": 61
+      },
+      "revId": "a5ec771347535a8b239774be0090cf09a2b67722",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
