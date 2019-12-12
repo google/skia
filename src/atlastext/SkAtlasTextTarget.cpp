@@ -241,7 +241,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fSubRunPtr,
-                fGeoData[i].fDrawMatrix, fGeoData[i].fX, fGeoData[i].fY,
+                fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin,
                 fGeoData[i].fColor.toBytes_RGBA(), &context, glyphCache, atlasManager);
         bool done = false;
         while (!done) {

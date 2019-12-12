@@ -107,8 +107,8 @@ void GrAtlasTextOp::init() {
     }
 
     SkRect bounds;
-    geo.fBlob->computeSubRunBounds(&bounds, *geo.fSubRunPtr, geo.fDrawMatrix, geo.fX, geo.fY,
-                                   fNeedsGlyphTransform);
+    geo.fBlob->computeSubRunBounds(
+            &bounds, *geo.fSubRunPtr, geo.fDrawMatrix, geo.fDrawOrigin, fNeedsGlyphTransform);
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(bounds, HasAABloat::kNo, IsHairline::kNo);
@@ -126,8 +126,8 @@ SkString GrAtlasTextOp::dumpInfo() const {
         str.appendf("%d: Color: 0x%08x Trans: %.2f,%.2f\n",
                     i,
                     fGeoData[i].fColor.toBytes_RGBA(),
-                    fGeoData[i].fX,
-                    fGeoData[i].fY);
+                    fGeoData[i].fDrawOrigin.x(),
+                    fGeoData[i].fDrawOrigin.y());
     }
 
     str += fProcessors.dumpProcessors();
@@ -346,7 +346,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         const Geometry& args = fGeoData[i];
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, args.fSubRunPtr, args.fDrawMatrix, args.fX, args.fY,
+                resourceProvider, args.fSubRunPtr, args.fDrawMatrix, args.fDrawOrigin,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
                 atlasManager);
         bool done = false;
