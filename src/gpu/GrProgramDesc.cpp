@@ -64,10 +64,9 @@ static void add_fp_sampler_keys(GrProcessorKeyBuilder* b, const GrFragmentProces
     }
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
-        const GrBackendFormat& backendFormat = sampler.view().proxy()->backendFormat();
+        const GrBackendFormat& backendFormat = sampler.proxy()->backendFormat();
 
-        uint32_t samplerKey = sampler_key(backendFormat.textureType(), sampler.view().swizzle(),
-                                          caps);
+        uint32_t samplerKey = sampler_key(backendFormat.textureType(), sampler.swizzle(), caps);
         b->add32(samplerKey);
 
         caps.addExtraSamplerKey(b, sampler.samplerState(), backendFormat);

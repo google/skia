@@ -222,24 +222,22 @@ void GrTextureDomain::GLDomain::sample(GrGLSLShaderBuilder* builder,
 
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
-                                        const GrSurfaceProxyView& view,
+                                        const GrSurfaceProxy* proxy,
                                         const GrSamplerState& state) {
     // We want a hard transition from texture content to trans-black in nearest mode.
     bool filterDecal = state.filter() != GrSamplerState::Filter::kNearest;
-    this->setData(pdman, textureDomain, view.proxy(), view.origin(), filterDecal);
+    this->setData(pdman, textureDomain, proxy, filterDecal);
 }
 
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         bool filterIfDecal) {
-    // The origin we pass here doesn't matter
-    this->setData(pdman, textureDomain, nullptr, kTopLeft_GrSurfaceOrigin, filterIfDecal);
+    this->setData(pdman, textureDomain, nullptr, filterIfDecal);
 }
 
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         const GrSurfaceProxy* proxy,
-                                        GrSurfaceOrigin origin,
                                         bool filterIfDecal) {
     SkASSERT(fHasMode && textureDomain.modeX() == fModeX && textureDomain.modeY() == fModeY);
     if (kIgnore_Mode == textureDomain.modeX() && kIgnore_Mode == textureDomain.modeY()) {
@@ -292,7 +290,7 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
         }
 
         // vertical flip if necessary
-        if (kBottomLeft_GrSurfaceOrigin == origin) {
+        if (kBottomLeft_GrSurfaceOrigin == proxy->origin()) {
             tempDomainValues[1] = h - tempDomainValues[1];
             tempDomainValues[3] = h - tempDomainValues[3];
 
@@ -440,11 +438,7 @@ GrGLSLFragmentProcessor* GrDomainEffect::onCreateGLSLInstance() const {
                        const GrFragmentProcessor& fp) override {
             const GrDomainEffect& de = fp.cast<GrDomainEffect>();
             const GrTextureDomain& domain = de.fDomain;
-            // TODO: Update GrCoordTransform to return a view instead of proxy
-            const GrSurfaceProxy* proxy = de.fCoordTransform.proxy();
-            // If we don't have a proxy the value of the origin doesn't matter
-            GrSurfaceOrigin origin = proxy ? proxy->origin() : kTopLeft_GrSurfaceOrigin;
-            fGLDomain.setData(pdman, domain, proxy, origin, de.fDecalIsFiltered);
+            fGLDomain.setData(pdman, domain, de.fCoordTransform.proxy(), de.fDecalIsFiltered);
         }
 
     private:
@@ -565,10 +559,10 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                        const GrFragmentProcessor& fp) override {
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-            const auto& view = dstdfp.textureSampler(0).view();
-            SkISize textureDims = view.proxy()->backingStoreDimensions();
+            GrSurfaceProxy* proxy = dstdfp.textureSampler(0).proxy();
+            SkISize textureDims = proxy->backingStoreDimensions();
 
-            fGLDomain.setData(pdman, dstdfp.fTextureDomain, view,
+            fGLDomain.setData(pdman, dstdfp.fTextureDomain, proxy,
                               dstdfp.textureSampler(0).samplerState());
             float iw = 1.f / textureDims.width();
             float ih = 1.f / textureDims.height();
@@ -576,7 +570,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
                 iw, ih,
                 -dstdfp.fDeviceSpaceOffset.fX * iw, -dstdfp.fDeviceSpaceOffset.fY * ih
             };
-            if (view.origin() == kBottomLeft_GrSurfaceOrigin) {
+            if (proxy->origin() == kBottomLeft_GrSurfaceOrigin) {
                 scaleAndTransData[1] = -scaleAndTransData[1];
                 scaleAndTransData[3] = 1 - scaleAndTransData[3];
             }
@@ -594,8 +588,8 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
 bool GrDeviceSpaceTextureDecalFragmentProcessor::onIsEqual(const GrFragmentProcessor& fp) const {
     const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
             fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
-    return dstdfp.fTextureSampler.view().proxy()->underlyingUniqueID() ==
-                   fTextureSampler.view().proxy()->underlyingUniqueID() &&
+    return dstdfp.fTextureSampler.proxy()->underlyingUniqueID() ==
+                   fTextureSampler.proxy()->underlyingUniqueID() &&
            dstdfp.fDeviceSpaceOffset == fDeviceSpaceOffset &&
            dstdfp.fTextureDomain == fTextureDomain;
 }

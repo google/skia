@@ -124,8 +124,7 @@ void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSample
         glslIter->setData(fProgramDataManager, *fpIter);
         for (int i = 0; i < fpIter->numTextureSamplers(); ++i) {
             const GrFragmentProcessor::TextureSampler& sampler = fpIter->textureSampler(i);
-            fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.samplerState(),
-                              sampler.view().swizzle(),
+            fGpu->bindTexture((*nextTexSamplerIdx)++, sampler.samplerState(), sampler.swizzle(),
                               static_cast<GrGLTexture*>(sampler.peekTexture()));
         }
     }

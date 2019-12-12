@@ -476,41 +476,38 @@ public:
      * This copy constructor is used by GrFragmentProcessor::clone() implementations.
      */
     explicit TextureSampler(const TextureSampler& that)
-            : fView(that.fView)
+            : fProxy(that.fProxy)
             , fSamplerState(that.fSamplerState) {}
 
-    TextureSampler(GrSurfaceProxyView, const GrSamplerState& = GrSamplerState::ClampNearest());
-    // TODO: Remove this ctor once all uses have been updated to pass in a GrSurfaceProxyView
     TextureSampler(sk_sp<GrSurfaceProxy>, const GrSamplerState& = GrSamplerState::ClampNearest());
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 
+    void reset(sk_sp<GrSurfaceProxy>, const GrSamplerState&);
+
     bool operator==(const TextureSampler& that) const {
-        return fView == that.fView && fSamplerState == that.fSamplerState;
+        return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
+               fSamplerState == that.fSamplerState;
     }
 
     bool operator!=(const TextureSampler& other) const { return !(*this == other); }
 
-    SkDEBUGCODE(bool isInstantiated() const { return this->proxy()->isInstantiated(); })
+    SkDEBUGCODE(bool isInstantiated() const { return fProxy->isInstantiated(); })
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
     GrTexture* peekTexture() const {
-        SkASSERT(this->proxy()->isInstantiated());
-        return this->proxy()->peekTexture();
+        SkASSERT(fProxy->isInstantiated());
+        return fProxy->peekTexture();
     }
 
-    const GrSurfaceProxyView& view() const { return fView; }
+    GrSurfaceProxy* proxy() const { return fProxy.get(); }
     const GrSamplerState& samplerState() const { return fSamplerState; }
+    const GrSwizzle& swizzle() const { return this->proxy()->textureSwizzle(); }
 
-    bool isInitialized() const { return SkToBool(this->proxy()); }
+    bool isInitialized() const { return SkToBool(fProxy.get()); }
 
-#if GR_TEST_UTILS
-    void set(GrSurfaceProxyView, const GrSamplerState&);
-#endif
 private:
-    GrSurfaceProxy* proxy() const { return fView.proxy(); }
-
-    GrSurfaceProxyView    fView;
+    sk_sp<GrSurfaceProxy> fProxy;
     GrSamplerState        fSamplerState;
 };
 

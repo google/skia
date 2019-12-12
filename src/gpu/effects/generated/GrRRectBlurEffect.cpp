@@ -111,8 +111,8 @@ private:
         (void)rect;
         UniformHandle& cornerRadius = cornerRadiusVar;
         (void)cornerRadius;
-        const GrSurfaceProxyView& ninePatchSamplerView = _outer.textureSampler(0).view();
-        GrTexture& ninePatchSampler = *ninePatchSamplerView.proxy()->peekTexture();
+        GrSurfaceProxy& ninePatchSamplerProxy = *_outer.textureSampler(0).proxy();
+        GrTexture& ninePatchSampler = *ninePatchSamplerProxy.peekTexture();
         (void)ninePatchSampler;
         UniformHandle& proxyRect = proxyRectVar;
         (void)proxyRect;

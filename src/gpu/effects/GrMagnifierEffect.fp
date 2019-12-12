@@ -47,7 +47,7 @@ void main() {
 
     {
         SkScalar y = srcRect.y() * invH;
-        if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
+        if (srcProxy.origin() != kTopLeft_GrSurfaceOrigin) {
             y = 1.0f - (srcRect.height() / bounds.height()) - y;
         }
 
@@ -57,7 +57,7 @@ void main() {
     {
         SkScalar y = bounds.y() * invH;
         SkScalar hSign = 1.f;
-        if (srcView.origin() != kTopLeft_GrSurfaceOrigin) {
+        if (srcProxy.origin() != kTopLeft_GrSurfaceOrigin) {
             y = 1.0f - bounds.y() * invH;
             hSign = -1.f;
         }
