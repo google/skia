@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54a940e4_e7b3f9de",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-12T19:37:05Z",
+      "side": 1,
+      "message": "Move this private?",
+      "revId": "7d565cb5f1da896453e4d8ac127324a2a927581e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59dc0725_09c17057",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-12T19:37:05Z",
+      "side": 1,
+      "message": "// Something may now have moved into slot i, so we\u0027ll loop around to check slot i again.\n?",
+      "revId": "7d565cb5f1da896453e4d8ac127324a2a927581e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5dd8a58_0362dc4f",
+        "filename": "modules/skottie/src/layers/TextLayer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-12T19:37:05Z",
+      "side": 1,
+      "message": "I\u0027m struggling with the false and true as far as readability goes.\n\nWhat do you think about\n\n    enum class SkTHash {\n        Keep,             // Keep this entry or K/V pair, continue to next.\n        Remove,           // Remove this element, continue to next.\n        Break,            // Keep this element, but stop iterating here.\n        RemoveAndBreak,   // Remove this element, then stop iterating.\n    };\n\nso client code reads like\n\n   return SkTHash::Keep;\n\n?  (Obviously the Break modes can come later)\n\nIntroducing a new type here that didn\u0027t exist before means it\u0027s also super safe to make Keep the default by sniffing the return type of the Fn we pass in.",
+      "revId": "7d565cb5f1da896453e4d8ac127324a2a927581e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
