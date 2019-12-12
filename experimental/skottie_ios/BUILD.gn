@@ -7,9 +7,9 @@ import("../../gn/ios.gni")
 if (is_ios) {
   ios_app_bundle("skottie_ios") {
     sources = [
-      "main.mm",
       "SkAnimationDraw.h",
       "SkTimeKeeper.h",
+      "main.mm",
     ]
     if (skia_use_metal) {
       sources += [
