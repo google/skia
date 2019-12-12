@@ -93,7 +93,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                   ? fDeviceProps
                   : fBitmapFallbackProps;
 
-    SkPoint origin = glyphRunList.origin();
+    SkPoint drawOrigin = glyphRunList.origin();
     for (auto& glyphRun : glyphRunList) {
         const SkFont& runFont = glyphRun.font();
 
@@ -106,7 +106,7 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
-            fDrawable.startSource(fRejects.source(), origin);
+            fDrawable.startSource(fRejects.source(), drawOrigin);
             strike->prepareForPathDrawing(&fDrawable, &fRejects);
             fRejects.flipRejectsToSource();
 
@@ -123,7 +123,8 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
 
             auto strike = strikeSpec.findOrCreateExclusiveStrike();
 
-            fDrawable.startDevice(fRejects.source(), origin, deviceMatrix, strike->roundingSpec());
+            fDrawable.startDevice(
+                    fRejects.source(), drawOrigin, deviceMatrix, strike->roundingSpec());
             strike->prepareForDrawingMasksCPU(&fDrawable);
             bitmapDevice->paintMasks(&fDrawable, runPaint);
         }
@@ -291,7 +292,7 @@ void GrTextContext::drawGlyphRunList(
     // When creating the a new blob, use the GrColor calculated from the drawingColor.
     GrColor initialVertexColor = drawingColor.toBytes_RGBA();
 
-    SkPoint origin = glyphRunList.origin();
+    SkPoint drawOrigin = glyphRunList.origin();
 
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
@@ -322,7 +323,7 @@ void GrTextContext::drawGlyphRunList(
     SkGlyphRunListPainter* painter = target->glyphPainter();
     if (cachedBlob) {
         if (cachedBlob->mustRegenerate(blobPaint, glyphRunList.anyRunsSubpixelPositioned(),
-                                       blurRec, drawMatrix, origin.x(), origin.y())) {
+                                       blurRec, drawMatrix, drawOrigin)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
@@ -350,7 +351,7 @@ void GrTextContext::drawGlyphRunList(
     }
 
     cachedBlob->flush(target, props, fDistanceAdjustTable.get(), blobPaint, drawingColor,
-                      clip, drawMatrix, origin.x(), origin.y());
+                      clip, drawMatrix, drawOrigin);
 }
 
 #if GR_TEST_UTILS
@@ -381,9 +382,9 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
     SkPMColor4f filteredColor = generate_filtered_color(skPaint, rtc->colorInfo());
     GrColor color = filteredColor.toBytes_RGBA();
 
-    auto origin = SkPoint::Make(x, y);
+    auto drawOrigin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
-    builder.drawTextUTF8(skPaint, font, text, textLen, origin);
+    builder.drawTextUTF8(skPaint, font, text, textLen, drawOrigin);
 
     auto glyphRunList = builder.useGlyphRunList();
     sk_sp<GrTextBlob> blob;
@@ -397,7 +398,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrRecordingContext
                 textContext->fOptions, blob.get());
     }
 
-    return blob->test_makeOp(textLen, drawMatrix, x, y, skPaint, filteredColor, surfaceProps,
+    return blob->test_makeOp(textLen, drawMatrix, drawOrigin, skPaint, filteredColor, surfaceProps,
                              textContext->dfAdjustTable(), rtc->textTarget());
 }
 
