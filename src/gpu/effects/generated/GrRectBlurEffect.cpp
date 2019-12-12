@@ -132,8 +132,8 @@ private:
         (void)rectF;
         UniformHandle& rectH = rectHVar;
         (void)rectH;
-        GrSurfaceProxy& integralProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& integral = *integralProxy.peekTexture();
+        const GrSurfaceProxyView& integralView = _outer.textureSampler(0).view();
+        GrTexture& integral = *integralView.proxy()->peekTexture();
         (void)integral;
         UniformHandle& invSixSigma = invSixSigmaVar;
         (void)invSixSigma;

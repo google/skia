@@ -253,8 +253,6 @@ uniform half4 circleData;
             if (!blurProfile) {
                 return nullptr;
             }
-
-            SkASSERT(blurProfile->origin() == kTopLeft_GrSurfaceOrigin);
             proxyProvider->assignUniqueKeyToProxy(key, blurProfile.get());
         }
 
