@@ -217,6 +217,13 @@ DEF_TEST(HashForEachRemove, r) {
     REPORTER_ASSERT(r, table.count() == 10);
 
     table.foreach([](int* i) {
+        // Do not remove.
+        return false;
+    });
+
+    REPORTER_ASSERT(r, table.count() == 10);
+
+    table.foreach([](int* i) {
         // table.remove(*i);
         return true;
     });
