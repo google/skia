@@ -104,11 +104,15 @@ public:
             Slot& s = fSlots[index];
             SkASSERT(!s.empty());
             if (hash == s.hash && key == Traits::GetKey(s.val)) {
-                fCount--;
-                break;
+               this->removeSlot(index);
+               return;
             }
             index = this->next(index);
         }
+    }
+
+    void removeSlot(int index) {
+        fCount--;
 
         // Rearrange elements to restore the invariants for linear probing.
         for (;;) {
@@ -142,9 +146,15 @@ public:
     // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
     template <typename Fn>  // f(T*)
     void foreach(Fn&& fn) {
-        for (int i = 0; i < fCapacity; i++) {
+        for (int i = 0; i < fCapacity;) {
+            bool remove = false;
             if (!fSlots[i].empty()) {
-                fn(&fSlots[i].val);
+                remove = fn(&fSlots[i].val);
+            }
+            if (remove) {
+                this->removeSlot(i);
+            } else {
+                i++;
             }
         }
     }
@@ -290,7 +300,7 @@ public:
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
     template <typename Fn>  // f(K, V*) or f(const K&, V*)
     void foreach(Fn&& fn) {
-        fTable.foreach([&fn](Pair* p){ fn(p->key, &p->val); });
+        fTable.foreach([&fn](Pair* p){ return fn(p->key, &p->val); });
     }
 
     // Call fn on every key/value pair in the table.  You may not mutate anything.

@@ -230,6 +230,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                         current_font = finfo;
                         // TODO: would be nice to break early here...
                     }
+                    return false;
                 });
                 if (!current_font) {
                     this->log(Logger::Level::kError, nullptr,
