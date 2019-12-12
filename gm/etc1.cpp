@@ -47,13 +47,15 @@ protected:
                                            kOpaque_SkAlphaType);
         bm.allocPixels(ii);
 
-        bm.erase(SK_ColorBLUE, SkIRect::MakeWH(kTexWidth, kTexHeight));
+        bm.erase(SK_ColorRED, SkIRect::MakeWH(kTexWidth, kTexHeight));
 
+#if 0
         for (int y = 0; y < kTexHeight; y += 4) {
             for (int x = 0; x < kTexWidth; x += 4) {
                 bm.erase((x+y) % 8 ? SK_ColorRED : SK_ColorGREEN, SkIRect::MakeXYWH(x, y, 4, 4));
             }
         }
+#endif
 
         int size = etc1_get_encoded_data_size(bm.width(), bm.height());
         fETC1Data = SkData::MakeUninitialized(size);
