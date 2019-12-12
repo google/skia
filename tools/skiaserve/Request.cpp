@@ -71,7 +71,9 @@ SkCanvas* Request::getCanvas() {
 
 sk_sp<SkData> Request::drawToPng(int n, int m) {
     //fDebugCanvas->setOverdrawViz(true);
-    fDebugCanvas->drawTo(this->getCanvas(), n, m);
+    auto* canvas = this->getCanvas();
+    canvas->clear(SK_ColorTRANSPARENT);
+    fDebugCanvas->drawTo(canvas, n, m);
     //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
