@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "870c3717_ccfa85bf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2019-12-12T15:02:12Z",
+      "side": 1,
+      "message": "So if I understand this correctly, before the GrBlob was laid out as (where * is Kleene, not pointer)\n\nGrBlob,SubRun*,glyph*,vertex*\n\nand now this is\n\nGrBlob,(glyph*,vertex*,SubRun)*\n\nif so, that might be nice to put in the commit message, as well as a note about how now the GrBlob itself doesn\u0027t know where its SubRuns are (it is just a Key and a Factory, but is not itself a Cache.\n\nAlso, it used to be that the GrBlob held onto the offsets of the glyphs and vertexes, but now the SubRun keeps track of that.",
+      "revId": "9cf59e96e6178244b4852eb7c86154d955d85e0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
