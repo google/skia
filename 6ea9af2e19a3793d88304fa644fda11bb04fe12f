@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "466e0c08_a530f8f2",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1490,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-12T14:35:19Z",
+      "side": 1,
+      "message": "nit: we wrap at 100 chars, so right.clone() should be chopped down and lined up underneath Token::LOGICALNOT, but otherwise keep the formatting the same.",
+      "range": {
+        "startLine": 1490,
+        "startChar": 93,
+        "endLine": 1490,
+        "endChar": 108
+      },
+      "revId": "6ea9af2e19a3793d88304fa644fda11bb04fe12f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
