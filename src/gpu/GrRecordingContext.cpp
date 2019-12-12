@@ -117,23 +117,19 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
 }
 
-// This entry point exists bc the GrOpsTask (and SkAtlasTextTarget) take refs on the memory pool.
-// Ostensibly, this is to keep the op's data alive in DDL mode but the back pointer is also
-// used for deletion.
-sk_sp<GrOpMemoryPool> GrRecordingContext::refOpMemoryPool() {
+GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
     if (!fOpMemoryPool) {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
         // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
         // memory.
-        fOpMemoryPool = sk_sp<GrOpMemoryPool>(new GrOpMemoryPool(16384, 16384));
+        fOpMemoryPool = std::make_unique<GrOpMemoryPool>(16384, 16384);
     }
 
-    SkASSERT(fOpMemoryPool);
-    return fOpMemoryPool;
+    return fOpMemoryPool.get();
 }
 
-GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
-    return this->refOpMemoryPool().get();
+std::unique_ptr<GrOpMemoryPool> GrRecordingContext::detachOpMemoryPool() {
+    return std::move(fOpMemoryPool);
 }
 
 // Stored in this arena:
@@ -142,11 +138,9 @@ GrOpMemoryPool* GrRecordingContext::opMemoryPool() {
 SkArenaAlloc* GrRecordingContext::recordTimeAllocator() {
     if (!fRecordTimeAllocator) {
         // TODO: empirically determine a better number for SkArenaAlloc's firstHeapAllocation param
-        fRecordTimeAllocator = std::unique_ptr<SkArenaAlloc>(
-                                                    new SkArenaAlloc(sizeof(GrPipeline) * 100));
+        fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
     }
 
-    SkASSERT(fRecordTimeAllocator);
     return fRecordTimeAllocator.get();
 }
 
@@ -325,16 +319,16 @@ sk_sp<const GrCaps> GrRecordingContextPriv::refCaps() const {
     return fContext->refCaps();
 }
 
+std::unique_ptr<GrOpMemoryPool> GrRecordingContextPriv::detachOpMemoryPool() {
+    return fContext->detachOpMemoryPool();
+}
+
 std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachRecordTimeAllocator() {
     return fContext->detachRecordTimeAllocator();
 }
 
 sk_sp<GrSkSLFPFactoryCache> GrRecordingContextPriv::fpFactoryCache() {
     return fContext->fpFactoryCache();
-}
-
-sk_sp<GrOpMemoryPool> GrRecordingContextPriv::refOpMemoryPool() {
-    return fContext->refOpMemoryPool();
 }
 
 void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
