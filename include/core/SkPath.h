@@ -1423,19 +1423,23 @@ public:
 
         @param matrix  SkMatrix to apply to SkPath
         @param dst     overwritten, transformed copy of SkPath; may be nullptr
+        @param pc      whether to apply perspective clipping
 
         example: https://fiddle.skia.org/c/@Path_transform
     */
-    void transform(const SkMatrix& matrix, SkPath* dst) const;
+    void transform(const SkMatrix& matrix, SkPath* dst,
+                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
 
     /** Transforms verb array, SkPoint array, and weight by matrix.
         transform may change verbs and increase their number.
         SkPath is replaced by transformed data.
 
         @param matrix  SkMatrix to apply to SkPath
+        @param pc      whether to apply perspective clipping
     */
-    void transform(const SkMatrix& matrix) {
-        this->transform(matrix, this);
+    void transform(const SkMatrix& matrix,
+                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) {
+        this->transform(matrix, this, pc);
     }
 
     /** Returns last point on SkPath in lastPt. Returns false if SkPoint array is empty,

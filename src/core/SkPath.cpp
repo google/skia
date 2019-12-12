@@ -1542,7 +1542,7 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
     }
 }
 
-void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
+void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveClip pc) const {
     if (matrix.isIdentity()) {
         if (dst != nullptr && dst != this) {
             *dst = *this;
@@ -1559,7 +1559,15 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         SkPath  tmp;
         tmp.fFillType = fFillType;
 
-        SkPath::Iter    iter(*this, false);
+        SkPath clipped;
+        const SkPath* src = this;
+        if (pc == SkApplyPerspectiveClip::kYes &&
+            SkPathPriv::PerspectiveClip(*this, matrix, &clipped))
+        {
+            src = &clipped;
+        }
+
+        SkPath::Iter    iter(*src, false);
         SkPoint         pts[4];
         SkPath::Verb    verb;
 
@@ -3528,18 +3536,26 @@ struct SkHalfPlane {
 };
 
 // assumes plane is pre-normalized
+// If we fail in our calculations, we return the empty path
 static void clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPath) {
     SkMatrix mx, inv;
     SkPoint p0 = { -plane.fA*plane.fC, -plane.fB*plane.fC };
     mx.setAll( plane.fB, plane.fA, p0.fX,
               -plane.fA, plane.fB, p0.fY,
                       0,        0,     1);
-    SkAssertResult(mx.invert(&inv));
+    if (!mx.invert(&inv)) {
+        clippedPath->reset();
+        return;
+    }
 
     SkPath rotated;
     path.transform(inv, &rotated);
+    if (!rotated.isFinite()) {
+        clippedPath->reset();
+        return;
+    }
 
-    SkScalar big = 1e28f;
+    SkScalar big = SK_ScalarMax;
     SkRect clip = {-big, 0, big, big };
 
     struct Rec {
@@ -3584,7 +3600,11 @@ static void clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPa
         }
     }, &rec);
 
-    rec.fResult->transform(mx);
+    clippedPath->setFillType(path.getFillType());
+    clippedPath->transform(mx);
+    if (!path.isFinite()) {
+        clippedPath->reset();
+    }
 }
 
 // true means we have written to clippedPath
