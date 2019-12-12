@@ -38,9 +38,7 @@ private:
     using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
-    // The GrOpMemoryPool must outlive the GrOpsTask, either by preserving the context that owns
-    // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
-    GrOpsTask(GrOpMemoryPool*, GrSurfaceProxyView, GrAuditTrail*);
+    GrOpsTask(sk_sp<GrOpMemoryPool>, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -277,10 +275,10 @@ private:
     friend class GrRenderTargetContext;
 
     // This is a backpointer to the GrOpMemoryPool that holds the memory for this GrOpsTask's ops.
-    // In the DDL case, the GrOpMemoryPool must have been detached from the original recording
-    // context and moved into the owning DDL.
-    GrOpMemoryPool* fOpMemoryPool;
-    GrAuditTrail*   fAuditTrail;
+    // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
+    // constituent GrOpsTask survives.
+    sk_sp<GrOpMemoryPool> fOpMemoryPool;
+    GrAuditTrail* fAuditTrail;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;

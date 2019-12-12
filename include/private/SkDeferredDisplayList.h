@@ -17,7 +17,6 @@ class SkDeferredDisplayListPriv;
 #if SK_SUPPORT_GPU
 #include "include/private/SkTArray.h"
 #include <map>
-class GrOpMemoryPool;
 class GrRenderTask;
 class GrRenderTargetProxy;
 struct GrCCPerOpsTaskPaths;
@@ -80,7 +79,6 @@ private:
 
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
-    std::unique_ptr<GrOpMemoryPool> fOpMemoryPool;
     std::unique_ptr<SkArenaAlloc>   fRecordTimeData;
 
     // The program infos should be stored in 'fRecordTimeData' so do not need to be ref counted
