@@ -4,9 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrMtlCppUtil_DEFINED
 #define GrMtlCppUtil_DEFINED
+
+#include "include/core/SkTypes.h"
+
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
 #include "include/gpu/mtl/GrMtlTypes.h"
 
@@ -16,7 +19,8 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&);
 
 #if GR_TEST_UTILS
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);
-bool GrMtlFormatIsBGRA(GrMTLPixelFormat mtlFormat);
+#endif
+
 #endif
 
 #endif

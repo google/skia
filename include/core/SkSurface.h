@@ -18,9 +18,7 @@
 #include <android/hardware_buffer.h>
 #endif
 
-#ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
-#endif
 
 class SkCanvas;
 class SkDeferredDisplayList;
@@ -317,7 +315,7 @@ public:
                                                     const SkSurfaceProps* surfaceProps);
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     /** Private.
         Creates SkSurface from CAMetalLayer.
         Returned SkSurface takes a reference on the CAMetalLayer. The ref on the layer will be

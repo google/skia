@@ -26,7 +26,7 @@ class GrGLTextureParameters;
 #include "dawn/webgpu_cpp.h"
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 #include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
@@ -77,7 +77,7 @@ public:
     }
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     static GrBackendFormat MakeMtl(GrMTLPixelFormat format) {
         return GrBackendFormat(format);
     }
@@ -113,7 +113,7 @@ public:
     bool asDawnFormat(wgpu::TextureFormat*) const;
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     /**
      * If the backend API is Metal this gets the format as a GrMtlPixelFormat. Otherwise,
      * Otherwise, returns MTLPixelFormatInvalid.
@@ -150,7 +150,7 @@ private:
     GrBackendFormat(wgpu::TextureFormat format);
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     GrBackendFormat(const GrMTLPixelFormat mtlFormat);
 #endif
 
@@ -169,7 +169,7 @@ private:
         wgpu::TextureFormat fDawnFormat;
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
         GrMTLPixelFormat fMtlFormat;
 #endif
         struct {
@@ -195,7 +195,7 @@ public:
                      int height,
                      const GrVkImageInfo& vkInfo);
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     GrBackendTexture(int width,
                      int height,
                      GrMipMapped,
@@ -247,7 +247,7 @@ public:
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
     void setVkImageLayout(VkImageLayout);
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
@@ -312,7 +312,7 @@ private:
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockTextureInfo fMockInfo;
     };
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     GrMtlTextureInfo fMtlInfo;
 #endif
 #ifdef SK_DAWN
@@ -348,7 +348,7 @@ public:
                           const GrVkImageInfo& vkInfo);
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
@@ -391,7 +391,7 @@ public:
     // GrBackendRenderTarget, they must call this function to notify Skia of the changed layout.
     void setVkImageLayout(VkImageLayout);
 
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not Metal.
     bool getMtlTextureInfo(GrMtlTextureInfo*) const;
@@ -442,7 +442,7 @@ private:
         GrVkBackendSurfaceInfo fVkInfo;
         GrMockRenderTargetInfo fMockInfo;
     };
-#ifdef SK_METAL
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     GrMtlTextureInfo fMtlInfo;
 #endif
 #ifdef SK_DAWN

@@ -12,15 +12,13 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrLegacyDirectContext.h"
 #include "src/gpu/GrSkSLFPFactoryCache.h"
-
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/mock/GrMockGpu.h"
 #include "src/gpu/text/GrStrikeCache.h"
-#ifdef SK_METAL
-#include "src/gpu/mtl/GrMtlTrampoline.h"
-#endif
+
 #ifdef SK_VULKAN
 #include "src/gpu/vk/GrVkGpu.h"
 #endif
@@ -210,24 +208,10 @@ sk_sp<GrContext> GrContext::MakeVulkan(const GrVkBackendContext& backendContext,
 #endif
 }
 
-#ifdef SK_METAL
-sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue) {
-    GrContextOptions defaultOptions;
-    return MakeMetal(device, queue, defaultOptions);
-}
-
-sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContextOptions& options) {
-    sk_sp<GrContext> context(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
-
-    context->fGpu = GrMtlTrampoline::MakeGpu(context.get(), options, device, queue);
-    if (!context->fGpu) {
-        return nullptr;
-    }
-
-    if (!context->init(context->fGpu->refCaps(), nullptr)) {
-        return nullptr;
-    }
-    return context;
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+// This little function is used by GrContext::MakeMetal() within the Metal backend.
+sk_sp<GrContext> GrMetalMakeLegacyDirectContext(const GrContextOptions& options) {
+    return sk_sp<GrContext>(new GrLegacyDirectContext(GrBackendApi::kMetal, options));
 }
 #endif
 
