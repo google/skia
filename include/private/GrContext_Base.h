@@ -18,7 +18,6 @@ class GrCaps;
 class GrContext;
 class GrImageContext;
 class GrRecordingContext;
-class GrSkSLFPFactoryCache;
 
 class GrContext_Base : public SkRefCnt {
 public:
@@ -47,7 +46,7 @@ protected:
 
     GrContext_Base(GrBackendApi backend, const GrContextOptions& options, uint32_t contextID);
 
-    virtual bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>);
+    virtual bool init(sk_sp<const GrCaps>);
 
     /**
      * An identifier for this context. The id is used by all compatible contexts. For example,
@@ -70,8 +69,6 @@ protected:
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
-
     virtual GrImageContext* asImageContext() { return nullptr; }
     virtual GrRecordingContext* asRecordingContext() { return nullptr; }
     virtual GrContext* asDirectContext() { return nullptr; }
@@ -81,7 +78,6 @@ private:
     const GrContextOptions      fOptions;
     const uint32_t              fContextID;
     sk_sp<const GrCaps>         fCaps;
-    sk_sp<GrSkSLFPFactoryCache> fFPFactoryCache;
 
     typedef SkRefCnt INHERITED;
 };
