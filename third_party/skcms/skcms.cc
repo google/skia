@@ -1942,9 +1942,9 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         //
         // We've kept tf and tf_inv in sync above, but we can't guarantee that tf is
         // invertible, so re-verify that here (and use the new inverse for testing).
-        // fit_nonlinear() should guarantee this.
+        // fit_nonlinear() should guarantee this, but the special cases that don't use
+        // it may fail this test.
         if (!skcms_TransferFunction_invert(&tf, &tf_inv)) {
-            assert(false);
             continue;
         }
 
