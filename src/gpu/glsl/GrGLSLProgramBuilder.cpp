@@ -190,9 +190,9 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
             SkString name;
             name.printf("TextureSampler_%d", samplerIdx++);
             const auto& sampler = subFP.textureSampler(i);
-            texSamplers.emplace_back(this->emitSampler(sampler.proxy(),
+            texSamplers.emplace_back(this->emitSampler(sampler.view().proxy(),
                                                        sampler.samplerState(),
-                                                       sampler.swizzle(),
+                                                       sampler.view().swizzle(),
                                                        name.c_str()));
         }
     }

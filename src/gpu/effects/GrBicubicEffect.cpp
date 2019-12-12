@@ -145,8 +145,8 @@ void GrGLBicubicEffect::emitCode(EmitArgs& args) {
 void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                   const GrFragmentProcessor& processor) {
     const GrBicubicEffect& bicubicEffect = processor.cast<GrBicubicEffect>();
-    GrSurfaceProxy* proxy = processor.textureSampler(0).proxy();
-    SkISize textureDims = proxy->backingStoreDimensions();
+    const auto& view = processor.textureSampler(0).view();
+    SkISize textureDims = view.proxy()->backingStoreDimensions();
 
     float dims[4] = {0, 0, 0, 0};
     if (bicubicEffect.direction() != GrBicubicEffect::Direction::kY) {
@@ -158,7 +158,7 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
         dims[3] = textureDims.height();
     }
     pdman.set4fv(fDimensions, 1, dims);
-    fDomain.setData(pdman, bicubicEffect.domain(), proxy,
+    fDomain.setData(pdman, bicubicEffect.domain(), view,
                     processor.textureSampler(0).samplerState());
 }
 

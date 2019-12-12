@@ -125,11 +125,11 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
 void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                             const GrFragmentProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
-    GrSurfaceProxy* proxy = conv.textureSampler(0).proxy();
-    SkISize textureDims = proxy->backingStoreDimensions();
+    const auto& view = conv.textureSampler(0).view();
+    SkISize textureDims = view.proxy()->backingStoreDimensions();
 
     float imageIncrement[2];
-    float ySign = proxy->origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
+    float ySign = view.origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;
     imageIncrement[0] = 1.0f / textureDims.width();
     imageIncrement[1] = ySign / textureDims.height();
     pdman.set2fv(fImageIncrementUni, 1, imageIncrement);
@@ -140,7 +140,7 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
     pdman.set1f(fGainUni, conv.gain());
     pdman.set1f(fBiasUni, conv.bias());
-    fDomain.setData(pdman, conv.domain(), proxy, conv.textureSampler(0).samplerState());
+    fDomain.setData(pdman, conv.domain(), view, conv.textureSampler(0).samplerState());
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcProxy,
