@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a011a33_17bf6eb8",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-13T16:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fa899a1_c54ee0d2",
+      "range": {
+        "startLine": 134,
+        "startChar": 83,
+        "endLine": 134,
+        "endChar": 89
+      },
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d892c404_b9aade85",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a6e3ce9_c81c7857",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-13T16:11:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d892c404_b9aade85",
+      "range": {
+        "startLine": 367,
+        "startChar": 18,
+        "endLine": 367,
+        "endChar": 25
+      },
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ee41fec5_9e75e4d2",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-13T16:11:22Z",
+      "side": 1,
+      "message": "As discussed offline, we pass this in by value similar to how sk_sps are passed by value.",
+      "parentUuid": "961e5fb7_2153298f",
+      "range": {
+        "startLine": 26,
+        "startChar": 66,
+        "endLine": 26,
+        "endChar": 84
+      },
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c860f02c_49c1b519",
         "filename": "src/image/SkImage_Gpu.h",
         "patchSetId": 3
@@ -85,6 +157,24 @@
       "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "569c4632_76f496b2",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-13T16:11:22Z",
+      "side": 1,
+      "message": "Comment added to base class for the function.",
+      "parentUuid": "c860f02c_49c1b519",
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
