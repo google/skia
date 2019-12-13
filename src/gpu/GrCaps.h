@@ -393,6 +393,10 @@ public:
 
         return this->onGetConfigFromBackendFormat(format, grCT);
     }
+    GrPixelConfig getConfigFromCompressedBackendFormat(const GrBackendFormat& format) const {
+        return this->onGetConfigFromCompressedBackendFormat(format);
+    }
+
 
     /**
      * Special method only for YUVA images. Returns a colortype that matches the backend format or
@@ -557,6 +561,7 @@ private:
 
     virtual GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
                                                        GrColorType ct) const = 0;
+    virtual GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat& format) const = 0;
 
     virtual bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const = 0;
 
