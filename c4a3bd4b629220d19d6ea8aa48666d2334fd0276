@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fa899a1_c54ee0d2",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-13T14:17:45Z",
+      "side": 1,
+      "message": "// TODO: make MakeTextureProxyFromData return a view ?",
+      "range": {
+        "startLine": 134,
+        "startChar": 83,
+        "endLine": 134,
+        "endChar": 89
+      },
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d892c404_b9aade85",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-13T14:17:45Z",
+      "side": 1,
+      "message": "texture",
+      "range": {
+        "startLine": 367,
+        "startChar": 18,
+        "endLine": 367,
+        "endChar": 25
+      },
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "961e5fb7_2153298f",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-13T14:17:45Z",
+      "side": 1,
+      "message": "You don\u0027t want this movable ?",
+      "range": {
+        "startLine": 26,
+        "startChar": 66,
+        "endLine": 26,
+        "endChar": 84
+      },
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c860f02c_49c1b519",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-13T14:17:45Z",
+      "side": 1,
+      "message": "// Comment here about why this returns a copy ?",
+      "revId": "c4a3bd4b629220d19d6ea8aa48666d2334fd0276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
