@@ -1015,6 +1015,13 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_opsz_descriptor(double opsz) {
     // Avoid using kCTFontOpticalSizeAttribute directly
     CFStringRef SkCTFontOpticalSizeAttribute = CFSTR("NSCTFontOpticalSizeAttribute");
     CFDictionarySetValue(attr.get(), SkCTFontOpticalSizeAttribute, opszValueNumber.get());
+
+    int zero = 0;
+    SkUniqueCFRef<CFNumberRef> unscaledTrackingNumber(
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &zero));
+    CFStringRef SkCTFontUnscaledTrackingAttribute = CFSTR("NSCTFontUnscaledTrackingAttribute");
+    CFDictionarySetValue(attr.get(),SkCTFontUnscaledTrackingAttribute,unscaledTrackingNumber.get());
+
     return SkUniqueCFRef<CTFontDescriptorRef>(CTFontDescriptorCreateWithAttributes(attr.get()));
 }
 
