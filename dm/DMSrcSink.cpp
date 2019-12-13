@@ -1684,7 +1684,7 @@ Error DebugSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) cons
     UrlDataManager dataManager(SkString("data"));
     SkJSONWriter writer(dst, SkJSONWriter::Mode::kPretty);
     writer.beginObject(); // root
-    debugCanvas.toJSON(writer, dataManager, debugCanvas.getSize(), nullCanvas.get());
+    debugCanvas.toJSON(writer, dataManager, nullCanvas.get());
     writer.endObject(); // root
     writer.flush();
     return "";
