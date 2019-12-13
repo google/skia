@@ -37,7 +37,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
     if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
         bool resizing = localRect.width()  != dstRect.width() ||
                         localRect.height() != dstRect.height();
-        needsDomain = resizing && !GrProxyProvider::IsFunctionallyExact(inputProxy.get());
+        needsDomain = resizing && inputProxy->isFunctionallyExact();
     }
 
     if (copyParams.fFilter == GrSamplerState::Filter::kNearest && !needsDomain && !resizing &&
@@ -99,7 +99,7 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
 
     SkASSERT(proxyBounds.contains(constraintRect));
 
-    const bool proxyIsExact = GrProxyProvider::IsFunctionallyExact(proxy);
+    const bool proxyIsExact = proxy->isFunctionallyExact();
 
     // If the constraint rectangle contains the whole proxy then no need for a domain.
     if (constraintRect.contains(proxyBounds) && proxyIsExact) {
