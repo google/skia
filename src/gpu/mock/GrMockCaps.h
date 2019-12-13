@@ -210,6 +210,10 @@ private:
         return GrColorTypeToPixelConfig(format.asMockColorType());
     }
 
+    GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat& format) const override {
+        return kUnknown_GrPixelConfig;
+    }
+
     bool onAreColorTypeAndFormatCompatible(GrColorType ct,
                                            const GrBackendFormat& format) const override {
         if (ct == GrColorType::kUnknown) {

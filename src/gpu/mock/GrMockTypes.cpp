@@ -14,5 +14,5 @@ GrBackendFormat GrMockRenderTargetInfo::getBackendFormat() const {
 }
 
 GrBackendFormat GrMockTextureInfo::getBackendFormat() const {
-    return GrBackendFormat::MakeMock(fColorType, fCompressionType);
+    return GrBackendFormat::MakeMock(fColorType1, fCompressionType);
 }

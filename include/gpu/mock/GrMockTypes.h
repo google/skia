@@ -15,14 +15,14 @@ class GrBackendFormat;
 
 struct GrMockTextureInfo {
     GrMockTextureInfo()
-        : fColorType(GrColorType::kUnknown)
+        : fColorType1(GrColorType::kUnknown)
         , fCompressionType(SkImage::CompressionType::kNone)
         , fID(0) {}
 
     GrMockTextureInfo(GrColorType colorType,
                       SkImage::CompressionType compressionType,
                       int id)
-            : fColorType(colorType)
+            : fColorType1(colorType)
             , fCompressionType(compressionType)
             , fID(id) {
         SkASSERT(fID);
@@ -32,14 +32,14 @@ struct GrMockTextureInfo {
     }
 
     bool operator==(const GrMockTextureInfo& that) const {
-        return fColorType == that.fColorType &&
+        return fColorType1 == that.fColorType1 &&
                fCompressionType == that.fCompressionType &&
                fID == that.fID;
     }
 
     GrPixelConfig pixelConfig() const {
         if (fCompressionType == SkImage::CompressionType::kNone) {
-            return GrColorTypeToPixelConfig(fColorType);
+            return GrColorTypeToPixelConfig(fColorType1);
         } else {
             return GrCompressionTypeToPixelConfig(fCompressionType);
         }
@@ -49,15 +49,15 @@ struct GrMockTextureInfo {
 
     SkImage::CompressionType compressionType() const { return fCompressionType; }
 
-    GrColorType colorType() const {
+    GrColorType colorType1() const {
         SkASSERT(fCompressionType == SkImage::CompressionType::kNone);
-        return fColorType;
+        return fColorType1;
     }
 
     int id() const { return fID; }
 
 private:
-    GrColorType              fColorType;
+    GrColorType              fColorType1;
     SkImage::CompressionType fCompressionType;
     int                      fID;
 };
@@ -84,7 +84,7 @@ struct GrMockRenderTargetInfo {
 
     GrBackendFormat getBackendFormat() const;
 
-    GrColorType colorType() const { return fColorType; }
+    GrColorType colorType2() const { return fColorType; }
 
 private:
     GrColorType   fColorType;

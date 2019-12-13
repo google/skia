@@ -1062,6 +1062,17 @@ private:
     }
 };
 
+static constexpr GrColorTypeEncoding GrCompressionTypeEncoding(SkImage::CompressionType compression) {
+    switch (compression) {
+        case SkImage::CompressionType::kETC1:
+            return GrColorTypeEncoding::kUnorm;
+        default:
+            SK_ABORT("Unexpected compression type");
+    }
+
+    SkUNREACHABLE;
+}
+
 static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
     switch (ct) {
         case GrColorType::kUnknown:
