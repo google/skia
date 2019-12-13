@@ -169,15 +169,13 @@ GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
 void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
-    SkTDynamicHash<GrGlyph, SkPackedGlyphID>::Iter iter(&fCache);
-    while (!iter.done()) {
-        if (id == (*iter).fID) {
-            (*iter).fID = GrDrawOpAtlas::kInvalidAtlasID;
+    fCache.foreach([this, id](GrGlyph** glyph){
+        if ((*glyph)->fID == id) {
+            (*glyph)->fID = GrDrawOpAtlas::kInvalidAtlasID;
             fAtlasedGlyphs--;
             SkASSERT(fAtlasedGlyphs >= 0);
         }
-        ++iter;
-    }
+    });
 }
 
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
@@ -191,7 +189,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    bool isScaledGlyph) {
     SkASSERT(glyph);
     SkASSERT(metricsAndImages);
-    SkASSERT(fCache.find(glyph->fPackedID));
+    SkASSERT(fCache.findOrNull(glyph->fPackedID));
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
@@ -240,23 +238,23 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
 }
 
 GrGlyph* GrTextStrike::getGlyph(const SkGlyph& skGlyph) {
-    GrGlyph* grGlyph = fCache.find(skGlyph.getPackedID());
+    GrGlyph* grGlyph = fCache.findOrNull(skGlyph.getPackedID());
     if (grGlyph == nullptr) {
         grGlyph = fAlloc.make<GrGlyph>(skGlyph);
-        fCache.add(grGlyph);
+        fCache.set(grGlyph);
     }
     return grGlyph;
 }
 
 GrGlyph*
 GrTextStrike::getGlyph(SkPackedGlyphID packed, SkBulkGlyphMetricsAndImages* metricsAndImages) {
-    GrGlyph* grGlyph = fCache.find(packed);
+    GrGlyph* grGlyph = fCache.findOrNull(packed);
     if (grGlyph == nullptr) {
         // We could return this to the caller, but in practice it adds code complexity for
         // potentially little benefit(ie, if the glyph is not in our font cache, then its not
         // in the atlas and we're going to be doing a texture upload anyways).
         grGlyph = fAlloc.make<GrGlyph>(*metricsAndImages->glyph(packed));
-        fCache.add(grGlyph);
+        fCache.set(grGlyph);
     }
     return grGlyph;
 }
