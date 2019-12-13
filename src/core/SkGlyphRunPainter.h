@@ -83,7 +83,7 @@ public:
     // A nullptr for process means that the calls to the cache will be performed, but none of the
     // callbacks will be called.
     void processGlyphRunList(const SkGlyphRunList& glyphRunList,
-                             const SkMatrix& viewMatrix,
+                             const SkMatrix& drawMatrix,
                              const SkSurfaceProps& props,
                              bool contextSupportsDistanceFieldText,
                              const GrTextContext::Options& options,
