@@ -569,6 +569,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
+		if os == "iOS" && parts["model"] == "iPhone11" {
+			d["os"] = "iOS-13.2.3"
+		}
 		if os == "Win10" && parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 v1709.
 			d["os"] = "Windows-10-16299"
@@ -622,6 +625,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPhone8":   "iPhone10,1",
+				"iPhone11":  "iPhone12,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
 			if !ok {
