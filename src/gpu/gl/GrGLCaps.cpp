@@ -4163,6 +4163,17 @@ GrPixelConfig GrGLCaps::onGetConfigFromBackendFormat(const GrBackendFormat& form
     return validate_sized_format(format.asGLFormat(), ct, fStandard);
 }
 
+GrPixelConfig GrGLCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFormat& f) const {
+    GrGLFormat glFormat = f.asGLFormat();
+
+    if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
+        glFormat == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
+        return kRGB_ETC1_GrPixelConfig;
+    }
+
+    return kUnknown_GrPixelConfig;
+}
+
 GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                         bool isAlphaChannel) const {
     switch (format.asGLFormat()) {
@@ -4208,7 +4219,10 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
             if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGB8_ETC2)) {
                 return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB8_ETC2, GR_GL_TEXTURE_2D);
             }
-            return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D);
+            if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_ETC1_RGB8)) {
+                return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D);
+            }
+            return {};
     }
 
     SkUNREACHABLE;
