@@ -33,6 +33,9 @@ public:
         SkASSERT(false);
         return this->INHERITED::asTextureProxyRef(context);
     }
+
+    virtual const GrSurfaceProxyView& getSurfaceProxyView(GrRecordingContext* context) const = 0;
+
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
                                             SkScalar scaleAdjust[2]) const final;
 
