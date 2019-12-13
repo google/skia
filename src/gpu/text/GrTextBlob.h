@@ -318,7 +318,7 @@ public:
     bool regenerate(Result*);
 
 private:
-    bool doRegen(Result*, bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs);
+    bool doRegen(Result* result);
 
     GrResourceProvider* fResourceProvider;
     const SkMatrix& fDrawMatrix;
@@ -329,8 +329,12 @@ private:
     SubRun* fSubRun;
     GrColor fColor;
     SkVector fDrawTranslation;
-
-    uint32_t fRegenFlags = 0;
+    struct {
+        bool regenPositions:1;
+        bool regenColor:1;
+        bool regenTextureCoordinates:1;
+        bool regenStrike:1;
+    } fActions = {false, false, false, false};
     int fCurrGlyph = 0;
     bool fBrokenRun = false;
 };
