@@ -265,6 +265,13 @@ public:
                                                      GrTextureDomain::Mode modeY,
                                                      GrSamplerState::Filter);
 
+    static std::unique_ptr<GrFragmentProcessor> MakeTexture(sk_sp<GrTextureProxy>,
+                                                            SkAlphaType,
+                                                            const SkMatrix&,
+                                                            const GrSamplerState&,
+                                                            const SkIRect* domain,
+                                                            const GrCaps&);
+
     const char* name() const override { return "Domain"; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override {
