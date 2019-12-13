@@ -3906,22 +3906,18 @@ bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format.asGLFormat() == GrGLFormat::kSRGB8_ALPHA8;
 }
 
-bool GrGLCaps::isFormatCompressed(const GrBackendFormat& format,
-                                  SkImage::CompressionType* compressionType) const {
+SkImage::CompressionType GrGLCaps::compressionType(const GrBackendFormat& format) const {
     auto fmt = format.asGLFormat();
 
-    SkImage::CompressionType dummyType;
-    SkImage::CompressionType* compressionTypePtr = compressionType ? compressionType : &dummyType;
-
     switch (fmt) {
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: // fall through
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            // ETC2 uses the same compression layout as ETC1
-            *compressionTypePtr = SkImage::CompressionType::kETC1;
-            return true;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as RGB8_ETC2
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+            return SkImage::CompressionType::kETC1;
         default:
-            return false;
+            return SkImage::CompressionType::kNone;
     }
+
+    SkUNREACHABLE;
 }
 
 bool GrGLCaps::isFormatTexturableAndUploadable(GrColorType ct,

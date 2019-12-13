@@ -49,23 +49,15 @@ public:
         return GrGetColorTypeDesc(ct).encoding() == GrColorTypeEncoding::kSRGBUnorm;
     }
 
-    bool isFormatCompressed(const GrBackendFormat& format,
-                            SkImage::CompressionType* compressionType = nullptr) const override {
-        SkImage::CompressionType compression = format.asMockCompressionType();
-        if (compression == SkImage::CompressionType::kNone) {
-            return false;
-        }
-
-        if (compressionType) {
-            *compressionType = compression;
-        }
-        return true;
+    SkImage::CompressionType compressionType(const GrBackendFormat& format) const override {
+        return format.asMockCompressionType();
     }
 
     bool isFormatTexturableAndUploadable(GrColorType,
                                          const GrBackendFormat& format) const override {
         return this->isFormatTexturable(format);
     }
+
     bool isFormatTexturable(const GrBackendFormat& format) const override {
         SkImage::CompressionType compression = format.asMockCompressionType();
         if (compression != SkImage::CompressionType::kNone) {

@@ -85,30 +85,21 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     auto createTexture = [](int width, int height, GrColorType colorType,
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
-        GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
-        bool compressed = rp->caps()->isFormatCompressed(format);
-        if (compressed) {
+        SkImage::CompressionType compression = rp->caps()->compressionType(format);
+        if (compression != SkImage::CompressionType::kNone) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }
-            SkImage::CompressionType type;
-            switch (config) {
-                case kRGB_ETC1_GrPixelConfig:
-                    type = SkImage::CompressionType::kETC1;
-                    break;
-                default:
-                    SK_ABORT("Unexpected config");
-            }
-            // Only supported compression type right now.
-            SkASSERT(config == kRGB_ETC1_GrPixelConfig);
-            auto size = GrCompressedDataSize(type, width, height);
+
+            auto size = GrCompressedDataSize(compression, width, height);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
-            GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(width, height, format,
-                                               SkImage::CompressionType::kETC1,
+            GrFillInCompressedData(compression, width, height, (char*)data->writable_data(), color);
+            return rp->createCompressedTexture(width, height, format, compression,
                                                SkBudgeted::kNo, data.get());
         } else {
+            GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
+
             GrSurfaceDesc desc;
             desc.fWidth = width;
             desc.fHeight = height;
@@ -147,9 +138,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             // support check is working
             {
 
-                bool compressed = caps->isFormatCompressed(combo.fFormat);
+                bool isCompressed = caps->isFormatCompressed(combo.fFormat);
                 bool isTexturable;
-                if (compressed) {
+                if (isCompressed) {
                     isTexturable = caps->isFormatTexturable(combo.fFormat);
                 } else {
                     isTexturable = caps->isFormatTexturableAndUploadable(combo.fColorType,
@@ -167,7 +158,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 // Check that the lack of mipmap support blocks the creation of mipmapped
                 // proxies
                 bool expectedMipMapability = isTexturable && caps->mipMapSupport() &&
-                                              !caps->isFormatCompressed(combo.fFormat);
+                                                !isCompressed;
 
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                         combo.fFormat, desc, GrRenderable::kNo, 1, origin, GrMipMapped::kYes,
