@@ -23,9 +23,7 @@ GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
                     GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
 
 GrStrikeCache::~GrStrikeCache() {
-    fCache.foreach([](sk_sp<GrTextStrike>* strike){
-        (*strike)->fIsAbandoned = true;
-    });
+    this->freeAll();
 }
 
 void GrStrikeCache::freeAll() {
@@ -38,8 +36,8 @@ void GrStrikeCache::freeAll() {
 void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     GrStrikeCache* grStrikeCache = reinterpret_cast<GrStrikeCache*>(ptr);
 
-    grStrikeCache->fCache.mutate([grStrikeCache, id](sk_sp<GrTextStrike>* strikeHandle){
-        GrTextStrike* strike = strikeHandle->get();
+    grStrikeCache->fCache.mutate([grStrikeCache, id](sk_sp<GrTextStrike>* cacheSlot){
+        GrTextStrike* strike = cacheSlot->get();
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas

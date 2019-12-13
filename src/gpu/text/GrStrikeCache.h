@@ -96,8 +96,9 @@ public:
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
     sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
-        sk_sp<GrTextStrike>* strike = fCache.find(desc);
-        if (strike) { return *strike; }
+        if (sk_sp<GrTextStrike>* cached = fCache.find(desc)) {
+            return *cached;
+        }
         return this->generateStrike(desc);
     }
 
@@ -109,7 +110,6 @@ public:
 
 private:
     sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
-        // 'fCache' get the construction ref
         sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(desc);
         fCache.set(strike);
         return strike;
@@ -122,8 +122,6 @@ private:
         static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
     };
 
-    // TODO - switch from GrTextStrike* to sk_sp<GrTextStrike>.
-    // TODO - can this become SkTHashMap?
     using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, SkDescriptor, DescriptorHashTraits>;
 
     StrikeHash fCache;
