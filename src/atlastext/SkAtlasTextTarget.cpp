@@ -241,7 +241,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fSubRunPtr,
-                fGeoData[i].fViewMatrix, fGeoData[i].fX, fGeoData[i].fY,
+                fGeoData[i].fDrawMatrix, fGeoData[i].fX, fGeoData[i].fY,
                 fGeoData[i].fColor.toBytes_RGBA(), &context, glyphCache, atlasManager);
         bool done = false;
         while (!done) {
@@ -252,7 +252,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
             done = result.fFinished;
 
             context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated,
-                               fGeoData[i].fViewMatrix, target->handle());
+                               fGeoData[i].fDrawMatrix, target->handle());
             if (!result.fFinished) {
                 // Make space in the atlas so we can continue generating vertices.
                 context.flush();
