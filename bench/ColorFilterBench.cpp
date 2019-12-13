@@ -148,10 +148,10 @@ void RuntimeColorMatrix_CPU(float colors[4], const void* ctx) {
 
 const char RuntimeColorMatrix_GPU_SRC[] = R"(
     // WTB matrix/vector inputs.
-    layout(ctype=float) in uniform half m0 , m1 , m2 , m3 , m4 ,
-                                        m5 , m6 , m7 , m8 , m9 ,
-                                        m10, m11, m12, m13, m14,
-                                        m15, m16, m17, m18, m19;
+    uniform half m0 , m1 , m2 , m3 , m4 ,
+                 m5 , m6 , m7 , m8 , m9 ,
+                 m10, m11, m12, m13, m14,
+                 m15, m16, m17, m18, m19;
     void main(inout half4 c) {
         half nonZeroAlpha = max(c.a, 0.0001);
         c = half4(c.rgb / nonZeroAlpha, nonZeroAlpha);

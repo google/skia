@@ -632,9 +632,9 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
         }
         case 2: {
             static int overdrawIndex = NewIndex();
-            SkPMColor inputs[6];
+            SkColor4f inputs[6];
             for (int i = 0; i < 6; ++i) {
-                inputs[i] = d->fRandom->nextU();
+                inputs[i] = SkColor4f::FromBytes_RGBA(d->fRandom->nextU());
             }
             std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(d->context(), overdrawIndex,
                                                               "Overdraw", SKSL_OVERDRAW_SRC,
