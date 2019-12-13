@@ -281,10 +281,16 @@ protected:
             return;
         }
 
+        // TODO: The asTextureProxyRef which takes a sampler and adjust needs to return a
+        // GrSurfaceProxyView instead. For now we just grab the info off the proxy.
+        GrSurfaceOrigin origin = proxy->origin();
+        const GrSwizzle& swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()),
                                                 image->uniqueID(), kPremul_SkAlphaType,
-                                                std::move(proxy), image->refColorSpace()));
+                                                std::move(view), image->refColorSpace()));
         canvas->drawImage(texImage.get(), x, y);
     }
 

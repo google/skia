@@ -124,9 +124,15 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
         return nullptr;
     }
 
+    GrSurfaceProxyView currView = this->asSurfaceProxyViewRef(context);
+    if (!currView.proxy()) {
+        return nullptr;
+    }
+
+    GrSurfaceProxyView view(std::move(copyProxy), currView.origin(), currView.swizzle());
     // MDB: this call is okay bc we know 'sContext' was kExact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
-                                   std::move(copyProxy), this->refColorSpace());
+                                   std::move(view), this->refColorSpace());
 }
 
 bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,

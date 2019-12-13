@@ -168,10 +168,6 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
 }
 
 sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContext* context) const {
-    if (!context || !fContext->priv().matches(context)) {
-        return nullptr;
-    }
-
     // if invalid or already has miplevels
     auto proxy = this->asTextureProxyRef(context);
     if (!proxy || GrMipMapped::kYes == fRGBProxy->mipMapped()) {
@@ -187,6 +183,17 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContex
 
     // failed to generate mips
     return nullptr;
+}
+
+GrSurfaceProxyView SkImage_GpuYUVA::asSurfaceProxyViewRef(GrRecordingContext* context) const {
+    auto proxy = this->asTextureProxyRef(context);
+    if (!proxy) {
+        return GrSurfaceProxyView();
+    }
+
+    GrSurfaceOrigin origin = proxy->origin();
+    const GrSwizzle& swizzle = proxy->textureSwizzle();
+    return {std::move(proxy), origin, swizzle};
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
