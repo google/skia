@@ -79,7 +79,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
 
     // Check simple cases to see if we need to fall back to flattening the image (or whether it's
     // already been flattened.)
-    if (!filterOrNullForBicubic || this->domainNeedsDecal() || fImage->fRGBProxy) {
+    if (!filterOrNullForBicubic || this->domainNeedsDecal() || fImage->fRGBView.proxy()) {
         return this->INHERITED::createFragmentProcessor(textureMatrix, constraintRect,
                                                         filterConstraint,
                                                         coordsLimitedToConstraintRect,
