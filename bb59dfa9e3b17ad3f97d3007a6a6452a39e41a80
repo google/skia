@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2fb40e9_1ecd1b8f",
+        "filename": "src/core/SkGlyphRunPainter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T14:20:55Z",
+      "side": 0,
+      "message": "Looks like we still have some of the old matrices hanging around?",
+      "range": {
+        "startLine": 392,
+        "startChar": 43,
+        "endLine": 392,
+        "endChar": 53
+      },
+      "revId": "bb59dfa9e3b17ad3f97d3007a6a6452a39e41a80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
