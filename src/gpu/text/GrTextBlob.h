@@ -118,10 +118,10 @@ public:
     void flush(GrTextTarget*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
-               const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
+               const SkMatrix& drawMatrix, SkScalar x, SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
-                             const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                             const SkMatrix& drawMatrix, SkScalar x, SkScalar y,
                              bool needsGlyphTransform);
 
     // Normal text mask, SDFT, or color.
@@ -153,7 +153,7 @@ public:
 
     // Internal test methods
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount,
-                                          const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
+                                          const SkMatrix& drawMatrix, SkScalar x, SkScalar y,
                                           const SkPaint& paint, const SkPMColor4f& filteredColor,
                                           const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
                                           GrTextTarget*);
@@ -206,7 +206,7 @@ private:
 
     std::unique_ptr<GrAtlasTextOp> makeOp(
             SubRun& info, int glyphCount,
-            const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
+            const SkMatrix& drawMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
             const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
 
@@ -282,7 +282,7 @@ public:
      * SkGlyphCache.
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
-                      const SkMatrix& viewMatrix, SkScalar x, SkScalar y, GrColor color,
+                      const SkMatrix& drawMatrix, SkScalar x, SkScalar y, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
     struct Result {
@@ -310,7 +310,7 @@ private:
     bool doRegen(Result*, bool regenPos, bool regenCol, bool regenTexCoords, bool regenGlyphs);
 
     GrResourceProvider* fResourceProvider;
-    const SkMatrix& fViewMatrix;
+    const SkMatrix& fDrawMatrix;
     GrDeferredUploadTarget* fUploadTarget;
     GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;
