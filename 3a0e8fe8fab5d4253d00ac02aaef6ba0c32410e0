@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5e3c2e3_a9bfdffb",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T19:14:45Z",
+      "side": 1,
+      "message": "I think it wants \"src/core/GrStrikeCache.h\" here.",
+      "revId": "3a0e8fe8fab5d4253d00ac02aaef6ba0c32410e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
