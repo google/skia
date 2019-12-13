@@ -214,6 +214,12 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex, Gr
             new GrMockTexture(this, desc, isProtected, mipMapsStatus, texInfo, wrapType, ioType));
 }
 
+sk_sp<GrTexture> GrMockGpu::onWrapCompressedBackendTexture(const GrBackendTexture& tex,
+                                                           GrWrapOwnership ownership,
+                                                           GrWrapCacheable wrapType) {
+    return nullptr;
+}
+
 sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                            int sampleCnt,
                                                            GrColorType colorType,
@@ -310,6 +316,26 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
 
     fOutstandingTestingOnlyTextureIDs.add(info.id());
     auto mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info);
+}
+
+GrBackendTexture GrMockGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                             const GrBackendFormat& format,
+                                                             const BackendTextureData*,
+                                                             GrMipMapped mipMapped,
+                                                             GrProtected) {
+    SkImage::CompressionType compression = format.asMockCompressionType();
+    if (compression == SkImage::CompressionType::kNone) {
+        return {}; // should go through onCreateBackendTexture
+    }
+
+    if (!this->caps()->isFormatTexturable(format)) {
+        return {};
+    }
+
+    GrMockTextureInfo info(GrColorType::kUnknown, compression, NextExternalTextureID());
+
+    fOutstandingTestingOnlyTextureIDs.add(info.id());
     return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info);
 }
 
