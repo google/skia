@@ -193,11 +193,16 @@ bool compare_pixels(int width, int height,
                 }
             }
             if (bad) {
+                SkDebugf("%.2f %.2f %.2f %.2f - %.2f %.2f %.2f %.2f ",
+                         rgbaB[0], rgbaB[1], rgbaB[2], rgbaB[3],
+                         rgbaA[0], rgbaA[1], rgbaA[2], rgbaA[3]);
                 error(x, y, diffs);
                 return false;
             }
         }
     }
+
+    SkDebugf("----------- success\n");
     return true;
 }
 
