@@ -23,16 +23,14 @@ GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
                     GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
 
 GrStrikeCache::~GrStrikeCache() {
-    fCache.foreach([](GrTextStrike** strike){
+    fCache.foreach([](sk_sp<GrTextStrike>* strike){
         (*strike)->fIsAbandoned = true;
-        (*strike)->unref();
     });
 }
 
 void GrStrikeCache::freeAll() {
-    fCache.foreach([](GrTextStrike** strike){
+    fCache.foreach([](sk_sp<GrTextStrike>* strike){
         (*strike)->fIsAbandoned = true;
-        (*strike)->unref();
     });
     fCache.reset();
 }
@@ -40,15 +38,14 @@ void GrStrikeCache::freeAll() {
 void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
     GrStrikeCache* grStrikeCache = reinterpret_cast<GrStrikeCache*>(ptr);
 
-    grStrikeCache->fCache.mutate([grStrikeCache, id](GrTextStrike** strikePtrPtr){
-        GrTextStrike* strike = *strikePtrPtr;
+    grStrikeCache->fCache.mutate([grStrikeCache, id](sk_sp<GrTextStrike>* strikeHandle){
+        GrTextStrike* strike = strikeHandle->get();
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
         if (strike != grStrikeCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
             strike->fIsAbandoned = true;
-            strike->unref();
             return false;  // Remove this entry from the cache.
         }
         return true;  // Keep this entry in the cache.
