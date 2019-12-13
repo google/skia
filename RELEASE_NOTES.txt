@@ -9,6 +9,8 @@ Milestone 81
 <Insert new notes here- top is most recent.>
 
 * * *
+  * Added SkMatrix::MakeTrans(SkIVector)
+    https://review.skia.org/259804
 
 Milestone 80
 
