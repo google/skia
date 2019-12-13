@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfaaa5b1_eaae7fe3",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T19:34:43Z",
+      "side": 1,
+      "message": "maybe even just `cacheSlot`?",
+      "range": {
+        "startLine": 41,
+        "startChar": 74,
+        "endLine": 41,
+        "endChar": 86
+      },
+      "revId": "16597d0fae9eb76443b1a587785057ab04d37869",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

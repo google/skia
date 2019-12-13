@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d633d0c_e62d89af",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T19:34:43Z",
+      "side": 1,
+      "message": "Can this just be \n\n  this-\u003efreeAll();\n\n?",
+      "revId": "2ef0f0b33401d3537a61f3ad543796a087862601",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a10f5f3_2f8d9807",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T19:34:43Z",
+      "side": 1,
+      "message": "Maybe,\n\n  if (sk_sp\u003cGrTextStrike\u003e* cached \u003d fCache.find(desc)) {\n      return *cached;\n  }\n  return this-\u003egenerateStrike(desc);\n\n?",
+      "range": {
+        "startLine": 89,
+        "startChar": 7,
+        "endLine": 91,
+        "endChar": 42
+      },
+      "revId": "2ef0f0b33401d3537a61f3ad543796a087862601",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6016c29_8fdb1644",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T19:34:43Z",
+      "side": 1,
+      "message": "This comment is now moot?",
+      "range": {
+        "startLine": 102,
+        "startChar": 8,
+        "endLine": 102,
+        "endChar": 44
+      },
+      "revId": "2ef0f0b33401d3537a61f3ad543796a087862601",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ed6cc14_ddcdf3c3",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T19:34:43Z",
+      "side": 1,
+      "message": "Done!",
+      "revId": "2ef0f0b33401d3537a61f3ad543796a087862601",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
