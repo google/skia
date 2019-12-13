@@ -165,10 +165,12 @@ public:
 
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
 
-    // Callers can optionally pass in an SkImage::CompressionType which will be filled in with the
-    // correct type if the GrBackendFormat is compressed.
-    virtual bool isFormatCompressed(const GrBackendFormat&,
-                                    SkImage::CompressionType* compressionType = nullptr) const = 0;
+    // This will return SkImage::CompressionType::kNone if the backend format is not compressed.
+    virtual SkImage::CompressionType compressionType(const GrBackendFormat&) const = 0;
+
+    bool isFormatCompressed(const GrBackendFormat& format) const {
+        return this->compressionType(format) != SkImage::CompressionType::kNone;
+    }
 
     // TODO: Once we use the supportWritePixels call for uploads, we can remove this function and
     // instead only have the version that takes a GrBackendFormat.
