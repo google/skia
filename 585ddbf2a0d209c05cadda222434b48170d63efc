@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e62fe4a0_f4f7688c",
+        "filename": "include/core/SkPath.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-12-13T18:46:01Z",
+      "side": 1,
+      "message": "delete also?",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 157,
+        "endChar": 91
+      },
+      "revId": "585ddbf2a0d209c05cadda222434b48170d63efc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
