@@ -754,14 +754,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
-enum RegenMask {
-    kNoRegen    = 0x0,
-    kRegenPos   = 0x1,
-    kRegenCol   = 0x2,
-    kRegenTex   = 0x4,
-    kRegenGlyph = 0x8,
-};
-
 static void regen_positions(char* vertex, size_t vertexStride, SkVector translation) {
     SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
     for (int i = 0; i < 4; ++i) {
@@ -881,23 +873,15 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     // new strike, we instead keep our ref to the old strike and use the packed ids from
     // it.  These ids will still be valid as long as we hold the ref.  When we are done
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
-    if (fSubRun->strike()->isAbandoned()) {
-        fRegenFlags |= kRegenGlyph;
-        fRegenFlags |= kRegenTex;
-    }
-    if (kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color) {
-        fRegenFlags |= kRegenCol;
-    }
-    if (fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f) {
-        fRegenFlags |= kRegenPos;
-    }
+    fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
+    fActions.regenStrike = fSubRun->strike()->isAbandoned();
+    fActions.regenColor = kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color;
+    fActions.regenPositions = fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f;
 }
 
-bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result,
-                                            bool regenPos, bool regenCol, bool regenTexCoords,
-                                            bool regenGlyphs) {
-    SkASSERT(!regenGlyphs || regenTexCoords);
-    if (regenTexCoords) {
+bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
+    SkASSERT(!fActions.regenStrike || fActions.regenTextureCoordinates);
+    if (fActions.regenTextureCoordinates) {
         fSubRun->resetBulkUseToken();
 
         const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
@@ -907,7 +891,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             fMetricsAndImages.init(strikeSpec);
         }
 
-        if (regenGlyphs) {
+        if (fActions.regenStrike) {
             // Take the glyphs from the old strike, and translate them a new strike.
             sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
 
@@ -934,7 +918,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
 
     for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->fGlyphs.size(); glyphIdx++) {
         GrGlyph* glyph = nullptr;
-        if (regenTexCoords) {
+        if (fActions.regenTextureCoordinates) {
             glyph = fSubRun->fGlyphs[glyphIdx];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
@@ -959,13 +943,13 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                                                             tokenTracker->nextDrawToken());
         }
 
-        if (regenPos) {
+        if (fActions.regenPositions) {
             regen_positions(currVertex, vertexStride, fDrawTranslation);
         }
-        if (regenCol) {
+        if (fActions.regenColor) {
             regen_colors(currVertex, vertexStride, fColor);
         }
-        if (regenTexCoords) {
+        if (fActions.regenTextureCoordinates) {
             regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
         }
 
@@ -976,7 +960,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
 
     // We may have changed the color so update it here
     fSubRun->setColor(fColor);
-    if (regenTexCoords) {
+    if (fActions.regenTextureCoordinates) {
         fSubRun->setAtlasGeneration(fBrokenRun
                                     ? GrDrawOpAtlas::kInvalidAtlasGeneration
                                     : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat()));
@@ -993,16 +977,13 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
-    if (fSubRun->atlasGeneration() != currentAtlasGen) {
-        fRegenFlags |= kRegenTex;
-    }
+    fActions.regenTextureCoordinates |= fSubRun->atlasGeneration() != currentAtlasGen;
 
-    if (fRegenFlags) {
-        return this->doRegen(result,
-                             fRegenFlags & kRegenPos,
-                             fRegenFlags & kRegenCol,
-                             fRegenFlags & kRegenTex,
-                             fRegenFlags & kRegenGlyph);
+    if (fActions.regenStrike
+       |fActions.regenTextureCoordinates
+       |fActions.regenColor
+       |fActions.regenPositions) {
+            return this->doRegen(result);
     } else {
         bool hasW = fSubRun->hasW();
         auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
