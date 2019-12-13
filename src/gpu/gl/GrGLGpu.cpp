@@ -1037,18 +1037,19 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
 
     // Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    size_t dataSize =
-            GrCompressedDataSize(compressionType, dimensions.width(), dimensions.height());
+    size_t dataSize = GrCompressedDataSize(compressionType, dimensions.width(),
+                                           dimensions.height());
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
         GL_ALLOC_CALL(this->glInterface(),
-                      TexStorage2D(target, kMipLevelCount, internalFormat, dimensions.width(),
+                      TexStorage2D(target, kMipLevelCount , internalFormat, dimensions.width(),
                                    dimensions.height()));
         GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
         if (error != GR_GL_NO_ERROR) {
             return false;
         }
+
         GL_CALL(CompressedTexSubImage2D(target,
                                         0,  // level
                                         0,  // left
@@ -1058,6 +1059,11 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
                                         internalFormat,
                                         SkToInt(dataSize),
                                         data));
+
+        error = CHECK_ALLOC_ERROR(this->glInterface());
+        if (error != GR_GL_NO_ERROR) {
+            return false;
+        }
     } else {
         GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
                                                                 0,  // level
@@ -1340,6 +1346,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     if (!desc.fID) {
         return nullptr;
     }
+
     auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, GrMipMapsStatus::kNotAllocated);
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
@@ -1470,10 +1477,14 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
 
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
 
-    if (!this->uploadCompressedTexData(format, compression, dimensions, GR_GL_TEXTURE_2D, data)) {
-        GL_CALL(DeleteTextures(1, &id));
-        return 0;
+    if (data) {
+        if (!this->uploadCompressedTexData(format, compression, dimensions,
+                                           GR_GL_TEXTURE_2D, data)) {
+            GL_CALL(DeleteTextures(1, &id));
+            return 0;
+        }
     }
+
     return id;
 }
 
@@ -3587,11 +3598,16 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const BackendTextureData* data,
                                                  int numMipLevels,
                                                  GrProtected isProtected) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
     this->handleDirtyContext();
 
     GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
-        return GrBackendTexture();  // invalid
+        return {};
     }
 
     // Compressed formats go through onCreateCompressedBackendTexture
@@ -3615,6 +3631,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
+    SkASSERT(!data || data->type() != BackendTextureData::Type::kCompressed);
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
         GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
@@ -3665,6 +3682,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
     auto parameters = sk_make_sp<GrGLTextureParameters>();
+    // The non-sampler params are still at their default values.
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
 
