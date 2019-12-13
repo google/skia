@@ -60,7 +60,17 @@ public:
     bool isAbandoned() const { return fIsAbandoned; }
 
 private:
-    SkTDynamicHash<GrGlyph, SkPackedGlyphID> fCache;
+    struct HashTraits {
+        // GetKey and Hash for the the hash table.
+        static const SkPackedGlyphID& GetKey(const GrGlyph* glyph) {
+            return glyph->fPackedID;
+        }
+
+        static uint32_t Hash(SkPackedGlyphID key) {
+            return SkChecksum::Mix(key.hash());
+        }
+    };
+    SkTHashTable<GrGlyph*, SkPackedGlyphID, HashTraits> fCache;
     SkAutoDescriptor fFontScalerKey;
     SkArenaAlloc fAlloc{512};
 
