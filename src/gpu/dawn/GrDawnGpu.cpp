@@ -352,6 +352,14 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
+GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                             const GrBackendFormat&,
+                                                             const BackendTextureData*,
+                                                             int numMipLevels,
+                                                             GrProtected isProtected) {
+    return {};
+}
+
 void GrDawnGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     GrDawnImageInfo info;
     if (tex.getDawnImageInfo(&info)) {
