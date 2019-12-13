@@ -75,7 +75,9 @@ public:
         // represents the bucket.  This functionality is currently only supported for A8
         SkColor fCanonicalColor;
         SkPaint::Style fStyle;
+        SkPixelGeometry fPixelGeometry;
         bool fHasBlur;
+        uint32_t fScalerContextFlags;
 
         bool operator==(const Key& other) const;
     };

@@ -300,10 +300,16 @@ void GrTextContext::drawGlyphRunList(
     const SkMaskFilter* mf = blobPaint.getMaskFilter();
     bool canCache = glyphRunList.canCache() && !(blobPaint.getPathEffect() ||
                                                 (mf && !as_MFB(mf)->asABlur(&blurRec)));
+    SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(colorInfo);
+
     sk_sp<GrTextBlob> cachedBlob;
     GrTextBlob::Key key;
     if (canCache) {
         bool hasLCD = glyphRunList.anyRunsLCD();
+
+        // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
+        SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() :
+                                        kUnknown_SkPixelGeometry;
 
         // TODO we want to figure out a way to be able to use the canonical color on LCD text,
         // see the note on ComputeCanonicalColor above.  We pick a dummy value for LCD text to
@@ -311,10 +317,12 @@ void GrTextContext::drawGlyphRunList(
         GrColor canonicalColor = hasLCD ? SK_ColorTRANSPARENT :
                                  ComputeCanonicalColor(blobPaint, hasLCD);
 
+        key.fPixelGeometry = pixelGeometry;
         key.fUniqueID = glyphRunList.uniqueID();
         key.fStyle = blobPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
+        key.fScalerContextFlags = scalerContextFlags;
         cachedBlob = textBlobCache->find(key);
     }
 

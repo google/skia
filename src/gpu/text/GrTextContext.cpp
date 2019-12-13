@@ -75,6 +75,17 @@ SkColor GrTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd) {
     return canonicalColor;
 }
 
+SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(const GrColorInfo& colorInfo) {
+    // If we're doing linear blending, then we can disable the gamma hacks.
+    // Otherwise, leave them on. In either case, we still want the contrast boost:
+    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
+    if (colorInfo.isLinearlyBlended()) {
+        return SkScalerContextFlags::kBoostContrast;
+    } else {
+        return SkScalerContextFlags::kFakeGammaAndBoostContrast;
+    }
+}
+
 void GrTextContext::SanitizeOptions(Options* options) {
     if (options->fMaxDistanceFieldFontSize < 0.f) {
         options->fMaxDistanceFieldFontSize = kDefaultMaxDistanceFieldFontSize;
