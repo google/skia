@@ -86,11 +86,9 @@ public:
     // Therefore, the caller must check GrTextStrike::isAbandoned() if there are other
     // interactions with the cache since the strike was received.
     sk_sp<GrTextStrike> getStrike(const SkDescriptor& desc) {
-        sk_sp<GrTextStrike> strike = sk_ref_sp(fCache.findOrNull(desc));
-        if (!strike) {
-            strike = this->generateStrike(desc);
-        }
-        return strike;
+        sk_sp<GrTextStrike>* strike = fCache.find(desc);
+        if (strike) { return *strike; }
+        return this->generateStrike(desc);
     }
 
     const SkMasks& getMasks() const { return *f565Masks; }
@@ -102,13 +100,13 @@ public:
 private:
     sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
         // 'fCache' get the construction ref
-        sk_sp<GrTextStrike> strike = sk_ref_sp(new GrTextStrike(desc));
-        fCache.set(strike.get());
+        sk_sp<GrTextStrike> strike = sk_make_sp<GrTextStrike>(desc);
+        fCache.set(strike);
         return strike;
     }
 
     struct DescriptorHashTraits {
-        static const SkDescriptor& GetKey(const GrTextStrike* strike) {
+        static const SkDescriptor& GetKey(const sk_sp<GrTextStrike>& strike) {
             return *strike->fFontScalerKey.getDesc();
         }
         static uint32_t Hash(const SkDescriptor& desc) { return desc.getChecksum(); }
@@ -116,7 +114,7 @@ private:
 
     // TODO - switch from GrTextStrike* to sk_sp<GrTextStrike>.
     // TODO - can this become SkTHashMap?
-    using StrikeHash = SkTHashTable<GrTextStrike*, SkDescriptor, DescriptorHashTraits>;
+    using StrikeHash = SkTHashTable<sk_sp<GrTextStrike>, SkDescriptor, DescriptorHashTraits>;
 
     StrikeHash fCache;
     GrTextStrike* fPreserveStrike;
