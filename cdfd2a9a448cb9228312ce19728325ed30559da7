@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8066db80_a32c0db9",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T14:55:40Z",
+      "side": 1,
+      "message": "I\u0027m thinking today fresh, the clearest way to write this may be\n\nif (...) {\n    strike-\u003efIsAbandonded \u003d true;\n    strike-\u003eunref();\n    return false;   // Remove this entry from the cache.\n}\nreturn true;  // Keep this entry in the cache.",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 20
+      },
+      "revId": "cdfd2a9a448cb9228312ce19728325ed30559da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "987b3707_86dc5f29",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T14:55:40Z",
+      "side": 1,
+      "message": "Things are gonna be annoyed if you don\u0027t sort the headers in both files.",
+      "revId": "cdfd2a9a448cb9228312ce19728325ed30559da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "410d5d2c_997b4183",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T14:55:40Z",
+      "side": 1,
+      "message": "Let\u0027s make sure we follow up immediately trying to make this sk_sp\u003cGrTextStrike\u003e.\n\nI\u0027d also be interested in knowing if perhaps GrTextStrike has an SkDescriptor only so it can satisfy this interface.  Can this become SkTHashMap\u003cSkDescriptor, sk_sp\u003cGrTextStrike\u003e\u003e?",
+      "range": {
+        "startLine": 117,
+        "startChar": 36,
+        "endLine": 117,
+        "endChar": 49
+      },
+      "revId": "cdfd2a9a448cb9228312ce19728325ed30559da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f2736ed_8455616d",
+        "filename": "src/gpu/text/GrStrikeCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-13T14:55:40Z",
+      "side": 1,
+      "message": "For clarity I think it might make sense to make a new little struct, either SkDescriptorHashTraits or GrTextStrike::DescriptorHashTraits?",
+      "range": {
+        "startLine": 117,
+        "startChar": 65,
+        "endLine": 117,
+        "endChar": 77
+      },
+      "revId": "cdfd2a9a448cb9228312ce19728325ed30559da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
