@@ -45,6 +45,12 @@ public:
                                             const BackendTextureData* data,
                                             int numMipLevels,
                                             GrProtected isProtected) override;
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                      const GrBackendFormat&,
+                                                      const BackendTextureData*,
+                                                      GrMipMapped,
+                                                      GrProtected isProtected) override;
+
     void deleteBackendTexture(const GrBackendTexture&) override;
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
@@ -119,6 +125,8 @@ private:
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
                                           GrWrapCacheable, GrIOType) override;
+    sk_sp<GrTexture> onWrapCompressedBackendTexture(const GrBackendTexture&, GrWrapOwnership,
+                                                    GrWrapCacheable, GrIOType) override;
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
                                                     GrColorType, GrWrapOwnership,
                                                     GrWrapCacheable) override;

@@ -186,6 +186,12 @@ private:
                                             int numMipLevels,
                                             GrProtected) override;
 
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize,
+                                                      const GrBackendFormat&,
+                                                      const BackendTextureData*,
+                                                      GrMipMapped,
+                                                      GrProtected) override;
+
     void onResetContext(uint32_t resetBits) override;
 
     void onResetTextureBindings() override;
@@ -211,6 +217,8 @@ private:
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
                                           GrWrapCacheable, GrIOType) override;
+    sk_sp<GrTexture> onWrapCompressedBackendTexture(const GrBackendTexture&, GrWrapOwnership,
+                                                    GrWrapCacheable, GrIOType) override;
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
                                                     GrColorType, GrWrapOwnership,
                                                     GrWrapCacheable) override;
@@ -232,11 +240,11 @@ private:
     GrGLuint createTexture2D(const SkISize& dimensions,
                              GrGLFormat format,
                              GrRenderable,
-                             GrGLTextureParameters::SamplerOverriddenState* initialState,
+                             GrGLTextureParameters::SamplerOverriddenState*,
                              int mipLevelCount);
 
-    GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat format,
-                                       SkImage::CompressionType compression,
+    GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat,
+                                       SkImage::CompressionType,
                                        GrGLTextureParameters::SamplerOverriddenState* initialState,
                                        const void* data);
 
@@ -379,7 +387,7 @@ private:
     // to populate a new texture. Returns false if we failed to create and upload the texture.
     bool uploadCompressedTexData(GrGLFormat,
                                  SkImage::CompressionType,
-                                 const SkISize& dimensions,
+                                 SkISize dimensions,
                                  GrGLenum target,
                                  const void* data);
 
