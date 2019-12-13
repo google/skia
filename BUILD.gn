@@ -187,6 +187,9 @@ opts("avx") {
     cflags = [ "/arch:AVX" ]
   } else {
     cflags = [ "-mavx" ]
+    if (is_mac && is_debug) {
+      cflags += [ "-O1" ]  # Work around skia:9709
+    }
   }
 }
 
