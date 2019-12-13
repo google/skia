@@ -13618,7 +13618,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -13684,7 +13684,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:7"
+          "version": "version:8"
         },
         {
           "name": "skia/bots/protoc",
@@ -13946,7 +13946,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -14081,7 +14081,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:7"
+          "version": "version:8"
         },
         {
           "name": "skia/bots/clang_linux",
@@ -14191,7 +14191,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
@@ -14302,7 +14302,7 @@
         {
           "name": "skia/bots/go_win",
           "path": "go",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -14547,7 +14547,7 @@
         {
           "name": "skia/bots/go",
           "path": "go",
-          "version": "version:7"
+          "version": "version:8"
         }
       ],
       "command": [
