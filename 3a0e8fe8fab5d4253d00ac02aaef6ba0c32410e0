@@ -16,6 +16,24 @@
       "revId": "3a0e8fe8fab5d4253d00ac02aaef6ba0c32410e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40e52374_3eeb3e3d",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-12-13T19:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5e3c2e3_a9bfdffb",
+      "revId": "3a0e8fe8fab5d4253d00ac02aaef6ba0c32410e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
