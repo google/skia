@@ -198,6 +198,7 @@ bool compare_pixels(int width, int height,
             }
         }
     }
+
     return true;
 }
 
