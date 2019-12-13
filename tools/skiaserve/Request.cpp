@@ -215,7 +215,7 @@ bool Request::initPictureFromStream(SkStream* stream) {
     return true;
 }
 
-sk_sp<SkData> Request::getJsonOps(int n) {
+sk_sp<SkData> Request::getJsonOps() {
     SkCanvas* canvas = this->getCanvas();
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
@@ -224,20 +224,20 @@ sk_sp<SkData> Request::getJsonOps(int n) {
     writer.appendString("mode", fGPUEnabled ? "gpu" : "cpu");
     writer.appendBool("drawGpuOpBounds", fDebugCanvas->getDrawGpuOpBounds());
     writer.appendS32("colorMode", fColorMode);
-    fDebugCanvas->toJSON(writer, fUrlDataManager, n, canvas);
+    fDebugCanvas->toJSON(writer, fUrlDataManager, canvas);
 
     writer.endObject(); // root
     writer.flush();
     return stream.detachAsData();
 }
 
-sk_sp<SkData> Request::getJsonOpsTask(int n) {
+sk_sp<SkData> Request::getJsonOpsTask() {
     SkCanvas* canvas = this->getCanvas();
     SkASSERT(fGPUEnabled);
     SkDynamicMemoryWStream stream;
     SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
 
-    fDebugCanvas->toJSONOpsTask(writer, n, canvas);
+    fDebugCanvas->toJSONOpsTask(writer, canvas);
 
     writer.flush();
     return stream.detachAsData();

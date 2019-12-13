@@ -113,13 +113,13 @@ public:
     void toggleCommand(int index, bool toggle);
 
     /**
-        Returns a JSON object representing up to the Nth draw, where N is less than
-        DebugCanvas::getSize(). The encoder may use the UrlDataManager to store binary data such
+        Returns a JSON object representing all commands in the picture.
+        The encoder may use the UrlDataManager to store binary data such
         as images, referring to them via URLs embedded in the JSON.
      */
-    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager, int n, SkCanvas*);
+    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager, SkCanvas*);
 
-    void toJSONOpsTask(SkJSONWriter& writer, int n, SkCanvas*);
+    void toJSONOpsTask(SkJSONWriter& writer, SkCanvas*);
 
     void detachCommands(SkTDArray<DrawCommand*>* dst) { fCommandVector.swap(*dst); }
 
@@ -245,7 +245,7 @@ private:
 
     GrAuditTrail* getAuditTrail(SkCanvas*);
 
-    void drawAndCollectOps(int n, SkCanvas*);
+    void drawAndCollectOps(SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
 
     typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;

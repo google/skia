@@ -48,12 +48,12 @@ struct Request {
     bool initPictureFromStream(SkStream*);
 
     // Returns the json list of ops as an SkData
-    sk_sp<SkData> getJsonOps(int n);
+    sk_sp<SkData> getJsonOps();
 
     // Returns a json list of ops as an SkData
-    sk_sp<SkData> getJsonOpsTask(int n);
+    sk_sp<SkData> getJsonOpsTask();
 
-    // Returns json with the viewMatrix and clipRect
+    // Returns json with the viewMatrix and clipRect at the given command
     sk_sp<SkData> getJsonInfo(int n);
 
     // returns the color of the pixel at (x,y) in the canvas
