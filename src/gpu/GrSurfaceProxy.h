@@ -124,6 +124,9 @@ public:
      */
     SkRect getBoundsRect() const { return SkRect::Make(this->dimensions()); }
 
+    /* A perhaps faster check for this->dimensions() == this->backingStoreDimensions(). */
+    bool isFunctionallyExact() const;
+
     /**
      * Helper that gets the dimensions the backing GrSurface will have as a bounding rectangle.
      */

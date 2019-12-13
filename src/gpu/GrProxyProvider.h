@@ -200,10 +200,6 @@ public:
                                                     const GrCaps&,
                                                     UseAllocator);
 
-    // 'proxy' is about to be used as a texture src or drawn to. This query can be used to
-    // determine if it is going to need a texture domain or a full clear.
-    static bool IsFunctionallyExact(GrSurfaceProxy* proxy);
-
     enum class InvalidateGPUResource : bool { kNo = false, kYes = true };
 
     /*
