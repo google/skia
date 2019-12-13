@@ -1929,9 +1929,8 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         // We'd better have a sane, sRGB-ish TF by now.
         // Other non-Bad TFs would be fine, but we know we've only ever tried to fit sRGBish;
         // anything else is just some accident of math and the way we pun tf.g as a type flag.
-        // fit_nonlinear() should guarantee this.
+        // fit_nonlinear() should guarantee this, but the special cases may fail this test.
         if (sRGBish != classify(tf)) {
-            assert(false);
             continue;
         }
 
