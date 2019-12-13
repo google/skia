@@ -29,9 +29,7 @@ int OpsHandler::handle(Request* request, MHD_Connection* connection, const char*
 
     // /ops
     if (0 == strcmp(method, MHD_HTTP_METHOD_GET)) {
-        int n = request->getLastOp();
-
-        sk_sp<SkData> data(request->getJsonOpsTask(n));
+        sk_sp<SkData> data(request->getJsonOpsTask());
         return SendData(connection, data.get(), "application/json");
     }
 
