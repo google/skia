@@ -497,9 +497,7 @@ public:
     // TODO: move all the logic here into the subset-flavor GrSurfaceProxy::copy?
     sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
         if (subset) {
-            // TODO: if this becomes a bottle neck we could base this logic on what the size
-            // will be when it is finally instantiated - but that is more fraught.
-            if (GrProxyProvider::IsFunctionallyExact(fTextureProxy.get()) &&
+            if (fTextureProxy->isFunctionallyExact() &&
                 *subset == SkIRect::MakeSize(fTextureProxy->dimensions())) {
                 fTextureProxy->priv().exactify(false);
                 // The existing GrTexture is already tight so reuse it in the SkImage

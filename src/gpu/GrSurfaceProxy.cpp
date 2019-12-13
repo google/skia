@@ -268,6 +268,11 @@ SkISize GrSurfaceProxy::backingStoreDimensions() const {
     return GrResourceProvider::MakeApprox(fDimensions);
 }
 
+bool GrSurfaceProxy::isFunctionallyExact() const {
+    return fFit == SkBackingFit::kExact ||
+           fDimensions == GrResourceProvider::MakeApprox(fDimensions);
+}
+
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validate(GrContext_Base* context) const {
     if (fTarget) {
