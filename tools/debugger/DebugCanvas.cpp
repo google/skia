@@ -229,12 +229,12 @@ GrAuditTrail* DebugCanvas::getAuditTrail(SkCanvas* canvas) {
     return at;
 }
 
-void DebugCanvas::drawAndCollectOps(int n, SkCanvas* canvas) {
+void DebugCanvas::drawAndCollectOps(SkCanvas* canvas) {
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         // loop over all of the commands and draw them, this is to collect reordering
         // information
-        for (int i = 0; i < this->getSize() && i <= n; i++) {
+        for (int i = 0; i < this->getSize(); i++) {
             GrAuditTrail::AutoCollectOps enable(at, i);
             fCommandVector[i]->execute(canvas);
         }
@@ -257,16 +257,15 @@ void DebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
 
 void DebugCanvas::toJSON(SkJSONWriter&   writer,
                          UrlDataManager& urlDataManager,
-                         int             n,
                          SkCanvas*       canvas) {
-    this->drawAndCollectOps(n, canvas);
+    this->drawAndCollectOps(canvas);
 
     // now collect json
     GrAuditTrail* at = this->getAuditTrail(canvas);
     writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
     writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
-    for (int i = 0; i < this->getSize() && i <= n; i++) {
+    for (int i = 0; i < this->getSize(); i++) {
         writer.beginObject();  // command
         this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
 
@@ -281,8 +280,8 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
     this->cleanupAuditTrail(canvas);
 }
 
-void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, int n, SkCanvas* canvas) {
-    this->drawAndCollectOps(n, canvas);
+void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, SkCanvas* canvas) {
+    this->drawAndCollectOps(canvas);
 
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {

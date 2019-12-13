@@ -156,7 +156,7 @@ class SkpDebugPlayer {
       SkDynamicMemoryWStream stream;
       SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
       writer.beginObject(); // root
-      frames[fp]->toJSON(writer, udm, getSize(), surface->getCanvas());
+      frames[fp]->toJSON(writer, udm, surface->getCanvas());
       writer.endObject(); // root
       writer.flush();
       auto skdata = stream.detachAsData();
