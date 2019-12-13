@@ -42,13 +42,10 @@ void SkClipStackDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
 void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
     SkIPoint origin = this->getOrigin();
     SkRegion tmp;
-    const SkRegion* ptr = &rgn;
-    if (origin.fX | origin.fY) {
-        // translate from "global/canvas" coordinates to relative to this device
-        rgn.translate(-origin.fX, -origin.fY, &tmp);
-        ptr = &tmp;
-    }
-    fClipStack.clipDevRect(ptr->getBounds(), op);
+    SkPath path;
+    rgn.getBoundaryPath(&path);
+    path.transform(SkMatrix::MakeTrans(-origin));
+    fClipStack.clipPath(path, SkMatrix::I(), op, false);
 }
 
 void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
