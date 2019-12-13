@@ -29,7 +29,7 @@ public:
     static const int kIndicesPerGlyph = 6;
 
     struct Geometry {
-        SkMatrix    fViewMatrix;
+        SkMatrix    fDrawMatrix;
         SkIRect     fClipRect;
         GrTextBlob* fBlob;
         SkScalar    fX;
