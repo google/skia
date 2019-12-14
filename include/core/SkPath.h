@@ -42,7 +42,7 @@ class SK_API SkPath {
 public:
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
-        SkPath::FillType is set to kWinding_FillType.
+        FillType is set to kWinding.
 
         @return  empty SkPath
 
@@ -145,16 +145,11 @@ public:
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
 
-    /** Returns FillType, the rule used to fill SkPath. FillType of a new SkPath is
-        kWinding_FillType.
+    /** Returns SkPathFillType, the rule used to fill SkPath.
 
-        @return  one of: kWinding_FillType, kEvenOdd_FillType,  kInverseWinding_FillType,
-                 kInverseEvenOdd_FillType
+        @return  current SkPathFillType setting
     */
     SkPathFillType getFillType() const { return (SkPathFillType)fFillType; }
-
-    // Temporary method -- remove when we've switched to the new enum
-//    SkPathFillType getNewFillType() const { return (SkPathFillType)this->getFillType(); }
 
     /** Sets FillType, the rule used to fill SkPath. While there is no check
         that ft is legal, values outside of FillType are not supported.
@@ -168,7 +163,7 @@ public:
     /** Returns if FillType describes area outside SkPath geometry. The inverse fill area
         extends indefinitely.
 
-        @return  true if FillType is kInverseWinding_FillType or kInverseEvenOdd_FillType
+        @return  true if FillType is kInverseWinding or kInverseEvenOdd
     */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(this->getFillType()); }
 
