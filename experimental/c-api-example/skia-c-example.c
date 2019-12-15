@@ -17,7 +17,9 @@
 static sk_surface_t* make_surface(int32_t w, int32_t h) {
     sk_imageinfo_t* info = sk_imageinfo_new(w, h, RGBA_8888_SK_COLORTYPE,
                                             PREMUL_SK_ALPHATYPE, NULL);
-    return sk_surface_new_raster(info, NULL);
+    sk_surface_t* result = sk_surface_new_raster(info, NULL);
+    sk_imageinfo_delete(info);
+    return result;
 }
 
 static void emit_png(const char* path, sk_surface_t* surface) {
