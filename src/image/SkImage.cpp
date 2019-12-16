@@ -414,6 +414,11 @@ sk_sp<SkImage> SkImage::makeRasterImage() const {
         return nullptr;
     }
 
+    if (fInfo.width() == 50 && fInfo.height() == 19) {
+      int foo = 0;
+      foo++;
+    }
+
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     pm = {fInfo.makeColorSpace(nullptr), data->writable_data(), fInfo.minRowBytes()};
     if (!this->readPixels(pm, 0, 0)) {
