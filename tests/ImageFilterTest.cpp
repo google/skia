@@ -217,7 +217,7 @@ public:
             this->addFilter("paint and blur", SkImageFilters::Blur(
                     kBlurSigma, kBlurSigma,  std::move(paintFilter), cropRect));
         }
-        this->addFilter("xfermode", SkImageFilters::Xfermode(
+        this->addFilter("blend", SkImageFilters::Blend(
                 SkBlendMode::kSrc, input, input, cropRect));
     }
     int count() const { return fFilters.count(); }
@@ -963,14 +963,14 @@ DEF_TEST(ImageFilterUnionBounds, reporter) {
     // Regardless of which order they appear in, the image filter bounds should
     // be combined correctly.
     {
-        sk_sp<SkImageFilter> composite(SkImageFilters::Xfermode(SkBlendMode::kSrcOver, offset));
+        sk_sp<SkImageFilter> composite(SkImageFilters::Blend(SkBlendMode::kSrcOver, offset));
         SkRect bounds = SkRect::MakeIWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
         bounds = composite->computeFastBounds(bounds);
         REPORTER_ASSERT(reporter, bounds == SkRect::MakeIWH(150, 100));
     }
     {
-        sk_sp<SkImageFilter> composite(SkImageFilters::Xfermode(SkBlendMode::kSrcOver, nullptr,
+        sk_sp<SkImageFilter> composite(SkImageFilters::Blend(SkBlendMode::kSrcOver, nullptr,
                                                                 offset, nullptr));
         SkRect bounds = SkRect::MakeIWH(100, 100);
         // Intentionally aliasing here, as that's what the real callers do.
@@ -1339,7 +1339,7 @@ DEF_TEST(ImageFilterMatrixConvolutionSanityTest, reporter) {
     REPORTER_ASSERT(reporter, nullptr == conv.get());
 }
 
-static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* reporter) {
+static void test_blend_cropped_input(SkSurface* surf, skiatest::Reporter* reporter) {
     auto canvas = surf->getCanvas();
     canvas->clear(0);
 
@@ -1352,18 +1352,18 @@ static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* rep
     SkIRect cropRect = SkIRect::MakeEmpty();
     sk_sp<SkImageFilter> croppedOut(SkImageFilters::ColorFilter(green, nullptr, &cropRect));
 
-    // Check that an xfermode image filter whose input has been cropped out still draws the other
+    // Check that an blend image filter whose input has been cropped out still draws the other
     // input. Also check that drawing with both inputs cropped out doesn't cause a GPU warning.
     SkBlendMode mode = SkBlendMode::kSrcOver;
-    sk_sp<SkImageFilter> xfermodeNoFg(SkImageFilters::Xfermode(
+    sk_sp<SkImageFilter> blendNoFg(SkImageFilters::Blend(
             mode, greenFilter, croppedOut, nullptr));
-    sk_sp<SkImageFilter> xfermodeNoBg(SkImageFilters::Xfermode(
+    sk_sp<SkImageFilter> blendNoBg(SkImageFilters::Blend(
             mode, croppedOut, greenFilter, nullptr));
-    sk_sp<SkImageFilter> xfermodeNoFgNoBg(SkImageFilters::Xfermode(
+    sk_sp<SkImageFilter> blendNoFgNoBg(SkImageFilters::Blend(
             mode, croppedOut,  croppedOut, nullptr));
 
     SkPaint paint;
-    paint.setImageFilter(std::move(xfermodeNoFg));
+    paint.setImageFilter(std::move(blendNoFg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
 
     uint32_t pixel;
@@ -1371,12 +1371,12 @@ static void test_xfermode_cropped_input(SkSurface* surf, skiatest::Reporter* rep
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
-    paint.setImageFilter(std::move(xfermodeNoBg));
+    paint.setImageFilter(std::move(blendNoBg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
-    paint.setImageFilter(std::move(xfermodeNoFgNoBg));
+    paint.setImageFilter(std::move(blendNoFgNoBg));
     canvas->drawBitmap(bitmap, 0, 0, &paint);   // drawSprite
     surf->readPixels(info, &pixel, 4, 0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
@@ -1432,8 +1432,8 @@ DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 }
 
-DEF_TEST(XfermodeImageFilterCroppedInput, reporter) {
-    test_xfermode_cropped_input(SkSurface::MakeRasterN32Premul(100, 100).get(), reporter);
+DEF_TEST(BlendImageFilterCroppedInput, reporter) {
+    test_blend_cropped_input(SkSurface::MakeRasterN32Premul(100, 100).get(), reporter);
 }
 
 static void test_composed_imagefilter_offset(skiatest::Reporter* reporter, GrContext* context) {
@@ -1698,7 +1698,7 @@ static void test_make_with_filter(skiatest::Reporter* reporter, GrContext* conte
         clipBounds.setXYWH(0, 0, 170, 100);
         subset.setXYWH(0, 0, 160, 90);
 
-        filter = SkImageFilters::Xfermode(SkBlendMode::kSrc, nullptr);
+        filter = SkImageFilters::Blend(SkBlendMode::kSrc, nullptr);
         result = sourceImage->makeWithFilter(filter.get(), subset, clipBounds, &outSubset, &offset);
         REPORTER_ASSERT(reporter, result);
     }
@@ -1724,13 +1724,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu, reporter, ctxInfo) {
     test_huge_blur(canvas, reporter);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlendImageFilterCroppedInput_Gpu, reporter, ctxInfo) {
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
             ctxInfo.grContext(),
             SkBudgeted::kNo,
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
 
-    test_xfermode_cropped_input(surf.get(), reporter);
+    test_blend_cropped_input(surf.get(), reporter);
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu, reporter, ctxInfo) {
@@ -1772,8 +1772,8 @@ DEF_TEST(ImageFilterComplexCTM, reporter) {
     }
 }
 
-// Test SkXfermodeImageFilter::filterBounds with different blending modes.
-DEF_TEST(XfermodeImageFilterBounds, reporter) {
+// Test SkBlendImageFilter::filterBounds with different blending modes.
+DEF_TEST(BlendImageFilterBounds, reporter) {
     SkIRect background_rect = SkIRect::MakeXYWH(0, 0, 100, 100);
     SkIRect foreground_rect = SkIRect::MakeXYWH(50, 50, 100, 100);
     sk_sp<SkImageFilter> background(new FixedBoundsImageFilter(background_rect));
@@ -1800,20 +1800,20 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
     // The value of this variable doesn't matter because we use inputs with fixed bounds.
     SkIRect src = SkIRect::MakeXYWH(11, 22, 33, 44);
     for (int i = 0; i < kModeCount; ++i) {
-        sk_sp<SkImageFilter> xfermode(SkImageFilters::Xfermode(static_cast<SkBlendMode>(i),
-                                                               background, foreground, nullptr));
-        auto bounds = xfermode->filterBounds(src, SkMatrix::I(),
-                                             SkImageFilter::kForward_MapDirection, nullptr);
+        sk_sp<SkImageFilter> blend(SkImageFilters::Blend(static_cast<SkBlendMode>(i),
+                                                         background, foreground, nullptr));
+        auto bounds = blend->filterBounds(src, SkMatrix::I(),
+                                          SkImageFilter::kForward_MapDirection, nullptr);
         REPORTER_ASSERT(reporter, bounds == expectedBounds[i]);
     }
 
     // Test empty intersection.
     sk_sp<SkImageFilter> background2(new FixedBoundsImageFilter(SkIRect::MakeXYWH(0, 0, 20, 20)));
     sk_sp<SkImageFilter> foreground2(new FixedBoundsImageFilter(SkIRect::MakeXYWH(40, 40, 50, 50)));
-    sk_sp<SkImageFilter> xfermode(SkImageFilters::Xfermode(
+    sk_sp<SkImageFilter> blend(SkImageFilters::Blend(
             SkBlendMode::kSrcIn, std::move(background2), std::move(foreground2), nullptr));
-    auto bounds = xfermode->filterBounds(src, SkMatrix::I(),
-                                         SkImageFilter::kForward_MapDirection, nullptr);
+    auto bounds = blend->filterBounds(src, SkMatrix::I(),
+                                      SkImageFilter::kForward_MapDirection, nullptr);
     REPORTER_ASSERT(reporter, bounds.isEmpty());
 }
 

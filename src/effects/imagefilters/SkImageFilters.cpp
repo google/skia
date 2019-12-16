@@ -184,9 +184,10 @@ sk_sp<SkImageFilter> SkImageFilters::Tile(
     return SkTileImageFilter::Make(src, dst, std::move(input));
 }
 
-sk_sp<SkImageFilter> SkImageFilters::Xfermode(
-        SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
-        const SkIRect* cropRect) {
+sk_sp<SkImageFilter> SkImageFilters::Blend(SkBlendMode mode,
+                                           sk_sp<SkImageFilter> background,
+                                           sk_sp<SkImageFilter> foreground,
+                                           const SkIRect* cropRect) {
     SkImageFilter::CropRect r = make_crop_rect(cropRect);
     return SkXfermodeImageFilter::Make(mode, std::move(background), std::move(foreground), &r);
 }

@@ -28,7 +28,7 @@ DEF_SIMPLE_GM(crbug_905548, canvas, 100, 200) {
 
     auto blurred = SkImageFilters::Blur(15, 15, imageSource);
     auto eroded = SkImageFilters::Erode(0, 0, blurred);
-    auto blended = SkImageFilters::Xfermode(SkBlendMode::kDstOut, eroded, imageSource, nullptr);
+    auto blended = SkImageFilters::Blend(SkBlendMode::kDstOut, eroded, imageSource, nullptr);
 
     SkPaint paint;
     paint.setImageFilter(blended);

@@ -28,6 +28,7 @@ skia_effects_imagefilter_public = [
 skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkAlphaThresholdFilter.cpp",
   "$_src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+  "$_src/effects/imagefilters/SkBlendImageFilter.cpp",
   "$_src/effects/imagefilters/SkBlurImageFilter.cpp",
   "$_src/effects/imagefilters/SkColorFilterImageFilter.cpp",
   "$_src/effects/imagefilters/SkComposeImageFilter.cpp",
@@ -44,5 +45,4 @@ skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkPaintImageFilter.cpp",
   "$_src/effects/imagefilters/SkPictureImageFilter.cpp",
   "$_src/effects/imagefilters/SkTileImageFilter.cpp",
-  "$_src/effects/imagefilters/SkXfermodeImageFilter.cpp",
 ]
