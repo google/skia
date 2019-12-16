@@ -26,7 +26,10 @@ struct Matrix43 {
         return Sk4f::Load(&fMat[0]) * x + Sk4f::Load(&fMat[4]) * y + Sk4f::Load(&fMat[8]);
     }
 
-    void setConcat(const Matrix43& a, const SkMatrix& b) {
+    // Pass a by value, so we don't have to worry about aliasing with this
+    void setConcat(const Matrix43 a, const SkMatrix& b) {
+        SkASSERT(!b.hasPerspective());
+
         fMat[ 0] = a.dot(0, b.getScaleX(), b.getSkewY());
         fMat[ 1] = a.dot(1, b.getScaleX(), b.getSkewY());
         fMat[ 2] = a.dot(2, b.getScaleX(), b.getSkewY());
@@ -71,6 +74,7 @@ class SkTriColorShader : public SkShaderBase {
 public:
     SkTriColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
 
+    // This gets called for each triangle, without re-calling onAppendStages.
     bool update(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMColor4f colors[],
                 int index0, int index1, int index2);
 
@@ -82,6 +86,9 @@ protected:
 #endif
     bool onAppendStages(const SkStageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        if (rec.fCTM.hasPerspective()) {
+            rec.fPipeline->append(SkRasterPipeline::matrix_perspective, &fM33);
+        }
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         return true;
     }
@@ -92,7 +99,11 @@ private:
     Factory getFactory() const override { return nullptr; }
     const char* getTypeName() const override { return nullptr; }
 
-    Matrix43 fM43;  // we overwrite this for each triangle
+    // If ctm has perspective, we need both of these matrices,
+    // otherwise we can combine them, and only use fM43
+
+    Matrix43 fM43;
+    SkMatrix fM33;
     const bool fIsOpaque;
 
     typedef SkShaderBase INHERITED;
@@ -112,18 +123,19 @@ bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
         return false;
     }
 
-    SkMatrix dstToUnit;
-    dstToUnit.setConcat(im, ctmInv);
+    fM33.setConcat(im, ctmInv);
 
     Sk4f c0 = Sk4f::Load(colors[index0].vec()),
          c1 = Sk4f::Load(colors[index1].vec()),
          c2 = Sk4f::Load(colors[index2].vec());
 
-    Matrix43 colorm;
-    (c1 - c0).store(&colorm.fMat[0]);
-    (c2 - c0).store(&colorm.fMat[4]);
-    c0.store(&colorm.fMat[8]);
-    fM43.setConcat(colorm, dstToUnit);
+    (c1 - c0).store(&fM43.fMat[0]);
+    (c2 - c0).store(&fM43.fMat[4]);
+    c0.store(&fM43.fMat[8]);
+
+    if (!fM33.hasPerspective()) {
+        fM43.setConcat(fM43, fM33);
+    }
     return true;
 }
 
