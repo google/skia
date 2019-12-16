@@ -555,7 +555,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(int width, int height,
         return nullptr;
     }
 
-    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
+    size_t dataSize = GrCompressedDataSize(compressionType, {width, height}, GrMipMapped::kNo);
     SkASSERT(dataSize);
 
     size_t bufferOffset;
@@ -634,6 +634,12 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
     init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kNo, config);
 
     return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, ioType);
+}
+
+sk_sp<GrTexture> GrMtlGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
+                                                          GrWrapOwnership ownership,
+                                                          GrWrapCacheable cacheable) {
+    return nullptr;
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -928,6 +934,14 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
     GrMipMapped mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
     GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
     return backendTex;
+}
+
+GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                            const GrBackendFormat&,
+                                                            const BackendTextureData*,
+                                                            GrMipMapped,
+                                                            GrProtected) {
+    return {};
 }
 
 void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {
