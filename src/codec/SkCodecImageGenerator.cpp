@@ -52,6 +52,7 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
 
     auto decode = [this](const SkPixmap& pm) {
         SkCodec::Result result = fCodec->getPixels(pm);
+        SkDebugf("decode %d\n", result);
         switch (result) {
             case SkCodec::kSuccess:
             case SkCodec::kIncompleteInput:

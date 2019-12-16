@@ -241,6 +241,8 @@ int DDLPromiseImageHelper::findImage(SkImage* image) const {
 int DDLPromiseImageHelper::addImage(SkImage* image) {
     SkImage_Base* ib = as_IB(image);
 
+    SkDebugf("addImage %d %d\n", image->width(), image->height());
+
     SkImageInfo overallII = SkImageInfo::Make(image->width(), image->height(),
                                               image->colorType() == kBGRA_8888_SkColorType
                                                         ? kRGBA_8888_SkColorType
@@ -285,6 +287,10 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                 continue;
             }
 
+            SkDebugf("plane %d: %d %d\n", i,
+                     yuvaSizeInfo.fSizes[i].fWidth,
+                     yuvaSizeInfo.fSizes[i].fHeight);
+
             SkImageInfo planeII = SkImageInfo::Make(yuvaSizeInfo.fSizes[i].fWidth,
                                                     yuvaSizeInfo.fSizes[i].fHeight,
                                                     colorTypes[i],
@@ -293,9 +299,14 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         }
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
+        if (!rasterImage) {
+            return -1;
+        }
 
         SkBitmap tmp;
         tmp.allocPixels(overallII);
+
+        SkDebugf("about to read %d %d\n", overallII.width(), overallII.height());
 
         if (!rasterImage->readPixels(tmp.pixmap(), 0, 0)) {
             return -1;

@@ -50,6 +50,8 @@ bool SkImage::peekPixels(SkPixmap* pm) const {
 
 bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
                          int srcY, CachingHint chint) const {
+  SkDebugf("SkImage::readPixels %p %d\n",
+           dstPixels, dstRowBytes);
     return as_IB(this)->onReadPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY, chint);
 }
 
@@ -405,18 +407,28 @@ sk_sp<SkImage> SkImage::makeNonTextureImage() const {
 sk_sp<SkImage> SkImage::makeRasterImage() const {
     SkPixmap pm;
     if (this->peekPixels(&pm)) {
+      SkDebugf("1\n");
         return sk_ref_sp(const_cast<SkImage*>(this));
     }
 
     const size_t rowBytes = fInfo.minRowBytes();
     size_t size = fInfo.computeByteSize(rowBytes);
     if (SkImageInfo::ByteSizeOverflowed(size)) {
+      SkDebugf("%d %d %d %d 2\n", fInfo.width(), fInfo.height(), rowBytes, size);
         return nullptr;
+    }
+
+    SkDebugf("%d %d - %d %d\n", fInfo.width(), fInfo.height(), rowBytes, size);
+
+    if (fInfo.width() == 50 && fInfo.height() == 19) {
+      int foo = 0;
+      foo++;
     }
 
     sk_sp<SkData> data = SkData::MakeUninitialized(size);
     pm = {fInfo.makeColorSpace(nullptr), data->writable_data(), fInfo.minRowBytes()};
     if (!this->readPixels(pm, 0, 0)) {
+      SkDebugf("3\n");
         return nullptr;
     }
 

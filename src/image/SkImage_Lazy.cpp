@@ -403,10 +403,13 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
     ScopedGenerator generator(fSharedGenerator);
     Generator_GrYUVProvider provider(generator);
 
+    SkDebugf("getPlanes\n");
+
     sk_sp<SkCachedData> data = provider.getPlanes(yuvaSizeInfo, yuvaIndices, yuvColorSpace, planes);
     if (!data) {
         return nullptr;
     }
+
 
     return data;
 }
