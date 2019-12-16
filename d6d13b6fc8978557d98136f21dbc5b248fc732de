@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7cf4801e_42c9182c",
+        "filename": "gm/xfermodeimagefilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T19:42:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8313a9ef_04308205",
+      "range": {
+        "startLine": 33,
+        "startChar": 6,
+        "endLine": 33,
+        "endChar": 24
+      },
+      "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82760010_aedae189",
         "filename": "gm/xfermodeimagefilter.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-12-16T16:30:15Z",
       "side": 1,
       "message": "blend",
+      "range": {
+        "startLine": 41,
+        "startChar": 25,
+        "endLine": 41,
+        "endChar": 33
+      },
+      "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "599197ed_536c5d08",
+        "filename": "gm/xfermodeimagefilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T19:42:19Z",
+      "side": 1,
+      "message": "yea... though it invalidates all of our existing gold images",
+      "parentUuid": "82760010_aedae189",
       "range": {
         "startLine": 41,
         "startChar": 25,
