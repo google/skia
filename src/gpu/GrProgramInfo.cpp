@@ -127,6 +127,12 @@ void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) c
     for (int i = 0; i < meshCount; ++i) {
         SkASSERT(fPrimProc->hasVertexAttributes() == meshes[i].hasVertexData());
         SkASSERT(fPrimProc->hasInstanceAttributes() == meshes[i].hasInstanceData());
+        if (fPipeline->usesConservativeRaster()) {
+            // Conservative raster, by default, only supports triangles. Implementations can
+            // optionally indicate that they also support points and lines, but we don't currently
+            // query or track that info.
+            SkASSERT(GrIsPrimTypeTris(meshes[i].primitiveType()));
+        }
     }
 }
 

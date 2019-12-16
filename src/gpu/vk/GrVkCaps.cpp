@@ -510,6 +510,10 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
         fMixedSamplesSupport = true;
     }
 
+    if (extensions.hasExtension(VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME, 1)) {
+        fConservativeRasterSupport = true;
+    }
+
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
     fMaxRenderTargetSize = SkTMin(properties.limits.maxImageDimension2D, (uint32_t)INT_MAX);

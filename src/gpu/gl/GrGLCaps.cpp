@@ -402,6 +402,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                                                ctxInfo.hasExtension("OES_standard_derivatives");
     }
 
+    if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {
+        fConservativeRasterSupport = true;
+    }
+
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
     GrGLint maxSamplers;

@@ -1109,4 +1109,8 @@
 #define GR_GL_PROGRAM_BINARY_RETRIEVABLE_HINT               0x8257
 #define GL_PROGRAM_BINARY_LENGTH                            0x8741
 
+/* GL_NV_conservative_raster */
+#define GR_GL_CONSERVATIVE_RASTERIZATION                    0x9346
+
+
 #endif
