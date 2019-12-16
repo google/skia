@@ -326,6 +326,7 @@ sk_sp<SkPicture> SkPicture::MakePlaceholder(SkRect cull) {
           int    approximateOpCount()   const override { return SK_MaxS32; }
           size_t approximateBytesUsed() const override { return sizeof(*this); }
           SkRect cullRect()             const override { return fCull; }
+          bool   drawsAnything(SkRect)  const override { return false; }
 
           SkRect fCull;
     };

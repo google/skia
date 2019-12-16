@@ -951,3 +951,42 @@ DEF_TEST(Picture_emptyNestedPictureBug, r) {
     REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
     REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));   // Used to fail.
 }
+
+DEF_TEST(Picture_drawsAnything, r) {
+    SkPictureRecorder rec;
+
+    {
+        SkCanvas* c = rec.beginRecording({0,0, 100,100});
+
+        c->save();
+            // oops state changes or draw
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, !pic->drawsAnything());
+    }
+
+    {
+        SkCanvas* c = rec.beginRecording({0,0, 100,100});
+
+        c->save();
+            c->translate(10,10);
+            // oops no draw
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, !pic->drawsAnything());
+    }
+
+    {
+        SkCanvas* c = rec.beginRecording({0,0, 100,100});
+
+        c->save();
+            c->drawRect({10,10, 40,40}, SkPaint{});
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, !pic->drawsAnything({ 0, 0,  5, 5}));
+        REPORTER_ASSERT(r,  pic->drawsAnything({15,15, 25,25}));
+    }
+}
