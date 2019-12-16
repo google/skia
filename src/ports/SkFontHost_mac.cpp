@@ -466,6 +466,36 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// TODO(crbug.com/1018581) Mimic existing behavior until follow-on CLs from
+// external callers can use the SkUpdateTypefaceWorkaroundsForOs() call to
+// provide specific details.  Until that happens, this behaves the same as the
+// symbolic traits code being compiled out.
+static bool font_descriptor_workaround_skip_symbolic_traits = true;
+static bool font_descriptor_workaround_skip_slant_traits = false;
+
+void SkUpdateTypefaceWorkaroundsForOs(int32 _t os_major, int32_t os_minor, int32_t bugfix) {
+    // Reset to assuming no workarounds necessary.
+    font_descriptor_workaround_skip_symbolic_traits = false;
+    font_descriptor_workaround_skip_slant_traits = false;
+
+    // macOS 14 and iOS 12 seem to behave badly when kCTFontSymbolicTrait is set.
+    // crbug.com/skia/8432 macOS 15 seems to behave badly when kCTFontSlantTrait is set.
+    // crbug.com/1018581
+#if defined(SK_BUILD_FOR_MAC)
+    if (os_minor == 14) {
+        font_descriptor_workaround_skip_symbolic_traits = true;
+    } else if (os_minor == 15) {
+        font_descriptor_workaround_skip_slant_traits = true;
+    }
+#endif
+
+#if defined(SK_BUILD_FOR_IOS)
+    if (os_major >= 12) {
+        font_descriptor_workaround_skip_symbolic_traits = true;
+    }
+#endif
+}
+
 static bool find_dict_CGFloat(CFDictionaryRef dict, CFStringRef name, CGFloat* value) {
     CFNumberRef num;
     return CFDictionaryGetValueIfPresent(dict, name, (const void**)&num)
@@ -818,7 +848,20 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
     }
 
     // CTFontTraits (symbolic)
-    // macOS 14 and iOS 12 seem to behave badly when kCTFontSymbolicTrait is set.
+    if (!font_descriptor_workaround_skip_symbolic_traits) {
+        CTFontSymbolicTraits ctFontTraits = 0;
+        if (style.weight() >= SkFontStyle::kBold_Weight) {
+            ctFontTraits |= kCTFontBoldTrait;
+        }
+        if (style.slant() != SkFontStyle::kUpright_Slant) {
+            ctFontTraits |= kCTFontItalicTrait;
+        }
+        SkUniqueCFRef<CFNumberRef> cfFontTraits(
+                CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits));
+        if (cfFontTraits) {
+            CFDictionaryAddValue(cfTraits.get(), kCTFontSymbolicTrait, cfFontTraits.get());
+        }
+    }
 
     // CTFontTraits (weight)
     CGFloat ctWeight = fontstyle_to_ct_weight(style.weight());
@@ -835,11 +878,13 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
         CFDictionaryAddValue(cfTraits.get(), kCTFontWidthTrait, cfFontWidth.get());
     }
     // CTFontTraits (slant)
-    CGFloat ctSlant = style.slant() == SkFontStyle::kUpright_Slant ? 0 : 1;
-    SkUniqueCFRef<CFNumberRef> cfFontSlant(
-            CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctSlant));
-    if (cfFontSlant) {
-        CFDictionaryAddValue(cfTraits.get(), kCTFontSlantTrait, cfFontSlant.get());
+    if (!font_descriptor_workaround_skip_slant_traits) {
+        CGFloat ctSlant = style.slant() == SkFontStyle::kUpright_Slant ? 0 : 1;
+        SkUniqueCFRef<CFNumberRef> cfFontSlant(
+                CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctSlant));
+        if (cfFontSlant) {
+            CFDictionaryAddValue(cfTraits.get(), kCTFontSlantTrait, cfFontSlant.get());
+        }
     }
     // CTFontTraits
     CFDictionaryAddValue(cfAttributes.get(), kCTFontTraitsAttribute, cfTraits.get());

@@ -23,6 +23,13 @@
 #endif
 
 /**
+ *  Update the workarounds to be used for typeface selection based upon the OS
+ *  version specified.
+ */
+SK_API extern void SkUpdateTypefaceWorkaroundsForOs(int32_t os_major, int32_t os_minor,
+                                                    int32_t os_bugfix);
+
+/**
  *  Like the other Typeface create methods, this returns a new reference to the
  *  corresponding typeface for the specified CTFontRef. The caller must call
  *  unref() when it is finished.
