@@ -366,6 +366,8 @@ private:
     // rt is used only if useHWAA is true.
     void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
 
+    void flushConservativeRasterState(bool enable);
+
     void flushFramebufferSRGB(bool enable);
 
     bool uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType, int texWidth,
@@ -577,6 +579,7 @@ private:
     }                                       fHWBlendState;
 
     TriState                                fMSAAEnabled;
+    TriState                                fHWConservativeRasterEnabled;
 
     GrStencilSettings                       fHWStencilSettings;
     GrSurfaceOrigin                         fHWStencilOrigin;

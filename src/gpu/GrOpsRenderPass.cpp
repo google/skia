@@ -44,6 +44,8 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
 #ifdef SK_DEBUG
     SkASSERT(!programInfo.primProc().hasInstanceAttributes() ||
              this->gpu()->caps()->instanceAttribSupport());
+    SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||
+             this->gpu()->caps()->conservativeRasterSupport());
 
     programInfo.compatibleWithMeshes(meshes, meshCount);
     programInfo.checkAllInstantiated();

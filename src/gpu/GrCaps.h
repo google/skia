@@ -53,6 +53,7 @@ public:
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool mixedSamplesSupport() const { return fMixedSamplesSupport; }
+    bool conservativeRasterSupport() const { return fConservativeRasterSupport; }
     // This flag indicates that we never have to resolve MSAA. In practice, it means that we have
     // an MSAA-render-to-texture extension: Any render target we create internally will use the
     // extension, and any wrapped render target is the client's responsibility.
@@ -485,6 +486,7 @@ protected:
     bool fMultisampleDisableSupport                  : 1;
     bool fInstanceAttribSupport                      : 1;
     bool fMixedSamplesSupport                        : 1;
+    bool fConservativeRasterSupport                  : 1;
     bool fMSAAResolvesAutomatically                  : 1;
     bool fUsePrimitiveRestart                        : 1;
     bool fPreferClientSideDynamicBuffers             : 1;

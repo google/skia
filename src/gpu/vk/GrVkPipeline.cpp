@@ -521,6 +521,19 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->lineWidth = 1.0f;
 }
 
+static void setup_conservative_raster_info(
+        VkPipelineRasterizationConservativeStateCreateInfoEXT* conservativeRasterInfo) {
+    memset(conservativeRasterInfo, 0,
+           sizeof(VkPipelineRasterizationConservativeStateCreateInfoEXT));
+    conservativeRasterInfo->sType =
+            VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT;
+    conservativeRasterInfo->pNext = nullptr;
+    conservativeRasterInfo->flags = 0;
+    conservativeRasterInfo->conservativeRasterizationMode =
+            VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT;
+    conservativeRasterInfo->extraPrimitiveOverestimationSize = 0;
+}
+
 static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
                                 VkDynamicState* dynamicStates) {
     memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
@@ -587,6 +600,14 @@ GrVkPipeline* GrVkPipeline::Create(
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     setup_raster_state(programInfo.pipeline(), gpu->caps(), &rasterInfo);
+
+    VkPipelineRasterizationConservativeStateCreateInfoEXT conservativeRasterInfo;
+    if (programInfo.pipeline().usesConservativeRaster()) {
+        SkASSERT(gpu->caps()->conservativeRasterSupport());
+        setup_conservative_raster_info(&conservativeRasterInfo);
+        conservativeRasterInfo.pNext = rasterInfo.pNext;
+        rasterInfo.pNext = &conservativeRasterInfo;
+    }
 
     VkDynamicState dynamicStates[3];
     VkPipelineDynamicStateCreateInfo dynamicInfo;

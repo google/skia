@@ -585,6 +585,8 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
             // modulation. This state has no effect when not rendering to a mixed sampled target.
             GL_CALL(CoverageModulation(GR_GL_RGBA));
         }
+
+        fHWConservativeRasterEnabled = kUnknown_TriState;
     }
 
     fHWActiveTextureUnitIdx = -1; // invalid
@@ -1695,6 +1697,7 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& pr
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
                                 glRT, programInfo.origin());
     this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
+    this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
@@ -2487,6 +2490,22 @@ void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
             if (kNo_TriState != fMSAAEnabled) {
                 GL_CALL(Disable(GR_GL_MULTISAMPLE));
                 fMSAAEnabled = kNo_TriState;
+            }
+        }
+    }
+}
+
+void GrGLGpu::flushConservativeRasterState(bool enabled) {
+    if (this->caps()->conservativeRasterSupport()) {
+        if (enabled) {
+            if (kYes_TriState != fHWConservativeRasterEnabled) {
+                GL_CALL(Enable(GR_GL_CONSERVATIVE_RASTERIZATION));
+                fHWConservativeRasterEnabled = kYes_TriState;
+            }
+        } else {
+            if (kNo_TriState != fHWConservativeRasterEnabled) {
+                GL_CALL(Disable(GR_GL_CONSERVATIVE_RASTERIZATION));
+                fHWConservativeRasterEnabled = kNo_TriState;
             }
         }
     }
@@ -3323,6 +3342,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     GL_CALL(Uniform1i(fCopyPrograms[progIdx].fTextureUniform, 0));
     this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
     this->flushHWAAState(nullptr, false);
+    this->flushConservativeRasterState(false);
     this->disableScissor();
     this->disableWindowRectangles();
     this->disableStencil();
