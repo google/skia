@@ -9,6 +9,9 @@ Milestone 81
 <Insert new notes here- top is most recent.>
 
 * * *
+  * Added UpdateSkiaWorkarounds(), used only only by macOS and iOS at this time.
+    https://review.skia.org/260346
+
   * Added SkMatrix::MakeTrans(SkIVector)
     https://review.skia.org/259804
 
