@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca339f6f_372e2511",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T18:55:12Z",
+      "side": 1,
+      "message": "Should we now wrap all this in #ifdef SK_DEBUG to keep it debug only, or are you intentionally switching this on for Release builds too?",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 588,
+        "endChar": 5
+      },
+      "revId": "bdfd2bef5a6d51475c99c42d03bfce5e12866123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
