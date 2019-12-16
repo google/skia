@@ -37,7 +37,6 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
                                                SkAutoDescriptor* ad) {
     ad->reset(source_desc->getLength());
     auto* desc = ad->getDesc();
-    desc->init();
 
     // Rec.
     {
