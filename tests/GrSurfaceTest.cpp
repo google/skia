@@ -85,30 +85,23 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
     auto createTexture = [](int width, int height, GrColorType colorType,
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
-        GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
-        bool compressed = rp->caps()->isFormatCompressed(format);
-        if (compressed) {
+        SkImage::CompressionType compression = SkImage::CompressionType::kNone;
+        bool isCompressed = rp->caps()->isFormatCompressed(format, &compression);
+        if (isCompressed) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }
-            SkImage::CompressionType type;
-            switch (config) {
-                case kRGB_ETC1_GrPixelConfig:
-                    type = SkImage::CompressionType::kETC1;
-                    break;
-                default:
-                    SK_ABORT("Unexpected config");
-            }
-            // Only supported compression type right now.
-            SkASSERT(config == kRGB_ETC1_GrPixelConfig);
-            auto size = GrCompressedDataSize(type, width, height);
+
+            auto size = GrCompressedDataSize(compression, width, height);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
-            GrFillInCompressedData(type, width, height, (char*)data->writable_data(), color);
+            GrFillInCompressedData(compression, width, height, (char*)data->writable_data(), color);
             return rp->createCompressedTexture(width, height, format,
                                                SkImage::CompressionType::kETC1,
                                                SkBudgeted::kNo, data.get());
         } else {
+            GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
+
             GrSurfaceDesc desc;
             desc.fWidth = width;
             desc.fHeight = height;
@@ -140,7 +133,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrSurfaceDesc desc;
             desc.fWidth = kW;
             desc.fHeight = kH;
-            desc.fConfig = caps->getConfigFromBackendFormat(combo.fFormat, combo.fColorType);
+
+            if (caps->isFormatCompressed(combo.fFormat)) {
+                desc.fConfig = caps->getConfigFromCompressedBackendFormat(combo.fFormat);
+            } else {
+                desc.fConfig = caps->getConfigFromBackendFormat(combo.fFormat, combo.fColorType);
+            }
             SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
 
             // Check if 'isFormatTexturable' agrees with 'createTexture' and that the mipmap
