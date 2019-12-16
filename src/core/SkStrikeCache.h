@@ -116,19 +116,22 @@ public:
 
     int  getCachePointSizeLimit() const;
     int  setCachePointSizeLimit(int limit);
-
 #ifdef SK_DEBUG
-    // A simple accounting of what each glyph cache reports and the strike cache total.
-    void validate() const SK_REQUIRES(fLock);
     // Make sure that each glyph cache's memory tracking and actual memory used are in sync.
     void validateGlyphCacheDataSize() const;
 #else
-    void validate() const {}
     void validateGlyphCacheDataSize() const {}
 #endif
 
 private:
-    Node* findAndDetachStrike(const SkDescriptor&);
+#ifdef SK_DEBUG
+    // A simple accounting of what each glyph cache reports and the strike cache total.
+    void validate() const SK_REQUIRES(fLock);
+#else
+    void validate() const {}
+#endif
+
+    Node* findAndDetachStrike(const SkDescriptor&) SK_EXCLUDES(fLock);
     Node* createStrike(
             const SkDescriptor& desc,
             std::unique_ptr<SkScalerContext> scaler,
@@ -137,12 +140,10 @@ private:
     Node* findOrCreateStrike(
             const SkDescriptor& desc,
             const SkScalerContextEffects& effects,
-            const SkTypeface& typeface);
-    void attachNode(Node* node);
+            const SkTypeface& typeface) SK_EXCLUDES(fLock);
+    void attachNode(Node* node) SK_EXCLUDES(fLock);
 
     // The following methods can only be called when mutex is already held.
-    Node* internalGetHead() const SK_REQUIRES(fLock) { return fHead; }
-    Node* internalGetTail() const SK_REQUIRES(fLock) { return fTail; }
     void internalDetachCache(Node*) SK_REQUIRES(fLock);
     void internalAttachToHead(Node*) SK_REQUIRES(fLock);
 
@@ -156,10 +157,10 @@ private:
     mutable SkSpinlock fLock;
     Node*              fHead SK_GUARDED_BY(fLock) {nullptr};
     Node*              fTail SK_GUARDED_BY(fLock) {nullptr};
-    size_t             fTotalMemoryUsed{0};
     size_t             fCacheSizeLimit{SK_DEFAULT_FONT_CACHE_LIMIT};
+    size_t             fTotalMemoryUsed SK_GUARDED_BY(fLock) {0};
     int32_t            fCacheCountLimit{SK_DEFAULT_FONT_CACHE_COUNT_LIMIT};
-    int32_t            fCacheCount{0};
+    int32_t            fCacheCount SK_GUARDED_BY(fLock) {0};
     int32_t            fPointSizeLimit{SK_DEFAULT_FONT_CACHE_POINT_SIZE_LIMIT};
 };
 

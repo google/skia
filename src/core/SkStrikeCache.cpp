@@ -269,7 +269,7 @@ SkExclusiveStrikePtr SkStrikeCache::findStrikeExclusive(const SkDescriptor& desc
 auto SkStrikeCache::findAndDetachStrike(const SkDescriptor& desc) -> Node* {
     SkAutoSpinlock ac(fLock);
 
-    for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
+    for (Node* node = fHead; node != nullptr; node = node->fNext) {
         if (node->fStrike.getDescriptor() == desc) {
             this->internalDetachCache(node);
             return node;
@@ -311,7 +311,7 @@ bool SkStrikeCache::desperationSearchForImage(const SkDescriptor& desc, SkGlyph*
     SkAutoSpinlock ac(fLock);
 
     SkGlyphID glyphID = glyph->getGlyphID();
-    for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
+    for (Node* node = fHead; node != nullptr; node = node->fNext) {
         if (loose_compare(node->fStrike.getDescriptor(), desc)) {
             if (SkGlyph *fallback = node->fStrike.glyphOrNull(glyph->getPackedID())) {
                 // This desperate-match node may disappear as soon as we drop fLock, so we
@@ -342,7 +342,7 @@ bool SkStrikeCache::desperationSearchForPath(
     //
     // This will have to search the sub-pixel positions too.
     // There is also a problem with accounting for cache size with shared path data.
-    for (Node* node = internalGetHead(); node != nullptr; node = node->fNext) {
+    for (Node* node = fHead; node != nullptr; node = node->fNext) {
         if (loose_compare(node->fStrike.getDescriptor(), desc)) {
             if (SkGlyph *from = node->fStrike.glyphOrNull(SkPackedGlyphID{glyphID})) {
                 if (from->setPathHasBeenCalled() && from->path() != nullptr) {
@@ -456,7 +456,7 @@ void SkStrikeCache::forEachStrike(std::function<void(const SkStrike&)> visitor) 
 
     this->validate();
 
-    for (Node* node = this->internalGetHead(); node != nullptr; node = node->fNext) {
+    for (Node* node = fHead; node != nullptr; node = node->fNext) {
         visitor(node->fStrike);
     }
 }
@@ -491,7 +491,7 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
 
     // Start at the tail and proceed backwards deleting; the list is in LRU
     // order, with unimportant entries at the tail.
-    Node* node = this->internalGetTail();
+    Node* node = fTail;
     while (node != nullptr && (bytesFreed < bytesNeeded || countFreed < countNeeded)) {
         Node* prev = node->fPrev;
 
@@ -577,10 +577,15 @@ void SkStrikeCache::validate() const {
         node = node->fNext;
     }
 
-    SkASSERTF(fCacheCount == computedCount, "fCacheCount: %d, computedCount: %d", fCacheCount,
-              computedCount);
-    SkASSERTF(fTotalMemoryUsed == computedBytes, "fTotalMemoryUsed: %d, computedBytes: %d",
-              fTotalMemoryUsed, computedBytes);
+    // Can't use SkASSERTF because it looses thread annotations.
+    if (fCacheCount != computedCount) {
+        SkDebugf("fCacheCount: %d, computedCount: %d", fCacheCount, computedCount);
+        SK_ABORT("fCacheCount != computedCount");
+    }
+    if (fTotalMemoryUsed != computedBytes) {
+        SkDebugf("fTotalMemoryUsed: %d, computedBytes: %d", fTotalMemoryUsed, computedBytes);
+        SK_ABORT("fTotalMemoryUsed == computedBytes");
+    }
 }
 #endif
 
