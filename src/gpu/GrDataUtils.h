@@ -15,7 +15,7 @@
 
 class GrImageInfo;
 
-size_t GrCompressedDataSize(SkImage::CompressionType, int w, int h);
+size_t GrCompressedDataSize(SkImage::CompressionType, SkISize dimensions, GrMipMapped);
 
 // Returns a value that can be used to set rowBytes for a transfer function.
 size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
@@ -26,7 +26,7 @@ size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount);
 
-void GrFillInCompressedData(SkImage::CompressionType, int width, int height, char* dest,
+void GrFillInCompressedData(SkImage::CompressionType, SkISize dimensions, GrMipMapped, char* dest,
                             const SkColor4f& color);
 
 // Swizzle param is applied after loading and before converting from srcInfo to dstInfo.

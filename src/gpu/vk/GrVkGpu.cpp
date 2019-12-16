@@ -890,7 +890,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
 
     SkASSERT(this->vkCaps().isVkFormatTexturable(tex->imageFormat()));
 
-    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
+    size_t dataSize = GrCompressedDataSize(compressionType, {width, height}, GrMipMapped::kNo);
 
     // allocate buffer to hold our mip data
     sk_sp<GrVkTransferBuffer> transferBuffer =

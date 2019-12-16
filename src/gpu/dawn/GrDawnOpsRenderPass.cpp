@@ -103,10 +103,6 @@ void GrDawnOpsRenderPass::submit() {
     fGpu->appendCommandBuffer(fEncoder.Finish());
 }
 
-void GrDawnOpsRenderPass::insertEventMarker(const char* msg) {
-    SkASSERT(!"unimplemented");
-}
-
 void GrDawnOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     fPassEncoder.EndPass();
     fPassEncoder = beginRenderPass(wgpu::LoadOp::Load, wgpu::LoadOp::Clear);
