@@ -27,6 +27,8 @@ struct Matrix43 {
     }
 
     void setConcat(const Matrix43& a, const SkMatrix& b) {
+        SkASSERT(!b.hasPerspective());
+
         fMat[ 0] = a.dot(0, b.getScaleX(), b.getSkewY());
         fMat[ 1] = a.dot(1, b.getScaleX(), b.getSkewY());
         fMat[ 2] = a.dot(2, b.getScaleX(), b.getSkewY());
@@ -69,7 +71,7 @@ texture_to_matrix(const VertState& state, const SkPoint verts[], const SkPoint t
 
 class SkTriColorShader : public SkShaderBase {
 public:
-    SkTriColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
+    SkTriColorShader(bool isOpaque, bool usePersp) : fIsOpaque(isOpaque), fUsePersp(usePersp) {}
 
     bool update(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMColor4f colors[],
                 int index0, int index1, int index2);
@@ -82,6 +84,9 @@ protected:
 #endif
     bool onAppendStages(const SkStageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        if (fUsePersp) {
+            rec.fPipeline->append(SkRasterPipeline::matrix_perspective, &fM33);
+        }
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
         return true;
     }
@@ -92,8 +97,12 @@ private:
     Factory getFactory() const override { return nullptr; }
     const char* getTypeName() const override { return nullptr; }
 
-    Matrix43 fM43;  // we overwrite this for each triangle
+    // If fUsePersp, we need both of these matrices, otherwise we can combine them, and only use fM43
+
+    Matrix43 fM43;
+    SkMatrix fM33;
     const bool fIsOpaque;
+    const bool fUsePersp;
 
     typedef SkShaderBase INHERITED;
 };
@@ -112,8 +121,7 @@ bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
         return false;
     }
 
-    SkMatrix dstToUnit;
-    dstToUnit.setConcat(im, ctmInv);
+    fM33.setConcat(im, ctmInv);
 
     Sk4f c0 = Sk4f::Load(colors[index0].vec()),
          c1 = Sk4f::Load(colors[index1].vec()),
@@ -123,7 +131,12 @@ bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
     (c1 - c0).store(&colorm.fMat[0]);
     (c2 - c0).store(&colorm.fMat[4]);
     c0.store(&colorm.fMat[8]);
-    fM43.setConcat(colorm, dstToUnit);
+
+    if (fUsePersp) {
+        fM43 = colorm;  // we must apply each matrix separately
+    } else {
+        fM43.setConcat(colorm, fM33);
+    }
     return true;
 }
 
@@ -283,12 +296,14 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         return;
     }
 
+    const bool ctmHasPerspective = fMatrix->hasPerspective();
     SkTriColorShader* triShader = nullptr;
     SkPMColor4f*  dstColors = nullptr;
 
     if (colors) {
         dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), &outerAlloc);
-        triShader = outerAlloc.make<SkTriColorShader>(compute_is_opaque(colors, vertexCount));
+        triShader = outerAlloc.make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
+                                                      ctmHasPerspective);
         if (shader) {
             shader = outerAlloc.make<SkShader_Blend>(bmode,
                                                      sk_ref_sp(triShader), sk_ref_sp(shader),
