@@ -268,6 +268,12 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
         // The user wants to see the final result
         tiles.composeAllTiles(finalCanvas);
     }
+
+    // Make sure the gpu has finished all its work before we exit this function and delete the
+    // fence.
+    GrFlushInfo flushInfo;
+    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+    context->flush(flushInfo);
 }
 
 static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkSurface* surface,
@@ -296,6 +302,12 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkSurface* su
           sample.fDuration = now - sampleStart;
         } while (sample.fDuration < sampleDuration);
     } while (now < endTime || 0 == samples->size() % 2);
+
+    // Make sure the gpu has finished all its work before we exit this function and delete the
+    // fence.
+    GrFlushInfo flushInfo;
+    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
 }
 
 static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
@@ -359,6 +371,12 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
     } while (now < endTime || 0 == samples->size() % 2);
 
     gpuTimer->deleteQuery(previousTime);
+
+    // Make sure the gpu has finished all its work before we exit this function and delete the
+    // fence.
+    GrFlushInfo flushInfo;
+    flushInfo.fFlags = kSyncCpu_GrFlushFlag;
+    surface->flush(SkSurface::BackendSurfaceAccess::kNoAccess, flushInfo);
 }
 
 void print_result(const std::vector<Sample>& samples, const char* config, const char* bench)  {
@@ -557,7 +575,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    exit(0);
+    return(0);
 }
 
 static void draw_skp_and_flush(SkSurface* surface, const SkPicture* skp) {
