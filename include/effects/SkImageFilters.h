@@ -279,13 +279,32 @@ public:
 
     /**
      *  This filter takes an SkBlendMode and uses it to composite the two filters together.
+     *  @param dst The Dst pixels used in blending, if null the source bitmap is used.
+     *  @param src The Src pixels used in blending, if null the source bitmap is used.
+     *  @cropRect  Optional rectangle to crop input and output.
+     */
+    static sk_sp<SkImageFilter> Blend(SkBlendMode, sk_sp<SkImageFilter> dst,
+                                      sk_sp<SkImageFilter> src = nullptr,
+                                      const SkIRect* cropRect = nullptr);
+    // DEPRECATED
+#if 0
+    static sk_sp<SkImageFilter> Xfermode(SkBlendMode, sk_sp<SkImageFilter> dst,
+                                         sk_sp<SkImageFilter> src = nullptr,
+                                         const SkIRect* cropRect = nullptr) {
+        return Blend(mode, std::move(dst), std::move(src), cropRect);
+    }
+#endif
+
+    /**
+     *  This filter takes t value and uses it to combine the two filters together.
+     *  @param t          result = (1 - t) * src + t * dst
      *  @param background The Dst pixels used in blending, if null the source bitmap is used.
      *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
      *  @cropRect         Optional rectangle to crop input and output.
      */
-    static sk_sp<SkImageFilter> Xfermode(SkBlendMode, sk_sp<SkImageFilter> background,
-                                         sk_sp<SkImageFilter> foreground = nullptr,
-                                         const SkIRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Lerp(float t, sk_sp<SkImageFilter> dst,
+                                     sk_sp<SkImageFilter> src = nullptr,
+                                     const SkIRect* cropRect = nullptr);
 
     // Morphology filter effects
 
