@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "8313a9ef_04308205",
+        "filename": "gm/xfermodeimagefilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-16T16:30:15Z",
+      "side": 1,
+      "message": "Probably should rename xfermodeimagefilter.cpp to blendimagefilter.cpp",
+      "range": {
+        "startLine": 33,
+        "startChar": 6,
+        "endLine": 33,
+        "endChar": 24
+      },
+      "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82760010_aedae189",
+        "filename": "gm/xfermodeimagefilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-16T16:30:15Z",
+      "side": 1,
+      "message": "blend",
+      "range": {
+        "startLine": 41,
+        "startChar": 25,
+        "endLine": 41,
+        "endChar": 33
+      },
+      "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dafd68a3_f289c9eb",
         "filename": "include/core/SkColorFilter.h",
         "patchSetId": 1
@@ -13,6 +59,29 @@
       "writtenOn": "2019-12-16T16:26:02Z",
       "side": 1,
       "message": "What added use cases do we envision blending colorfilters offers?\n\nI assume that the input to the src is the output of the drawing op and the input to dst in the output of the src filter?  If that is the case can you document that in the header?",
+      "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9b7bb7e_0c21a0fd",
+        "filename": "include/effects/SkImageFilters.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-16T16:30:15Z",
+      "side": 1,
+      "message": "Needs Lerp\u0027s definition?",
+      "range": {
+        "startLine": 305,
+        "startChar": 32,
+        "endLine": 305,
+        "endChar": 36
+      },
       "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
