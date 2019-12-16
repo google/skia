@@ -1039,8 +1039,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
 
     // Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    size_t dataSize =
-            GrCompressedDataSize(compressionType, dimensions.width(), dimensions.height());
+    size_t dataSize = GrCompressedDataSize(compressionType, dimensions.width(),
+                                           dimensions.height());
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
@@ -1060,6 +1060,11 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
                                         internalFormat,
                                         SkToInt(dataSize),
                                         data));
+
+        error = CHECK_ALLOC_ERROR(this->glInterface());
+        if (error != GR_GL_NO_ERROR) {
+            return false;
+        }
     } else {
         GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
                                                                 0,  // level
@@ -1472,10 +1477,14 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
 
     *initialState = set_initial_texture_params(this->glInterface(), GR_GL_TEXTURE_2D);
 
-    if (!this->uploadCompressedTexData(format, compression, dimensions, GR_GL_TEXTURE_2D, data)) {
-        GL_CALL(DeleteTextures(1, &id));
-        return 0;
+    if (data) {
+        if (!this->uploadCompressedTexData(format, compression, dimensions,
+                                           GR_GL_TEXTURE_2D, data)) {
+            GL_CALL(DeleteTextures(1, &id));
+            return 0;
+        }
     }
+
     return id;
 }
 
@@ -3607,11 +3616,16 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const BackendTextureData* data,
                                                  int numMipLevels,
                                                  GrProtected isProtected) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
     this->handleDirtyContext();
 
     GrGLFormat glFormat = format.asGLFormat();
     if (glFormat == GrGLFormat::kUnknown) {
-        return GrBackendTexture();  // invalid
+        return {};
     }
 
     // Compressed formats go through onCreateCompressedBackendTexture
@@ -3625,7 +3639,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     desc.fHeight = dimensions.height();
     desc.fConfig = gl_format_to_pixel_config(glFormat);
     if (desc.fConfig == kUnknown_GrPixelConfig) {
-        return GrBackendTexture();  // invalid
+        return {};
     }
 
     info.fTarget = GR_GL_TEXTURE_2D;
@@ -3635,6 +3649,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
+    SkASSERT(!data || data->type() != BackendTextureData::Type::kCompressed);
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
         GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
@@ -3685,6 +3700,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
     auto parameters = sk_make_sp<GrGLTextureParameters>();
+    // The non-sampler params are still at their default values.
     parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                     fResetTimestampForTextureParameters);
 

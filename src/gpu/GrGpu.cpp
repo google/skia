@@ -272,7 +272,8 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 const GrBackendFormat& format,
                                                 SkImage::CompressionType compressionType,
-                                                SkBudgeted budgeted, const void* data,
+                                                SkBudgeted budgeted,
+                                                const void* data,
                                                 size_t dataSize) {
     // If we ever add a new CompressionType, we should add a check here to make sure the
     // GrBackendFormat and CompressionType are compatible with eachother.
@@ -741,9 +742,15 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data
         return false;
     }
 
-    if (!data || data->type() != BackendTextureData::Type::kPixmaps) {
+    if (!data || data->type() == BackendTextureData::Type::kColor) {
         return true;
     }
+
+    if (data->type() == BackendTextureData::Type::kCompressed) {
+        return false;
+    }
+
+    SkASSERT(data->type() == BackendTextureData::Type::kPixmaps);
 
     if (data->pixmap(0).dimensions() != dimensions) {
         return false;

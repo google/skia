@@ -837,6 +837,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     SkSTArray<16, size_t> individualMipOffsets;
     id<MTLBuffer> transferBuffer;
     size_t transferBufferSize;
+
+    SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
     if (data->type() == BackendTextureData::Type::kPixmaps) {
         transferBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, dimensions,
                                                               &individualMipOffsets, numMipLevels);
