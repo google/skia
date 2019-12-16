@@ -22,6 +22,30 @@
       "revId": "bdfd2bef5a6d51475c99c42d03bfce5e12866123",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "567f945c_f54f5a97",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-12-16T19:26:34Z",
+      "side": 1,
+      "message": "The SK_DEBUG is above the function. Does that work?",
+      "parentUuid": "ca339f6f_372e2511",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 588,
+        "endChar": 5
+      },
+      "revId": "bdfd2bef5a6d51475c99c42d03bfce5e12866123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
