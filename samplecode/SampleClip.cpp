@@ -460,7 +460,7 @@ static SkHalfPlane half_plane_w0(const SkMatrix& m) {
     return { m[SkMatrix::kMPersp0], m[SkMatrix::kMPersp1], m[SkMatrix::kMPersp2] - 0.05f };
 }
 
-class HalfPlaneView3 : public Sample {
+class SampleCameraView : public Sample {
     float   fNear = 0.05f;
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
@@ -471,18 +471,6 @@ class HalfPlaneView3 : public Sample {
 
     SkMatrix44  fRot;
     SkPoint3    fTrans;
-
-    SkPath fPath;
-    sk_sp<SkShader> fShader;
-    bool fShowUnclipped = false;
-
-    SkString name() override { return SkString("halfplane3"); }
-
-    void onOnceBeforeDraw() override {
-        fPath = make_path();
-        fShader = GetResourceAsImage("images/mandrill_128.png")
-                        ->makeShader(SkMatrix::MakeScale(3, 3));
-    }
 
     void rotate(float x, float y, float z) {
         SkMatrix44 r;
@@ -496,22 +484,70 @@ class HalfPlaneView3 : public Sample {
         fRot.postConcat(r);
     }
 
-    SkMatrix44 get44() const {
+public:
+    SkMatrix44 get44(const SkRect& r) const {
         SkMatrix44  camera,
                     perspective,
                     translate,
                     viewport;
 
+        SkScalar w = r.width();
+        SkScalar h = r.height();
+
         Sk3Perspective(&perspective, fNear, fFar, fAngle);
         Sk3LookAt(&camera, fEye, fCOA, fUp);
         translate.setTranslate(fTrans.fX, fTrans.fY, fTrans.fZ);
-        viewport.setScale(200, 200, 1).postTranslate( 200,  200, 0);
+        viewport.setScale(w*0.5f, h*0.5f, 1).postTranslate(r.centerX(), r.centerY(), 0);
 
         return viewport * perspective * camera * translate * fRot * inv(viewport);
     }
 
+    bool onChar(SkUnichar uni) override {
+        float delta = SK_ScalarPI / 30;
+        switch (uni) {
+            case '8': this->rotate( delta, 0, 0); return true;
+            case '2': this->rotate(-delta, 0, 0); return true;
+            case '4': this->rotate(0,  delta, 0); return true;
+            case '6': this->rotate(0, -delta, 0); return true;
+            case '-': this->rotate(0, 0,  delta); return true;
+            case '+': this->rotate(0, 0, -delta); return true;
+
+            case 'i': fTrans.fZ += 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
+            case 'k': fTrans.fZ -= 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
+
+            case 'n': fNear += 0.1f; SkDebugf("near %g\n", fNear); return true;
+            case 'N': fNear -= 0.1f; SkDebugf("near %g\n", fNear); return true;
+            case 'f': fFar  += 0.1f; SkDebugf("far  %g\n", fFar); return true;
+            case 'F': fFar  -= 0.1f; SkDebugf("far  %g\n", fFar); return true;
+            default: break;
+        }
+        return false;
+    }
+};
+
+class HalfPlaneView3 : public SampleCameraView {
+    SkPath fPath;
+    sk_sp<SkShader> fShader;
+    bool fShowUnclipped = false;
+
+    SkString name() override { return SkString("halfplane3"); }
+
+    void onOnceBeforeDraw() override {
+        fPath = make_path();
+        fShader = GetResourceAsImage("images/mandrill_128.png")
+                        ->makeShader(SkMatrix::MakeScale(3, 3));
+    }
+
+    bool onChar(SkUnichar uni) override {
+        switch (uni) {
+            case 'u': fShowUnclipped = !fShowUnclipped; return true;
+            default: break;
+        }
+        return this->SampleCameraView::onChar(uni);
+    }
+
     void onDrawContent(SkCanvas* canvas) override {
-        SkMatrix mx = this->get44();
+        SkMatrix mx = this->get44({0, 0, 400, 400});
 
         SkPaint paint;
         paint.setColor({0.75, 0.75, 0.75, 1});
@@ -543,36 +579,39 @@ class HalfPlaneView3 : public Sample {
         SkHalfPlane hpw = half_plane_w0(mx);
         draw_halfplane(canvas, hpw, planeColor);
     }
-
-    bool onChar(SkUnichar uni) override {
-        float delta = SK_ScalarPI / 30;
-        switch (uni) {
-            case '8': this->rotate( delta, 0, 0); return true;
-            case '2': this->rotate(-delta, 0, 0); return true;
-            case '4': this->rotate(0,  delta, 0); return true;
-            case '6': this->rotate(0, -delta, 0); return true;
-            case '-': this->rotate(0, 0,  delta); return true;
-            case '+': this->rotate(0, 0, -delta); return true;
-
-            case 'i': fTrans.fZ += 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
-            case 'k': fTrans.fZ -= 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
-
-            case 'n': fNear += 0.1f; SkDebugf("near %g\n", fNear); return true;
-            case 'N': fNear -= 0.1f; SkDebugf("near %g\n", fNear); return true;
-            case 'f': fFar  += 0.1f; SkDebugf("far  %g\n", fFar); return true;
-            case 'F': fFar  -= 0.1f; SkDebugf("far  %g\n", fFar); return true;
-
-            case 'u': fShowUnclipped = !fShowUnclipped; return true;
-            default: break;
-        }
-        return false;
-    }
-    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        return nullptr;
-    }
-
-    bool onClick(Click* click) override {
-        return false;
-    }
 };
 DEF_SAMPLE( return new HalfPlaneView3(); )
+
+class HalfPlaneCoons : public SampleCameraView {
+    SkPoint fPatch[12];
+    SkColor fColors[4] =  { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
+
+    SkString name() override { return SkString("halfplane-coons"); }
+
+    void onOnceBeforeDraw() override {
+        fPatch[0] = {   0, 0 };
+        fPatch[1] = { 100, 0 };
+        fPatch[2] = { 200, 0 };
+        fPatch[3] = { 300, 0 };
+        fPatch[4] = { 300, 100 };
+        fPatch[5] = { 300, 200 };
+        fPatch[6] = { 300, 300 };
+        fPatch[7] = { 200, 300 };
+        fPatch[8] = { 100, 300 };
+        fPatch[9] = {   0, 300 };
+        fPatch[10] = {  0, 200 };
+        fPatch[11] = {  0, 100 };
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        SkMatrix mx = this->get44({0, 0, 300, 300});
+
+        SkPaint paint;
+
+        canvas->save();
+        canvas->concat(mx);
+        canvas->drawPatch(fPatch, fColors, nullptr, SkBlendMode::kSrc, paint);
+        canvas->restore();
+    }
+};
+DEF_SAMPLE( return new HalfPlaneCoons(); )
