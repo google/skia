@@ -31,8 +31,6 @@ public:
     void begin() override {}
     void end() override {}
 
-    void insertEventMarker(const char* msg) override {}
-
     void initRenderState(id<MTLRenderCommandEncoder>);
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {

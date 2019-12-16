@@ -53,7 +53,6 @@
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrClearStencilClipOp.h"
-#include "src/gpu/ops/GrDebugMarkerOp.h"
 #include "src/gpu/ops/GrDrawAtlasOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrDrawVerticesOp.h"
@@ -1976,11 +1975,6 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
     this->drawingManager()->newWaitRenderTask(this->asSurfaceProxyRef(), std::move(grSemaphores),
                                               numSemaphores);
     return true;
-}
-
-void GrRenderTargetContext::insertEventMarker(const SkString& str) {
-    std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
-    this->addOp(std::move(op));
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,

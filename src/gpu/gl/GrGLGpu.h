@@ -170,8 +170,6 @@ public:
 
     void deleteSync(GrGLsync) const;
 
-    void insertEventMarker(const char*);
-
     void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
     void deleteFramebuffer(GrGLuint fboid);
 

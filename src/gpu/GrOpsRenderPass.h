@@ -33,8 +33,6 @@ class GrOpsRenderPass {
 public:
     virtual ~GrOpsRenderPass() {}
 
-    virtual void insertEventMarker(const char*) = 0;
-
     struct LoadAndStoreInfo {
         GrLoadOp    fLoadOp;
         GrStoreOp   fStoreOp;

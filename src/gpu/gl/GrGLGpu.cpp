@@ -3956,10 +3956,6 @@ void GrGLGpu::deleteSync(GrGLsync sync) const {
     GL_CALL(DeleteSync(sync));
 }
 
-void GrGLGpu::insertEventMarker(const char* msg) {
-    GL_CALL(InsertEventMarker(strlen(msg), msg));
-}
-
 std::unique_ptr<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {
     // Set up a semaphore to be signaled once the data is ready, and flush GL
     std::unique_ptr<GrSemaphore> semaphore = this->makeSemaphore(true);
