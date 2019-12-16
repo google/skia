@@ -9,6 +9,7 @@
 #define SkDescriptor_DEFINED
 
 #include <memory>
+#include <new>
 
 #include "include/private/SkMacros.h"
 #include "include/private/SkNoncopyable.h"
@@ -23,12 +24,12 @@ public:
 
     static std::unique_ptr<SkDescriptor> Alloc(size_t length);
 
+    //
     // Ensure the unsized delete is called.
     void operator delete(void* p);
-    void init() {
-        fLength = sizeof(SkDescriptor);
-        fCount  = 0;
-    }
+    void* operator new(size_t);
+    void* operator new(size_t, void* p) { return p; }
+
     uint32_t getLength() const { return fLength; }
     void* addEntry(uint32_t tag, size_t length, const void* data = nullptr);
     void computeChecksum();
@@ -63,15 +64,15 @@ public:
 #endif
 
 private:
-    // private so no one can create one except our factories
     SkDescriptor() = default;
     friend class SkDescriptorTestHelper;
+    friend class SkAutoDescriptor;
 
     static uint32_t ComputeChecksum(const SkDescriptor* desc);
 
-    uint32_t fChecksum;  // must be first
-    uint32_t fLength;    // must be second
-    uint32_t fCount;
+    uint32_t fChecksum{0};  // must be first
+    uint32_t fLength{sizeof(SkDescriptor)};    // must be second
+    uint32_t fCount{0};
 };
 
 class SkAutoDescriptor {

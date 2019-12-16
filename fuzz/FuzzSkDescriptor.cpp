@@ -20,7 +20,6 @@ DEF_FUZZ(SkDescriptor, fuzz) {
 
     size_t len = SkDescriptor::ComputeOverhead(numEntries);
     auto desc = SkDescriptor::Alloc(len);
-    desc->init();
     for (int32_t i = 0; i<numEntries && !fuzz->exhausted(); i++) {
         uint32_t tag;
         fuzz->next(&tag);
