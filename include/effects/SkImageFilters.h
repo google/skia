@@ -279,13 +279,19 @@ public:
 
     /**
      *  This filter takes an SkBlendMode and uses it to composite the two filters together.
-     *  @param background The Dst pixels used in blending, if null the source bitmap is used.
-     *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
-     *  @cropRect         Optional rectangle to crop input and output.
+     *  @param dst The Dst pixels used in blending, if null the source bitmap is used.
+     *  @param src The Src pixels used in blending, if null the source bitmap is used.
+     *  @cropRect  Optional rectangle to crop input and output.
      */
-    static sk_sp<SkImageFilter> Xfermode(SkBlendMode, sk_sp<SkImageFilter> background,
-                                         sk_sp<SkImageFilter> foreground = nullptr,
-                                         const SkIRect* cropRect = nullptr);
+    static sk_sp<SkImageFilter> Blend(SkBlendMode, sk_sp<SkImageFilter> dst,
+                                      sk_sp<SkImageFilter> src = nullptr,
+                                      const SkIRect* cropRect = nullptr);
+    // DEPRECATED
+    static sk_sp<SkImageFilter> Xfermode(SkBlendMode mode, sk_sp<SkImageFilter> dst,
+                                         sk_sp<SkImageFilter> src = nullptr,
+                                         const SkIRect* cropRect = nullptr) {
+        return Blend(mode, std::move(dst), std::move(src), cropRect);
+    }
 
     // Morphology filter effects
 
