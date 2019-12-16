@@ -20,6 +20,12 @@
 
 #include <limits.h>
 
+// Documentation on the Wuffs language and standard library (in general) and
+// its image decoding API (in particular) is at:
+//
+//  - https://github.com/google/wuffs/tree/master/doc
+//  - https://github.com/google/wuffs/blob/master/doc/std/image-decoders.md
+
 // Wuffs ships as a "single file C library" or "header file library" as per
 // https://github.com/nothings/stb/blob/master/docs/stb_howto.txt
 //
@@ -892,65 +898,6 @@ SkCodec::Result SkWuffsCodec::seekFrame(WhichDecoder which, int frameIndex) {
     }
     return SkCodec::kSuccess;
 }
-
-// An overview of the Wuffs decoding API:
-//
-// An animated image (such as GIF) has an image header and then N frames. The
-// image header gives e.g. the overall image's width and height. Each frame
-// consists of a frame header (e.g. frame rectangle bounds, display duration)
-// and a payload (the pixels).
-//
-// In Wuffs terminology, there is one image config and then N pairs of
-// (frame_config, frame). To decode everything (without knowing N in advance)
-// sequentially:
-//  - call wuffs_gif__decoder::decode_image_config
-//  - while (true) {
-//  -   call wuffs_gif__decoder::decode_frame_config
-//  -   if that returned wuffs_base__warning__end_of_data, break
-//  -   call wuffs_gif__decoder::decode_frame
-//  - }
-//
-// The first argument to each decode_foo method is the destination struct to
-// store the decoded information.
-//
-// For random (instead of sequential) access to an image's frames, call
-// wuffs_gif__decoder::restart_frame to prepare to decode the i'th frame.
-// Essentially, it restores the state to be at the top of the while loop above.
-// The wuffs_base__io_buffer's reader position will also need to be set at the
-// right point in the source data stream. The position for the i'th frame is
-// calculated by the i'th decode_frame_config call. You can only call
-// restart_frame after decode_image_config is called, explicitly or implicitly
-// (see below), as decoding a single frame might require for-all-frames
-// information like the overall image dimensions and the global palette.
-//
-// All of those decode_xxx calls are optional. For example, if
-// decode_image_config is not called, then the first decode_frame_config call
-// will implicitly parse and verify the image header, before parsing the first
-// frame's header. Similarly, you can call only decode_frame N times, without
-// calling decode_image_config or decode_frame_config, if you already know
-// metadata like N and each frame's rectangle bounds by some other means (e.g.
-// this is a first party, statically known image).
-//
-// Specifically, starting with an unknown (but re-windable) GIF image, if you
-// want to just find N (i.e. count the number of frames), you can loop calling
-// only the decode_frame_config method and avoid calling the more expensive
-// decode_frame method. In terms of the underlying GIF image format, this will
-// skip over the LZW-encoded pixel data, avoiding the costly LZW decompression.
-//
-// Those decode_xxx methods are also suspendible. They will return early (with
-// a status code that is_suspendible and therefore isn't is_complete) if there
-// isn't enough source data to complete the operation: an incremental decode.
-// Calling decode_xxx again with additional source data will resume the
-// previous operation, instead of starting a new operation. Calling decode_yyy
-// whilst decode_xxx is suspended will result in an error.
-//
-// Once an error is encountered, whether from invalid source data or from a
-// programming error such as calling decode_yyy while suspended in decode_xxx,
-// all subsequent calls will be no-ops that return an error. To reset the
-// decoder into something that does productive work, memset the entire struct
-// to zero, check the Wuffs version and then, in order to be able to call
-// restart_frame, call decode_image_config. The io_buffer and its associated
-// stream will also need to be rewound.
 
 SkCodec::Result SkWuffsCodec::resetDecoder(WhichDecoder which) {
     if (!fStream->rewind()) {
