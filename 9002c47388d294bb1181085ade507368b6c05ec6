@@ -22,6 +22,30 @@
       "revId": "9002c47388d294bb1181085ade507368b6c05ec6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b482463e_309cf671",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T22:14:18Z",
+      "side": 1,
+      "message": "Ah, that is even cleaner (though I\u0027ll comment *why* I don\u0027t pass by ref)",
+      "parentUuid": "ea11233d_bb20f905",
+      "range": {
+        "startLine": 29,
+        "startChar": 19,
+        "endLine": 29,
+        "endChar": 36
+      },
+      "revId": "9002c47388d294bb1181085ade507368b6c05ec6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
