@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6067caa7_69ca8b5e",
+        "filename": "src/core/SkDescriptor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T18:47:40Z",
+      "side": 1,
+      "message": "Kind of cool that you can query this here, huh?",
+      "range": {
+        "startLine": 74,
+        "startChar": 21,
+        "endLine": 74,
+        "endChar": 41
+      },
+      "revId": "c185a79270bb579a5aa3c051715a25735eda3659",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
