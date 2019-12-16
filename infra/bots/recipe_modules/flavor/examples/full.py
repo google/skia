@@ -187,7 +187,7 @@ def GenTests(api):
   )
 
   builder = 'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All'
-  fail_step_name = 'install_dm'
+  fail_step_name = 'install dm'
   yield (
       api.test('retry_ios_install') +
       api.properties(buildername=builder,

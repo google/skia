@@ -569,6 +569,9 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		if !ok {
 			glog.Fatalf("Entry %q not found in OS mapping.", os)
 		}
+		if os == "iOS" && parts["model"] == "iPhone11" {
+			d["os"] = "iOS-13.2.3"
+		}
 		if os == "Win10" && parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 v1709.
 			d["os"] = "Windows-10-16299"
@@ -622,6 +625,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 				"iPhone6":   "iPhone7,2",
 				"iPhone7":   "iPhone9,1",
 				"iPhone8":   "iPhone10,1",
+				"iPhone11":  "iPhone12,1",
 				"iPadPro":   "iPad6,3",
 			}[parts["model"]]
 			if !ok {
@@ -940,6 +944,18 @@ func (b *builder) usesGo(t *specs.TaskSpec, name string) {
 func usesDocker(t *specs.TaskSpec, name string) {
 	if strings.Contains(name, "EMCC") || strings.Contains(name, "SKQP") || strings.Contains(name, "LottieWeb") || strings.Contains(name, "CMake") || strings.Contains(name, "Docker") {
 		t.Caches = append(t.Caches, CACHES_DOCKER...)
+	}
+}
+
+func (b *builder) maybeAddIosDevImage(t *specs.TaskSpec) {
+	for _, dim := range t.Dimensions {
+		if strings.HasPrefix(dim, "os:iOS") {
+			if strings.HasPrefix(dim, "iOS-13.2") {
+				t.CipdPackages = append(t.CipdPackages, b.MustGetCipdPackageFromAsset("ios-dev-image-13.2"))
+			}
+			// TODO: error if unknown version
+			break
+		}
 	}
 }
 
@@ -1268,6 +1284,7 @@ func (b *builder) test(name string, parts map[string]string, compileTaskName str
 		// skia:6737
 		timeout(task, 6*time.Hour)
 	}
+	b.maybeAddIosDevImage(task)
 	b.MustAddTask(name, task)
 
 	// Upload results if necessary. TODO(kjlubick): If we do coverage analysis at the same
@@ -1347,6 +1364,7 @@ func (b *builder) perf(name string, parts map[string]string, compileTaskName str
 	if strings.Contains(name, "Android") && strings.Contains(name, "CPU") {
 		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("text_blob_traces"))
 	}
+	b.maybeAddIosDevImage(task)
 
 	iid := b.internalHardwareLabel(parts)
 	if iid != nil {
