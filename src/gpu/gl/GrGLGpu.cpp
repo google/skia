@@ -1039,8 +1039,7 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
 
     // Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    size_t dataSize = GrCompressedDataSize(compressionType, dimensions.width(),
-                                           dimensions.height());
+    size_t dataSize = GrCompressedDataSize(compressionType, dimensions, GrMipMapped::kNo);
 
     if (useTexStorage) {
         // We never resize or change formats of textures.

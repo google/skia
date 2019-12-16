@@ -292,7 +292,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
     if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
-    if (dataSize < GrCompressedDataSize(compressionType, width, height)) {
+    if (dataSize < GrCompressedDataSize(compressionType, {width, height}, GrMipMapped::kNo)) {
         return nullptr;
     }
     return this->onCreateCompressedTexture(width, height, format, compressionType, budgeted, data);
