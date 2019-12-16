@@ -43,4 +43,8 @@ private:
     typedef SkColorFilter INHERITED;
 };
 
+// exported for SkColorFilter::RegisterFlattenables
+extern sk_sp<SkFlattenable> SkLerpColorFilter_CreateProc(SkReadBuffer&);
+extern sk_sp<SkFlattenable> SkBlendColorFilter_CreateProc(SkReadBuffer&);
+
 #endif
