@@ -1,0 +1,319 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba06a748_3b2d1fed",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "I think we can probably stick to simply what the method does.  I wouldn\u0027t be surprised if we find a use for this one day that doesn\u0027t match your description here.  (I\u0027d prefer we delete the comment at line 128 also for the same reason.)",
+      "range": {
+        "startLine": 134,
+        "startChar": 7,
+        "endLine": 135,
+        "endChar": 61
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b7ea8e7_465c4864",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "All over, \"at least\" is two words, so \"AtLeast\", etc?",
+      "range": {
+        "startLine": 139,
+        "startChar": 14,
+        "endLine": 139,
+        "endChar": 21
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd1af592_22f224b9",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "I think this side thought is going to confuse more than clarify here...",
+      "range": {
+        "startLine": 143,
+        "startChar": 69,
+        "endLine": 145,
+        "endChar": 86
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d049d8a_1430694b",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "I think this one is better not as auto, particularly since we\u0027re about to do math with it.",
+      "range": {
+        "startLine": 146,
+        "startChar": 8,
+        "endLine": 146,
+        "endChar": 13
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3141a5f_6e9df359",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "It might make sense to call this maxSize?  Does that make it clearer that we can still succeed even if we don\u0027t find space for all these bytes?",
+      "range": {
+        "startLine": 156,
+        "startChar": 29,
+        "endLine": 156,
+        "endChar": 41
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b440939_3754373c",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "This can probably go unsaid?\n\nNothing in SkArenaAlloc ever moves data, right?",
+      "range": {
+        "startLine": 157,
+        "startChar": 91,
+        "endLine": 158,
+        "endChar": 55
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8701fea_c99c76dc",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "I think this bit here becomes ambiguous given your phrasing above \"return the reserved space back to the arena\".\n\nIs this just \"Returns true updating `requestedSize` to the allocation\u0027s new size if it changed, or returns false if we could not resize the allocation.\"?",
+      "range": {
+        "startLine": 160,
+        "startChar": 20,
+        "endLine": 160,
+        "endChar": 42
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bde2472_d9e87812",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "Let\u0027s see if we can move this large and non-templated method out of line?",
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0619f343_74c41ccb",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "This may just be me, but POD sounds like a collective to me.  I\u0027d have expected \"Return POD to the arena...\"",
+      "range": {
+        "startLine": 184,
+        "startChar": 14,
+        "endLine": 184,
+        "endChar": 21
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbc0caac_3d96b184",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "I\u0027m not sure we need to mention this?",
+      "range": {
+        "startLine": 186,
+        "startChar": 14,
+        "endLine": 186,
+        "endChar": 97
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92fc2444_e1416c7f",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "Let\u0027s inline this into resize()?  With the implementation over here, it\u0027s hard to see over in resize() that this all hinges on the last allocation being POD, and also that we can really work with any number of final POD allocations as if one.",
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "655e154c_f5452875",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "Let\u0027s move this out of line too?",
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "feff6e3c_3433889e",
+        "filename": "tests/ArenaAllocTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "If this is something important to test, I think it probably makes sense to add\n\n    template \u003ctypename T\u003e\n    bool release(T* ptr) { static_assert(...); return this-\u003erelease(ptr, sizeof(T)); }\n\nso that this sort of thing is safer and easier to write, and so that the next example using FooRefCnt is safer and harder to write, stopped by whatever is the right thing to put in the static_assert().",
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57b8549f_9ad263ee",
+        "filename": "tests/ArenaAllocTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "This might be a good spot to also test\n\n    REPORTER_ASSERT(r, arena.release(dynamic, 48));",
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c682606_4aef352e",
+        "filename": "tests/ArenaAllocTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:38:58Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to mention this.",
+      "range": {
+        "startLine": 327,
+        "startChar": 1,
+        "endLine": 331,
+        "endChar": 80
+      },
+      "revId": "ad27a68e6f6eaa50ce187247b977493d3dd0fcee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
