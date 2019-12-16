@@ -70,6 +70,30 @@
       "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6bd48c9_3037b7be",
+        "filename": "modules/skottie/src/effects/Effects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-12-16T19:26:36Z",
+      "side": 1,
+      "message": "Yeah, definitely not ideal, but on some level self-inflicted: they asked for ways to differentiate failures (different error codes), and we pushed back since all failures are different and at that point might as well check for strings.  I guess this is where having stable error codes would have helped, but I\u0027m still not ready to commit to that.",
+      "parentUuid": "80cf7b42_b181a190",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 90
+      },
+      "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
