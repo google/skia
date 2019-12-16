@@ -645,35 +645,3 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
     }
     SkUNREACHABLE;
 }
-
-bool GrGLFormatToCompressionType(GrGLFormat format, SkImage::CompressionType* compressionType) {
-    switch (format) {
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            *compressionType = SkImage::CompressionType::kETC1;
-            return true;
-
-        case GrGLFormat::kRGBA8:
-        case GrGLFormat::kR8:
-        case GrGLFormat::kALPHA8:
-        case GrGLFormat::kLUMINANCE8:
-        case GrGLFormat::kBGRA8:
-        case GrGLFormat::kRGB565:
-        case GrGLFormat::kRGBA16F:
-        case GrGLFormat::kR16F:
-        case GrGLFormat::kLUMINANCE16F:
-        case GrGLFormat::kRGB8:
-        case GrGLFormat::kRG8:
-        case GrGLFormat::kRGB10_A2:
-        case GrGLFormat::kRGBA4:
-        case GrGLFormat::kSRGB8_ALPHA8:
-        case GrGLFormat::kR16:
-        case GrGLFormat::kRG16:
-        case GrGLFormat::kRGBA16:
-        case GrGLFormat::kRG16F:
-        case GrGLFormat::kUnknown:
-            return false;
-    }
-    SkUNREACHABLE;
-}
-

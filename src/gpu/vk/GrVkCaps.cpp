@@ -1627,6 +1627,18 @@ GrPixelConfig GrVkCaps::onGetConfigFromBackendFormat(const GrBackendFormat& form
     return validate_image_info(vkFormat, ct, ycbcrInfo->isValid());
 }
 
+GrPixelConfig GrVkCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFormat& f) const {
+    VkFormat vkFormat;
+    if (!f.asVkFormat(&vkFormat)) {
+        return kUnknown_GrPixelConfig;
+    }
+
+    if (vkFormat == VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK) {
+         return kRGB_ETC1_GrPixelConfig;
+    }
+    return kUnknown_GrPixelConfig;
+}
+
 GrColorType GrVkCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                         bool isAlphaChannel) const {
     VkFormat vkFormat;

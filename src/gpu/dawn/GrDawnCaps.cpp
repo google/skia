@@ -87,6 +87,10 @@ GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& fo
     return kUnknown_GrPixelConfig;
 }
 
+GrPixelConfig GrDawnCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const {
+    return kUnknown_GrPixelConfig;
+}
+
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
     switch (colorType) {

@@ -131,7 +131,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrSurfaceDesc desc;
             desc.fWidth = kW;
             desc.fHeight = kH;
-            desc.fConfig = caps->getConfigFromBackendFormat(combo.fFormat, combo.fColorType);
+
+            if (caps->isFormatCompressed(combo.fFormat)) {
+                desc.fConfig = caps->getConfigFromCompressedBackendFormat(combo.fFormat);
+            } else {
+                desc.fConfig = caps->getConfigFromBackendFormat(combo.fFormat, combo.fColorType);
+            }
             SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
 
             // Check if 'isFormatTexturable' agrees with 'createTexture' and that the mipmap

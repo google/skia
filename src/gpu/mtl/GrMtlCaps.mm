@@ -994,6 +994,18 @@ GrPixelConfig GrMtlCaps::onGetConfigFromBackendFormat(const GrBackendFormat& for
     return validate_sized_format(GrBackendFormatAsMTLPixelFormat(format), ct);
 }
 
+GrPixelConfig GrMtlCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFormat& f) const {
+
+    switch (GrBackendFormatAsMTLPixelFormat(f)) {
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8: return kRGB_ETC1_GrPixelConfig;
+#endif
+        default:                      return kUnknown_GrPixelConfig;
+    }
+
+    SkUNREACHABLE;
+}
+
 GrColorType GrMtlCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                          bool isAlphaChannel) const {
     switch (GrBackendFormatAsMTLPixelFormat(format)) {
