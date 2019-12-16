@@ -264,22 +264,26 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
     if (!baseType) {
         return nullptr;
     }
-    if (fKind != Program::kFragmentProcessor_Kind &&
-        (modifiers.fFlags & Modifiers::kIn_Flag) &&
-        baseType->kind() == Type::Kind::kMatrix_Kind) {
-        fErrors.error(decls.fOffset, "'in' variables may not have matrix type");
-    }
-    if (modifiers.fLayout.fWhen.fLength && fKind != Program::kFragmentProcessor_Kind &&
-        fKind != Program::kPipelineStage_Kind) {
-        fErrors.error(decls.fOffset, "'when' is only permitted within fragment processors");
-    }
-    if (modifiers.fLayout.fKey) {
-        if (fKind != Program::kFragmentProcessor_Kind && fKind != Program::kPipelineStage_Kind) {
+    if (fKind != Program::kFragmentProcessor_Kind) {
+        if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
+            baseType->kind() == Type::Kind::kMatrix_Kind) {
+            fErrors.error(decls.fOffset, "'in' variables may not have matrix type");
+        }
+        if (modifiers.fLayout.fWhen.fLength) {
+            fErrors.error(decls.fOffset, "'when' is only permitted within fragment processors");
+        }
+        if (modifiers.fLayout.fFlags & Layout::kTracked_Flag) {
+            fErrors.error(decls.fOffset, "'tracked' is only permitted within fragment processors");
+        }
+        if (modifiers.fLayout.fCType != Layout::CType::kDefault) {
+            fErrors.error(decls.fOffset, "'ctype' is only permitted within fragment processors");
+        }
+        if (modifiers.fLayout.fKey) {
             fErrors.error(decls.fOffset, "'key' is only permitted within fragment processors");
         }
-        if ((modifiers.fFlags & Modifiers::kUniform_Flag) != 0) {
-            fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
-        }
+    }
+    if (modifiers.fLayout.fKey && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
+        fErrors.error(decls.fOffset, "'key' is not permitted on 'uniform' variables");
     }
     for (; iter != decls.end(); ++iter) {
         const ASTNode& varDecl = *iter;
