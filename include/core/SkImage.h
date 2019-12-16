@@ -326,6 +326,14 @@ public:
                                           TextureReleaseProc textureReleaseProc,
                                           ReleaseContext releaseContext);
 
+    static sk_sp<SkImage> MakeFromCompressedTexture(GrContext* context,
+                                                    const GrBackendTexture& backendTexture,
+                                                    GrSurfaceOrigin origin,
+                                                    SkAlphaType alphaType,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    TextureReleaseProc textureReleaseProc = nullptr,
+                                                    ReleaseContext releaseContext = nullptr);
+
     /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
 
         Created SkImage is available to other GPU contexts, and is available across thread

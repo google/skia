@@ -1072,6 +1072,14 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
     return tex;
 }
 
+GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                           const GrBackendFormat&,
+                                                           const BackendTextureData*,
+                                                           GrMipMapped,
+                                                           GrProtected) {
+    return {};
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpu::copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
@@ -1179,6 +1187,12 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     SkASSERT(layout);
     return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, cacheable, ioType, imageInfo,
                                            std::move(layout));
+}
+
+sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
+                                                         GrWrapOwnership ownership,
+                                                         GrWrapCacheable cacheable) {
+    return nullptr;
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
