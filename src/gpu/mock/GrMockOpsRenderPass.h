@@ -24,7 +24,6 @@ public:
 
     GrGpu* gpu() override { return fGpu; }
     void inlineUpload(GrOpFlushState*, GrDeferredTextureUploadFn&) override {}
-    void insertEventMarker(const char*) override {}
     void begin() override {
         if (GrLoadOp::kClear == fColorLoadOp) {
             this->markRenderTargetDirty();

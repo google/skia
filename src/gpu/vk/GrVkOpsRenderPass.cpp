@@ -264,10 +264,6 @@ bool GrVkOpsRenderPass::wrapsSecondaryCommandBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrVkOpsRenderPass::insertEventMarker(const char* msg) {
-    // TODO: does Vulkan have a correlate?
-}
-
 void GrVkOpsRenderPass::onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
     if (!fCurrentRenderPass) {
         SkASSERT(fGpu->isDeviceLost());

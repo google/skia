@@ -32,8 +32,6 @@ public:
     void begin() override { }
     void end() override;
 
-    void insertEventMarker(const char*) override;
-
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 
     void executeDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;

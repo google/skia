@@ -486,8 +486,6 @@ public:
      */
     bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore waitSemaphores[]);
 
-    void insertEventMarker(const SkString&);
-
     const GrRenderTargetProxy* proxy() const { return fRenderTargetProxy.get(); }
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
