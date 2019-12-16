@@ -11,6 +11,9 @@
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace skottie {
 namespace internal {
 
@@ -19,7 +22,44 @@ EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder, const SkSize& lay
     , fLayerSize(layer_size) {}
 
 EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectValue& jeffect) const {
-    // First, try assigned types.
+    static constexpr struct BuilderInfo {
+        const char*    fName;
+        EffectBuilderT fBuilder;
+    } gBuilderInfo[] = {
+        { "ADBE Drop Shadow"    , &EffectBuilder::attachDropShadowEffect     },
+        { "ADBE Easy Levels2"   , &EffectBuilder::attachLevelsEffect         },
+        { "ADBE Fill"           , &EffectBuilder::attachFillEffect           },
+        { "ADBE Gaussian Blur 2", &EffectBuilder::attachGaussianBlurEffect   },
+        { "ADBE Geometry2"      , &EffectBuilder::attachTransformEffect      },
+        { "ADBE HUE SATURATION" , &EffectBuilder::attachHueSaturationEffect  },
+        { "ADBE Invert"         , &EffectBuilder::attachInvertEffect         },
+        { "ADBE Linear Wipe"    , &EffectBuilder::attachLinearWipeEffect     },
+        { "ADBE Radial Wipe"    , &EffectBuilder::attachRadialWipeEffect     },
+        { "ADBE Ramp"           , &EffectBuilder::attachGradientEffect       },
+        { "ADBE Shift Channels" , &EffectBuilder::attachShiftChannelsEffect  },
+        { "ADBE Tile"           , &EffectBuilder::attachMotionTileEffect     },
+        { "ADBE Tint"           , &EffectBuilder::attachTintEffect           },
+        { "ADBE Tritone"        , &EffectBuilder::attachTritoneEffect        },
+        { "ADBE Venetian Blinds", &EffectBuilder::attachVenetianBlindsEffect },
+    };
+
+    const skjson::StringValue* mn = jeffect["mn"];
+    if (mn) {
+        const BuilderInfo key { mn->begin(), nullptr };
+        const auto* binfo = std::lower_bound(std::begin(gBuilderInfo),
+                                             std::end  (gBuilderInfo),
+                                             key,
+                                             [](const BuilderInfo& a, const BuilderInfo& b) {
+                                                 return strcmp(a.fName, b.fName) < 0;
+                                             });
+
+        if (binfo != std::end(gBuilderInfo) && !strcmp(binfo->fName, key.fName)) {
+            return binfo->fBuilder;
+        }
+    }
+
+    // Some legacy clients rely solely on the 'ty' field and generate (non-BM) JSON
+    // without a valid 'mn' string.  TODO: we should update them and remove this fallback.
     enum : int32_t {
         kTint_Effect         = 20,
         kFill_Effect         = 21,
@@ -29,69 +69,23 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         kGaussianBlur_Effect = 29,
     };
 
-    const auto ty = ParseDefault<int>(jeffect["ty"], -1);
-
-    switch (ty) {
-    case kTint_Effect:
-        return &EffectBuilder::attachTintEffect;
-    case kFill_Effect:
-        return &EffectBuilder::attachFillEffect;
-    case kTritone_Effect:
-        return &EffectBuilder::attachTritoneEffect;
-    case kDropShadow_Effect:
-        return &EffectBuilder::attachDropShadowEffect;
-    case kRadialWipe_Effect:
-        return &EffectBuilder::attachRadialWipeEffect;
-    case kGaussianBlur_Effect:
-        return &EffectBuilder::attachGaussianBlurEffect;
-    default:
-        break;
+    switch (ParseDefault<int>(jeffect["ty"], -1)) {
+        case         kTint_Effect: return &EffectBuilder::attachTintEffect;
+        case         kFill_Effect: return &EffectBuilder::attachFillEffect;
+        case      kTritone_Effect: return &EffectBuilder::attachTritoneEffect;
+        case   kDropShadow_Effect: return &EffectBuilder::attachDropShadowEffect;
+        case   kRadialWipe_Effect: return &EffectBuilder::attachRadialWipeEffect;
+        case kGaussianBlur_Effect: return &EffectBuilder::attachGaussianBlurEffect;
+        default: break;
     }
 
-    // Some effects don't have an assigned type, but the data is still present.
-    // Try a name-based lookup.
-
-    static constexpr char kGradientEffectMN[] = "ADBE Ramp",
-                           kHueSaturationMN[] = "ADBE HUE SATURATION",
-                            kLevelsEffectMN[] = "ADBE Easy Levels2",
-                        kLinearWipeEffectMN[] = "ADBE Linear Wipe",
-                        kMotionTileEffectMN[] = "ADBE Tile",
-                         kTransformEffectMN[] = "ADBE Geometry2",
-                    kVenetianBlindsEffectMN[] = "ADBE Venetian Blinds",
-                     kShiftChannelsEffectMN[] = "ADBE Shift Channels",
-                            kInvertEffectMN[] = "ADBE Invert";
-
-    if (const skjson::StringValue* mn = jeffect["mn"]) {
-        if (!strcmp(mn->begin(), kGradientEffectMN)) {
-            return &EffectBuilder::attachGradientEffect;
-        }
-        if (!strcmp(mn->begin(), kHueSaturationMN)) {
-            return &EffectBuilder::attachHueSaturationEffect;
-        }
-        if (!strcmp(mn->begin(), kLevelsEffectMN)) {
-            return &EffectBuilder::attachLevelsEffect;
-        }
-        if (!strcmp(mn->begin(), kLinearWipeEffectMN)) {
-            return &EffectBuilder::attachLinearWipeEffect;
-        }
-        if (!strcmp(mn->begin(), kMotionTileEffectMN)) {
-            return &EffectBuilder::attachMotionTileEffect;
-        }
-        if (!strcmp(mn->begin(), kTransformEffectMN)) {
-            return &EffectBuilder::attachTransformEffect;
-        }
-        if (!strcmp(mn->begin(), kVenetianBlindsEffectMN)) {
-            return &EffectBuilder::attachVenetianBlindsEffect;
-        }
-        if (!strcmp(mn->begin(), kShiftChannelsEffectMN)) {
-            return &EffectBuilder::attachShiftChannelsEffect;
-        }
-        if (!strcmp(mn->begin(), kInvertEffectMN)) {
-            return &EffectBuilder::attachInvertEffect;
-        }
-    }
-
-    fBuilder->log(Logger::Level::kWarning, nullptr, "Unsupported layer effect type: %d.", ty);
+#ifdef SKOTTIE_LEGACY_EFFECT_LOGFMT
+    fBuilder->log(Logger::Level::kWarning, nullptr,
+                  "Unsupported layer effect type: %d.", ParseDefault<int>(jeffect["ty"], -1));
+#else
+    fBuilder->log(Logger::Level::kError, &jeffect,
+                  "Unsupported layer effect: %s", mn ? mn->begin() : "(unknown)");
+#endif
 
     return nullptr;
 }
