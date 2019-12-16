@@ -159,7 +159,7 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
             return 0;
         case SkImage::CompressionType::kETC1:
             int numBlocksWidth = num_ETC1_blocks_w(width);
-            return numBlocksWidth * sizeof(ETC1Block);
+            return numBlocksWidth * sizeof(ETC1Block);;
     }
     SkUNREACHABLE;
 }
