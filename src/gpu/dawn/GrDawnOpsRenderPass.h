@@ -30,7 +30,6 @@ public:
     void end() override;
 
     wgpu::RenderPassEncoder beginRenderPass(wgpu::LoadOp colorOp, wgpu::LoadOp stencilOp);
-    void insertEventMarker(const char*) override;
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
 

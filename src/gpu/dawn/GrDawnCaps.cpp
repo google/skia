@@ -38,9 +38,8 @@ bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return false;
 }
 
-bool GrDawnCaps::isFormatCompressed(const GrBackendFormat& format,
-                                    SkImage::CompressionType* compressionType) const {
-    return false;
+SkImage::CompressionType GrDawnCaps::compressionType(const GrBackendFormat& format) const {
+    return SkImage::CompressionType::kNone;
 }
 
 bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
