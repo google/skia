@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "393c6d19_25259fdc",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T21:51:17Z",
+      "side": 1,
+      "message": "... it is now :)",
+      "parentUuid": "ee93c474_ffb4fd2c",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 30
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "806b4b95_86028142",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 4
