@@ -26,8 +26,8 @@ class GrRecordingContext;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSoftwarePathRenderer;
+class GrSurfaceContext;
 class GrSurfaceProxyView;
-class GrTextureContext;
 class GrTextureResolveRenderTask;
 class SkDeferredDisplayList;
 
@@ -42,7 +42,7 @@ public:
                                                                    sk_sp<SkColorSpace>,
                                                                    const SkSurfaceProps*,
                                                                    bool managedOpsTask = true);
-    std::unique_ptr<GrTextureContext> makeTextureContext(sk_sp<GrSurfaceProxy>,
+    std::unique_ptr<GrSurfaceContext> makeSurfaceContext(sk_sp<GrSurfaceProxy>,
                                                          GrColorType,
                                                          SkAlphaType,
                                                          sk_sp<SkColorSpace>);

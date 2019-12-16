@@ -73,7 +73,7 @@ public:
                                                                 const SkSurfaceProps* = nullptr);
 
     /** Create a new texture context backed by a deferred-style GrTextureProxy. */
-    std::unique_ptr<GrTextureContext> makeDeferredTextureContext(
+    std::unique_ptr<GrSurfaceContext> makeDeferredSurfaceContext(
             SkBackingFit,
             int width,
             int height,

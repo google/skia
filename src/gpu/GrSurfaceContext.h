@@ -40,14 +40,13 @@ public:
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
     GrSurfaceOrigin origin() const { return fOrigin; }
-    const GrSwizzle& textureSwizzle() const { return fTextureSwizzle; }
-    GrSurfaceProxyView textureSurfaceView() {
-        return { this->asSurfaceProxyRef(), fOrigin, fTextureSwizzle };
+    const GrSwizzle& readSwizzle() const { return fReadSwizzle; }
+    GrSurfaceProxyView readSurfaceView() {
+        return { this->asSurfaceProxyRef(), fOrigin, fReadSwizzle };
     }
 
-    // TODO: these two calls would be way cooler if this object had a GrSurfaceProxy pointer
-    int width() const { return this->asSurfaceProxy()->width(); }
-    int height() const { return this->asSurfaceProxy()->height(); }
+    int width() const { return fSurfaceProxy->width(); }
+    int height() const { return fSurfaceProxy->height(); }
 
     const GrCaps* caps() const;
 
@@ -76,17 +75,23 @@ public:
     bool writePixels(const GrImageInfo& srcInfo, const void* src, size_t rowBytes, SkIPoint dstPt,
                      GrContext* direct = nullptr);
 
-    // TODO: this is virtual b.c. this object doesn't have a pointer to the wrapped GrSurfaceProxy?
-    virtual GrSurfaceProxy* asSurfaceProxy() = 0;
-    virtual const GrSurfaceProxy* asSurfaceProxy() const = 0;
-    virtual sk_sp<GrSurfaceProxy> asSurfaceProxyRef() = 0;
+    GrSurfaceProxy* asSurfaceProxy() { return fSurfaceProxy.get(); }
+    const GrSurfaceProxy* asSurfaceProxy() const { return fSurfaceProxy.get(); }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fSurfaceProxy; }
 
-    virtual GrTextureProxy* asTextureProxy() = 0;
-    virtual const GrTextureProxy* asTextureProxy() const = 0;
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef() = 0;
+    GrTextureProxy* asTextureProxy() { return fSurfaceProxy->asTextureProxy(); }
+    const GrTextureProxy* asTextureProxy() const { return fSurfaceProxy->asTextureProxy(); }
+    sk_sp<GrTextureProxy> asTextureProxyRef() {
+        return sk_ref_sp(fSurfaceProxy->asTextureProxy());
+    }
 
-    virtual GrRenderTargetProxy* asRenderTargetProxy() = 0;
-    virtual sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() = 0;
+    GrRenderTargetProxy* asRenderTargetProxy() { return fSurfaceProxy->asRenderTargetProxy(); }
+    const GrRenderTargetProxy* asRenderTargetProxy() const {
+        return fSurfaceProxy->asRenderTargetProxy();
+    }
+    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() {
+        return sk_ref_sp(fSurfaceProxy->asRenderTargetProxy());
+    }
 
     virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
 
@@ -108,19 +113,21 @@ public:
 
 protected:
     friend class GrSurfaceContextPriv;
+    friend class GrDrawingManager; // For ctor
 
-    GrSurfaceContext(GrRecordingContext*, GrColorType, SkAlphaType, sk_sp<SkColorSpace>,
-                     GrSurfaceOrigin, GrSwizzle texSwizzle);
+    GrSurfaceContext(GrRecordingContext*, sk_sp<GrSurfaceProxy>, GrColorType, SkAlphaType,
+                     sk_sp<SkColorSpace>, GrSurfaceOrigin, GrSwizzle readSwizzle);
 
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;
 
-    SkDEBUGCODE(virtual void validate() const = 0;)
+    SkDEBUGCODE(void validate() const;)
 
     SkDEBUGCODE(GrSingleOwner* singleOwner();)
 
     GrRecordingContext* fContext;
 
+    sk_sp<GrSurfaceProxy>  fSurfaceProxy;
     GrSurfaceOrigin fOrigin;
 
     // The rescaling step of asyncRescaleAndReadPixels[YUV420]().
@@ -145,6 +152,8 @@ protected:
 private:
     friend class GrSurfaceProxy; // for copy
 
+    SkDEBUGCODE(virtual void onValidate() const {})
+
     /**
      * Copy 'src' into the proxy backing this context. This call will not do any draw fallback.
      * Currently only writePixels and replaceRenderTarget call this directly. All other copies
@@ -167,7 +176,7 @@ private:
     }
 
     GrColorInfo fColorInfo;
-    GrSwizzle fTextureSwizzle;
+    GrSwizzle fReadSwizzle;
 
     typedef SkRefCnt INHERITED;
 };

@@ -20,7 +20,6 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
-#include "src/gpu/GrTextureContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 
@@ -33,15 +32,17 @@
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpsTask).
 GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
+                                   sk_sp<GrSurfaceProxy> proxy,
                                    GrColorType colorType,
                                    SkAlphaType alphaType,
                                    sk_sp<SkColorSpace> colorSpace,
                                    GrSurfaceOrigin origin,
-                                   GrSwizzle texSwizzle)
+                                   GrSwizzle readSwizzle)
         : fContext(context)
+        , fSurfaceProxy(std::move(proxy))
         , fOrigin(origin)
         , fColorInfo(colorType, alphaType, std::move(colorSpace))
-        , fTextureSwizzle(texSwizzle) {}
+        , fReadSwizzle(readSwizzle) {}
 
 const GrCaps* GrSurfaceContext::caps() const { return fContext->priv().caps(); }
 
@@ -319,7 +320,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         if (!tempProxy) {
             return false;
         }
-        auto tempCtx = direct->priv().drawingManager()->makeTextureContext(
+        auto tempCtx = direct->priv().drawingManager()->makeSurfaceContext(
                 tempProxy, colorType, alphaType, this->colorInfo().refColorSpace());
         if (!tempCtx) {
             return false;
@@ -426,7 +427,7 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     // The swizzle doesn't matter for copies and it is not used.
     return this->drawingManager()->newCopyRenderTask(
             GrSurfaceProxyView(sk_ref_sp(src), src->origin(), GrSwizzle()), srcRect,
-            this->textureSurfaceView(), dstPoint);
+            this->readSurfaceView(), dstPoint);
 }
 
 std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
@@ -658,3 +659,15 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
     }
     return result;
 }
+
+#ifdef SK_DEBUG
+void GrSurfaceContext::validate() const {
+    SkASSERT(fSurfaceProxy);
+    fSurfaceProxy->validate(fContext);
+    SkASSERT(fContext->priv().caps()->areColorTypeAndFormatCompatible(
+            this->colorInfo().colorType(), fSurfaceProxy->backendFormat()));
+
+    this->onValidate();
+}
+#endif
+

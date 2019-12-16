@@ -21,7 +21,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrSurfacePriv.h"
-#include "src/gpu/GrTextureContext.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
@@ -310,7 +309,7 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     }
     auto colorType = GrPixelConfigToColorType(src->config());
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
-        auto dstContext = context->priv().makeDeferredTextureContext(
+        auto dstContext = context->priv().makeDeferredSurfaceContext(
                 fit, width, height, colorType, kUnknown_SkAlphaType, nullptr, mipMapped,
                 src->origin(), budgeted, isProtected);
         if (!dstContext) {

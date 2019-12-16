@@ -209,7 +209,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
 
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrSurfaceProxy.h"
-#include "src/gpu/GrTextureContext.h"
 
 // For each context, set it to always clear the textures and then run through all the
 // supported formats checking that the textures are actually cleared
@@ -329,7 +328,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                     fit, desc.fWidth, desc.fHeight, combo.fColorType, nullptr,
                                     1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr);
                         } else {
-                            surfCtx = context->priv().makeDeferredTextureContext(
+                            surfCtx = context->priv().makeDeferredSurfaceContext(
                                     fit, desc.fWidth, desc.fHeight, combo.fColorType,
                                     kUnknown_SkAlphaType, nullptr, GrMipMapped::kNo,
                                     kTopLeft_GrSurfaceOrigin);

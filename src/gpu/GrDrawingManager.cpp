@@ -26,8 +26,8 @@
 #include "src/gpu/GrResourceAllocator.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
-#include "src/gpu/GrTextureContext.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
@@ -941,7 +941,7 @@ std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext
                                       managedOpsTask));
 }
 
-std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
+std::unique_ptr<GrSurfaceContext> GrDrawingManager::makeSurfaceContext(
         sk_sp<GrSurfaceProxy> sProxy,
         GrColorType colorType,
         SkAlphaType alphaType,
@@ -953,12 +953,10 @@ std::unique_ptr<GrTextureContext> GrDrawingManager::makeTextureContext(
     // GrTextureRenderTargets should always be using a GrRenderTargetContext
     SkASSERT(!sProxy->asRenderTargetProxy());
 
-    sk_sp<GrTextureProxy> textureProxy(sk_ref_sp(sProxy->asTextureProxy()));
+    GrSurfaceOrigin origin = sProxy->origin();
+    GrSwizzle readSwizzle = sProxy->textureSwizzle();
 
-    GrSurfaceOrigin origin = textureProxy->origin();
-    GrSwizzle texSwizzle = textureProxy->textureSwizzle();
-
-    return std::unique_ptr<GrTextureContext>(new GrTextureContext(
-            fContext, std::move(textureProxy), colorType, alphaType, std::move(colorSpace), origin,
-            texSwizzle));
+    return std::unique_ptr<GrSurfaceContext>(new GrSurfaceContext(
+            fContext, std::move(sProxy), colorType, alphaType, std::move(colorSpace), origin,
+            readSwizzle));
 }

@@ -16,7 +16,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrTextureContext.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -176,12 +176,12 @@ std::unique_ptr<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
     } else {
         SkASSERT(proxy->asTextureProxy());
         SkASSERT(!props);
-        return this->drawingManager()->makeTextureContext(std::move(proxy), colorType, alphaType,
+        return this->drawingManager()->makeSurfaceContext(std::move(proxy), colorType, alphaType,
                                                           std::move(colorSpace));
     }
 }
 
-std::unique_ptr<GrTextureContext> GrRecordingContext::makeDeferredTextureContext(
+std::unique_ptr<GrSurfaceContext> GrRecordingContext::makeDeferredSurfaceContext(
         SkBackingFit fit,
         int width,
         int height,
@@ -214,7 +214,7 @@ std::unique_ptr<GrTextureContext> GrRecordingContext::makeDeferredTextureContext
 
     auto drawingManager = this->drawingManager();
 
-    return drawingManager->makeTextureContext(std::move(texture), colorType, alphaType,
+    return drawingManager->makeSurfaceContext(std::move(texture), colorType, alphaType,
                                               std::move(colorSpace));
 }
 
@@ -340,7 +340,7 @@ std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceCont
                                                std::move(colorSpace), props);
 }
 
-std::unique_ptr<GrTextureContext> GrRecordingContextPriv::makeDeferredTextureContext(
+std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeDeferredSurfaceContext(
         SkBackingFit fit,
         int width,
         int height,
@@ -351,7 +351,7 @@ std::unique_ptr<GrTextureContext> GrRecordingContextPriv::makeDeferredTextureCon
         GrSurfaceOrigin origin,
         SkBudgeted budgeted,
         GrProtected isProtected) {
-    return fContext->makeDeferredTextureContext(fit, width, height, colorType, alphaType,
+    return fContext->makeDeferredSurfaceContext(fit, width, height, colorType, alphaType,
                                                 std::move(colorSpace), mipMapped, origin, budgeted,
                                                 isProtected);
 }

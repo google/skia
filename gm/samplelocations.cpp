@@ -328,7 +328,7 @@ DrawResult SampleLocationsGM::onDraw(
         return DrawResult::kFail;
     }
     if (offscreenRTC->numSamples() <= 1 &&
-        !offscreenRTC->proxy()->canUseMixedSamples(*ctx->priv().caps())) {
+        !offscreenRTC->asRenderTargetProxy()->canUseMixedSamples(*ctx->priv().caps())) {
         *errorMsg = "MSAA and mixed samples only.";
         return DrawResult::kSkip;
     }

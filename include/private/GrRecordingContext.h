@@ -22,7 +22,6 @@ class GrStrikeCache;
 class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
-class GrTextureContext;
 class SkArenaAlloc;
 
 class GrRecordingContext : public GrImageContext {
@@ -93,8 +92,8 @@ protected:
                                                                 sk_sp<SkColorSpace> = nullptr,
                                                                 const SkSurfaceProps* = nullptr);
 
-    /** Create a new texture context backed by a deferred-style GrTextureProxy. */
-    std::unique_ptr<GrTextureContext> makeDeferredTextureContext(
+    /** Create a new surface context backed by a deferred-style GrTextureProxy. */
+    std::unique_ptr<GrSurfaceContext> makeDeferredSurfaceContext(
             SkBackingFit,
             int width,
             int height,
