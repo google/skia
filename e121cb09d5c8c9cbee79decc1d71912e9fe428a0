@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f730d439_54ada30a",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T21:44:50Z",
+      "side": 1,
+      "message": "Can\u0027t we just use fM33.hasPerspective() throughout?",
+      "range": {
+        "startLine": 87,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 21
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0f1d2bd_4f8cb793",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T21:44:50Z",
+      "side": 1,
+      "message": "Might be clearer to eliminate the name `colorm`?  E.g.\n\n    (c1 - c0).store(\u0026fM43.fMat[0]);\n    (c2 - c0).store(\u0026fM43.fMat[4]);\n    (c0     ).store(\u0026fM43.fMat[8]);\n    if (!fM33.hasPerspective()) {\n        fM43.setConcat(fM43, fM33);\n    }\n\nor can setConcat() not work that way?",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 30
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "806b4b95_86028142",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T21:44:50Z",
+      "side": 1,
+      "message": "The constructor seems like an odd spot to decide this.  It can\u0027t change as we go along?",
+      "range": {
+        "startLine": 306,
+        "startChar": 54,
+        "endLine": 306,
+        "endChar": 71
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
