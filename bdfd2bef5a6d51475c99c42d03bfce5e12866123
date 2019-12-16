@@ -46,6 +46,30 @@
       "revId": "bdfd2bef5a6d51475c99c42d03bfce5e12866123",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f389a5cd_dd68ce8b",
+        "filename": "src/core/SkStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T19:41:01Z",
+      "side": 1,
+      "message": "Oh, missed that!  This is all perfect then.",
+      "parentUuid": "567f945c_f54f5a97",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 588,
+        "endChar": 5
+      },
+      "revId": "bdfd2bef5a6d51475c99c42d03bfce5e12866123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
