@@ -17,8 +17,6 @@ class GrBackendRenderTarget;
 class GrOpMemoryPool;
 class GrOnFlushCallbackObject;
 class GrSemaphore;
-class GrSkSLFPFactory;
-class GrSkSLFPFactoryCache;
 class GrSurfaceProxy;
 class GrTextureContext;
 
@@ -40,8 +38,6 @@ public:
 
     const GrCaps* caps() const { return fContext->caps(); }
     sk_sp<const GrCaps> refCaps() const;
-
-    sk_sp<GrSkSLFPFactoryCache> fpFactoryCache();
 
     GrImageContext* asImageContext() { return fContext->asImageContext(); }
     GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }

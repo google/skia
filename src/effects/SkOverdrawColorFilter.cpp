@@ -12,7 +12,7 @@
 #include "src/core/SkReadBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrSkSLFPFactoryCache.h"
+#include "src/core/SkRuntimeEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 
 GR_FP_SRC_STRING SKSL_OVERDRAW_SRC = R"(
@@ -90,13 +90,12 @@ void SkOverdrawColorFilter::RegisterFlattenables() {
 
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrRecordingContext* context, const GrColorInfo&) const {
-    static int overdrawIndex = GrSkSLFP::NewIndex();
+    static auto overdrawEffect = SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC));
     SkColor4f floatColors[kNumColors];
     for (int i = 0; i < kNumColors; ++i) {
         floatColors[i] = SkColor4f::FromBytes_RGBA(fColors[i]);
     }
-    return GrSkSLFP::Make(context, overdrawIndex, "Overdraw", SKSL_OVERDRAW_SRC,
-                          floatColors, sizeof(floatColors));
+    return GrSkSLFP::Make(context, overdrawEffect, "Overdraw", floatColors, sizeof(floatColors));
 }
 
 #endif
