@@ -78,6 +78,7 @@ DEF_TEST(Skottie_Properties, reporter) {
                                              { "v": { "a": 0, "k": 1 }}
                                            ],
                                            "nm": "fill_effect_0",
+                                           "mn": "ADBE Fill",
                                            "ty": 21
                                          }],
                                          "shapes": [
