@@ -11,6 +11,7 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkString.h"
+#include "src/core/SkRuntimeEffect.h"
 
 using SkRuntimeColorFilterFn = void(*)(float[4], const void*);
 
@@ -46,8 +47,7 @@ public:
     bool testCompile() const;
 
 private:
-    int fIndex;
-    SkString fSkSL;
+    sk_sp<SkRuntimeEffect> fEffect;
     SkRuntimeColorFilterFn fCpuFunc;
 };
 

@@ -15,7 +15,6 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrSurfaceContextPriv.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureContext.h"
@@ -35,10 +34,6 @@
 
 sk_sp<const GrCaps> GrContextPriv::refCaps() const {
     return fContext->refCaps();
-}
-
-sk_sp<GrSkSLFPFactoryCache> GrContextPriv::fpFactoryCache() {
-    return fContext->fpFactoryCache();
 }
 
 void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {

@@ -10,19 +10,20 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
+#include "src/core/SkRuntimeEffect.h"
 #include "src/shaders/SkShaderBase.h"
-#include "src/sksl/SkSLByteCode.h"
 
-#if SK_SUPPORT_GPU
-#include "src/gpu/GrFragmentProcessor.h"
-#endif
-
+struct GrFPArgs;
+class GrFragmentProcessor;
 class SkData;
 class SkMatrix;
 
+namespace SkSL { class ByteCode; }
+
+
 class SkRTShader : public SkShaderBase {
 public:
-    SkRTShader(int index, SkString sksl, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
+    SkRTShader(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
                bool isOpaque);
 
     bool isOpaque() const override { return fIsOpaque; }
@@ -38,10 +39,10 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkRTShader)
 
-    SkString fSkSL;
+    sk_sp<SkRuntimeEffect> fEffect;
+    bool fIsOpaque;
+
     sk_sp<SkData> fInputs;
-    const uint32_t fUniqueID;
-    const bool fIsOpaque;
 
     mutable SkMutex fByteCodeMutex;
     mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
@@ -56,8 +57,7 @@ public:
     sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix);
 
 private:
-    int fIndex;
-    SkString fSkSL;
+    sk_sp<SkRuntimeEffect> fEffect;
     bool fIsOpaque;
 };
 

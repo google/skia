@@ -25,7 +25,6 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderUtils.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
@@ -65,12 +64,12 @@ GrContext::~GrContext() {
     delete fResourceCache;
 }
 
-bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFactoryCache) {
+bool GrContext::init(sk_sp<const GrCaps> caps) {
     ASSERT_SINGLE_OWNER
     SkASSERT(fThreadSafeProxy); // needs to have been initialized by derived classes
     SkASSERT(this->proxyProvider());
 
-    if (!INHERITED::init(std::move(caps), std::move(FPFactoryCache))) {
+    if (!INHERITED::init(std::move(caps))) {
         return false;
     }
 

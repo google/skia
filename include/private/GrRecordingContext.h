@@ -47,7 +47,7 @@ protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
-    bool init(sk_sp<const GrCaps>, sk_sp<GrSkSLFPFactoryCache>) override;
+    bool init(sk_sp<const GrCaps>) override;
     void setupDrawingManager(bool sortOpsTasks, bool reduceOpsTaskSplitting);
 
     void abandonContext() override;

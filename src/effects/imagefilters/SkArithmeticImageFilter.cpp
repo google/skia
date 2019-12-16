@@ -17,11 +17,11 @@
 #include "src/core/SkWriteBuffer.h"
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
+#include "src/core/SkRuntimeEffect.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrSkSLFPFactoryCache.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -386,15 +386,14 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                                      ctx.colorSpace());
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
-        static int arithmeticIndex = GrSkSLFP::NewIndex();
+        static auto arithmeticEffect = SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC));
         ArithmeticFPInputs inputs;
         static_assert(sizeof(inputs.k) == sizeof(fK), "struct size mismatch");
         memcpy(inputs.k, fK, sizeof(inputs.k));
         inputs.enforcePMColor = fEnforcePMColor;
         std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(context,
-                                                                     arithmeticIndex,
+                                                                     arithmeticEffect,
                                                                      "Arithmetic",
-                                                                     SKSL_ARITHMETIC_SRC,
                                                                      &inputs,
                                                                      sizeof(inputs));
         if (xferFP) {
