@@ -1072,6 +1072,19 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(int width, int height,
     return tex;
 }
 
+GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                           const GrBackendFormat& format,
+                                                           const BackendTextureData*,
+                                                           GrMipMapped,
+                                                           GrProtected) {
+    VkFormat pixelFormat;
+    if (!format.asVkFormat(&pixelFormat)) {
+        return {};
+    }
+
+    return {};
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrVkGpu::copyBuffer(GrVkBuffer* srcBuffer, GrVkBuffer* dstBuffer, VkDeviceSize srcOffset,
