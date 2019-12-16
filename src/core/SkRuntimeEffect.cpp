@@ -26,6 +26,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
                                             SkSL::String(fSkSL.c_str(), fSkSL.size()),
                                             SkSL::Program::Settings());
     if (!fBaseProgram) {
+        SkDebugf("%s\n", fCompiler.errorText().c_str());
         return;
     }
     SkASSERT(!fCompiler.errorCount());
