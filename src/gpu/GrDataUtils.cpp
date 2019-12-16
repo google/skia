@@ -9,6 +9,7 @@
 
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkMipMap.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
@@ -49,17 +50,17 @@ static int test_table_entry(int rOrig, int gOrig, int bOrig,
     SkASSERT(0 <= table && table < 8);
     SkASSERT(0 <= offset && offset < 4);
 
-    r8 = SkTPin<uint8_t>(r8 + kModifierTables[table][offset], 0, 255);
-    g8 = SkTPin<uint8_t>(g8 + kModifierTables[table][offset], 0, 255);
-    b8 = SkTPin<uint8_t>(b8 + kModifierTables[table][offset], 0, 255);
+    r8 = SkTPin<int>(r8 + kModifierTables[table][offset], 0, 255);
+    g8 = SkTPin<int>(g8 + kModifierTables[table][offset], 0, 255);
+    b8 = SkTPin<int>(b8 + kModifierTables[table][offset], 0, 255);
 
     return SkTAbs(rOrig - r8) + SkTAbs(gOrig - g8) + SkTAbs(bOrig - b8);
 }
 
 // Create an ETC1 compressed block that is filled with 'col'
 static void create_etc1_block(SkColor col, ETC1Block* block) {
-    block->fHigh = 0;
-    block->fLow = 0;
+    uint32_t high = 0;
+    uint32_t low = 0;
 
     int rOrig = SkColorGetR(col);
     int gOrig = SkColorGetG(col);
@@ -74,7 +75,7 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
     int b8 = convert_5To8(b5);
 
     // We always encode solid color textures as 555 + zero diffs
-    block->fHigh |= (r5 << 27) | (g5 << 19) | (b5 << 11) | 0x2;
+    high |= (r5 << 27) | (g5 << 19) | (b5 << 11) | 0x2;
 
     int bestTableIndex = 0, bestPixelIndex = 0;
     int bestSoFar = 1024;
@@ -91,11 +92,17 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
         }
     }
 
-    block->fHigh |= (bestTableIndex << 5) | (bestTableIndex << 2);
+    high |= (bestTableIndex << 5) | (bestTableIndex << 2);
 
-    for (int i = 0; i < 16; ++i) {
-        block->fLow |= bestPixelIndex << 2*i;
+    if (bestPixelIndex & 0x1) {
+        low |= 0xFFFF;
     }
+    if (bestPixelIndex & 0x2) {
+        low |= 0xFFFF0000;
+    }
+
+    block->fHigh = SkBSwap32(high);
+    block->fLow = SkBSwap32(low);
 }
 
 static int num_ETC1_blocks_w(int w) {
@@ -121,15 +128,29 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
-size_t GrCompressedDataSize(SkImage::CompressionType type, int width, int height) {
+size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
+                            GrMipMapped mipMapped) {
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
+    size_t totalSize = 0;
     switch (type) {
         case SkImage::CompressionType::kNone:
-            return 0;
-        case SkImage::CompressionType::kETC1:
-            int numBlocks = num_ETC1_blocks(width, height);
-            return numBlocks * sizeof(ETC1Block);
+            break;
+        case SkImage::CompressionType::kETC1: {
+            for (int i = 0; i < numMipLevels; ++i) {
+                int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
+
+                totalSize += numBlocks * sizeof(ETC1Block);
+
+                dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+            }
+        }
     }
-    SkUNREACHABLE;
+
+    return totalSize;
 }
 
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
@@ -144,16 +165,17 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
 }
 
 // Fill in 'dest' with ETC1 blocks derived from 'colorf'
-static void fillin_ETC1_with_color(int width, int height, const SkColor4f& colorf, void* dest) {
+static void fillin_ETC1_with_color(SkISize dimensions, const SkColor4f& colorf, char* dest) {
     SkColor color = colorf.toSkColor();
 
     ETC1Block block;
     create_etc1_block(color, &block);
 
-    int numBlocks = num_ETC1_blocks(width, height);
+    int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
     for (int i = 0; i < numBlocks; ++i) {
-        ((ETC1Block*)dest)[i] = block;
+        memcpy(dest, &block, sizeof(ETC1Block));
+        dest += sizeof(ETC1Block);
     }
 }
 
@@ -192,13 +214,27 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
     return combinedBufferSize;
 }
 
-void GrFillInCompressedData(SkImage::CompressionType type, int baseWidth, int baseHeight,
-                            char* dstPixels, const SkColor4f& colorf) {
+void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
+                            GrMipMapped mipMapped, char* dstPixels, const SkColor4f& colorf) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    int currentWidth = baseWidth;
-    int currentHeight = baseHeight;
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
     if (SkImage::CompressionType::kETC1 == type) {
-        fillin_ETC1_with_color(currentWidth, currentHeight, colorf, dstPixels);
+        size_t offset = 0;
+
+        for (int i = 0; i < numMipLevels; ++i) {
+            size_t levelSize = GrCompressedDataSize(type, dimensions, GrMipMapped::kNo);
+
+            fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
+
+            offset += levelSize;
+
+            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+        }
     }
 }
 

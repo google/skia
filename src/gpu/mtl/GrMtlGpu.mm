@@ -555,7 +555,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(int width, int height,
         return nullptr;
     }
 
-    size_t dataSize = GrCompressedDataSize(compressionType, width, height);
+    size_t dataSize = GrCompressedDataSize(compressionType, {width, height}, GrMipMapped::kNo);
     SkASSERT(dataSize);
 
     size_t bufferOffset;
