@@ -23,6 +23,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
@@ -2206,7 +2207,10 @@ void Viewer::drawImGui() {
         ImGui::Begin("Shader Errors");
         for (int i = 0; i < gShaderErrorHandler.fErrors.count(); ++i) {
             ImGui::TextWrapped("%s", gShaderErrorHandler.fErrors[i].c_str());
-            ImGui::TextWrapped("%s", gShaderErrorHandler.fShaders[i].c_str());
+            SkSL::String sksl(gShaderErrorHandler.fShaders[i].c_str());
+            GrShaderUtils::VisitLineByLine(sksl, [](int lineNumber, const char* lineText) {
+                ImGui::TextWrapped("%4i\t%s\n", lineNumber, lineText);
+            });
         }
         ImGui::End();
         gShaderErrorHandler.reset();
