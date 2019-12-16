@@ -225,6 +225,8 @@ private:
     GrBackendFormat onGetDefaultBackendFormat(GrColorType, GrRenderable) const override;
 
     GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
+    GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const override;
+
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
