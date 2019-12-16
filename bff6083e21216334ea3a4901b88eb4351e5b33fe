@@ -22,6 +22,30 @@
       "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1db5e877_930ec6f7",
+        "filename": "modules/skottie/src/effects/Effects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-12-16T17:41:03Z",
+      "side": 1,
+      "message": "It gets better: some clients also filter for specific log messages in unit tests - so it seems we\u0027ll have to land this with a guard...",
+      "parentUuid": "9ec5af86_a27654db",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 90
+      },
+      "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
