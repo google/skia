@@ -44,12 +44,9 @@ sk_sp<SkData> DDLPromiseImageHelper::deflateSKP(const SkPicture* inputPicture) {
         auto helper = static_cast<DDLPromiseImageHelper*>(ctx);
 
         int id = helper->findOrDefineImage(image);
-        if (id >= 0) {
-            SkASSERT(helper->isValidID(id));
-            return SkData::MakeWithCopy(&id, sizeof(id));
-        }
 
-        return nullptr;
+        // Even if 'id' is invalid (i.e., -1) write it to the SKP
+        return SkData::MakeWithCopy(&id, sizeof(id));
     };
 
     return inputPicture->serialize(&procs);
@@ -139,7 +136,9 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
     SkASSERT(length == sizeof(int));
 
     const int* indexPtr = static_cast<const int*>(rawData);
-    SkASSERT(helper->isValidID(*indexPtr));
+    if (!helper->isValidID(*indexPtr)) {
+        return nullptr;
+    }
 
     const DDLPromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
 
