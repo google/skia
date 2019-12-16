@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ec5af86_a27654db",
+        "filename": "modules/skottie/src/effects/Effects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T16:37:47Z",
+      "side": 1,
+      "message": ":(",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 90
+      },
+      "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
