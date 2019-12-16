@@ -212,6 +212,9 @@ public:
     */
     virtual size_t approximateBytesUsed() const = 0;
 
+    virtual bool drawsAnything(SkRect = {-SK_ScalarInfinity, -SK_ScalarInfinity,
+                                         +SK_ScalarInfinity, +SK_ScalarInfinity}) const = 0;
+
     /** Return a new shader that will draw with this picture.
      *
      *  @param tmx  The tiling mode to use when sampling in the x-direction.

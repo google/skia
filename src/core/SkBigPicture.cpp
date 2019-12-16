@@ -61,6 +61,19 @@ size_t SkBigPicture::approximateBytesUsed() const {
     return bytes;
 }
 
+bool SkBigPicture::drawsAnything(SkRect r) const {
+    if (!r.intersects(this->cullRect())) {
+        return false;
+    }
+
+    if (fBBH) {
+        SkTDArray<int> ops;
+        fBBH->search(r, &ops);
+        return ops.count() > 0;
+    }
+    return this->approximateOpCount() > 0;
+}
+
 int SkBigPicture::drawableCount() const {
     return fDrawablePicts ? fDrawablePicts->count() : 0;
 }
