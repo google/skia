@@ -46,6 +46,7 @@ public:
     SkRect cullRect() const override;
     int approximateOpCount() const override;
     size_t approximateBytesUsed() const override;
+    bool drawsAnything(SkRect) const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
 
 // Used by GrLayerHoister

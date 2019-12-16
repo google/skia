@@ -25,6 +25,7 @@ public:
     size_t approximateBytesUsed() const override { return sizeof(*this); }
     int    approximateOpCount()   const override { return 0; }
     SkRect cullRect()             const override { return SkRect::MakeEmpty(); }
+    bool   drawsAnything(SkRect)  const override { return false; }
 };
 
 // Calculate conservative bounds for each type of draw op that can be its own mini picture.
@@ -55,9 +56,10 @@ public:
         SkRecords::Draw(c, nullptr, nullptr, 0, nullptr)(fOp);
     }
 
-    size_t approximateBytesUsed() const override { return sizeof(*this); }
-    int    approximateOpCount()   const override { return 1; }
-    SkRect cullRect()             const override { return fCull; }
+    size_t approximateBytesUsed()  const override { return sizeof(*this); }
+    int    approximateOpCount()    const override { return 1; }
+    SkRect cullRect()              const override { return fCull; }
+    bool   drawsAnything(SkRect r) const override { return r.intersects(this->cullRect()); }
 
 private:
     SkRect fCull;

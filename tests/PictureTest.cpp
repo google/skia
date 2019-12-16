@@ -951,3 +951,62 @@ DEF_TEST(Picture_emptyNestedPictureBug, r) {
     REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
     REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));   // Used to fail.
 }
+
+DEF_TEST(Picture_drawsAnything, r) {
+    SkPictureRecorder rec;
+
+    // Deferred save() / restore() in SkCanvas means we'll always consider this empty.
+    {
+        SkCanvas* c = rec.beginRecording({0,0, 100,100});
+
+        c->save();
+            // oops state changes or draw
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, !pic->drawsAnything());
+    }
+
+    // Without an R-tree, we can't (currently) see that this draws nothing.
+    {
+        SkCanvas* c = rec.beginRecording({0,0, 100,100});
+
+        c->save();
+            c->translate(10,10);
+            // oops no draw
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, pic->drawsAnything());
+    }
+
+    // But with an R-tree, we see it's empty.
+    {
+        SkRTreeFactory factory;
+        SkCanvas* c = rec.beginRecording({0,0, 100,100}, &factory);
+
+        c->save();
+            c->translate(10,10);
+            // oops no draw
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, !pic->drawsAnything());
+    }
+
+    // Similarly, an R-tree lets us see roughly where the draws hit.
+    {
+        SkRTreeFactory factory;
+        SkCanvas* c = rec.beginRecording({0,0, 100,100}, &factory);
+
+        c->save();
+            c->drawRect({10,10, 40,40}, SkPaint{});
+        c->restore();
+
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+        REPORTER_ASSERT(r, !pic->drawsAnything({ 0, 0,  5, 5}));
+        REPORTER_ASSERT(r,  pic->drawsAnything({15,15, 25,25}));
+        // I've intentionally stayed away from the edge cases around 10 and 40.
+        // I don't think we have an opinion of what should happen there (yet?).
+    }
+}
