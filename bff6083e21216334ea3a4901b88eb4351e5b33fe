@@ -46,6 +46,30 @@
       "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80cf7b42_b181a190",
+        "filename": "modules/skottie/src/effects/Effects.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-16T18:03:05Z",
+      "side": 1,
+      "message": "Is that like... a dumb idea?  Let\u0027s see if we can\u0027t change them to not expect anything about logging except perhaps the Logger::Level?",
+      "parentUuid": "1db5e877_930ec6f7",
+      "range": {
+        "startLine": 63,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 90
+      },
+      "revId": "bff6083e21216334ea3a4901b88eb4351e5b33fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
