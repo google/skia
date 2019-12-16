@@ -784,8 +784,8 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             }
             sk_sp<SkImageFilter> bg = make_fuzz_imageFilter(fuzz, depth - 1);
             sk_sp<SkImageFilter> fg = make_fuzz_imageFilter(fuzz, depth - 1);
-            return SkImageFilters::Xfermode(blendMode, std::move(bg), std::move(fg),
-                                            useCropRect ? &cropRect : nullptr);
+            return SkImageFilters::Blend(blendMode, std::move(bg), std::move(fg),
+                                         useCropRect ? &cropRect : nullptr);
         }
         default:
             SkASSERT(false);

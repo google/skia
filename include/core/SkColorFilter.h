@@ -158,7 +158,6 @@ public:
     static sk_sp<SkColorFilter> Compose(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner) {
         return outer ? outer->makeComposed(inner) : inner;
     }
-    static sk_sp<SkColorFilter> Blend(SkColor c, SkBlendMode mode);
     static sk_sp<SkColorFilter> Matrix(const SkColorMatrix&);
     static sk_sp<SkColorFilter> Matrix(const float rowMajor[20]);
 
@@ -168,6 +167,10 @@ public:
 
     static sk_sp<SkColorFilter> LinearToSRGBGamma();
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
+    static sk_sp<SkColorFilter> Blend(SkColor c, SkBlendMode mode);
+    static sk_sp<SkColorFilter> Blend(SkBlendMode mode,
+                                      sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
+    // result = (1 - t) * dst + t * src
     static sk_sp<SkColorFilter> Lerp(float t, sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
 
 private:
