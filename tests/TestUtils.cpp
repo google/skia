@@ -16,7 +16,6 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
-#include "src/gpu/GrTextureContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 

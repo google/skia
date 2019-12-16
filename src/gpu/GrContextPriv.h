@@ -18,7 +18,6 @@ class GrOpMemoryPool;
 class GrOnFlushCallbackObject;
 class GrSemaphore;
 class GrSurfaceProxy;
-class GrTextureContext;
 
 class SkDeferredDisplayList;
 class SkTaskGroup;
@@ -75,7 +74,7 @@ public:
                                                                 const SkSurfaceProps* = nullptr);
 
     /** Create a new texture context backed by a deferred-style GrTextureProxy. */
-    std::unique_ptr<GrTextureContext> makeDeferredTextureContext(
+    std::unique_ptr<GrSurfaceContext> makeDeferredSurfaceContext(
             SkBackingFit,
             int width,
             int height,
@@ -131,7 +130,7 @@ public:
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
-    std::unique_ptr<GrTextureContext> makeBackendTextureContext(const GrBackendTexture&,
+    std::unique_ptr<GrSurfaceContext> makeBackendTextureContext(const GrBackendTexture&,
                                                                 GrSurfaceOrigin,
                                                                 GrColorType,
                                                                 SkAlphaType,

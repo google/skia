@@ -38,7 +38,6 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTextureAdjuster.h"
-#include "src/gpu/GrTextureContext.h"
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
@@ -105,7 +104,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID, this->alphaType(),
-                                   renderTargetContext->textureSurfaceView(), std::move(targetCS));
+                                   renderTargetContext->readSurfaceView(), std::move(targetCS));
 }
 
 sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
@@ -232,7 +231,7 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
     SkAlphaType at = GetAlphaTypeFromYUVAIndices(yuvaIndices);
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at,
-                                   renderTargetContext->textureSurfaceView(),
+                                   renderTargetContext->readSurfaceView(),
                                    renderTargetContext->colorInfo().refColorSpace());
 }
 
