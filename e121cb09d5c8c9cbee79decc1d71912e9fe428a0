@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95a38cc4_3f762731",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T21:47:46Z",
+      "side": 1,
+      "message": "Can, though for readability, I think this is clearer, since we only build the pipeline once, which does or doesn\u0027t include the 2nd matrix. This way its clear I\u0027m using a const bool for both the stage builder and my per-triangle \"update\"",
+      "parentUuid": "f730d439_54ada30a",
+      "range": {
+        "startLine": 87,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 21
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c0f1d2bd_4f8cb793",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ee93c474_ffb4fd2c",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T21:47:46Z",
+      "side": 1,
+      "message": "setConcat is not alias-safe, but we could write it to be",
+      "parentUuid": "c0f1d2bd_4f8cb793",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 133,
+        "endChar": 30
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "806b4b95_86028142",
         "filename": "src/core/SkDraw_vertices.cpp",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2019-12-16T21:44:50Z",
       "side": 1,
       "message": "The constructor seems like an odd spot to decide this.  It can\u0027t change as we go along?",
+      "range": {
+        "startLine": 306,
+        "startChar": 54,
+        "endLine": 306,
+        "endChar": 71
+      },
+      "revId": "e121cb09d5c8c9cbee79decc1d71912e9fe428a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "846f49ad_59ea2054",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-16T21:47:46Z",
+      "side": 1,
+      "message": "It never changes, as each triangle\u0027s matrix is always affine",
+      "parentUuid": "806b4b95_86028142",
       "range": {
         "startLine": 306,
         "startChar": 54,
