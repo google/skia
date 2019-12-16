@@ -189,15 +189,12 @@ SkSL::String PrettyPrint(const SkSL::String& string) {
     return pp.prettify(string);
 }
 
-// Prints shaders one line at the time. This ensures they don't get truncated by the adb log.
-void PrintLineByLine(const char* header, const SkSL::String& text) {
-    if (header) {
-        SkDebugf("%s\n", header);
-    }
+void VisitLineByLine(const SkSL::String& text,
+                     const std::function<void(int lineNumber, const char* lineText)>& visitFn) {
     SkTArray<SkString> lines;
     SkStrSplit(text.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
     for (int i = 0; i < lines.count(); ++i) {
-        SkDebugf("%4i\t%s\n", i + 1, lines[i].c_str());
+        visitFn(i + 1, lines[i].c_str());
     }
 }
 
@@ -207,7 +204,7 @@ GrContextOptions::ShaderErrorHandler* DefaultShaderErrorHandler() {
         void compileError(const char* shader, const char* errors) override {
             SkDebugf("Shader compilation error\n"
                      "------------------------\n");
-            PrintLineByLine(nullptr, shader);
+            PrintLineByLine(shader);
             SkDebugf("Errors:\n%s\n", errors);
             SkDEBUGFAIL("Shader compilation failed!");
         }
