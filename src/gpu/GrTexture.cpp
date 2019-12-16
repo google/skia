@@ -49,7 +49,7 @@ GrTexture::GrTexture(GrGpu* gpu,
     if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {
         fMaxMipMapLevel = 0;
     } else {
-        fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height());
+        fMaxMipMapLevel = SkMipMap::ComputeLevelCount(this->width(), this->height())+1;
     }
 }
 
