@@ -293,6 +293,9 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         }
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
+        if (!rasterImage) {
+            return -1;
+        }
 
         SkBitmap tmp;
         tmp.allocPixels(overallII);
@@ -317,6 +320,5 @@ int DDLPromiseImageHelper::findOrDefineImage(SkImage* image) {
     }
 
     int newID = this->addImage(image);
-    SkASSERT(this->isValidID(newID));
     return newID;
 }
