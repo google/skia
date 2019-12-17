@@ -130,17 +130,33 @@ private:
     // causes truncation and floor to be the same. Coincidentally, masking to produce the field also
     // removes the +1.
     static uint32_t PackIDSkPoint(SkGlyphID glyphID, SkPoint pt, SkIPoint mask) {
+    #if 0
+        // TODO: why does this code not work on GCC 8.3 x86 Debug builds?
         using namespace skvx;
         using XY = Vec<2, float>;
         using SubXY = Vec<2, int>;
+
         const XY magic = {1.f * (1u << (kSubPixelPosLen + kSubPixelX)),
                           1.f * (1u << (kSubPixelPosLen + kSubPixelY))};
         XY pos{pt.x(), pt.y()};
         XY subPos = (pos - floor(pos)) + 1.0f;
         SubXY sub = cast<int>(subPos * magic) & SubXY{mask.x(), mask.y()};
+    #else
+        const float magicX = 1.f * (1u << (kSubPixelPosLen + kSubPixelX)),
+                    magicY = 1.f * (1u << (kSubPixelPosLen + kSubPixelY));
+
+        float x = pt.x(),
+              y = pt.y();
+        x = (x - floorf(x)) + 1.0f;
+        y = (y - floorf(y)) + 1.0f;
+        int sub[] = {
+            (int)(x * magicX) & mask.x(),
+            (int)(y * magicY) & mask.y(),
+        };
+    #endif
+
         SkASSERT(sub[0] / (1u << kSubPixelX) < (1u << kSubPixelPosLen));
         SkASSERT(sub[1] / (1u << kSubPixelY) < (1u << kSubPixelPosLen));
-
         return (glyphID << kGlyphID) | sub[0] | sub[1];
     }
 
