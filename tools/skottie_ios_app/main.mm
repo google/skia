@@ -124,7 +124,7 @@ static UIStackView* make_skottie_stack(CGFloat width) {
 }
 
 - (void)handleTap:(UIGestureRecognizer*)sender {
-    if (![sender state] == UIGestureRecognizerStateEnded) {
+    if ([sender state] != UIGestureRecognizerStateEnded) {
         return;
     }
     NSArray<UIView*>* subviews = [[self stackView] subviews];

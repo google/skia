@@ -57,7 +57,7 @@
     return (bool)fDraw;
 }
 
-- (void)setStopAtEnd:stop{ fClock.setStopAtEnd(stop); }
+- (void)setStopAtEnd:(BOOL)stop{ fClock.setStopAtEnd(stop); }
 
 - (float)animationDurationSeconds { return fClock.duration(); }
 
