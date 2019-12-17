@@ -691,7 +691,7 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     if (!falloffTexture) {
         return nullptr;
     }
-    GrSwizzle swizzle = context->priv().caps()->getTextureSwizzle(falloffTexture->backendFormat(),
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(falloffTexture->backendFormat(),
                                                                   GrColorType::kAlpha_8);
 
     GrSurfaceProxyView falloffView(std::move(falloffTexture), kTopLeft_GrSurfaceOrigin, swizzle);

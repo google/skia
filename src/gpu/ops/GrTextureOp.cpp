@@ -1315,7 +1315,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     auto saturate = random->nextBool() ? GrTextureOp::Saturate::kYes : GrTextureOp::Saturate::kNo;
     GrSurfaceProxyView proxyView(
             std::move(proxy), origin,
-            context->priv().caps()->getTextureSwizzle(format, GrColorType::kRGBA_8888));
+            context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888));
     auto alphaType = static_cast<SkAlphaType>(
             random->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
 

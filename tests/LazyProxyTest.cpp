@@ -144,7 +144,7 @@ public:
                     format, GrRenderable::kYes, 1, GrProtected::kNo, kOrigin,
                     kAlpha_half_GrPixelConfig, *proxyProvider->caps(),
                     GrSurfaceProxy::UseAllocator::kYes);
-            GrSwizzle swizzle = ctx->priv().caps()->getTextureSwizzle(format, kColorType);
+            GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);
             fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, swizzle),
                         GrSamplerState::ClampNearest());
             this->setTextureSamplerCnt(1);

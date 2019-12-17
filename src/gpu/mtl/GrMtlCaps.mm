@@ -541,7 +541,7 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kAlpha_8;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+            ctInfo.fReadSwizzle = GrSwizzle::RRRR();
             ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
         }
         // Format: R8Unorm, Surface: kGray_8
@@ -549,7 +549,7 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kGray_8;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle("rrr1");
+            ctInfo.fReadSwizzle = GrSwizzle("rrr1");
         }
     }
 
@@ -566,7 +566,7 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kAlpha_8;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle::AAAA();
+            ctInfo.fReadSwizzle = GrSwizzle::AAAA();
         }
     }
 
@@ -623,7 +623,7 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kRGB_888x;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle::RGB1();
+            ctInfo.fReadSwizzle = GrSwizzle::RGB1();
         }
     }
 
@@ -708,7 +708,7 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kAlpha_F16;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+            ctInfo.fReadSwizzle = GrSwizzle::RRRR();
             ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
         }
     }
@@ -752,7 +752,7 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kAlpha_16;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+            ctInfo.fReadSwizzle = GrSwizzle::RRRR();
             ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
         }
     }
@@ -1049,14 +1049,14 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
     SK_ABORT("Invalid compression type");
 }
 
-GrSwizzle GrMtlCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+GrSwizzle GrMtlCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     SkASSERT(mtlFormat != MTLPixelFormatInvalid);
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
-            return ctInfo.fTextureSwizzle;
+            return ctInfo.fReadSwizzle;
         }
     }
     return GrSwizzle::RGBA();

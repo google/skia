@@ -138,7 +138,7 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
         return nullptr;
     }
 
-    GrSwizzle swizzle = context->priv().caps()->getTextureSwizzle(proxy->backendFormat(),
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                   GrColorType::kRGBA_8888);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,

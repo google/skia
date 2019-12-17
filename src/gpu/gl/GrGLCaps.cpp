@@ -1429,7 +1429,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             auto& ctInfo = info.fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kRGB_888x;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-            ctInfo.fTextureSwizzle = GrSwizzle::RGB1();
+            ctInfo.fReadSwizzle = GrSwizzle::RGB1();
 
             // External IO ColorTypes:
             ctInfo.fExternalIOFormatCount = 1;
@@ -1486,7 +1486,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_8;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fReadSwizzle = GrSwizzle::RRRR();
                 ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
                 this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kR8);
 
@@ -1519,7 +1519,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kGray_8;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-                ctInfo.fTextureSwizzle = GrSwizzle("rrr1");
+                ctInfo.fReadSwizzle = GrSwizzle("rrr1");
                 this->setColorTypeFormat(GrColorType::kGray_8, GrGLFormat::kR8);
 
                 // External IO ColorTypes:
@@ -1610,7 +1610,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                     ctInfo.fColorType = GrColorType::kAlpha_8;
                     ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
                                     ColorTypeInfo::kRenderable_Flag;
-                    ctInfo.fTextureSwizzle = GrSwizzle::AAAA();
+                    ctInfo.fReadSwizzle = GrSwizzle::AAAA();
                     int idx = static_cast<int>(GrColorType::kAlpha_8);
                     if (fColorTypeToFormatTable[idx] == GrGLFormat::kUnknown) {
                         this->setColorTypeFormat(GrColorType::kAlpha_8, GrGLFormat::kALPHA8);
@@ -2115,7 +2115,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_F16;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fReadSwizzle = GrSwizzle::RRRR();
                 ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
                 this->setColorTypeFormat(GrColorType::kAlpha_F16, GrGLFormat::kR16F);
 
@@ -2197,7 +2197,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_F16;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fReadSwizzle = GrSwizzle::RRRR();
                 ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
 
                 int idx = static_cast<int>(GrColorType::kAlpha_F16);
@@ -2682,7 +2682,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = GrColorType::kAlpha_16;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-                ctInfo.fTextureSwizzle = GrSwizzle::RRRR();
+                ctInfo.fReadSwizzle = GrSwizzle::RRRR();
                 ctInfo.fOutputSwizzle = GrSwizzle::AAAA();
                 this->setColorTypeFormat(GrColorType::kAlpha_16, GrGLFormat::kR16);
 
@@ -4228,12 +4228,12 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     SkUNREACHABLE;
 }
 
-GrSwizzle GrGLCaps::getTextureSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
+GrSwizzle GrGLCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colorType) const {
     const auto& info = this->getFormatInfo(format.asGLFormat());
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == colorType) {
-            return ctInfo.fTextureSwizzle;
+            return ctInfo.fReadSwizzle;
         }
     }
     return GrSwizzle::RGBA();

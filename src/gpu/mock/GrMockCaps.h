@@ -169,7 +169,7 @@ public:
         return {};
     }
 
-    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override {
+    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override {
         return GrSwizzle();
     }
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override {
