@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dede9839_2219a380",
+        "filename": "src/sksl/sksl_blend.inc",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-12-17T19:12:34Z",
+      "side": 1,
+      "message": "Obviously this is syntactically valid, but it looks strange. Is this correct / should we just delete that unnecessary second +?",
+      "range": {
+        "startLine": 22,
+        "startChar": 62,
+        "endLine": 22,
+        "endChar": 66
+      },
+      "revId": "6769777c7f7f3aa72fea3c8cb02c9d4787736a9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee537d7f_605d3d87",
+        "filename": "src/sksl/sksl_blend.inc",
+        "patchSetId": 14
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-12-17T19:12:34Z",
+      "side": 1,
+      "message": "and again",
+      "range": {
+        "startLine": 24,
+        "startChar": 72,
+        "endLine": 24,
+        "endChar": 76
+      },
+      "revId": "6769777c7f7f3aa72fea3c8cb02c9d4787736a9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "128b5008_392cf0ca",
+        "filename": "src/sksl/sksl_blend.inc",
+        "patchSetId": 14
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2019-12-17T19:12:34Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 133
+      },
+      "revId": "6769777c7f7f3aa72fea3c8cb02c9d4787736a9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
