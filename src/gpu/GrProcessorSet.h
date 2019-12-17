@@ -121,7 +121,7 @@ public:
 
         friend class GrProcessorSet;
     };
-    GR_STATIC_ASSERT(sizeof(Analysis) <= sizeof(uint32_t));
+    static_assert(sizeof(Analysis) <= sizeof(uint32_t));
 
     /**
      * This analyzes the processors given an op's input color and coverage as well as a clip. The

@@ -31,7 +31,7 @@ private:
     static constexpr GrGLbitfield GL_SYNC_FLUSH_COMMANDS_BIT = 0x00000001;
 
     typedef struct __GLsync *GLsync;
-    GR_STATIC_ASSERT(sizeof(GLsync) <= sizeof(sk_gpu_test::PlatformFence));
+    static_assert(sizeof(GLsync) <= sizeof(sk_gpu_test::PlatformFence));
 
     typedef GLsync (GR_GL_FUNCTION_TYPE* GLFenceSyncProc) (GrGLenum, GrGLbitfield);
     typedef GrGLenum (GR_GL_FUNCTION_TYPE* GLClientWaitSyncProc) (GLsync, GrGLbitfield, GrGLuint64);
@@ -272,7 +272,7 @@ void GLGpuTimer::deleteQuery(sk_gpu_test::PlatformTimerQuery platformTimer) {
     fGLDeleteQueries(1, &queryID);
 }
 
-GR_STATIC_ASSERT(sizeof(GrGLuint) <= sizeof(sk_gpu_test::PlatformTimerQuery));
+static_assert(sizeof(GrGLuint) <= sizeof(sk_gpu_test::PlatformTimerQuery));
 
 }  // anonymous namespace
 

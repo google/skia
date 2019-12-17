@@ -334,10 +334,10 @@ static MTLBlendOperation blend_equation_to_mtl_blend_op(GrBlendEquation equation
         MTLBlendOperationSubtract,         // kSubtract_GrBlendEquation
         MTLBlendOperationReverseSubtract,  // kReverseSubtract_GrBlendEquation
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(0 == kAdd_GrBlendEquation);
-    GR_STATIC_ASSERT(1 == kSubtract_GrBlendEquation);
-    GR_STATIC_ASSERT(2 == kReverseSubtract_GrBlendEquation);
+    static_assert(SK_ARRAY_COUNT(gTable) == kFirstAdvancedGrBlendEquation);
+    static_assert(0 == kAdd_GrBlendEquation);
+    static_assert(1 == kSubtract_GrBlendEquation);
+    static_assert(2 == kReverseSubtract_GrBlendEquation);
 
     SkASSERT((unsigned)equation < kGrBlendEquationCnt);
     return gTable[equation];

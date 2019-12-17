@@ -38,32 +38,32 @@ static const char* specific_layout_qualifier_name(GrBlendEquation equation) {
     };
     return kLayoutQualifierNames[equation - kFirstAdvancedGrBlendEquation];
 
-    GR_STATIC_ASSERT(0 == kScreen_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(1 == kOverlay_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(2 == kDarken_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(3 == kLighten_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(4 == kColorDodge_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(5 == kColorBurn_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(6 == kHardLight_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(7 == kSoftLight_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(8 == kDifference_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(9 == kExclusion_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(10 == kMultiply_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(11 == kHSLHue_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(12 == kHSLSaturation_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(13 == kHSLColor_GrBlendEquation - kFirstAdvancedGrBlendEquation);
-    GR_STATIC_ASSERT(14 == kHSLLuminosity_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(0 == kScreen_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(1 == kOverlay_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(2 == kDarken_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(3 == kLighten_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(4 == kColorDodge_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(5 == kColorBurn_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(6 == kHardLight_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(7 == kSoftLight_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(8 == kDifference_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(9 == kExclusion_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(10 == kMultiply_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(11 == kHSLHue_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(12 == kHSLSaturation_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(13 == kHSLColor_GrBlendEquation - kFirstAdvancedGrBlendEquation);
+    static_assert(14 == kHSLLuminosity_GrBlendEquation - kFirstAdvancedGrBlendEquation);
     // There's an illegal GrBlendEquation at the end there, hence the -1.
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kLayoutQualifierNames) ==
-                     kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation - 1);
+    static_assert(SK_ARRAY_COUNT(kLayoutQualifierNames) ==
+                  kGrBlendEquationCnt - kFirstAdvancedGrBlendEquation - 1);
 }
 
 uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin) {
     SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
     return origin + 1;
 
-    GR_STATIC_ASSERT(0 == kTopLeft_GrSurfaceOrigin);
-    GR_STATIC_ASSERT(1 == kBottomLeft_GrSurfaceOrigin);
+    static_assert(0 == kTopLeft_GrSurfaceOrigin);
+    static_assert(1 == kBottomLeft_GrSurfaceOrigin);
 }
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
