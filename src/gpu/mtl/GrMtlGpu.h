@@ -130,7 +130,7 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData*,
-                                            int numMipLevels,
+                                            GrMipMapped,
                                             GrProtected) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
