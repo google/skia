@@ -355,4 +355,19 @@ describe('Core canvas behavior', function() {
         }));
     });
 
+    it('exports consts correctly', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            expect(CanvasKit.TRANSPARENT).toEqual(0);
+            expect(CanvasKit.RED).toEqual(4294901760);
+
+            expect(CanvasKit.QUAD_VERB).toEqual(2);
+            expect(CanvasKit.CONIC_VERB).toEqual(3);
+
+            expect(CanvasKit.SaveLayerInitWithPrevious).toEqual(4);
+            expect(CanvasKit.SaveLayerF16ColorType).toEqual(16);
+
+            done();
+        }));
+    });
+
 });
