@@ -326,6 +326,37 @@ public:
                                           TextureReleaseProc textureReleaseProc,
                                           ReleaseContext releaseContext);
 
+    /** Creates an SkImage from a GPU backend texture. The backend texture must stay
+        valid and unchanged until textureReleaseProc is called. The textureReleaseProc is
+        called when the SkImage is deleted or no longer refers to the texture and will be
+        passed the releaseContext.
+
+        An SkImage is returned if the format of backendTexture is recognized and supported.
+        Recognized formats vary by GPU back-end.
+
+        @param context             the GPU context
+        @param backendTexture      a texture already allocated by the GPU
+        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param alphaType           This characterizes the nature of the alpha values in the
+                                   backend texture. For opaque compressed formats (e.g., ETC1)
+                                   this should always be kOpaque_SkAlphaType.
+        @param colorSpace          This describes the color space of this image when it is sampled.
+                                   In general, if the format of the backend texture is SRGB some
+                                   linear colorSpace should be supplied (e.g., kLinear). If the
+                                   format of the backend texture is linear than some form of sRGB
+                                   color space (e.g., kSRGB) should be supplied.
+        @param textureReleaseProc  function called when the backend texture can be released
+        @param releaseContext      state passed to textureReleaseProc
+        @return                    created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromCompressedTexture(GrContext* context,
+                                                    const GrBackendTexture& backendTexture,
+                                                    GrSurfaceOrigin origin,
+                                                    SkAlphaType alphaType,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    TextureReleaseProc textureReleaseProc = nullptr,
+                                                    ReleaseContext releaseContext = nullptr);
+
     /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
 
         Created SkImage is available to other GPU contexts, and is available across thread
