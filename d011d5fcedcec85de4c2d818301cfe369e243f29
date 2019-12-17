@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1685723_e60199cd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-17T19:16:48Z",
+      "side": 1,
+      "message": "This describes the color space of this image\u0027s contents, as seen after sampling. In general, if the format of the backend texture is SRGB, some linear colorSpace should be supplied (eg SkColorSpace::MakeSRGBLinear()). If the format of the backend texture is linear, then the colorSpace should include a description of the transfer function as well (eg SkColorSpace::MakeSRGB()).",
+      "revId": "d011d5fcedcec85de4c2d818301cfe369e243f29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
