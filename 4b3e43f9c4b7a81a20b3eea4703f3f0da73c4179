@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db521beb_4f9a19ec",
+        "filename": "src/gpu/glsl/GrGLSLBlend.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-17T21:11:15Z",
+      "side": 1,
+      "message": "Is this intentional?",
+      "range": {
+        "startLine": 14,
+        "startChar": 26,
+        "endLine": 14,
+        "endChar": 31
+      },
+      "revId": "4b3e43f9c4b7a81a20b3eea4703f3f0da73c4179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "911b0b1c_ca398df0",
+        "filename": "src/gpu/glsl/GrGLSLBlend.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-17T21:11:15Z",
+      "side": 1,
+      "message": "nit: remove",
+      "range": {
+        "startLine": 17,
+        "startChar": 22,
+        "endLine": 17,
+        "endChar": 24
+      },
+      "revId": "4b3e43f9c4b7a81a20b3eea4703f3f0da73c4179",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
