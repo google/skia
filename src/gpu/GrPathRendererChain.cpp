@@ -78,10 +78,10 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(
         const GrPathRenderer::CanDrawPathArgs& args,
         DrawType drawType,
         GrPathRenderer::StencilSupport* stencilSupport) {
-    GR_STATIC_ASSERT(GrPathRenderer::kNoSupport_StencilSupport <
-                     GrPathRenderer::kStencilOnly_StencilSupport);
-    GR_STATIC_ASSERT(GrPathRenderer::kStencilOnly_StencilSupport <
-                     GrPathRenderer::kNoRestriction_StencilSupport);
+    static_assert(GrPathRenderer::kNoSupport_StencilSupport <
+                  GrPathRenderer::kStencilOnly_StencilSupport);
+    static_assert(GrPathRenderer::kStencilOnly_StencilSupport <
+                  GrPathRenderer::kNoRestriction_StencilSupport);
     GrPathRenderer::StencilSupport minStencilSupport;
     if (DrawType::kStencil == drawType) {
         minStencilSupport = GrPathRenderer::kStencilOnly_StencilSupport;

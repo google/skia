@@ -504,16 +504,16 @@ void GrVSCoverageProcessor::reset(PrimitiveType primitiveType, GrResourceProvide
     GrVertexAttribType xyAttribType;
     GrSLType xySLType;
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
-        GR_STATIC_ASSERT(offsetof(QuadPointInstance, fX) == 0);
-        GR_STATIC_ASSERT(sizeof(QuadPointInstance::fX) ==
-                         GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
-        GR_STATIC_ASSERT(sizeof(QuadPointInstance::fY) ==
-                         GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        static_assert(offsetof(QuadPointInstance, fX) == 0);
+        static_assert(sizeof(QuadPointInstance::fX) ==
+                      GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
+        static_assert(sizeof(QuadPointInstance::fY) ==
+                      GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
         xyAttribType = kFloat4_GrVertexAttribType;
         xySLType = kFloat4_GrSLType;
     } else {
-        GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
-                         2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
+        static_assert(sizeof(TriPointInstance) ==
+                      2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         xyAttribType = kFloat3_GrVertexAttribType;
         xySLType = kFloat3_GrSLType;
     }
