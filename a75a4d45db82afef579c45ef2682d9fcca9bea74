@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c920cee_442edc8a",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-17T15:56:21Z",
+      "side": 1,
+      "message": "for alpha and colorspace (documentation question)\n- do these values \"identify\" the compressed content?\n- are these values the requested \"transformed\" state being requested?\n- other?",
+      "range": {
+        "startLine": 332,
+        "startChar": 64,
+        "endLine": 332,
+        "endChar": 73
+      },
+      "revId": "a75a4d45db82afef579c45ef2682d9fcca9bea74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
