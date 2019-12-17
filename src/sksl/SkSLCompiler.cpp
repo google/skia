@@ -256,7 +256,8 @@ Compiler::Compiler(Flags flags)
 
     fIRGenerator->fIntrinsics = &fGPUIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
-    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
+    // The + 1 and -2 are there to shave off the extra parens we had to put around this string.
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE + 1, strlen(SKSL_GPU_INCLUDE) - 2,
                              symbols, &gpuIntrinsics, &fGpuSymbolTable);
     grab_intrinsics(&gpuIntrinsics, &fGPUIntrinsics);
     // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
