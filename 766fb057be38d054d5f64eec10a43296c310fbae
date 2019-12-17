@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2dfa0919_719d19b3",
+        "filename": "gn/checkpath.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-17T15:59:11Z",
+      "side": 1,
+      "message": "This sort of change needs\n\n   from __future__ import print_function\n\nto keep working in Python2, right?",
+      "revId": "766fb057be38d054d5f64eec10a43296c310fbae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
