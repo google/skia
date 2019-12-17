@@ -87,8 +87,8 @@ private:
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
-    static_assert(Flags(GrPrimitiveRestart::kNo) == Flags::kNone);
-    static_assert(Flags(GrPrimitiveRestart::kYes) == Flags::kUsePrimitiveRestart);
+    GR_STATIC_ASSERT(Flags(GrPrimitiveRestart::kNo) == Flags::kNone);
+    GR_STATIC_ASSERT(Flags(GrPrimitiveRestart::kYes) == Flags::kUsePrimitiveRestart);
 
     GrPrimitiveType fPrimitiveType;
     sk_sp<const GrBuffer> fIndexBuffer;

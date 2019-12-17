@@ -93,11 +93,11 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
         "General Enable",
         "Specific Enables",
     };
-    static_assert(0 == kNotSupported_AdvBlendEqInteraction);
-    static_assert(1 == kAutomatic_AdvBlendEqInteraction);
-    static_assert(2 == kGeneralEnable_AdvBlendEqInteraction);
-    static_assert(3 == kSpecificEnables_AdvBlendEqInteraction);
-    static_assert(SK_ARRAY_COUNT(kAdvBlendEqInteractionStr) == kLast_AdvBlendEqInteraction + 1);
+    GR_STATIC_ASSERT(0 == kNotSupported_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(1 == kAutomatic_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(2 == kGeneralEnable_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(3 == kSpecificEnables_AdvBlendEqInteraction);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kAdvBlendEqInteractionStr) == kLast_AdvBlendEqInteraction + 1);
 
     writer->appendBool("FB Fetch Support", fFBFetchSupport);
     writer->appendBool("Uses precision modifiers", fUsesPrecisionModifiers);

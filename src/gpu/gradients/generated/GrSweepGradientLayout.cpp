@@ -107,7 +107,7 @@ std::unique_ptr<GrFragmentProcessor> GrSweepGradientLayout::TestCreate(GrProcess
                                                         params.fStops, params.fColorCount);
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
-    SkASSERT_RELEASE(fp);
+    GrAlwaysAssert(fp);
     return fp;
 }
 #endif

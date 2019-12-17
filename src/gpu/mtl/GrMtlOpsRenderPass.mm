@@ -181,9 +181,9 @@ void GrMtlOpsRenderPass::setupRenderPass(
         MTLLoadActionClear,
         MTLLoadActionDontCare
     };
-    static_assert((int)GrLoadOp::kLoad == 0);
-    static_assert((int)GrLoadOp::kClear == 1);
-    static_assert((int)GrLoadOp::kDiscard == 2);
+    GR_STATIC_ASSERT((int)GrLoadOp::kLoad == 0);
+    GR_STATIC_ASSERT((int)GrLoadOp::kClear == 1);
+    GR_STATIC_ASSERT((int)GrLoadOp::kDiscard == 2);
     SkASSERT(colorInfo.fLoadOp <= GrLoadOp::kDiscard);
     SkASSERT(stencilInfo.fLoadOp <= GrLoadOp::kDiscard);
 
@@ -191,8 +191,8 @@ void GrMtlOpsRenderPass::setupRenderPass(
         MTLStoreActionStore,
         MTLStoreActionDontCare
     };
-    static_assert((int)GrStoreOp::kStore == 0);
-    static_assert((int)GrStoreOp::kDiscard == 1);
+    GR_STATIC_ASSERT((int)GrStoreOp::kStore == 0);
+    GR_STATIC_ASSERT((int)GrStoreOp::kDiscard == 1);
     SkASSERT(colorInfo.fStoreOp <= GrStoreOp::kDiscard);
     SkASSERT(stencilInfo.fStoreOp <= GrStoreOp::kDiscard);
 
@@ -246,11 +246,11 @@ static MTLPrimitiveType gr_to_mtl_primitive(GrPrimitiveType primitiveType) {
         MTLPrimitiveTypeLine,
         MTLPrimitiveTypeLineStrip
     };
-    static_assert((int)GrPrimitiveType::kTriangles == 0);
-    static_assert((int)GrPrimitiveType::kTriangleStrip == 1);
-    static_assert((int)GrPrimitiveType::kPoints == 2);
-    static_assert((int)GrPrimitiveType::kLines == 3);
-    static_assert((int)GrPrimitiveType::kLineStrip == 4);
+    GR_STATIC_ASSERT((int)GrPrimitiveType::kTriangles == 0);
+    GR_STATIC_ASSERT((int)GrPrimitiveType::kTriangleStrip == 1);
+    GR_STATIC_ASSERT((int)GrPrimitiveType::kPoints == 2);
+    GR_STATIC_ASSERT((int)GrPrimitiveType::kLines == 3);
+    GR_STATIC_ASSERT((int)GrPrimitiveType::kLineStrip == 4);
 
     SkASSERT(primitiveType <= GrPrimitiveType::kLineStrip);
     return mtlPrimitiveType[static_cast<int>(primitiveType)];

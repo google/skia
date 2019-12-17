@@ -1048,7 +1048,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         // will be kInvalidGenID if left uninitialized.
         SkAlignedSTStorage<1, GrReducedClip> storage;
         memset(storage.get(), 0, sizeof(GrReducedClip));
-        static_assert(0 == SkClipStack::kInvalidGenID);
+        GR_STATIC_ASSERT(0 == SkClipStack::kInvalidGenID);
 
         // Get the reduced version of the stack.
         SkRect queryBounds = kBounds;
@@ -1117,7 +1117,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
 
         SkAlignedSTStorage<1, GrReducedClip> storage;
         memset(storage.get(), 0, sizeof(GrReducedClip));
-        static_assert(0 == SkClipStack::kInvalidGenID);
+        GR_STATIC_ASSERT(0 == SkClipStack::kInvalidGenID);
         const GrReducedClip* reduced = new (storage.get()) GrReducedClip(stack, bounds, caps);
 
         REPORTER_ASSERT(reporter, reduced->maskElements().count() == 1);
