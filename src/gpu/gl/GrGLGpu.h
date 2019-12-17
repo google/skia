@@ -181,7 +181,7 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData*,
-                                            int numMipLevels,
+                                            GrMipMapped,
                                             GrProtected) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
@@ -242,9 +242,9 @@ private:
                              int mipLevelCount);
 
     GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat,
-                                       SkImage::CompressionType,
+                                       SkImage::CompressionType, GrMipMapped,
                                        GrGLTextureParameters::SamplerOverriddenState* initialState,
-                                       const void* data);
+                                       const char* data);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
@@ -388,8 +388,9 @@ private:
     bool uploadCompressedTexData(GrGLFormat,
                                  SkImage::CompressionType,
                                  SkISize dimensions,
+                                 GrMipMapped,
                                  GrGLenum target,
-                                 const void* data);
+                                 const char* data);
 
     bool createRenderTargetObjects(const GrGLTexture::Desc&,
                                    int sampleCount,
