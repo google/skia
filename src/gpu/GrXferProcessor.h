@@ -29,7 +29,7 @@ enum GrXferBarrierType {
     kBlend_GrXferBarrierType,    //<! Required by certain blend extensions.
 };
 /** Should be able to treat kNone as false in boolean expressions */
-GR_STATIC_ASSERT(SkToBool(kNone_GrXferBarrierType) == false);
+static_assert(SkToBool(kNone_GrXferBarrierType) == false);
 
 /**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst

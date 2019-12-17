@@ -81,7 +81,7 @@ void GrGLConvexPolyEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                   GrProcessorKeyBuilder* b) {
     const GrConvexPolyEffect& cpe = processor.cast<GrConvexPolyEffect>();
-    GR_STATIC_ASSERT(kGrClipEdgeTypeCnt <= 8);
+    static_assert(kGrClipEdgeTypeCnt <= 8);
     uint32_t key = (cpe.getEdgeCount() << 3) | (int) cpe.getEdgeType();
     b->add32(key);
 }

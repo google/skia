@@ -20,7 +20,7 @@ constexpr const GrUserStencilSettings gUnused(
         0x0000>()
 );
 
-GR_STATIC_ASSERT(kAll_StencilFlags == (gUnused.fCWFlags[0] & gUnused.fCCWFlags[0]));
+static_assert(kAll_StencilFlags == (gUnused.fCWFlags[0] & gUnused.fCCWFlags[0]));
 
 const GrUserStencilSettings& GrUserStencilSettings::kUnused = gUnused;
 
@@ -62,8 +62,8 @@ void GrStencilSettings::reset(const GrStencilSettings& that) {
         memcpy(&fCWFace, &that.fCWFace, sizeof(Face));
     } else {
         memcpy(&fCWFace, &that.fCWFace, 2 * sizeof(Face));
-        GR_STATIC_ASSERT(sizeof(Face) ==
-                         offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
+        static_assert(sizeof(Face) ==
+                      offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
     }
 }
 
@@ -82,23 +82,23 @@ bool GrStencilSettings::operator==(const GrStencilSettings& that) const {
         return false;
     } else {
         return 0 == memcmp(&fCWFace, &that.fCWFace, 2 * sizeof(Face));
-        GR_STATIC_ASSERT(sizeof(Face) ==
-                         offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
+        static_assert(sizeof(Face) ==
+                      offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
     }
     // memcmp relies on GrStencilSettings::Face being tightly packed.
-    GR_STATIC_ASSERT(0 == offsetof(Face, fRef));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fRef));
-    GR_STATIC_ASSERT(2 == offsetof(Face, fTest));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fTest));
-    GR_STATIC_ASSERT(4 == offsetof(Face, fTestMask));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fTestMask));
-    GR_STATIC_ASSERT(6 == offsetof(Face, fPassOp));
-    GR_STATIC_ASSERT(1 == sizeof(Face::fPassOp));
-    GR_STATIC_ASSERT(7 == offsetof(Face, fFailOp));
-    GR_STATIC_ASSERT(1 == sizeof(Face::fFailOp));
-    GR_STATIC_ASSERT(8 == offsetof(Face, fWriteMask));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fWriteMask));
-    GR_STATIC_ASSERT(10 == sizeof(Face));
+    static_assert(0 == offsetof(Face, fRef));
+    static_assert(2 == sizeof(Face::fRef));
+    static_assert(2 == offsetof(Face, fTest));
+    static_assert(2 == sizeof(Face::fTest));
+    static_assert(4 == offsetof(Face, fTestMask));
+    static_assert(2 == sizeof(Face::fTestMask));
+    static_assert(6 == offsetof(Face, fPassOp));
+    static_assert(1 == sizeof(Face::fPassOp));
+    static_assert(7 == offsetof(Face, fFailOp));
+    static_assert(1 == sizeof(Face::fFailOp));
+    static_assert(8 == offsetof(Face, fWriteMask));
+    static_assert(2 == sizeof(Face::fWriteMask));
+    static_assert(10 == sizeof(Face));
 }
 
 static constexpr GrStencilTest gUserStencilTestToRaw[kGrUserStencilTestCount] = {
@@ -119,18 +119,18 @@ static constexpr GrStencilTest gUserStencilTestToRaw[kGrUserStencilTestCount] = 
     GrStencilTest::kNotEqual
 };
 
-GR_STATIC_ASSERT(0 == (int)GrUserStencilTest::kAlwaysIfInClip);
-GR_STATIC_ASSERT(1 == (int)GrUserStencilTest::kEqualIfInClip);
-GR_STATIC_ASSERT(2 == (int)GrUserStencilTest::kLessIfInClip);
-GR_STATIC_ASSERT(3 == (int)GrUserStencilTest::kLEqualIfInClip);
-GR_STATIC_ASSERT(4 == (int)GrUserStencilTest::kAlways);
-GR_STATIC_ASSERT(5 == (int)GrUserStencilTest::kNever);
-GR_STATIC_ASSERT(6 == (int)GrUserStencilTest::kGreater);
-GR_STATIC_ASSERT(7 == (int)GrUserStencilTest::kGEqual);
-GR_STATIC_ASSERT(8 == (int)GrUserStencilTest::kLess);
-GR_STATIC_ASSERT(9 == (int)GrUserStencilTest::kLEqual);
-GR_STATIC_ASSERT(10 == (int)GrUserStencilTest::kEqual);
-GR_STATIC_ASSERT(11 == (int)GrUserStencilTest::kNotEqual);
+static_assert(0 == (int)GrUserStencilTest::kAlwaysIfInClip);
+static_assert(1 == (int)GrUserStencilTest::kEqualIfInClip);
+static_assert(2 == (int)GrUserStencilTest::kLessIfInClip);
+static_assert(3 == (int)GrUserStencilTest::kLEqualIfInClip);
+static_assert(4 == (int)GrUserStencilTest::kAlways);
+static_assert(5 == (int)GrUserStencilTest::kNever);
+static_assert(6 == (int)GrUserStencilTest::kGreater);
+static_assert(7 == (int)GrUserStencilTest::kGEqual);
+static_assert(8 == (int)GrUserStencilTest::kLess);
+static_assert(9 == (int)GrUserStencilTest::kLEqual);
+static_assert(10 == (int)GrUserStencilTest::kEqual);
+static_assert(11 == (int)GrUserStencilTest::kNotEqual);
 
 static constexpr GrStencilOp gUserStencilOpToRaw[kGrUserStencilOpCount] = {
     GrStencilOp::kKeep,
@@ -154,19 +154,19 @@ static constexpr GrStencilOp gUserStencilOpToRaw[kGrUserStencilOpCount] = {
     GrStencilOp::kZero       // kZeroClipAndUserBits.
 };
 
-GR_STATIC_ASSERT(0 == (int)GrUserStencilOp::kKeep);
-GR_STATIC_ASSERT(1 == (int)GrUserStencilOp::kZero);
-GR_STATIC_ASSERT(2 == (int)GrUserStencilOp::kReplace);
-GR_STATIC_ASSERT(3 == (int)GrUserStencilOp::kInvert);
-GR_STATIC_ASSERT(4 == (int)GrUserStencilOp::kIncWrap);
-GR_STATIC_ASSERT(5 == (int)GrUserStencilOp::kDecWrap);
-GR_STATIC_ASSERT(6 == (int)GrUserStencilOp::kIncMaybeClamp);
-GR_STATIC_ASSERT(7 == (int)GrUserStencilOp::kDecMaybeClamp);
-GR_STATIC_ASSERT(8 == (int)GrUserStencilOp::kZeroClipBit);
-GR_STATIC_ASSERT(9 == (int)GrUserStencilOp::kSetClipBit);
-GR_STATIC_ASSERT(10 == (int)GrUserStencilOp::kInvertClipBit);
-GR_STATIC_ASSERT(11 == (int)GrUserStencilOp::kSetClipAndReplaceUserBits);
-GR_STATIC_ASSERT(12 == (int)GrUserStencilOp::kZeroClipAndUserBits);
+static_assert(0 == (int)GrUserStencilOp::kKeep);
+static_assert(1 == (int)GrUserStencilOp::kZero);
+static_assert(2 == (int)GrUserStencilOp::kReplace);
+static_assert(3 == (int)GrUserStencilOp::kInvert);
+static_assert(4 == (int)GrUserStencilOp::kIncWrap);
+static_assert(5 == (int)GrUserStencilOp::kDecWrap);
+static_assert(6 == (int)GrUserStencilOp::kIncMaybeClamp);
+static_assert(7 == (int)GrUserStencilOp::kDecMaybeClamp);
+static_assert(8 == (int)GrUserStencilOp::kZeroClipBit);
+static_assert(9 == (int)GrUserStencilOp::kSetClipBit);
+static_assert(10 == (int)GrUserStencilOp::kInvertClipBit);
+static_assert(11 == (int)GrUserStencilOp::kSetClipAndReplaceUserBits);
+static_assert(12 == (int)GrUserStencilOp::kZeroClipAndUserBits);
 
 void GrStencilSettings::Face::reset(const GrUserStencilSettings::Face& user, bool hasStencilClip,
                                     int numStencilBits) {
@@ -216,8 +216,8 @@ void GrStencilSettings::Face::reset(const GrUserStencilSettings::Face& user, boo
 
 void GrStencilSettings::Face::setDisabled() {
     memset(this, 0, sizeof(*this));
-    GR_STATIC_ASSERT(0 == (int)GrStencilTest::kAlways);
-    GR_STATIC_ASSERT(0 == (int)GrStencilOp::kKeep);
+    static_assert(0 == (int)GrStencilTest::kAlways);
+    static_assert(0 == (int)GrStencilOp::kKeep);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -367,12 +367,12 @@ static constexpr const GrUserStencilSettings* gUserToClipTable[2][1 + SkRegion::
     }
 };
 
-GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
-GR_STATIC_ASSERT(1 == SkRegion::kIntersect_Op);
-GR_STATIC_ASSERT(2 == SkRegion::kUnion_Op);
-GR_STATIC_ASSERT(3 == SkRegion::kXOR_Op);
-GR_STATIC_ASSERT(4 == SkRegion::kReverseDifference_Op);
-GR_STATIC_ASSERT(5 == SkRegion::kReplace_Op);
+static_assert(0 == SkRegion::kDifference_Op);
+static_assert(1 == SkRegion::kIntersect_Op);
+static_assert(2 == SkRegion::kUnion_Op);
+static_assert(3 == SkRegion::kXOR_Op);
+static_assert(4 == SkRegion::kReverseDifference_Op);
+static_assert(5 == SkRegion::kReplace_Op);
 
 ///////
 // Direct to Stencil
@@ -432,12 +432,12 @@ static constexpr const GrUserStencilSettings* gDirectDrawTable[1 + SkRegion::kLa
     {&gReplaceClip,  nullptr}   // kReplace_Op.
 };
 
-GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
-GR_STATIC_ASSERT(1 == SkRegion::kIntersect_Op);
-GR_STATIC_ASSERT(2 == SkRegion::kUnion_Op);
-GR_STATIC_ASSERT(3 == SkRegion::kXOR_Op);
-GR_STATIC_ASSERT(4 == SkRegion::kReverseDifference_Op);
-GR_STATIC_ASSERT(5 == SkRegion::kReplace_Op);
+static_assert(0 == SkRegion::kDifference_Op);
+static_assert(1 == SkRegion::kIntersect_Op);
+static_assert(2 == SkRegion::kUnion_Op);
+static_assert(3 == SkRegion::kXOR_Op);
+static_assert(4 == SkRegion::kReverseDifference_Op);
+static_assert(5 == SkRegion::kReplace_Op);
 
 GrUserStencilSettings const* const* GrStencilSettings::GetClipPasses(SkRegion::Op op,
                                                                      bool canBeDirect,
@@ -476,31 +476,31 @@ void GrStencilSettings::genKey(GrProcessorKeyBuilder* b) const {
     }
     if (!this->isTwoSided()) {
         constexpr int kCount16 = sizeof(Face) / sizeof(uint16_t);
-        GR_STATIC_ASSERT(0 == sizeof(Face) % sizeof(uint16_t));
+        static_assert(0 == sizeof(Face) % sizeof(uint16_t));
         uint16_t* key = reinterpret_cast<uint16_t*>(b->add32n((kCount16 + 1) / 2));
         memcpy(key, &fCWFace, sizeof(Face));
         key[kCount16] = 0;
-        GR_STATIC_ASSERT(1 == kCount16 % 2);
+        static_assert(1 == kCount16 % 2);
     } else {
         constexpr int kCount32 = (2 * sizeof(Face)) / sizeof(uint32_t);
-        GR_STATIC_ASSERT(0 == (2 * sizeof(Face)) % sizeof(uint32_t));
+        static_assert(0 == (2 * sizeof(Face)) % sizeof(uint32_t));
         uint32_t* key = b->add32n(kCount32);
         memcpy(key, &fCWFace, 2 * sizeof(Face));
-        GR_STATIC_ASSERT(sizeof(Face) ==
-                offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
+        static_assert(sizeof(Face) ==
+                      offsetof(GrStencilSettings, fCCWFace) - offsetof(GrStencilSettings, fCWFace));
     }
     // We rely on GrStencilSettings::Face being tightly packed for the key to be reliable.
-    GR_STATIC_ASSERT(0 == offsetof(Face, fRef));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fRef));
-    GR_STATIC_ASSERT(2 == offsetof(Face, fTest));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fTest));
-    GR_STATIC_ASSERT(4 == offsetof(Face, fTestMask));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fTestMask));
-    GR_STATIC_ASSERT(6 == offsetof(Face, fPassOp));
-    GR_STATIC_ASSERT(1 == sizeof(Face::fPassOp));
-    GR_STATIC_ASSERT(7 == offsetof(Face, fFailOp));
-    GR_STATIC_ASSERT(1 == sizeof(Face::fFailOp));
-    GR_STATIC_ASSERT(8 == offsetof(Face, fWriteMask));
-    GR_STATIC_ASSERT(2 == sizeof(Face::fWriteMask));
-    GR_STATIC_ASSERT(10 == sizeof(Face));
+    static_assert(0 == offsetof(Face, fRef));
+    static_assert(2 == sizeof(Face::fRef));
+    static_assert(2 == offsetof(Face, fTest));
+    static_assert(2 == sizeof(Face::fTest));
+    static_assert(4 == offsetof(Face, fTestMask));
+    static_assert(2 == sizeof(Face::fTestMask));
+    static_assert(6 == offsetof(Face, fPassOp));
+    static_assert(1 == sizeof(Face::fPassOp));
+    static_assert(7 == offsetof(Face, fFailOp));
+    static_assert(1 == sizeof(Face::fFailOp));
+    static_assert(8 == offsetof(Face, fWriteMask));
+    static_assert(2 == sizeof(Face::fWriteMask));
+    static_assert(10 == sizeof(Face));
 }
