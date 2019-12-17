@@ -540,7 +540,7 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
         if (!proxy) {
             return false;
         }
-        GrSwizzle swizzle = proxyProvider->caps()->getTextureSwizzle(fFormat, fColorType);
+        GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
         fViews[i] = GrSurfaceProxyView(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
 
         // set up allocated plots

@@ -470,7 +470,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
 
     GrSurfaceProxyView view(
             std::move(proxy), origin,
-            context->priv().caps()->getTextureSwizzle(format, GrColorType::kRGBA_8888));
+            context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888));
 
     return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view),
                                 GrColorType::kRGBA_8888, std::move(csxf), filter, std::move(iter),

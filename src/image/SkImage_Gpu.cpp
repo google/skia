@@ -134,7 +134,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrContext* ctx,
         return nullptr;
     }
 
-    GrSwizzle swizzle = ctx->priv().caps()->getTextureSwizzle(proxy->backendFormat(), colorType);
+    GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(proxy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, at, std::move(view),
                                    std::move(colorSpace));
@@ -462,7 +462,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
     if (!proxy) {
         return nullptr;
     }
-    GrSwizzle swizzle = context->priv().caps()->getTextureSwizzle(backendFormat, grColorType);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, alphaType,
                                    std::move(view), std::move(colorSpace));
@@ -594,7 +594,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     sk_sp<SkColorSpace> cs = pixmap.refColorSpace();
     SkAlphaType at =  pixmap.alphaType();
 
-    GrSwizzle swizzle = context->priv().caps()->getTextureSwizzle(backendFormat, grColorType);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(proxy, surfaceOrigin, swizzle);
     sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, at,
                                                    std::move(view), cs);

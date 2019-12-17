@@ -50,7 +50,7 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
-    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
+    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 

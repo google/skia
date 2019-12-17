@@ -177,7 +177,7 @@ public:
         return fColorTypeToFormatTable[idx];
     }
 
-    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
+    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     int getFragmentUniformBinding() const;
@@ -246,7 +246,7 @@ private:
         };
         uint32_t fFlags = 0;
 
-        GrSwizzle fTextureSwizzle;
+        GrSwizzle fReadSwizzle;
         GrSwizzle fOutputSwizzle;
     };
 
