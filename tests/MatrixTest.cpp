@@ -699,7 +699,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 
     // doesn't crash with null dst, src, count == 0
     {
-    mats[0].mapHomogeneousPoints(nullptr, nullptr, 0);
+    mats[0].mapHomogeneousPoints(nullptr, (const SkPoint3*)nullptr, 0);
     }
 
     // uniform scale of point
