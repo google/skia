@@ -140,8 +140,13 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData* data,
-                                            int numMipLevels,
+                                            GrMipMapped,
                                             GrProtected) override;
+    GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                      const GrBackendFormat&,
+                                                      const BackendTextureData*,
+                                                      GrMipMapped,
+                                                      GrProtected isProtected) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
 #if GR_TEST_UTILS

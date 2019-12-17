@@ -142,6 +142,10 @@ public:
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture&, GrColorType,
                                         GrWrapOwnership, GrWrapCacheable, GrIOType);
 
+    sk_sp<GrTexture> wrapCompressedBackendTexture(const GrBackendTexture&,
+                                                  GrWrapOwnership, GrWrapCacheable);
+
+
     /**
      * Implements GrResourceProvider::wrapRenderableBackendTexture
      */
@@ -529,6 +533,12 @@ public:
                                           int numMipLevels,
                                           GrProtected isProtected);
 
+    GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
+                                                    const GrBackendFormat&,
+                                                    const BackendTextureData* data,
+                                                    GrMipMapped,
+                                                    GrProtected isProtected);
+
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
      * texture has been transferred to a GrContext using adopt semantics this should not be called.
@@ -599,6 +609,8 @@ public:
 
 protected:
     static bool MipMapsAreCorrect(SkISize dimensions, const BackendTextureData*, int numMipLevels);
+    static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
+                                        GrMipMapped, const BackendTextureData*);
 
     // Handles cases where a surface will be updated without a call to flushRenderTarget.
     void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
@@ -614,8 +626,14 @@ private:
                                                     const GrBackendFormat&,
                                                     GrRenderable,
                                                     const BackendTextureData*,
-                                                    int numMipLevels,
+                                                    GrMipMapped,
                                                     GrProtected isProtected) = 0;
+
+    virtual GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
+                                                              const GrBackendFormat&,
+                                                              const BackendTextureData*,
+                                                              GrMipMapped,
+                                                              GrProtected isProtected) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -649,6 +667,13 @@ private:
                                                        const void* data) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                                   GrWrapOwnership, GrWrapCacheable, GrIOType) = 0;
+
+    virtual sk_sp<GrTexture> onWrapCompressedBackendTexture(const GrBackendTexture&,
+                                                            GrWrapOwnership,
+                                                            GrWrapCacheable) {
+        return nullptr;
+    }
+
     virtual sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&, int sampleCnt,
                                                             GrColorType, GrWrapOwnership,
                                                             GrWrapCacheable) = 0;
