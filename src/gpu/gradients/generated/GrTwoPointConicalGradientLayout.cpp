@@ -222,7 +222,7 @@ std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate
     GrTest::TestAsFPArgs asFPArgs(d);
     std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
 
-    SkASSERT_RELEASE(fp);
+    GrAlwaysAssert(fp);
     return fp;
 }
 #endif

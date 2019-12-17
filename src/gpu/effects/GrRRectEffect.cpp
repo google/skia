@@ -285,7 +285,7 @@ void GLCircularRRectEffect::emitCode(EmitArgs& args) {
 void GLCircularRRectEffect::GenKey(const GrProcessor& processor, const GrShaderCaps&,
                                    GrProcessorKeyBuilder* b) {
     const CircularRRectEffect& crre = processor.cast<CircularRRectEffect>();
-    static_assert(kGrClipEdgeTypeCnt <= 8);
+    GR_STATIC_ASSERT(kGrClipEdgeTypeCnt <= 8);
     b->add32((crre.getCircularCornerFlags() << 3) | (int) crre.getEdgeType());
 }
 
@@ -592,7 +592,7 @@ void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
 void GLEllipticalRRectEffect::GenKey(const GrProcessor& effect, const GrShaderCaps&,
                                      GrProcessorKeyBuilder* b) {
     const EllipticalRRectEffect& erre = effect.cast<EllipticalRRectEffect>();
-    static_assert((int)GrClipEdgeType::kLast < (1 << 3));
+    GR_STATIC_ASSERT((int) GrClipEdgeType::kLast < (1 << 3));
     b->add32(erre.getRRect().getType() | (int) erre.getEdgeType() << 3);
 }
 

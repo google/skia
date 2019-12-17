@@ -48,7 +48,7 @@ static uint32_t sampler_key(GrTextureType textureType, const GrSwizzle& swizzle,
                             const GrCaps& caps) {
     int samplerTypeKey = texture_type_key(textureType);
 
-    static_assert(2 == sizeof(swizzle.asKey()));
+    GR_STATIC_ASSERT(2 == sizeof(swizzle.asKey()));
     uint16_t swizzleKey = 0;
     if (caps.shaderCaps()->textureSwizzleAppliedInShader()) {
         swizzleKey = swizzle.asKey();
@@ -185,7 +185,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc, const GrRenderTarget* renderTarge
     // bindings in use or other descriptor field settings) it should be set
     // to a canonical value to avoid duplicate programs with different keys.
 
-    static_assert(0 == kProcessorKeysOffset % sizeof(uint32_t));
+    GR_STATIC_ASSERT(0 == kProcessorKeysOffset % sizeof(uint32_t));
     // Make room for everything up to the effect keys.
     desc->key().reset();
     desc->key().push_back_n(kProcessorKeysOffset);

@@ -2558,7 +2558,7 @@ GrFence SK_WARN_UNUSED_RESULT GrVkGpu::insertFence() {
         return 0;
     }
 
-    static_assert(sizeof(GrFence) >= sizeof(VkFence));
+    GR_STATIC_ASSERT(sizeof(GrFence) >= sizeof(VkFence));
     return (GrFence)fence;
 }
 

@@ -299,8 +299,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     SkASSERT(views[0].proxy());
 
     static constexpr int kMaxTextures = GrBitmapTextGeoProc::kMaxTextures;
-    static_assert(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
-    static_assert(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
+    GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
+    GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
 
     auto fixedDynamicState = target->makeFixedDynamicState(kMaxTextures);
     for (unsigned i = 0; i < numActiveViews; ++i) {
