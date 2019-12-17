@@ -7,85 +7,95 @@
 #ifndef GrQuadBuffer_DEFINED
 #define GrQuadBuffer_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "include/private/SkTFitsIn.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/geometry/GrQuad.h"
 
 template<typename T>
 class GrQuadBuffer {
+private:
+    static_assert(alignof(T) == 4, "Buffer metadata T must be 4 byte aligned");
+
+    struct Header;
+    struct Block;
+
 public:
     GrQuadBuffer()
-            : fCount(0)
-            , fDeviceType(GrQuad::Type::kAxisAligned)
-            , fLocalType(GrQuad::Type::kAxisAligned) {
-        // Pre-allocate space for 1 2D device-space quad, metadata, and header
-        fData.reserve(this->entrySize(fDeviceType, nullptr));
-    }
-
-    // Reserves space for the given number of entries; if 'needsLocals' is true, space will be
-    // reserved for each entry to also have a 2D local quad. The reserved space assumes 2D device
-    // quad for simplicity. Since this buffer has a variable bitrate encoding for quads, this may
-    // over or under reserve, but pre-allocating still helps when possible.
-    GrQuadBuffer(int count, bool needsLocals = false)
-            : fCount(0)
-            , fDeviceType(GrQuad::Type::kAxisAligned)
-            , fLocalType(GrQuad::Type::kAxisAligned) {
-        int entrySize = this->entrySize(fDeviceType, needsLocals ? &fLocalType : nullptr);
-        fData.reserve(count * entrySize);
-    }
+            : fHead(nullptr)
+            , fTail(nullptr)
+            , fDeviceType(static_cast<uint64_t>(GrQuad::Type::kAxisAligned))
+            , fLocalType(static_cast<uint64_t>(GrQuad::Type::kAxisAligned))
+            , fHasLocals(static_cast<uint64_t>(false))
+            , fCount(0)
+            , fFib0(0)
+            , fFib1(1) {}
 
     // The number of device-space quads (and metadata, and optional local quads) that are in the
     // the buffer.
-    int count() const { return fCount; }
+    int count() const {
+        SkASSERT(SkTFitsIn<int32_t>(fCount));
+        return fCount;
+    }
 
     // The most general type for the device-space quads in this buffer
-    GrQuad::Type deviceQuadType() const { return fDeviceType; }
+    GrQuad::Type deviceQuadType() const { return static_cast<GrQuad::Type>(fDeviceType); }
 
-    // The most general type for the local quads; if no local quads are ever added, this will
+    // The most general type for the local quads; if no local quads are ever added, this will still
     // return kAxisAligned.
-    GrQuad::Type localQuadType() const { return fLocalType; }
+    GrQuad::Type localQuadType() const { return static_cast<GrQuad::Type>(fLocalType); }
 
     // Append the given 'deviceQuad' to this buffer, with its associated 'metadata'. If 'localQuad'
     // is not null, the local coordinates will also be attached to the entry. When an entry
     // has local coordinates, during iteration, the Iter::hasLocals() will return true and its
     // Iter::localQuad() will be equivalent to the provided local coordinates. If 'localQuad' is
     // null then Iter::hasLocals() will report false for the added entry.
-    void append(const GrQuad& deviceQuad, T&& metadata, const GrQuad* localQuad = nullptr);
+    void append(SkArenaAlloc* arena, const GrQuad& deviceQuad, T&& metadata,
+                const GrQuad* localQuad = nullptr);
 
-    // Copies all entries from 'that' to this buffer
-    void concat(const GrQuadBuffer<T>& that);
+    // Concatenates all entries from 'that' to this buffer. This may copy entries or steal internal
+    // nodes from 'that'. 'that' should not be used after this returns.
+    void concat(SkArenaAlloc* arena, GrQuadBuffer<T>* that);
+
+    void reserve(SkArenaAlloc* arena, int count, GrQuad::Type expectedDeviceType,
+                 GrQuad::Type expectedLocalType, bool expectedHasLocals);
 
     // Provides a read-only iterator over a quad buffer, giving access to the device quad, metadata
     // and optional local quad.
     class Iter {
     public:
         Iter(const GrQuadBuffer<T>* buffer)
-                : fDeviceQuad(SkRect::MakeEmpty())
-                , fLocalQuad(SkRect::MakeEmpty())
-                , fBuffer(buffer)
-                , fCurrentEntry(nullptr)
-                , fNextEntry(buffer->fData.begin()) {
+                : fCurrentBlock(buffer->fHead)
+                , fCurrentIndex(-1)
+                , fNextIndex(0) {
+            SkDEBUGCODE(fBuffer = buffer);
             SkDEBUGCODE(fExpectedCount = buffer->count();)
         }
 
         bool next();
 
-        const T& metadata() const { this->validate(); return *(fBuffer->metadata(fCurrentEntry)); }
+        const T& metadata() const {
+            SkDEBUGCODE(this->validate();)
+            return *(fCurrentBlock->metadata(fCurrentIndex));
+        }
 
         // The returned pointer is mutable so that the object can be used for scratch calculations
         // during op preparation. However, any changes are not persisted in the GrQuadBuffer and
         // subsequent calls to next() will overwrite the state of the GrQuad.
-        GrQuad* deviceQuad() { this->validate(); return &fDeviceQuad; }
+        GrQuad* deviceQuad() {
+            SkDEBUGCODE(this->validate();)
+            return &fDeviceQuad;
+        }
 
         // If isLocalValid() returns false, this returns nullptr. Otherwise, the returned pointer
         // is mutable in the same manner as deviceQuad().
         GrQuad* localQuad() {
-            this->validate();
+            SkDEBUGCODE(this->validate();)
             return this->isLocalValid() ? &fLocalQuad : nullptr;
         }
 
         bool isLocalValid() const {
-            this->validate();
-            return fBuffer->header(fCurrentEntry)->fHasLocals;
+            SkDEBUGCODE(this->validate();)
+            return fCurrentBlock->header(fCurrentIndex)->fHasLocals;
         }
 
     private:
@@ -93,18 +103,22 @@ public:
         GrQuad fDeviceQuad;
         GrQuad fLocalQuad;
 
-        const GrQuadBuffer<T>* fBuffer;
-        // The pointer to the current entry to read metadata/header details from
-        const char* fCurrentEntry;
-        // The pointer to replace fCurrentEntry when next() is called, cached since it is calculated
-        // automatically while unpacking the quad data.
-        const char* fNextEntry;
+        const Block* fCurrentBlock;
+        // The index into the current entry to read metadata/header properties
+        int          fCurrentIndex;
+        // The index to the next entry, cached since it is calculated automatically while unpacking
+        // the quad data from fCurrentIndex. If fNextIndex >= fCurrentBlock->used() then the
+        // iterator must advance to the next block instead.
+        int          fNextIndex;
 
+        SkDEBUGCODE(const GrQuadBuffer<T>* fBuffer;)
         SkDEBUGCODE(int fExpectedCount;)
 
+#ifdef SK_DEBUG
         void validate() const {
-            SkDEBUGCODE(fBuffer->validate(fCurrentEntry, fExpectedCount);)
+            fBuffer->validate(fCurrentBlock, fCurrentIndex, fExpectedCount);
         }
+#endif
     };
 
     Iter iterator() const { return Iter(this); }
@@ -114,47 +128,54 @@ public:
     // finalization, which may require rewriting state such as color.
     class MetadataIter {
     public:
-        MetadataIter(GrQuadBuffer<T>* list)
-                : fBuffer(list)
-                , fCurrentEntry(nullptr) {
-            SkDEBUGCODE(fExpectedCount = list->count();)
+        MetadataIter(GrQuadBuffer<T>* buffer)
+                : fCurrentBlock(buffer->fHead)
+                , fCurrentIndex(-1) {
+            SkDEBUGCODE(fBuffer = buffer;)
+            SkDEBUGCODE(fExpectedCount = buffer->count();)
         }
 
         bool next();
 
-        T& operator*() { this->validate(); return *(fBuffer->metadata(fCurrentEntry)); }
+        T& operator*() {
+            SkDEBUGCODE(this->validate();)
+            return *(fCurrentBlock->metadata(fCurrentIndex));
+        }
 
-        T* operator->() { this->validate(); return fBuffer->metadata(fCurrentEntry); }
+        T* operator->() {
+            SkDEBUGCODE(this->validate();)
+            return fCurrentBlock->metadata(fCurrentIndex);
+        }
 
     private:
-        GrQuadBuffer<T>* fBuffer;
-        char* fCurrentEntry;
+        Block* fCurrentBlock;
+        int    fCurrentIndex;
 
+        SkDEBUGCODE(GrQuadBuffer<T>* fBuffer;)
         SkDEBUGCODE(int fExpectedCount;)
 
+#ifdef SK_DEBUG
         void validate() const {
-            SkDEBUGCODE(fBuffer->validate(fCurrentEntry, fExpectedCount);)
+            fBuffer->validate(fCurrentBlock, fCurrentIndex, fExpectedCount);
         }
+#endif
     };
 
     MetadataIter metadata() { return MetadataIter(this); }
 
 private:
-    struct alignas(int32_t) Header {
-        unsigned fDeviceType : 2;
-        unsigned fLocalType  : 2; // Ignore if fHasLocals is false
-        unsigned fHasLocals  : 1;
+    // Header per entry in a block. This is 4 byte aligned to match all of the floats that the
+    // block will be storing, even though it currently only holds 5 bits of data.
+    struct Header {
+        uint32_t fDeviceType : 2;
+        uint32_t fLocalType  : 2; // Ignore if fHasLocals is false
+        uint32_t fHasLocals  : 1;
         // Known value to detect if iteration doesn't properly advance through the buffer
-        SkDEBUGCODE(unsigned fSentinel : 27;)
+        SkDEBUGCODE(uint32_t fSentinel : 27;)
     };
-    static_assert(sizeof(Header) == sizeof(int32_t), "Header should be 4 bytes");
+    static_assert(sizeof(Header) == sizeof(uint32_t), "Header should be 4 bytes");
 
-    static constexpr unsigned kSentinel = 0xbaffe;
-    static constexpr int kMetaSize = sizeof(Header) + sizeof(T);
-    static constexpr int k2DQuadFloats = 8;
-    static constexpr int k3DQuadFloats = 12;
-
-    // Each logical entry in the buffer is a variable length tuple storing device coordinates,
+    // Each logical entry in the Block's data is a variable length tuple storing device coordinates,
     // optional local coordinates, and metadata. An entry always has a header that defines the
     // quad types of device and local coordinates, and always has metadata of type T. The device
     // and local quads' data follows as a variable length array of floats:
@@ -166,63 +187,197 @@ private:
     //  [ local xs  ] = 4 floats or 0 floats depending on fHasLocals in header
     //  [ local ys  ] = 4 floats or 0 floats depending on fHasLocals in header
     //  [ local ws  ] = 4 floats or 0 floats depending on fHasLocals and fLocalType in header
-    // FIXME (michaelludwig) - Since this is intended only for ops, can we use the arena to
-    //      allocate storage for the quad buffer? Since this is forward-iteration only, could also
-    //      explore a linked-list structure for concatenating quads when batching ops
-    SkTDArray<char> fData;
+    struct Block {
+        // fDataSize and fIndex are packed into 16 bits, so make sure not to allocate more
+        // than can be indexed.
+        static constexpr size_t kMaxDataSize = UINT16_MAX;
 
-    int fCount; // Number of (device, local, metadata) entries
-    GrQuad::Type fDeviceType; // Most general type of all entries
-    GrQuad::Type fLocalType;
+        // The next block in the linked list of blocks. A block should not have new quads added to
+        // its data if it already has a next block.
+        Block* fNext;
+        // Size of fData, which is dynamic and allocated on the arena. Since this is 16 bits, it
+        // limits each Block to 64k (roughly 400 quads, so not bad, and helps prevent excessively
+        // large allocations).
+        uint32_t fDataSize : 16;
+        // Index of the next quad entry to be appended to the block.
+        uint32_t fIndex    : 16;
+        // fData stores contiguous Headers, T's, and float coordinates (all 4 byte aligned).
+        // Must be at the end because it fills the allocation from the arena. fDataSize and fIndex
+        // are bit fields of uint32_t to avoid padding between fIndex and fData.
+        char fData[4];
 
-    inline int entrySize(GrQuad::Type deviceType, const GrQuad::Type* localType) const {
+        // For use with in-place new, where the bytesAllocated represents the total allocation
+        // including the Blocks fields, its first fData value, and all remaining uint32_ts.
+        Block(size_t bytesAllocated)
+                : fNext(nullptr)
+                , fDataSize(bytesAllocated - kBlockSize)
+                , fIndex(0) {
+            SkASSERT(SkTFitsIn<uint16_t>(bytesAllocated - kBlockSize));
+        }
+
+        inline int remaining() const { return fDataSize - fIndex; }
+
+        inline int used() const { return fIndex; }
+
+        // Helpers to access typed sections of fData, given the index that represents the start of
+        // an entry (header, metadata, device and local coords).
+        inline Header* header(int index) {
+            SkASSERT(index >= 0 && index < fIndex);
+            return static_cast<Header*>(static_cast<void*>(fData + index));
+        }
+        inline const Header* header(int index) const {
+            SkASSERT(index >= 0 && index < fIndex);
+            return static_cast<const Header*>(static_cast<const void*>(fData + index));
+        }
+
+        inline T* metadata(int index) {
+            return static_cast<T*>(static_cast<void*>(fData + index + kHeaderSize));
+        }
+        inline const T* metadata(int index) const {
+            return static_cast<const T*>(static_cast<const void*>(fData + index + kHeaderSize));
+        }
+
+        inline float* coords(int index) {
+            return static_cast<float*>(static_cast<void*>(fData + index + kMetaSize));
+        }
+        inline const float* coords(int index) const {
+            return static_cast<const float*>(static_cast<const void*>(fData + index + kMetaSize));
+        }
+    };
+    // fNext == 8, fDataSize + fIndex == 4, fData == 4 -> 16 total
+    static_assert(sizeof(Block) == 16, "Block should be 16 bytes");
+
+    static constexpr uint32_t kSentinel = 0xbaffe;
+    static constexpr size_t kHeaderSize = sizeof(Header);
+    static constexpr size_t kMetaSize = sizeof(Header) + sizeof(T);
+    // Does not include Block's fData field, so this represents the size of the Block struct
+    // that isn't storing the entry data.
+    static constexpr size_t kBlockSize = sizeof(Block) - 4;
+    static constexpr size_t k2DQuadSize = 8 * sizeof(float);
+    static constexpr size_t k3DQuadSize = 12 * sizeof(float);
+
+    // Each Fibonacci term is packed into 13 bits, so saturate the series at this value
+    static constexpr size_t kMaxFib = (1 << 13) - 1;
+
+    // These point to block allocated in an SkArenaAlloc, preferably the record time allocator of
+    // the GrRecordingContext for the ops that store geometry in the buffer.
+    Block*   fHead;
+    Block*   fTail;
+
+    // GrTextureOp's performance is highly sensitive to op size, so make this as small as possible.
+    // Packing everything into 64 bits doesn't really limit us since the Block* force us to be 8
+    // byte aligned anyways, and 2^32 well exceeds the quad index buffer limits of GrResourceManager
+    uint64_t fDeviceType : 2; // GrQuad::Type
+    uint64_t fLocalType  : 2; // ""
+    uint64_t fHasLocals  : 1; // This is tracked to help estimate future quad entry sizes
+    static_assert(GrQuad::kTypeCount <= 4);
+
+    // The number of entries in the buffer (e.g. # of (Headers + coords) across all linked blocks)
+    uint64_t fCount      : 32;
+    // The fibonacci sequence doesn't need that many bits, since (fFib0 + fFib1) is not restricted
+    // to these 13 bits until after a block allocation. Eventually, the allocation sequence will
+    // converge to a constant 2 * kMaxFib * entrySize; but this is further restricted to 16-bit max
+    // block size and with entrySize generally about 100 bytes, this aligns pretty well.
+    uint64_t fFib0       : 13;
+    uint64_t fFib1       : 13;
+
+    Block* addBlock(SkArenaAlloc* arena, size_t minSize, size_t maxSize) {
+        size_t allocated;
+        void* blockPtr = arena->makeAtLeastBytesAlignedTo(
+                SkTMin(minSize, Block::kMaxDataSize) + kBlockSize,
+                SkTMin(maxSize, Block::kMaxDataSize) + kBlockSize,
+                alignof(uint32_t), &allocated);
+        return new (blockPtr) Block(allocated);
+    }
+
+    Block* addBlock(SkArenaAlloc* arena, size_t entrySize) {
+        // Determine max based on Fibonacci growth, min will always be the single entry
+        size_t n = fFib0 + fFib1;
+        fFib0 = fFib1;
+        fFib1 = SkTMin(n, kMaxFib);
+        return this->addBlock(arena, entrySize, n * entrySize);
+    }
+
+    bool growBlock(SkArenaAlloc* arena, Block* block, size_t growSize) {
+        size_t newSize = kBlockSize + SkTMin(growSize + block->fDataSize, Block::kMaxDataSize);
+        if (arena->resize(block, block->fDataSize + kBlockSize, &newSize)) {
+            block->fDataSize = newSize - kBlockSize;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void growBlock(SkArenaAlloc* arena, Block* block) {
+        size_t n = fFib0 + fFib1;
+        size_t expectedEntrySize = EntrySize(this->deviceQuadType(),
+                                             this->localQuadType(),
+                                             fHasLocals);
+        if (this->growBlock(arena, block, n * expectedEntrySize)) {
+            // Only update size sequence if growth was successful
+            fFib0 = fFib1;
+            fFib1 = SkTMin(n, kMaxFib);
+        }
+    }
+
+    static inline int EntrySize(GrQuad::Type deviceType, GrQuad::Type localType, bool hasLocals) {
         int size = kMetaSize;
-        size += (deviceType == GrQuad::Type::kPerspective ? k3DQuadFloats
-                                                          : k2DQuadFloats) * sizeof(float);
-        if (localType) {
-            size += (*localType == GrQuad::Type::kPerspective ? k3DQuadFloats
-                                                              : k2DQuadFloats) * sizeof(float);
+        size += (deviceType == GrQuad::Type::kPerspective ? k3DQuadSize
+                                                          : k2DQuadSize);
+        if (hasLocals) {
+            size += (localType == GrQuad::Type::kPerspective ? k3DQuadSize
+                                                             : k2DQuadSize);
         }
         return size;
     }
-    inline int entrySize(const Header* header) const {
-        if (header->fHasLocals) {
-            GrQuad::Type localType = static_cast<GrQuad::Type>(header->fLocalType);
-            return this->entrySize(static_cast<GrQuad::Type>(header->fDeviceType), &localType);
-        } else {
-            return this->entrySize(static_cast<GrQuad::Type>(header->fDeviceType), nullptr);
-        }
-    }
-
-    // Helpers to access typed sections of the buffer, given the start of an entry
-    inline Header* header(char* entry) {
-        return static_cast<Header*>(static_cast<void*>(entry));
-    }
-    inline const Header* header(const char* entry) const {
-        return static_cast<const Header*>(static_cast<const void*>(entry));
-    }
-
-    inline T* metadata(char* entry) {
-        return static_cast<T*>(static_cast<void*>(entry + sizeof(Header)));
-    }
-    inline const T* metadata(const char* entry) const {
-        return static_cast<const T*>(static_cast<const void*>(entry + sizeof(Header)));
-    }
-
-    inline float* coords(char* entry) {
-        return static_cast<float*>(static_cast<void*>(entry + kMetaSize));
-    }
-    inline const float* coords(const char* entry) const {
-        return static_cast<const float*>(static_cast<const void*>(entry + kMetaSize));
+    static inline int EntrySize(const Header* header) {
+        return EntrySize(static_cast<GrQuad::Type>(header->fDeviceType),
+                         static_cast<GrQuad::Type>(header->fLocalType),
+                         header->fHasLocals);
     }
 
     // Helpers to convert from coordinates to GrQuad and vice versa, returning pointer to the
     // next packed quad coordinates.
-    float* packQuad(const GrQuad& quad, float* coords);
-    const float* unpackQuad(GrQuad::Type type, const float* coords, GrQuad* quad) const;
+    static float* PackQuad(const GrQuad& quad, float* coords) {
+        // Copies all 12 (or 8) floats at once, so requires the 3 arrays to be contiguous
+        SkASSERT(quad.xs() + 4 == quad.ys() && quad.xs() + 8 == quad.ws());
+        if (quad.hasPerspective()) {
+            memcpy(coords, quad.xs(), k3DQuadSize);
+            return coords + 12;
+        } else {
+            memcpy(coords, quad.xs(), k2DQuadSize);
+            return coords + 8;
+        }
+    }
+    static const float* UnpackQuad(GrQuad::Type type, const float* coords, GrQuad* quad) {
+        SkASSERT(quad->xs() + 4 == quad->ys() && quad->xs() + 8 == quad->ws());
+        if (type == GrQuad::Type::kPerspective) {
+            // Fill in X, Y, and W in one go
+            memcpy(quad->xs(), coords, k3DQuadSize);
+            coords = coords + 12;
+        } else {
+            // Fill in X and Y of the quad, the setQuadType() below will set Ws to 1 if needed
+            memcpy(quad->xs(), coords, k2DQuadSize);
+            coords = coords + 8;
+        }
+
+        quad->setQuadType(type);
+        return coords;
+    }
 
 #ifdef SK_DEBUG
-    void validate(const char* entry, int expectedCount) const;
+    void validate(const Block* currentBlock, int currentIndex, int expectedCount) const {
+        // Triggers if accessing before next() is called on an iterator
+        SkASSERT(currentIndex >= 0);
+        // Triggers if accessing after next() returns false
+        SkASSERT(currentBlock);
+        // Triggers if reading past the end of a block
+        SkASSERT(currentIndex < currentBlock->fIndex);
+        // Triggers if elements have been added to the buffer while iterating entries
+        SkASSERT(expectedCount == this->count());
+        // Make sure the start of the entry looks like a header
+        SkASSERT(currentBlock->header(currentIndex)->fSentinel == kSentinel);
+    }
 #endif
 };
 
@@ -231,98 +386,142 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-float* GrQuadBuffer<T>::packQuad(const GrQuad& quad, float* coords) {
-    // Copies all 12 (or 8) floats at once, so requires the 3 arrays to be contiguous
-    // FIXME(michaelludwig) - If this turns out not to be the case, just do 4 copies
-    SkASSERT(quad.xs() + 4 == quad.ys() && quad.xs() + 8 == quad.ws());
-    if (quad.hasPerspective()) {
-        memcpy(coords, quad.xs(), k3DQuadFloats * sizeof(float));
-        return coords + k3DQuadFloats;
+void GrQuadBuffer<T>::reserve(SkArenaAlloc* arena,
+                              int count,
+                              GrQuad::Type expectedDeviceType,
+                              GrQuad::Type expectedLocalType,
+                              bool expectedHasLocals) {
+    size_t entrySize = EntrySize(expectedDeviceType, expectedLocalType, expectedHasLocals);
+    int minEntryCount = SkTMax(count / 3, 1);
+    if (fHead) {
+        // Attempt to grow the tail
+        if (!this->growBlock(arena, fTail, count * entrySize)) {
+            // Possibly add a new block if the old tail is mostly full
+            if (fTail->used() > 0.75f * fTail->fDataSize) {
+                Block* next = this->addBlock(arena, minEntryCount * entrySize, count * entrySize);
+                fTail->fNext = next;
+                fTail = next;
+            }
+        } // else existing block updated to reserve more space
     } else {
-        memcpy(coords, quad.xs(), k2DQuadFloats * sizeof(float));
-        return coords + k2DQuadFloats;
+        // Allocate a new block, but allow the minimum allocation to be for a reduced number of
+        // entries if it makes for more efficient arena usage.
+        fHead = this->addBlock(arena, minEntryCount * entrySize, count * entrySize);
+        fTail = fHead;
     }
 }
 
 template<typename T>
-const float* GrQuadBuffer<T>::unpackQuad(GrQuad::Type type, const float* coords, GrQuad* quad) const {
-    SkASSERT(quad->xs() + 4 == quad->ys() && quad->xs() + 8 == quad->ws());
-    if (type == GrQuad::Type::kPerspective) {
-        // Fill in X, Y, and W in one go
-        memcpy(quad->xs(), coords, k3DQuadFloats * sizeof(float));
-        coords = coords + k3DQuadFloats;
+void GrQuadBuffer<T>::append(SkArenaAlloc* arena,
+                             const GrQuad& deviceQuad,
+                             T&& metadata,
+                             const GrQuad* localQuad) {
+    GrQuad::Type localType;
+    int entrySize;
+    if (localQuad) {
+        localType = localQuad->quadType();
+        entrySize = EntrySize(deviceQuad.quadType(), localType, true);
     } else {
-        // Fill in X and Y of the quad, the setQuadType() below will set Ws to 1 if needed
-        memcpy(quad->xs(), coords, k2DQuadFloats * sizeof(float));
-        coords = coords + k2DQuadFloats;
+        localType = GrQuad::Type::kAxisAligned;
+        entrySize = EntrySize(deviceQuad.quadType(), localType, false);
     }
 
-    quad->setQuadType(type);
-    return coords;
-}
+    if (!fHead || fTail->remaining() < entrySize) {
+        // Need a new Block from the arena.
+        Block* nextBlock = this->addBlock(arena, entrySize);
+        SkASSERT(nextBlock->remaining() >= entrySize);
 
-template<typename T>
-void GrQuadBuffer<T>::append(const GrQuad& deviceQuad, T&& metadata, const GrQuad* localQuad) {
-    GrQuad::Type localType = localQuad ? localQuad->quadType() : GrQuad::Type::kAxisAligned;
-    int entrySize = this->entrySize(deviceQuad.quadType(), localQuad ? &localType : nullptr);
+        if (!fHead) {
+            fHead = nextBlock;
+        } else {
+            SkASSERT(fTail);
+            fTail->fNext = nextBlock;
+        }
+        fTail = nextBlock;
+    }
 
-    // Fill in the entry, as described in fData's declaration
-    char* entry = fData.append(entrySize);
+    // Fill in the entry, as specified by Block.
+    SkASSERT(entrySize <= fTail->remaining());
+    int index = fTail->fIndex;
+    fTail->fIndex += entrySize;
+
     // First the header
-    Header* h = this->header(entry);
-    h->fDeviceType = static_cast<unsigned>(deviceQuad.quadType());
-    h->fHasLocals = static_cast<unsigned>(localQuad != nullptr);
-    h->fLocalType = static_cast<unsigned>(localQuad ? localQuad->quadType()
-                                                    : GrQuad::Type::kAxisAligned);
-    SkDEBUGCODE(h->fSentinel = static_cast<unsigned>(kSentinel);)
+    Header* h = fTail->header(index);
+    h->fDeviceType = static_cast<uint32_t>(deviceQuad.quadType());
+    h->fHasLocals = static_cast<uint32_t>(localQuad != nullptr);
+    h->fLocalType = static_cast<uint32_t>(localType);
+    SkDEBUGCODE(h->fSentinel = static_cast<uint32_t>(kSentinel);)
 
     // Second, the fixed-size metadata
-    static_assert(alignof(T) == 4, "Metadata must be 4 byte aligned");
-    *(this->metadata(entry)) = std::move(metadata);
+    *(fTail->metadata(index)) = std::move(metadata);
 
-    // Then the variable blocks of x, y, and w float coordinates
-    float* coords = this->coords(entry);
-    coords = this->packQuad(deviceQuad, coords);
+    // Finally the variable blocks of x, y, and w float coordinates
+    float* coords = fTail->coords(index);
+    coords = PackQuad(deviceQuad, coords);
     if (localQuad) {
-        coords = this->packQuad(*localQuad, coords);
+        coords = PackQuad(*localQuad, coords);
     }
-    SkASSERT((char*)coords - entry == entrySize);
+    SkASSERT((char*)coords - (fTail->fData + index) == entrySize);
 
     // Entry complete, update buffer-level state
     fCount++;
-    if (deviceQuad.quadType() > fDeviceType) {
-        fDeviceType = deviceQuad.quadType();
+
+    if (h->fDeviceType > fDeviceType) {
+        fDeviceType = h->fDeviceType;
     }
-    if (localQuad && localQuad->quadType() > fLocalType) {
-        fLocalType = localQuad->quadType();
+    if (h->fLocalType > fLocalType) {
+        fLocalType = h->fLocalType;
     }
+    fHasLocals |= h->fHasLocals;
 }
 
 template<typename T>
-void GrQuadBuffer<T>::concat(const GrQuadBuffer<T>& that) {
-    fData.append(that.fData.count(), that.fData.begin());
-    fCount += that.fCount;
-    if (that.fDeviceType > fDeviceType) {
-        fDeviceType = that.fDeviceType;
-    }
-    if (that.fLocalType > fLocalType) {
-        fLocalType = that.fLocalType;
-    }
-}
+void GrQuadBuffer<T>::concat(SkArenaAlloc* arena, GrQuadBuffer<T>* that) {
+    if (!fHead) {
+        // Steal that's head and tail since this buffer is empty
+        fHead = that->fHead;
+        fTail = that->fTail;
+    } else {
+        // Pack as much as possible into the remainder of fTail with memcpy.
+        // NOTE: This currently adds a non-trivial amount of memory moving because a new rect op
+        // data is appended to the end of the arena when it's created, and then that is copied back
+        // into any mergeable GrQuadBuffer. Once a draw can be added in-place on an existing op,
+        // without allocating the GrOp up front, many of these moves can go away because they will
+        // get written directly to the packed blocks.
+        SkASSERT(fTail);
+        Block* thatHead = that->fHead;
+        while(thatHead && thatHead->used() <= fTail->remaining()) {
+            memcpy(fTail->fData + fTail->fIndex, thatHead->fData, thatHead->used());
+            fTail->fIndex += thatHead->used();
+            // Release thatHead (this will really only do anything if thatHead->fNext is null and
+            // thatHead happened to be at the end of the arena).
+            Block* next = thatHead->fNext;
+            bool success = arena->release(thatHead, thatHead->fDataSize + kBlockSize);
+            (void) success;
+            thatHead = next;
+            SkASSERT(!success || !next);
+        }
 
-#ifdef SK_DEBUG
-template<typename T>
-void GrQuadBuffer<T>::validate(const char* entry, int expectedCount) const {
-    // Triggers if accessing before next() is called on an iterator
-    SkASSERT(entry);
-    // Triggers if accessing after next() returns false
-    SkASSERT(entry < fData.end());
-    // Triggers if elements have been added to the buffer while iterating entries
-    SkASSERT(expectedCount == fCount);
-    // Make sure the start of the entry looks like a header
-    SkASSERT(this->header(entry)->fSentinel == kSentinel);
+        // If we still have a 'thatHead', we ran out of room to copy full blocks
+        // into this buffer's current tail. Simply link the remaining nodes.
+        if (thatHead) {
+            fTail->fNext = thatHead;
+            fTail = that->fTail;
+            // Conservatively update the growth rate as well (this is slower than summing them)
+            fFib0 = SkTMax(fFib0, that->fFib0);
+            fFib1 = SkTMax(fFib1, that->fFib1);
+
+            // At this point, we know the GrQuadBuffer is used by an op that captures multiple draws
+            // Attempt to grow the new tail to allow subsequent ops to be densely packed into it.
+            this->growBlock(arena, fTail);
+        }
+    }
+
+    fCount += that->fCount;
+    fDeviceType = SkTMax(fDeviceType, that->fDeviceType);
+    fLocalType = SkTMax(fLocalType, that->fLocalType);
+    fHasLocals |= that->fHasLocals;
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Iterator implementations
@@ -330,40 +529,62 @@ void GrQuadBuffer<T>::validate(const char* entry, int expectedCount) const {
 
 template<typename T>
 bool GrQuadBuffer<T>::Iter::next() {
-    SkASSERT(fNextEntry);
-    if (fNextEntry >= fBuffer->fData.end()) {
+    if (!fCurrentBlock) {
+        // No more blocks
         return false;
     }
-    // There is at least one more entry, so store the current start for metadata access
-    fCurrentEntry = fNextEntry;
 
-    // And then unpack the device and optional local coordinates into fDeviceQuad and fLocalQuad
-    const Header* h = fBuffer->header(fCurrentEntry);
-    const float* coords = fBuffer->coords(fCurrentEntry);
-    coords = fBuffer->unpackQuad(static_cast<GrQuad::Type>(h->fDeviceType), coords, &fDeviceQuad);
+    if (fCurrentBlock->used() <= fNextIndex) {
+        // Used up current block, go to the next
+        fCurrentBlock = fCurrentBlock->fNext;
+        fCurrentIndex = 0;
+        if (!fCurrentBlock) {
+            // No more blocks
+            return false;
+        }
+    } else {
+        // Iteration within the current block
+        fCurrentIndex = fNextIndex;
+    }
+
+    SkASSERT(fCurrentBlock && fCurrentIndex < fCurrentBlock->used());
+
+
+    // Unpack the device and optional local coordinates into fDeviceQuad and fLocalQuad
+    const Header* h = fCurrentBlock->header(fCurrentIndex);
+    const float* coords = fCurrentBlock->coords(fCurrentIndex);
+    coords = UnpackQuad(static_cast<GrQuad::Type>(h->fDeviceType), coords, &fDeviceQuad);
     if (h->fHasLocals) {
-        coords = fBuffer->unpackQuad(static_cast<GrQuad::Type>(h->fLocalType), coords, &fLocalQuad);
+        coords = UnpackQuad(static_cast<GrQuad::Type>(h->fLocalType), coords, &fLocalQuad);
     } // else localQuad() will return a nullptr so no need to reset fLocalQuad
 
     // At this point, coords points to the start of the next entry
-    fNextEntry = static_cast<const char*>(static_cast<const void*>(coords));
-    SkASSERT((fNextEntry - fCurrentEntry) == fBuffer->entrySize(h));
+    fNextIndex = fCurrentIndex + EntrySize(h);
+    SkASSERT((fCurrentBlock->fData + fNextIndex) == (char*) coords);
     return true;
 }
 
 template<typename T>
 bool GrQuadBuffer<T>::MetadataIter::next() {
-    if (fCurrentEntry) {
+    if (!fCurrentBlock) {
+        return false;
+    }
+
+    if (fCurrentIndex >= 0) {
         // Advance pointer by entry size
-        if (fCurrentEntry < fBuffer->fData.end()) {
-            const Header* h = fBuffer->header(fCurrentEntry);
-            fCurrentEntry += fBuffer->entrySize(h);
-        }
+        int entrySize = EntrySize(fCurrentBlock->header(fCurrentIndex));
+        fCurrentIndex += entrySize;
     } else {
         // First call to next
-        fCurrentEntry = fBuffer->fData.begin();
+        fCurrentIndex = 0;
     }
-    // Nothing else is needed to do but report whether or not the updated pointer is valid
-    return fCurrentEntry < fBuffer->fData.end();
+
+    if (fCurrentIndex >= fCurrentBlock->used()) {
+        // Advanced past the end of the current block
+        fCurrentBlock = fCurrentBlock->fNext;
+        fCurrentIndex = 0;
+    }
+    // Nothing else is needed to do but report whether or not the updated block+index is valid
+    return fCurrentBlock && fCurrentIndex < fCurrentBlock->used();
 }
 #endif  // GrQuadBuffer_DEFINED
