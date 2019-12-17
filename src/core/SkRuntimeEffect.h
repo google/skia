@@ -23,11 +23,38 @@ struct Variable;
 
 class SkRuntimeEffect : public SkRefCnt {
 public:
+    enum class CPUType {
+        kBool,
+        kInt,
+        kFloat,
+        kFloat2,
+        kFloat3,
+        kFloat4,
+        kFloat2x2,
+        kFloat3x3,
+        kFloat4x4,
+    };
+
+    struct Variable {
+        SkString fName;
+        size_t   fOffset;
+        bool     fUniform;  // Otherwise, 'in'
+        CPUType  fCPUType;
+
+#if SK_SUPPORT_GPU
+        GrSLType fGPUType;
+#endif
+        int      fArrayCount;  // 0 means scalar
+
+        size_t sizeInBytes() const;
+    };
+
     static sk_sp<SkRuntimeEffect> Make(SkString sksl);
 
     const SkString& source() const { return fSkSL; }
     int index() const { return fIndex; }
     bool isValid() const { return fBaseProgram != nullptr; }
+    size_t inputSize() const;
 
 #if SK_SUPPORT_GPU
     // This re-compiles the program from scratch, using the supplied shader caps.
@@ -49,7 +76,7 @@ private:
 
     SkSL::Compiler fCompiler;
     std::unique_ptr<SkSL::Program> fBaseProgram;
-    std::vector<const SkSL::Variable*> fInAndUniformVars;
+    std::vector<Variable> fInAndUniformVars;
 
     friend class GrGLSLSkSLFP;
     friend class GrSkSLFP;
