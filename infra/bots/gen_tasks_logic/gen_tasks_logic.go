@@ -868,6 +868,44 @@ func (b *builder) updateGoDeps(name string) string {
 	return name
 }
 
+// createDockerImage creates the specified docker image.
+func (b *builder) createDockerImage(name, imageName, imageDir string) string {
+	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+
+	t := &specs.TaskSpec{
+		Caches:       append(CACHES_GO, CACHES_DOCKER...),
+		CipdPackages: cipd,
+		Command: []string{
+			"./build_push_docker_image",
+			"--image_name", fmt.Sprintf("gcr.io/skia-public/%s", imageName),
+			"--dockerfile_dir", imageDir,
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", name,
+			"--workdir", ".",
+			"--gerrit_project", "skia",
+			"--gerrit_url", "https://skia-review.googlesource.com",
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr",
+		},
+		Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
+		Dimensions:   b.dockerGceDimensions(),
+		EnvPrefixes: map[string][]string{
+			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+		},
+		Isolate:        "empty.isolate",
+		ServiceAccount: b.cfg.ServiceAccountCompile,
+	}
+	b.MustAddTask(name, t)
+	return name
+}
+
 // isolateAssetConfig represents a task which copies a CIPD package into
 // isolate.
 type isolateAssetCfg struct {
@@ -1433,6 +1471,15 @@ func (b *builder) process(name string) {
 		deps = append(deps, b.updateGoDeps(name))
 	}
 
+	// Create docker image.
+	if strings.Contains(name, "CreateDockerImage") {
+		if strings.Contains(parts["extra_config"], "Skia_Release") {
+			deps = append(deps, b.createDockerImage(name, "skia-release-v2", filepath.Join("docker", "skia-release")))
+		} else if strings.Contains(parts["extra_config"], "Skia_WASM_Release") {
+			deps = append(deps, b.createDockerImage(name, "skia-wasm-release-v2", filepath.Join("docker", "skia-wasm-release")))
+		}
+	}
+
 	// Infra tests.
 	if strings.Contains(name, "Housekeeper-PerCommit-InfraTests") {
 		deps = append(deps, b.infra(name))
@@ -1467,6 +1514,7 @@ func (b *builder) process(name string) {
 		name != "Housekeeper-OnDemand-Presubmit" &&
 		name != "Housekeeper-PerCommit" &&
 		name != BUILD_TASK_DRIVERS_NAME &&
+		!strings.Contains(name, "CreateDockerImage") &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "G3_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
