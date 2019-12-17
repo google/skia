@@ -475,8 +475,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
-                *fUniqueKeyInvalidatedMessages.append() =
+                if (generator->texturesAreCacheable()) {
+                    *fUniqueKeyInvalidatedMessages.append() =
                         new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
+                }
                 return proxy;
             }
         }
