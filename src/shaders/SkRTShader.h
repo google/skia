@@ -18,8 +18,6 @@ class GrFragmentProcessor;
 class SkData;
 class SkMatrix;
 
-namespace SkSL { class ByteCode; }
-
 
 class SkRTShader : public SkShaderBase {
 public:
