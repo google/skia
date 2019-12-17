@@ -171,5 +171,147 @@ DEF_TEST(ArenaAlloc, r) {
 
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
+}
 
+// Tests for the lower-level arena operations: makeBytes, makeAtleast, resize,  and release:
+DEF_TEST(LowLevelArenaAlloc, r) {
+    // We include the block overhead in the initial allocation size so that it's easy to reason
+    // about what's remaining in the 64 bytes available for the requested allocations.
+    static constexpr int kBlockOverhead = 8;
+    {
+        // Fixed allocation, then dynamic allocation that can fit max size in current block.
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        // 48 bytes remain
+        size_t allocated;
+        void* dynamic = arena.makeAtLeastBytesAlignedTo(16, 32, alignof(int32_t), &allocated);
+        REPORTER_ASSERT(r, allocated == 32);
+        REPORTER_ASSERT(r,
+                reinterpret_cast<uintptr_t>(dynamic) - reinterpret_cast<uintptr_t>(fixed) == 16);
+    }
+
+    {
+        // Fixed allocation, then dynamic allocation that can uses the remainder of the block.
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        // 48 bytes remain
+        size_t allocated;
+        void* dynamic = arena.makeAtLeastBytesAlignedTo(16, 64, alignof(int32_t), &allocated);
+        REPORTER_ASSERT(r, allocated == 48);
+        REPORTER_ASSERT(r,
+                reinterpret_cast<uintptr_t>(dynamic) - reinterpret_cast<uintptr_t>(fixed) == 16);
+    }
+
+    {
+        // Fixed allocation, then dynamic allocation that cannot fit min size in current block.
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        // 48 bytes remain
+        size_t allocated;
+        void* dynamic = arena.makeAtLeastBytesAlignedTo(64, 128, alignof(int32_t), &allocated);
+        REPORTER_ASSERT(r, allocated == 128);
+        // Should be a new block for 'dynamic', so it definitely can't point to the end of 'fixed'
+        REPORTER_ASSERT(r,
+                reinterpret_cast<uintptr_t>(dynamic) - reinterpret_cast<uintptr_t>(fixed) != 16);
+    }
+
+    {
+        // Grow an allocation up to the requested size
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        // 48 bytes remain
+        size_t newSize = 32;
+        bool resizeResult = arena.resize(dynamic, 16, &newSize);
+        // 16 bytes remain
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        REPORTER_ASSERT(r, resizeResult && newSize == 32);
+        REPORTER_ASSERT(r,
+                reinterpret_cast<uintptr_t>(fixed) - reinterpret_cast<uintptr_t>(dynamic) == 32);
+    }
+
+    {
+        // Grow an allocation up to the remaining size
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        // 48 bytes remain
+        size_t newSize = 128;
+        bool resizeResult = arena.resize(dynamic, 16, &newSize);
+        // 0 bytes remain, so this should be on a new block
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        REPORTER_ASSERT(r, resizeResult && newSize == 64);
+        REPORTER_ASSERT(r,
+                reinterpret_cast<uintptr_t>(fixed) - reinterpret_cast<uintptr_t>(dynamic) != 64);
+    }
+
+    {
+        // Grow unsuccessful due to subsequent allocation
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        // 48 bytes remain
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        (void) fixed;
+        // 32 bytes remain, but resize will fail since 'fixed' came after
+        size_t newSize = 32;
+        REPORTER_ASSERT(r, !arena.resize(dynamic, 16, &newSize));
+    }
+
+    {
+        // Grow unsuccessful due to erroneous size
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        size_t newSize = 32;
+        REPORTER_ASSERT(r, !arena.resize(dynamic, 24, &newSize));
+    }
+
+    {
+        // Shrink to a partial allocation
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(32, alignof(int32_t));
+        // 32 bytes remain
+        size_t newSize = 16;
+        bool resizeResult = arena.resize(dynamic, 32, &newSize);
+        // 48 bytes remain
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        REPORTER_ASSERT(r, resizeResult && newSize == 16);
+        REPORTER_ASSERT(r,
+                reinterpret_cast<uintptr_t>(fixed) - reinterpret_cast<uintptr_t>(dynamic) == 16);
+    }
+
+    {
+        // Successful release of POD
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(32, alignof(int32_t));
+        REPORTER_ASSERT(r, arena.release(dynamic, 32));
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        REPORTER_ASSERT(r, fixed == dynamic); // Reuse the same space
+        size_t allocated;
+        dynamic = arena.makeAtLeastBytesAlignedTo(16, 64, alignof(int32_t), &allocated);
+        REPORTER_ASSERT(r, allocated > 16 && allocated < 64);
+        REPORTER_ASSERT(r, arena.release(dynamic, allocated));
+    }
+
+    {
+        // Successful release of a T with a trivial destructor
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        Big* big = arena.make<Big>();
+        REPORTER_ASSERT(r, arena.release(big));
+    }
+
+    {
+        // Unsuccessful release due to subsequent allocation
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(32, alignof(int32_t));
+        void* fixed = arena.makeBytesAlignedTo(16, alignof(int32_t));
+        (void) fixed;
+        REPORTER_ASSERT(r, !arena.release(dynamic, 32)); // Fails due to later 16 bytes
+        REPORTER_ASSERT(r, arena.release(dynamic, 48)); // Succeeds, reclaiming consecutive allocs
+    }
+
+    {
+        // Unsuccessful release due to erroneous size
+        SkSTArenaAlloc<64 + kBlockOverhead> arena;
+        void* dynamic = arena.makeBytesAlignedTo(32, alignof(int32_t));
+        REPORTER_ASSERT(r, !arena.release(dynamic, 64));
+        REPORTER_ASSERT(r, !arena.release(dynamic, 16));
+    }
 }
