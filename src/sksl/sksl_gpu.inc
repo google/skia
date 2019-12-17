@@ -1,4 +1,4 @@
-STRINGIFY(
+R"SKSL(
 
 // defines built-in functions supported by SkSL when running on a GPU
 
@@ -295,5 +295,4 @@ float interpolateAtOffset(float interpolant, float2 offset);
 float2 interpolateAtOffset(float2 interpolant, float2 offset);
 float3 interpolateAtOffset(float3 interpolant, float2 offset);
 float4 interpolateAtOffset(float4 interpolant, float2 offset);
-
-)
+)SKSL"
