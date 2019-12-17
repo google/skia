@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "536ecfb1_f6df245d",
+        "filename": "src/sksl/sksl_blend.inc",
+        "patchSetId": 14
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-17T19:22:39Z",
+      "side": 1,
+      "message": "Yeah, hm. Not sure how I did that!",
+      "parentUuid": "dede9839_2219a380",
+      "range": {
+        "startLine": 22,
+        "startChar": 62,
+        "endLine": 22,
+        "endChar": 66
+      },
+      "revId": "6769777c7f7f3aa72fea3c8cb02c9d4787736a9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ee537d7f_605d3d87",
         "filename": "src/sksl/sksl_blend.inc",
         "patchSetId": 14
@@ -45,6 +69,30 @@
       "revId": "6769777c7f7f3aa72fea3c8cb02c9d4787736a9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23c4027e_5e2865a3",
+        "filename": "src/sksl/sksl_blend.inc",
+        "patchSetId": 14
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-17T19:22:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee537d7f_605d3d87",
+      "range": {
+        "startLine": 24,
+        "startChar": 72,
+        "endLine": 24,
+        "endChar": 76
+      },
+      "revId": "6769777c7f7f3aa72fea3c8cb02c9d4787736a9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
