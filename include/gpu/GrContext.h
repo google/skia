@@ -491,6 +491,51 @@ public:
         return this->createBackendTexture(&srcData, 1, renderable, isProtected);
     }
 
+    /*
+     * Retrieve the GrBackendFormat for a given SkImage::CompressionType. This is
+     * guaranteed to match the backend format used by the following
+     * createCompressedsBackendTexture methods that take a CompressionType.
+     * The caller should check that the returned format is valid.
+     */
+    GrBackendFormat compressedBackendFormat(SkImage::CompressionType compression) const {
+        return INHERITED::compressedBackendFormat(compression);
+    }
+
+    // If possible, create a compressed backend texture initialized to a particular color. The
+    // client should ensure that the returned backend texture is valid.
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    const GrBackendFormat&,
+                                                    const SkColor4f& color,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    SkImage::CompressionType,
+                                                    const SkColor4f& color,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
+    // If possible, create a backend texture initialized with the provided raw data. The client
+    // should ensure that the returned backend texture is valid.
+    // If numLevels is 1 a non-mipMapped texture will result. If a mipMapped texture is desired
+    // the data for all the mipmap levels must be provided. Additionally, all the miplevels
+    // must be sized correctly (please see SkMipMap::ComputeLevelSize and ComputeLevelCount).
+    // For the Vulkan backend the layout of the created VkImage will be:
+    //      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    const GrBackendFormat&,
+                                                    const void* data, size_t dataSize,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
+    GrBackendTexture createCompressedBackendTexture(int width, int height,
+                                                    SkImage::CompressionType,
+                                                    const void* data, size_t dataSize,
+                                                    GrMipMapped,
+                                                    GrProtected = GrProtected::kNo);
+
     void deleteBackendTexture(GrBackendTexture);
 
     // This interface allows clients to pre-compile shaders and populate the runtime program cache.

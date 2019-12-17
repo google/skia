@@ -547,6 +547,85 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
                                       numLevels, isProtected);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
+                                                           const GrBackendFormat& backendFormat,
+                                                           const SkColor4f& color,
+                                                           GrMipMapped mipMapped,
+                                                           GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrGpu::BackendTextureData data(color);
+    return fGpu->createCompressedBackendTexture({width, height}, backendFormat, &data,
+                                                mipMapped, isProtected);
+}
+
+GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
+                                                           SkImage::CompressionType compression,
+                                                           const SkColor4f& color,
+                                                           GrMipMapped mipMapped,
+                                                           GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrBackendFormat format = this->compressedBackendFormat(compression);
+    return this->createCompressedBackendTexture(width, height, format, color,
+                                                mipMapped, isProtected);
+}
+
+GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
+                                                           const GrBackendFormat& backendFormat,
+                                                           const void* compressedData,
+                                                           size_t dataSize,
+                                                           GrMipMapped mipMapped,
+                                                           GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrGpu::BackendTextureData data(compressedData, dataSize);
+    return fGpu->createCompressedBackendTexture({width, height}, backendFormat, &data,
+                                                mipMapped, isProtected);
+}
+
+GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
+                                                           SkImage::CompressionType compression,
+                                                           const void* data, size_t dataSize,
+                                                           GrMipMapped mipMapped,
+                                                           GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    GrBackendFormat format = this->compressedBackendFormat(compression);
+    return this->createCompressedBackendTexture(width, height, format, data, dataSize,
+                                                mipMapped, isProtected);
+}
+
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     // For the Vulkan backend we still must destroy the backend texture when the context is
