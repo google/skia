@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f1fcbab_209763f8",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-17T19:03:00Z",
+      "side": 1,
+      "message": "nit 100",
+      "range": {
+        "startLine": 345,
+        "startChar": 93,
+        "endLine": 345,
+        "endChar": 102
+      },
+      "revId": "9bfa74350df254d8d48835e975a2e4126cff8835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b506ba86_6e30b313",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-17T19:03:00Z",
+      "side": 1,
+      "message": "find out from chrome if they ever have a need to have an uninitialized compressed texture. If not lets kill these",
+      "range": {
+        "startLine": 504,
+        "startChar": 0,
+        "endLine": 516,
+        "endChar": 83
+      },
+      "revId": "9bfa74350df254d8d48835e975a2e4126cff8835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
