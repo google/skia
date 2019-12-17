@@ -584,7 +584,13 @@ DEF_SAMPLE( return new HalfPlaneView3(); )
 
 class HalfPlaneCoons : public SampleCameraView {
     SkPoint fPatch[12];
-    SkColor fColors[4] =  { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
+    SkColor fColors[4] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
+    SkPoint fTex[4]    = {{0, 0}, {256, 0}, {256, 256}, {0, 256}};
+    sk_sp<SkShader> fShader;
+
+    bool fShowHandles = false;
+    bool fShowSkeleton = false;
+    bool fShowTex = false;
 
     SkString name() override { return SkString("halfplane-coons"); }
 
@@ -601,6 +607,8 @@ class HalfPlaneCoons : public SampleCameraView {
         fPatch[9] = {   0, 300 };
         fPatch[10] = {  0, 200 };
         fPatch[11] = {  0, 100 };
+
+        fShader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -610,8 +618,64 @@ class HalfPlaneCoons : public SampleCameraView {
 
         canvas->save();
         canvas->concat(mx);
-        canvas->drawPatch(fPatch, fColors, nullptr, SkBlendMode::kSrc, paint);
+
+        const SkPoint* tex = nullptr;
+        const SkColor* col = nullptr;
+        if (!fShowSkeleton) {
+            if (fShowTex) {
+                paint.setShader(fShader);
+                tex = fTex;
+            } else {
+                col = fColors;
+            }
+        }
+        canvas->drawPatch(fPatch, col, tex, SkBlendMode::kSrc, paint);
+        paint.setShader(nullptr);
+
+        if (fShowHandles) {
+            paint.setAntiAlias(true);
+            paint.setStrokeCap(SkPaint::kRound_Cap);
+            paint.setStrokeWidth(8);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, 12, fPatch, paint);
+            paint.setColor(SK_ColorWHITE);
+            paint.setStrokeWidth(6);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, 12, fPatch, paint);
+        }
+
         canvas->restore();
     }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        auto dist = [](SkPoint a, SkPoint b) { return (b - a).length(); };
+
+        const float tol = 15;
+        for (int i = 0; i < 12; ++i) {
+            if (dist({x,y}, fPatch[i]) <= tol) {
+                Click* c = new Click;
+                c->fMeta.setS32("index", i);
+                return c;
+            }
+        }
+        return nullptr;
+    }
+
+    bool onClick(Click* click) override {
+        int32_t index;
+        SkAssertResult(click->fMeta.findS32("index", &index));
+        SkASSERT(index >= 0 && index < 12);
+        fPatch[index] = click->fCurr;
+        return true;
+    }
+
+    bool onChar(SkUnichar uni) override {
+        switch (uni) {
+            case 'h': fShowHandles = !fShowHandles; return true;
+            case 's': fShowSkeleton = !fShowSkeleton; return true;
+            case 't': fShowTex = !fShowTex; return true;
+            default: break;
+        }
+        return this->SampleCameraView::onChar(uni);
+    }
+
 };
 DEF_SAMPLE( return new HalfPlaneCoons(); )

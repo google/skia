@@ -19,6 +19,99 @@
 #include "src/shaders/SkComposeShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+static inline SkPoint3 operator*(float t, const SkPoint3& p) {
+    return { t * p.fX, t * p.fY, t * p.fZ };
+}
+
+static inline SkPMColor4f operator-(const SkPMColor4f& a, const SkPMColor4f& b) {
+    return { a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3] };
+}
+
+static inline SkPMColor4f operator+(const SkPMColor4f& a, const SkPMColor4f& b) {
+    return { a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3] };
+}
+
+static inline SkPMColor4f operator*(float t, const SkPMColor4f& p) {
+    return { t * p[0], t * p[1], t * p[2], t * p[3] };
+}
+
+struct ClippedTriangle {
+private:
+    struct Rec {
+        int fCurr, fNext;
+        float fT;
+    };
+
+public:
+    SkPoint     fPts[4];
+    SkPMColor4f fColors[4];
+    SkPoint     fTex[4];
+
+    int clip(const int idx[3], const SkPoint3 pts[], const SkPMColor4f col[], const SkPoint tex[]) {
+        Rec stack[4];
+        Rec* s = stack;
+        float tol = 0.5f;
+
+        for (int i = 0; i < 3; ++i) {
+            int curr = idx[i];
+            int next = idx[(i + 1) % 3];
+            if (pts[curr].fZ > tol) {
+                *s++ = {curr, next, 0};
+                if (pts[next].fZ <= tol) { // curr is IN, next is OUT
+                    float t = compute_t(pts[curr].fZ - tol, pts[next].fZ - tol);
+                    SkASSERT(t > 0 && t < 1);
+                    *s++ = {curr, next, t};
+                }
+            } else {
+                if (pts[next].fZ > tol) { // curr is OUT, next is IN
+                    float t = compute_t(pts[curr].fZ - tol, pts[next].fZ - tol);
+                    SkASSERT(t > 0 && t < 1);
+                    *s++ = {curr, next, t};
+                }
+            }
+        }
+
+        const int count = s - stack;
+        SkASSERT(count == 0 || count == 3 || count == 4);
+        for (int i = 0; i < count; ++i) {
+            this->set(i, stack[i], pts, col, tex);
+        }
+        return count;
+    }
+
+private:
+    static float compute_t(float curr, float next) {
+        SkASSERT((curr > 0 && next <= 0) || (curr <= 0 && next > 0));
+        return curr / (curr - next);
+    }
+
+    static SkPoint3 lerp(SkPoint3 curr, SkPoint3 next, float t) {
+        return curr + t * (next - curr);
+    }
+    static SkPoint lerp(SkPoint curr, SkPoint next, float t) {
+        return curr + (next - curr) * t;
+    }
+    static SkPMColor4f lerp(SkPMColor4f curr, SkPMColor4f next, float t) {
+        return curr + t * (next - curr);
+    }
+    void set(int i, const Rec& r, const SkPoint3 pts[], const SkPMColor4f col[], const SkPoint tex[]) {
+        int curr = r.fCurr;
+        int next = r.fNext;
+        SkPoint3 p = lerp(pts[curr], pts[next], r.fT);
+
+        if (r.fT > 0) {
+            SkDebugf("t %g\n", r.fT);
+        }
+        fPts[i] = { p.fX / p.fZ, p.fY / p.fZ };
+        if (col) {
+            fColors[i] = lerp(col[curr], col[next], r.fT);
+        }
+        if (tex) {
+            fTex[i] = lerp(tex[curr], tex[next], r.fT);
+        }
+    }
+};
+
 struct Matrix43 {
     float fMat[12];    // column major
 
@@ -167,6 +260,16 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
     return SkColorGetA(c) == 0xFF;
 }
 
+static void map3(const SkMatrix& m, const SkPoint src[], SkPoint3 dst[], int count) {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = {
+            m[0] * src[i].fX + m[1] * src[i].fY + m[2],
+            m[3] * src[i].fX + m[4] * src[i].fY + m[5],
+            m[6] * src[i].fX + m[7] * src[i].fY + m[8],
+        };
+    }
+}
+
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint textures[],
                           const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -263,6 +366,12 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
     fMatrix->mapPoints(devVerts, vertices, vertexCount);
 
+    SkPoint3* dev3 = nullptr;
+    if (fMatrix->hasPerspective()) {
+        dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
+        map3(*fMatrix, vertices, dev3, vertexCount);
+    }
+
     {
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value
@@ -287,10 +396,25 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         SkScan::HairRCProc hairProc = ChooseHairProc(paint.isAntiAlias());
         const SkRasterClip& clip = *fRC;
         while (vertProc(&state)) {
-            SkPoint array[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
-            };
-            hairProc(array, 4, clip, blitter.get());
+            if (dev3) {
+                ClippedTriangle tri;
+                int idx[] = { state.f0, state.f1, state.f2 };
+                if (int n = tri.clip(idx, dev3, nullptr, nullptr)) {
+                    SkASSERT(n == 3 || n == 4);
+                    SkPoint tmp[] = { tri.fPts[0], tri.fPts[1], tri.fPts[2], tri.fPts[0] };
+                    hairProc(tmp, 4, clip, blitter.get());
+
+                    if (n == 4) {
+                        SkPoint tmp[] = { tri.fPts[2], tri.fPts[3], tri.fPts[0] };
+                        hairProc(tmp, 3, clip, blitter.get());
+                    }
+                }
+            } else {
+                SkPoint array[] = {
+                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
+                };
+                hairProc(array, 4, clip, blitter.get());
+            }
         }
         return;
     }
@@ -320,10 +444,23 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                 continue;
             }
 
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
-            SkScan::FillTriangle(tmp, *fRC, blitter);
+            if (dev3) {
+                ClippedTriangle tri;
+                int idx[] = { state.f0, state.f1, state.f2 };
+                if (int n = tri.clip(idx, dev3, nullptr, nullptr)) {
+                    SkASSERT(n == 3 || n == 4);
+                    SkScan::FillTriangle(tri.fPts, *fRC, blitter);
+                    if (n == 4) {
+                        SkPoint tmp[] = { tri.fPts[0], tri.fPts[2], tri.fPts[3] };
+                        SkScan::FillTriangle(tmp, *fRC, blitter);
+                    }
+                }
+            } else {
+                SkPoint tmp[] = {
+                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+                };
+                SkScan::FillTriangle(tmp, *fRC, blitter);
+            }
         }
         return;
     }
@@ -352,10 +489,23 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                 continue;
             }
 
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
-            SkScan::FillTriangle(tmp, *fRC, blitter);
+            if (dev3) {
+                ClippedTriangle tri;
+                int idx[] = { state.f0, state.f1, state.f2 };
+                if (int n = tri.clip(idx, dev3, nullptr, nullptr)) {
+                    SkASSERT(n == 3 || n == 4);
+                    SkScan::FillTriangle(tri.fPts, *fRC, blitter);
+                    if (n == 4) {
+                        SkPoint tmp[] = { tri.fPts[0], tri.fPts[2], tri.fPts[3] };
+                        SkScan::FillTriangle(tmp, *fRC, blitter);
+                    }
+                }
+            } else {
+                SkPoint tmp[] = {
+                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+                };
+                SkScan::FillTriangle(tmp, *fRC, blitter);
+            }
         }
     } else {
         // must rebuild pipeline for each triangle, to pass in the computed ctm
