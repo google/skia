@@ -510,6 +510,10 @@ static const char* glsltype_string(const Context& context, const Type& type) {
         return "kFloat2_GrSLType";
     } else if (type == *context.fHalf2_Type) {
         return "kHalf2_GrSLType";
+    } else if (type == *context.fFloat3_Type) {
+        return "kFloat3_GrSLType";
+    } else if (type == *context.fHalf3_Type) {
+        return "kHalf3_GrSLType";
     } else if (type == *context.fFloat4_Type) {
         return "kFloat4_GrSLType";
     } else if (type == *context.fHalf4_Type) {
@@ -520,6 +524,8 @@ static const char* glsltype_string(const Context& context, const Type& type) {
         return "kHalf4x4_GrSLType";
     } else if (type == *context.fVoid_Type) {
         return "kVoid_GrSLType";
+    } else if (type.kind() == Type::kEnum_Kind) {
+        return "int";
     }
     SkASSERT(false);
     return nullptr;
