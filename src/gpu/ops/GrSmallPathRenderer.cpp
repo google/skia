@@ -254,14 +254,14 @@ public:
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsHairline::kNo);
 
-#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+//#if defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
         fUsesDistanceField = true;
-#else
-        // only use distance fields on desktop and Android framework to save space in the atlas
-        fUsesDistanceField = this->bounds().width() > kMaxMIP || this->bounds().height() > kMaxMIP;
-#endif
-        // always use distance fields if in perspective
-        fUsesDistanceField = fUsesDistanceField || viewMatrix.hasPerspective();
+//#else
+//        // only use distance fields on desktop and Android framework to save space in the atlas
+//        fUsesDistanceField = this->bounds().width() > kMaxMIP || this->bounds().height() > kMaxMIP;
+//#endif
+//        // always use distance fields if in perspective
+//        fUsesDistanceField = fUsesDistanceField || viewMatrix.hasPerspective();
 
         fShapes.emplace_back(Entry{color, shape, viewMatrix});
 
