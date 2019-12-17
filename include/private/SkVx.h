@@ -44,12 +44,29 @@
     #define SKVX_ALIGNMENT alignas(N * sizeof(T))
 #endif
 
+#if defined(__GNUC__) && !defined(__clang__) && defined(__SSE__)
+    // GCC warns about ABI changes when returning >= 32 byte vectors when -mavx is not enabled.
+    // This only happens for types like VExt whose ABI we don't care about, not for Vec itself.
+    #pragma GCC diagnostic ignored "-Wpsabi"
+#endif
+
+// To avoid ODR violations, all methods must be force-inlined,
+// and all standalone functions must be static, perhaps using these helpers.
+#if defined(_MSC_VER)
+    #define SKVX_ALWAYS_INLINE __forceinline
+#else
+    #define SKVX_ALWAYS_INLINE __attribute__((always_inline))
+#endif
+
+#define SIT   template <       typename T> static inline
+#define SINT  template <int N, typename T> static inline
+#define SINTU template <int N, typename T, typename U, \
+                        typename=typename std::enable_if<std::is_convertible<U,T>::value>::type> \
+              static inline
 
 namespace skvx {
 
 // All Vec have the same simple memory layout, the same as `T vec[N]`.
-// This gives Vec a consistent ABI, letting them pass between files compiled with
-// different instruction sets (e.g. SSE2 and AVX2) without fear of ODR violation.
 template <int N, typename T>
 struct SKVX_ALIGNMENT Vec {
     static_assert((N & (N-1)) == 0,        "N must be a power of 2.");
@@ -62,13 +79,14 @@ struct SKVX_ALIGNMENT Vec {
     //   - they'll definitely never want a specialized implementation.
     // Other operations on Vec should be defined outside the type.
 
-    Vec() = default;
+    SKVX_ALWAYS_INLINE Vec() = default;
 
     template <typename U,
               typename=typename std::enable_if<std::is_convertible<U,T>::value>::type>
+    SKVX_ALWAYS_INLINE
     Vec(U x) : lo(x), hi(x) {}
 
-    Vec(std::initializer_list<T> xs) {
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) {
         T vals[N] = {0};
         memcpy(vals, xs.begin(), std::min(xs.size(), (size_t)N)*sizeof(T));
 
@@ -76,15 +94,15 @@ struct SKVX_ALIGNMENT Vec {
         hi = Vec<N/2,T>::Load(vals + N/2);
     }
 
-    T  operator[](int i) const { return i < N/2 ? lo[i] : hi[i-N/2]; }
-    T& operator[](int i)       { return i < N/2 ? lo[i] : hi[i-N/2]; }
+    SKVX_ALWAYS_INLINE T  operator[](int i) const { return i < N/2 ? lo[i] : hi[i-N/2]; }
+    SKVX_ALWAYS_INLINE T& operator[](int i)       { return i < N/2 ? lo[i] : hi[i-N/2]; }
 
-    static Vec Load(const void* ptr) {
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
         Vec v;
         memcpy(&v, ptr, sizeof(Vec));
         return v;
     }
-    void store(void* ptr) const {
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
         memcpy(ptr, this, sizeof(Vec));
     }
 };
@@ -93,39 +111,27 @@ template <typename T>
 struct Vec<1,T> {
     T val;
 
-    Vec() = default;
+    SKVX_ALWAYS_INLINE Vec() = default;
 
     template <typename U,
               typename=typename std::enable_if<std::is_convertible<U,T>::value>::type>
+    SKVX_ALWAYS_INLINE
     Vec(U x) : val(x) {}
 
-    Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {}
+    SKVX_ALWAYS_INLINE Vec(std::initializer_list<T> xs) : val(xs.size() ? *xs.begin() : 0) {}
 
-    T  operator[](int) const { return val; }
-    T& operator[](int)       { return val; }
+    SKVX_ALWAYS_INLINE T  operator[](int) const { return val; }
+    SKVX_ALWAYS_INLINE T& operator[](int)       { return val; }
 
-    static Vec Load(const void* ptr) {
+    SKVX_ALWAYS_INLINE static Vec Load(const void* ptr) {
         Vec v;
         memcpy(&v, ptr, sizeof(Vec));
         return v;
     }
-    void store(void* ptr) const {
+    SKVX_ALWAYS_INLINE void store(void* ptr) const {
         memcpy(ptr, this, sizeof(Vec));
     }
 };
-
-#if defined(__GNUC__) && !defined(__clang__) && defined(__SSE__)
-    // GCC warns about ABI changes when returning >= 32 byte vectors when -mavx is not enabled.
-    // This only happens for types like VExt whose ABI we don't care about, not for Vec itself.
-    #pragma GCC diagnostic ignored "-Wpsabi"
-#endif
-
-// Helps tamp down on the repetitive boilerplate.
-#define SIT   template <       typename T> static inline
-#define SINT  template <int N, typename T> static inline
-#define SINTU template <int N, typename T, typename U, \
-                        typename=typename std::enable_if<std::is_convertible<U,T>::value>::type> \
-              static inline
 
 template <typename D, typename S>
 static inline D bit_pun(const S& s) {
