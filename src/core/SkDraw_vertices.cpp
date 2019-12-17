@@ -19,6 +19,50 @@
 #include "src/shaders/SkComposeShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+static float compute_t(float curr, float next) {
+    SkASSERT((curr > 0 && next <= 0) || (curr <= 0 && next > 0));
+    return curr / (curr - next);
+}
+
+static SkPoint3 lerp(SkPoint3 curr, SkPoint3 next, float t) {
+    return curr + t * (next - curr);
+}
+
+static SkPoint3 clip(SkPoint3 curr, SkPoint3 next, float tol) {
+    float t = compute_t(curr.fZ - tol, next.fZ - tol);
+    SkASSERT(t > 0 && t < 1);
+    return lerp(curr, next, t);
+}
+
+static int perspective_clip(SkPoint dst[], const int idx[3], const SkPoint3 pts[]) {
+    SkPoint3 outPoints[4];
+    SkPoint3* outP = outPoints;
+    const float tol = 0.05f;
+
+    for (int i = 0; i < 3; ++i) {
+        int curr = idx[i];
+        int next = idx[(i + 1) % 3];
+        if (pts[curr].fZ > tol) {
+            *outP++ = pts[curr];
+            if (pts[next].fZ <= tol) { // curr is IN, next is OUT
+                *outP++ = clip(pts[curr], pts[next], tol);
+            }
+        } else {
+            if (pts[next].fZ > tol) { // curr is OUT, next is IN
+                *outP++ = clip(pts[curr], pts[next], tol);
+            }
+        }
+    }
+
+    const int count = outP - outPoints;
+    SkASSERT(count == 0 || count == 3 || count == 4);
+    for (int i = 0; i < count; ++i) {
+        float scale = 1.0f / outPoints[i].fZ;
+        dst[i].set(outPoints[i].fX * scale, outPoints[i].fY * scale);
+    }
+    return count;
+}
+
 struct Matrix43 {
     float fMat[12];    // column major
 
@@ -167,6 +211,16 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
     return SkColorGetA(c) == 0xFF;
 }
 
+static void map3(const SkMatrix& m, const SkPoint src[], SkPoint3 dst[], int count) {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = {
+            m[0] * src[i].fX + m[1] * src[i].fY + m[2],
+            m[3] * src[i].fX + m[4] * src[i].fY + m[5],
+            m[6] * src[i].fX + m[7] * src[i].fY + m[8],
+        };
+    }
+}
+
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint textures[],
                           const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -260,10 +314,16 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         vertices = deformed;
     }
 
-    SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
-    fMatrix->mapPoints(devVerts, vertices, vertexCount);
+    SkPoint* devVerts = nullptr;
+    SkPoint3* dev3 = nullptr;
 
-    {
+    if (fMatrix->hasPerspective()) {
+        dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
+        map3(*fMatrix, vertices, dev3, vertexCount);
+    } else {
+        devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
+        fMatrix->mapPoints(devVerts, vertices, vertexCount);
+
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value
         bounds.setBounds(devVerts, vertexCount);
@@ -275,6 +335,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);
 
+    // Draw hairlines to show the skeleton
     if (!(colors || textures)) {
         // no colors[] and no texture, stroke hairlines with paint's color.
         SkPaint p;
@@ -287,10 +348,26 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         SkScan::HairRCProc hairProc = ChooseHairProc(paint.isAntiAlias());
         const SkRasterClip& clip = *fRC;
         while (vertProc(&state)) {
-            SkPoint array[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
-            };
-            hairProc(array, 4, clip, blitter.get());
+            if (dev3) {
+                SkPoint tmp[4 + 2];
+                int idx[] = { state.f0, state.f1, state.f2 };
+                if (int n = perspective_clip(tmp, idx, dev3)) {
+                    tmp[n] = tmp[0];    // close the poly
+                    if (n == 3) {
+                        n = 4;
+                    } else {
+                        SkASSERT(n == 4);
+                        tmp[5] = tmp[2];    // add diagonal
+                        n = 6;
+                    }
+                    hairProc(tmp, n, clip, blitter.get());
+                }
+            } else {
+                SkPoint array[] = {
+                    devVerts[state.f0], devVerts[state.f1], devVerts[state.f2], devVerts[state.f0]
+                };
+                hairProc(array, 4, clip, blitter.get());
+            }
         }
         return;
     }
@@ -310,6 +387,28 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         }
     }
 
+    auto handle_devVerts = [&](SkBlitter* blitter) {
+        SkPoint tmp[] = {
+            devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
+        };
+        SkScan::FillTriangle(tmp, *fRC, blitter);
+    };
+
+    auto handle_dev3 = [&](SkBlitter* blitter) {
+        SkPoint tmp[4];
+        int idx[] = { state.f0, state.f1, state.f2 };
+        if (int n = perspective_clip(tmp, idx, dev3)) {
+            // TODO: SkScan::FillConvexPoly(tmp, n, ...);
+            SkASSERT(n == 3 || n == 4);
+            SkScan::FillTriangle(tmp, *fRC, blitter);
+            if (n == 4) {
+                tmp[1] = tmp[2];
+                tmp[2] = tmp[3];
+                SkScan::FillTriangle(tmp, *fRC, blitter);
+            }
+        }
+    };
+
     SkPaint p(paint);
     p.setShader(sk_ref_sp(shader));
 
@@ -320,10 +419,11 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                 continue;
             }
 
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
-            SkScan::FillTriangle(tmp, *fRC, blitter);
+            if (dev3) {
+                handle_dev3(blitter);
+            } else {
+                handle_devVerts(blitter);
+            }
         }
         return;
     }
@@ -352,10 +452,11 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                 continue;
             }
 
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
-            SkScan::FillTriangle(tmp, *fRC, blitter);
+            if (dev3) {
+                handle_dev3(blitter);
+            } else {
+                handle_devVerts(blitter);
+            }
         }
     } else {
         // must rebuild pipeline for each triangle, to pass in the computed ctm
@@ -378,11 +479,12 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                 ctm = &tmpCtm;
             }
 
-            SkPoint tmp[] = {
-                devVerts[state.f0], devVerts[state.f1], devVerts[state.f2]
-            };
             auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *ctm, &innerAlloc);
-            SkScan::FillTriangle(tmp, *fRC, blitter);
+            if (dev3) {
+                handle_dev3(blitter);
+            } else {
+                handle_devVerts(blitter);
+            }
         }
     }
 }
