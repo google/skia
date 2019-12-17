@@ -199,9 +199,7 @@ GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrBitmapTextGeoProc);
 #if GR_TEST_UTILS
 
 GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, ct, at] = d->randomProxy();
 
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(d->fRandom, wrapModes);
@@ -209,15 +207,16 @@ GrGeometryProcessor* GrBitmapTextGeoProc::TestCreate(GrProcessorTestData* d) {
                                                    ? GrSamplerState::Filter::kBilerp
                                                    : GrSamplerState::Filter::kNearest);
 
-    GrMaskFormat format = kARGB_GrMaskFormat; // init to avoid warning
-    switch (d->fRandom->nextULessThan(3)) {
-        case 0:
+    GrMaskFormat format;
+    switch (ct) {
+        case GrColorType::kAlpha_8:
             format = kA8_GrMaskFormat;
             break;
-        case 1:
+        case GrColorType::kBGR_565:
             format = kA565_GrMaskFormat;
             break;
-        case 2:
+        case GrColorType::kRGBA_8888:
+        default:  // It doesn't really matter that color type and mask format agree.
             format = kARGB_GrMaskFormat;
             break;
     }

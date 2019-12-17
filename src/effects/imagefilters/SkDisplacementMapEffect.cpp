@@ -545,12 +545,8 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdxDispl = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                               GrProcessorUnitTest::kAlphaTextureIdx;
-    int texIdxColor = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx :
-                                               GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> dispProxy = d->textureProxy(texIdxDispl);
-    sk_sp<GrTextureProxy> colorProxy = d->textureProxy(texIdxColor);
+    auto [dispProxy,  ct1, at1] = d->randomProxy();
+    auto [colorProxy, ct2, at2] = d->randomProxy();
     static const int kMaxComponent = static_cast<int>(SkColorChannel::kLastEnum);
     SkColorChannel xChannelSelector =
         static_cast<SkColorChannel>(d->fRandom->nextRangeU(1, kMaxComponent));
