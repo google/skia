@@ -196,6 +196,13 @@ sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backend
                                       cacheable, info);
 }
 
+sk_sp<GrTexture> GrDawnGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
+                                                           GrWrapOwnership ownership,
+                                                           GrWrapCacheable cacheable) {
+    return nullptr;
+}
+
+
 sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTexture& tex,
                                                            int sampleCnt, GrColorType colorType,
                                                            GrWrapOwnership,
@@ -350,6 +357,14 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     info.fFormat = desc.format;
     info.fLevelCount = desc.mipLevelCount;
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+}
+
+GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                             const GrBackendFormat&,
+                                                             const BackendTextureData*,
+                                                             GrMipMapped,
+                                                             GrProtected) {
+    return {};
 }
 
 void GrDawnGpu::deleteBackendTexture(const GrBackendTexture& tex) {
