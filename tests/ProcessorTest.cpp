@@ -343,10 +343,10 @@ bool log_texture_proxy(GrContext* context, sk_sp<GrTextureProxy> src, SkString* 
 
 bool fuzzy_color_equals(const SkPMColor4f& c1, const SkPMColor4f& c2) {
     // With the loss of precision of rendering into 32-bit color, then estimating the FP's output
-    // from that, it is not uncommon for a valid output to differ from estimate by up to 0.03
+    // from that, it is not uncommon for a valid output to differ from estimate by up to 0.01
     // (really 1/128 ~ .0078, but frequently floating point issues make that tolerance a little
     // too unforgiving).
-    static constexpr SkScalar kTolerance = 0.03f;
+    static constexpr SkScalar kTolerance = 0.01f;
     for (int i = 0; i < 4; i++) {
         if (!SkScalarNearlyEqual(c1[i], c2[i], kTolerance)) {
             return false;
