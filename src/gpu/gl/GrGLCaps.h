@@ -421,7 +421,7 @@ public:
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
-    GrSwizzle getTextureSwizzle(const GrBackendFormat&, GrColorType) const override;
+    GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
     GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
@@ -558,7 +558,7 @@ private:
         };
         uint32_t fFlags = 0;
 
-        GrSwizzle fTextureSwizzle;
+        GrSwizzle fReadSwizzle;
         GrSwizzle fOutputSwizzle;
 
         struct ExternalIOFormats {
