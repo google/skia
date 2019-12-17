@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7b993a4_5c31ac33",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-17T21:36:59Z",
+      "side": 1,
+      "message": "// Comment about what you\u0027re doing here ?",
+      "revId": "dca34c3d4d4618a301f6182f0fe3d2817f9b7a1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a33a471f_a252ab1a",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-17T21:36:59Z",
+      "side": 1,
+      "message": "Exciting TODO here?",
+      "revId": "dca34c3d4d4618a301f6182f0fe3d2817f9b7a1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ff75e43_0f311084",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-17T21:36:59Z",
+      "side": 1,
+      "message": "// comment about \u0027tol\u0027 ?",
+      "revId": "dca34c3d4d4618a301f6182f0fe3d2817f9b7a1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0b85ed9_b2a58f47",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-17T21:36:59Z",
+      "side": 1,
+      "message": "// comment ? How big does \u0027dst\u0027 have to be for example.",
+      "revId": "dca34c3d4d4618a301f6182f0fe3d2817f9b7a1a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
