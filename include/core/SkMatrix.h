@@ -1313,6 +1313,11 @@ public:
     */
     void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
 
+    /**
+     *  Returns homogeneous points, starting with 2D src points (with implied w = 1).
+     */
+    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int count) const;
+
     /** Maps SkPoint (x, y) to result. SkPoint is mapped by multiplying by SkMatrix. Given:
 
                      | A B C |        | x |

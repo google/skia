@@ -1080,6 +1080,30 @@ void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int co
                                                  sizeof(SkPoint3), count);
 }
 
+void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int count) const {
+    if (this->isIdentity()) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = { src[i].fX, src[i].fY, 1 };
+        }
+    } else if (this->hasPerspective()) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = {
+                fMat[0] * src[i].fX + fMat[1] * src[i].fY + fMat[2],
+                fMat[3] * src[i].fX + fMat[4] * src[i].fY + fMat[5],
+                fMat[6] * src[i].fX + fMat[7] * src[i].fY + fMat[8],
+            };
+        }
+    } else {    // affine
+        for (int i = 0; i < count; ++i) {
+            dst[i] = {
+                fMat[0] * src[i].fX + fMat[1] * src[i].fY + fMat[2],
+                fMat[3] * src[i].fX + fMat[4] * src[i].fY + fMat[5],
+                1,
+            };
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
