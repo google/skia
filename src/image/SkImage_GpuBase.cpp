@@ -124,7 +124,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
         return nullptr;
     }
 
-    GrSurfaceProxyView currView = this->asSurfaceProxyViewRef(context);
+    const GrSurfaceProxyView& currView = this->getSurfaceProxyView(context);
     if (!currView.proxy()) {
         return nullptr;
     }

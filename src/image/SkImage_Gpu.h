@@ -39,6 +39,9 @@ public:
     GrSurfaceProxyView asSurfaceProxyViewRef(GrRecordingContext* context) const override {
         return fView;
     }
+    const GrSurfaceProxyView& getSurfaceProxyView(GrRecordingContext* context) const override {
+        return fView;
+    }
 
     bool onIsTextureBacked() const override {
         SkASSERT(fView.proxy());
