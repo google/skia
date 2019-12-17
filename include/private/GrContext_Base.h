@@ -37,6 +37,8 @@ public:
      */
     SK_API GrBackendFormat defaultBackendFormat(SkColorType, GrRenderable) const;
 
+    SK_API GrBackendFormat compressedBackendFormat(SkImage::CompressionType) const;
+
     // Provides access to functions that aren't part of the public API.
     GrBaseContextPriv priv();
     const GrBaseContextPriv priv() const;

@@ -438,6 +438,16 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrContext* ctx,
     return nullptr;
 }
 
+sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
+                                                  const GrBackendTexture& tex,
+                                                  GrSurfaceOrigin origin,
+                                                  SkAlphaType at,
+                                                  sk_sp<SkColorSpace> cs,
+                                                  TextureReleaseProc releaseP,
+                                                  ReleaseContext releaseC) {
+    return nullptr;
+}
+
 bool SkImage::MakeBackendTextureFromSkImage(GrContext*,
                                             sk_sp<SkImage>,
                                             GrBackendTexture*,

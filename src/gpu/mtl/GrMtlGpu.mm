@@ -636,6 +636,12 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
     return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, ioType);
 }
 
+sk_sp<GrTexture> GrMtlGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
+                                                          GrWrapOwnership ownership,
+                                                          GrWrapCacheable cacheable) {
+    return nullptr;
+}
+
 sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                           int sampleCnt,
                                                           GrColorType colorType,
@@ -928,6 +934,14 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
     GrMipMapped mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
     GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
     return backendTex;
+}
+
+GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                            const GrBackendFormat&,
+                                                            const BackendTextureData*,
+                                                            GrMipMapped,
+                                                            GrProtected) {
+    return {};
 }
 
 void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {

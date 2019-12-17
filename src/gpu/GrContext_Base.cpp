@@ -58,6 +58,15 @@ GrBackendFormat GrContext_Base::defaultBackendFormat(SkColorType skColorType,
     return format;
 }
 
+GrBackendFormat GrContext_Base::compressedBackendFormat(SkImage::CompressionType c) const {
+    const GrCaps* caps = this->caps();
+
+    GrBackendFormat format = caps->getBackendFormatFromCompressionType(c);
+
+    SkASSERT(!format.isValid() || caps->isFormatTexturable(format));
+    return format;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {
     return fContext->refCaps();

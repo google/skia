@@ -312,7 +312,13 @@ public:
         @param alphaType           one of:
                                    kUnknown_SkAlphaType, kOpaque_SkAlphaType, kPremul_SkAlphaType,
                                    kUnpremul_SkAlphaType
-        @param colorSpace          range of colors; may be nullptr
+        @param colorSpace          This describes the color space of this image's contents, as
+                                   seen after sampling. In general, if the format of the backend
+                                   texture is SRGB, some linear colorSpace should be supplied
+                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
+                                   backend texture is linear, then the colorSpace should include
+                                   a description of the transfer function as
+                                   well (e.g., SkColorSpace::MakeSRGB()).
         @param textureReleaseProc  function called when texture can be released
         @param releaseContext      state passed to textureReleaseProc
         @return                    created SkImage, or nullptr
@@ -325,6 +331,39 @@ public:
                                           sk_sp<SkColorSpace> colorSpace,
                                           TextureReleaseProc textureReleaseProc,
                                           ReleaseContext releaseContext);
+
+    /** Creates an SkImage from a GPU backend texture. The backend texture must stay
+        valid and unchanged until textureReleaseProc is called. The textureReleaseProc is
+        called when the SkImage is deleted or no longer refers to the texture and will be
+        passed the releaseContext.
+
+        An SkImage is returned if the format of backendTexture is recognized and supported.
+        Recognized formats vary by GPU back-end.
+
+        @param context             the GPU context
+        @param backendTexture      a texture already allocated by the GPU
+        @param origin              one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param alphaType           This characterizes the nature of the alpha values in the
+                                   backend texture. For opaque compressed formats (e.g., ETC1)
+                                   this should usually be set to kOpaque_SkAlphaType.
+        @param colorSpace          This describes the color space of this image's contents, as
+                                   seen after sampling. In general, if the format of the backend
+                                   texture is SRGB, some linear colorSpace should be supplied
+                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
+                                   backend texture is linear, then the colorSpace should include
+                                   a description of the transfer function as
+                                   well (e.g., SkColorSpace::MakeSRGB()).
+        @param textureReleaseProc  function called when the backend texture can be released
+        @param releaseContext      state passed to textureReleaseProc
+        @return                    created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromCompressedTexture(GrContext* context,
+                                                    const GrBackendTexture& backendTexture,
+                                                    GrSurfaceOrigin origin,
+                                                    SkAlphaType alphaType,
+                                                    sk_sp<SkColorSpace> colorSpace,
+                                                    TextureReleaseProc textureReleaseProc = nullptr,
+                                                    ReleaseContext releaseContext = nullptr);
 
     /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
 

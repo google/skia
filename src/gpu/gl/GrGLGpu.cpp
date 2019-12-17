@@ -716,6 +716,12 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     return texture;
 }
 
+sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
+                                                         GrWrapOwnership ownership,
+                                                         GrWrapCacheable cacheable) {
+    return nullptr;
+}
+
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
                                                          int sampleCnt,
                                                          GrColorType colorType,
@@ -1021,7 +1027,7 @@ bool GrGLGpu::uploadTexData(GrGLFormat textureFormat, GrColorType textureColorTy
 
 bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
                                       SkImage::CompressionType compressionType,
-                                      const SkISize& dimensions,
+                                      SkISize dimensions,
                                       GrGLenum target,
                                       const void* data) {
     SkASSERT(format != GrGLFormat::kUnknown);
@@ -1346,11 +1352,20 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(int width, int height,
     if (!desc.fID) {
         return nullptr;
     }
+
     auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, GrMipMapsStatus::kNotAllocated);
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
     return tex;
+}
+
+GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
+                                                           const GrBackendFormat& format,
+                                                           const BackendTextureData* data,
+                                                           GrMipMapped mipMapped,
+                                                           GrProtected isProtected) {
+    return {};
 }
 
 namespace {
