@@ -6,4 +6,4 @@
 import os
 import sys
 
-print all(os.path.exists(a) for a in sys.argv[1:])
+print(all(os.path.exists(a) for a in sys.argv[1:]))

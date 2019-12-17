@@ -7,4 +7,4 @@
 
 import multiprocessing
 
-print multiprocessing.cpu_count()
+print(multiprocessing.cpu_count())
