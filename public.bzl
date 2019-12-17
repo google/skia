@@ -713,6 +713,16 @@ def exp_xform_lib_srcs():
     return native.glob(["experimental/xform/*.cpp"])
 
 ################################################################################
+## skresources_lib
+################################################################################
+
+def skresources_lib_hdrs():
+    return ["modules/skresources/include/SkResources.h"]
+
+def skresources_lib_srcs():
+    return ["modules/skresources/src/SkResources.cpp"]
+
+################################################################################
 ## skottie_lib
 ################################################################################
 
