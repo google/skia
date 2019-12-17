@@ -455,17 +455,13 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, ct, at] = d->randomProxy();
 
     MorphDirection dir = d->fRandom->nextBool() ? MorphDirection::kX : MorphDirection::kY;
     static const int kMaxRadius = 10;
     int radius = d->fRandom->nextRangeU(1, kMaxRadius);
     MorphType type = d->fRandom->nextBool() ? MorphType::kErode : MorphType::kDilate;
-    auto alphaType = static_cast<SkAlphaType>(
-            d->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
-    return GrMorphologyEffect::Make(std::move(proxy), alphaType, dir, radius, type);
+    return GrMorphologyEffect::Make(std::move(proxy), at, dir, radius, type);
 }
 #endif
 

@@ -1705,9 +1705,7 @@ static SkImageFilterLight* create_random_light(SkRandom* random) {
 }
 
 std::unique_ptr<GrFragmentProcessor> GrDiffuseLightingEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, ct, at] = d->randomProxy();
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar kd = d->fRandom->nextUScalar1();
     sk_sp<SkImageFilterLight> light(create_random_light(d->fRandom));
@@ -1923,9 +1921,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSpecularLightingEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrSpecularLightingEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, ct, at] = d->randomProxy();
     SkScalar surfaceScale = d->fRandom->nextSScalar1();
     SkScalar ks = d->fRandom->nextUScalar1();
     SkScalar shininess = d->fRandom->nextUScalar1();
