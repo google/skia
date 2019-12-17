@@ -1693,7 +1693,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     constant("CUBIC_VERB", CUBIC);
     constant("CLOSE_VERB", CLOSE);
 
-    constant("SaveLayerInitWithPrevious", SkCanvas::SaveLayerFlagsSet::kInitWithPrevious_SaveLayerFlag);
-    constant("SaveLayerF16ColorType",     SkCanvas::SaveLayerFlagsSet::kF16ColorType);
+    constant("SaveLayerInitWithPrevious", (int)SkCanvas::SaveLayerFlagsSet::kInitWithPrevious_SaveLayerFlag);
+    constant("SaveLayerF16ColorType",     (int)SkCanvas::SaveLayerFlagsSet::kF16ColorType);
 
 }
