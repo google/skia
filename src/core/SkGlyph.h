@@ -135,7 +135,7 @@ private:
         using SubXY = Vec<2, int>;
         const XY magic = {1.f * (1u << (kSubPixelPosLen + kSubPixelX)),
                           1.f * (1u << (kSubPixelPosLen + kSubPixelY))};
-        XY pos{pt.x(), pt.y()};
+        XY pos = XY::Load(&pt);
         XY subPos = (pos - floor(pos)) + 1.0f;
         SubXY sub = cast<int>(subPos * magic) & SubXY{mask.x(), mask.y()};
         SkASSERT(sub[0] / (1u << kSubPixelX) < (1u << kSubPixelPosLen));
