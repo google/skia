@@ -148,6 +148,8 @@
   "Housekeeper-PerCommit-BuildTaskDrivers",
   "Housekeeper-PerCommit-BundleRecipes",
   "Housekeeper-PerCommit-CheckGeneratedFiles",
+  "Housekeeper-PerCommit-CreateDockerImage_Skia_Release",
+  "Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release",
   "Housekeeper-PerCommit-InfraTests_Linux",
   "Housekeeper-PerCommit-InfraTests_Win",
   "Housekeeper-PerCommit-IsolateMSKP",
