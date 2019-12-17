@@ -167,6 +167,16 @@ static bool compute_is_opaque(const SkColor colors[], int count) {
     return SkColorGetA(c) == 0xFF;
 }
 
+static void map3(const SkMatrix& m, const SkPoint src[], SkPoint3 dst[], int count) {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = {
+            m[0] * src[i].fX + m[1] * src[i].fY + m[2],
+            m[3] * src[i].fX + m[4] * src[i].fY + m[5],
+            m[6] * src[i].fX + m[7] * src[i].fY + m[8],
+        };
+    }
+}
+
 void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint textures[],
                           const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -263,6 +273,10 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(vertexCount);
     fMatrix->mapPoints(devVerts, vertices, vertexCount);
 
+    if (0) {
+        SkPoint3* dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
+        map3(*fMatrix, vertices, dev3, vertexCount);
+    }
     {
         SkRect bounds;
         // this also sets bounds to empty if we see a non-finite value
