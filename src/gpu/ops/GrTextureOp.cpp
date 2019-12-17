@@ -206,10 +206,11 @@ public:
                                           const GrQuad& deviceQuad,
                                           const GrQuad& localQuad,
                                           const SkRect* domain) {
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         return pool->allocate<TextureOp>(std::move(proxyView), std::move(textureXform), filter,
                                          color, saturate, aaType, aaFlags, deviceQuad, localQuad,
-                                         domain);
+                                         domain, arena);
     }
 
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
@@ -228,9 +229,10 @@ public:
         size_t size = sizeof(TextureOp) + sizeof(ViewCountPair) * (proxyRunCnt - 1);
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         void* mem = pool->allocate(size);
+        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
         return std::unique_ptr<GrDrawOp>(
                 new (mem) TextureOp(set, cnt, proxyRunCnt, filter, saturate, aaType, constraint,
-                                    viewMatrix, std::move(textureColorSpaceXform)));
+                                    viewMatrix, std::move(textureColorSpaceXform), arena));
     }
 
     ~TextureOp() override {
@@ -451,9 +453,10 @@ private:
               GrQuadAAFlags aaFlags,
               const GrQuad& dstQuad,
               const GrQuad& srcQuad,
-              const SkRect* domainRect)
+              const SkRect* domainRect,
+              SkArenaAlloc* arena)
             : INHERITED(ClassID())
-            , fQuads(1, true /* includes locals */)
+            , fQuads()
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
             , fMetadata(proxyView.swizzle(), filter, Domain(!!domainRect), saturate) {
@@ -482,8 +485,7 @@ private:
         GrQuad normalizedSrcQuad = srcQuad;
         normalize_src_quad(params, &normalizedSrcQuad);
         SkRect domain = normalize_domain(filter, params, domainRect);
-
-        fQuads.append(dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
+        fQuads.append(arena, dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
         fViewCountPairs[0] = {proxyView.detachProxy(), 1};
 
         this->setBounds(dstQuad.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
@@ -498,9 +500,10 @@ private:
               GrAAType aaType,
               SkCanvas::SrcRectConstraint constraint,
               const SkMatrix& viewMatrix,
-              sk_sp<GrColorSpaceXform> textureColorSpaceXform)
+              sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+              SkArenaAlloc* arena)
             : INHERITED(ClassID())
-            , fQuads(cnt, true /* includes locals */)
+            , fQuads(arena, cnt, viewMatrix.hasPerspective() ? GrQuad::Type::kPerspective : GrQuad::Type::kAxisAligned, GrQuad::Type::kAxisAligned, true)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
             , fMetadata(set[0].fProxyView.swizzle(), GrSamplerState::Filter::kNearest,
@@ -611,7 +614,7 @@ private:
             // (this frequently happens when Chrome draws 9-patches).
             SkRect domain = normalize_domain(filter, proxyParams, domainForQuad);
             float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
-            fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
+            fQuads.append(arena, quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
             fViewCountPairs[p].fQuadCnt++;
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
@@ -930,9 +933,9 @@ private:
         flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc* arena, const GrCaps& caps) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-        const auto* that = t->cast<TextureOp>();
+        auto* that = t->cast<TextureOp>();
 
         if (fPrePreparedDesc || that->fPrePreparedDesc) {
             // This should never happen (since only DDL recorded ops should be prePrepared)
@@ -992,7 +995,7 @@ private:
         }
 
         // Concatenate quad lists together
-        fQuads.concat(that->fQuads);
+        fQuads.concat(arena, &that->fQuads);
         fViewCountPairs[0].fQuadCnt += that->fQuads.count();
         fMetadata.fTotalQuadCount += that->fQuads.count();
 

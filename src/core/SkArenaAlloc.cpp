@@ -155,6 +155,7 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
+    // SkDebugf("arena allocation: %d\n", allocationSize);
     char* newBlock = new char[allocationSize];
 
     auto previousDtor = fDtorCursor;

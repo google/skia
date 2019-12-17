@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/geometry/GrQuadBuffer.h"
+
 #include "dm/DMSrcSink.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
@@ -1365,6 +1367,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     SkASSERT(cache == grOptions.fPersistentCache);
     SkASSERT(exec == grOptions.fExecutor);
 
+    Stupid::resetCounts();
     GrContextFactory factory(grOptions);
     const SkISize size = src.size();
     SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
@@ -1422,6 +1425,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         canvas->getGrContext()->priv().dumpCacheStats(log);
         canvas->getGrContext()->priv().dumpGpuStats(log);
     }
+    Stupid::printCounts(src.name().c_str());
     if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
         info.colorType() == kRGB_888x_SkColorType) {
         // We don't currently support readbacks into these formats on the GPU backend. Convert to

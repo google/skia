@@ -429,6 +429,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
         target->fence();
     } else {
         loops = detect_forever_loops(loops);
+        maxGpuFrameLag = 0;
     }
     // Pretty much the same deal as the calibration: do some warmup to make
     // sure we're timing steady-state pipelined frames.
@@ -1284,7 +1285,7 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            if (runs == 0 && FLAGS_ms < 1000) {
+            if (kAutoTuneLoops == FLAGS_loops && runs == 0 && FLAGS_ms < 1000) {
                 // Run the first bench for 1000ms to warm up the nanobench if FLAGS_ms < 1000.
                 // Otherwise, the first few benches' measurements will be inaccurate.
                 auto stop = now_ms() + 1000;

@@ -53,7 +53,6 @@ static void textblobcache_overbudget_CB(void* data) {
 }
 
 bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
-
     if (!INHERITED::init(std::move(caps))) {
         return false;
     }

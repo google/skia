@@ -36,6 +36,7 @@ GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, SkArenaAlloc* arena, con
         return CombineResult::kCannotCombine;
     }
     auto result = this->onCombineIfPossible(that, arena, caps);
+
     if (result == CombineResult::kMerged) {
         this->joinBounds(*that);
     }
