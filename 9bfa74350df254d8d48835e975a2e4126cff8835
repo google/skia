@@ -93,6 +93,30 @@
       "revId": "9bfa74350df254d8d48835e975a2e4126cff8835",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "498a0c35_2e11d66f",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-17T19:25:30Z",
+      "side": 1,
+      "message": "Okay - Chrome doesn\u0027t need these and they are trivial to add if some (future) client does. Deleted.",
+      "parentUuid": "8edd93a5_18720426",
+      "range": {
+        "startLine": 504,
+        "startChar": 0,
+        "endLine": 516,
+        "endChar": 83
+      },
+      "revId": "9bfa74350df254d8d48835e975a2e4126cff8835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
