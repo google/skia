@@ -36,6 +36,16 @@ struct SkIRect;
  */
 class GrSurfaceContext {
 public:
+    // If the passed in GrSurfaceProxy is renderable this will return a GrRenderTargetContext,
+    // otherwise it will return a GrSurfaceContext.
+    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, sk_sp<GrSurfaceProxy>,
+                                                  GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
+
+    // If it is known that the GrSurfaceProxy is not renderable, you can directly call the the ctor
+    // here to make a GrSurfaceContext on the stack.
+    GrSurfaceContext(GrRecordingContext*, sk_sp<GrSurfaceProxy>, GrColorType, SkAlphaType,
+                     sk_sp<SkColorSpace>, GrSurfaceOrigin, GrSwizzle readSwizzle);
+
     virtual ~GrSurfaceContext() = default;
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
@@ -113,10 +123,6 @@ public:
 
 protected:
     friend class GrSurfaceContextPriv;
-    friend class GrDrawingManager; // For ctor
-
-    GrSurfaceContext(GrRecordingContext*, sk_sp<GrSurfaceProxy>, GrColorType, SkAlphaType,
-                     sk_sp<SkColorSpace>, GrSurfaceOrigin, GrSwizzle readSwizzle);
 
     GrDrawingManager* drawingManager();
     const GrDrawingManager* drawingManager() const;

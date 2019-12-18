@@ -607,20 +607,16 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
         return nullptr;
     }
 
-    auto surfaceContext =
-            drawingManager->makeSurfaceContext(proxy, SkColorTypeToGrColorType(pixmap.colorType()),
-                                               pixmap.alphaType(), cs);
-    if (!surfaceContext) {
-        return nullptr;
-    }
+    GrSurfaceContext surfaceContext(std::move(proxy), SkColorTypeToGrColorType(pixmap.colorType()),
+                                    pixmap.alaphaType(), cs);
 
     SkImageInfo srcInfo = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType, at,
                                             std::move(cs));
-    surfaceContext->writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
+    surfaceContext.writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
 
     GrFlushInfo info;
     info.fFlags = kSyncCpu_GrFlushFlag;
-    GrSurfaceProxy* p[1] = {proxy.get()};
+    GrSurfaceProxy* p[1] = surfaceContext.surfaceProxy();
     drawingManager->flush(p, 1, SkSurface::BackendSurfaceAccess::kNoAccess, info,
                           GrPrepareForExternalIORequests());
 
