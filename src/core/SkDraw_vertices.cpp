@@ -128,7 +128,7 @@ texture_to_matrix(const VertState& state, const SkPoint verts[], const SkPoint t
 
 class SkTriColorShader : public SkShaderBase {
 public:
-    SkTriColorShader(bool isOpaque) : fIsOpaque(isOpaque) {}
+    SkTriColorShader(bool isOpaque, bool usePersp) : fIsOpaque(isOpaque), fUsePersp(usePersp) {}
 
     // This gets called for each triangle, without re-calling onAppendStages.
     bool update(const SkMatrix& ctmInv, const SkPoint pts[], const SkPMColor4f colors[],
@@ -142,7 +142,7 @@ protected:
 #endif
     bool onAppendStages(const SkStageRec& rec) const override {
         rec.fPipeline->append(SkRasterPipeline::seed_shader);
-        if (rec.fCTM.hasPerspective()) {
+        if (fUsePersp) {
             rec.fPipeline->append(SkRasterPipeline::matrix_perspective, &fM33);
         }
         rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
@@ -155,12 +155,13 @@ private:
     Factory getFactory() const override { return nullptr; }
     const char* getTypeName() const override { return nullptr; }
 
-    // If ctm has perspective, we need both of these matrices,
+    // If fUsePersp, we need both of these matrices,
     // otherwise we can combine them, and only use fM43
 
     Matrix43 fM43;
     SkMatrix fM33;
     const bool fIsOpaque;
+    const bool fUsePersp;   // controls our stages, and what we do in update()
 
     typedef SkShaderBase INHERITED;
 };
@@ -189,7 +190,7 @@ bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
     (c2 - c0).store(&fM43.fMat[4]);
     c0.store(&fM43.fMat[8]);
 
-    if (!fM33.hasPerspective()) {
+    if (!fUsePersp) {
         fM43.setConcat(fM43, fM33);
     }
     return true;
@@ -316,10 +317,20 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         vertices = deformed;
     }
 
+    /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
+        and how to prep our "uniforms" before each triangle in the tricolorshader.
+
+        We could just check the matrix on each triangle to decide, but we have to be sure to always
+        make the same decision, since we create 1 or 2 stages only once for the entire patch.
+
+        To be safe, we just make that determination here, and pass it into the tricolorshader.
+     */
+    const bool usePerspective = fMatrix->hasPerspective();
+
     SkPoint* devVerts = nullptr;
     SkPoint3* dev3 = nullptr;
 
-    if (fMatrix->hasPerspective()) {
+    if (usePerspective) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
         fMatrix->mapHomogeneousPoints(dev3, vertices, vertexCount);
     } else {
@@ -379,7 +390,8 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
 
     if (colors) {
         dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), &outerAlloc);
-        triShader = outerAlloc.make<SkTriColorShader>(compute_is_opaque(colors, vertexCount));
+        triShader = outerAlloc.make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
+                                                      usePerspective);
         if (shader) {
             shader = outerAlloc.make<SkShader_Blend>(bmode,
                                                      sk_ref_sp(triShader), sk_ref_sp(shader),
