@@ -292,7 +292,8 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
     if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
-    if (dataSize < GrCompressedDataSize(compressionType, {width, height}, GrMipMapped::kNo)) {
+    if (dataSize < GrCompressedDataSize(compressionType, {width, height},
+                                        nullptr, GrMipMapped::kNo)) {
         return nullptr;
     }
     return this->onCreateCompressedTexture(width, height, format, compressionType, budgeted, data);
@@ -803,7 +804,8 @@ bool GrGpu::CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType
 
     SkASSERT(data->type() == BackendTextureData::Type::kCompressed);
 
-    size_t computedSize = GrCompressedDataSize(compressionType, dimensions, mipMapped);
+    size_t computedSize = GrCompressedDataSize(compressionType, dimensions,
+                                               nullptr, mipMapped);
 
     return computedSize == data->compressedSize();
 }
@@ -845,7 +847,8 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    return this->onCreateBackendTexture(dimensions, format, renderable, data, numMipLevels,
+    return this->onCreateBackendTexture(dimensions, format, renderable, data,
+                                        numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
                                         isProtected);
 }
 
