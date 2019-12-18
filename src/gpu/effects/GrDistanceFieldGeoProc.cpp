@@ -463,7 +463,7 @@ public:
                  const CoordTransformRange& transformRange) override {
         const GrDistanceFieldPathGeoProc& dfpgp = proc.cast<GrDistanceFieldPathGeoProc>();
 
-        if (dfpgp.matrix().hasPerspective() && !fMatrix.cheapEqualTo(dfpgp.matrix())) {
+        if (dfpgp.matrix().hasPerspective() && !SkMatrixPriv::CheapEqual(fMatrix, dfpgp.matrix())) {
             fMatrix = dfpgp.matrix();
             float matrix[3 * 3];
             GrGLSLGetMatrix<3>(matrix, fMatrix);

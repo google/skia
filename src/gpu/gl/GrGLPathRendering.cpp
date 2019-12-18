@@ -173,7 +173,7 @@ void GrGLPathRendering::setProjectionMatrix(const SkMatrix& matrix,
 
     if (renderTargetOrigin == fHWProjectionMatrixState.fRenderTargetOrigin &&
         renderTargetSize == fHWProjectionMatrixState.fRenderTargetSize &&
-        matrix.cheapEqualTo(fHWProjectionMatrixState.fViewMatrix)) {
+        SkMatrixPriv::CheapEqual(matrix, fHWProjectionMatrixState.fViewMatrix)) {
         return;
     }
 

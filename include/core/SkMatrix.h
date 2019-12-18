@@ -964,7 +964,9 @@ public:
         @param divy  integer divisor for inverse scale in y
         @return      true on successful scale
     */
+private:
     bool postIDiv(int divx, int divy);
+public:
 
     /** Sets SkMatrix to SkMatrix constructed from rotating by degrees about pivot point
         (px, py), multiplied by SkMatrix.
@@ -1560,46 +1562,6 @@ public:
         example: https://fiddle.skia.org/c/@Matrix_mapRadius
     */
     SkScalar mapRadius(SkScalar radius) const;
-
-    /** Returns true if a unit step on x-axis at some y-axis value mapped through SkMatrix
-        can be represented by a constant vector. Returns true if getType() returns
-        kIdentity_Mask, or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
-
-        May return true if getType() returns kPerspective_Mask, but only when SkMatrix
-        does not include rotation or skewing along the y-axis.
-
-        @return  true if SkMatrix does not have complex perspective
-
-        example: https://fiddle.skia.org/c/@Matrix_isFixedStepInX
-    */
-    bool isFixedStepInX() const;
-
-    /** Returns vector representing a unit step on x-axis at y mapped through SkMatrix.
-        If isFixedStepInX() is false, returned value is undefined.
-
-        @param y  position of line parallel to x-axis
-        @return   vector advance of mapped unit step on x-axis
-
-        example: https://fiddle.skia.org/c/@Matrix_fixedStepInX
-    */
-    SkVector fixedStepInX(SkScalar y) const;
-
-    /** Returns true if SkMatrix equals m, using an efficient comparison.
-
-        Returns false when the sign of zero values is the different; when one
-        matrix has positive zero value and the other has negative zero value.
-
-        Returns true even when both SkMatrix contain NaN.
-
-        NaN never equals any value, including itself. To improve performance, NaN values
-        are treated as bit patterns that are equal if their bit patterns are equal.
-
-        @param m  SkMatrix to compare
-        @return   true if m and SkMatrix are represented by identical bit patterns
-    */
-    bool cheapEqualTo(const SkMatrix& m) const {
-        return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
-    }
 
     /** Compares a and b; returns true if a and b are numerically equal. Returns true
         even if sign of zero values are different. Returns false if either SkMatrix

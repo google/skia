@@ -665,7 +665,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        if (fUsesLocalCoords && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (fUsesLocalCoords && !SkMatrixPriv::CheapEqual(this->viewMatrix(), that->viewMatrix())) {
             return CombineResult::kCannotCombine;
         }
 
