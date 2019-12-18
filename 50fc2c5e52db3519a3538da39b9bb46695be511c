@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1e440183_3cdb5632",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-18T18:34:28Z",
+      "side": 1,
+      "message": "yes, though I think I\u0027ll keep the change, since it mirrors the decision we made for set9().",
+      "parentUuid": "9aa9908c_8c2facf5",
+      "revId": "50fc2c5e52db3519a3538da39b9bb46695be511c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "df6eb016_6452c32e",
         "filename": "src/core/SkMatrix44.cpp",
         "patchSetId": 8

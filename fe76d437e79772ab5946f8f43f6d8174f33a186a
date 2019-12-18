@@ -22,6 +22,30 @@
       "revId": "fe76d437e79772ab5946f8f43f6d8174f33a186a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58ddff51_f7d33756",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-18T18:34:28Z",
+      "side": 1,
+      "message": "I\u0027ll update the comment, but if change our mind between triangles, we\u0027re in trouble either way\nas we\u0027ll draw wrong (since we will have either not combined the 33 and 43 matrices, or we will have.",
+      "parentUuid": "dcbd4d02_c377b4bd",
+      "range": {
+        "startLine": 322,
+        "startChar": 7,
+        "endLine": 322,
+        "endChar": 52
+      },
+      "revId": "fe76d437e79772ab5946f8f43f6d8174f33a186a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
