@@ -119,7 +119,7 @@ void GrGLSLGeometryProcessor::setTransformDataHelper(const SkMatrix& localMatrix
             } else {
                 m = GetTransformMatrix(transform, SkMatrix::I());
             }
-            if (!fInstalledTransforms[i].fCurrentValue.cheapEqualTo(m)) {
+            if (!SkMatrixPriv::CheapEqual(fInstalledTransforms[i].fCurrentValue, m)) {
                 pdman.setSkMatrix(fInstalledTransforms[i].fHandle.toIndex(), m);
                 fInstalledTransforms[i].fCurrentValue = m;
             }

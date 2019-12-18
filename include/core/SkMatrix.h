@@ -938,34 +938,6 @@ public:
     */
     SkMatrix& postScale(SkScalar sx, SkScalar sy);
 
-    /** Sets SkMatrix to SkMatrix constructed from scaling by (1/divx, 1/divy),
-        about pivot point (px, py), multiplied by SkMatrix.
-
-        Returns false if either divx or divy is zero.
-
-        Given:
-
-                     | J K L |                   | sx  0  0 |
-            Matrix = | M N O |,  I(divx, divy) = |  0 sy  0 |
-                     | P Q R |                   |  0  0  1 |
-
-        where
-
-            sx = 1 / divx
-            sy = 1 / divy
-
-        sets SkMatrix to:
-
-                                     | sx  0  0 | | J K L |   | sx*J sx*K sx*L |
-            I(divx, divy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
-                                     |  0  0  1 | | P Q R |   |    P    Q    R |
-
-        @param divx  integer divisor for inverse scale in x
-        @param divy  integer divisor for inverse scale in y
-        @return      true on successful scale
-    */
-    bool postIDiv(int divx, int divy);
-
     /** Sets SkMatrix to SkMatrix constructed from rotating by degrees about pivot point
         (px, py), multiplied by SkMatrix.
         This can be thought of as rotating about a pivot point after applying SkMatrix.
@@ -1561,46 +1533,6 @@ public:
     */
     SkScalar mapRadius(SkScalar radius) const;
 
-    /** Returns true if a unit step on x-axis at some y-axis value mapped through SkMatrix
-        can be represented by a constant vector. Returns true if getType() returns
-        kIdentity_Mask, or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
-
-        May return true if getType() returns kPerspective_Mask, but only when SkMatrix
-        does not include rotation or skewing along the y-axis.
-
-        @return  true if SkMatrix does not have complex perspective
-
-        example: https://fiddle.skia.org/c/@Matrix_isFixedStepInX
-    */
-    bool isFixedStepInX() const;
-
-    /** Returns vector representing a unit step on x-axis at y mapped through SkMatrix.
-        If isFixedStepInX() is false, returned value is undefined.
-
-        @param y  position of line parallel to x-axis
-        @return   vector advance of mapped unit step on x-axis
-
-        example: https://fiddle.skia.org/c/@Matrix_fixedStepInX
-    */
-    SkVector fixedStepInX(SkScalar y) const;
-
-    /** Returns true if SkMatrix equals m, using an efficient comparison.
-
-        Returns false when the sign of zero values is the different; when one
-        matrix has positive zero value and the other has negative zero value.
-
-        Returns true even when both SkMatrix contain NaN.
-
-        NaN never equals any value, including itself. To improve performance, NaN values
-        are treated as bit patterns that are equal if their bit patterns are equal.
-
-        @param m  SkMatrix to compare
-        @return   true if m and SkMatrix are represented by identical bit patterns
-    */
-    bool cheapEqualTo(const SkMatrix& m) const {
-        return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
-    }
-
     /** Compares a and b; returns true if a and b are numerically equal. Returns true
         even if sign of zero values are different. Returns false if either SkMatrix
         contains NaN, even if the other SkMatrix also contains NaN.
@@ -1931,6 +1863,9 @@ private:
      *         0 if there was not enough memory available
      */
     size_t readFromMemory(const void* buffer, size_t length);
+
+    // legacy method -- still needed? why not just postScale(1/divx, ...)?
+    bool postIDiv(int divx, int divy);
 
     friend class SkPerspIter;
     friend class SkMatrixPriv;
