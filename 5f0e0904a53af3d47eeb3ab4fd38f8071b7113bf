@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54c8dbd5_91214f56",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-18T21:01:36Z",
+      "side": 1,
+      "message": "Why does the constructor not determine these swizzles?",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 53
+      },
+      "revId": "5f0e0904a53af3d47eeb3ab4fd38f8071b7113bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ce3c3fe_c489f70a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-18T21:01:36Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 611,
+        "startChar": 43,
+        "endLine": 611,
+        "endChar": 53
+      },
+      "revId": "5f0e0904a53af3d47eeb3ab4fd38f8071b7113bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
