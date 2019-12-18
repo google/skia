@@ -24,9 +24,10 @@
 
 const char* gProg = R"(
     uniform half4 gColor;
+    in fragmentProcessor child;
 
     void main(float x, float y, inout half4 color) {
-        color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
+        color = sample(child) * half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);
     }
 )";
 
@@ -50,7 +51,11 @@ class RuntimeShader : public skiagm::GM {
             fData = SkData::MakeUninitialized(sizeof(SkColor4f));
             SkColor4f* c = (SkColor4f*)fData->writable_data();
             *c = {1, 0, 0, 1};
-            gShader = SkRuntimeShaderFactory(SkString(gProg), true).make(fData, &localM);
+
+            auto imageShader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
+
+            gShader = SkRuntimeShaderFactory(SkString(gProg), true).make(fData, &localM,
+                                                                         &imageShader, 1);
         }
     }
 
