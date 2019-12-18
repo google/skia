@@ -308,24 +308,50 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         return nullptr;
     }
     auto colorType = GrPixelConfigToColorType(src->config());
+    auto format = src->backendFormat().makeTexture2D();
+    SkASSERT(format.isValid());
+    auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
+    if (config == kUnknown_GrPixelConfig) {
+        return nullptr;
+    }
+    GrSurfaceDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+
+    GrSurfaceOrigin origin = src->origin();
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
-        auto dstContext = context->priv().makeDeferredSurfaceContext(
-                fit, width, height, colorType, kUnknown_SkAlphaType, nullptr, mipMapped,
-                src->origin(), budgeted, isProtected);
-        if (!dstContext) {
+        sk_sp<GrTextureProxy> dst = context->priv().proxyProvider()->createProxy(
+                format, desc, GrRenderable::kNo, 1, origin, mipMapped, fit, budgeted,
+                isProtected);
+        if (!dst) {
             return nullptr;
         }
-        if (dstContext->copy(src, srcRect, dstPoint)) {
-            return dstContext->asTextureProxyRef();
+
+        // We never use swizzles during copy so just set the default swizzle
+        GrSurfaceContext dstContext(context, std::move(dst), colorType, kUnknown_SkAlphaType,
+                                    nullptr, origin, GrSwizzle());
+
+        if (dstContext.copy(src, srcRect, dstPoint)) {
+            return dstContext.asTextureProxyRef();
         }
     }
     if (src->asTextureProxy()) {
-        auto dstContext = context->priv().makeDeferredRenderTargetContext(
-                fit, width, height, colorType, nullptr, 1, mipMapped, src->origin(), nullptr,
-                budgeted);
+        sk_sp<GrTextureProxy> dst = context->priv().proxyProvider()->createProxy(
+                format, desc, GrRenderable::kYes, 1, origin, mipMapped, fit, budgeted,
+                isProtected);
+        if (!dst) {
+            return nullptr;
+        }
+        SkASSERT(dst->asRenderTargetProxy());
+        sk_sp<GrRenderTargetProxy> rtp(sk_ref_sp(dst->asRenderTargetProxy()));
 
-        if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
-            return dstContext->asTextureProxyRef();
+        // We never use swizzles during copy so just set the default swizzle
+        GrRenderTargetContext dstContext(context, std::move(rtp), colorType, origin, GrSwizzle(),
+                                         GrSwizzle(), nullptr, nullptr);
+
+        if (dstContext.blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
+            return dst;
         }
     }
     // Can't use backend copies or draws.

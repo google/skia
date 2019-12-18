@@ -303,8 +303,9 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                 {kSize, kSize}, combo.fColorType, combo.fFormat, renderable, 1,
                                 kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes, GrProtected::kNo);
                         if (proxy) {
-                            auto texCtx = context->priv().makeWrappedSurfaceContext(
-                                    std::move(proxy), combo.fColorType, kPremul_SkAlphaType);
+                            auto texCtx = GrSurfaceContext::Make(context, std::move(proxy),
+                                                                 combo.fColorType,
+                                                                 kPremul_SkAlphaType, nullptr);
 
                             readback.erase(kClearColor);
                             if (texCtx->readPixels(readback.info(), readback.writable_addr(),
@@ -328,10 +329,17 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                     fit, desc.fWidth, desc.fHeight, combo.fColorType, nullptr,
                                     1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr);
                         } else {
-                            surfCtx = context->priv().makeDeferredSurfaceContext(
-                                    fit, desc.fWidth, desc.fHeight, combo.fColorType,
-                                    kUnknown_SkAlphaType, nullptr, GrMipMapped::kNo,
-                                    kTopLeft_GrSurfaceOrigin);
+                            sk_sp<GrTextureProxy> surfProxy =
+                                    context->priv().proxyProvider()->createProxy(
+                                            combo.fFormat, desc, GrRenderable::kNo, 1,
+                                            kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                                            fit, SkBudgeted::kYes, GrProtected::kNo);
+                            if (!surfProxy) {
+                                continue;
+                            }
+                            surfCtx = GrSurfaceContext::Make(context, std::move(surfProxy),
+                                                             combo.fColorType, kUnknown_SkAlphaType,
+                                                             nullptr);
                         }
                         if (!surfCtx) {
                             continue;
@@ -398,8 +406,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                                                        kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
-        auto surfContext = context->priv().makeWrappedSurfaceContext(proxy, GrColorType::kRGBA_8888,
-                                                                     kPremul_SkAlphaType);
+        auto surfContext = GrSurfaceContext::Make(context, proxy, GrColorType::kRGBA_8888,
+                                                  kPremul_SkAlphaType, nullptr);
 
         // Read pixels should work with a read-only texture.
         {
