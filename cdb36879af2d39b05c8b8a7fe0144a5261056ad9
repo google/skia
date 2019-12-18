@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec666ae5_2801bdcb",
+        "filename": "src/core/SkColorFilterPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-18T15:08:58Z",
+      "side": 1,
+      "message": "We do invoke this  copy cons (in GM runtimecolorfilter.cpp line 80) so I couldn\u0027t make it \u003d delete. If we have copy cons then I didn\u0027t see a reason not to allow assignment.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 68
+      },
+      "revId": "cdb36879af2d39b05c8b8a7fe0144a5261056ad9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30e753b3_e064b123",
+        "filename": "src/shaders/SkRTShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-18T15:08:58Z",
+      "side": 1,
+      "message": "If the RTCFF has these then it seemed like the RTSF should as well.",
+      "range": {
+        "startLine": 57,
+        "startChar": 3,
+        "endLine": 57,
+        "endChar": 58
+      },
+      "revId": "cdb36879af2d39b05c8b8a7fe0144a5261056ad9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
