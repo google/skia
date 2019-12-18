@@ -22,6 +22,30 @@
       "revId": "e6a2ad81ab407cf59f5038cc3ee1998925408c33",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef81abd2_52a8ece9",
+        "filename": "src/gpu/GrProcessorUnitTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-18T19:09:06Z",
+      "side": 0,
+      "message": "Yes, we always build our tools with static initialization now.",
+      "parentUuid": "dafb1407_3f8216a3",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 39
+      },
+      "revId": "e6a2ad81ab407cf59f5038cc3ee1998925408c33",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
