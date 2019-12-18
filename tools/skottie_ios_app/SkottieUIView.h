@@ -5,15 +5,9 @@
 
 #import <UIKit/UIKit.h>
 
-class GrContext;
+#include "tools/skottie_ios_app/SkiaUIView.h"
 
-@interface SkottieUIView : UIView
-
-// When set, pauses at end of loop.
-- (void)setStopAtEnd:(BOOL)stop;
-
-// Override of the UIView interface.  Uses Skia+Skottie+Metal to draw.
-- (void)drawRect:(CGRect)rect;
+@interface SkottieUIView : SkiaUIView
 
 // Load an animation from a Lottie JSON file.  Returns Yes on success.
 - (BOOL)loadAnimation:(NSData*)d;
@@ -29,13 +23,6 @@ class GrContext;
 
 // Return the default size of the Lottie animation.
 - (CGSize)size;
-
-// Return the length of the animation loop.
-- (float)animationDurationSeconds;
-
-// Return the current position in the animation in seconds (between zero and
-// animationDurationSeconds).
-- (float)currentTime;
 @end
 
 #endif  // SkottieUIView_DEFINED
