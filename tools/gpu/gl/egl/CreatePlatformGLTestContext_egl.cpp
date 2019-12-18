@@ -373,7 +373,7 @@ void EGLFenceSync::deleteFence(sk_gpu_test::PlatformFence platformFence) const {
     fEGLDestroySyncKHR(fDisplay, eglsync);
 }
 
-GR_STATIC_ASSERT(sizeof(EGLSyncKHR) <= sizeof(sk_gpu_test::PlatformFence));
+static_assert(sizeof(EGLSyncKHR) <= sizeof(sk_gpu_test::PlatformFence));
 
 }  // anonymous namespace
 

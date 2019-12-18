@@ -637,7 +637,7 @@ using ExcludedTerm = GrPathUtils::ExcludedTerm;
 
 ExcludedTerm GrPathUtils::calcCubicInverseTransposePowerBasisMatrix(const SkPoint p[4],
                                                                     SkMatrix* out) {
-    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
+    static_assert(SK_SCALAR_IS_FLOAT);
 
     // First convert the bezier coordinates p[0..3] to power basis coefficients X,Y(,W=[0 0 0 1]).
     // M3 is the matrix that does this conversion. The homogeneous equation for the cubic becomes:

@@ -608,7 +608,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ColorTypeBackendAllocationTest, reporter, ctx
         { kR16G16B16A16_unorm_SkColorType,{ .25f, .5f, .75f, 1 }   },
     };
 
-    GR_STATIC_ASSERT(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
+    static_assert(kLastEnum_SkColorType == SK_ARRAY_COUNT(combinations));
 
     for (auto combo : combinations) {
         SkColorType colorType = combo.fColorType;

@@ -65,7 +65,7 @@ private:
     typedef sk_gpu_test::FenceSync INHERITED;
 };
 
-GR_STATIC_ASSERT(sizeof(uint64_t) <= sizeof(sk_gpu_test::PlatformFence));
+static_assert(sizeof(uint64_t) <= sizeof(sk_gpu_test::PlatformFence));
 
 class MtlTestContextImpl : public sk_gpu_test::MtlTestContext {
 public:

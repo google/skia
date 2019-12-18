@@ -24,7 +24,7 @@ void GrSwizzle::apply(SkRasterPipeline* pipeline) const {
             pipeline->append(SkRasterPipeline::force_opaque);
             return;
         default: {
-            GR_STATIC_ASSERT(sizeof(uintptr_t) >= 4 * sizeof(char));
+            static_assert(sizeof(uintptr_t) >= 4 * sizeof(char));
             // Rather than allocate the 4 control bytes on the heap somewhere, just jam them right
             // into a uintptr_t context.
             uintptr_t ctx;
