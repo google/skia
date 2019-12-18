@@ -6,24 +6,61 @@
 #ifdef SK_METAL
     #include "tools/skottie_ios_app/SkMetalViewBridge.h"
     #include "tools/skottie_ios_app/SkottieMtkView.h"
+    #include "tools/skottie_ios_app/GrContextHolder.h"
 
     #import <Metal/Metal.h>
     #import <MetalKit/MetalKit.h>
+#elif SK_GL
+    #include "tools/skottie_ios_app/GrContextHolder.h"
+    #include "tools/skottie_ios_app/SkMakeGLContext.h"
+    #include "tools/skottie_ios_app/SkottieGLView.h"
 #else
     #include "tools/skottie_ios_app/SkottieUIView.h"
 #endif
 
 #import <UIKit/UIKit.h>
 
+template<typename T> static inline T* objc_cast(id v) {
+    return [v isKindOfClass:[T class]] ? static_cast<T*>(v) : nil;
+}
 
-#ifdef SK_METAL
-static UIStackView* make_skottie_stack(CGFloat width,
-                                       id<MTLDevice> metalDevice,
-                                       id<MTLCommandQueue> metalQueue,
-                                       GrContext* grContext) {
+struct SkottieViewFactory {
+    #ifdef SK_METAL
+    id<MTLDevice> metalDevice;
+    id<MTLCommandQueue> metalQueue;
+    GrContext* grContext;
+    UIView* operator()(SkottieViewController* controller) const {
+        SkottieMtkView* skottieView = [[SkottieMtkView alloc] init];
+        [skottieView setDevice:metalDevice];
+        [skottieView setQueue:metalQueue];
+        [skottieView setGrContext:grContext];
+        SkMtkViewConfigForSkia(skottieView);
+        [skottieView setPreferredFramesPerSecond:30];
+        [skottieView setController:controller];
+        return skottieView;
+    }
+    #elif SK_GL
+    const GrGLInterface* grGLInterface;
+    GrContext* grContext;
+    UIView* operator()(SkottieViewController* controller) const {
+        SkottieGLView* skottieView = [[SkottieGLView alloc] init];
+        [skottieView setGrGLInterface:grGLInterface];
+        [skottieView setGrContext:grContext];
+        [skottieView setController:controller];
+        return skottieView;
+    }
 #else
-static UIStackView* make_skottie_stack(CGFloat width) {
-#endif
+    UIView* operator()(SkottieViewController* controller) const {
+        SkottieUIView* skottieView = [[SkottieUIView alloc] init];
+        [skottieView setController:controller];
+        return skottieView;
+    }
+    #endif
+};
+
+
+static UIStackView* make_skottie_stack(CGFloat width,
+                                       const SkottieViewFactory& skottieViewFactory) {
     UIStackView* stack = [[UIStackView alloc] init];
     [stack setAxis:UILayoutConstraintAxisVertical];
     [stack setDistribution:UIStackViewDistributionEqualSpacing];
@@ -40,27 +77,17 @@ static UIStackView* make_skottie_stack(CGFloat width) {
             NSLog(@"'%@' not found", path);
             continue;
         }
-        #ifdef SK_METAL
-        SkottieMtkView* skottieView = [[SkottieMtkView alloc] init];
-        #else
-        SkottieUIView* skottieView = [[SkottieUIView alloc] init];
-        #endif
-
-        if (![skottieView loadAnimation:content]) {
+        SkottieViewController* controller = [[SkottieViewController alloc] init];
+        if (![controller loadAnimation:content]) {
             continue;
         }
-        #ifdef SK_METAL
-        [skottieView setDevice:metalDevice];
-        [skottieView setQueue:metalQueue];
-        [skottieView setGrContext:grContext];
-        SkMtkViewConfigForSkia(skottieView);
-        [skottieView setPreferredFramesPerSecond:30];
-        #endif
-        CGSize animSize = [skottieView size];
+        UIView* skottieView = skottieViewFactory(controller);
+        CGSize animSize = [controller size];
         CGFloat height = animSize.width ? (width * animSize.height / animSize.width) : 0;
         [skottieView setFrame:{{0, 0}, {width, height}}];
         [[[skottieView heightAnchor] constraintEqualToConstant:height] setActive:true];
         [[[skottieView widthAnchor] constraintEqualToConstant:width] setActive:true];
+        [skottieView setNeedsDisplay];
         [stack addArrangedSubview:skottieView];
         totalHeight += height + kSpacing;
     }
@@ -79,6 +106,9 @@ static UIStackView* make_skottie_stack(CGFloat width) {
 @implementation AppViewController {
     #ifdef SK_METAL
     GrContextHolder fGrContext;
+    #elif SK_GL
+    GrGLInterfaceHolder grGLInterfaceHolder;
+    GrContextHolder grContextHolder;
     #endif
 }
 
@@ -98,11 +128,16 @@ static UIStackView* make_skottie_stack(CGFloat width) {
         [self setMetalQueue:[[self metalDevice] newCommandQueue]];
         fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue]);
     }
-    [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width,
-                                          [self metalDevice], [self metalQueue], fGrContext.get())];
+
+    SkottieViewFactory viewFactory{[self metalDevice], [self metalQueue], fGrContext.get()};
+    #elif SK_GL
+    GrGLInterfaceHolder grGLInterfaceHolder = SkMakeGLInterface();
+    GrContextHolder grContextHolder = SkMakeGLContext(grGLInterfaceHolder.get());
+    SkottieViewFactory viewFactory{grGLInterfaceHolder.get(), grContextHolder.get()};
     #else
-    [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width)];
+    SkottieViewFactory viewFactory;
     #endif
+    [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width, viewFactory)];
 
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     CGSize mainScreenSize = [[UIScreen mainScreen] bounds].size;
@@ -131,21 +166,21 @@ static UIStackView* make_skottie_stack(CGFloat width) {
     for (NSUInteger i = 0; i < [subviews count]; ++i) {
         UIView* subview = [subviews objectAtIndex:i];
         #ifdef SK_METAL
-        if (![subview isKindOfClass:[SkottieMtkView class]]) {
-            continue;
+        if (SkottieMtkView* skottieView = objc_cast<SkottieMtkView>(subview)) {
+            BOOL paused = [[skottieView controller] togglePaused];
+            [skottieView setEnableSetNeedsDisplay:paused];
+            [skottieView setPaused:paused];
         }
-        SkottieMtkView* skottieView = (SkottieMtkView*)subview;
+        #elif SK_GL
+        if (SkottieGLView* skottieView = objc_cast<SkottieGLView>(subview)) {
+            [[skottieView controller] togglePaused];
+        }
         #else
-        if (![subview isKindOfClass:[SkottieUIView class]]) {
-            continue;
+        if (SkottieMtkView* skottieView = objc_cast<SkottieUIView>(subview)) {
+            [[skottieView controller] togglePaused];
         }
-        SkottieUIView* skottieView = (SkottieUIView*)subview;
         #endif
-        BOOL paused = [skottieView togglePaused];
-        #ifdef SK_METAL
-        [skottieView setEnableSetNeedsDisplay:paused];
-        [skottieView setPaused:paused];
-        #endif
+        [subview setNeedsDisplay];
     }
 }
 @end
