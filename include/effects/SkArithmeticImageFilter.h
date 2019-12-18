@@ -15,8 +15,8 @@ struct ArithmeticFPInputs {
         memset(this, 0, sizeof(*this));
     }
 
-    float k[4];
     bool enforcePMColor;
+    float k[4];
 };
 
 // DEPRECATED: Use include/effects/SkImageFilters::Arithmetic

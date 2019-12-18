@@ -19,6 +19,25 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::Make(SkString sksl) {
     return sk_sp<SkRuntimeEffect>(new SkRuntimeEffect(std::move(sksl)));
 }
 
+size_t SkRuntimeEffect::Variable::sizeInBytes() const {
+    auto element_size = [](Type type) -> size_t {
+        switch (type) {
+            case Type::kBool:   return 1;
+            case Type::kInt:    return sizeof(int32_t);
+            case Type::kFloat:  return sizeof(float);
+            case Type::kFloat2: return sizeof(float) * 2;
+            case Type::kFloat3: return sizeof(float) * 3;
+            case Type::kFloat4: return sizeof(float) * 4;
+
+            case Type::kFloat2x2: return sizeof(float) * 4;
+            case Type::kFloat3x3: return sizeof(float) * 9;
+            case Type::kFloat4x4: return sizeof(float) * 16;
+            default: SkUNREACHABLE;
+        }
+    };
+    return element_size(fType) * fCount;
+}
+
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
         : fIndex(new_sksl_index())
         , fSkSL(std::move(sksl)) {
@@ -31,38 +50,116 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
     }
     SkASSERT(!fCompiler.errorCount());
 
-    for (const auto& e : *fBaseProgram) {
-        if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
-            SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
-            for (const auto& varStatement : v.fVars) {
-                const SkSL::Variable& var = *((SkSL::VarDeclaration&) * varStatement).fVar;
-                if ((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) ||
-                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)) {
-                    fInAndUniformVars.push_back(&var);
+    size_t offset = 0;
+    auto gather_variables = [this, &offset](SkSL::Modifiers::Flag flag) {
+        for (const auto& e : *fBaseProgram) {
+            if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
+                SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
+                for (const auto& varStatement : v.fVars) {
+                    const SkSL::Variable& var = *((SkSL::VarDeclaration&) * varStatement).fVar;
+
+                    // Sanity check some rules that should be enforced by the IR generator.
+                    // These are all layout options that only make sense in .fp files.
+                    SkASSERT(!var.fModifiers.fLayout.fKey);
+                    SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
+                             (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
+                    SkASSERT(var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kDefault);
+                    SkASSERT(var.fModifiers.fLayout.fWhen.fLength == 0);
+                    SkASSERT((var.fModifiers.fLayout.fFlags & SkSL::Layout::kTracked_Flag) == 0);
+
+                    if (var.fModifiers.fFlags & flag) {
+                        // TODO: Scrape these into a separate list for child shaders
+                        if (&var.fType == fCompiler.context().fFragmentProcessor_Type.get()) {
+                            continue;
+                        }
+
+                        Variable v;
+                        v.fName = var.fName;
+                        v.fQualifier = (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)
+                            ? Variable::Qualifier::kUniform
+                            : Variable::Qualifier::kIn;
+                        v.fFlags = 0;
+                        v.fCount = 1;
+
+                        const SkSL::Type* type = &var.fType;
+                        if (type->kind() == SkSL::Type::kArray_Kind) {
+                            v.fFlags |= Variable::kArray_Flag;
+                            v.fCount = type->columns();
+                            type = &type->componentType();
+                        }
+
+#if SK_SUPPORT_GPU
+#define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; v.fGPUType = gpuType;} while (false)
+#else
+#define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; } while (false)
+#endif
+
+                        const SkSL::Context& ctx(fCompiler.context());
+                        if (type == ctx.fBool_Type.get()) {
+                            SET_TYPES(Variable::Type::kBool, kVoid_GrSLType);
+                        } else if (type == ctx.fInt_Type.get()) {
+                            SET_TYPES(Variable::Type::kInt, kVoid_GrSLType);
+                        } else if (type == ctx.fFloat_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat, kFloat_GrSLType);
+                        } else if (type == ctx.fHalf_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat, kHalf_GrSLType);
+                        } else if (type == ctx.fFloat2_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat2, kFloat2_GrSLType);
+                        } else if (type == ctx.fHalf2_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat2, kHalf2_GrSLType);
+                        } else if (type == ctx.fFloat3_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat3, kFloat3_GrSLType);
+                        } else if (type == ctx.fHalf3_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat3, kHalf3_GrSLType);
+                        } else if (type == ctx.fFloat4_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat4, kFloat4_GrSLType);
+                        } else if (type == ctx.fHalf4_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat4, kHalf4_GrSLType);
+                        } else if (type == ctx.fFloat2x2_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat2x2, kFloat2x2_GrSLType);
+                        } else if (type == ctx.fHalf2x2_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat2x2, kHalf2x2_GrSLType);
+                        } else if (type == ctx.fFloat3x3_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat3x3, kFloat3x3_GrSLType);
+                        } else if (type == ctx.fHalf3x3_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat3x3, kHalf3x3_GrSLType);
+                        } else if (type == ctx.fFloat4x4_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat4x4, kFloat4x4_GrSLType);
+                        } else if (type == ctx.fHalf4x4_Type.get()) {
+                            SET_TYPES(Variable::Type::kFloat4x4, kHalf4x4_GrSLType);
+                        } else {
+                            SkDEBUGFAILF("Unsupported input/uniform type: %s\n",
+                                         type->description().c_str());
+
+                        }
+
+#undef SET_TYPES
+
+                        if (v.fType != Variable::Type::kBool) {
+                            offset = SkAlign4(offset);
+                        }
+                        v.fOffset = offset;
+                        offset += v.sizeInBytes();
+                        fInAndUniformVars.push_back(v);
+                    }
                 }
-                // "in uniform" doesn't make sense outside of .fp files
-                SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
-                    (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
-                // "layout(key)" doesn't make sense outside of .fp files; all 'in' variables are
-                // part of the key
-                SkASSERT(!var.fModifiers.fLayout.fKey);
             }
         }
-    }
+    };
+
+    // Gather the inputs in two passes, to de-interleave them in our input layout
+    gather_variables(SkSL::Modifiers::kIn_Flag);
+    gather_variables(SkSL::Modifiers::kUniform_Flag);
+}
+
+size_t SkRuntimeEffect::inputSize() const {
+    return fInAndUniformVars.empty()
+        ? 0
+        : fInAndUniformVars.back().fOffset + fInAndUniformVars.back().sizeInBytes();
 }
 
 #if SK_SUPPORT_GPU
-static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
-    int arrayCount = 0;
-    if (type->kind() == SkSL::Type::kArray_Kind) {
-        arrayCount = type->columns();
-        type = &type->componentType();
-    }
-    return std::make_tuple(type, arrayCount);
-}
-
-bool SkRuntimeEffect::toPipelineStage(const void* inputs, size_t inputSize,
-                                      const GrShaderCaps* shaderCaps,
+bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
                                       SkSL::String* outCode,
                                       std::vector<SkSL::Compiler::FormatArg>* outFormatArgs,
                                       std::vector<SkSL::Compiler::GLSLFunction>* outFunctions) {
@@ -77,48 +174,32 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, size_t inputSize,
     SkASSERT(baseProgram);
 
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
-    size_t offset = 0;
     for (const auto& v : fInAndUniformVars) {
-        auto [type, arrayCount] = strip_array(&v->fType);
-        arrayCount = SkTMax(1, arrayCount);
-        SkSL::String name(v->fName);
-        if (type == fCompiler.context().fInt_Type.get() ||
-            type == fCompiler.context().fShort_Type.get()) {
-            offset = SkAlign4(offset);
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                int32_t v = *(int32_t*)(((uint8_t*)inputs) + offset);
-                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+        if (v.fQualifier != Variable::Qualifier::kIn) {
+            continue;
+        }
+        // 'in' arrays are not supported
+        SkASSERT(!v.isArray());
+        SkSL::String name(v.fName.c_str(), v.fName.size());
+        switch (v.fType) {
+            case Variable::Type::kBool: {
+                bool b = *SkTAddOffset<const bool>(inputs, v.fOffset);
+                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(b)));
+                break;
             }
-            offset += sizeof(int32_t) * arrayCount;
-        } else if (type == fCompiler.context().fFloat_Type.get() ||
-                   type == fCompiler.context().fHalf_Type.get()) {
-            offset = SkAlign4(offset);
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                float v = *(float*)(((uint8_t*)inputs) + offset);
-                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            case Variable::Type::kInt: {
+                int32_t i = *SkTAddOffset<const int32_t>(inputs, v.fOffset);
+                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(i)));
+                break;
             }
-            offset += sizeof(float) * arrayCount;
-        } else if (type == fCompiler.context().fBool_Type.get()) {
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                bool v = *(((bool*)inputs) + offset);
-                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            case Variable::Type::kFloat: {
+                float f = *SkTAddOffset<const float>(inputs, v.fOffset);
+                inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(f)));
+                break;
             }
-            offset += sizeof(bool) * arrayCount;
-        } else if (type == fCompiler.context().fFloat2_Type.get() ||
-                   type == fCompiler.context().fHalf2_Type.get()) {
-            offset = SkAlign4(offset) + sizeof(float) * 2 * arrayCount;
-        } else if (type == fCompiler.context().fFloat3_Type.get() ||
-                   type == fCompiler.context().fHalf3_Type.get()) {
-            offset = SkAlign4(offset) + sizeof(float) * 3 * arrayCount;
-        } else if (type == fCompiler.context().fFloat4_Type.get() ||
-                   type == fCompiler.context().fHalf4_Type.get()) {
-            offset = SkAlign4(offset) + sizeof(float) * 4 * arrayCount;
-        } else if (type == fCompiler.context().fFragmentProcessor_Type.get()) {
-            // do nothing
-        } else {
-            printf("can't handle input var: %s\n", SkSL::String(v->fType.fName).c_str());
-            SkASSERT(false);
-            return false;
+            default:
+                SkDEBUGFAIL("Unsupported input variable type");
+                return false;
         }
     }
 
