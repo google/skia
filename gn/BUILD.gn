@@ -277,6 +277,13 @@ config("default") {
       "-fno-sanitize-recover=$sanitizers",
       "-fsanitize-blacklist=$_blacklist",
     ]
+
+    # TODO(mtklein): we need to fix "nullptr + k" issues
+    # where k != 0 in C++, or in C, k == anything at all.
+    # We have failures in Skia and libjpeg-turbo, at least.
+    # See skia:9731.
+    cflags += [ "-fsanitize-recover=pointer-overflow" ]
+
     ldflags += [ "-fsanitize=$sanitizers" ]
 
     if (is_win) {
