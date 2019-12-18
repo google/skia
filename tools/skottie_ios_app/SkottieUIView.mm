@@ -14,69 +14,50 @@
 
 #include "modules/skottie/include/Skottie.h"
 
-@implementation SkottieUIView {
-    SkAnimationDraw fDraw;
-    SkTimeKeeper fClock;
-    SkBitmap fBackBuffer;
-}
-
-- (void)drawRect:(CGRect)rect {
-    double next = fClock.paused() ? 0 : (1.0 / 30.0) + SkTime::GetNSecs() * 1e-9;
-    [super drawRect:rect];
-    // TODO(halcanary): Use the rect and the InvalidationController to speed up rendering.
-    if (rect.size.width > 0 && rect.size.height > 0 && fDraw) {
-        CGSize size = [self bounds].size;
-        SkISize iSize = {(int)size.width, (int)size.height};
-
-        if (fBackBuffer.drawsNothing() || iSize != fBackBuffer.dimensions()) {
-            fBackBuffer.allocN32Pixels(iSize.fWidth, iSize.fHeight);
-        }
-        fBackBuffer.eraseColor(SK_ColorTRANSPARENT);
-        {
-            SkCanvas canvas(fBackBuffer);
-            if (!fClock.paused()) {
-                fDraw.seek(fClock.currentTime());
-            }
-            fDraw.draw({(float)size.width, (float)size.height}, &canvas);
-        }
-        SkCGDrawBitmap(UIGraphicsGetCurrentContext(), fBackBuffer, 0, 0);
-    }
-    if (next) {
-        [NSTimer scheduledTimerWithTimeInterval:std::max(0.0, next - SkTime::GetNSecs() * 1e-9)
-                 target:self
-                 selector:@selector(setNeedsDisplay)
-                 userInfo:nil
-                 repeats:NO];
-    }
-}
-
+@implementation SkottieUIView
 - (BOOL)loadAnimation:(NSData*) data {
-    fDraw.load((const void*)[data bytes], (size_t)[data length]);
-    fClock.setDuration(fDraw.duration());
-    [self setNeedsDisplay];
-    return (bool)fDraw;
+    SkottieViewController* vc = [[SkottieViewController alloc] init];
+    if (![vc loadAnimation:data]) {
+        return false;
+    }
+    [self setController:vc];
+    return true;
 }
 
-- (void)setStopAtEnd:(BOOL)stop{ fClock.setStopAtEnd(stop); }
-
-- (float)animationDurationSeconds { return fClock.duration(); }
-
-- (float)currentTime { return fDraw ? fClock.currentTime() : 0; }
-
-- (void)seek:(float)seconds {
-    if (fDraw) {
-        fClock.seek(seconds);
+- (void)setStopAtEnd:(BOOL)stop{
+    SkiaViewController* vc = [self controller];
+    if (vc && [vc isKindOfClass:[SkottieViewController class]]) {
+        [(SkottieViewController*)vc setStopAtEnd:stop];
         [self setNeedsDisplay];
     }
 }
 
-- (CGSize)size { return {(CGFloat)fDraw.size().width(), (CGFloat)fDraw.size().height()}; }
-
-- (BOOL)togglePaused {
-    fClock.togglePaused();
-    [self setNeedsDisplay];
-    return fClock.paused();
+- (void)seek:(float)seconds {
+    SkiaViewController* vc = [self controller];
+    if (vc && [vc isKindOfClass:[SkottieViewController class]]) {
+        [(SkottieViewController*)vc seek:seconds];
+        [self setNeedsDisplay];
+    }
 }
 
-- (BOOL)isPaused { return fClock.paused(); }
+- (CGSize)size {
+    SkiaViewController* vc = [self controller];
+    if (vc && [vc isKindOfClass:[SkottieViewController class]]) {
+        return [(SkottieViewController*)vc size];
+    }
+    return CGSize{0, 0};
+}
+
+- (BOOL)togglePaused {
+    SkiaViewController* vc = [self controller];
+    if (vc && [vc isKindOfClass:[SkottieViewController class]]) {
+        [self setNeedsDisplay];
+        [(SkottieViewController*)vc togglePaused];
+    }
+    return [vc isPaused];
+}
+
+- (BOOL)isPaused {
+    return [[self controller] isPaused];
+}
 @end
