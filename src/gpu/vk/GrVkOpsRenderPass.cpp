@@ -635,39 +635,27 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     fCurrentCBIsEmpty = false;
 }
 
-void GrVkOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,
-                                               const GrBuffer* vertexBuffer,
-                                               int vertexCount,
-                                               int baseVertex,
-                                               const GrBuffer* instanceBuffer,
-                                               int instanceCount,
-                                               int baseInstance) {
-    SkASSERT(!vertexBuffer || !vertexBuffer->isCpuBuffer());
-    SkASSERT(!instanceBuffer || !instanceBuffer->isCpuBuffer());
-    auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer);
-    auto gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(instanceBuffer);
+void GrVkOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex,
+                                               int instanceCount, int baseInstance) {
+    SkASSERT(!mesh.vertexBuffer() || !mesh.vertexBuffer()->isCpuBuffer());
+    SkASSERT(!mesh.instanceBuffer() || !mesh.instanceBuffer()->isCpuBuffer());
+    auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(mesh.vertexBuffer());
+    auto gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(mesh.instanceBuffer());
     this->bindGeometry(nullptr, gpuVertexBuffer, gpuInstanceBuffer);
     this->currentCommandBuffer()->draw(fGpu, vertexCount, instanceCount, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
 
-void GrVkOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
-                                                      const GrBuffer* indexBuffer,
-                                                      int indexCount,
-                                                      int baseIndex,
-                                                      const GrBuffer* vertexBuffer,
-                                                      int baseVertex,
-                                                      const GrBuffer* instanceBuffer,
-                                                      int instanceCount,
-                                                      int baseInstance,
-                                                      GrPrimitiveRestart restart) {
-    SkASSERT(restart == GrPrimitiveRestart::kNo);
-    SkASSERT(!vertexBuffer || !vertexBuffer->isCpuBuffer());
-    SkASSERT(!instanceBuffer || !instanceBuffer->isCpuBuffer());
-    SkASSERT(!indexBuffer->isCpuBuffer());
-    auto gpuIndexxBuffer = static_cast<const GrGpuBuffer*>(indexBuffer);
-    auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(vertexBuffer);
-    auto gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(instanceBuffer);
+void GrVkOpsRenderPass::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount,
+                                                      int baseIndex, int baseVertex,
+                                                      int instanceCount, int baseInstance) {
+    SkASSERT(mesh.primitiveRestart() == GrPrimitiveRestart::kNo);
+    SkASSERT(!mesh.vertexBuffer() || !mesh.vertexBuffer()->isCpuBuffer());
+    SkASSERT(!mesh.instanceBuffer() || !mesh.instanceBuffer()->isCpuBuffer());
+    SkASSERT(!mesh.indexBuffer()->isCpuBuffer());
+    auto gpuIndexxBuffer = static_cast<const GrGpuBuffer*>(mesh.indexBuffer());
+    auto gpuVertexBuffer = static_cast<const GrGpuBuffer*>(mesh.vertexBuffer());
+    auto gpuInstanceBuffer = static_cast<const GrGpuBuffer*>(mesh.instanceBuffer());
     this->bindGeometry(gpuIndexxBuffer, gpuVertexBuffer, gpuInstanceBuffer);
     this->currentCommandBuffer()->drawIndexed(fGpu, indexCount, instanceCount,
                                               baseIndex, baseVertex, baseInstance);
