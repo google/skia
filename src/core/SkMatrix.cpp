@@ -22,15 +22,11 @@
 #include <utility>
 
 static void normalize_perspective(SkScalar mat[9]) {
-    // If it was interesting to never store the last element, we could divide all 8 other
-    // elements here by the 9th, making it 1.0...
+    // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
+    // is in perspective, even though it stills behaves like its affine. If we divide everthing
+    // by the not_one value, then it will behave the same, but will be treated as affine,
+    // and therefore faster (e.g. clients can forward-difference calculations).
     //
-    // When SkScalar was SkFixed, we would sometimes rescale the entire matrix to keep its
-    // component values from getting too large. This is not a concern when using floats/doubles,
-    // so we do nothing now.
-
-    // Disable this for now, but it could be enabled.
-#if 0
     if (0 == mat[SkMatrix::kMPersp0] && 0 == mat[SkMatrix::kMPersp1]) {
         SkScalar p2 = mat[SkMatrix::kMPersp2];
         if (p2 != 0 && p2 != 1) {
@@ -41,7 +37,6 @@ static void normalize_perspective(SkScalar mat[9]) {
             mat[SkMatrix::kMPersp2] = 1;
         }
     }
-#endif
 }
 
 // In a few places, we performed the following
