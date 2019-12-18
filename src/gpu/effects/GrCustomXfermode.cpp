@@ -32,23 +32,23 @@ bool GrCustomXfermode::IsSupportedMode(SkBlendMode mode) {
 static constexpr GrBlendEquation hw_blend_equation(SkBlendMode mode) {
 // In C++14 this could be a constexpr int variable.
 #define EQ_OFFSET (kOverlay_GrBlendEquation - (int)SkBlendMode::kOverlay)
-    GR_STATIC_ASSERT(kOverlay_GrBlendEquation == (int)SkBlendMode::kOverlay + EQ_OFFSET);
-    GR_STATIC_ASSERT(kDarken_GrBlendEquation == (int)SkBlendMode::kDarken + EQ_OFFSET);
-    GR_STATIC_ASSERT(kLighten_GrBlendEquation == (int)SkBlendMode::kLighten + EQ_OFFSET);
-    GR_STATIC_ASSERT(kColorDodge_GrBlendEquation == (int)SkBlendMode::kColorDodge + EQ_OFFSET);
-    GR_STATIC_ASSERT(kColorBurn_GrBlendEquation == (int)SkBlendMode::kColorBurn + EQ_OFFSET);
-    GR_STATIC_ASSERT(kHardLight_GrBlendEquation == (int)SkBlendMode::kHardLight + EQ_OFFSET);
-    GR_STATIC_ASSERT(kSoftLight_GrBlendEquation == (int)SkBlendMode::kSoftLight + EQ_OFFSET);
-    GR_STATIC_ASSERT(kDifference_GrBlendEquation == (int)SkBlendMode::kDifference + EQ_OFFSET);
-    GR_STATIC_ASSERT(kExclusion_GrBlendEquation == (int)SkBlendMode::kExclusion + EQ_OFFSET);
-    GR_STATIC_ASSERT(kMultiply_GrBlendEquation == (int)SkBlendMode::kMultiply + EQ_OFFSET);
-    GR_STATIC_ASSERT(kHSLHue_GrBlendEquation == (int)SkBlendMode::kHue + EQ_OFFSET);
-    GR_STATIC_ASSERT(kHSLSaturation_GrBlendEquation == (int)SkBlendMode::kSaturation + EQ_OFFSET);
-    GR_STATIC_ASSERT(kHSLColor_GrBlendEquation == (int)SkBlendMode::kColor + EQ_OFFSET);
-    GR_STATIC_ASSERT(kHSLLuminosity_GrBlendEquation == (int)SkBlendMode::kLuminosity + EQ_OFFSET);
+    static_assert(kOverlay_GrBlendEquation == (int)SkBlendMode::kOverlay + EQ_OFFSET);
+    static_assert(kDarken_GrBlendEquation == (int)SkBlendMode::kDarken + EQ_OFFSET);
+    static_assert(kLighten_GrBlendEquation == (int)SkBlendMode::kLighten + EQ_OFFSET);
+    static_assert(kColorDodge_GrBlendEquation == (int)SkBlendMode::kColorDodge + EQ_OFFSET);
+    static_assert(kColorBurn_GrBlendEquation == (int)SkBlendMode::kColorBurn + EQ_OFFSET);
+    static_assert(kHardLight_GrBlendEquation == (int)SkBlendMode::kHardLight + EQ_OFFSET);
+    static_assert(kSoftLight_GrBlendEquation == (int)SkBlendMode::kSoftLight + EQ_OFFSET);
+    static_assert(kDifference_GrBlendEquation == (int)SkBlendMode::kDifference + EQ_OFFSET);
+    static_assert(kExclusion_GrBlendEquation == (int)SkBlendMode::kExclusion + EQ_OFFSET);
+    static_assert(kMultiply_GrBlendEquation == (int)SkBlendMode::kMultiply + EQ_OFFSET);
+    static_assert(kHSLHue_GrBlendEquation == (int)SkBlendMode::kHue + EQ_OFFSET);
+    static_assert(kHSLSaturation_GrBlendEquation == (int)SkBlendMode::kSaturation + EQ_OFFSET);
+    static_assert(kHSLColor_GrBlendEquation == (int)SkBlendMode::kColor + EQ_OFFSET);
+    static_assert(kHSLLuminosity_GrBlendEquation == (int)SkBlendMode::kLuminosity + EQ_OFFSET);
 
     // There's an illegal GrBlendEquation that corresponds to no SkBlendMode, hence the extra +1.
-    GR_STATIC_ASSERT(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + 1 + EQ_OFFSET);
+    static_assert(kGrBlendEquationCnt == (int)SkBlendMode::kLastMode + 1 + 1 + EQ_OFFSET);
 
     return static_cast<GrBlendEquation>((int)mode + EQ_OFFSET);
 #undef EQ_OFFSET
@@ -126,7 +126,7 @@ public:
         if (xp.hasHWBlendEquation()) {
             SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
             key |= caps.advBlendEqInteraction();
-            GR_STATIC_ASSERT(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
+            static_assert(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
         }
         if (!xp.hasHWBlendEquation() || caps.mustEnableSpecificAdvBlendEqs()) {
             key |= (int)xp.mode() << 3;
