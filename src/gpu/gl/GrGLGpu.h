@@ -376,6 +376,8 @@ private:
 
     void flushConservativeRasterState(bool enable);
 
+    void flushWireframeState(bool enable);
+
     void flushFramebufferSRGB(bool enable);
 
     bool uploadTexData(GrGLFormat textureFormat, GrColorType textureColorType, int texWidth,
@@ -589,10 +591,11 @@ private:
     TriState                                fMSAAEnabled;
     TriState                                fHWConservativeRasterEnabled;
 
+    TriState                                fHWWireframeEnabled;
+
     GrStencilSettings                       fHWStencilSettings;
     GrSurfaceOrigin                         fHWStencilOrigin;
     TriState                                fHWStencilTestEnabled;
-
 
     TriState                                fHWWriteToColor;
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;

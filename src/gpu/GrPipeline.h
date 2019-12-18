@@ -56,9 +56,13 @@ public:
          */
         kConservativeRaster = (1 << 1),
         /**
+         * Draws triangles as outlines.
+         */
+        kWireframe = (1 << 2),
+        /**
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
-        kSnapVerticesToPixelCenters = (1 << 2),  // This value must be last. (See kLastInputFlag.)
+        kSnapVerticesToPixelCenters = (1 << 3),  // This value must be last. (See kLastInputFlag.)
     };
 
     struct InitArgs {
@@ -190,6 +194,7 @@ public:
 
     bool isHWAntialiasState() const { return fFlags & InputFlags::kHWAntialias; }
     bool usesConservativeRaster() const { return fFlags & InputFlags::kConservativeRaster; }
+    bool isWireframe() const { return fFlags & InputFlags::kWireframe; }
     bool snapVerticesToPixelCenters() const {
         return fFlags & InputFlags::kSnapVerticesToPixelCenters;
     }

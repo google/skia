@@ -392,6 +392,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                 break;
         }
     });
+    fCommands.addCommand('w', "Modes", "Toggle wireframe", [this]() {
+        DisplayParams params = fWindow->getRequestedDisplayParams();
+        params.fGrContextOptions.fWireframeMode = !params.fGrContextOptions.fWireframeMode;
+        fWindow->setRequestedDisplayParams(params);
+        fWindow->inval();
+    });
     fCommands.addCommand(skui::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
         this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
     });
