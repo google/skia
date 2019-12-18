@@ -500,20 +500,8 @@ public:
         @param persp2  perspective scale factor to store
     */
     SkMatrix& setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
-                SkScalar skewY,  SkScalar scaleY, SkScalar transY,
-                SkScalar persp0, SkScalar persp1, SkScalar persp2) {
-        fMat[kMScaleX] = scaleX;
-        fMat[kMSkewX]  = skewX;
-        fMat[kMTransX] = transX;
-        fMat[kMSkewY]  = skewY;
-        fMat[kMScaleY] = scaleY;
-        fMat[kMTransY] = transY;
-        fMat[kMPersp0] = persp0;
-        fMat[kMPersp1] = persp1;
-        fMat[kMPersp2] = persp2;
-        this->setTypeMask(kUnknown_Mask);
-        return *this;
-    }
+                     SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                     SkScalar persp0, SkScalar persp1, SkScalar persp2);
 
     /** Copies nine scalar values contained by SkMatrix into buffer, in member value
         ascending order: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
@@ -1234,6 +1222,19 @@ public:
         @param affine  3 by 2 affine matrix
     */
     SkMatrix& setAffine(const SkScalar affine[6]);
+
+    /**
+     *  A matrix is categorized as 'perspective' if the bottom row is not [0, 0, 1].
+     *  However, for most uses (e.g. mapPoints) a bottom row of [0, 0, X] behaves like a
+     *  non-perspective matrix, though it will be categorized as perspective. Calling
+     *  normalizePerspective() will change the matrix such that, if its bottom row was [0, 0, X],
+     *  it will be changed to [0, 0, 1] by scaling the rest of the matrix by 1/X.
+     *
+     *  | A B C |    | A/X B/X C/X |
+     *  | D E F | -> | D/X E/X F/X |   for X != 0
+     *  | 0 0 X |    |  0   0   1  |
+     */
+    void normalizePerspective();
 
     /** Maps src SkPoint array of length count to dst SkPoint array of equal or greater
         length. SkPoint are mapped by multiplying each SkPoint by SkMatrix. Given:
