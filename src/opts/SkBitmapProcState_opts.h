@@ -428,7 +428,7 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
                 tmp = vmul_u16(tmp, vscale);       // multiply result by scale
             }
 
-            vres = vshrn_n_u16(vcombine_u16(tmp, vcreate_u16(0)), 8); // shift down result by 8
+            vres = vshrn_n_u16(vcombine_u16(tmp, vcreate_u16((uint64_t)0)), 8); // shift down result by 8
             vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);         // store result
         }
     #else
