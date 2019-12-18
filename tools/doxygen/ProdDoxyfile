@@ -2,4 +2,4 @@
 
 @INCLUDE = Doxyfile
 
-OUTPUT_DIRECTORY       = /workspace/__doxygen_staging
+OUTPUT_DIRECTORY = $(OUTPUT_DIRECTORY)

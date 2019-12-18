@@ -27,6 +27,8 @@ steps:
 
   - name: 'gcr.io/skia-public/doxygen:testing-slim'
     dir: './tools/doxygen'
+    env:
+      - 'OUTPUT_DIRECTORY=/workspace/__doxygen_staging'
     args: ['doxygen', 'ProdDoxyfile']
     timeout: 600s
 
