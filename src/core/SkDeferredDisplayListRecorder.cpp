@@ -185,13 +185,17 @@ bool SkDeferredDisplayListRecorder::init() {
         return false;
     }
 
-    auto c = fContext->priv().makeWrappedSurfaceContext(std::move(proxy),
-                                                        grColorType,
-                                                        kPremul_SkAlphaType,
-                                                        fCharacterization.refColorSpace(),
-                                                        &fCharacterization.surfaceProps());
-    SkASSERT(c->asRenderTargetContext());
-    std::unique_ptr<GrRenderTargetContext> rtc(c.release()->asRenderTargetContext());
+    const GrSwizzle& readSwizzle = caps->getReadSwizzle(fCharacterization.backendFormat(),
+                                                        grColorType);
+    const GrSwizzle& outputSwizzle = caps->getOutputSwizzle(fCharacterization.backendFormat(),
+                                                            grColorType);
+    SkASSERT(readSwizzle == proxy->textureSwizzle());
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(fContext.get(), std::move(proxy),
+                                                       grColorType, fCharacterization.origin(),
+                                                       readSwizzle, outputSwizzle,
+                                                       fCharacterization.refColorSpace(),
+                                                       &fCharacterization.surfaceProps());
     fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));
     return SkToBool(fSurface.get());
 }

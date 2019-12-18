@@ -58,6 +58,10 @@ class SkVertices;
  */
 class GrRenderTargetContext : public GrSurfaceContext {
 public:
+    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
+                          GrSurfaceOrigin, GrSwizzle readSwizzle, GrSwizzle outSwizzle,
+                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
+
     ~GrRenderTargetContext() override;
 
     virtual void drawGlyphRunList(const GrClip&, const SkMatrix& viewMatrix, const SkGlyphRunList&);
@@ -540,10 +544,6 @@ private:
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
-
-    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
-                          GrSurfaceOrigin, GrSwizzle texSwizzle, GrSwizzle outSwizzle,
-                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
 
     SkDEBUGCODE(void onValidate() const override;)
 
