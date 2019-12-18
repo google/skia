@@ -10,13 +10,13 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
-#include "src/core/SkRuntimeEffect.h"
 #include "src/shaders/SkShaderBase.h"
 
 struct GrFPArgs;
 class GrFragmentProcessor;
 class SkData;
 class SkMatrix;
+class SkRuntimeEffect;
 
 namespace SkSL { class ByteCode; }
 
@@ -25,6 +25,7 @@ class SkRTShader : public SkShaderBase {
 public:
     SkRTShader(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
                bool isOpaque);
+    ~SkRTShader() override;
 
     bool isOpaque() const override { return fIsOpaque; }
 
@@ -53,6 +54,11 @@ private:
 class SK_API SkRuntimeShaderFactory {
 public:
     SkRuntimeShaderFactory(SkString sksl, bool isOpaque);
+    SkRuntimeShaderFactory(const SkRuntimeShaderFactory&) = delete;
+
+    ~SkRuntimeShaderFactory();
+
+    SkRuntimeShaderFactory operator=(const SkRuntimeShaderFactory&) = delete;
 
     sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix);
 
