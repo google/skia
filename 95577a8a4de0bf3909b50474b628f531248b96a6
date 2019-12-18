@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2874c55f_d365d074",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-18T16:33:38Z",
+      "side": 1,
+      "message": "I think we might want to expose this as a method on SkMatrix, either changing this or returning a new one.  It\u0027s kind of hard to reason about where this will happen (2, now 4 methods) and where it won\u0027t (setting individual values, maybe others?). Wouldn\u0027t you want your code that really cares specifically about perspective to explicitly say something about it, like this?\n\n   // Since we\u0027re making this choice only once and perspective is expensive,\n   // it really pays to make sure we need that perspective.\n   inv.normalizePerspective();",
+      "revId": "95577a8a4de0bf3909b50474b628f531248b96a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f4cf4c4_2675e119",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1025,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-18T16:33:38Z",
+      "side": 1,
+      "message": "This is the sort of change that makes me worry.  Left and right both read like they do the same thing.  (I know they don\u0027t, but when skimming the code, they won\u0027t stand out as distinct.)",
+      "revId": "95577a8a4de0bf3909b50474b628f531248b96a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
