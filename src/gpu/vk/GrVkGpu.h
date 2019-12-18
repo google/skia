@@ -177,7 +177,7 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData*,
-                                            int numMipLevels,
+                                            GrMipMapped,
                                             GrProtected) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
@@ -272,9 +272,9 @@ private:
     bool createVkImageForBackendSurface(VkFormat,
                                         SkISize,
                                         bool texturable,
-                                        bool renderable,
+                                        GrRenderable,
                                         const BackendTextureData*,
-                                        int numMipLevels,
+                                        GrMipMapped,
                                         GrVkImageInfo*,
                                         GrProtected);
 
