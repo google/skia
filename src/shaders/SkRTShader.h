@@ -23,7 +23,7 @@ namespace SkSL { class ByteCode; }
 class SkRTShader : public SkShaderBase {
 public:
     SkRTShader(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-               bool isOpaque);
+               sk_sp<SkShader>* children, size_t childCount, bool isOpaque);
     ~SkRTShader() override;
 
     bool isOpaque() const override { return fIsOpaque; }
@@ -43,6 +43,7 @@ private:
     bool fIsOpaque;
 
     sk_sp<SkData> fInputs;
+    std::vector<sk_sp<SkShader>> fChildren;
 
     mutable SkMutex fByteCodeMutex;
     mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
@@ -61,7 +62,12 @@ public:
     SkRuntimeShaderFactory& operator=(const SkRuntimeShaderFactory&);
     SkRuntimeShaderFactory& operator=(SkRuntimeShaderFactory&&);
 
-    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix);
+    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
+        return this->make(std::move(inputs), localMatrix, nullptr, 0);
+    }
+
+    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix,
+                         sk_sp<SkShader>* children, size_t childCount);
 
 private:
     sk_sp<SkRuntimeEffect> fEffect;
