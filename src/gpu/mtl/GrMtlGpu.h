@@ -130,7 +130,7 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData*,
-                                            int numMipLevels,
+                                            GrMipMapped,
                                             GrProtected) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
@@ -209,11 +209,11 @@ private:
             const GrRenderTarget*, int width, int height, int numStencilSamples) override;
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
-                                           SkISize,
+                                           SkISize dimensions,
                                            bool texturable,
-                                           bool renderable,
+                                           GrRenderable,
                                            const BackendTextureData*,
-                                           int numMipLevels,
+                                           GrMipMapped,
                                            GrMtlTextureInfo*);
 
 #if GR_TEST_UTILS

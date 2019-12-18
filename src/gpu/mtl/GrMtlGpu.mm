@@ -555,7 +555,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(int width, int height,
         return nullptr;
     }
 
-    size_t dataSize = GrCompressedDataSize(compressionType, {width, height}, GrMipMapped::kNo);
+    size_t dataSize = GrCompressedDataSize(compressionType, {width, height},
+                                           nullptr, GrMipMapped::kNo);
     SkASSERT(dataSize);
 
     size_t bufferOffset;
@@ -783,13 +784,13 @@ void copy_src_data(char* dst, size_t bytesPerPixel, const SkTArray<size_t>& indi
 bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
                                                  SkISize dimensions,
                                                  bool texturable,
-                                                 bool renderable,
+                                                 GrRenderable renderable,
                                                  const BackendTextureData* data,
-                                                 int numMipLevels,
+                                                 GrMipMapped mipMapped,
                                                  GrMtlTextureInfo* info) {
-    SkASSERT(texturable || renderable);
+    SkASSERT(texturable || renderable == GrRenderable::kYes);
     if (!texturable) {
-        SkASSERT(!data && numMipLevels == 1);
+        SkASSERT(!data && mipMapped == GrMipMapped::kNo);
     }
 
 #ifdef SK_BUILD_FOR_IOS
@@ -800,7 +801,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     if (texturable && !fMtlCaps->isFormatTexturable(format)) {
         return false;
     }
-    if (renderable && !fMtlCaps->isFormatRenderable(format, 1)) {
+    if (renderable == GrRenderable::kYes && !fMtlCaps->isFormatRenderable(format, 1)) {
         return false;
     }
 
@@ -808,16 +809,15 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
         return false;
     }
 
-    bool mipmapped = numMipLevels > 1;
     MTLTextureDescriptor* desc =
-            [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
-                                                               width: dimensions.width()
-                                                              height: dimensions.height()
-                                                           mipmapped: mipmapped];
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
+                                                           width: dimensions.width()
+                                                          height: dimensions.height()
+                                                       mipmapped: mipMapped == GrMipMapped::kYes];
     if (@available(macOS 10.11, iOS 9.0, *)) {
         desc.storageMode = MTLStorageModePrivate;
         desc.usage = texturable ? MTLTextureUsageShaderRead : 0;
-        desc.usage |= renderable ? MTLTextureUsageRenderTarget : 0;
+        desc.usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
     }
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
 
@@ -837,6 +837,11 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
 #else
         options |= MTLResourceStorageModeShared;
 #endif
+    }
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     // Create a transfer buffer and fill with data.
@@ -921,17 +926,16 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const GrBackendFormat& format,
                                                   GrRenderable renderable,
                                                   const BackendTextureData* data,
-                                                  int numMipLevels,
+                                                  GrMipMapped mipMapped,
                                                   GrProtected isProtected) {
     // GrGpu::createBackendTexture should've ensured these conditions
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     GrMtlTextureInfo info;
     if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, true,
-                                                 GrRenderable::kYes == renderable, data,
-                                                 numMipLevels, &info)) {
+                                                 renderable, data, mipMapped, &info)) {
         return {};
     }
-    GrMipMapped mipMapped = numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+
     GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
     return backendTex;
 }
@@ -981,7 +985,8 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
     }
 
     GrMtlTextureInfo info;
-    if (!this->createMtlTextureForBackendSurface(format, {w, h}, false, true, nullptr, 1, &info)) {
+    if (!this->createMtlTextureForBackendSurface(format, {w, h}, false, GrRenderable::kYes,
+                                                 nullptr, GrMipMapped::kNo, &info)) {
         return {};
     }
 

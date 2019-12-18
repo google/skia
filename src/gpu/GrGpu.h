@@ -626,7 +626,7 @@ private:
                                                     const GrBackendFormat&,
                                                     GrRenderable,
                                                     const BackendTextureData*,
-                                                    int numMipLevels,
+                                                    GrMipMapped,
                                                     GrProtected isProtected) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,

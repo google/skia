@@ -90,7 +90,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }
-            auto size = GrCompressedDataSize(compression, dimensions, GrMipMapped::kNo);
+            auto size = GrCompressedDataSize(compression, dimensions, nullptr, GrMipMapped::kNo);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(compression, dimensions, GrMipMapped::kNo,

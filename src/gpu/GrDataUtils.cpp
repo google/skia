@@ -129,7 +129,9 @@ static int num_ETC1_blocks(int w, int h) {
 }
 
 size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
-                            GrMipMapped mipMapped) {
+                            SkTArray<size_t>* individualMipOffsets, GrMipMapped mipMapped) {
+    SkASSERT(!individualMipOffsets || !individualMipOffsets->count());
+
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
         numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
@@ -142,6 +144,10 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
         case SkImage::CompressionType::kETC1: {
             for (int i = 0; i < numMipLevels; ++i) {
                 int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
+
+                if (individualMipOffsets) {
+                    individualMipOffsets->push_back(totalSize);
+                }
 
                 totalSize += numBlocks * sizeof(ETC1Block);
 
@@ -227,7 +233,7 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
         size_t offset = 0;
 
         for (int i = 0; i < numMipLevels; ++i) {
-            size_t levelSize = GrCompressedDataSize(type, dimensions, GrMipMapped::kNo);
+            size_t levelSize = GrCompressedDataSize(type, dimensions, nullptr, GrMipMapped::kNo);
 
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
 

@@ -15,7 +15,8 @@
 
 class GrImageInfo;
 
-size_t GrCompressedDataSize(SkImage::CompressionType, SkISize dimensions, GrMipMapped);
+size_t GrCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
+                            SkTArray<size_t>* individualMipOffsets, GrMipMapped);
 
 // Returns a value that can be used to set rowBytes for a transfer function.
 size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
