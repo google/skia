@@ -712,10 +712,60 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     return texture;
 }
 
+static bool check_compressed_backend_texture(const GrBackendTexture& backendTex,
+                                             const GrGLCaps& caps, GrGLTexture::Desc* desc,
+                                             bool skipRectTexSupportCheck = false) {
+    GrGLTextureInfo info;
+    if (!backendTex.getGLTextureInfo(&info) || !info.fID || !info.fFormat) {
+        return false;
+    }
+
+    desc->fSize = {backendTex.width(), backendTex.height()};
+    desc->fTarget = info.fTarget;
+    desc->fID = info.fID;
+    desc->fFormat = GrGLFormatFromGLEnum(info.fFormat);
+
+    if (desc->fFormat == GrGLFormat::kUnknown) {
+        return false;
+    }
+
+    if (GR_GL_TEXTURE_2D != desc->fTarget) {
+        return false;
+    }
+    if (backendTex.isProtected()) {
+        // Not supported in GL backend at this time.
+        return false;
+    }
+
+    desc->fConfig = caps.getConfigFromCompressedBackendFormat(backendTex.getBackendFormat());
+    SkASSERT(desc->fConfig != kUnknown_GrPixelConfig);
+
+    return true;
+}
+
 sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
                                                          GrWrapOwnership ownership,
                                                          GrWrapCacheable cacheable) {
-    return nullptr;
+    GrGLTexture::Desc desc;
+    if (!check_compressed_backend_texture(backendTex, this->glCaps(), &desc)) {
+        return nullptr;
+    }
+
+    if (kBorrow_GrWrapOwnership == ownership) {
+        desc.fOwnership = GrBackendObjectOwnership::kBorrowed;
+    } else {
+        desc.fOwnership = GrBackendObjectOwnership::kOwned;
+    }
+
+    GrMipMapsStatus mipMapsStatus = backendTex.hasMipMaps() ? GrMipMapsStatus::kValid
+                                                            : GrMipMapsStatus::kNotAllocated;
+
+    auto texture = GrGLTexture::MakeWrapped(this, mipMapsStatus, desc,
+                                            backendTex.getGLTextureParams(), cacheable,
+                                            kRead_GrIOType);
+    // We don't know what parameters are already set on wrapped textures.
+    texture->textureParamsModified();
+    return texture;
 }
 
 sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture& backendTex,
@@ -1043,9 +1093,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
-    // Make sure that the width and height that we pass to OpenGL
+    // TODO: Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
-    size_t dataSize = GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped);
 
     if (useTexStorage) {
         // We never resize or change formats of textures.
@@ -1056,33 +1105,55 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         if (error != GR_GL_NO_ERROR) {
             return false;
         }
-        GL_CALL(CompressedTexSubImage2D(target,
-                                        0,  // level
-                                        0,  // left
-                                        0,  // top
-                                        dimensions.width(),
-                                        dimensions.height(),
-                                        internalFormat,
-                                        SkToInt(dataSize),
-                                        data));
 
-        error = CHECK_ALLOC_ERROR(this->glInterface());
-        if (error != GR_GL_NO_ERROR) {
-            return false;
+        size_t offset = 0;
+        for (int level = 0; level < numMipLevels; ++level) {
+
+            size_t dataSize = GrCompressedDataSize(compressionType, dimensions,
+                                                   nullptr, GrMipMapped::kNo);
+
+            GL_CALL(CompressedTexSubImage2D(target,
+                                            level,
+                                            0,  // left
+                                            0,  // top
+                                            dimensions.width(),
+                                            dimensions.height(),
+                                            internalFormat,
+                                            SkToInt(dataSize),
+                                            &((char*)data)[offset]));
+
+            GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
+            if (error != GR_GL_NO_ERROR) {
+                return false;
+            }
+
+            offset += dataSize;
+            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
         }
     } else {
-        GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
-                                                                0,  // level
-                                                                internalFormat,
-                                                                dimensions.width(),
-                                                                dimensions.height(),
-                                                                0,  // border
-                                                                SkToInt(dataSize),
-                                                                data));
+        size_t offset = 0;
 
-        GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
-        if (error != GR_GL_NO_ERROR) {
-            return false;
+        for (int level = 0; level < numMipLevels; ++level) {
+            size_t dataSize = GrCompressedDataSize(compressionType, dimensions,
+                                                   nullptr, GrMipMapped::kNo);
+
+            const char* rawLevelData = &((char*)data)[offset];
+            GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
+                                                                    level,
+                                                                    internalFormat,
+                                                                    dimensions.width(),
+                                                                    dimensions.height(),
+                                                                    0,  // border
+                                                                    SkToInt(dataSize),
+                                                                    rawLevelData));
+
+            GrGLenum error = CHECK_ALLOC_ERROR(this->glInterface());
+            if (error != GR_GL_NO_ERROR) {
+                return false;
+            }
+
+            offset += dataSize;
+            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
         }
     }
     return true;
@@ -1369,7 +1440,63 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
                                                            const BackendTextureData* data,
                                                            GrMipMapped mipMapped,
                                                            GrProtected isProtected) {
-    return {};
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
+    this->handleDirtyContext();
+
+    GrGLFormat glFormat = format.asGLFormat();
+    if (glFormat == GrGLFormat::kUnknown) {
+        return {};
+    }
+
+    SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
+    if (compression == SkImage::CompressionType::kNone) {
+        // Un-compressed formats go through onCreateBackendTexture
+        return {};
+    }
+
+    const char* rawData = nullptr;
+    SkAutoMalloc am;
+
+    SkASSERT(!data || data->type() != BackendTextureData::Type::kPixmaps);
+    if (data && data->type() == BackendTextureData::Type::kCompressed) {
+        rawData = (const char*) data->compressedData();
+    } else if (data && data->type() == BackendTextureData::Type::kColor) {
+        size_t requiredSize = GrCompressedDataSize(compression, dimensions,
+                                                   nullptr, mipMapped);
+
+        am.reset(requiredSize);
+
+        GrFillInCompressedData(compression, dimensions, mipMapped, (char*)am.get(), data->color());
+
+        rawData = (const char*) am.get();
+    }
+
+    GrGLTextureInfo info;
+    GrGLTextureParameters::SamplerOverriddenState initialState;
+
+    info.fTarget = GR_GL_TEXTURE_2D;
+    info.fFormat = GrGLFormatToEnum(glFormat);
+    info.fID = this->createCompressedTexture2D(dimensions, glFormat,
+                                               compression, mipMapped, &initialState,
+                                               rawData);
+    if (!info.fID) {
+        return {};
+    }
+
+    // Unbind this texture from the scratch texture unit.
+    this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
+
+    auto parameters = sk_make_sp<GrGLTextureParameters>();
+    // The non-sampler params are still at their default values.
+    parameters->set(&initialState, GrGLTextureParameters::NonsamplerState(),
+                    fResetTimestampForTextureParameters);
+
+    return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info,
+                            std::move(parameters));
 }
 
 namespace {
