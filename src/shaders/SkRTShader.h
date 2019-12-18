@@ -20,7 +20,6 @@ class SkRuntimeEffect;
 
 namespace SkSL { class ByteCode; }
 
-
 class SkRTShader : public SkShaderBase {
 public:
     SkRTShader(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs, const SkMatrix* localMatrix,

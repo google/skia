@@ -17,87 +17,13 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-static std::tuple<const SkSL::Type*, int> strip_array(const SkSL::Type* type) {
-    int arrayCount = 0;
-    if (type->kind() == SkSL::Type::kArray_Kind) {
-        arrayCount = type->columns();
-        type = &type->componentType();
-    }
-    return std::make_tuple(type, arrayCount);
-}
-
-static std::tuple<SkSL::Layout::CType, int> get_ctype(const SkSL::Context& context,
-                                                      const SkSL::Variable& v) {
-    auto [type, arrayCount] = strip_array(&v.fType);
-    SkSL::Layout::CType result = v.fModifiers.fLayout.fCType;
-    SkASSERT(result == SkSL::Layout::CType::kDefault);
-
-    if (type == context.fFloat_Type.get() || type == context.fHalf_Type.get()) {
-        result = SkSL::Layout::CType::kFloat;
-    } else if (type == context.fFloat2_Type.get() || type == context.fHalf2_Type.get()) {
-        result = SkSL::Layout::CType::kFloat2;
-    } else if (type == context.fFloat3_Type.get() || type == context.fHalf3_Type.get()) {
-        result = SkSL::Layout::CType::kFloat3;
-    } else if (type == context.fFloat4_Type.get() || type == context.fHalf4_Type.get()) {
-        result = SkSL::Layout::CType::kFloat4;
-    } else if (type == context.fInt_Type.get()) {
-        result = SkSL::Layout::CType::kInt32;
-    } else if (type == context.fBool_Type.get()) {
-        result = SkSL::Layout::CType::kBool;
-    } else {
-        return std::make_tuple(SkSL::Layout::CType::kDefault, arrayCount);
-    }
-
-    return std::make_tuple(result, arrayCount);
-}
-
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(const SkSL::Context& context,
-                 SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs,
+    GrGLSLSkSLFP(SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs,
                  std::vector<SkSL::Compiler::GLSLFunction> functions)
-            : fContext(context)
-            , fGLSL(glsl)
+            : fGLSL(glsl)
             , fFormatArgs(std::move(formatArgs))
             , fFunctions(std::move(functions)) {}
-
-    GrSLType uniformType(const SkSL::Type& type) {
-        if (type == *fContext.fFloat_Type) {
-            return kFloat_GrSLType;
-        } else if (type == *fContext.fHalf_Type) {
-            return kHalf_GrSLType;
-        } else if (type == *fContext.fFloat2_Type) {
-            return kFloat2_GrSLType;
-        } else if (type == *fContext.fHalf2_Type) {
-            return kHalf2_GrSLType;
-        } else if (type == *fContext.fFloat3_Type) {
-            return kFloat3_GrSLType;
-        } else if (type == *fContext.fHalf3_Type) {
-            return kHalf3_GrSLType;
-        } else if (type == *fContext.fFloat4_Type) {
-            return kFloat4_GrSLType;
-        } else if (type == *fContext.fHalf4_Type) {
-            return kHalf4_GrSLType;
-        } else if (type == *fContext.fFloat2x2_Type) {
-            return kFloat2x2_GrSLType;
-        } else if (type == *fContext.fHalf2x2_Type) {
-            return kHalf2x2_GrSLType;
-        } else if (type == *fContext.fFloat3x3_Type) {
-            return kFloat3x3_GrSLType;
-        } else if (type == *fContext.fHalf3x3_Type) {
-            return kHalf3x3_GrSLType;
-        } else if (type == *fContext.fFloat4x4_Type) {
-            return kFloat4x4_GrSLType;
-        } else if (type == *fContext.fHalf4x4_Type) {
-            return kHalf4x4_GrSLType;
-        } else if (type == *fContext.fBool_Type) {
-            return kBool_GrSLType;
-        } else if (type == *fContext.fInt_Type) {
-            return kInt_GrSLType;
-        }
-        printf("%s\n", SkSL::String(type.fName).c_str());
-        SK_ABORT("unsupported uniform type");
-    }
 
     SkSL::String expandFormatArgs(const SkSL::String& raw,
                                   const EmitArgs& args,
@@ -160,14 +86,12 @@ public:
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp = args.fFp.cast<GrSkSLFP>();
         for (const auto& v : fp.fEffect->fInAndUniformVars) {
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag && v->fType !=
-                                                                *fContext.fFragmentProcessor_Type) {
-                auto [type, arrayCount] = strip_array(&v->fType);
-                fUniformHandles.push_back(args.fUniformHandler->addUniformArray(
-                                                                   kFragment_GrShaderFlag,
-                                                                   this->uniformType(*type),
-                                                                   SkSL::String(v->fName).c_str(),
-                                                                   arrayCount));
+            if (v.fQualifier == SkRuntimeEffect::Variable::Qualifier::kUniform) {
+                auto handle = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
+                                                                    v.fGPUType,
+                                                                    v.fName.c_str(),
+                                                                    v.isArray() ? v.fCount : 0);
+                fUniformHandles.push_back(handle);
             }
         }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -196,70 +120,44 @@ public:
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
-        size_t uniformIndex = 0;
-        size_t offset = 0;
+        size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         char* inputs = (char*) outer.fInputs.get();
         for (const auto& v : outer.fEffect->fInAndUniformVars) {
-            auto [ctype, arrayCount] = get_ctype(fContext, *v);
-            arrayCount = SkTMax(1, arrayCount);
-            switch (ctype) {
-                case SkSL::Layout::CType::kFloat: {
-                    offset = SkAlign4(offset);
-                    float* f = (float*)(inputs + offset);
-                    offset += sizeof(float) * arrayCount;
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                        pdman.set1fv(fUniformHandles[uniformIndex++], arrayCount, f);
-                    }
+            if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kUniform) {
+                continue;
+            }
+
+            const float* data = reinterpret_cast<const float*>(inputs + v.fOffset);
+            switch (v.fType) {
+                case SkRuntimeEffect::Variable::Type::kFloat:
+                    pdman.set1fv(fUniformHandles[uniIndex++], v.fCount, data);
                     break;
-                }
-                case SkSL::Layout::CType::kFloat2: {
-                    offset = SkAlign4(offset);
-                    const float* f = (float*)(inputs + offset);
-                    offset += sizeof(float) * 2 * arrayCount;
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                        pdman.set2fv(fUniformHandles[uniformIndex++], arrayCount, f);
-                    }
+                case SkRuntimeEffect::Variable::Type::kFloat2:
+                    pdman.set2fv(fUniformHandles[uniIndex++], v.fCount, data);
                     break;
-                }
-                case SkSL::Layout::CType::kFloat3: {
-                    offset = SkAlign4(offset);
-                    const float* f = (float*)(inputs + offset);
-                    offset += sizeof(float) * 3 * arrayCount;
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                        pdman.set3fv(fUniformHandles[uniformIndex++], arrayCount, f);
-                    }
+                case SkRuntimeEffect::Variable::Type::kFloat3:
+                    pdman.set3fv(fUniformHandles[uniIndex++], v.fCount, data);
                     break;
-                }
-                case SkSL::Layout::CType::kFloat4: {
-                    offset = SkAlign4(offset);
-                    const float* f = (float*)(inputs + offset);
-                    offset += sizeof(float) * 4 * arrayCount;
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                        pdman.set4fv(fUniformHandles[uniformIndex++], arrayCount, f);
-                    }
+                case SkRuntimeEffect::Variable::Type::kFloat4:
+                    pdman.set4fv(fUniformHandles[uniIndex++], v.fCount, data);
                     break;
-                }
-                case SkSL::Layout::CType::kInt32: {
-                    offset = SkAlign4(offset);
-                    int32_t* i = (int32_t*)(inputs + offset);
-                    offset += sizeof(int32_t) * arrayCount;
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                        pdman.set1iv(fUniformHandles[uniformIndex++], arrayCount, i);
-                    }
+                case SkRuntimeEffect::Variable::Type::kFloat2x2:
+                    pdman.setMatrix2fv(fUniformHandles[uniIndex++], v.fCount, data);
                     break;
-                }
-                case SkSL::Layout::CType::kBool:
-                    SkASSERT(!(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag));
-                    ++offset;
+                case SkRuntimeEffect::Variable::Type::kFloat3x3:
+                    pdman.setMatrix3fv(fUniformHandles[uniIndex++], v.fCount, data);
+                    break;
+                case SkRuntimeEffect::Variable::Type::kFloat4x4:
+                    pdman.setMatrix4fv(fUniformHandles[uniIndex++], v.fCount, data);
                     break;
                 default:
-                    SkASSERT(&v->fType == fContext.fFragmentProcessor_Type.get());
+                    SkDEBUGFAIL("Unsupported uniform type");
+                    break;
             }
         }
     }
 
-    const SkSL::Context& fContext;
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
     const SkSL::String fGLSL;
     std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
@@ -322,59 +220,31 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     SkSL::String code;
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
     std::vector<SkSL::Compiler::GLSLFunction> functions;
-    if (!fEffect->toPipelineStage(fInputs.get(), fInputSize, fShaderCaps.get(),
-                                  &code, &formatArgs, &functions)) {
-
-    }
-    // TODO: This needs to keep a ref on the effect, too, if it's going to use the in/uniforms?
-    return new GrGLSLSkSLFP(fEffect->fCompiler.context(), code, formatArgs, functions);
+    SkAssertResult(fEffect->toPipelineStage(fInputs.get(), fShaderCaps.get(),
+                                            &code, &formatArgs, &functions));
+    return new GrGLSLSkSLFP(code, formatArgs, functions);
 }
 
-void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                     GrProcessorKeyBuilder* b) const {
+void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     b->add32(fEffect->index());
-    size_t offset = 0;
     char* inputs = (char*) fInputs.get();
-    const SkSL::Context& context = fEffect->fCompiler.context();
     for (const auto& v : fEffect->fInAndUniformVars) {
-        if (&v->fType == context.fFragmentProcessor_Type.get()) {
+        if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kIn) {
             continue;
         }
-        auto [ctype, arrayCount] = get_ctype(context, *v);
-        for (int idx = 0; idx < SkTMax(1, arrayCount); ++idx) {
-            switch (ctype) {
-                case SkSL::Layout::CType::kBool:
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                        b->add32(inputs[offset]);
-                    }
-                    ++offset;
-                    break;
-                case SkSL::Layout::CType::kInt32: {
-                    offset = SkAlign4(offset);
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                        b->add32(*(int32_t*)(inputs + offset));
-                    }
-                    offset += sizeof(int32_t);
-                    break;
-                }
-                case SkSL::Layout::CType::kFloat:
-                case SkSL::Layout::CType::kFloat2:
-                case SkSL::Layout::CType::kFloat3:
-                case SkSL::Layout::CType::kFloat4: {
-                    int count = 1 +
-                        (static_cast<int>(ctype) - static_cast<int>(SkSL::Layout::CType::kFloat));
-                    offset = SkAlign4(offset);
-                    if (v->fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
-                        memcpy(b->add32n(count), inputs + offset, count * sizeof(float));
-                    }
-                    offset += count * sizeof(float);
-                    break;
-                }
-                default:
-                    // unsupported input var type
-                    printf("%s\n", SkSL::String(v->fType.fName).c_str());
-                    SkASSERT(false);
-            }
+        // 'in' arrays are not supported
+        SkASSERT(!v.isArray());
+        switch (v.fType) {
+            case SkRuntimeEffect::Variable::Type::kBool:
+                b->add32(inputs[v.fOffset]);
+                break;
+            case SkRuntimeEffect::Variable::Type::kInt:
+            case SkRuntimeEffect::Variable::Type::kFloat:
+                b->add32(*(int32_t*)(inputs + v.fOffset));
+                break;
+            default:
+                SkDEBUGFAIL("Unsupported input variable type");
+                break;
         }
     }
 }
