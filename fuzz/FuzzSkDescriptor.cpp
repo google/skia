@@ -56,6 +56,7 @@ DEF_FUZZ(SkDescriptor, fuzz) {
                 uint8_t* bytes = new uint8_t[length];
                 fuzz->nextN(bytes, length);
                 desc->addEntry(tag, length, bytes);
+                delete[] bytes;
                 break;
             }
             default: {
