@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "8e9b3e07_46294d1d",
+        "filename": "gm/xfermodeimagefilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-18T14:47:37Z",
+      "side": 1,
+      "message": "oh good point, scratch that then.",
+      "parentUuid": "599197ed_536c5d08",
+      "range": {
+        "startLine": 41,
+        "startChar": 25,
+        "endLine": 41,
+        "endChar": 33
+      },
+      "revId": "d6d13b6fc8978557d98136f21dbc5b248fc732de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dafd68a3_f289c9eb",
         "filename": "include/core/SkColorFilter.h",
         "patchSetId": 1
