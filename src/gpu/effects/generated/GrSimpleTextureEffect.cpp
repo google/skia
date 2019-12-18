@@ -72,7 +72,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
         GrProcessorTestData* testData) {
-    auto [proxy, ct, at] = testData->randomProxy();
+    auto[proxy, ct, at] = testData->randomProxy();
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
     if (!testData->caps()->npotTextureTileSupport()) {
