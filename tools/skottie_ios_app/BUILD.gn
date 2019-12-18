@@ -12,16 +12,27 @@ if (is_ios) {
   }
   ios_app_bundle("skottie_example") {
     sources = [
-      "SkAnimationDraw.h",
-      "SkTimeKeeper.h",
+      "SkottieViewController.h",
+      "SkottieViewController.mm",
       "main.mm",
     ]
-    if (skia_use_metal) {
+    if (skia_enable_gpu && skia_use_metal) {
       sources += [
+        "GrContextHolder.cpp",
+        "GrContextHolder.h",
         "SkMetalViewBridge.h",
         "SkMetalViewBridge.mm",
         "SkottieMtkView.h",
         "SkottieMtkView.mm",
+      ]
+    } else if (skia_enable_gpu && skia_use_gl) {
+      sources += [
+        "GrContextHolder.cpp",
+        "GrContextHolder.h",
+        "SkMakeGLContext.cpp",
+        "SkMakeGLContext.h",
+        "SkottieGLView.h",
+        "SkottieGLView.mm",
       ]
     } else {
       sources += [
@@ -52,13 +63,18 @@ if (is_ios) {
       "-w",
     ]
     libs = [
-      "UIKit.framework",
       "Foundation.framework",
+      "QuartzCore.framework",
+      "UIKit.framework",
     ]
-    if (skia_use_metal) {
+    if (skia_enable_gpu && skia_use_metal) {
       libs += [
         "Metal.framework",
         "MetalKit.framework",
+      ]
+    } else if (skia_enable_gpu && skia_use_gl) {
+      libs += [
+        "OpenGLES.framework",
       ]
     }
     launchscreen = "../../platform_tools/ios/app/LaunchScreen.storyboard"
