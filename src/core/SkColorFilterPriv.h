@@ -11,7 +11,8 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkString.h"
-#include "src/core/SkRuntimeEffect.h"
+
+class SkRuntimeEffect;
 
 using SkRuntimeColorFilterFn = void(*)(float[4], const void*);
 
@@ -26,6 +27,14 @@ public:
      * rendering is supported.
      */
     SkRuntimeColorFilterFactory(SkString sksl, SkRuntimeColorFilterFn cpuFunc = nullptr);
+
+    SkRuntimeColorFilterFactory(const SkRuntimeColorFilterFactory&);
+    SkRuntimeColorFilterFactory(SkRuntimeColorFilterFactory&&);
+
+    ~SkRuntimeColorFilterFactory();
+
+    SkRuntimeColorFilterFactory& operator=(const SkRuntimeColorFilterFactory&);
+    SkRuntimeColorFilterFactory& operator=(SkRuntimeColorFilterFactory&&);
 
     /**
      * Creates a color filter instance with the specified inputs. In GPU rendering, the inputs are
