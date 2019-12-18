@@ -62,8 +62,8 @@ GrBackendFormat GrContext_Base::compressedBackendFormat(SkImage::CompressionType
     const GrCaps* caps = this->caps();
 
     GrBackendFormat format = caps->getBackendFormatFromCompressionType(c);
-
     SkASSERT(!format.isValid() || caps->isFormatTexturable(format));
+
     return format;
 }
 
