@@ -21,12 +21,19 @@ public:
 
     void draw(SkCanvas* canvas) override;
 
-    bool rebuild();
+    void load(SkScalar winWidth, SkScalar winHeight) override;
+    void unload() override;
 
 private:
+    bool rebuild();
+
     SkString fSkSL;
     sk_sp<SkRuntimeEffect> fEffect;
     SkAutoTMalloc<char> fInputs;
+    SkTArray<sk_sp<SkShader>> fChildren;
+
+    // Named shaders that can be selected as inputs
+    SkTArray<std::pair<const char*, sk_sp<SkShader>>> fShaders;
 };
 
 #endif

@@ -68,8 +68,8 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
                     SkASSERT((var.fModifiers.fLayout.fFlags & SkSL::Layout::kTracked_Flag) == 0);
 
                     if (var.fModifiers.fFlags & flag) {
-                        // TODO: Scrape these into a separate list for child shaders
                         if (&var.fType == fCompiler.context().fFragmentProcessor_Type.get()) {
+                            fChildren.push_back(var.fName);
                             continue;
                         }
 

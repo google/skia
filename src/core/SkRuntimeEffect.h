@@ -65,6 +65,7 @@ public:
     int index() const { return fIndex; }
     bool isValid() const { return fBaseProgram != nullptr; }
     size_t inputSize() const;
+    size_t childCount() const { return fChildren.size(); }
 
 #if SK_SUPPORT_GPU
     // This re-compiles the program from scratch, using the supplied shader caps.
@@ -87,6 +88,7 @@ private:
     SkSL::Compiler fCompiler;
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
+    std::vector<SkString> fChildren;
 
     friend class GrGLSLSkSLFP;
     friend class GrSkSLFP;
