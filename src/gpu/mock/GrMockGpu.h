@@ -142,7 +142,7 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             const BackendTextureData* data,
-                                            int numMipLevels,
+                                            GrMipMapped,
                                             GrProtected) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
