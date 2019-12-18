@@ -173,6 +173,7 @@ skia_core_sources = [
   "$_src/core/SkDevice.h",
   "$_src/core/SkDiscardableMemory.h",
   "$_src/lazy/SkDiscardableMemoryPool.cpp",
+  "$_src/core/SkDisjointVector.h",
   "$_src/core/SkDistanceFieldGen.cpp",
   "$_src/core/SkDistanceFieldGen.h",
   "$_src/core/SkDocument.cpp",
