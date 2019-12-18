@@ -217,7 +217,10 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
                                    (uint8_t)((i + j) & 0xFF),
                                    (uint8_t)((2 * j - i) & 0xFF));
     SkColor4f color4f = SkColor4f::FromColor(color);
-    for (int i = 0; i < 4; i++) {
+    // We only apply delta to the r,g, and b channels. This is because we're using this
+    // to test the canTweakAlphaForCoverage() optimization. A processor is allowed
+    // to use the input color's alpha in its calculation and report this optimization.
+    for (int i = 0; i < 3; i++) {
         if (color4f[i] > 0.5) {
             color4f[i] -= delta;
         } else {
@@ -361,56 +364,101 @@ bool fuzzy_color_equals(const SkPMColor4f& c1, const SkPMColor4f& c2) {
     return true;
 }
 
-int modulation_index(int channelIndex, bool alphaModulation) {
-    return alphaModulation ? 3 : channelIndex;
-}
-
-// Given three input colors (color preceding the FP being tested), and the output of the FP, this
-// ensures that the out1 = fp * in1.a, out2 = fp * in2.a, and out3 = fp * in3.a, where fp is the
-// pre-modulated color that should not be changing across frames (FP's state doesn't change).
-//
-// When alphaModulation is false, this tests the very similar conditions that out1 = fp * in1,
-// etc. using per-channel modulation instead of modulation by just the input alpha channel.
-// - This estimates the pre-modulated fp color from one of the input/output pairs and confirms the
-//   conditions hold for the other two pairs.
-bool legal_modulation(const GrColor& in1, const GrColor& in2, const GrColor& in3,
-                      const GrColor& out1, const GrColor& out2, const GrColor& out3,
-                      bool alphaModulation) {
+// Given three input colors (color preceding the FP being tested) provided to the FP at the same
+// local coord and the three corresponding FP outputs, this ensures that either:
+//   out[0] = fp * in[0].a, out[1] = fp * in[1].a, and out[2] = fp * in[2].a
+// where fp is the pre-modulated color that should not be changing across frames (FP's state doesn't
+// change), OR:
+//   out[0] = fp * in[0], out[1] = fp * in[1], and out[2] = fp * in[2]
+// (per-channel modulation instead of modulation by just the alpha channel)
+// It does this by estimating the pre-modulated fp color from one of the input/output pairs and
+// confirms the conditions hold for the other two pairs.
+// It is required that the three input colors have the same alpha as fp is allowed to be a function
+// of the input alpha (but not r, g, or b).
+bool legal_modulation(const GrColor in[3], const GrColor out[3]) {
     // Convert to floating point, which is the number space the FP operates in (more or less)
-    SkPMColor4f in1f = SkPMColor4f::FromBytes_RGBA(in1);
-    SkPMColor4f in2f = SkPMColor4f::FromBytes_RGBA(in2);
-    SkPMColor4f in3f = SkPMColor4f::FromBytes_RGBA(in3);
-    SkPMColor4f out1f = SkPMColor4f::FromBytes_RGBA(out1);
-    SkPMColor4f out2f = SkPMColor4f::FromBytes_RGBA(out2);
-    SkPMColor4f out3f = SkPMColor4f::FromBytes_RGBA(out3);
+    SkPMColor4f inf[3], outf[3];
+    for (int i = 0; i < 3; ++i) {
+        inf[i]  = SkPMColor4f::FromBytes_RGBA(in[i]);
+        outf[i] = SkPMColor4f::FromBytes_RGBA(out[i]);
+    }
+    // This test is only valid if all the input alphas are the same.
+    SkASSERT(inf[0].fA == inf[1].fA && inf[1].fA == inf[2].fA);
 
     // Reconstruct the output of the FP before the shader modulated its color with the input value.
     // When the original input is very small, it may cause the final output color to round
     // to 0, in which case we estimate the pre-modulated color using one of the stepped frames that
     // will then have a guaranteed larger channel value (since the offset will be added to it).
-    SkPMColor4f fpPreModulation;
+    SkPMColor4f fpPreColorModulation;
+    SkPMColor4f fpPreAlphaModulation;
     for (int i = 0; i < 4; i++) {
-        int modulationIndex = modulation_index(i, alphaModulation);
-        if (in1f[modulationIndex] < 0.2f) {
-            // Use the stepped frame
-            fpPreModulation[i] = out2f[i] / in2f[modulationIndex];
-        } else {
-            fpPreModulation[i] = out1f[i] / in1f[modulationIndex];
-        }
+        // Use the most stepped up frame
+        int maxInIdx = inf[0][i] > inf[1][i] ? 0 : 1;
+        maxInIdx = inf[maxInIdx][i] > inf[2][i] ? maxInIdx : 2;
+        const auto& in = inf[maxInIdx];
+        const auto& out = outf[maxInIdx];
+        fpPreColorModulation[i] = out[i] / in[i];
+        fpPreAlphaModulation[i] = out[i] / in[3];
     }
 
     // With reconstructed pre-modulated FP output, derive the expected value of fp * input for each
     // of the transformed input colors.
-    SkPMColor4f expected1 = alphaModulation ? (fpPreModulation * in1f.fA)
-                                            : (fpPreModulation * in1f);
-    SkPMColor4f expected2 = alphaModulation ? (fpPreModulation * in2f.fA)
-                                            : (fpPreModulation * in2f);
-    SkPMColor4f expected3 = alphaModulation ? (fpPreModulation * in3f.fA)
-                                            : (fpPreModulation * in3f);
+    SkPMColor4f expectedForAlphaModulation[3];
+    SkPMColor4f expectedForColorModulation[3];
+    for (int i = 0; i < 3; ++i) {
+        expectedForAlphaModulation[i] = fpPreAlphaModulation * inf[i].fA;
+        expectedForColorModulation[i] = fpPreColorModulation * inf[i];
+        // If the input alpha is 0 then the other channels should also be zero
+        // since the color is assumed to be premul. Modulating zeros by anything
+        // should produce zeros.
+        if (inf[i].fA == 0) {
+            SkASSERT(inf[i].fR == 0 && inf[i].fG == 0 && inf[i].fB == 0);
+            expectedForColorModulation[i] = expectedForAlphaModulation[i] = {0, 0, 0, 0};
+        }
+    }
 
-    return fuzzy_color_equals(out1f, expected1) &&
-           fuzzy_color_equals(out2f, expected2) &&
-           fuzzy_color_equals(out3f, expected3);
+    bool isLegalColorModulation = fuzzy_color_equals(outf[0], expectedForColorModulation[0]) &&
+                                  fuzzy_color_equals(outf[1], expectedForColorModulation[1]) &&
+                                  fuzzy_color_equals(outf[2], expectedForColorModulation[2]);
+
+    bool isLegalAlphaModulation = fuzzy_color_equals(outf[0], expectedForAlphaModulation[0]) &&
+                                  fuzzy_color_equals(outf[1], expectedForAlphaModulation[1]) &&
+                                  fuzzy_color_equals(outf[2], expectedForAlphaModulation[2]);
+
+    // This can be enabled to print the values that caused this check to fail.
+    if (0 && !isLegalColorModulation && !isLegalAlphaModulation) {
+        SkDebugf("Color modulation test\n\timplied mod color: (%.03f, %.03f, %.03f, %.03f)\n",
+                 fpPreColorModulation[0],
+                 fpPreColorModulation[1],
+                 fpPreColorModulation[2],
+                 fpPreColorModulation[3]);
+        for (int i = 0; i < 3; ++i) {
+            SkDebugf("\t(%.03f, %.03f, %.03f, %.03f) -> "
+                     "(%.03f, %.03f, %.03f, %.03f) | "
+                     "(%.03f, %.03f, %.03f, %.03f), ok: %d\n",
+                     inf[i].fR, inf[i].fG, inf[i].fB, inf[i].fA,
+                     outf[i].fR, outf[i].fG, outf[i].fB, outf[i].fA,
+                     expectedForColorModulation[i].fR, expectedForColorModulation[i].fG,
+                     expectedForColorModulation[i].fB, expectedForColorModulation[i].fA,
+                     fuzzy_color_equals(outf[i], expectedForColorModulation[i]));
+        }
+        SkDebugf("Alpha modulation test\n\timplied mod color: (%.03f, %.03f, %.03f, %.03f)\n",
+                 fpPreAlphaModulation[0],
+                 fpPreAlphaModulation[1],
+                 fpPreAlphaModulation[2],
+                 fpPreAlphaModulation[3]);
+        for (int i = 0; i < 3; ++i) {
+            SkDebugf("\t(%.03f, %.03f, %.03f, %.03f) -> "
+                     "(%.03f, %.03f, %.03f, %.03f) | "
+                     "(%.03f, %.03f, %.03f, %.03f), ok: %d\n",
+                     inf[i].fR, inf[i].fG, inf[i].fB, inf[i].fA,
+                     outf[i].fR, outf[i].fG, outf[i].fB, outf[i].fA,
+                     expectedForAlphaModulation[i].fR, expectedForAlphaModulation[i].fG,
+                     expectedForAlphaModulation[i].fB, expectedForAlphaModulation[i].fA,
+                     fuzzy_color_equals(outf[i], expectedForAlphaModulation[i]));
+        }
+    }
+    return isLegalColorModulation || isLegalAlphaModulation;
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
@@ -530,24 +578,21 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                     GrColor output = readData1.get()[y * kRenderSize + x];
 
                     if (fp->compatibleWithCoverageAsAlpha()) {
-                        GrColor i2 = input_texel_color(x, y, kInputDelta);
-                        GrColor i3 = input_texel_color(x, y, 2 * kInputDelta);
+                        GrColor ins[3];
+                        ins[0] = input;
+                        ins[1] = input_texel_color(x, y, kInputDelta);
+                        ins[2] = input_texel_color(x, y, 2 * kInputDelta);
 
-                        GrColor o2 = readData2.get()[y * kRenderSize + x];
-                        GrColor o3 = readData3.get()[y * kRenderSize + x];
+                        GrColor outs[3];
+                        outs[0] = output;
+                        outs[1] = readData2.get()[y * kRenderSize + x];
+                        outs[2] = readData3.get()[y * kRenderSize + x];
 
-                        // A compatible processor is allowed to modulate either the input color or
-                        // just the input alpha.
-                        bool legalAlphaModulation = legal_modulation(input, i2, i3, output, o2, o3,
-                                                                     /* alpha */ true);
-                        bool legalColorModulation = legal_modulation(input, i2, i3, output, o2, o3,
-                                                                     /* alpha */ false);
-
-                        if (!legalColorModulation && !legalAlphaModulation) {
+                        if (!legal_modulation(ins, outs)) {
                             passing = false;
-
                             if (coverageMessage.isEmpty()) {
-                                coverageMessage.printf("\"Modulating\" processor %s did not match "
+                                coverageMessage.printf(
+                                        "\"Modulating\" processor %s did not match "
                                         "alpha-modulation nor color-modulation rules. "
                                         "Input: 0x%08x, Output: 0x%08x, pixel (%d, %d).",
                                         fp->name(), input, output, x, y);
