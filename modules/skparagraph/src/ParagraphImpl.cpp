@@ -254,7 +254,7 @@ void ParagraphImpl::buildClusterTable() {
             if (!fClusters.empty()) {
                 fClusters.back().setBreakType(Cluster::SoftLineBreak);
             }
-            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 0ul, text, run.advance().fX,
+            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 1ul, text, run.advance().fX,
                                                    run.advance().fY);
             cluster.setBreakType(Cluster::SoftLineBreak);
         } else {
@@ -406,7 +406,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                 }
 
-                fLongestLine = advance.fX;
+                fLongestLine = SkTMax(fLongestLine, advance.fX);
             });
     fHeight = textWrapper.height();
     fWidth = maxWidth;
@@ -868,7 +868,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
     for (auto& line : fLines) {
         // Let's figure out if we can stop looking
         auto offsetY = line.offset().fY;
-        if (dy > offsetY + line.height() && &line != &fLines.back()) {
+        if (dy >= offsetY + line.height() && &line != &fLines.back()) {
             // This line is not good enough
             continue;
         }
@@ -881,13 +881,13 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 
                 auto offsetX = line.offset().fX;
                 auto context = line.measureTextInsideOneRun(textRange, run, 0, 0, true, false);
-                if (dx < context.clip.fLeft + offsetX) {
+                if (dx < context.clip.fLeft ) {
                     // All the other runs are placed right of this one
                     result = { SkToS32(context.run->fClusterIndexes[context.pos]), kDownstream };
                     return false;
                 }
 
-                if (dx >= context.clip.fRight + offsetX) {
+                if (dx >= context.clip.fRight) {
                     // We have to keep looking but just in case keep the last one as the closes
                     // so far
                     auto index = context.pos + context.size;
@@ -946,10 +946,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 return false;
             });
 
-        if (dy < offsetY + line.height()) {
-            // The closest position on this line; next line is going to be even lower
-            break;
-        }
+        break;
     }
 
     // SkDebugf("getGlyphPositionAtCoordinate(%f,%f) = %d\n", dx, dy, result.position);

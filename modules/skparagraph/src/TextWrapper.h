@@ -65,6 +65,9 @@ class TextWrapper {
             stretch.clean();
         }
 
+        bool empty() { return fStart.cluster() == fEnd.cluster() &&
+                              fStart.position() == fEnd.position(); }
+
         void setMetrics(const InternalLineMetrics& metrics) { fMetrics = metrics; }
 
         void extend(Cluster* cluster) {

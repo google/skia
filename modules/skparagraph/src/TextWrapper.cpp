@@ -74,13 +74,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
 
 void TextWrapper::moveForward() {
     do {
-        if (fWords.width() > 0) {
+        if (!fWords.empty()) {
             fEndLine.extend(fWords);
-        } else if (fClusters.width() > 0) {
+        } else if (!fClusters.empty()) {
             fEndLine.extend(fClusters);
             fTooLongWord = false;
             fTooLongCluster = false;
-        } else if (fClip.width() > 0 || (fTooLongWord && fTooLongCluster)) {
+        } else if (!fClip.empty() || (fTooLongWord && fTooLongCluster)) {
             // Flutter: forget the clipped cluster but keep the metrics
             fEndLine.metrics().add(fClip.metrics());
             fTooLongWord = false;
@@ -144,12 +144,19 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         return std::make_tuple(fEndLine.breakCluster() + 1, 0, width);
     }
 
-    auto width = fEndLine.withWithGhostSpaces(); //fEndLine.width();
-    auto cluster = fEndLine.breakCluster() + 1;
-    while (cluster < endOfClusters && cluster->isWhitespaces()) {
-        width += cluster->width();
+    auto width = fEndLine.withWithGhostSpaces();
+    auto cluster = fEndLine.breakCluster();
+    if (fEndLine.endCluster() != fEndLine.startCluster() ||
+        fEndLine.endPos() != fEndLine.startPos()) {
         ++cluster;
+        while (cluster < endOfClusters && cluster->isWhitespaces()) {
+            width += cluster->width();
+            ++cluster;
+        }
+    } else {
+        // Nothing fits the line - no need to check for spaces
     }
+
     return std::make_tuple(cluster, 0, width);
 }
 
@@ -266,12 +273,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 
     // We finished formatting the text but we need to scan the rest for some numbers
-    if (fEndLine.breakCluster() != nullptr) {
+    if (fEndLine.endCluster() != nullptr) {
         auto lastWordLength = 0.0f;
-        auto cluster = fEndLine.breakCluster();
-        if (cluster != end) {
-            ++cluster;
-        }
+        auto cluster = fEndLine.endCluster();
         while (cluster != end || cluster->endPos() < end->endPos()) {
             fExceededMaxLines = true;
             if (cluster->isHardBreak()) {
