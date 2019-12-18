@@ -215,7 +215,7 @@ bool SkBitmapProcInfo::init(const SkMatrix& inv, const SkPaint& paint) {
         // in both X and Y since clamping to width,height is just as easy as to 0xFFFF.
 
         if (fTileModeX != SkTileMode::kClamp || fTileModeY != SkTileMode::kClamp) {
-            fInvMatrix.postIDiv(fPixmap.width(), fPixmap.height());
+            SkMatrixPriv::PostIDiv(&fInvMatrix, fPixmap.width(), fPixmap.height());
         }
 
         // Now that all possible changes to the matrix have taken place, check

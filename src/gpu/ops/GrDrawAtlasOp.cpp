@@ -229,7 +229,7 @@ GrOp::CombineResult DrawAtlasOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, con
     }
 
     // We currently use a uniform viewmatrix for this op.
-    if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+    if (!SkMatrixPriv::CheapEqual(this->viewMatrix(), that->viewMatrix())) {
         return CombineResult::kCannotCombine;
     }
 

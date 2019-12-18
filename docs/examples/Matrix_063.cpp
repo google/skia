@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
     SkRect::Make(source.bounds()).toQuad(bitmapBounds);
     matrix.setPolyToPoly(bitmapBounds, perspect, 4);
-    matrix.postIDiv(1, 2);
+    matrix.postScale(1, 0.5f);
     canvas->concat(matrix);
     canvas->drawBitmap(source, 0, 0);
 }

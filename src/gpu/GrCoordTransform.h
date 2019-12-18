@@ -9,6 +9,7 @@
 #define GrCoordTransform_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 
@@ -53,7 +54,7 @@ public:
     bool hasSameEffectiveMatrix(const GrCoordTransform& that) const {
         // This is slightly more conservative than computing each transforms effective matrix and
         // then comparing them.
-        if (!fMatrix.cheapEqualTo(that.fMatrix)) {
+        if (!SkMatrixPriv::CheapEqual(fMatrix, that.fMatrix)) {
             return false;
         }
         if (SkToBool(fProxy) != SkToBool(that.fProxy)) {

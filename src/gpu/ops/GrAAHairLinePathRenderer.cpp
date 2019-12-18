@@ -879,7 +879,7 @@ private:
 
         // We go to identity if we don't have perspective
         if (this->viewMatrix().hasPerspective() &&
-            !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+            !SkMatrixPriv::CheapEqual(this->viewMatrix(), that->viewMatrix())) {
             return CombineResult::kCannotCombine;
         }
 
@@ -894,7 +894,8 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        if (fHelper.usesLocalCoords() && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
+        if (fHelper.usesLocalCoords() && !SkMatrixPriv::CheapEqual(this->viewMatrix(),
+                                                                   that->viewMatrix())) {
             return CombineResult::kCannotCombine;
         }
 

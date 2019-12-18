@@ -184,7 +184,9 @@ public:
                      const CoordTransformRange& transformRange) override {
             const DefaultGeoProc& dgp = gp.cast<DefaultGeoProc>();
 
-            if (!dgp.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(dgp.viewMatrix())) {
+            if (!dgp.viewMatrix().isIdentity() &&
+                !SkMatrixPriv::CheapEqual(fViewMatrix, dgp.viewMatrix()))
+            {
                 fViewMatrix = dgp.viewMatrix();
                 float viewMatrix[3 * 3];
                 GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);

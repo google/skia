@@ -37,7 +37,7 @@ static bool are_equal(skiatest::Reporter* reporter,
                       const SkMatrix& a,
                       const SkMatrix& b) {
     bool equal = a == b;
-    bool cheapEqual = a.cheapEqualTo(b);
+    bool cheapEqual = SkMatrixPriv::CheapEqual(a, b);
     if (equal != cheapEqual) {
         if (equal) {
             bool foundZeroSignDiff = false;

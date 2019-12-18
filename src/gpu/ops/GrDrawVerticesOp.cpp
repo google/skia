@@ -563,7 +563,7 @@ GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*,
     }
     // Check whether we are about to acquire a mesh with a different view matrix.
     if (!this->hasMultipleViewMatrices() &&
-        !this->fMeshes[0].fViewMatrix.cheapEqualTo(that->fMeshes[0].fViewMatrix)) {
+        !SkMatrixPriv::CheapEqual(this->fMeshes[0].fViewMatrix, that->fMeshes[0].fViewMatrix)) {
         fFlags |= kHasMultipleViewMatrices_Flag;
     }
 

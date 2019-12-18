@@ -373,7 +373,7 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     }
 
     /** This could be relaxed for blobs with only distance field glyphs. */
-    if (fInitialMatrix.hasPerspective() && !fInitialMatrix.cheapEqualTo(drawMatrix)) {
+    if (fInitialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix)) {
         return true;
     }
 
@@ -395,7 +395,8 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
     // for mixed blobs if this becomes an issue.
     if (this->hasBitmap() && this->hasDistanceField()) {
         // Identical view matrices and we can reuse in all cases
-        return !(fInitialMatrix.cheapEqualTo(drawMatrix) && drawOrigin == fInitialOrigin);
+        return !(SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix) &&
+                 drawOrigin == fInitialOrigin);
     }
 
     if (this->hasBitmap()) {

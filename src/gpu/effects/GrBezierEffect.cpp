@@ -29,7 +29,9 @@ public:
                  const CoordTransformRange& transformRange) override {
         const GrConicEffect& ce = primProc.cast<GrConicEffect>();
 
-        if (!ce.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(ce.viewMatrix())) {
+        if (!ce.viewMatrix().isIdentity() &&
+            !SkMatrixPriv::CheapEqual(fViewMatrix, ce.viewMatrix()))
+        {
             fViewMatrix = ce.viewMatrix();
             float viewMatrix[3 * 3];
             GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
@@ -281,7 +283,9 @@ public:
                  const CoordTransformRange& transformRange) override {
         const GrQuadEffect& qe = primProc.cast<GrQuadEffect>();
 
-        if (!qe.viewMatrix().isIdentity() && !fViewMatrix.cheapEqualTo(qe.viewMatrix())) {
+        if (!qe.viewMatrix().isIdentity() &&
+            !SkMatrixPriv::CheapEqual(fViewMatrix, qe.viewMatrix()))
+        {
             fViewMatrix = qe.viewMatrix();
             float viewMatrix[3 * 3];
             GrGLSLGetMatrix<3>(viewMatrix, fViewMatrix);
