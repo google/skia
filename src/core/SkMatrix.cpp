@@ -1286,7 +1286,7 @@ const SkMatrix::MapXYProc SkMatrix::gMapXYProcs[] = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
+#if 0
 // if its nearly zero (just made up 26, perhaps it should be bigger or smaller)
 #define PerspNearlyZero(x)  SkScalarNearlyZero(x, (1.0f / (1 << 26)))
 
@@ -1304,6 +1304,7 @@ SkVector SkMatrix::fixedStepInX(SkScalar y) const {
         return SkVector::Make(fMat[kMScaleX] / z, fMat[kMSkewY] / z);
     }
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -976,7 +976,9 @@ public:
         @param divy  integer divisor for inverse scale in y
         @return      true on successful scale
     */
+private:
     bool postIDiv(int divx, int divy);
+public:
 
     /** Sets SkMatrix to SkMatrix constructed from rotating by degrees about pivot point
         (px, py), multiplied by SkMatrix.
@@ -1560,6 +1562,7 @@ public:
     */
     SkScalar mapRadius(SkScalar radius) const;
 
+#if 0
     /** Returns true if a unit step on x-axis at some y-axis value mapped through SkMatrix
         can be represented by a constant vector. Returns true if getType() returns
         kIdentity_Mask, or combinations of: kTranslate_Mask, kScale_Mask, and kAffine_Mask.
@@ -1599,6 +1602,7 @@ public:
     bool cheapEqualTo(const SkMatrix& m) const {
         return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
     }
+#endif
 
     /** Compares a and b; returns true if a and b are numerically equal. Returns true
         even if sign of zero values are different. Returns false if either SkMatrix

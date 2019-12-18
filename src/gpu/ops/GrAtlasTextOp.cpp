@@ -465,7 +465,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, c
     const SkMatrix& thisFirstMatrix = fGeoData[0].fDrawMatrix;
     const SkMatrix& thatFirstMatrix = that->fGeoData[0].fDrawMatrix;
 
-    if (this->usesLocalCoords() && !thisFirstMatrix.cheapEqualTo(thatFirstMatrix)) {
+    if (this->usesLocalCoords() && !SkMatrixPriv::CheapEqual(thisFirstMatrix, thatFirstMatrix)) {
         return CombineResult::kCannotCombine;
     }
 
