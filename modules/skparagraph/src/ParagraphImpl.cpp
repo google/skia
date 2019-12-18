@@ -254,7 +254,7 @@ void ParagraphImpl::buildClusterTable() {
             if (!fClusters.empty()) {
                 fClusters.back().setBreakType(Cluster::SoftLineBreak);
             }
-            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 0ul, text, run.advance().fX,
+            auto& cluster = fClusters.emplace_back(this, runIndex, 0ul, 1ul, text, run.advance().fX,
                                                    run.advance().fY);
             cluster.setBreakType(Cluster::SoftLineBreak);
         } else {
