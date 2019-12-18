@@ -3,27 +3,114 @@
 
 #include "include/core/SkTypes.h"
 
-#ifdef SK_METAL
-    #include "tools/skottie_ios_app/SkMetalViewBridge.h"
-    #include "tools/skottie_ios_app/SkottieMtkView.h"
+#include "tools/skottie_ios_app/GrContextHolder.h"
+#include "tools/skottie_ios_app/SkottieViewController.h"
 
-    #import <Metal/Metal.h>
-    #import <MetalKit/MetalKit.h>
-#else
-    #include "tools/skottie_ios_app/SkottieUIView.h"
-#endif
-
+#import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>
 
-
-#ifdef SK_METAL
-static UIStackView* make_skottie_stack(CGFloat width,
-                                       id<MTLDevice> metalDevice,
-                                       id<MTLCommandQueue> metalQueue,
-                                       GrContext* grContext) {
+#if SK_SUPPORT_GPU && defined(SK_METAL)
+    #include "tools/skottie_ios_app/SkMetalViewBridge.h"
+    #include "tools/skottie_ios_app/SkiaMtkView.h"
+    using SkiaView = SkiaMtkView;
+#elif SK_SUPPORT_GPU && defined(SK_GL)
+    #include "tools/skottie_ios_app/SkiaGLView.h"
+    using SkiaView = SkiaGLView;
 #else
-static UIStackView* make_skottie_stack(CGFloat width) {
+    #include "tools/skottie_ios_app/SkiaUIView.h"
+    using SkiaView = SkiaUIView;
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
+
+@interface SkiaContext : NSObject
+    @property (strong) id<MTLDevice> metalDevice;
+    @property (strong) id<MTLCommandQueue> metalQueue;
+    @property (strong) EAGLContext* eaglContext;
+    - (UIView*) makeViewWithController(SkiaViewController*):vc withFrame:(CGRect)frame;
+    - (id)init;
+@end
+
+@implementation SkiaContext {
+    GrContextHolder fGrContext;
+}
+
+- (id)init {
+    self = [super init];
+    #define LOG_ABORT(X) NSLog(@ X); SK_ABORT(X);
+    #if SK_SUPPORT_GPU && defined(SK_METAL)
+    [self setMetalDevice:MTLCreateSystemDefaultDevice()];
+    if(![self metalDevice]) {
+        LOG_ABORT("Metal is not supported on this device");
+    }
+    [self setMetalQueue:[[self metalDevice] newCommandQueue]];
+    fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue]);
+    if (!fGrContext) {
+        LOG_ABORT("GrContext::MakeMetal failed");
+    }
+    #elif SK_SUPPORT_GPU && defined(SK_GL)
+    [self setEaglContext:[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3]];
+    if (![self eaglContext]) {
+        NSLog(@"Falling back to GLES2.\n");
+        [self setEaglContext:[[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2]];
+    }
+    if (![self eaglContext]) {
+        LOG_ABORT("[[EAGLContext alloc] initWithAPI:...] failed");
+    }
+    EAGLContext* oldContext = [EAGLContext currentContext];
+    [EAGLContext setCurrentContext:[self eaglContext]];
+    fGrContext = SkMakeGLContext();
+    [EAGLContext setCurrentContext:oldContext];
+    if (!fGrContext) {
+        LOG_ABORT("GrContext::MakeGL failed");
+    }
+    #endif
+    #undef LOG_ABORT
+    return self;
+}
+
+- (UIView*) makeViewWithController(SkiaViewController*):vc withFrame:(CGRect)frame {
+    #if SK_SUPPORT_GPU && defined(SK_METAL)
+    SkiaMtkView* skiaView = [[SkiaMtkView alloc] initWithFrame:frame];
+    [skiaView setDevice:[self metalDevice]];
+    [skiaView setQueue:[self metalQueue]];
+    [skiaView setGrContext:fGrContext.get()];
+    [skiaView setPreferredFramesPerSecond:30];
+    [skiaView setController:vc];
+    return skiaView;
+    #elif SK_SUPPORT_GPU && defined(SK_GL)
+    SkiaGLView* skiaView = [[SkiaGLView alloc] initWithFrame:frame context:[self eaglContext]];
+    [skiaView setGrContext:fGrContext.get()];
+    [skiaView setController:vc];
+    return skiaView;
+    #else
+    SkiaUIView* skiaView = [[SkiaUIView alloc] initWithFrame:frame];
+    [skiaView setController:controller];
+    return skiaView;
+    #endif
+}
+@end
+
+////////////////////////////////////////////////////////////////////////////////
+
+@interface AppViewController : UIViewController
+    @property (strong) SkiaContext* skiaContext;
+@end
+
+@implementation AppViewController
+
+- (void)loadView {
+    [self setView:[[UIView alloc] init]];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    if (![self skiaContext]) {
+        [self setSkiaContext:[[SkiaContext alloc] init]];
+    }
+    CGFloat screenWidth = [[UIScreen mainScreen] bounds].size.width;
+
     UIStackView* stack = [[UIStackView alloc] init];
     [stack setAxis:UILayoutConstraintAxisVertical];
     [stack setDistribution:UIStackViewDistributionEqualSpacing];
@@ -40,69 +127,24 @@ static UIStackView* make_skottie_stack(CGFloat width) {
             NSLog(@"'%@' not found", path);
             continue;
         }
-        #ifdef SK_METAL
-        SkottieMtkView* skottieView = [[SkottieMtkView alloc] init];
-        #else
-        SkottieUIView* skottieView = [[SkottieUIView alloc] init];
-        #endif
-
-        if (![skottieView loadAnimation:content]) {
+        SkottieViewController* controller = [[SkottieViewController alloc] init];
+        if (![controller loadAnimation:content]) {
             continue;
         }
-        #ifdef SK_METAL
-        [skottieView setDevice:metalDevice];
-        [skottieView setQueue:metalQueue];
-        [skottieView setGrContext:grContext];
-        SkMtkViewConfigForSkia(skottieView);
-        [skottieView setPreferredFramesPerSecond:30];
-        #endif
-        CGSize animSize = [skottieView size];
-        CGFloat height = animSize.width ? (width * animSize.height / animSize.width) : 0;
-        [skottieView setFrame:{{0, 0}, {width, height}}];
-        [[[skottieView heightAnchor] constraintEqualToConstant:height] setActive:true];
-        [[[skottieView widthAnchor] constraintEqualToConstant:width] setActive:true];
-        [stack addArrangedSubview:skottieView];
+        CGSize animSize = [controller size];
+        CGFloat height = animSize.width ? (screenWidth * animSize.height / animSize.width) : 0;
+        CGRect frame = {{0, 0}, {screenWidth, height}};
+        UIView* skiaView = [[self skiaContext] makeViewWithController:controller withFrame:frame];
+        [[[skiaView heightAnchor] constraintEqualToConstant:height] setActive:true];
+        [[[skiaView widthAnchor] constraintEqualToConstant:screenWidth] setActive:true];
+        [skiaView setNeedsDisplay];
+        [stack addArrangedSubview:skiaView];
         totalHeight += height + kSpacing;
     }
-    [stack setFrame:{{0, 0}, {width, totalHeight}}];
-    return stack;
-}
+    [stack setFrame:{{0, 0}, {screenWidth, totalHeight}}];
+    [stack setNeedsDisplay];
 
-@interface AppViewController : UIViewController
-    #ifdef SK_METAL
-    @property (strong) id<MTLDevice> metalDevice;
-    @property (strong) id<MTLCommandQueue> metalQueue;
-    #endif
-    @property (strong) UIStackView* stackView;
-@end
-
-@implementation AppViewController {
-    #ifdef SK_METAL
-    GrContextHolder fGrContext;
-    #endif
-}
-
-- (void)loadView {
-    [self setView:[[UIView alloc] init]];
-}
-
-- (void)viewDidLoad {
-    #ifdef SK_METAL
-    [super viewDidLoad];
-    if (!fGrContext) {
-        [self setMetalDevice:MTLCreateSystemDefaultDevice()];
-        if(![self metalDevice]) {
-            NSLog(@"Metal is not supported on this device");
-            return;
-        }
-        [self setMetalQueue:[[self metalDevice] newCommandQueue]];
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue]);
-    }
-    [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width,
-                                          [self metalDevice], [self metalQueue], fGrContext.get())];
-    #else
-    [self setStackView:make_skottie_stack([[UIScreen mainScreen] bounds].size.width)];
-    #endif
+    [self setStackView:stack];
 
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     CGSize mainScreenSize = [[UIScreen mainScreen] bounds].size;
@@ -112,11 +154,13 @@ static UIStackView* make_skottie_stack(CGFloat width) {
     [scrollView setContentSize:[[self stackView] frame].size];
     [scrollView addSubview:[self stackView]];
     [scrollView setBackgroundColor:[UIColor blackColor]];
+    [scrollView setNeedsDisplay];
 
     UIView* mainView = [self view];
     [mainView setBounds:{{0, 0}, mainScreenSize}];
     [mainView setBackgroundColor:[UIColor whiteColor]];
     [mainView addSubview:scrollView];
+    [mainView setNeedsDisplay];
 
     UITapGestureRecognizer* tapGestureRecognizer = [[UITapGestureRecognizer alloc] init];
     [tapGestureRecognizer addTarget:self action:@selector(handleTap:)];
@@ -129,23 +173,13 @@ static UIStackView* make_skottie_stack(CGFloat width) {
     }
     NSArray<UIView*>* subviews = [[self stackView] subviews];
     for (NSUInteger i = 0; i < [subviews count]; ++i) {
-        UIView* subview = [subviews objectAtIndex:i];
-        #ifdef SK_METAL
-        if (![subview isKindOfClass:[SkottieMtkView class]]) {
-            continue;
+        UIView* uIView = [subviews objectAtIndex:i];
+        if ([uIView isKindOfClass:[SkiaView class]]) {
+            if (SkiaViewController* controller = [(SkiaView*)uIView controller]) {
+                [controller togglePaused];
+                [uIView setNeedsDisplay];
+            }
         }
-        SkottieMtkView* skottieView = (SkottieMtkView*)subview;
-        #else
-        if (![subview isKindOfClass:[SkottieUIView class]]) {
-            continue;
-        }
-        SkottieUIView* skottieView = (SkottieUIView*)subview;
-        #endif
-        BOOL paused = [skottieView togglePaused];
-        #ifdef SK_METAL
-        [skottieView setEnableSetNeedsDisplay:paused];
-        [skottieView setPaused:paused];
-        #endif
     }
 }
 @end
