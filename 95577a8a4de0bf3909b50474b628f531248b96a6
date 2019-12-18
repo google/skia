@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "28fab521_e15559d4",
+        "filename": "src/core/SkMatrix.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-18T17:52:40Z",
+      "side": 1,
+      "message": "I think I agree. I\u0027m thinking now of our homogeneous methods, that explicitly return w values. These will clearly be changed if we auto-normalize (while our normal mapPoints won\u0027t notice the change).",
+      "parentUuid": "2874c55f_d365d074",
+      "revId": "95577a8a4de0bf3909b50474b628f531248b96a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2f4cf4c4_2675e119",
         "filename": "src/core/SkMatrix44.cpp",
         "patchSetId": 4
