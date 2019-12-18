@@ -18,8 +18,10 @@ DEF_FUZZ(SkDescriptor, fuzz) {
         return;
     }
 
-    size_t len = SkDescriptor::ComputeOverhead(numEntries);
-    auto desc = SkDescriptor::Alloc(len);
+    size_t overhead = SkDescriptor::ComputeOverhead(numEntries);
+    size_t data;
+    fuzz->nextRange(&data, 0, 500);
+    auto desc = SkDescriptor::Alloc(overhead + data);
     for (int32_t i = 0; i<numEntries && !fuzz->exhausted(); i++) {
         uint32_t tag;
         fuzz->next(&tag);
@@ -36,19 +38,15 @@ DEF_FUZZ(SkDescriptor, fuzz) {
         }
 
         uint8_t choice;
-        fuzz->nextRange(&choice, 0, 2);
+        fuzz->nextRange(&choice, 0, 1);
         switch(choice) {
-            case 0: { // use nullptr
-                desc->addEntry(tag, length, nullptr);
-                break;
-            }
-            case 1: { // use SkScalerContextRec
+            case 0: { // use SkScalerContextRec
                 SkScalerContextRec rec;
                 fuzz->next(&rec);
                 desc->addEntry(tag, sizeof(rec), &rec);
                 break;
             }
-            case 2: { // use arbitrary data
+            case 1: { // use arbitrary data
                 if (fuzz->remaining() < length) {
                     // Can't initialize all that we requested, so bail out.
                     return;
@@ -67,12 +65,13 @@ DEF_FUZZ(SkDescriptor, fuzz) {
 
     // Exercise the API to make sure we don't step out of bounds, etc.
 
-    desc->computeChecksum();
-    desc->isValid();
+    if (desc->isValid()) {
+        desc->computeChecksum();
 
-    uint32_t tagToFind;
-    fuzz->next(&tagToFind);
+        uint32_t tagToFind;
+        fuzz->next(&tagToFind);
 
-    uint32_t ignore;
-    desc->findEntry(tagToFind, &ignore);
+        uint32_t ignore;
+        desc->findEntry(tagToFind, &ignore);
+    }
 }
