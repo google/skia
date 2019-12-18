@@ -29,8 +29,6 @@ sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrContext* grContext) {
                                       colorType, colorSpace, &surfaceProps);
 }
 
-void GrContextRelease::operator()(GrContext* ptr) { SkSafeUnref(ptr); }
-
 GrContextHolder SkMetalDeviceToGrContext(id<MTLDevice> device, id<MTLCommandQueue> queue) {
     GrContextOptions grContextOptions;  // set different options here.
     return GrContextHolder(GrContext::MakeMetal((__bridge void*)device,

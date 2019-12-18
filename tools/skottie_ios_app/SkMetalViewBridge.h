@@ -3,19 +3,16 @@
 #ifndef SkMetalViewBridge_DEFINED
 #define SkMetalViewBridge_DEFINED
 
+#include "tools/skottie_ios_app/GrContextHolder.h"
+
 #import <MetalKit/MetalKit.h>
 
 #include <memory>
 
 class SkSurface;
-class GrContext;
 template <typename T> class sk_sp;
 
 sk_sp<SkSurface> SkMtkViewToSurface(MTKView*, GrContext*);
-
-struct GrContextRelease { void operator()(GrContext*); };
-
-using GrContextHolder = std::unique_ptr<GrContext, GrContextRelease>;
 
 GrContextHolder SkMetalDeviceToGrContext(id<MTLDevice>, id<MTLCommandQueue>);
 
