@@ -3,80 +3,51 @@
 
 #include "tools/skottie_ios_app/SkottieUIView.h"
 
-#include "tools/skottie_ios_app/SkAnimationDraw.h"
-#include "tools/skottie_ios_app/SkTimeKeeper.h"
+#include "tools/skottie_ios_app/SkottieViewController.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkSurface.h"
-#include "include/core/SkTime.h"
-#include "include/utils/mac/SkCGUtils.h"
+template <typename T, typename U>
+T* objc_cast(U* p) { return [p isKindOfClass:[T class]] ? (T*)p : nullptr; }
 
-#include "modules/skottie/include/Skottie.h"
-
-@implementation SkottieUIView {
-    SkAnimationDraw fDraw;
-    SkTimeKeeper fClock;
-    SkBitmap fBackBuffer;
-}
-
-- (void)drawRect:(CGRect)rect {
-    double next = fClock.paused() ? 0 : (1.0 / 30.0) + SkTime::GetNSecs() * 1e-9;
-    [super drawRect:rect];
-    // TODO(halcanary): Use the rect and the InvalidationController to speed up rendering.
-    if (rect.size.width > 0 && rect.size.height > 0 && fDraw) {
-        CGSize size = [self bounds].size;
-        SkISize iSize = {(int)size.width, (int)size.height};
-
-        if (fBackBuffer.drawsNothing() || iSize != fBackBuffer.dimensions()) {
-            fBackBuffer.allocN32Pixels(iSize.fWidth, iSize.fHeight);
-        }
-        fBackBuffer.eraseColor(SK_ColorTRANSPARENT);
-        {
-            SkCanvas canvas(fBackBuffer);
-            if (!fClock.paused()) {
-                fDraw.seek(fClock.currentTime());
-            }
-            fDraw.draw({(float)size.width, (float)size.height}, &canvas);
-        }
-        SkCGDrawBitmap(UIGraphicsGetCurrentContext(), fBackBuffer, 0, 0);
-    }
-    if (next) {
-        [NSTimer scheduledTimerWithTimeInterval:std::max(0.0, next - SkTime::GetNSecs() * 1e-9)
-                 target:self
-                 selector:@selector(setNeedsDisplay)
-                 userInfo:nil
-                 repeats:NO];
-    }
-}
-
+@implementation SkottieUIView
 - (BOOL)loadAnimation:(NSData*) data {
-    fDraw.load((const void*)[data bytes], (size_t)[data length]);
-    fClock.setDuration(fDraw.duration());
-    [self setNeedsDisplay];
-    return (bool)fDraw;
+    SkottieViewController* vc = [[SkottieViewController alloc] init];
+    if (![vc loadAnimation:data]) {
+        return false;
+    }
+    [self setController:vc];
+    return true;
 }
 
-- (void)setStopAtEnd:(BOOL)stop{ fClock.setStopAtEnd(stop); }
-
-- (float)animationDurationSeconds { return fClock.duration(); }
-
-- (float)currentTime { return fDraw ? fClock.currentTime() : 0; }
-
-- (void)seek:(float)seconds {
-    if (fDraw) {
-        fClock.seek(seconds);
+- (void)setStopAtEnd:(BOOL)stop{
+    if (SkottieViewController* vc = objc_cast<SkottieViewController>([self controller])) {
+        [vc setStopAtEnd:stop];
         [self setNeedsDisplay];
     }
 }
 
-- (CGSize)size { return {(CGFloat)fDraw.size().width(), (CGFloat)fDraw.size().height()}; }
-
-- (BOOL)togglePaused {
-    fClock.togglePaused();
-    [self setNeedsDisplay];
-    return fClock.paused();
+- (void)seek:(float)seconds {
+    if (SkottieViewController* vc = objc_cast<SkottieViewController>([self controller])) {
+        [vc seek:seconds];
+        [self setNeedsDisplay];
+    }
 }
 
-- (BOOL)isPaused { return fClock.paused(); }
+- (CGSize)size {
+    if (SkottieViewController* vc = objc_cast<SkottieViewController>([self controller])) {
+        return [vc size];
+    }
+    return CGSize{0, 0};
+}
+
+- (BOOL)togglePaused {
+    if (SkottieViewController* vc = objc_cast<SkottieViewController>([self controller])) {
+        [self setNeedsDisplay];
+        [vc togglePaused];
+    }
+    return [self isPaused];
+}
+
+- (BOOL)isPaused {
+    return [[self controller] isPaused];
+}
 @end
