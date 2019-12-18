@@ -22,6 +22,30 @@
       "revId": "18ce73d8a23c1029a02f7a96707615ce823d1185",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2175a21_cab7a0a9",
+        "filename": "src/core/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-18T17:34:55Z",
+      "side": 1,
+      "message": "Yup, that would eliminate the need for the macro in the CPP, too.",
+      "parentUuid": "a91cdc8c_6a9c1a3b",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 26
+      },
+      "revId": "18ce73d8a23c1029a02f7a96707615ce823d1185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
