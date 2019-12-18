@@ -1342,7 +1342,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkShaders::Blend(mode, dst, src, &m);
         }))
         .class_function("Color", select_overload<sk_sp<SkShader>(SkColor)>(&SkShaders::Color))
-        .class_function("Empty", &SkShaders::Empty)
         .class_function("_Lerp", optional_override([](float t, sk_sp<SkShader> dst, sk_sp<SkShader> src)->sk_sp<SkShader> {
             return SkShaders::Lerp(t, dst, src, nullptr);
         }))
