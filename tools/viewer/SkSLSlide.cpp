@@ -7,6 +7,8 @@
 
 #include "tools/viewer/SkSLSlide.h"
 
+#include "include/effects/SkGradientShader.h"
+#include "src/core/SkEnumerate.h"
 #include "src/shaders/SkRTShader.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
@@ -39,8 +41,35 @@ SkSLSlide::SkSLSlide() {
         "void main(float x, float y, inout half4 color) {\n"
         "    color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);\n"
         "}\n";
+}
+
+void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
+    SkPoint points[] = { { 0, 0 }, { 256, 0 } };
+    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
+
+    sk_sp<SkShader> shader;
+
+    shader = SkGradientShader::MakeLinear(points, colors, nullptr, 2, SkTileMode::kClamp);
+    fShaders.push_back(std::make_pair("Linear Gradient", shader));
+
+    shader = SkGradientShader::MakeRadial({ 128, 128 }, 128, colors, nullptr, 2,
+                                          SkTileMode::kClamp);
+    fShaders.push_back(std::make_pair("Radial Gradient", shader));
+
+    shader = SkGradientShader::MakeSweep(128, 128, colors, nullptr, 2);
+    fShaders.push_back(std::make_pair("Sweep Gradient", shader));
+
+    shader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
+    fShaders.push_back(std::make_pair("Mandrill", shader));
 
     this->rebuild();
+}
+
+void SkSLSlide::unload() {
+    fEffect.reset();
+    fInputs.reset();
+    fChildren.reset();
+    fShaders.reset();
 }
 
 bool SkSLSlide::rebuild() {
@@ -54,6 +83,13 @@ bool SkSLSlide::rebuild() {
     if (effect->inputSize() > oldSize) {
         memset(fInputs.get() + oldSize, 0, effect->inputSize() - oldSize);
     }
+    fChildren.resize_back(effect->fChildren.size());
+    for (auto& c : fChildren) {
+        if (!c) {
+            c = fShaders[0].second;
+        }
+    }
+
     fEffect = effect;
     return true;
 }
@@ -69,6 +105,11 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     if (ImGui::InputTextMultiline("Code", fSkSL.writable_str(), fSkSL.size() + 1,
                                   boxSize, flags, InputTextCallback, &fSkSL)) {
         this->rebuild();
+    }
+
+    if (!fEffect) {
+        ImGui::End();
+        return;
     }
 
     for (const auto& v : fEffect->fInAndUniformVars) {
@@ -113,11 +154,26 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         }
     }
 
+    for (const auto [i, name] : SkMakeEnumerate(fEffect->fChildren)) {
+        auto curShader = std::find_if(fShaders.begin(), fShaders.end(),
+                                      [tgt = fChildren[i]](auto p) { return p.second == tgt; });
+        SkASSERT(curShader!= fShaders.end());
+
+        if (ImGui::BeginCombo(name.c_str(), curShader->first)) {
+            for (const auto& namedShader : fShaders) {
+                if (ImGui::Selectable(namedShader.first, curShader->second == namedShader.second)) {
+                    fChildren[i] = namedShader.second;
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
     ImGui::End();
 
-    sk_sp<SkRTShader> shader(new SkRTShader(fEffect, SkData::MakeWithoutCopy(fInputs.get(),
-                                                                             fEffect->inputSize()),
-                                            nullptr, false));
+    auto inputs = SkData::MakeWithoutCopy(fInputs.get(), fEffect->inputSize());
+    sk_sp<SkRTShader> shader(new SkRTShader(fEffect, std::move(inputs),
+                                            nullptr, fChildren.data(), fChildren.count(), false));
     SkPaint p;
     p.setShader(std::move(shader));
     canvas->drawRect({ 0, 0, 256, 256 }, p);
