@@ -274,7 +274,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& backendFormat,
                                                    GrRenderable renderable,
                                                    const BackendTextureData* data,
-                                                   int numMipLevels,
+                                                   GrMipMapped mipMapped,
                                                    GrProtected isProtected) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
@@ -282,7 +282,7 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     // FIXME: Dawn doesn't support mipmapped render targets (yet).
-    if (numMipLevels > 1 && GrRenderable::kYes == renderable) {
+    if (mipMapped == GrMipMapped::kYes && GrRenderable::kYes == renderable) {
         return GrBackendTexture();
     }
 
@@ -294,6 +294,11 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
 
     if (GrRenderable::kYes == renderable) {
         desc.usage |= wgpu::TextureUsage::OutputAttachment;
+    }
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     desc.size.width = dimensions.width();
