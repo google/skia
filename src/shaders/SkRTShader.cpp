@@ -32,6 +32,8 @@ SkRTShader::SkRTShader(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs,
         , fInputs(std::move(inputs)) {
 }
 
+SkRTShader::~SkRTShader() = default;
+
 bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     SkMatrix inverse;
     if (!this->computeTotalInverse(rec.fCTM, rec.fLocalM, &inverse)) {
@@ -123,6 +125,14 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
 SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
     : fEffect(SkRuntimeEffect::Make(std::move(sksl)))
     , fIsOpaque(isOpaque) {}
+
+SkRuntimeShaderFactory::SkRuntimeShaderFactory(const SkRuntimeShaderFactory&) = default;
+SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkRuntimeShaderFactory&&) = default;
+
+SkRuntimeShaderFactory::~SkRuntimeShaderFactory() = default;
+
+SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(const SkRuntimeShaderFactory&) = default;
+SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(SkRuntimeShaderFactory&&) = default;
 
 sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
     return fEffect && fEffect->isValid()

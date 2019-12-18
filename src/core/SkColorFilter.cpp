@@ -486,6 +486,19 @@ SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(SkString sksl,
     : fEffect(SkRuntimeEffect::Make(std::move(sksl)))
     , fCpuFunc(cpuFunc) {}
 
+SkRuntimeColorFilterFactory::~SkRuntimeColorFilterFactory() = default;
+
+SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(const SkRuntimeColorFilterFactory&) =
+        default;
+
+SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(SkRuntimeColorFilterFactory&&) = default;
+
+SkRuntimeColorFilterFactory& SkRuntimeColorFilterFactory::operator=(
+        const SkRuntimeColorFilterFactory&) = default;
+
+SkRuntimeColorFilterFactory& SkRuntimeColorFilterFactory::operator=(SkRuntimeColorFilterFactory&&) =
+        default;
+
 sk_sp<SkColorFilter> SkRuntimeColorFilterFactory::make(sk_sp<SkData> inputs) {
     return sk_sp<SkColorFilter>(new SkRuntimeColorFilter(fEffect, std::move(inputs), fCpuFunc));
 }
