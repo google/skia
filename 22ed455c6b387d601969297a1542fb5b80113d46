@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f7370bc_81f422ba",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-18T21:07:20Z",
+      "side": 1,
+      "message": "Why assert here? Do we have anywhere else in the call stack to safely catch a client passing in an RGBA texture format? Like do we have a check up at the proxy level? Seems like somewhere (maybe here) we want to gracefully be able to fail wrapping the texture.",
+      "range": {
+        "startLine": 741,
+        "startChar": 4,
+        "endLine": 741,
+        "endChar": 53
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7179f7e_c08a61a2",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 767,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-18T21:07:20Z",
+      "side": 1,
+      "message": "Do we really need to call this here? I would have thought creating a GrGLTexture would have defaulted all the params to some unknown state.",
+      "range": {
+        "startLine": 767,
+        "startChar": 4,
+        "endLine": 767,
+        "endChar": 37
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcf5c30c_fb45851a",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1204,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-18T21:07:20Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "range": {
+        "startLine": 1204,
+        "startChar": 3,
+        "endLine": 1204,
+        "endChar": 47
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a349e1a_c12cdb3f",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-18T21:07:20Z",
+      "side": 1,
+      "message": "Why is this?",
+      "range": {
+        "startLine": 1680,
+        "startChar": 7,
+        "endLine": 1680,
+        "endChar": 76
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
