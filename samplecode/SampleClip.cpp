@@ -670,7 +670,7 @@ class HalfPlaneCoons : public SampleCameraView {
     bool onChar(SkUnichar uni) override {
         switch (uni) {
             case 'h': fShowHandles = !fShowHandles; return true;
-            case 's': fShowSkeleton = !fShowSkeleton; return true;
+            case 'k': fShowSkeleton = !fShowSkeleton; return true;
             case 't': fShowTex = !fShowTex; return true;
             default: break;
         }

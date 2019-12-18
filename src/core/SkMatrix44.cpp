@@ -1022,17 +1022,15 @@ SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {
 SkMatrix44::operator SkMatrix() const {
     SkMatrix dst;
 
-    dst[SkMatrix::kMScaleX] = SkMScalarToScalar(fMat[0][0]);
-    dst[SkMatrix::kMSkewX]  = SkMScalarToScalar(fMat[1][0]);
-    dst[SkMatrix::kMTransX] = SkMScalarToScalar(fMat[3][0]);
-
-    dst[SkMatrix::kMSkewY]  = SkMScalarToScalar(fMat[0][1]);
-    dst[SkMatrix::kMScaleY] = SkMScalarToScalar(fMat[1][1]);
-    dst[SkMatrix::kMTransY] = SkMScalarToScalar(fMat[3][1]);
-
-    dst[SkMatrix::kMPersp0] = SkMScalarToScalar(fMat[0][3]);
-    dst[SkMatrix::kMPersp1] = SkMScalarToScalar(fMat[1][3]);
-    dst[SkMatrix::kMPersp2] = SkMScalarToScalar(fMat[3][3]);
+    dst.setAll(SkMScalarToScalar(fMat[0][0]),
+               SkMScalarToScalar(fMat[1][0]),
+               SkMScalarToScalar(fMat[3][0]),
+               SkMScalarToScalar(fMat[0][1]),
+               SkMScalarToScalar(fMat[1][1]),
+               SkMScalarToScalar(fMat[3][1]),
+               SkMScalarToScalar(fMat[0][3]),
+               SkMScalarToScalar(fMat[1][3]),
+               SkMScalarToScalar(fMat[3][3]));
 
     return dst;
 }
