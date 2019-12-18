@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc02e4cb_73d27556",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 816,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-18T17:42:08Z",
+      "side": 1,
+      "message": "100",
+      "range": {
+        "startLine": 816,
+        "startChar": 100,
+        "endLine": 816,
+        "endChar": 102
+      },
+      "revId": "6579e3b69cf0d6511f670eddb380347946092a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1904285e_ba69f75a",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1669,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-18T17:42:08Z",
+      "side": 1,
+      "message": "why split these lines up?",
+      "range": {
+        "startLine": 1668,
+        "startChar": 9,
+        "endLine": 1669,
+        "endChar": 17
+      },
+      "revId": "6579e3b69cf0d6511f670eddb380347946092a51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
