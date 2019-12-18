@@ -406,6 +406,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fConservativeRasterSupport = true;
     }
 
+    if (GR_IS_GR_GL(standard)) {
+        fWireframeSupport = true;
+    }
+
     // Protect ourselves against tracking huge amounts of texture state.
     static const uint8_t kMaxSaneSamplers = 32;
     GrGLint maxSamplers;

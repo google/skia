@@ -27,6 +27,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fInstanceAttribSupport = false;
     fMixedSamplesSupport = false;
     fConservativeRasterSupport = false;
+    fWireframeSupport = false;
     fMSAAResolvesAutomatically = false;
     fUsePrimitiveRestart = false;
     fPreferClientSideDynamicBuffers = false;
@@ -191,6 +192,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Instance Attrib Support", fInstanceAttribSupport);
     writer->appendBool("Mixed Samples Support", fMixedSamplesSupport);
     writer->appendBool("Conservative Raster Support", fConservativeRasterSupport);
+    writer->appendBool("Wireframe Support", fWireframeSupport);
     writer->appendBool("MSAA Resolves Automatically", fMSAAResolvesAutomatically);
     writer->appendBool("Use primitive restart", fUsePrimitiveRestart);
     writer->appendBool("Prefer client-side dynamic buffers", fPreferClientSideDynamicBuffers);

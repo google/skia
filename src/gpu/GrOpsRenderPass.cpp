@@ -46,6 +46,8 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
              this->gpu()->caps()->instanceAttribSupport());
     SkASSERT(!programInfo.pipeline().usesConservativeRaster() ||
              this->gpu()->caps()->conservativeRasterSupport());
+    SkASSERT(!programInfo.pipeline().isWireframe() ||
+             this->gpu()->caps()->wireframeSupport());
 
     programInfo.compatibleWithMeshes(meshes, meshCount);
     programInfo.checkAllInstantiated();

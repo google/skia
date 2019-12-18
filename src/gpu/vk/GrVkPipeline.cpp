@@ -510,8 +510,8 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->flags = 0;
     rasterInfo->depthClampEnable = VK_FALSE;
     rasterInfo->rasterizerDiscardEnable = VK_FALSE;
-    rasterInfo->polygonMode = caps->wireframeMode() ? VK_POLYGON_MODE_LINE
-                                                    : VK_POLYGON_MODE_FILL;
+    rasterInfo->polygonMode = (caps->wireframeMode() || pipeline.isWireframe()) ?
+            VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
     rasterInfo->cullMode = VK_CULL_MODE_NONE;
     rasterInfo->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterInfo->depthBiasEnable = VK_FALSE;
