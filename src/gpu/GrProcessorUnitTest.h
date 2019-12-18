@@ -17,12 +17,14 @@
 #include "src/gpu/GrTestUtils.h"
 #include "src/gpu/GrTextureProxy.h"
 
+#include <tuple>
+
 class SkMatrix;
 class GrCaps;
 class GrContext;
 class GrProxyProvider;
 class GrRenderTargetContext;
-struct GrProcessorTestData;
+class GrProcessorTestData;
 class GrTexture;
 class GrXPFactory;
 class GrGeometryProcessor;
@@ -48,33 +50,25 @@ std::unique_ptr<GrFragmentProcessor> MakeChildFP(GrProcessorTestData*);
  * kAlpha_8_GrPixelConfig. TestCreate functions are also free to create additional textures using
  * the GrContext.
  */
-struct GrProcessorTestData {
-    GrProcessorTestData(SkRandom* random,
-                        GrContext* context,
-                        const GrRenderTargetContext* renderTargetContext,
-                        sk_sp<GrTextureProxy> proxies[2])
-            : fRandom(random), fRenderTargetContext(renderTargetContext), fContext(context) {
-        SkASSERT(proxies[0] && proxies[1]);
-        fProxies[0] = proxies[0];
-        fProxies[1] = proxies[1];
-
-        fArena = std::unique_ptr<SkArenaAlloc>(new SkArenaAlloc(1000));
-    }
-
-    SkRandom* fRandom;
-    const GrRenderTargetContext* fRenderTargetContext;
+class GrProcessorTestData {
+public:
+    using ProxyInfo = std::tuple<sk_sp<GrTextureProxy>, GrColorType, SkAlphaType>;
+    GrProcessorTestData(SkRandom* random, GrContext* context, int numProxies, const ProxyInfo[]);
 
     GrContext* context() { return fContext; }
     GrResourceProvider* resourceProvider();
     GrProxyProvider* proxyProvider();
     const GrCaps* caps();
-    sk_sp<GrTextureProxy> textureProxy(int index) { return fProxies[index]; }
     SkArenaAlloc* allocator() { return fArena.get(); }
+
+    ProxyInfo randomProxy();
+    ProxyInfo randomAlphaOnlyProxy();
+
+    SkRandom* fRandom;
 
 private:
     GrContext* fContext;
-    sk_sp<GrTextureProxy> fProxies[2];
-
+    SkTArray<ProxyInfo> fProxies;
     std::unique_ptr<SkArenaAlloc> fArena;
 };
 
