@@ -87,6 +87,7 @@ private:
     SkSL::Compiler fCompiler;
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
+    std::vector<SkString> fChildren;
 
     friend class GrGLSLSkSLFP;
     friend class GrSkSLFP;
