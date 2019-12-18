@@ -308,7 +308,7 @@ bool GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat,
     switch (mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:
-            *compressionType = SkImage::kETC1_CompressionType;
+            *compressionType = SkImage::CompressionType::kETC1;
             return true;
 #endif
         default:
