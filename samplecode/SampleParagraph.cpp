@@ -1675,20 +1675,20 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text = "0";
+        const char* text = "We couldn't find any blogs for the account you selected. Choose a different account, or create a blog on www.blogger.com";
         ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        //paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Google Sans Display")});
-        text_style.setFontSize(160);
-        //text_style.setHeightOverride(true);
-        //text_style.setHeight(1.75);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(15);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(94);
+        paragraph->layout(736);
+
+        auto result = paragraph->getGlyphPositionAtCoordinate(368,18);
 
         paragraph->paint(canvas, 0, 0);
     }
