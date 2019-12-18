@@ -71,7 +71,7 @@ void main() {
 }
 
 @test(d) {
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(0);
+    auto [proxy, ct, at] = d->randomProxy();
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const SkScalar kMaxInset = 20.0f;

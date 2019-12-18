@@ -257,7 +257,7 @@ void render_fp(GrContext* context, GrRenderTargetContext* rtc, GrFragmentProcess
 bool init_test_textures(GrResourceProvider* resourceProvider,
                         GrProxyProvider* proxyProvider,
                         SkRandom* random,
-                        sk_sp<GrTextureProxy> proxies[2]) {
+                        GrProcessorTestData::ProxyInfo proxies[2]) {
     static const int kTestTextureSize = 256;
 
     {
@@ -274,9 +274,12 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType);
         SkPixmap pixmap(ii, rgbaData.get(), ii.minRowBytes());
         sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
-        proxies[0] =
+        auto proxy =
                 proxyProvider->createTextureProxy(img, 1, SkBudgeted::kYes, SkBackingFit::kExact);
-        proxies[0]->instantiate(resourceProvider);
+        if (!proxy || !proxy->instantiate(resourceProvider)) {
+            return false;
+        }
+        proxies[0] = {std::move(proxy), GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
 
     {
@@ -292,12 +295,15 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                                            kAlpha_8_SkColorType, kPremul_SkAlphaType);
         SkPixmap pixmap(ii, alphaData.get(), ii.minRowBytes());
         sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
-        proxies[1] =
+        auto proxy =
                 proxyProvider->createTextureProxy(img, 1, SkBudgeted::kYes, SkBackingFit::kExact);
-        proxies[1]->instantiate(resourceProvider);
+        if (!proxy || !proxy->instantiate(resourceProvider)) {
+            return false;
+        }
+        proxies[1] = {std::move(proxy), GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }
 
-    return proxies[0] && proxies[1];
+    return true;
 }
 
 // Creates a texture of premul colors used as the output of the fragment processor that precedes
@@ -427,12 +433,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     auto rtc = context->priv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, kRenderSize, kRenderSize, GrColorType::kRGBA_8888, nullptr);
 
-    sk_sp<GrTextureProxy> proxies[2];
+    GrProcessorTestData::ProxyInfo proxies[2];
     if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
-    GrProcessorTestData testData(&random, context, rtc.get(), proxies);
+    GrProcessorTestData testData(&random, context, 2, proxies);
 
     // Coverage optimization uses three frames with a linearly transformed input texture.  The first
     // frame has no offset, second frames add .2 and .4, which should then be present as a fixed
@@ -664,12 +670,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
     auto rtc = context->priv().makeDeferredRenderTargetContext(
             SkBackingFit::kExact, kRenderSize, kRenderSize, GrColorType::kRGBA_8888, nullptr);
 
-    sk_sp<GrTextureProxy> proxies[2];
+    GrProcessorTestData::ProxyInfo proxies[2];
     if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
         ERRORF(reporter, "Could not create test textures");
         return;
     }
-    GrProcessorTestData testData(&random, context, rtc.get(), proxies);
+    GrProcessorTestData testData(&random, context, 2, proxies);
 
     auto inputTexture = make_input_texture(proxyProvider, kRenderSize, kRenderSize, 0.0f);
     std::unique_ptr<GrColor[]> readData1(new GrColor[kRenderSize * kRenderSize]);

@@ -60,8 +60,7 @@ void main() {
 }
 
 @test(testData) {
-    int texIdx = testData->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                               : GrProcessorUnitTest::kAlphaTextureIdx;
+    auto [proxy, ct, at] = testData->randomProxy();
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
     if (!testData->caps()->npotTextureTileSupport()) {
@@ -76,7 +75,5 @@ void main() {
                                                                : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    auto alphaType = static_cast<SkAlphaType>(
-            testData->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
-    return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx),
-                                       alphaType, matrix, params);}
+    return GrSimpleTextureEffect::Make(std::move(proxy), at, matrix, params);
+}

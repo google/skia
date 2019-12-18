@@ -607,9 +607,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceTextureDecalFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, at, ct] = d->randomProxy();
     SkIRect subset;
     subset.fLeft = d->fRandom->nextULessThan(proxy->width() - 1);
     subset.fRight = d->fRandom->nextRangeU(subset.fLeft, proxy->width());

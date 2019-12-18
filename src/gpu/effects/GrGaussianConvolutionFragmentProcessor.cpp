@@ -280,9 +280,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(
         GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, ct, at] = d->randomProxy();
 
     int bounds[2];
     int modeIdx = d->fRandom->nextRangeU(0, GrTextureDomain::kModeCount-1);
@@ -301,10 +299,8 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
 
-    auto alphaType = static_cast<SkAlphaType>(
-            d->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
-    return GrGaussianConvolutionFragmentProcessor::Make(
-            std::move(proxy), alphaType, dir, radius, sigma,
-            static_cast<GrTextureDomain::Mode>(modeIdx), bounds);
+    return GrGaussianConvolutionFragmentProcessor::Make(std::move(proxy), at, dir, radius, sigma,
+                                                        static_cast<GrTextureDomain::Mode>(modeIdx),
+                                                        bounds);
 }
 #endif

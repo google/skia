@@ -260,7 +260,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     GrDrawingManager* drawingManager = context->priv().drawingManager();
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> proxies[2];
+    GrProcessorTestData::ProxyInfo proxies[2];
 
     // setup dummy textures
     GrMipMapped mipMapped = GrMipMapped(context->priv().caps()->mipMapSupport());
@@ -272,10 +272,13 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
-        proxies[0] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes, 1,
-                                                kBottomLeft_GrSurfaceOrigin, mipMapped,
-                                                SkBackingFit::kExact, SkBudgeted::kNo,
-                                                GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        proxies[0] = {proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes, 1,
+                                                 kBottomLeft_GrSurfaceOrigin, mipMapped,
+                                                 SkBackingFit::kExact, SkBudgeted::kNo,
+                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone),
+                      GrColorType::kRGBA_8888,
+                      kPremul_SkAlphaType
+        };
     }
     {
         GrSurfaceDesc dummyDesc;
@@ -285,13 +288,16 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);
-        proxies[1] = proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo, 1,
-                                                kTopLeft_GrSurfaceOrigin, mipMapped,
-                                                SkBackingFit::kExact, SkBudgeted::kNo,
-                                                GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        proxies[1] = {proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo, 1,
+                                                 kTopLeft_GrSurfaceOrigin, mipMapped,
+                                                 SkBackingFit::kExact, SkBudgeted::kNo,
+                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone),
+                      GrColorType::kAlpha_8,
+                      kPremul_SkAlphaType
+        };
     }
 
-    if (!proxies[0] || !proxies[1]) {
+    if (!std::get<0>(proxies[0]) || !std::get<0>(proxies[1])) {
         SkDebugf("Could not allocate dummy textures");
         return false;
     }
@@ -308,7 +314,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         }
 
         GrPaint paint;
-        GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
+        GrProcessorTestData ptd(&random, context, 2, proxies);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
@@ -333,7 +339,7 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
+            GrProcessorTestData ptd(&random, context, 2, proxies);
 
             GrPaint paint;
             paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));

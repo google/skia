@@ -72,8 +72,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
         GrProcessorTestData* testData) {
-    int texIdx = testData->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                               : GrProcessorUnitTest::kAlphaTextureIdx;
+    auto [proxy, ct, at] = testData->randomProxy();
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
     if (!testData->caps()->npotTextureTileSupport()) {
@@ -88,8 +87,6 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    auto alphaType = static_cast<SkAlphaType>(
-            testData->fRandom->nextRangeU(kUnknown_SkAlphaType + 1, kLastEnum_SkAlphaType));
-    return GrSimpleTextureEffect::Make(testData->textureProxy(texIdx), alphaType, matrix, params);
+    return GrSimpleTextureEffect::Make(std::move(proxy), at, matrix, params);
 }
 #endif

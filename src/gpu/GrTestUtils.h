@@ -24,7 +24,7 @@
 
 class GrColorInfo;
 class GrColorSpaceXform;
-struct GrProcessorTestData;
+class GrProcessorTestData;
 class GrStyle;
 class SkMatrix;
 class SkPath;

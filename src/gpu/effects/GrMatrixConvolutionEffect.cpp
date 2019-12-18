@@ -317,9 +317,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
-    sk_sp<GrTextureProxy> proxy = d->textureProxy(texIdx);
+    auto [proxy, ct, at] = d->randomProxy();
 
     int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
     int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);

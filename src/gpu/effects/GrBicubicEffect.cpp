@@ -208,11 +208,8 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {
-    int texIdx = d->fRandom->nextBool() ? GrProcessorUnitTest::kSkiaPMTextureIdx
-                                        : GrProcessorUnitTest::kAlphaTextureIdx;
     static const GrSamplerState::WrapMode kClampClamp[] = {GrSamplerState::WrapMode::kClamp,
                                                            GrSamplerState::WrapMode::kClamp};
-    SkAlphaType alphaType = d->fRandom->nextBool() ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
     Direction direction = Direction::kX;
     switch (d->fRandom->nextULessThan(3)) {
         case 0:
@@ -225,8 +222,8 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             direction = Direction::kXY;
             break;
     }
-    return GrBicubicEffect::Make(d->textureProxy(texIdx), SkMatrix::I(), kClampClamp, direction,
-                                 alphaType);
+    auto [proxy, ct, at] = d->randomProxy();
+    return GrBicubicEffect::Make(proxy, SkMatrix::I(), kClampClamp, direction, at);
 }
 #endif
 
