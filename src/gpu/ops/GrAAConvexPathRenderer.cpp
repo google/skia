@@ -835,7 +835,7 @@ private:
             return CombineResult::kCannotCombine;
         }
         if (fHelper.usesLocalCoords() &&
-            !fPaths[0].fViewMatrix.cheapEqualTo(that->fPaths[0].fViewMatrix)) {
+            !SkMatrixPriv::CheapEqual(fPaths[0].fViewMatrix, that->fPaths[0].fViewMatrix)) {
             return CombineResult::kCannotCombine;
         }
 
