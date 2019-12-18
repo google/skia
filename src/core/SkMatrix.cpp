@@ -21,27 +21,24 @@
 #include <cstddef>
 #include <utility>
 
-static void normalize_perspective(SkScalar mat[9]) {
-    // If it was interesting to never store the last element, we could divide all 8 other
-    // elements here by the 9th, making it 1.0...
+void SkMatrix::normalizePerspective() {
+    // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
+    // is in perspective, even though it stills behaves like its affine. If we divide everything
+    // by the not_one value, then it will behave the same, but will be treated as affine,
+    // and therefore faster (e.g. clients can forward-difference calculations).
     //
-    // When SkScalar was SkFixed, we would sometimes rescale the entire matrix to keep its
-    // component values from getting too large. This is not a concern when using floats/doubles,
-    // so we do nothing now.
-
-    // Disable this for now, but it could be enabled.
-#if 0
-    if (0 == mat[SkMatrix::kMPersp0] && 0 == mat[SkMatrix::kMPersp1]) {
-        SkScalar p2 = mat[SkMatrix::kMPersp2];
+    if (0 == fMat[SkMatrix::kMPersp0] && 0 == fMat[SkMatrix::kMPersp1]) {
+        SkScalar p2 = fMat[SkMatrix::kMPersp2];
         if (p2 != 0 && p2 != 1) {
             double inv = 1.0 / p2;
             for (int i = 0; i < 6; ++i) {
-                mat[i] = SkDoubleToScalar(mat[i] * inv);
+                fMat[i] = SkDoubleToScalar(fMat[i] * inv);
             }
-            mat[SkMatrix::kMPersp2] = 1;
+            fMat[SkMatrix::kMPersp2] = 1;
         }
+        this->setTypeMask(kUnknown_Mask);
+        (void)this->getType();  // trigger computing the new mask
     }
-#endif
 }
 
 // In a few places, we performed the following
@@ -68,7 +65,22 @@ SkMatrix& SkMatrix::reset() { *this = SkMatrix(); return *this; }
 
 SkMatrix& SkMatrix::set9(const SkScalar buffer[]) {
     memcpy(fMat, buffer, 9 * sizeof(SkScalar));
-    normalize_perspective(fMat);
+    this->setTypeMask(kUnknown_Mask);
+    return *this;
+}
+
+SkMatrix& SkMatrix::setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                           SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                           SkScalar persp0, SkScalar persp1, SkScalar persp2) {
+    fMat[kMScaleX] = scaleX;
+    fMat[kMSkewX]  = skewX;
+    fMat[kMTransX] = transX;
+    fMat[kMSkewY]  = skewY;
+    fMat[kMScaleY] = scaleY;
+    fMat[kMTransY] = transY;
+    fMat[kMPersp0] = persp0;
+    fMat[kMPersp1] = persp1;
+    fMat[kMPersp2] = persp2;
     this->setTypeMask(kUnknown_Mask);
     return *this;
 }
@@ -641,7 +653,6 @@ SkMatrix& SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
             tmp.fMat[kMPersp1] = rowcol3(&a.fMat[6], &b.fMat[1]);
             tmp.fMat[kMPersp2] = rowcol3(&a.fMat[6], &b.fMat[2]);
 
-            normalize_perspective(tmp.fMat);
             tmp.setTypeMask(kUnknown_Mask);
         } else {
             tmp.fMat[kMScaleX] = muladdmul(a.fMat[kMScaleX],
