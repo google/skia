@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a91cdc8c_6a9c1a3b",
+        "filename": "src/core/SkRuntimeEffect.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-18T17:21:02Z",
+      "side": 1,
+      "message": "Would it make life easier if this was always usable?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 26
+      },
+      "revId": "18ce73d8a23c1029a02f7a96707615ce823d1185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
