@@ -94,18 +94,22 @@ class SkpDebugPlayer {
      * to the given command and flush the canvas.
      */
     void drawTo(SkSurface* surface, int32_t index) {
-      int cmdlen = frames[fp]->getSize();
-      if (cmdlen == 0) {
-        SkDebugf("Zero commands to execute");
-        return;
+      // Set the command within the frame or layer event being drawn.
+      if (inspectedLayer >= 0) {
+        fLayerManager->setCommand(inspectedLayer, fp, index);
+      } else {
+        index = constrainFrameCommand(index);
       }
-      if (index >= cmdlen) {
-        SkDebugf("Constrained command index (%d) within this frame's length (%d)\n", index, cmdlen);
-        index = cmdlen-1;
-      }
+
       auto* canvas = surface->getCanvas();
       canvas->clear(SK_ColorTRANSPARENT);
-      frames[fp]->drawTo(surface->getCanvas(), index);
+      if (inspectedLayer >= 0) {
+        // when it's a layer event we're viewing, we use the layer manager to render it.
+        fLayerManager->drawLayerEventTo(canvas, inspectedLayer, fp);
+      } else {
+        // otherwise, its a frame at the top level.
+        frames[fp]->drawTo(surface->getCanvas(), index);
+      }
       surface->getCanvas()->flush();
     }
 
@@ -117,35 +121,60 @@ class SkpDebugPlayer {
       surface->getCanvas()->flush();
     }
 
-    const SkIRect& getBounds() { return fBounds; }
+    const SkIRect getBounds() {
+      if (inspectedLayer < 0) {
+        return fBounds;
+      }
+      auto summary = fLayerManager->event(inspectedLayer, fp);
+      return SkIRect::MakeWH(summary.layerWidth, summary.layerHeight);
+    }
 
-    // The following three operations apply to every frame because they are overdraw features.
+    // returns the debugcanvas of the current frame, or the current draw event when inspecting
+    // a layer.
+    DebugCanvas* visibleCanvas() {
+      if (inspectedLayer >=0) {
+        return fLayerManager->getEventDebugCanvas(inspectedLayer, fp);
+      } else {
+        return frames[fp].get();
+      }
+    }
+
+    // The following three operations apply to every debugcanvas because they are overdraw features.
     // There is only one toggle for them on the app, they are global settings.
+    // However, there's not a simple way to make the debugcanvas pull them from a central location.
+    // so we set it on all of them at once.
     void setOverdrawVis(bool on) {
       for (int i=0; i < frames.size(); i++) {
         frames[i]->setOverdrawViz(on);
       }
+      fLayerManager->setOverdrawViz(on);
     }
     void setGpuOpBounds(bool on) {
       for (int i=0; i < frames.size(); i++) {
         frames[i]->setDrawGpuOpBounds(on);
       }
+      fLayerManager->setDrawGpuOpBounds(on);
     }
     void setClipVizColor(JSColor color) {
       for (int i=0; i < frames.size(); i++) {
         frames[i]->setClipVizColor(SkColor(color));
       }
+      fLayerManager->setClipVizColor(SkColor(color));
     }
     // The two operations below only apply to the current frame, because they concern the command
     // list, which is unique to each frame.
     void deleteCommand(int index) {
-      frames[fp]->deleteDrawCommandAt(index);
+      visibleCanvas()->deleteDrawCommandAt(index);
     }
     void setCommandVisibility(int index, bool visible) {
-      frames[fp]->toggleCommand(index, visible);
+      visibleCanvas()->toggleCommand(index, visible);
     }
     int getSize() const {
-      return frames[fp]->getSize();
+      if (inspectedLayer >=0) {
+        return fLayerManager->event(inspectedLayer, fp).commandCount;
+      } else {
+        return frames[fp]->getSize();
+      }
     }
     int getFrameCount() const {
       return frames.size();
@@ -156,7 +185,7 @@ class SkpDebugPlayer {
       SkDynamicMemoryWStream stream;
       SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
       writer.beginObject(); // root
-      frames[fp]->toJSON(writer, udm, surface->getCanvas());
+      visibleCanvas()->toJSON(writer, udm, surface->getCanvas());
       writer.endObject(); // root
       writer.flush();
       auto skdata = stream.detachAsData();
@@ -168,8 +197,8 @@ class SkpDebugPlayer {
 
     // Gets the clip and matrix of the last command drawn
     std::string lastCommandInfo() {
-      SkMatrix vm = frames[fp]->getCurrentMatrix();
-      SkIRect clip = frames[fp]->getCurrentClip();
+      SkMatrix vm = visibleCanvas()->getCurrentMatrix();
+      SkIRect clip = visibleCanvas()->getCurrentClip();
 
       SkDynamicMemoryWStream stream;
       SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
@@ -221,6 +250,14 @@ class SkpDebugPlayer {
       return fLayerManager->summarizeEvents(fp);
     }
 
+    // When set to a valid layer index, causes this class to playback the layer draw event at nodeId
+    // on frame fp. No validation of nodeId or fp is performed, this must be valid values obtained
+    // from either fLayerManager.listNodesForFrame or fLayerManager.summarizeEvents
+    // Set to -1 to return to viewing the top level animation
+    void setInspectedLayer(int nodeId) {
+      inspectedLayer = nodeId;
+    }
+
   private:
 
       // Loads a single frame (traditional) skp file from the provided data stream and returns
@@ -266,7 +303,6 @@ class SkpDebugPlayer {
 
         int i = 0;
         for (const auto& page : pages) {
-          i++;
           // Make debug canvas using bounds from SkPicture
           fBounds = page.fPicture->cullRect().roundOut();
           std::unique_ptr<DebugCanvas> debugCanvas = std::make_unique<DebugCanvas>(fBounds);
@@ -284,8 +320,20 @@ class SkpDebugPlayer {
           debugCanvas->setDrawGpuOpBounds(false);
           debugCanvas->setClipVizColor(SK_ColorTRANSPARENT);
           frames.push_back(std::move(debugCanvas));
+          i++;
         }
         fImages = deserialContext->fImages;
+      }
+
+      // constrains the draw command index to the frame's command list length.
+      int constrainFrameCommand(int index) {
+        int cmdlen = frames[fp]->getSize();
+        if (index >= cmdlen) {
+          SkDebugf("Constrained command index (%d) within this frame's length (%d)\n",
+            index, cmdlen);
+          return cmdlen-1;
+        }
+        return index;
       }
 
       // A vector of DebugCanvas, each one initialized to a frame of the animation.
@@ -312,6 +360,11 @@ class SkpDebugPlayer {
       // individual frames hold a pointer to it, store draw events, and request images from it.
       // it is stateful and is set to the current frame at all times.
       std::unique_ptr<DebugLayerManager> fLayerManager;
+
+      // The node id of a layer being inspected, if any.
+      // -1 means we are viewing the top level animation, not a layer.
+      // the exact draw event being inspected depends also on the selected frame `fp`.
+      int inspectedLayer = -1;
 };
 
 #if SK_SUPPORT_GPU
@@ -398,6 +451,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("getImageResource",     &SkpDebugPlayer::getImageResource)
     .function("getImageCount",        &SkpDebugPlayer::getImageCount)
     .function("getImageInfo",         &SkpDebugPlayer::getImageInfo)
+    .function("setInspectedLayer",    &SkpDebugPlayer::setInspectedLayer)
     .function("getLayerDrawEvents",   &SkpDebugPlayer::getLayerDrawEvents);
 
   // Structs used as arguments or returns to the functions above
