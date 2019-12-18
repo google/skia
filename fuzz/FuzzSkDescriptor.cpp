@@ -20,7 +20,8 @@ DEF_FUZZ(SkDescriptor, fuzz) {
 
     size_t len = SkDescriptor::ComputeOverhead(numEntries);
     auto desc = SkDescriptor::Alloc(len);
-    for (int32_t i = 0; i<numEntries && !fuzz->exhausted(); i++) {
+    len -= sizeof(SkDescriptor);
+    for (int32_t i = 0; i<numEntries && !fuzz->exhausted() && len > sizeof(SkDescriptor::Entry); i++) {
         uint32_t tag;
         fuzz->next(&tag);
         // Valid use of the API requires that tag is truthy and that
@@ -29,8 +30,9 @@ DEF_FUZZ(SkDescriptor, fuzz) {
         if (!tag) {
             return;
         }
+
         size_t length;
-        fuzz->next(&length);
+        fuzz->nextRange(&length, 0, len);
         if (SkAlign4(length) != length) {
             return;
         }
@@ -46,6 +48,7 @@ DEF_FUZZ(SkDescriptor, fuzz) {
                 SkScalerContextRec rec;
                 fuzz->next(&rec);
                 desc->addEntry(tag, sizeof(rec), &rec);
+                length = sizeof(rec);
                 break;
             }
             case 2: { // use arbitrary data
@@ -62,6 +65,8 @@ DEF_FUZZ(SkDescriptor, fuzz) {
                 SK_ABORT("Did you update the range in FuzzSkDescriptor?");
             }
         }
+
+        len -= length + sizeof(SkDescriptor::Entry);
     }
 
     // Exercise the API to make sure we don't step out of bounds, etc.
