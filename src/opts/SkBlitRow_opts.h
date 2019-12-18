@@ -354,7 +354,7 @@ void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU a
     }
 
     if (len != 0) {
-        uint8x8_t result = SkPMSrcOver_neon2(vcreate_u8(*dst), vcreate_u8(*src));
+        uint8x8_t result = SkPMSrcOver_neon2(vcreate_u8((uint64_t)*dst), vcreate_u8((uint64_t)*src));
         vst1_lane_u32(dst, vreinterpret_u32_u8(result), 0);
     }
     return;
