@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrRecordingContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
@@ -30,18 +31,16 @@ class GrAuditTrail;
 class GrCaps;
 class GrClearOp;
 class GrGpuBuffer;
-class GrOpMemoryPool;
 class GrRenderTargetProxy;
-class SkArenaAlloc;
 
 class GrOpsTask : public GrRenderTask {
 private:
     using DstProxyView = GrXferProcessor::DstProxyView;
 
 public:
-    // The GrOpMemoryPool must outlive the GrOpsTask, either by preserving the context that owns
+    // The Arenas must outlive the GrOpsTask, either by preserving the context that owns
     // the pool, or by moving the pool to the DDL that takes over the GrOpsTask.
-    GrOpsTask(GrOpMemoryPool*, SkArenaAlloc*, GrSurfaceProxyView, GrAuditTrail*);
+    GrOpsTask(GrRecordingContext::Arenas, GrSurfaceProxyView, GrAuditTrail*);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -200,14 +199,14 @@ private:
         // Attempts to move the ops from the passed chain to this chain at the head. Also attempts
         // to merge ops between the chains. Upon success the passed chain is empty.
         // Fails when the chains aren't of the same op type, have different clips or dst proxies.
-        bool prependChain(OpChain*, const GrCaps&, GrOpMemoryPool*, SkArenaAlloc*, GrAuditTrail*);
+        bool prependChain(OpChain*, const GrCaps&, GrRecordingContext::Arenas*, GrAuditTrail*);
 
         // Attempts to add 'op' to this chain either by merging or adding to the tail. Returns
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
         std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, GrProcessorSet::Analysis,
                                        const DstProxyView*, const GrAppliedClip*, const GrCaps&,
-                                       GrOpMemoryPool*, SkArenaAlloc*, GrAuditTrail*);
+                                       GrRecordingContext::Arenas*, GrAuditTrail*);
 
         void setSkipExecuteFlag() { fSkipExecute = true; }
         bool shouldExecute() const {
@@ -241,10 +240,9 @@ private:
         void validate() const;
 
         bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxyView&, const GrAppliedClip*,
-                       const SkRect& bounds, const GrCaps&, GrOpMemoryPool*, SkArenaAlloc*,
+                       const SkRect& bounds, const GrCaps&, GrRecordingContext::Arenas*,
                        GrAuditTrail*);
-        static List DoConcat(List, List, const GrCaps&, GrOpMemoryPool*, SkArenaAlloc*,
-                             GrAuditTrail*);
+        static List DoConcat(List, List, const GrCaps&, GrRecordingContext::Arenas*, GrAuditTrail*);
 
         List fList;
         GrProcessorSet::Analysis fProcessorAnalysis;
@@ -279,12 +277,11 @@ private:
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrRenderTargetContext;
 
-    // This is a backpointer to the GrOpMemoryPool that holds the memory for this GrOpsTask's ops.
-    // In the DDL case, the GrOpMemoryPool must have been detached from the original recording
-    // context and moved into the owning DDL.
-    GrOpMemoryPool* fOpMemoryPool;
-    SkArenaAlloc*   fRecordTimeAllocator;
-    GrAuditTrail*   fAuditTrail;
+    // This is a backpointer to the Arenas that holds the memory for this GrOpsTask's ops. In the
+    // DDL case, the Arenas must have been detached from the original recording context and moved
+    // into the owning DDL.
+    GrRecordingContext::Arenas fArenas;
+    GrAuditTrail*              fAuditTrail;
 
     GrLoadOp fColorLoadOp = GrLoadOp::kLoad;
     SkPMColor4f fLoadClearColor = SK_PMColor4fTRANSPARENT;
