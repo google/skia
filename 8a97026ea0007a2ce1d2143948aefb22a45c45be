@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f60dc92_ecb7c970",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-19T19:18:55Z",
+      "side": 1,
+      "message": "You can also std::get() by type if that helps makes things any clearer?",
+      "range": {
+        "startLine": 480,
+        "startChar": 18,
+        "endLine": 480,
+        "endChar": 29
+      },
+      "revId": "8a97026ea0007a2ce1d2143948aefb22a45c45be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
