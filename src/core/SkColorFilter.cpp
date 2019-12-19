@@ -45,10 +45,24 @@ bool SkColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) con
     return this->onAppendStages(rec, shaderIsOpaque);
 }
 
-bool SkColorFilter::program(skvm::Builder*,
+bool SkColorFilter::program(skvm::Builder* p,
                             SkColorSpace* dstCS,
                             skvm::Uniforms* uniforms,
                             skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    skvm::F32 original = *a;
+    if (this->onProgram(p, dstCS, uniforms, r,g,b,a)) {
+        if (this->getFlags() & kAlphaUnchanged_Flag) {
+            *a = original;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool SkColorFilter::onProgram(skvm::Builder*,
+                              SkColorSpace* dstCS,
+                              skvm::Uniforms* uniforms,
+                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     return false;
 }
 
