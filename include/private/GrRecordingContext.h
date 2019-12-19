@@ -14,6 +14,7 @@
 class GrAuditTrail;
 class GrBackendFormat;
 class GrDrawingManager;
+class GrMemoryPool;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrProgramInfo;
@@ -42,6 +43,31 @@ public:
     bool testingOnly_getSuppressAllocationWarnings() const { return fSuppressAllocationWarnings; }
 #endif
 
+    // The collection of specialized memory arenas for different types of data recorded by a
+    // GrRecordingContext.
+    class Arenas {
+    public:
+        // Do not allow 'Arenas' to be moved or copied by untrusted parties
+        Arenas(Arenas&&) = delete;
+
+        Arenas();
+        ~Arenas();
+
+        GrOpMemoryPool* opMemoryPool();
+
+        SkArenaAlloc* recordTimeAllocator();
+
+    private:
+        // Allow the GrDrawingManager to move the context's arenas to DDLs
+        friend class GrDrawingManager;
+        Arenas& operator=(Arenas&& a);
+
+        // For storing the GrOp-derived classes recorded by a GrRecordingContext
+        std::unique_ptr<GrOpMemoryPool> fOpMemoryPool;
+        // For storing pipelines and other complex data as-needed by GrOp instances
+        std::unique_ptr<SkArenaAlloc>   fRecordTimeAllocator;
+    };
+
 protected:
     friend class GrRecordingContextPriv; // for hidden functions
 
@@ -53,15 +79,10 @@ protected:
 
     GrDrawingManager* drawingManager();
 
-    GrOpMemoryPool* opMemoryPool();
+    Arenas* arenas() { return &fArenas; }
     // This entry point should only be used for DDL creation where we want the ops' lifetime to
     // match that of the DDL.
-    std::unique_ptr<GrOpMemoryPool> detachOpMemoryPool();
-
-    SkArenaAlloc* recordTimeAllocator();
-    // This entry point should only be used for DDL creation where we want the ops' data's lifetime
-    // to match that of the DDL.
-    std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
+    Arenas&& detachArenas();
 
     // This entry point gives the recording context a chance to cache the provided
     // programInfo. The DDL context takes this opportunity to store programInfos as a sidecar
@@ -147,10 +168,9 @@ protected:
     GrRecordingContext* asRecordingContext() override { return this; }
 
 private:
+    GrRecordingContext::Arenas        fArenas;
+
     std::unique_ptr<GrDrawingManager> fDrawingManager;
-    // All the GrOp-derived classes use this pool.
-    std::unique_ptr<GrOpMemoryPool>   fOpMemoryPool;
-    std::unique_ptr<SkArenaAlloc>     fRecordTimeAllocator;
 
     std::unique_ptr<GrStrikeCache>    fStrikeCache;
     std::unique_ptr<GrTextBlobCache>  fTextBlobCache;
