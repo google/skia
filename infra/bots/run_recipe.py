@@ -7,9 +7,10 @@
 
 
 import os
+import shlex
 import subprocess
 import sys
-
+import time
 
 kitchen = os.path.join(os.getcwd(), 'kitchen')
 logdog_url = 'logdog://logs.chromium.org/%s/%s/+/annotations' % (
@@ -35,5 +36,6 @@ cmd = [
     '-properties', sys.argv[3],
     '-logdog-annotation-url', logdog_url,
 ]
-print 'running command: %s' % ' '.join(cmd)
-subprocess.check_call(cmd)
+print 'would run command: %s' % shlex.join(cmd)
+time.sleep(88888)
+#subprocess.check_call(cmd)
