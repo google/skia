@@ -46,6 +46,30 @@
       "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3039d8ab_0baa98b5",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-12-19T20:32:26Z",
+      "side": 1,
+      "message": "In that case, can we add an explicit exception here?  I just want to avoid the situation where we have a green bot but we\u0027re no longer generating the data we should be generating.",
+      "parentUuid": "0f3fdfb5_460cfb0e",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 54
+      },
+      "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
