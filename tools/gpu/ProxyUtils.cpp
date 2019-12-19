@@ -46,9 +46,8 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     if (!proxy) {
         return nullptr;
     }
-    auto sContext = context->priv().makeWrappedSurfaceContext(proxy, imageInfo.colorType(),
-                                                              imageInfo.alphaType(),
-                                                              imageInfo.refColorSpace(), nullptr);
+    auto sContext = GrSurfaceContext::Make(context, proxy, imageInfo.colorType(),
+                                           imageInfo.alphaType(), imageInfo.refColorSpace());
     if (!sContext) {
         return nullptr;
     }
