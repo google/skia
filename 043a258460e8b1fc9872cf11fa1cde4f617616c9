@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3598ebc2_2301dfd9",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2019-12-19T20:21:46Z",
+      "side": 1,
+      "message": "Is it normal for dm to occasionally be missing?  Maybe we should add a flag indicating whether to expect dm to be present?",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 54
+      },
+      "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
