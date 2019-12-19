@@ -498,10 +498,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [width, height, format, compressionType, budgeted,
+            [width, height, format, budgeted,
              data](GrResourceProvider* resourceProvider) {
                 return LazyCallbackResult(resourceProvider->createCompressedTexture(
-                        width, height, format, compressionType, budgeted, data.get()));
+                        width, height, format, budgeted, data.get()));
             },
             format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
             GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,

@@ -171,7 +171,7 @@ public:
     virtual SkImage::CompressionType compressionType(const GrBackendFormat&) const = 0;
 
     bool isFormatCompressed(const GrBackendFormat& format) const {
-        return this->compressionType(format) != SkImage::CompressionType::kNone;
+        return this->compressionType(format) != SkImage::CompressionType::kNone2;
     }
 
     // TODO: Once we use the supportWritePixels call for uploads, we can remove this function and

@@ -172,8 +172,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
 }
 
 sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
-                                                      SkImage::CompressionType, SkBudgeted,
-                                                      const void* data) {
+                                                      SkBudgeted, const void* data) {
     SkASSERT(!"unimplemented");
     return nullptr;
 }
