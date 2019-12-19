@@ -75,7 +75,10 @@ enum class FormatCompatibilityClass {
     k24_3_1,
     k32_4_1,
     k64_8_1,
+    kBC1_RGB_8_16,
+    kBC1_RGBA_8_16,
     kETC2_RGB_8_16,
+    kETC2_RGBA_8_16,
 };
 }  // anonymous namespace
 
@@ -108,7 +111,20 @@ static FormatCompatibilityClass format_compatibility_class(VkFormat format) {
             return FormatCompatibilityClass::k24_3_1;
 
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
             return FormatCompatibilityClass::kETC2_RGB_8_16;
+
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+            return FormatCompatibilityClass::kETC2_RGBA_8_16;
+
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+            return FormatCompatibilityClass::kBC1_RGB_8_16;
+
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
+            return FormatCompatibilityClass::kBC1_RGBA_8_16;
 
         default:
             SK_ABORT("Unsupported VkFormat");
@@ -640,6 +656,10 @@ static bool format_is_srgb(VkFormat format) {
     SkASSERT(GrVkFormatIsSupported(format));
 
     switch (format) {
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
         case VK_FORMAT_R8G8B8A8_SRGB:
             return true;
         default:
@@ -662,7 +682,17 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R8G8B8A8_SRGB,
+    //--
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK,
+    //--
+    VK_FORMAT_BC1_RGB_UNORM_BLOCK,
+    VK_FORMAT_BC1_RGB_SRGB_BLOCK,
+    VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
+    VK_FORMAT_BC1_RGBA_SRGB_BLOCK,
+    //--
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
     VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
@@ -978,7 +1008,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             int ctIdx = 0;
             // Format: VK_FORMAT_R8G8B8A8_SRGB, Surface: kRGBA_8888_SRGB
             {
-                constexpr GrColorType ct = GrColorType::kRGBA_8888_SRGB;
+                constexpr GrColorType ct = GrColorType::kRGBA_8888_SRGB_1;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
@@ -1111,6 +1141,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
             }
         }
     }
+
     // Format: VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK
     {
         constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
@@ -1119,6 +1150,64 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
         info.fBytesPerPixel = 0;
         // No supported GrColorTypes.
     }
+    // Format: VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+    // Format: VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+    // Format: VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+
+    // Format: VK_FORMAT_BC1_RGB_UNORM_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+    // Format: VK_FORMAT_BC1_RGB_SRGB_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_BC1_RGB_SRGB_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+    // Format: VK_FORMAT_BC1_RGBA_UNORM_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+    // Format: VK_FORMAT_BC1_RGBA_SRGB_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Map GrColorTypes (used for creating GrSurfaces) to VkFormats. The order in which the formats
@@ -1130,7 +1219,7 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     this->setColorType(GrColorType::kABGR_4444,        { VK_FORMAT_R4G4B4A4_UNORM_PACK16,
                                                          VK_FORMAT_B4G4R4A4_UNORM_PACK16 });
     this->setColorType(GrColorType::kRGBA_8888,        { VK_FORMAT_R8G8B8A8_UNORM });
-    this->setColorType(GrColorType::kRGBA_8888_SRGB,   { VK_FORMAT_R8G8B8A8_SRGB });
+    this->setColorType(GrColorType::kRGBA_8888_SRGB_1,   { VK_FORMAT_R8G8B8A8_SRGB });
     this->setColorType(GrColorType::kRGB_888x,         { VK_FORMAT_R8G8B8_UNORM,
                                                          VK_FORMAT_R8G8B8A8_UNORM });
     this->setColorType(GrColorType::kRG_88,            { VK_FORMAT_R8G8_UNORM });
@@ -1214,6 +1303,11 @@ void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
                                 VkPhysicalDevice physDev,
                                 const VkPhysicalDeviceProperties& properties,
                                 VkFormat format) {
+    if (format == VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK ||
+        format == VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK) {
+        int foo = 0;
+    }
+
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));
     GR_VK_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
@@ -1262,8 +1356,16 @@ SkImage::CompressionType GrVkCaps::compressionType(const GrBackendFormat& format
     }
 
     switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkImage::CompressionType::kETC1;
-        default:                                return SkImage::CompressionType::kNone;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:   return SkImage::CompressionType::kETC1;
+//        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:   return SkImage::CompressionType::kETC2_RGB8_UNORM;
+        case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:    return SkImage::CompressionType::kETC2_RGB8_SRGB;
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK: return SkImage::CompressionType::kETC2_RGBA8_UNORM;
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:  return SkImage::CompressionType::kETC2_RGBA8_SRGB;
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:       return SkImage::CompressionType::kBC1_RGB8_UNORM;
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:        return SkImage::CompressionType::kBC1_RGB8_SRGB;
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:      return SkImage::CompressionType::kBC1_RGBA8_UNORM;
+        case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:       return SkImage::CompressionType::kBC1_RGBA8_SRGB;
+        default:                                  return SkImage::CompressionType::kNone;
     }
 
     SkUNREACHABLE;
@@ -1531,11 +1633,19 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
         case GrColorType::kRGBA_8888:
             if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 return kRGBA_8888_GrPixelConfig;
+            } else if (VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK == format) {
+                return kETC2_RGBA8_UNORM_GrPixelConfig;
+            } else if (VK_FORMAT_BC1_RGBA_UNORM_BLOCK == format) {
+                return kBC1_RGBA8_UNORM_GrPixelConfig;
             }
             break;
-        case GrColorType::kRGBA_8888_SRGB:
+        case GrColorType::kRGBA_8888_SRGB_1:
             if (VK_FORMAT_R8G8B8A8_SRGB == format) {
-                return kSRGBA_8888_GrPixelConfig;
+                return kSRGBA_8888_GrPixelConfig1;
+            } else if (VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK == format) {
+                return kETC2_RGBA8_SRGB_GrPixelConfig;
+            } else if (VK_FORMAT_BC1_RGBA_SRGB_BLOCK == format) {
+                return kBC1_RGBA8_SRGB_GrPixelConfig;
             }
             break;
         case GrColorType::kRGB_888x:
@@ -1544,7 +1654,9 @@ static GrPixelConfig validate_image_info(VkFormat format, GrColorType ct, bool h
             } else if (VK_FORMAT_R8G8B8A8_UNORM == format) {
                 return kRGB_888X_GrPixelConfig;
             } else if (VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK == format) {
-                return kRGB_ETC1_GrPixelConfig;
+                return kETC2_RGB8_UNORM_GrPixelConfig;
+            } else if (VK_FORMAT_BC1_RGB_UNORM_BLOCK == format) {
+                return kBC1_RGB8_UNORM_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_88:
@@ -1686,6 +1798,24 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
                 return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
             }
             return {};
+
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+            return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
+        case SkImage::CompressionType::kETC2_RGB8_SRGB:
+            return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK);
+        case SkImage::CompressionType::kETC2_RGBA8_UNORM:
+            return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK);
+        case SkImage::CompressionType::kETC2_RGBA8_SRGB:
+            return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK);
+
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+            return GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGB_UNORM_BLOCK);
+        case SkImage::CompressionType::kBC1_RGB8_SRGB:
+            return GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGB_SRGB_BLOCK);
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+            return GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGBA_UNORM_BLOCK);
+        case SkImage::CompressionType::kBC1_RGBA8_SRGB:
+            return GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGBA_SRGB_BLOCK);
     }
 
     SkUNREACHABLE;
@@ -1828,10 +1958,20 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinat
         { GrColorType::kABGR_4444,        GrBackendFormat::MakeVk(VK_FORMAT_R4G4B4A4_UNORM_PACK16)},
         { GrColorType::kABGR_4444,        GrBackendFormat::MakeVk(VK_FORMAT_B4G4R4A4_UNORM_PACK16)},
         { GrColorType::kRGBA_8888,        GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM)       },
-        { GrColorType::kRGBA_8888_SRGB,   GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_SRGB)        },
+        { GrColorType::kRGBA_8888_SRGB_1,   GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_SRGB)        },
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM)       },
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM)         },
+        //--
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK)},
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK)}, //??
+        { GrColorType::kRGBA_8888,        GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK)},
+        { GrColorType::kRGBA_8888_SRGB_1,   GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK)},
+        //--
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGB_UNORM_BLOCK)  },
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGB_SRGB_BLOCK)   }, //??
+        { GrColorType::kRGBA_8888,        GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGBA_UNORM_BLOCK) },
+        { GrColorType::kRGBA_8888_SRGB_1,   GrBackendFormat::MakeVk(VK_FORMAT_BC1_RGBA_SRGB_BLOCK)  },
+        //--
         { GrColorType::kRG_88,            GrBackendFormat::MakeVk(VK_FORMAT_R8G8_UNORM)           },
         { GrColorType::kBGRA_8888,        GrBackendFormat::MakeVk(VK_FORMAT_B8G8R8A8_UNORM)       },
         { GrColorType::kRGBA_1010102,     GrBackendFormat::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32)},

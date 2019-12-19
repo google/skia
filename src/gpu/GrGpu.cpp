@@ -275,9 +275,10 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 SkBudgeted budgeted,
                                                 const void* data,
                                                 size_t dataSize) {
+    // Fix this
     // If we ever add a new CompressionType, we should add a check here to make sure the
     // GrBackendFormat and CompressionType are compatible with eachother.
-    SkASSERT(compressionType == SkImage::CompressionType::kETC1);
+    SkASSERT(compressionType == SkImage::CompressionType::kETC2_RGB8_UNORM);
 
     this->handleDirtyContext();
     if (width  < 1 || width  > this->caps()->maxTextureSize() ||
@@ -822,10 +823,12 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
+#if 0
     if (caps->isFormatCompressed(format)) {
         // Compressed formats must go through the createCompressedBackendTexture API
         return {};
     }
+#endif
 
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
         auto ct = SkColorTypeToGrColorType(data->pixmap(0).colorType());

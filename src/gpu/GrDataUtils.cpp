@@ -105,25 +105,18 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
     block->fLow = SkBSwap32(low);
 }
 
-static int num_ETC1_blocks_w(int w) {
-    if (w < 4) {
-        w = 1;
+static int num_4_pixel_blocks(int size) {
+    if (size < 4) {
+        return 1;
     } else {
-        SkASSERT((w & 3) == 0);
-        w >>= 2;
+        SkASSERT((size & 3) == 0);
+        return size >> 2;
     }
-    return w;
 }
 
 static int num_ETC1_blocks(int w, int h) {
-    w = num_ETC1_blocks_w(w);
-
-    if (h < 4) {
-        h = 1;
-    } else {
-       SkASSERT((h & 3) == 0);
-       h >>= 2;
-    }
+    w = num_4_pixel_blocks(w);
+    h = num_4_pixel_blocks(h);
 
     return w * h;
 }
@@ -141,7 +134,7 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
     switch (type) {
         case SkImage::CompressionType::kNone:
             break;
-        case SkImage::CompressionType::kETC1: {
+        case SkImage::CompressionType::kETC1_old: {
             for (int i = 0; i < numMipLevels; ++i) {
                 int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
@@ -154,6 +147,12 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
                 dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
             }
         }
+        case SkImage::CompressionType::kETC2: {
+            break;
+        }
+        case SkImage::CompressionType::kBC1: {
+            break;
+        }
     }
 
     return totalSize;
@@ -163,9 +162,18 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:
             return 0;
-        case SkImage::CompressionType::kETC1:
-            int numBlocksWidth = num_ETC1_blocks_w(width);
-            return numBlocksWidth * sizeof(ETC1Block);
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkImage::CompressionType::kETC2_RGB8_SRGB:
+            return num_4_pixel_blocks(width) * sizeof(ETC1Block);
+        case SkImage::CompressionType::kETC2_RGBA8_UNORM:
+        case SkImage::CompressionType::kETC2_RGBA8_SRGB:
+            return num_4_pixel_blocks(width) * 16;
+
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_SRGB:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+        case SkImage::CompressionType::kBC1_RGBA8_SRGB:
+            return 0;
     }
     SkUNREACHABLE;
 }
@@ -262,7 +270,7 @@ static GrSwizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipeline::Stoc
         case GrColorType::kRG_1616:          *load = SkRasterPipeline::load_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *load = SkRasterPipeline::load_16161616; break;
 
-        case GrColorType::kRGBA_8888_SRGB:   *load = SkRasterPipeline::load_8888;
+        case GrColorType::kRGBA_8888_SRGB_1: *load = SkRasterPipeline::load_8888;
                                              *isSRGB = true;
                                              break;
         case GrColorType::kRG_F16:           *load = SkRasterPipeline::load_rgf16;
@@ -290,6 +298,10 @@ static GrSwizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipeline::Stoc
                                              swizzle = GrSwizzle("bgra");
                                              break;
         case GrColorType::kRGB_888x:         *load = SkRasterPipeline::load_8888;
+                                             swizzle = GrSwizzle("rgb1");
+                                             break;
+        case GrColorType::kRGB_888x_SRGB:    *load = SkRasterPipeline::load_8888;
+                                             *isSRGB = true;
                                              swizzle = GrSwizzle("rgb1");
                                              break;
 
@@ -323,7 +335,7 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
         case GrColorType::kRG_1616:          *store = SkRasterPipeline::store_rg1616;   break;
         case GrColorType::kRGBA_16161616:    *store = SkRasterPipeline::store_16161616; break;
 
-        case GrColorType::kRGBA_8888_SRGB:   *store = SkRasterPipeline::store_8888;
+        case GrColorType::kRGBA_8888_SRGB_1: *store = SkRasterPipeline::store_8888;
                                              *isSRGB = true;
                                              break;
         case GrColorType::kRG_F16:           *store = SkRasterPipeline::store_rgf16;
@@ -349,6 +361,10 @@ static GrSwizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline::Sto
                                              break;
         case GrColorType::kRGB_888x:         swizzle = GrSwizzle("rgb1");
                                              *store = SkRasterPipeline::store_8888;
+                                             break;
+        case GrColorType::kRGB_888x_SRGB:    swizzle = GrSwizzle("rgb1");
+                                             *store = SkRasterPipeline::store_8888;
+                                             *isSRGB = true;
                                              break;
         case GrColorType::kR_8:              swizzle = GrSwizzle("agbr");
                                              *store = SkRasterPipeline::store_a8;
@@ -605,10 +621,14 @@ GrColorType SkColorTypeAndFormatToGrColorType(const GrCaps* caps,
     // Until we support SRGB in the SkColorType we have to do this manual check here to make sure
     // we use the correct GrColorType.
     if (caps->isFormatSRGB(format)) {
-        if (grCT != GrColorType::kRGBA_8888) {
-            return GrColorType::kUnknown;
+        if (grCT == GrColorType::kRGBA_8888) {
+            grCT = GrColorType::kRGBA_8888_SRGB_1;
+        } else if (grCT == GrColorType::kRGB_888x) {
+            grCT = GrColorType::kRGB_888x_SRGB;
+        } else {
+            grCT = GrColorType::kUnknown;
         }
-        grCT = GrColorType::kRGBA_8888_SRGB;
     }
+
     return grCT;
 }

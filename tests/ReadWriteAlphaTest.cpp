@@ -158,7 +158,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     } kInfos[] = {
             {GrColorType::kRGBA_8888,      kPremul_SkAlphaType},
             {GrColorType::kBGRA_8888,      kPremul_SkAlphaType},
-            {GrColorType::kRGBA_8888_SRGB, kPremul_SkAlphaType},
+            {GrColorType::kRGBA_8888_SRGB_1, kPremul_SkAlphaType},
             {GrColorType::kRGBA_1010102,   kPremul_SkAlphaType},
     };
 

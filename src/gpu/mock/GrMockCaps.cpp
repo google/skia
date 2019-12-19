@@ -29,10 +29,13 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kRGBA_8888,      GrBackendFormat::MakeMock(GrColorType::kRGBA_8888,
                                                                   SkImage::CompressionType::kNone)},
-        { GrColorType::kRGBA_8888_SRGB, GrBackendFormat::MakeMock(GrColorType::kRGBA_8888_SRGB,
+        { GrColorType::kRGBA_8888_SRGB_1, GrBackendFormat::MakeMock(GrColorType::kRGBA_8888_SRGB,
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kRGB_888x,
                                                                   SkImage::CompressionType::kNone)},
+        { GrColorType::kRGB_888x_SRGB,  GrBackendFormat::MakeMock(GrColorType::kRGB_888x_SRGB,
+                                                                  SkImage::CompressionType::kNone)},
+
         // In this case kETC1 determines the color type (RGB_888x)
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
                                                                   SkImage::CompressionType::kETC1)},
