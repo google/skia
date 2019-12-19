@@ -271,6 +271,11 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             baseType->kind() == Type::Kind::kMatrix_Kind) {
             fErrors.error(decls.fOffset, "'in' variables may not have matrix type");
         }
+        if ((modifiers.fFlags & Modifiers::kIn_Flag) &&
+            (modifiers.fFlags & Modifiers::kUniform_Flag)) {
+            fErrors.error(decls.fOffset,
+                          "'in uniform' variables only permitted within fragment processors");
+        }
         if (modifiers.fLayout.fWhen.fLength) {
             fErrors.error(decls.fOffset, "'when' is only permitted within fragment processors");
         }

@@ -284,21 +284,21 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
     int type = d->fRandom->nextULessThan(3);
     switch (type) {
         case 0: {
-            static auto ditherEffect = SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC));
+            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
             int rangeType = d->fRandom->nextULessThan(3);
-            auto result = GrSkSLFP::Make(d->context(), ditherEffect, "Dither",
+            auto result = GrSkSLFP::Make(d->context(), effect, "Dither",
                                          &rangeType, sizeof(rangeType));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
         case 1: {
-            static auto arithmeticEffect = SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC));
+            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
             ArithmeticFPInputs inputs;
             inputs.k[0] = d->fRandom->nextF();
             inputs.k[1] = d->fRandom->nextF();
             inputs.k[2] = d->fRandom->nextF();
             inputs.k[3] = d->fRandom->nextF();
             inputs.enforcePMColor = d->fRandom->nextBool();
-            auto result = GrSkSLFP::Make(d->context(), arithmeticEffect, "Arithmetic",
+            auto result = GrSkSLFP::Make(d->context(), effect, "Arithmetic",
                                          &inputs, sizeof(inputs));
             result->addChild(GrConstColorProcessor::Make(
                                                         SK_PMColor4fWHITE,
@@ -306,12 +306,12 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
         case 2: {
-            static auto overdrawEffect = SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC));
+            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC)));
             SkColor4f inputs[6];
             for (int i = 0; i < 6; ++i) {
                 inputs[i] = SkColor4f::FromBytes_RGBA(d->fRandom->nextU());
             }
-            auto result = GrSkSLFP::Make(d->context(), overdrawEffect, "Overdraw",
+            auto result = GrSkSLFP::Make(d->context(), effect, "Overdraw",
                                          &inputs, sizeof(inputs));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }

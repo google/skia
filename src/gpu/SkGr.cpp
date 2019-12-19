@@ -469,8 +469,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         grPaint->numColorFragmentProcessors() > 0) {
         int32_t ditherRange = dither_range_type_for_config(ct);
         if (ditherRange >= 0) {
-            static auto ditherEffect = SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC));
-            auto ditherFP = GrSkSLFP::Make(context, ditherEffect, "Dither",
+            static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
+            auto ditherFP = GrSkSLFP::Make(context, effect, "Dither",
                                            &ditherRange, sizeof(ditherRange));
             if (ditherFP) {
                 grPaint->addColorFragmentProcessor(std::move(ditherFP));

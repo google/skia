@@ -90,12 +90,12 @@ void SkOverdrawColorFilter::RegisterFlattenables() {
 
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
         GrRecordingContext* context, const GrColorInfo&) const {
-    static auto overdrawEffect = SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC));
+    static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC)));
     SkColor4f floatColors[kNumColors];
     for (int i = 0; i < kNumColors; ++i) {
         floatColors[i] = SkColor4f::FromBytes_RGBA(fColors[i]);
     }
-    return GrSkSLFP::Make(context, overdrawEffect, "Overdraw", floatColors, sizeof(floatColors));
+    return GrSkSLFP::Make(context, effect, "Overdraw", floatColors, sizeof(floatColors));
 }
 
 #endif

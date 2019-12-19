@@ -15,8 +15,19 @@ static inline int new_sksl_index() {
     return nextIndex++;
 }
 
-sk_sp<SkRuntimeEffect> SkRuntimeEffect::Make(SkString sksl) {
-    return sk_sp<SkRuntimeEffect>(new SkRuntimeEffect(std::move(sksl)));
+SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
+    auto compiler = std::make_unique<SkSL::Compiler>();
+    auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                            SkSL::String(sksl.c_str(), sksl.size()),
+                                            SkSL::Program::Settings());
+    if (!program) {
+        return std::make_pair(nullptr, SkString(compiler->errorText().c_str()));
+    }
+    SkASSERT(!compiler->errorCount());
+
+    sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl), std::move(compiler),
+                                                      std::move(program)));
+    return std::make_pair(std::move(effect), SkString());
 }
 
 size_t SkRuntimeEffect::Variable::sizeInBytes() const {
@@ -38,17 +49,13 @@ size_t SkRuntimeEffect::Variable::sizeInBytes() const {
     return element_size(fType) * fCount;
 }
 
-SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
+SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
+                                 std::unique_ptr<SkSL::Program> baseProgram)
         : fIndex(new_sksl_index())
-        , fSkSL(std::move(sksl)) {
-    fBaseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                            SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                            SkSL::Program::Settings());
-    if (!fBaseProgram) {
-        SkDebugf("%s\n", fCompiler.errorText().c_str());
-        return;
-    }
-    SkASSERT(!fCompiler.errorCount());
+        , fSkSL(std::move(sksl))
+        , fCompiler(std::move(compiler))
+        , fBaseProgram(std::move(baseProgram)) {
+    SkASSERT(fCompiler && fBaseProgram);
 
     size_t offset = 0;
     auto gather_variables = [this, &offset](SkSL::Modifiers::Flag flag) {
@@ -68,7 +75,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
                     SkASSERT((var.fModifiers.fLayout.fFlags & SkSL::Layout::kTracked_Flag) == 0);
 
                     if (var.fModifiers.fFlags & flag) {
-                        if (&var.fType == fCompiler.context().fFragmentProcessor_Type.get()) {
+                        if (&var.fType == fCompiler->context().fFragmentProcessor_Type.get()) {
                             fChildren.push_back(var.fName);
                             continue;
                         }
@@ -94,7 +101,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl)
 #define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; } while (false)
 #endif
 
-                        const SkSL::Context& ctx(fCompiler.context());
+                        const SkSL::Context& ctx(fCompiler->context());
                         if (type == ctx.fBool_Type.get()) {
                             SET_TYPES(Variable::Type::kBool, kVoid_GrSLType);
                         } else if (type == ctx.fInt_Type.get()) {
@@ -168,9 +175,9 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
 
-    auto baseProgram = fCompiler.convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                                SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                                settings);
+    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
+                                                 settings);
     SkASSERT(baseProgram);
 
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
@@ -203,16 +210,16 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
         }
     }
 
-    auto specialized = fCompiler.specialize(*baseProgram, inputMap);
-    bool optimized = fCompiler.optimize(*specialized);
+    auto specialized = fCompiler->specialize(*baseProgram, inputMap);
+    bool optimized = fCompiler->optimize(*specialized);
     if (!optimized) {
-        SkDebugf("%s\n", fCompiler.errorText().c_str());
+        SkDebugf("%s\n", fCompiler->errorText().c_str());
         SkASSERT(false);
         return false;
     }
 
-    if (!fCompiler.toPipelineStage(*specialized, outCode, outFormatArgs, outFunctions)) {
-        SkDebugf("%s\n", fCompiler.errorText().c_str());
+    if (!fCompiler->toPipelineStage(*specialized, outCode, outFormatArgs, outFunctions)) {
+        SkDebugf("%s\n", fCompiler->errorText().c_str());
         SkASSERT(false);
         return false;
     }
@@ -221,8 +228,7 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 }
 #endif
 
-std::tuple<std::unique_ptr<SkSL::ByteCode>, int, SkString> SkRuntimeEffect::toByteCode() {
-    auto byteCode = fCompiler.toByteCode(*fBaseProgram);
-    return std::make_tuple(std::move(byteCode), fCompiler.errorCount(),
-                           SkString(fCompiler.errorText().c_str()));
+SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() {
+    auto byteCode = fCompiler->toByteCode(*fBaseProgram);
+    return std::make_tuple(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
 }

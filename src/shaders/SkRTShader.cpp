@@ -50,12 +50,11 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
 
     SkAutoMutexExclusive ama(fByteCodeMutex);
     if (!fByteCode) {
-        auto [byteCode, errorCount, errorText] = fEffect->toByteCode();
-        if (errorCount) {
+        auto [byteCode, errorText] = fEffect->toByteCode();
+        if (!byteCode) {
             SkDebugf("%s\n", errorText.c_str());
             return false;
         }
-        SkASSERT(byteCode);
         fByteCode = std::move(byteCode);
     }
     ctx->byteCode = fByteCode.get();
@@ -119,8 +118,8 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
     // We don't have a way to ensure that indices are consistent and correct when deserializing.
     // Perhaps we should have a hash table to map strings to indices? For now, all shaders get a
     // new unique ID after serialization.
-    return sk_sp<SkFlattenable>(new SkRTShader(SkRuntimeEffect::Make(std::move(sksl)),
-                                               std::move(inputs), localMPtr,
+    auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    return sk_sp<SkFlattenable>(new SkRTShader(std::move(effect), std::move(inputs), localMPtr,
                                                children.data(), children.size(), isOpaque));
 }
 
@@ -145,7 +144,7 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
 #endif
 
 SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
-    : fEffect(SkRuntimeEffect::Make(std::move(sksl)))
+    : fEffect(std::get<0>(SkRuntimeEffect::Make(std::move(sksl))))
     , fIsOpaque(isOpaque) {}
 
 SkRuntimeShaderFactory::SkRuntimeShaderFactory(const SkRuntimeShaderFactory&) = default;
@@ -159,7 +158,6 @@ SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(SkRuntimeShaderFactory
 sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix,
                                              sk_sp<SkShader>* children, size_t childCount) {
     return fEffect
-        && fEffect->isValid()
         && inputs->size() >= fEffect->inputSize()
         && childCount >= fEffect->childCount()
         ? sk_sp<SkShader>(new SkRTShader(fEffect, std::move(inputs), localMatrix,

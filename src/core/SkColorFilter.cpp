@@ -440,12 +440,11 @@ public:
 
             SkAutoMutexExclusive ama(fByteCodeMutex);
             if (!fByteCode) {
-                auto [byteCode, errorCount, errorText] = fEffect->toByteCode();
-                if (errorCount) {
+                auto [byteCode, errorText] = fEffect->toByteCode();
+                if (!byteCode) {
                     SkDebugf("%s\n", errorText.c_str());
                     return false;
                 }
-                SkASSERT(byteCode);
                 fByteCode = std::move(byteCode);
             }
             ctx->byteCode = fByteCode.get();
@@ -491,13 +490,15 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
-    return sk_sp<SkFlattenable>(new SkRuntimeColorFilter(SkRuntimeEffect::Make(std::move(sksl)),
-                                                         std::move(inputs), nullptr));
+
+    auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
+    return sk_sp<SkFlattenable>(new SkRuntimeColorFilter(std::move(effect), std::move(inputs),
+                                                         nullptr));
 }
 
 SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(SkString sksl,
                                                          SkRuntimeColorFilterFn cpuFunc)
-    : fEffect(SkRuntimeEffect::Make(std::move(sksl)))
+    : fEffect(std::get<0>(SkRuntimeEffect::Make(std::move(sksl))))
     , fCpuFunc(cpuFunc) {}
 
 SkRuntimeColorFilterFactory::~SkRuntimeColorFilterFactory() = default;
@@ -518,7 +519,7 @@ sk_sp<SkColorFilter> SkRuntimeColorFilterFactory::make(sk_sp<SkData> inputs) {
 }
 
 bool SkRuntimeColorFilterFactory::testCompile() const {
-    return fEffect && fEffect->isValid();
+    return fEffect != nullptr;
 }
 
 #endif // SK_SUPPORT_GPU

@@ -73,8 +73,8 @@ void SkSLSlide::unload() {
 }
 
 bool SkSLSlide::rebuild() {
-    auto effect = SkRuntimeEffect::Make(fSkSL);
-    if (!effect || !effect->isValid()) {
+    auto [effect, errorText] = SkRuntimeEffect::Make(fSkSL);
+    if (!effect) {
         return false;
     }
 
