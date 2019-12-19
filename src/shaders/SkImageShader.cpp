@@ -300,14 +300,12 @@ void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShade
 
 class SkImageStageUpdater : public SkStageUpdater {
 public:
-    SkImageStageUpdater(const SkImageShader* shader, bool usePersp)
-        : fShader(shader), fUsePersp(usePersp)
-    {}
+    SkImageStageUpdater(const SkImageShader* shader)
+        : fShader(shader) {}
 
     const SkImageShader* fShader;
-    const bool           fUsePersp; // else use affine
 
-    // large enough for perspective, though often we just use 2x3
+    // large enough for 3x3 perspective matrix
     float fMatrixStorage[9];
 
 #if 0   // TODO: when we support mipmaps
@@ -318,21 +316,13 @@ public:
 #endif
 
     void append_matrix_stage(SkRasterPipeline* p) {
-        if (fUsePersp) {
-            p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
-        } else {
-            p->append(SkRasterPipeline::matrix_2x3, fMatrixStorage);
-        }
+        p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
     }
 
     bool update(const SkMatrix& ctm, const SkMatrix* localM) override {
         SkMatrix matrix;
         if (fShader->computeTotalInverse(ctm, localM, &matrix)) {
-            if (fUsePersp) {
-                matrix.get9(fMatrixStorage);
-            } else {
-               SkAssertResult(matrix.asAffine(fMatrixStorage));
-            }
+            matrix.get9(fMatrixStorage);
             return true;
         }
         return false;
@@ -629,8 +619,7 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) const {
-    bool usePersp = rec.fCTM.hasPerspective();
-    auto updater = rec.fAlloc->make<SkImageStageUpdater>(this, usePersp);
+    auto updater = rec.fAlloc->make<SkImageStageUpdater>(this);
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
