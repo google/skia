@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7fc5ea4_463a7436",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-19T14:03:00Z",
+      "side": 1,
+      "message": "This seems kind of odd to me. Are we saying it\u0027s ok to ask for the instance buffer if the mesh is instanced or somehow the caller already knows its null?",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 58
+      },
+      "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
