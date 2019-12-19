@@ -158,7 +158,7 @@ static SkScalar make_battery2(SkPath* path) {
     path->lineTo(10.907918f + xOffset, 12.886665f);
     path->close();
 
-    return SkIntToScalar(70);
+    return SkIntToScalar(60);
 }
 
 static SkScalar make_ring(SkPath* path) {
@@ -316,7 +316,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(640, 512);
     }
 
     void onDraw(SkCanvas* canvas) override {
