@@ -8,11 +8,14 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+Added BC1 compressed format support. Metal and Vulkan seem to only support the BC
+formats on desktop machines.
+
 Added compressed format support for backend texture creation API.
 This adds the following new entry points:
   GrContext::compressedBackendFormat
   GrContext::createCompressedBackendTexture
-The latter method comes in variants that allow uninitialized, color-initialized and
+The latter method comes in variants that allow color-initialized and
 compressed texture data initialized.
 
 * * *
