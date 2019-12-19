@@ -14,9 +14,18 @@
 #include "include/utils/SkRandom.h"
 #include "tools/Resources.h"
 
+// Just want to trigger perspective handling, not dramatically change size
+static void tiny_persp_effect(SkCanvas* canvas) {
+    SkMatrix m;
+    m.reset();
+    m[7] = 0.000001f;
+    canvas->concat(m);
+}
+
 enum VertFlags {
     kColors_VertFlag  = 1 << 0,
     kTexture_VertFlag = 1 << 1,
+    kPersp_VertFlag   = 1 << 2,
 };
 
 class VertBench : public Benchmark {
@@ -90,6 +99,9 @@ public:
         if (fFlags & kColors_VertFlag) {
             fName.append("_colors");
         }
+        if (fFlags & kPersp_VertFlag) {
+            fName.append("_persp");
+        }
     }
 
 protected:
@@ -98,6 +110,10 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setShader(fShader);
+
+        if (fFlags & kPersp_VertFlag) {
+            tiny_persp_effect(canvas);
+        }
 
         const SkPoint* texs = (fFlags & kTexture_VertFlag) ? fPts    : nullptr;
         const SkColor* cols = (fFlags & kColors_VertFlag)  ? fColors : nullptr;
@@ -110,6 +126,8 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
+DEF_BENCH(return new VertBench(kTexture_VertFlag | kPersp_VertFlag);)
+DEF_BENCH(return new VertBench(kColors_VertFlag  | kPersp_VertFlag);)
 DEF_BENCH(return new VertBench(kTexture_VertFlag);)
 DEF_BENCH(return new VertBench(kColors_VertFlag);)
 DEF_BENCH(return new VertBench(kColors_VertFlag | kTexture_VertFlag);)
@@ -123,6 +141,7 @@ DEF_BENCH(return new VertBench(kColors_VertFlag | kTexture_VertFlag);)
 enum AtlasFlags {
     kColors_Flag = 1 << 0,
     kRotate_Flag = 1 << 1,
+    kPersp_Flag  = 1 << 2,
 };
 
 class AtlasBench : public Benchmark {
@@ -147,6 +166,9 @@ public:
         }
         if (flags & kRotate_Flag) {
             fName.append("_rotated");
+        }
+        if (flags & kPersp_Flag) {
+            fName.append("_persp");
         }
     }
     ~AtlasBench() override {}
@@ -183,6 +205,9 @@ protected:
         if (fFlags & kColors_Flag) {
             colors = fColors;
         }
+        if (fFlags & kPersp_Flag) {
+            tiny_persp_effect(canvas);
+        }
         for (int i = 0; i < loops; i++) {
             canvas->drawAtlas(fAtlas, fXforms, fRects, colors, N, SkBlendMode::kModulate,
                               cullRect, paintPtr);
@@ -195,6 +220,7 @@ private:
 //DEF_BENCH(return new AtlasBench(kColors_Flag);)
 DEF_BENCH(return new AtlasBench(0);)
 DEF_BENCH(return new AtlasBench(kRotate_Flag);)
+DEF_BENCH(return new AtlasBench(kPersp_Flag);)
 DEF_BENCH(return new AtlasBench(kColors_Flag);)
 DEF_BENCH(return new AtlasBench(kColors_Flag | kRotate_Flag);)
 
