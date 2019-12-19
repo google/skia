@@ -83,7 +83,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
     fBuilder->log(Logger::Level::kWarning, nullptr,
                   "Unsupported layer effect type: %d.", ParseDefault<int>(jeffect["ty"], -1));
 #else
-    fBuilder->log(Logger::Level::kError, &jeffect,
+    fBuilder->log(Logger::Level::kWarning, &jeffect,
                   "Unsupported layer effect: %s", mn ? mn->begin() : "(unknown)");
 #endif
 
