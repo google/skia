@@ -7,9 +7,10 @@
 
 
 import os
+import shutil
 import subprocess
 import sys
-
+import time
 
 kitchen = os.path.join(os.getcwd(), 'kitchen')
 logdog_url = 'logdog://logs.chromium.org/%s/%s/+/annotations' % (
@@ -35,5 +36,12 @@ cmd = [
     '-properties', sys.argv[3],
     '-logdog-annotation-url', logdog_url,
 ]
-print 'running command: %s' % ' '.join(cmd)
-subprocess.check_call(cmd)
+if sys.argv[2] == 'test':
+  print 'env: %s' % os.environ
+  print 'would run command: %s' % cmd
+  tmpfile = os.path.join(os.environ['TMP'], 'luci_context')
+  shutil.copy(os.environ['LUCI_CONTEXT'], tmpfile)
+  print 'copied LUCI_CONTEXT (%s) to %s' % (os.environ['LUCI_CONTEXT'], tmpfile)
+  time.sleep(88888)
+else:
+  subprocess.check_call(cmd)
