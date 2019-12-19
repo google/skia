@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "554b9fcb_5d961150",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-12-19T19:14:33Z",
+      "side": 1,
+      "message": "I\u0027m just curious if and how this relates to wire frame?",
+      "revId": "2985605b2a6541694402bc2060b376c006ac963c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
