@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4b740c9_8c3d24aa",
+        "filename": "gm/smallpaths.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:35:08Z",
+      "side": 1,
+      "message": "Do we have an actual bug number to put here? If not, maybe a short description of the problem?",
+      "revId": "2a3235b10fa83c5f1fb77168cb6bce2a65eef5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c61bcace_17632844",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:35:08Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "2a3235b10fa83c5f1fb77168cb6bce2a65eef5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e7d9a9e_3408fe52",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:35:08Z",
+      "side": 1,
+      "message": "one line ?",
+      "revId": "2a3235b10fa83c5f1fb77168cb6bce2a65eef5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecb34610_95f32c25",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:35:08Z",
+      "side": 1,
+      "message": "stray ?",
+      "revId": "2a3235b10fa83c5f1fb77168cb6bce2a65eef5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "690cfaf4_90e132b4",
+        "filename": "src/gpu/GrDistanceFieldGenFromVector.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:35:08Z",
+      "side": 1,
+      "message": "If we have a bug number, put it here ?",
+      "revId": "2a3235b10fa83c5f1fb77168cb6bce2a65eef5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
