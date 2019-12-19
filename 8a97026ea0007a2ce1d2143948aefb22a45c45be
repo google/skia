@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "94f4a222_0e1e8f39",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-19T20:51:55Z",
+      "side": 1,
+      "message": "Hmm:\n\nstd::get\u003csk_sp\u003cSkRuntimeEffect\u003e\u003e(...) ? I could go either way.",
+      "parentUuid": "5f60dc92_ecb7c970",
+      "range": {
+        "startLine": 480,
+        "startChar": 18,
+        "endLine": 480,
+        "endChar": 29
+      },
+      "revId": "8a97026ea0007a2ce1d2143948aefb22a45c45be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec4b0726_43361385",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "8a97026ea0007a2ce1d2143948aefb22a45c45be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e269a62a_511e4807",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-19T20:51:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec4b0726_43361385",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 53
+      },
+      "revId": "8a97026ea0007a2ce1d2143948aefb22a45c45be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
