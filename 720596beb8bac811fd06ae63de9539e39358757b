@@ -46,6 +46,30 @@
       "revId": "720596beb8bac811fd06ae63de9539e39358757b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c473f562_92f44866",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-19T15:59:01Z",
+      "side": 1,
+      "message": "Thanks! That is cleaner.",
+      "parentUuid": "5bb8cca4_1cedb599",
+      "range": {
+        "startLine": 290,
+        "startChar": 7,
+        "endLine": 291,
+        "endChar": 75
+      },
+      "revId": "720596beb8bac811fd06ae63de9539e39358757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
