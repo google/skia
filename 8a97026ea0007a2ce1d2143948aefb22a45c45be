@@ -22,6 +22,29 @@
       "revId": "8a97026ea0007a2ce1d2143948aefb22a45c45be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec4b0726_43361385",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-19T19:30:38Z",
+      "side": 1,
+      "message": "I\u0027m not sure, but I might like a using ByteCodeResult \u003d std::tuple\u003c...\u003e or something in the class defn. Tuples with inner template type args get kinda hard to read.",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 53
+      },
+      "revId": "8a97026ea0007a2ce1d2143948aefb22a45c45be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
