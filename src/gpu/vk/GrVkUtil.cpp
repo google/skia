@@ -172,19 +172,18 @@ bool GrInstallVkShaderModule(GrVkGpu* gpu,
 
 bool GrVkFormatIsCompressed(VkFormat vkFormat) {
     switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK1:
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
             return true;
         default:
             return false;
     }
 }
 
-bool GrVkFormatToCompressionType(VkFormat vkFormat, SkImage::CompressionType* compressionType) {
+SkImage::CompressionType GrVkFormatToCompressionType(VkFormat vkFormat) {
     switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            *compressionType = SkImage::CompressionType::kETC1;
-            return true;
-        default:
-            return false;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK1: return SkImage::CompressionType::kETC12;
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:     return SkImage::CompressionType::kBC1_RGB8_UNORM;
+        default:                                return SkImage::CompressionType::kNone2;
     }
 }

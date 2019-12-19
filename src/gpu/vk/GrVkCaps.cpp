@@ -75,6 +75,7 @@ enum class FormatCompatibilityClass {
     k24_3_1,
     k32_4_1,
     k64_8_1,
+    kBC1_RGB_8_16,
     kETC2_RGB_8_16,
 };
 }  // anonymous namespace
@@ -107,8 +108,11 @@ static FormatCompatibilityClass format_compatibility_class(VkFormat format) {
         case VK_FORMAT_R8G8B8_UNORM:
             return FormatCompatibilityClass::k24_3_1;
 
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK1:
             return FormatCompatibilityClass::kETC2_RGB_8_16;
+
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+            return FormatCompatibilityClass::kBC1_RGB_8_16;
 
         default:
             SK_ABORT("Unsupported VkFormat");
@@ -662,7 +666,8 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R8G8B8A8_SRGB,
-    VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
+    VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK1,
+    VK_FORMAT_BC1_RGB_UNORM_BLOCK,
     VK_FORMAT_R16_UNORM,
     VK_FORMAT_R16G16_UNORM,
     VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
@@ -1113,7 +1118,16 @@ void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice 
     }
     // Format: VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK
     {
-        constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+        constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK1;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        info.fBytesPerPixel = 0;
+        // No supported GrColorTypes.
+    }
+
+    // Format: VK_FORMAT_BC1_RGB_UNORM_BLOCK
+    {
+        constexpr VkFormat format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
         info.init(interface, physDev, properties, format);
         info.fBytesPerPixel = 0;
