@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d29f4a3_a2890bf4",
+        "filename": "src/core/SkRuntimeEffect.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-19T21:58:29Z",
+      "side": 1,
+      "message": "This makes me wish tuples were a language feature and you could just write something simple like this as the return type.",
+      "range": {
+        "startLine": 82,
+        "startChar": 7,
+        "endLine": 82,
+        "endChar": 28
+      },
+      "revId": "838a33cc0cbe2c44dc2e132033a3ca6b4b190a86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
