@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c8c2661e_923d80b1",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-19T18:58:53Z",
+      "side": 1,
+      "message": "As talked about offline, the current plan is that we will be passing views into the contexts. In that world we wouldn\u0027t need to do the swizzle calculation in the ctor. Depending on how things shake out once all the pieces come together it may still make sense to make these views in some factory or ctor, but I want to see how things all look together before deciding one way or another.",
+      "parentUuid": "54c8dbd5_91214f56",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 53
+      },
+      "revId": "5f0e0904a53af3d47eeb3ab4fd38f8071b7113bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ce3c3fe_c489f70a",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "5f0e0904a53af3d47eeb3ab4fd38f8071b7113bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ad4b257_6b419636",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-19T18:58:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ce3c3fe_c489f70a",
+      "range": {
+        "startLine": 611,
+        "startChar": 43,
+        "endLine": 611,
+        "endChar": 53
+      },
+      "revId": "5f0e0904a53af3d47eeb3ab4fd38f8071b7113bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
