@@ -17,6 +17,7 @@
 enum VertFlags {
     kColors_VertFlag  = 1 << 0,
     kTexture_VertFlag = 1 << 1,
+    kPersp_VertFlag   = 1 << 2,
 };
 
 class VertBench : public Benchmark {
@@ -90,6 +91,9 @@ public:
         if (fFlags & kColors_VertFlag) {
             fName.append("_colors");
         }
+        if (fFlags & kPersp_VertFlag) {
+            fName.append("_persp");
+        }
     }
 
 protected:
@@ -98,6 +102,13 @@ protected:
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setShader(fShader);
+
+        if (fFlags & kPersp_VertFlag) {
+            SkMatrix m;
+            m.reset();
+            m[7] = 0.000001f;
+            canvas->concat(m);
+        }
 
         const SkPoint* texs = (fFlags & kTexture_VertFlag) ? fPts    : nullptr;
         const SkColor* cols = (fFlags & kColors_VertFlag)  ? fColors : nullptr;
@@ -110,6 +121,8 @@ protected:
 private:
     typedef Benchmark INHERITED;
 };
+DEF_BENCH(return new VertBench(kTexture_VertFlag | kPersp_VertFlag);)
+DEF_BENCH(return new VertBench(kColors_VertFlag  | kPersp_VertFlag);)
 DEF_BENCH(return new VertBench(kTexture_VertFlag);)
 DEF_BENCH(return new VertBench(kColors_VertFlag);)
 DEF_BENCH(return new VertBench(kColors_VertFlag | kTexture_VertFlag);)
