@@ -300,9 +300,15 @@ void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShade
 
 class SkImageStageUpdater : public SkStageUpdater {
 public:
-    const SkImageShader* fShader;
+    SkImageStageUpdater(const SkImageShader* shader, bool usePersp)
+        : fShader(shader), fUsePersp(usePersp)
+    {}
 
-    float fMatrixStorage[6];
+    const SkImageShader* fShader;
+    const bool           fUsePersp; // else use affine
+
+    // large enough for perspective, though often we just use 2x3
+    float fMatrixStorage[9];
 
 #if 0   // TODO: when we support mipmaps
     SkRasterPipeline_GatherCtx* fGather;
@@ -311,21 +317,31 @@ public:
     SkRasterPipeline_DecalTileCtx* fDecal;
 #endif
 
+    void append_matrix_stage(SkRasterPipeline* p) {
+        if (fUsePersp) {
+            p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
+        } else {
+            p->append(SkRasterPipeline::matrix_2x3, fMatrixStorage);
+        }
+    }
+
     bool update(const SkMatrix& ctm, const SkMatrix* localM) override {
         SkMatrix matrix;
-        return fShader->computeTotalInverse(ctm, localM, &matrix) &&
-               matrix.asAffine(fMatrixStorage);
+        if (fShader->computeTotalInverse(ctm, localM, &matrix)) {
+            if (fUsePersp) {
+                matrix.get9(fMatrixStorage);
+            } else {
+               SkAssertResult(matrix.asAffine(fMatrixStorage));
+            }
+            return true;
+        }
+        return false;
     }
 };
 
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
-    if (updater &&
-        (rec.fPaint.getFilterQuality() == kMedium_SkFilterQuality ||
-         rec.fCTM.hasPerspective()))
-    {
-        // TODO: handle these cases
-        // medium: recall RequestBitmap and update width/height accordingly
-        // perspt: store 9 floats and use persp stage
+    if (updater && rec.fPaint.getFilterQuality() == kMedium_SkFilterQuality) {
+        // TODO: medium: recall RequestBitmap and update width/height accordingly
         return false;
     }
 
@@ -352,7 +368,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     p->append(SkRasterPipeline::seed_shader);
 
     if (updater) {
-        p->append(SkRasterPipeline::matrix_2x3, updater->fMatrixStorage);
+        updater->append_matrix_stage(p);
     } else {
         // When the matrix is just an integer translate, bilerp == nearest neighbor.
         if (quality == kLow_SkFilterQuality &&
@@ -613,8 +629,8 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) const {
-    auto updater = rec.fAlloc->make<SkImageStageUpdater>();
-    updater->fShader = this;
+    bool usePersp = rec.fCTM.hasPerspective();
+    auto updater = rec.fAlloc->make<SkImageStageUpdater>(this, usePersp);
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
