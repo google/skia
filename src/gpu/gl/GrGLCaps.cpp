@@ -3524,6 +3524,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
+    if (ctxInfo.renderer() == kAdreno615_GrGLRenderer ||
+        ctxInfo.renderer() == kAdreno630_GrGLRenderer ||
+        ctxInfo.renderer() == kAdreno640_GrGLRenderer) {
+        shaderCaps->fInBlendModesFailRandomlyForAllZeroVec = true;
+    }
+
     // We've seen Adreno 3xx devices produce incorrect (flipped) values for gl_FragCoord, in some
     // (rare) situations. It's sporadic, and mostly on older drivers. Additionally, old Adreno
     // compilers (see crbug.com/skia/4078) crash when accessing .zw of gl_FragCoord, so just bypass
