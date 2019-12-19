@@ -45,6 +45,10 @@ static const char* SKSL_GPU_INCLUDE =
 #include "sksl_gpu.inc"
 ;
 
+static const char* SKSL_BLEND_INCLUDE =
+#include "sksl_blend.inc"
+;
+
 static const char* SKSL_INTERP_INCLUDE =
 #include "sksl_interp.inc"
 ;
@@ -258,6 +262,9 @@ Compiler::Compiler(Flags flags)
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, strlen(SKSL_GPU_INCLUDE),
                              symbols, &gpuIntrinsics, &fGpuSymbolTable);
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_BLEND_INCLUDE,
+                             strlen(SKSL_BLEND_INCLUDE), std::move(fGpuSymbolTable), &gpuIntrinsics,
+                             &fGpuSymbolTable);
     grab_intrinsics(&gpuIntrinsics, &fGPUIntrinsics);
     // need to hang on to the source so that FunctionDefinition.fSource pointers in this file
     // remain valid

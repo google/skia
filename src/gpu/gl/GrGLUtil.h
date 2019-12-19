@@ -63,6 +63,7 @@ enum GrGLRenderer {
     kAdreno5xx_GrGLRenderer,
     kAdreno615_GrGLRenderer,  // Pixel3a
     kAdreno630_GrGLRenderer,  // Pixel3
+    kAdreno640_GrGLRenderer,  // Pixel4
     kGoogleSwiftShader_GrGLRenderer,
 
     /** Intel GPU families, ordered by generation **/
