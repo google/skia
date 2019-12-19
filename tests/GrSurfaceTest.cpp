@@ -86,7 +86,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                             const GrBackendFormat& format, GrRenderable renderable,
                             GrResourceProvider* rp) -> sk_sp<GrTexture> {
         SkImage::CompressionType compression = rp->caps()->compressionType(format);
-        if (compression != SkImage::CompressionType::kNone) {
+        if (compression != SkImage::CompressionType::kNone2) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }

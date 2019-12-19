@@ -16,7 +16,7 @@ class GrBackendFormat;
 struct GrMockTextureInfo {
     GrMockTextureInfo()
         : fColorType(GrColorType::kUnknown)
-        , fCompressionType(SkImage::CompressionType::kNone)
+        , fCompressionType(SkImage::CompressionType::kNone2)
         , fID(0) {}
 
     GrMockTextureInfo(GrColorType colorType,
@@ -26,7 +26,7 @@ struct GrMockTextureInfo {
             , fCompressionType(compressionType)
             , fID(id) {
         SkASSERT(fID);
-        if (fCompressionType != SkImage::CompressionType::kNone) {
+        if (fCompressionType != SkImage::CompressionType::kNone2) {
             SkASSERT(colorType == GrColorType::kUnknown);
         }
     }
@@ -38,7 +38,7 @@ struct GrMockTextureInfo {
     }
 
     GrPixelConfig pixelConfig() const {
-        if (fCompressionType == SkImage::CompressionType::kNone) {
+        if (fCompressionType == SkImage::CompressionType::kNone2) {
             return GrColorTypeToPixelConfig(fColorType);
         } else {
             return GrCompressionTypeToPixelConfig(fCompressionType);
@@ -50,7 +50,7 @@ struct GrMockTextureInfo {
     SkImage::CompressionType compressionType() const { return fCompressionType; }
 
     GrColorType colorType() const {
-        SkASSERT(fCompressionType == SkImage::CompressionType::kNone);
+        SkASSERT(fCompressionType == SkImage::CompressionType::kNone2);
         return fColorType;
     }
 
@@ -108,7 +108,8 @@ struct GrMockOptions {
 
         fConfigOptions[(int)GrColorType::kBGRA_8888] = fConfigOptions[(int)GrColorType::kRGBA_8888];
 
-        fCompressedOptions[(int)SkImage::CompressionType::kETC1].fTexturable = true;
+        fCompressedOptions[(int)SkImage::CompressionType::kETC12].fTexturable = true;
+        fCompressedOptions[(int)SkImage::CompressionType::kBC1_RGB8_UNORM].fTexturable = true;
     }
 
     struct ConfigOptions {

@@ -15,6 +15,9 @@ This adds the following new entry points:
 The latter method comes in variants that allow uninitialized, color-initialized and
 compressed texture data initialized.
 
+Added BC1 compressed format support. Metal and Vulkan seem to only support the BC
+formats on desktop machines.
+
 * * *
   * Added SkMatrix::MakeTrans(SkIVector)
     https://review.skia.org/259804
