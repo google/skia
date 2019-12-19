@@ -157,7 +157,8 @@ GrProcessorSet::Analysis GrFillRRectOp::finalize(
     return analysis;
 }
 
-GrDrawOp::CombineResult GrFillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps&) {
+GrDrawOp::CombineResult GrFillRRectOp::onCombineIfPossible(GrOp* op, GrRecordingContext::Arenas*,
+                                                           const GrCaps&) {
     const auto& that = *op->cast<GrFillRRectOp>();
     if (fFlags != that.fFlags || fProcessors != that.fProcessors ||
         fInstanceData.count() > std::numeric_limits<int>::max() - that.fInstanceData.count()) {

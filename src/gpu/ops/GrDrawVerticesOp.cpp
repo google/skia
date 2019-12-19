@@ -78,7 +78,7 @@ private:
                GrPrimitiveType::kPoints == fPrimitiveType;
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*, const GrCaps&) override;
 
     struct Mesh {
         SkPMColor4f fColor;  // Used if this->hasPerVertexColors() is false.
@@ -519,7 +519,7 @@ void DrawVerticesOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBo
     flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
 }
 
-GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*,
+GrOp::CombineResult DrawVerticesOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
                                                         const GrCaps& caps) {
     DrawVerticesOp* that = t->cast<DrawVerticesOp>();
 
