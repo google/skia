@@ -147,6 +147,11 @@ struct SkHalfPlane {
     }
     SkScalar operator()(SkScalar x, SkScalar y) const { return this->eval(x, y); }
 
+    SkHalfPlane& operator*=(float s) {
+        fA *= s; fB *= s; fC *= s;
+        return *this;
+    }
+
     bool twoPts(SkPoint pts[2]) const {
         // normalize plane to help with the perpendicular step, below
         SkScalar len = SkScalarSqrt(fA*fA + fB*fB);
@@ -583,6 +588,8 @@ class HalfPlaneView3 : public SampleCameraView {
 DEF_SAMPLE( return new HalfPlaneView3(); )
 
 class HalfPlaneCoons : public SampleCameraView {
+    SkPoint fTri[3] = {{20,20}, {100,40}, {60,100}};
+
     SkPoint fPatch[12];
     SkColor fColors[4] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
     SkPoint fTex[4]    = {{0, 0}, {256, 0}, {256, 256}, {0, 256}};
@@ -611,7 +618,47 @@ class HalfPlaneCoons : public SampleCameraView {
         fShader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
     }
 
+    static SkHalfPlane pts_to_plane(SkPoint a, SkPoint b) {
+        return { b.fY - a.fY, a.fX - b.fX, a.fY*b.fX - a.fX*b.fY };
+    }
+    static void tri_to_planes(const SkPoint p[3], SkHalfPlane plane[3]) {
+        plane[0] = pts_to_plane(p[0], p[1]);
+        plane[1] = pts_to_plane(p[1], p[2]);
+        plane[2] = pts_to_plane(p[2], p[0]);
+
+        if (SkPoint::CrossProduct(p[1] - p[0], p[2] - p[1]) < 0) {
+            for (int i = 0; i < 3; ++i) {
+                plane[i] *= -1;
+            }
+        }
+    }
+
+    void drawTri(SkCanvas* canvas) {
+        SkPaint paint;
+
+        SkRect r; r.setBounds(fTri, 3); r.inset(-10, -10);
+        paint.setStrokeWidth(0);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(r, paint);
+
+        SkHalfPlane planes[3];
+        tri_to_planes(fTri, planes);
+        for (float x = r.fLeft + 0.5f; x <= r.fRight; x += 1) {
+            for (int y = r.fTop + 0.5f; y <= r.fBottom; y += 1) {
+                if (planes[0](x, y) < 0 && planes[1](x, y) < 0 && planes[2](x, y) < 0) {
+                    canvas->drawPoint(x, y, paint);
+                }
+            }
+        }
+
+        paint.setStrokeCap(SkPaint::kRound_Cap);
+        paint.setStrokeWidth(5);
+        paint.setColor(SK_ColorRED);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, fTri, paint);
+    }
+
     void onDrawContent(SkCanvas* canvas) override {
+        this->drawTri(canvas); return;
         SkMatrix mx = this->get44({0, 0, 300, 300});
 
         SkPaint paint;
@@ -650,7 +697,7 @@ class HalfPlaneCoons : public SampleCameraView {
 
         const float tol = 15;
         for (int i = 0; i < 12; ++i) {
-            if (dist({x,y}, fPatch[i]) <= tol) {
+            if (dist({x,y}, fTri[i]) <= tol) {
                 Click* c = new Click;
                 c->fMeta.setS32("index", i);
                 return c;
@@ -663,7 +710,7 @@ class HalfPlaneCoons : public SampleCameraView {
         int32_t index;
         SkAssertResult(click->fMeta.findS32("index", &index));
         SkASSERT(index >= 0 && index < 12);
-        fPatch[index] = click->fCurr;
+        fTri[index] = click->fCurr;
         return true;
     }
 
