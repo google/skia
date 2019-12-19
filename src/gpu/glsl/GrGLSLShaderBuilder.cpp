@@ -10,6 +10,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/glsl/GrGLSLBlend.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
@@ -84,18 +85,21 @@ void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
 }
 
-void GrGLSLShaderBuilder::appendTextureLookupAndModulate(
-                                                    const char* modulation,
-                                                    SamplerHandle samplerHandle,
-                                                    const char* coordName,
-                                                    GrSLType varyingType,
-                                                    GrGLSLColorSpaceXformHelper* colorXformHelper) {
+void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
+        const char* dst,
+        SkBlendMode mode,
+        SamplerHandle samplerHandle,
+        const char* coordName,
+        GrSLType varyingType,
+        GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    if (!dst) {
+        dst = "half4(1)";
+    }
     SkString lookup;
+    this->codeAppendf("%s(", GrGLSLBlend::BlendFuncName(mode));
     this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
-    if (modulation) {
-        this->codeAppendf(" * %s", modulation);
-    }
+    this->codeAppendf(", %s)", dst);
 }
 
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,

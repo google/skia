@@ -664,9 +664,9 @@ public:
 
                     // Now modulate the starting output color by the texture lookup
                     args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
-                    args.fFragBuilder->appendTextureLookupAndModulate(
-                        args.fOutputColor, args.fTexSamplers[0], "texCoord", kFloat2_GrSLType,
-                        &fTextureColorSpaceXformHelper);
+                    args.fFragBuilder->appendTextureLookupAndBlend(
+                            args.fOutputColor, SkBlendMode::kModulate, args.fTexSamplers[0],
+                            "texCoord", kFloat2_GrSLType, &fTextureColorSpaceXformHelper);
                     args.fFragBuilder->codeAppend(";");
                     if (gp.fSaturate == Saturate::kYes) {
                         args.fFragBuilder->codeAppendf("%s = saturate(%s);",

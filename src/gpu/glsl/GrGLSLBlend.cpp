@@ -9,42 +9,49 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-void GrGLSLBlend::AppendMode(GrGLSLFragmentBuilder* fsBuilder, const char* srcColor,
-                             const char* dstColor, const char* outColor,
-                             SkBlendMode mode) {
-    // When and if the SkSL compiler supports inlining we could replace this with
-    // out = blend(mode, src, dst) where mode is a literal.
-    const char* name;
+namespace GrGLSLBlend {
+
+const char* BlendFuncName(SkBlendMode mode) {
     switch (mode) {
-        case SkBlendMode::kClear:      name = "clear";       break;
-        case SkBlendMode::kSrc:        name = "src";         break;
-        case SkBlendMode::kDst:        name = "dst";         break;
-        case SkBlendMode::kSrcOver:    name = "src_over";    break;
-        case SkBlendMode::kDstOver:    name = "dst_over";    break;
-        case SkBlendMode::kSrcIn:      name = "src_in";      break;
-        case SkBlendMode::kDstIn:      name = "dst_in";      break;
-        case SkBlendMode::kSrcOut:     name = "src_out";     break;
-        case SkBlendMode::kDstOut:     name = "dst_out";     break;
-        case SkBlendMode::kSrcATop:    name = "src_atop";    break;
-        case SkBlendMode::kDstATop:    name = "dst_atop";    break;
-        case SkBlendMode::kXor:        name = "xor";         break;
-        case SkBlendMode::kPlus:       name = "plus";        break;
-        case SkBlendMode::kModulate:   name = "modulate";    break;
-        case SkBlendMode::kScreen:     name = "screen";      break;
-        case SkBlendMode::kOverlay:    name = "overlay";     break;
-        case SkBlendMode::kDarken:     name = "darken";      break;
-        case SkBlendMode::kLighten:    name = "lighten";     break;
-        case SkBlendMode::kColorDodge: name = "color_dodge"; break;
-        case SkBlendMode::kColorBurn:  name = "color_burn";  break;
-        case SkBlendMode::kHardLight:  name = "hard_light";  break;
-        case SkBlendMode::kSoftLight:  name = "soft_light";  break;
-        case SkBlendMode::kDifference: name = "difference";  break;
-        case SkBlendMode::kExclusion:  name = "exclusion";   break;
-        case SkBlendMode::kMultiply:   name = "multiply";    break;
-        case SkBlendMode::kHue:        name = "hue";         break;
-        case SkBlendMode::kSaturation: name = "saturation";  break;
-        case SkBlendMode::kColor:      name = "color";       break;
-        case SkBlendMode::kLuminosity: name = "luminosity";  break;
+        case SkBlendMode::kClear:      return "blend_clear";
+        case SkBlendMode::kSrc:        return "blend_src";
+        case SkBlendMode::kDst:        return "blend_dst";
+        case SkBlendMode::kSrcOver:    return "blend_src_over";
+        case SkBlendMode::kDstOver:    return "blend_dst_over";
+        case SkBlendMode::kSrcIn:      return "blend_src_in";
+        case SkBlendMode::kDstIn:      return "blend_dst_in";
+        case SkBlendMode::kSrcOut:     return "blend_src_out";
+        case SkBlendMode::kDstOut:     return "blend_dst_out";
+        case SkBlendMode::kSrcATop:    return "blend_src_atop";
+        case SkBlendMode::kDstATop:    return "blend_dst_atop";
+        case SkBlendMode::kXor:        return "blend_xor";
+        case SkBlendMode::kPlus:       return "blend_plus";
+        case SkBlendMode::kModulate:   return "blend_modulate";
+        case SkBlendMode::kScreen:     return "blend_screen";
+        case SkBlendMode::kOverlay:    return "blend_overlay";
+        case SkBlendMode::kDarken:     return "blend_darken";
+        case SkBlendMode::kLighten:    return "blend_lighten";
+        case SkBlendMode::kColorDodge: return "blend_color_dodge";
+        case SkBlendMode::kColorBurn:  return "blend_color_burn";
+        case SkBlendMode::kHardLight:  return "blend_hard_light";
+        case SkBlendMode::kSoftLight:  return "blend_soft_light";
+        case SkBlendMode::kDifference: return "blend_difference";
+        case SkBlendMode::kExclusion:  return "blend_exclusion";
+        case SkBlendMode::kMultiply:   return "blend_multiply";
+        case SkBlendMode::kHue:        return "blend_hue";
+        case SkBlendMode::kSaturation: return "blend_saturation";
+        case SkBlendMode::kColor:      return "blend_color";
+        case SkBlendMode::kLuminosity: return "blend_luminosity";
     }
-    fsBuilder->codeAppendf("%s = blend_%s(%s, %s);", outColor, name, srcColor, dstColor);
+    SkUNREACHABLE;
 }
+
+void AppendMode(GrGLSLFragmentBuilder* fsBuilder,
+                const char* srcColor,
+                const char* dstColor,
+                const char* outColor,
+                SkBlendMode mode) {
+    fsBuilder->codeAppendf("%s = %s(%s, %s);", outColor, BlendFuncName(mode), srcColor, dstColor);
+}
+
+}  // namespace GrGLSLBlend

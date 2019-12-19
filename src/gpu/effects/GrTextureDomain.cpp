@@ -111,7 +111,8 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
                                               const char* inModulateColor) {
     auto appendTextureSample = [&sampler, inModulateColor, builder](const char* coord) {
         builder->codeAppend("half4 textureColor = ");
-        builder->appendTextureLookupAndModulate(inModulateColor, sampler, coord);
+        builder->appendTextureLookupAndBlend(inModulateColor, SkBlendMode::kModulate, sampler,
+                                             coord);
         builder->codeAppend(";");
         return SkString("textureColor");
     };
