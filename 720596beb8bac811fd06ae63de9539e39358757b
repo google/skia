@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d12b95e3_2f8d89b2",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-19T15:41:41Z",
+      "side": 1,
+      "message": "Another way to \n\n   SkTFitsIn\u003cint\u003e(...)\n   int x \u003d (int)(...)\n\nis\n\n   int x \u003d SkTo\u003cint\u003e(...)",
+      "range": {
+        "startLine": 290,
+        "startChar": 7,
+        "endLine": 291,
+        "endChar": 75
+      },
+      "revId": "720596beb8bac811fd06ae63de9539e39358757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
