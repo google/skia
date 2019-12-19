@@ -72,6 +72,8 @@ public:
 
     bool sampleMaskSupport() const { return fSampleMaskSupport; }
 
+    bool tessellationSupport() const { return fTessellationSupport; }
+
     bool externalTextureSupport() const { return fExternalTextureSupport; }
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
@@ -226,6 +228,11 @@ public:
         return fSampleVariablesExtensionString;
     }
 
+    const char* tessellationExtensionString() const {
+        SkASSERT(this->tessellationSupport());
+        return fTessellationExtensionString;
+    }
+
     int maxFragmentSamplers() const { return fMaxFragmentSamplers; }
 
     bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
@@ -251,6 +258,7 @@ private:
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fSampleMaskSupport                 : 1;
+    bool fTessellationSupport               : 1;
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;
@@ -294,6 +302,7 @@ private:
     const char* fSecondExternalTextureExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fSampleVariablesExtensionString;
+    const char* fTessellationExtensionString;
 
     const char* fFBFetchColorName;
     const char* fFBFetchExtensionString;

@@ -21,13 +21,18 @@ class GrPrimitiveProcessor;
  */
 class GrMesh {
 public:
-    GrMesh(GrPrimitiveType primitiveType = GrPrimitiveType::kTriangles)
-            : fPrimitiveType(primitiveType) {
+    GrMesh(GrPrimitiveType primitiveType = GrPrimitiveType::kTriangles,
+           uint8_t tessellationPatchVertexCount = 0)
+            : fPrimitiveType(primitiveType)
+            , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
         SkDEBUGCODE(fNonIndexNonInstanceData.fVertexCount = -1;)
     }
 
     void setPrimitiveType(GrPrimitiveType type) { fPrimitiveType = type; }
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+
+    void setTessellationPatchVertexCount(uint8_t count) { fTessellationPatchVertexCount = count; }
+    uint8_t tessellationPatchVertexCount() const { return fTessellationPatchVertexCount; }
 
     bool isIndexed() const { return SkToBool(fIndexBuffer.get()); }
     const GrBuffer* indexBuffer() const {
@@ -78,7 +83,7 @@ public:
     void sendToGpu(SendToGpuImpl*) const;
 
 private:
-    enum class Flags {
+    enum class Flags : uint8_t {
         kNone = 0,
         kUsePrimitiveRestart = 1 << 0,
         kIsInstanced = 1 << 1,
@@ -88,11 +93,12 @@ private:
     static_assert(Flags(GrPrimitiveRestart::kNo) == Flags::kNone);
     static_assert(Flags(GrPrimitiveRestart::kYes) == Flags::kUsePrimitiveRestart);
 
-    GrPrimitiveType fPrimitiveType;
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fInstanceBuffer;
     sk_sp<const GrBuffer> fVertexBuffer;
     int fBaseVertex = 0;
+    GrPrimitiveType fPrimitiveType;
+    uint8_t fTessellationPatchVertexCount;  // When fPrimitiveType == kPatches.
     Flags fFlags = Flags::kNone;
 
     union {

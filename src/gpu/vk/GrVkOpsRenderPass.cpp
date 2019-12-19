@@ -604,8 +604,6 @@ void GrVkOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
 
-        SkASSERT(programInfo.primitiveType() == mesh.primitiveType());
-
         if (hasDynamicScissors) {
             SkIRect combinedScissorRect;
             if (!combinedScissorRect.intersect(renderPassScissorRect,
