@@ -145,13 +145,13 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
                                              sk_sp<GrRenderTargetProxy> rtp,
                                              GrColorType colorType,
                                              GrSurfaceOrigin origin,
-                                             GrSwizzle texSwizzle,
+                                             GrSwizzle readSwizzle,
                                              GrSwizzle outSwizzle,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool managedOpsTask)
         : GrSurfaceContext(context, std::move(rtp), colorType, kPremul_SkAlphaType,
-                           std::move(colorSpace), origin, texSwizzle)
+                           std::move(colorSpace), origin, readSwizzle)
         , fOutputSwizzle(outSwizzle)
         , fOpsTask(sk_ref_sp(fSurfaceProxy->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))

@@ -27,7 +27,6 @@ class GrBackendSemaphore;
 class GrClip;
 class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
-class GrDrawingManager;
 class GrDrawOp;
 class GrFixedClip;
 class GrOp;
@@ -58,6 +57,10 @@ class SkVertices;
  */
 class GrRenderTargetContext : public GrSurfaceContext {
 public:
+    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
+                          GrSurfaceOrigin, GrSwizzle readSwizzle, GrSwizzle outSwizzle,
+                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
+
     ~GrRenderTargetContext() override;
 
     virtual void drawGlyphRunList(const GrClip&, const SkMatrix& viewMatrix, const SkGlyphRunList&);
@@ -523,7 +526,6 @@ private:
     friend class GrClipStackClip;               // for access to getOpsTask
     friend class GrOnFlushResourceProvider;     // for access to getOpsTask (http://skbug.com/9357)
 
-    friend class GrDrawingManager; // for ctor
     friend class GrRenderTargetContextPriv;
 
     // All the path renderers currently make their own ops
@@ -540,10 +542,6 @@ private:
     friend class GrCoverageCountingPathRenderer;     // for access to addDrawOp
     friend class GrFillRectOp;                       // for access to addDrawOp
     friend class GrTextureOp;                        // for access to addDrawOp
-
-    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
-                          GrSurfaceOrigin, GrSwizzle texSwizzle, GrSwizzle outSwizzle,
-                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
 
     SkDEBUGCODE(void onValidate() const override;)
 

@@ -159,65 +159,6 @@ void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlu
     this->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-std::unique_ptr<GrSurfaceContext> GrRecordingContext::makeWrappedSurfaceContext(
-        sk_sp<GrSurfaceProxy> proxy,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* props) {
-    ASSERT_SINGLE_OWNER_PRIV
-
-    SkASSERT(proxy);
-
-    if (proxy->asRenderTargetProxy()) {
-        SkASSERT(kPremul_SkAlphaType == alphaType || kOpaque_SkAlphaType == alphaType);
-        return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
-                                                               std::move(colorSpace), props);
-    } else {
-        SkASSERT(proxy->asTextureProxy());
-        SkASSERT(!props);
-        return this->drawingManager()->makeSurfaceContext(std::move(proxy), colorType, alphaType,
-                                                          std::move(colorSpace));
-    }
-}
-
-std::unique_ptr<GrSurfaceContext> GrRecordingContext::makeDeferredSurfaceContext(
-        SkBackingFit fit,
-        int width,
-        int height,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        GrProtected isProtected) {
-    auto format = this->caps()->getDefaultBackendFormat(colorType, GrRenderable::kNo);
-    if (!format.isValid()) {
-        return nullptr;
-    }
-    auto config = this->caps()->getConfigFromBackendFormat(format, colorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
-
-    GrSurfaceDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = config;
-
-    sk_sp<GrTextureProxy> texture = this->proxyProvider()->createProxy(
-            format, desc, GrRenderable::kNo, 1, origin, mipMapped, fit, budgeted, isProtected);
-    if (!texture) {
-        return nullptr;
-    }
-
-    auto drawingManager = this->drawingManager();
-
-    return drawingManager->makeSurfaceContext(std::move(texture), colorType, alphaType,
-                                              std::move(colorSpace));
-}
-
 std::unique_ptr<GrRenderTargetContext> GrRecordingContext::makeDeferredRenderTargetContext(
         SkBackingFit fit,
         int width,
@@ -328,32 +269,6 @@ std::unique_ptr<SkArenaAlloc> GrRecordingContextPriv::detachRecordTimeAllocator(
 
 void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     fContext->addOnFlushCallbackObject(onFlushCBObject);
-}
-
-std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeWrappedSurfaceContext(
-        sk_sp<GrSurfaceProxy> proxy,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* props) {
-    return fContext->makeWrappedSurfaceContext(std::move(proxy), colorType, alphaType,
-                                               std::move(colorSpace), props);
-}
-
-std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeDeferredSurfaceContext(
-        SkBackingFit fit,
-        int width,
-        int height,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        GrProtected isProtected) {
-    return fContext->makeDeferredSurfaceContext(fit, width, height, colorType, alphaType,
-                                                std::move(colorSpace), mipMapped, origin, budgeted,
-                                                isProtected);
 }
 
 std::unique_ptr<GrRenderTargetContext> GrRecordingContextPriv::makeDeferredRenderTargetContext(
