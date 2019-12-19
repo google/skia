@@ -330,6 +330,7 @@ static bool is_renderer_angle(const char* rendererString) {
 
 GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                                         const GrGLExtensions& extensions) {
+    SkDebugf("rendererString: %s\n", rendererString);
     if (rendererString) {
         static const char kTegraStr[] = "NVIDIA Tegra";
         if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
@@ -369,6 +370,7 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         int adrenoNumber;
         n = sscanf(rendererString, "Adreno (TM) %d", &adrenoNumber);
         if (1 == n) {
+            SkDebugf("adrenoNumber: %d\n", adrenoNumber);
             if (adrenoNumber >= 300) {
                 if (adrenoNumber < 400) {
                     return kAdreno3xx_GrGLRenderer;
@@ -384,7 +386,11 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                     return kAdreno615_GrGLRenderer;
                 }
                 if (adrenoNumber == 630) {
+                    SkDebugf("Is 630\n");
                     return kAdreno630_GrGLRenderer;
+                }
+                if (adrenoNumber == 640) {
+                    return kAdreno640_GrGLRenderer;
                 }
             }
         }
