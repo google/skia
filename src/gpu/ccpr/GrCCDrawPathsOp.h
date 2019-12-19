@@ -37,7 +37,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
                                       bool hasMixedSampledCoverage, GrClampType) override;
-    CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp*, GrRecordingContext::Arenas*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn) const override {
         for (const auto& range : fInstanceRanges) {
             fn(range.fAtlasProxy, GrMipMapped::kNo);
