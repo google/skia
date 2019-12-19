@@ -97,13 +97,15 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    auto c = context->priv().makeWrappedSurfaceContext(std::move(proxy),
-                                                       grColorType,
-                                                       kPremul_SkAlphaType,
-                                                       colorSpace,
-                                                       surfaceProps);
-    SkASSERT(c->asRenderTargetContext());
-    std::unique_ptr<GrRenderTargetContext> rtc(c.release()->asRenderTargetContext());
+    const GrSwizzle& readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
+    const GrSwizzle& outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
+
+    SkASSERT(readSwizzle == proxy->textureSwizzle());
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(proxy),
+                                                       grColorType, origin,
+                                                       readSwizzle, outputSwizzle,
+                                                       colorSpace, surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
     return surface;

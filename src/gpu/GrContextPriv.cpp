@@ -40,32 +40,6 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-std::unique_ptr<GrSurfaceContext> GrContextPriv::makeWrappedSurfaceContext(
-        sk_sp<GrSurfaceProxy> proxy,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* props) {
-    return fContext->makeWrappedSurfaceContext(std::move(proxy), colorType, alphaType,
-                                               std::move(colorSpace), props);
-}
-
-std::unique_ptr<GrSurfaceContext> GrContextPriv::makeDeferredSurfaceContext(
-        SkBackingFit fit,
-        int width,
-        int height,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        GrProtected isProtected) {
-    return fContext->makeDeferredSurfaceContext(fit, width, height, colorType, alphaType,
-                                                std::move(colorSpace), mipMapped, origin, budgeted,
-                                                isProtected);
-}
-
 std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
         SkBackingFit fit,
         int width,
@@ -91,24 +65,6 @@ std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetCo
     return fContext->makeDeferredRenderTargetContextWithFallback(
             fit, width, height, colorType, std::move(colorSpace), sampleCnt, mipMapped, origin,
             surfaceProps, budgeted, isProtected);
-}
-
-std::unique_ptr<GrSurfaceContext> GrContextPriv::makeBackendTextureContext(
-        const GrBackendTexture& tex,
-        GrSurfaceOrigin origin,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace) {
-    ASSERT_SINGLE_OWNER
-
-    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendTexture(
-            tex, colorType, origin, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeSurfaceContext(std::move(proxy), colorType, alphaType,
-                                                      std::move(colorSpace));
 }
 
 std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(

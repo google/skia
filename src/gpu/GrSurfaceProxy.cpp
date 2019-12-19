@@ -308,14 +308,24 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         return nullptr;
     }
     auto colorType = GrPixelConfigToColorType(src->config());
+    auto format = src->backendFormat().makeTexture2D();
+    SkASSERT(format.isValid());
+    auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
+    if (config == kUnknown_GrPixelConfig) {
+        return nullptr;
+    }
+    GrSurfaceDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = config;
+
+    GrSurfaceOrigin origin = src->origin();
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
-        auto dstContext = context->priv().makeDeferredSurfaceContext(
-                fit, width, height, colorType, kUnknown_SkAlphaType, nullptr, mipMapped,
-                src->origin(), budgeted, isProtected);
-        if (!dstContext) {
-            return nullptr;
-        }
-        if (dstContext->copy(src, srcRect, dstPoint)) {
+        auto dstContext = GrSurfaceContext::Make(context, {width, height}, format,
+                                                 GrRenderable::kNo, 1, mipMapped, isProtected,
+                                                 origin, colorType, kUnknown_SkAlphaType, nullptr,
+                                                 fit, budgeted);
+        if (dstContext && dstContext->copy(src, srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();
         }
     }

@@ -86,25 +86,6 @@ protected:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-    std::unique_ptr<GrSurfaceContext> makeWrappedSurfaceContext(sk_sp<GrSurfaceProxy>,
-                                                                GrColorType,
-                                                                SkAlphaType,
-                                                                sk_sp<SkColorSpace> = nullptr,
-                                                                const SkSurfaceProps* = nullptr);
-
-    /** Create a new surface context backed by a deferred-style GrTextureProxy. */
-    std::unique_ptr<GrSurfaceContext> makeDeferredSurfaceContext(
-            SkBackingFit,
-            int width,
-            int height,
-            GrColorType,
-            SkAlphaType,
-            sk_sp<SkColorSpace>,
-            GrMipMapped = GrMipMapped::kNo,
-            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes,
-            GrProtected = GrProtected::kNo);
-
     /*
      * Create a new render target context backed by a deferred-style
      * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for

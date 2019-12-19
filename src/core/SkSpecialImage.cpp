@@ -451,8 +451,8 @@ public:
         if (!rec) {
             return false;
         }
-        auto sContext = fContext->priv().makeWrappedSurfaceContext(fTextureProxy, fColorType,
-                                                                   this->alphaType(), fColorSpace);
+        auto sContext = GrSurfaceContext::Make(fContext, fTextureProxy, fColorType,
+                                               this->alphaType(), fColorSpace);
         if (!sContext) {
             return false;
         }

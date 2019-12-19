@@ -119,8 +119,8 @@ bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
                                                                 this->colorType(),
                                                                 texProxy->backendFormat());
 
-    auto sContext = direct->priv().makeWrappedSurfaceContext(
-            std::move(texProxy), grColorType, this->alphaType(), this->refColorSpace());
+    auto sContext = GrSurfaceContext::Make(direct, std::move(texProxy), grColorType,
+                                           this->alphaType(), this->refColorSpace());
     if (!sContext) {
         return false;
     }
@@ -180,8 +180,8 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
                                                                 this->colorType(),
                                                                 texProxy->backendFormat());
 
-    auto sContext = direct->priv().makeWrappedSurfaceContext(
-            std::move(texProxy), grColorType, this->alphaType(), this->refColorSpace());
+    auto sContext = GrSurfaceContext::Make(direct, std::move(texProxy), grColorType,
+                                           this->alphaType(), this->refColorSpace());
     if (!sContext) {
         return false;
     }

@@ -74,8 +74,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
-        auto sContext = context->priv().makeWrappedSurfaceContext(
-                std::move(proxy), GrColorType::kAlpha_8, kPremul_SkAlphaType);
+        auto sContext = GrSurfaceContext::Make(context, std::move(proxy), GrColorType::kAlpha_8,
+                                               kPremul_SkAlphaType, nullptr);
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 
@@ -193,8 +193,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 continue;
             }
 
-            auto sContext = context->priv().makeWrappedSurfaceContext(
-                    std::move(proxy), info.fColorType, kPremul_SkAlphaType);
+            auto sContext = GrSurfaceContext::Make(context, std::move(proxy), info.fColorType,
+                                                   kPremul_SkAlphaType, nullptr);
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
