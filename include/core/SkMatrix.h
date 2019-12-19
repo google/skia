@@ -1864,10 +1864,8 @@ private:
      */
     size_t readFromMemory(const void* buffer, size_t length);
 
-public: // expose until call-site in chrome is updated
     // legacy method -- still needed? why not just postScale(1/divx, ...)?
     bool postIDiv(int divx, int divy);
-private:
 
     friend class SkPerspIter;
     friend class SkMatrixPriv;
