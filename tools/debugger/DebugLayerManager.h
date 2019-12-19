@@ -10,6 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/private/SkTHash.h"
+#include "src/utils/SkJSONWriter.h"
 #include "tools/debugger/DebugCanvas.h"
 
 #include <vector>
@@ -27,7 +28,7 @@
 // layer as it was on any frame. Draws may be partial, meaning their commands were clipped to not
 // cover the entire layer.
 
-// Clients may ask for a rendering of a given layer by it's RenderNode id and frame, and
+// Clients may ask for a rendering of a given layer by its RenderNode id and frame, and
 // this class will return a rendering of how it looked on that frame.
 // returning an SkImage snapshot of the internally managed surface.
 
@@ -45,12 +46,14 @@ public:
     // Set's the command playback head for a given picture/draw event.
     void setCommand(int nodeId, int frame, int command);
 
+    void drawLayerEventTo(SkCanvas* canvas, const int nodeId, const int frame);
+
     // getLayerAsImage draws the given layer as it would have looked on frame and returns an image.
     // Though each picture can be played back in as many ways as there are commands, we will let
     // that be determined by the user who sets an independent playhead for each draw event, tracked
     // here, so it stays how they left it.
     // For example: Say we are drawing a layer at frame 10.
-    // Frame 0:  Layer was completely redrawn. By default we draw it to it's last command. We always
+    // Frame 0:  Layer was completely redrawn. By default we draw it to its last command. We always
     //           save the result by (nodeId, frame)
     // Frame 5:  Layer was partially redrawn, and the user has inspected this draw event, leaving
     //           its command playhead at command 50/100. We have drew this at the time and save how
@@ -73,12 +76,16 @@ public:
 
     // Mean to be bindable by emscripted and returned to the javascript side
     struct DrawEventSummary {
+        // true when the drawEvent represents a valid result.
+        bool found = false;
         int nodeId;
         bool fullRedraw;
         int commandCount;
         int layerWidth;
         int layerHeight;
     };
+    // return the summary of a single event
+    DrawEventSummary event(int nodeId, int frame) const;
     // Return a list summarizing the layer draw events on the current frame.
     std::vector<DrawEventSummary> summarizeEvents(int frame) const;
 
@@ -86,6 +93,17 @@ public:
     std::vector<int> listNodesForFrame(int frame) const;
     // Return the list of frames on which the given node had DrawEvents.
     std::vector<int> listFramesForNode(int nodeId) const;
+
+    // asks the DebugCanvas of the indicated draw event to serialize it's commands as JSON.
+    void toJSON(SkJSONWriter&, UrlDataManager&, SkCanvas*, int nodeId, int frame);
+
+    // return a pointer to the debugcanvas of a given draw event.
+    DebugCanvas* getEventDebugCanvas(int nodeid, int frame);
+
+    // forwards the provided setting to all debugcanvases.
+    void setOverdrawViz(bool overdrawViz);
+    void setClipVizColor(SkColor clipVizColor);
+    void setDrawGpuOpBounds(bool drawGpuOpBounds);
 
 private:
     // This class is basically a map from (frame, node) to draw-event
