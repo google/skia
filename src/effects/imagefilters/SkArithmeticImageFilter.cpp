@@ -386,16 +386,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                                      ctx.colorSpace());
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
-        static auto arithmeticEffect = SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC));
+        static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
         ArithmeticFPInputs inputs;
         static_assert(sizeof(inputs.k) == sizeof(fK), "struct size mismatch");
         memcpy(inputs.k, fK, sizeof(inputs.k));
         inputs.enforcePMColor = fEnforcePMColor;
-        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(context,
-                                                                     arithmeticEffect,
-                                                                     "Arithmetic",
-                                                                     &inputs,
-                                                                     sizeof(inputs));
+        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(context, effect, "Arithmetic",
+                                                                     &inputs, sizeof(inputs));
         if (xferFP) {
             ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
             paint.addColorFragmentProcessor(std::move(xferFP));
