@@ -77,8 +77,9 @@ public:
                                                               args.fOutputColor,
                                                               Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
-                args.fFragBuilder->appendTextureLookupAndModulate(
+                args.fFragBuilder->appendTextureLookupAndBlend(
                         args.fOutputColor,
+                        SkBlendMode::kModulate,
                         args.fTexSamplers[0],
                         "clamp(textureCoords, textureDomain.xy, textureDomain.zw)",
                         kFloat2_GrSLType,

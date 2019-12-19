@@ -44,16 +44,15 @@ public:
                              GrSLType coordType = kHalf2_GrSLType,
                              GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
-
-    /** Does the work of appendTextureLookup and modulates the result by modulation. The result is
-        always a half4. modulation and the swizzle specified by SamplerHandle must both be
-        half4 or half. If modulation is "" or nullptr it this function acts as though
-        appendTextureLookup were called. */
-    void appendTextureLookupAndModulate(const char* modulation,
-                                        SamplerHandle,
-                                        const char* coordName,
-                                        GrSLType coordType = kHalf2_GrSLType,
-                                        GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
+    /** Does the work of appendTextureLookup and blends the result by dst, treating the texture
+        lookup a the src input to the blend. The dst is assumed to be half4 and the result is always
+        a half4. If dst is nullptr we use half4(1) as the blend dst. */
+    void appendTextureLookupAndBlend(const char* dst,
+                                     SkBlendMode,
+                                     SamplerHandle,
+                                     const char* coordName,
+                                     GrSLType coordType = kHalf2_GrSLType,
+                                     GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
     /** Adds a helper function to facilitate color gamut transformation, and produces code that
         returns the srcColor transformed into a new gamut (via multiplication by the xform from
