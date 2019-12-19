@@ -22,6 +22,30 @@
       "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f3fdfb5_460cfb0e",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T20:28:09Z",
+      "side": 1,
+      "message": "When we build for flutter or canvaskit, we don\u0027t have dm.",
+      "parentUuid": "3598ebc2_2301dfd9",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 54
+      },
+      "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
