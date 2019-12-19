@@ -35,7 +35,7 @@ size_t GrSurface::ComputeSize(const GrCaps& caps,
 
     SkImage::CompressionType compressionType = caps.compressionType(format);
     if (compressionType != SkImage::CompressionType::kNone) {
-        colorSize = GrCompressedFormatDataSize(compressionType, dimensions);
+        colorSize = GrCompressedFormatDataSize(compressionType, dimensions, mipMapped);
     } else {
         colorSize = (size_t)dimensions.width() * dimensions.height() * caps.bytesPerPixel(format);
     }
