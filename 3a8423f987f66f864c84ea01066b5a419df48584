@@ -22,6 +22,30 @@
       "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02e73b45_6dee1172",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-12-19T19:13:31Z",
+      "side": 1,
+      "message": "A draw can be instanced with no instance data (e.g., if the shader uses sk_InstanceID you don\u0027t actually need any instanced attribs)\n\nSo if it IS instanced, the instance buffer might or might not be null. If it is not instanced, then the buffer better be null.\n\nAlso, vulkan and dawn just forward non-instanced calls to the instanced variant and rely on this buffer being null.",
+      "parentUuid": "c7fc5ea4_463a7436",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 58
+      },
+      "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
