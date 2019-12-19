@@ -235,7 +235,8 @@ public:
     enum class CompressionType {
         kNone,
         kETC1,
-        kLast = kETC1,
+        kBC1_RGB8_UNORM,
+        kLast = kBC1_RGB8_UNORM,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;

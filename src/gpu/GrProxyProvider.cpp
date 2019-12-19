@@ -483,13 +483,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 }
 
 sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
-        int width, int height, SkBudgeted budgeted, SkImage::CompressionType compressionType,
+        SkISize dimensions, SkBudgeted budgeted, SkImage::CompressionType compressionType,
         sk_sp<SkData> data) {
 
     GrSurfaceDesc desc;
     desc.fConfig = GrCompressionTypeToPixelConfig(compressionType);
-    desc.fWidth = width;
-    desc.fHeight = height;
+    desc.fWidth = dimensions.width();
+    desc.fHeight = dimensions.height();
 
     GrBackendFormat format = this->caps()->getBackendFormatFromCompressionType(compressionType);
 
@@ -498,10 +498,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [width, height, format, compressionType, budgeted,
+            [dimensions, format, budgeted,
              data](GrResourceProvider* resourceProvider) {
                 return LazyCallbackResult(resourceProvider->createCompressedTexture(
-                        width, height, format, compressionType, budgeted, data.get()));
+                    dimensions, format, budgeted, data.get()));
             },
             format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
             GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
