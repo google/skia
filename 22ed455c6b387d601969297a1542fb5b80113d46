@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "2ad8480d_c263b61b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T14:20:30Z",
+      "side": 1,
+      "message": "Ah - I think you are looking for SkImage_GpuBase::ValidateCompressedBackendTexture in here:\n\nhttps://skia-review.googlesource.com/c/skia/+/258806\n\nwhich is called from SkImage::MakeFromCompressedTexture.",
+      "parentUuid": "86aff3d7_2cc75d1c",
+      "range": {
+        "startLine": 741,
+        "startChar": 4,
+        "endLine": 741,
+        "endChar": 53
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7179f7e_c08a61a2",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 3
