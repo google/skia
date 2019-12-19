@@ -174,7 +174,7 @@ GrBackendFormat::GrBackendFormat(GrColorType colorType, SkImage::CompressionType
 
 GrColorType GrBackendFormat::asMockColorType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        SkASSERT(fMock.fCompressionType == SkImage::CompressionType::kNone ||
+        SkASSERT(fMock.fCompressionType == SkImage::CompressionType::kNone2 ||
                  fMock.fColorType == GrColorType::kUnknown);
 
         return fMock.fColorType;
@@ -185,13 +185,13 @@ GrColorType GrBackendFormat::asMockColorType() const {
 
 SkImage::CompressionType GrBackendFormat::asMockCompressionType() const {
     if (this->isValid() && GrBackendApi::kMock == fBackend) {
-        SkASSERT(fMock.fCompressionType == SkImage::CompressionType::kNone ||
+        SkASSERT(fMock.fCompressionType == SkImage::CompressionType::kNone2 ||
                  fMock.fColorType == GrColorType::kUnknown);
 
         return fMock.fCompressionType;
     }
 
-    return SkImage::CompressionType::kNone;
+    return SkImage::CompressionType::kNone2;
 }
 
 

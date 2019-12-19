@@ -144,14 +144,14 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
     }
 
     // Compressed formats should go through onCreateCompressedTexture
-    SkASSERT(format.asMockCompressionType() == SkImage::CompressionType::kNone);
+    SkASSERT(format.asMockCompressionType() == SkImage::CompressionType::kNone2);
 
     GrColorType ct = format.asMockColorType();
     SkASSERT(ct != GrColorType::kUnknown);
 
     GrMipMapsStatus mipMapsStatus =
             mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
-    GrMockTextureInfo texInfo(ct, SkImage::CompressionType::kNone, NextInternalTextureID());
+    GrMockTextureInfo texInfo(ct, SkImage::CompressionType::kNone2, NextInternalTextureID());
     if (renderable == GrRenderable::kYes) {
         GrMockRenderTargetInfo rtInfo(ct, NextInternalRenderTargetID());
         return sk_sp<GrTexture>(new GrMockTextureRenderTarget(this, budgeted, desc,
@@ -165,17 +165,15 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
 // TODO: why no 'isProtected' ?!
 sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(int width, int height,
                                                       const GrBackendFormat& format,
-                                                      SkImage::CompressionType compressionType,
                                                       SkBudgeted budgeted,
-                                                      const void* data) {
+                                                      const void* data, size_t dataSize) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
 
     // Uncompressed formats should go through onCreateTexture
     SkImage::CompressionType compression = format.asMockCompressionType();
-    SkASSERT(compression != SkImage::CompressionType::kNone);
-    SkASSERT(compression == compressionType);
+    SkASSERT(compression != SkImage::CompressionType::kNone2);
 
     GrSurfaceDesc desc;
     desc.fWidth = width;
@@ -198,7 +196,7 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex, Gr
     SkAssertResult(tex.getMockTextureInfo(&texInfo));
 
     SkImage::CompressionType compression = texInfo.compressionType();
-    if (compression != SkImage::CompressionType::kNone) {
+    if (compression != SkImage::CompressionType::kNone2) {
         return nullptr;
     }
 
@@ -229,7 +227,7 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
                                                            GrWrapCacheable cacheable) {
     GrMockTextureInfo texInfo;
     SkAssertResult(tex.getMockTextureInfo(&texInfo));
-    SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone);
+    SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone2);
 
     SkASSERT(colorType == texInfo.colorType());
     GrSurfaceDesc desc;
@@ -269,7 +267,7 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
                                                                     GrColorType colorType) {
     GrMockTextureInfo texInfo;
     SkAssertResult(tex.getMockTextureInfo(&texInfo));
-    SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone);
+    SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone2);
 
     SkASSERT(colorType == texInfo.colorType());
     GrSurfaceDesc desc;
@@ -305,7 +303,7 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
                                                    GrMipMapped mipMapped,
                                                    GrProtected) {
     SkImage::CompressionType compression = format.asMockCompressionType();
-    if (compression != SkImage::CompressionType::kNone) {
+    if (compression != SkImage::CompressionType::kNone2) {
         return {}; // should go through onCreateCompressedBackendTexture
     }
 
@@ -314,7 +312,7 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
         return GrBackendTexture();  // invalid
     }
 
-    GrMockTextureInfo info(colorType, SkImage::CompressionType::kNone, NextExternalTextureID());
+    GrMockTextureInfo info(colorType, SkImage::CompressionType::kNone2, NextExternalTextureID());
 
     fOutstandingTestingOnlyTextureIDs.add(info.id());
     return GrBackendTexture(dimensions.width(), dimensions.height(), mipMapped, info);
@@ -326,7 +324,7 @@ GrBackendTexture GrMockGpu::onCreateCompressedBackendTexture(SkISize dimensions,
                                                              GrMipMapped mipMapped,
                                                              GrProtected) {
     SkImage::CompressionType compression = format.asMockCompressionType();
-    if (compression == SkImage::CompressionType::kNone) {
+    if (compression == SkImage::CompressionType::kNone2) {
         return {}; // should go through onCreateBackendTexture
     }
 

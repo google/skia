@@ -127,7 +127,7 @@ static bool isBGRA(const GrBackendFormat& format) {
         }
         case GrBackendApi::kMock: {
             SkImage::CompressionType compression = format.asMockCompressionType();
-            if (compression != SkImage::CompressionType::kNone) {
+            if (compression != SkImage::CompressionType::kNone2) {
                 return false; // No compressed formats are BGRA
             }
 
