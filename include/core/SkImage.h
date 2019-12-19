@@ -231,16 +231,40 @@ public:
         return DecodeToTexture(ctx, data->data(), data->size(), subset);
     }
 
-    // Experimental
+    /*
+             GL_COMPRESSED_      | MTLPixelFormat | VK_FORMAT_*_BLOCK     |      Skia
+        -------------------------------------------------------------------------------------
+        ETC1_RGB8                | ETC2_RGB8      | ETC2_R8G8B8_UNORM    -> kETC2_RGB8_UNORM
+        -------------------------------------------------------------------------------------
+        RGB8_ETC2                | ETC2_RGB8      | ETC2_R8G8B8_UNORM    -> kETC2_RGB8_UNORM
+        SRGB8_ETC2               | ETC2_RGB8_sRGB | ETC2_R8G8B8_SRGB     -> kETC2_RGB8_SRGB
+        RGBA8_ETC2_EAC           | EAC_RGBA8      | ETC2_R8G8B8A8_UNORM  -> kETC2_RGBA8_UNORM
+        SRGB8_ALPHA8_ETC2_EAC    | EAC_RGBA8_sRGB | ETC2_R8G8B8A8_SRGB   -> kETC2_RGBA8_SRGB
+        -------------------------------------------------------------------------------------
+        RGB_S3TC_DXT1_EXT        |                | BC1_RGB_UNORM        -> kBC1_RGB8_UNORM
+        SRGB_S3TC_DXT1_EXT       |                | BC1_RGB_SRGB         -> kBC1_RGB8_SRGB
+        RGBA_S3TC_DXT1_EXT       | BC1_RGBA       | BC1_RGBA_UNORM       -> kBC1_RGBA8_UNORM
+        SRGB_ALPHA_S3TC_DXT1_EXT | BC1_RGBA_sRGB  | BC1_RGBA_SRGB        -> kBC1_RGBA8_SRGB
+     */
     enum class CompressionType {
         kNone,
-        kETC1,
-        kLast = kETC1,
+
+        kETC2_RGB8_UNORM, // same as etc1
+        kETC2_RGB8_SRGB,
+        kETC2_RGBA8_UNORM,
+        kETC2_RGBA8_SRGB,
+
+        kBC1_RGB8_UNORM,
+        kBC1_RGB8_SRGB,
+        kBC1_RGBA8_UNORM,
+        kBC1_RGBA8_SRGB,
+
+        kLast = kBC1_RGBA8_SRGB,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
 
-    static const CompressionType kETC1_CompressionType = CompressionType::kETC1;
+    static const CompressionType kETC1_CompressionType = CompressionType::kETC2_RGB8_UNORM;
 
     /** Creates a GPU-backed SkImage from compressed data.
 
