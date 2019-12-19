@@ -618,8 +618,9 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
 
 bool GrGLFormatIsCompressed(GrGLFormat format) {
     switch (format) {
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC22:
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB82:
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
             return true;
 
         case GrGLFormat::kRGBA8:
@@ -648,9 +649,11 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
 
 SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
     switch (format) {
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            return SkImage::CompressionType::kETC1;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC22:
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB82:
+            return SkImage::CompressionType::kETC12;
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
+            return SkImage::CompressionType::kBC1_RGB8_UNORM;
 
         case GrGLFormat::kRGBA8:
         case GrGLFormat::kR8:
@@ -671,7 +674,7 @@ SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
         case GrGLFormat::kRGBA16:
         case GrGLFormat::kRG16F:
         case GrGLFormat::kUnknown:
-            return SkImage::CompressionType::kNone;
+            return SkImage::CompressionType::kNone2;
     }
     SkUNREACHABLE;
 }

@@ -1453,7 +1453,7 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
     }
 
     SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
-    if (compression == SkImage::CompressionType::kNone) {
+    if (compression == SkImage::CompressionType::kNone2) {
         // Un-compressed formats go through onCreateBackendTexture
         return {};
     }
@@ -3768,8 +3768,10 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kALPHA8:               return kAlpha_8_GrPixelConfig;
         case GrGLFormat::kR8:                   return kAlpha_8_GrPixelConfig;
 
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return kRGB_ETC1_GrPixelConfig;
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return kRGB_ETC1_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC22: return kRGB_ETC1_GrPixelConfig2;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB82: return kRGB_ETC1_GrPixelConfig2;
+
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:  return kRGB_BC1_GrPixelConfig;
     }
     SkUNREACHABLE;
 }
