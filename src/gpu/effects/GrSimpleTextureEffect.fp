@@ -7,6 +7,7 @@
 
 in uniform sampler2D image;
 in half4x4 matrix;
+layout(key) in SkBlendMode mode;
 
 @constructorParams {
     SkAlphaType alphaType,
@@ -24,9 +25,10 @@ in half4x4 matrix;
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
-                                                     const SkMatrix& matrix) {
+                                                     const SkMatrix& matrix,
+                                                     SkBlendMode mode = SkBlendMode::kSrcIn) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, (int)mode, alphaType,
                     GrSamplerState(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest)));
     }
 
@@ -34,18 +36,20 @@ in half4x4 matrix;
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
-                                                     GrSamplerState::Filter filter) {
+                                                     GrSamplerState::Filter filter,
+                                                     SkBlendMode mode = SkBlendMode::kSrcIn) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType,
+            new GrSimpleTextureEffect(std::move(proxy), matrix, (int)mode,  alphaType,
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
      }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
-                                                     const GrSamplerState& p) {
+                                                     const GrSamplerState& p,
+                                                     SkBlendMode mode = SkBlendMode::kSrcIn) {
         return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType, p));
+            new GrSimpleTextureEffect(std::move(proxy), matrix, (int)mode, alphaType, p));
     }
 }
 
@@ -56,7 +60,7 @@ in half4x4 matrix;
 }
 
 void main() {
-    sk_OutColor = sk_InColor * sample(image, sk_TransformedCoords2D[0]);
+    sk_OutColor = blend(mode, sample(image, sk_TransformedCoords2D[0]), sk_InColor);
 }
 
 @test(testData) {
@@ -75,5 +79,7 @@ void main() {
                                                                : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
+    SkBlendMode mode = static_cast<SkBlendMode>(testData->fRandom->nextULessThan(static_cast<uint32_t>(SkBlendMode::kLastMode) + 1));
+
     return GrSimpleTextureEffect::Make(std::move(proxy), at, matrix, params);
 }

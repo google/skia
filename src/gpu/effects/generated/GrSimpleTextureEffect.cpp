@@ -25,16 +25,355 @@ public:
         (void)_outer;
         auto matrix = _outer.matrix;
         (void)matrix;
+        auto mode = _outer.mode;
+        (void)mode;
+        SkString blend_clear_name;
+        const GrShaderVar blend_clear_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_clear", 2, blend_clear_args,
+                                  "return half4(0.0);\n", &blend_clear_name);
+        SkString blend_src_name;
+        const GrShaderVar blend_src_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                              GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_src", 2, blend_src_args, "return src;\n",
+                                  &blend_src_name);
+        SkString blend_dst_name;
+        const GrShaderVar blend_dst_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                              GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_dst", 2, blend_dst_args, "return dst;\n",
+                                  &blend_dst_name);
+        SkString blend_src_over_name;
+        const GrShaderVar blend_src_over_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                   GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_src_over", 2, blend_src_over_args,
+                                  "return src + (1.0 - src.w) * dst;\n", &blend_src_over_name);
+        SkString blend_dst_over_name;
+        const GrShaderVar blend_dst_over_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                   GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_dst_over", 2, blend_dst_over_args,
+                                  "return (1.0 - dst.w) * src + dst;\n", &blend_dst_over_name);
+        SkString blend_src_in_name;
+        const GrShaderVar blend_src_in_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                 GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_src_in", 2, blend_src_in_args,
+                                  "@if (sk_Caps.inBlendModesFailRandomlyForAllZeroVec) {\n    if "
+                                  "(src == half4(0.0)) {\n        return half4(0.0);\n    "
+                                  "}\n}\nreturn src * dst.w;\n",
+                                  &blend_src_in_name);
+        SkString blend_dst_in_name;
+        const GrShaderVar blend_dst_in_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                 GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_dst_in", 2, blend_dst_in_args,
+                                  "return blend_src_in(dst, src);\n", &blend_dst_in_name);
+        SkString blend_src_out_name;
+        const GrShaderVar blend_src_out_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                  GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_src_out", 2, blend_src_out_args,
+                                  "return (1.0 - dst.w) * src;\n", &blend_src_out_name);
+        SkString blend_dst_out_name;
+        const GrShaderVar blend_dst_out_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                  GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_dst_out", 2, blend_dst_out_args,
+                                  "return (1.0 - src.w) * dst;\n", &blend_dst_out_name);
+        SkString blend_src_atop_name;
+        const GrShaderVar blend_src_atop_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                   GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_src_atop", 2, blend_src_atop_args,
+                                  "return dst.w * src + (1.0 - src.w) * dst;\n",
+                                  &blend_src_atop_name);
+        SkString blend_dst_atop_name;
+        const GrShaderVar blend_dst_atop_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                   GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_dst_atop", 2, blend_dst_atop_args,
+                                  "return (1.0 - dst.w) * src + src.w * dst;\n",
+                                  &blend_dst_atop_name);
+        SkString blend_xor_name;
+        const GrShaderVar blend_xor_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                              GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_xor", 2, blend_xor_args,
+                                  "return (1.0 - dst.w) * src + (1.0 - src.w) * dst;\n",
+                                  &blend_xor_name);
+        SkString blend_plus_name;
+        const GrShaderVar blend_plus_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                               GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_plus", 2, blend_plus_args,
+                                  "return min(src + dst, 1.0);\n", &blend_plus_name);
+        SkString blend_modulate_name;
+        const GrShaderVar blend_modulate_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                   GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_modulate", 2, blend_modulate_args,
+                                  "return src * dst;\n", &blend_modulate_name);
+        SkString blend_screen_name;
+        const GrShaderVar blend_screen_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                 GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_screen", 2, blend_screen_args,
+                                  "return src + (1.0 - src) * dst;\n", &blend_screen_name);
+        SkString _blend_overlay_component_name;
+        const GrShaderVar _blend_overlay_component_args[] = {
+                GrShaderVar("sc", kHalf_GrSLType), GrShaderVar("sa", kHalf_GrSLType),
+                GrShaderVar("dc", kHalf_GrSLType), GrShaderVar("da", kHalf_GrSLType)};
+        fragBuilder->emitFunction(kHalf_GrSLType, "_blend_overlay_component", 4,
+                                  _blend_overlay_component_args,
+                                  "if (2.0 * dc <= da) {\n    return (2.0 * sc) * dc;\n}\nreturn "
+                                  "sa * da - (2.0 * (da - dc)) * (sa - sc);\n",
+                                  &_blend_overlay_component_name);
+        SkString blend_overlay_name;
+        const GrShaderVar blend_overlay_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                  GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_overlay", 2, blend_overlay_args,
+                                  "half4 result = half4(_blend_overlay_component(src.x, src.w, "
+                                  "dst.x, dst.w), _blend_overlay_component(src.y, src.w, dst.y, "
+                                  "dst.w), _blend_overlay_component(src.z, src.w, dst.z, dst.w), "
+                                  "src.w + (1.0 - src.w) * dst.w);\nresult.xyz += dst.xyz * (1.0 - "
+                                  "src.w) + src.xyz * (1.0 - dst.w);\nreturn result;\n",
+                                  &blend_overlay_name);
+        SkString blend_darken_name;
+        const GrShaderVar blend_darken_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                 GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_darken", 2, blend_darken_args,
+                                  "half4 result = blend_src_over(src, dst);\nresult.xyz = "
+                                  "min(result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);\nreturn "
+                                  "result;\n",
+                                  &blend_darken_name);
+        SkString blend_lighten_name;
+        const GrShaderVar blend_lighten_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                  GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_lighten", 2, blend_lighten_args,
+                                  "half4 result = blend_src_over(src, dst);\nresult.xyz = "
+                                  "max(result.xyz, (1.0 - dst.w) * src.xyz + dst.xyz);\nreturn "
+                                  "result;\n",
+                                  &blend_lighten_name);
+        SkString _guarded_divide_name;
+        const GrShaderVar _guarded_divide_args[] = {GrShaderVar("n", kHalf_GrSLType),
+                                                    GrShaderVar("d", kHalf_GrSLType)};
+        fragBuilder->emitFunction(kHalf_GrSLType, "_guarded_divide", 2, _guarded_divide_args,
+                                  "@if (sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck) {\n   "
+                                  " return n / (d + 9.9999999392252903e-09);\n}\nreturn n / d;\n",
+                                  &_guarded_divide_name);
+        SkString _color_dodge_component_name;
+        const GrShaderVar _color_dodge_component_args[] = {
+                GrShaderVar("sc", kHalf_GrSLType), GrShaderVar("sa", kHalf_GrSLType),
+                GrShaderVar("dc", kHalf_GrSLType), GrShaderVar("da", kHalf_GrSLType)};
+        fragBuilder->emitFunction(
+                kHalf_GrSLType, "_color_dodge_component", 4, _color_dodge_component_args,
+                "if (dc == 0.0) {\n    return sc * (1.0 - da);\n} else {\n    half d = sa - sc;\n  "
+                "  if (d == 0.0) {\n        return (sa * da + sc * (1.0 - da)) + dc * (1.0 - "
+                "sa);\n    }\n    d = min(da, _guarded_divide(dc * sa, d));\n    return (d * sa + "
+                "sc * (1.0 - da)) + dc * (1.0 - sa);\n}\n",
+                &_color_dodge_component_name);
+        SkString blend_color_dodge_name;
+        const GrShaderVar blend_color_dodge_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                      GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_color_dodge", 2, blend_color_dodge_args,
+                                  "return half4(_color_dodge_component(src.x, src.w, dst.x, "
+                                  "dst.w), _color_dodge_component(src.y, src.w, dst.y, dst.w), "
+                                  "_color_dodge_component(src.z, src.w, dst.z, dst.w), src.w + "
+                                  "(1.0 - src.w) * dst.w);\n",
+                                  &blend_color_dodge_name);
+        SkString _color_burn_component_name;
+        const GrShaderVar _color_burn_component_args[] = {
+                GrShaderVar("sc", kHalf_GrSLType), GrShaderVar("sa", kHalf_GrSLType),
+                GrShaderVar("dc", kHalf_GrSLType), GrShaderVar("da", kHalf_GrSLType)};
+        fragBuilder->emitFunction(kHalf_GrSLType, "_color_burn_component", 4,
+                                  _color_burn_component_args,
+                                  "if (da == dc) {\n    return (sa * da + sc * (1.0 - da)) + dc * "
+                                  "(1.0 - sa);\n} else if (sc == 0.0) {\n    return dc * (1.0 - "
+                                  "sa);\n}\nhalf d = max(0.0, da - _guarded_divide((da - dc) * sa, "
+                                  "sc));\nreturn (d * sa + sc * (1.0 - da)) + dc * (1.0 - sa);\n",
+                                  &_color_burn_component_name);
+        SkString blend_color_burn_name;
+        const GrShaderVar blend_color_burn_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                     GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_color_burn", 2, blend_color_burn_args,
+                                  "return half4(_color_burn_component(src.x, src.w, dst.x, dst.w), "
+                                  "_color_burn_component(src.y, src.w, dst.y, dst.w), "
+                                  "_color_burn_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 "
+                                  "- src.w) * dst.w);\n",
+                                  &blend_color_burn_name);
+        SkString blend_hard_light_name;
+        const GrShaderVar blend_hard_light_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                     GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_hard_light", 2, blend_hard_light_args,
+                                  "return blend_overlay(dst, src);\n", &blend_hard_light_name);
+        SkString _soft_light_component_name;
+        const GrShaderVar _soft_light_component_args[] = {
+                GrShaderVar("sc", kHalf_GrSLType), GrShaderVar("sa", kHalf_GrSLType),
+                GrShaderVar("dc", kHalf_GrSLType), GrShaderVar("da", kHalf_GrSLType)};
+        fragBuilder->emitFunction(
+                kHalf_GrSLType, "_soft_light_component", 4, _soft_light_component_args,
+                "if (2.0 * sc <= sa) {\n    return (_guarded_divide((dc * dc) * (sa - 2.0 * sc), "
+                "da) + (1.0 - da) * sc) + dc * ((-sa + 2.0 * sc) + 1.0);\n} else if (4.0 * dc <= "
+                "da) {\n    half DSqd = dc * dc;\n    half DCub = DSqd * dc;\n    half DaSqd = da "
+                "* da;\n    half DaCub = DaSqd * da;\n    return _guarded_divide(((DaSqd * (sc - "
+                "dc * ((3.0 * sa - 6.0 * sc) - 1.0)) + ((12.0 * da) * DSqd) * (sa - 2.0 * sc)) - "
+                "(16.0 * DCub) * (sa - 2.0 * sc)) - DaCub * sc, DaSqd);\n}\nreturn ((dc * ((sa - "
+                "2.0 * sc) + 1.0) + sc) - sqrt(da * dc) * (sa - 2.0 * sc)) - da * sc;\n",
+                &_soft_light_component_name);
+        SkString blend_soft_light_name;
+        const GrShaderVar blend_soft_light_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                     GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_soft_light", 2, blend_soft_light_args,
+                                  "if (dst.w == 0.0) {\n    return src;\n}\nreturn "
+                                  "half4(_soft_light_component(src.x, src.w, dst.x, dst.w), "
+                                  "_soft_light_component(src.y, src.w, dst.y, dst.w), "
+                                  "_soft_light_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 "
+                                  "- src.w) * dst.w);\n",
+                                  &blend_soft_light_name);
+        SkString blend_difference_name;
+        const GrShaderVar blend_difference_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                     GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_difference", 2, blend_difference_args,
+                                  "return half4((src.xyz + dst.xyz) - 2.0 * min(src.xyz * dst.w, "
+                                  "dst.xyz * src.w), src.w + (1.0 - src.w) * dst.w);\n",
+                                  &blend_difference_name);
+        SkString blend_exclusion_name;
+        const GrShaderVar blend_exclusion_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                    GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_exclusion", 2, blend_exclusion_args,
+                                  "return half4((dst.xyz + src.xyz) - (2.0 * dst.xyz) * src.xyz, "
+                                  "src.w + (1.0 - src.w) * dst.w);\n",
+                                  &blend_exclusion_name);
+        SkString blend_multiply_name;
+        const GrShaderVar blend_multiply_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                   GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_multiply", 2, blend_multiply_args,
+                                  "return half4(((1.0 - src.w) * dst.xyz + (1.0 - dst.w) * "
+                                  "src.xyz) + src.xyz * dst.xyz, src.w + (1.0 - src.w) * dst.w);\n",
+                                  &blend_multiply_name);
+        SkString _blend_color_saturation_name;
+        const GrShaderVar _blend_color_saturation_args[] = {GrShaderVar("color", kHalf3_GrSLType)};
+        fragBuilder->emitFunction(kHalf_GrSLType, "_blend_color_saturation", 1,
+                                  _blend_color_saturation_args,
+                                  "return max(max(color.x, color.y), color.z) - min(min(color.x, "
+                                  "color.y), color.z);\n",
+                                  &_blend_color_saturation_name);
+        SkString _blend_set_color_saturation_helper_name;
+        const GrShaderVar _blend_set_color_saturation_helper_args[] = {
+                GrShaderVar("minMidMax", kHalf3_GrSLType), GrShaderVar("sat", kHalf_GrSLType)};
+        fragBuilder->emitFunction(kHalf3_GrSLType, "_blend_set_color_saturation_helper", 2,
+                                  _blend_set_color_saturation_helper_args,
+                                  "if (minMidMax.x < minMidMax.z) {\n    return half3(0.0, (sat * "
+                                  "(minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), "
+                                  "sat);\n}\nreturn half3(0.0);\n",
+                                  &_blend_set_color_saturation_helper_name);
+        SkString _blend_set_color_saturation_name;
+        const GrShaderVar _blend_set_color_saturation_args[] = {
+                GrShaderVar("hueLumColor", kHalf3_GrSLType),
+                GrShaderVar("satColor", kHalf3_GrSLType)};
+        fragBuilder->emitFunction(
+                kHalf3_GrSLType, "_blend_set_color_saturation", 2, _blend_set_color_saturation_args,
+                "half sat = _blend_color_saturation(satColor);\nif (hueLumColor.x <= "
+                "hueLumColor.y) {\n    if (hueLumColor.y <= hueLumColor.z) {\n        "
+                "hueLumColor.xyz = _blend_set_color_saturation_helper(hueLumColor, sat);\n    } "
+                "else if (hueLumColor.x <= hueLumColor.z) {\n        hueLumColor.xzy = "
+                "_blend_set_color_saturation_helper(hueLumColor.xzy, sat);\n    } else {\n        "
+                "hueLumColor.zxy = _blend_set_color_saturation_helper(hueLumColor.zxy, sat);\n    "
+                "}\n} else if (hueLumColor.x <= hueLumColor.z) {\n    hueLumColor.yxz = "
+                "_blend_set_color_saturation_helper(hueLumColor.yxz, sat);\n} else if "
+                "(hueLumColor.y <= hueLumColor.z) {\n    hueLumColor.yzx = "
+                "_blend_set_color_saturation_helper(hueLumColor.yzx, sat);\n} else {\n    "
+                "hueLumColor.zyx = _blend_set_color_saturation_helper(hueLumColor.zyx, "
+                "sat);\n}\nreturn hueLumColor;\n",
+                &_blend_set_color_saturation_name);
+        SkString _blend_color_luminance_name;
+        const GrShaderVar _blend_color_luminance_args[] = {GrShaderVar("color", kHalf3_GrSLType)};
+        fragBuilder->emitFunction(kHalf_GrSLType, "_blend_color_luminance", 1,
+                                  _blend_color_luminance_args,
+                                  "return dot(half3(0.30000001192092896, 0.5899999737739563, "
+                                  "0.10999999940395355), color);\n",
+                                  &_blend_color_luminance_name);
+        SkString _blend_set_color_luminance_name;
+        const GrShaderVar _blend_set_color_luminance_args[] = {
+                GrShaderVar("hueSatColor", kHalf3_GrSLType), GrShaderVar("alpha", kHalf_GrSLType),
+                GrShaderVar("lumColor", kHalf3_GrSLType)};
+        fragBuilder->emitFunction(
+                kHalf3_GrSLType, "_blend_set_color_luminance", 3, _blend_set_color_luminance_args,
+                "half lum = _blend_color_luminance(lumColor);\nhalf3 result = (lum - "
+                "_blend_color_luminance(hueSatColor)) + hueSatColor;\nhalf minComp = "
+                "min(min(result.x, result.y), result.z);\nhalf maxComp = max(max(result.x, "
+                "result.y), result.z);\nif (minComp < 0.0 && lum != minComp) {\n    result = lum + "
+                "((result - lum) * lum) / (lum - minComp);\n}\nif (maxComp > alpha && maxComp != "
+                "lum) {\n    return lum + ((result - lum) * (alpha - lum)) / (maxComp - "
+                "lum);\n}\nreturn result;\n",
+                &_blend_set_color_luminance_name);
+        SkString blend_hue_name;
+        const GrShaderVar blend_hue_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                              GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_hue", 2, blend_hue_args,
+                                  "half alpha = dst.w * src.w;\nhalf3 sda = src.xyz * "
+                                  "dst.w;\nhalf3 dsa = dst.xyz * src.w;\nreturn "
+                                  "half4((((_blend_set_color_luminance(_blend_set_color_saturation("
+                                  "sda, dsa), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, "
+                                  "(src.w + dst.w) - alpha);\n",
+                                  &blend_hue_name);
+        SkString blend_saturation_name;
+        const GrShaderVar blend_saturation_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                     GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_saturation", 2, blend_saturation_args,
+                                  "half alpha = dst.w * src.w;\nhalf3 sda = src.xyz * "
+                                  "dst.w;\nhalf3 dsa = dst.xyz * src.w;\nreturn "
+                                  "half4((((_blend_set_color_luminance(_blend_set_color_saturation("
+                                  "dsa, sda), alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, "
+                                  "(src.w + dst.w) - alpha);\n",
+                                  &blend_saturation_name);
+        SkString blend_color_name;
+        const GrShaderVar blend_color_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_color", 2, blend_color_args,
+                                  "half alpha = dst.w * src.w;\nhalf3 sda = src.xyz * "
+                                  "dst.w;\nhalf3 dsa = dst.xyz * src.w;\nreturn "
+                                  "half4((((_blend_set_color_luminance(sda, alpha, dsa) + dst.xyz) "
+                                  "- dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);\n",
+                                  &blend_color_name);
+        SkString blend_luminosity_name;
+        const GrShaderVar blend_luminosity_args[] = {GrShaderVar("src", kHalf4_GrSLType),
+                                                     GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "blend_luminosity", 2, blend_luminosity_args,
+                                  "half alpha = dst.w * src.w;\nhalf3 sda = src.xyz * "
+                                  "dst.w;\nhalf3 dsa = dst.xyz * src.w;\nreturn "
+                                  "half4((((_blend_set_color_luminance(dsa, alpha, sda) + dst.xyz) "
+                                  "- dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);\n",
+                                  &blend_luminosity_name);
+        SkString blend_name;
+        const GrShaderVar blend_args[] = {GrShaderVar("mode", int),
+                                          GrShaderVar("src", kHalf4_GrSLType),
+                                          GrShaderVar("dst", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(
+                kHalf4_GrSLType, "blend", 3, blend_args,
+                "switch (mode) {\n    case 0:\n        return blend_clear(src, dst);\n    case "
+                "1:\n        return blend_src(src, dst);\n    case 2:\n        return "
+                "blend_dst(src, dst);\n    case 3:\n        return blend_src_over(src, dst);\n    "
+                "case 4:\n        return blend_dst_over(src, dst);\n    case 5:\n        return "
+                "blend_src_in(src, dst);\n    case 6:\n        return blend_dst_in(src, dst);\n    "
+                "case 7:\n        return blend_src_out(src, dst);\n    case 8:\n        return "
+                "blend_dst_out(src, dst);\n    case 9:\n        return blend_src_atop(src, dst);\n "
+                "   case 10:\n        return blend_dst_atop(src, dst);\n    case 11:\n        "
+                "return blend_xor(src, dst);\n    case 12:\n        return blend_plus(src, dst);\n "
+                "   case 13:\n        return blend_modulate(src, dst);\n    case 14:\n        "
+                "return blend_screen(src, dst);\n    case 15:\n        return blend_overlay(src, "
+                "dst);\n    case 16:\n        return blend_darken(src, dst);\n    case 17:\n       "
+                " return blend_lighten(src, dst);\n    case 18:\n        return "
+                "blend_color_dodge(src, dst);\n    case 19:\n        return blend_color_burn(src, "
+                "dst);\n    case 20:\n        return blend_hard_light(src, dst);\n    case 21:\n   "
+                "     return blend_soft_light(src, dst);\n    case 22:\n        return "
+                "blend_difference(src, dst);\n    case 23:\n        return blend_exclusion(src, "
+                "dst);\n    case 24:\n        return blend_multiply(src, dst);\n    case 25:\n     "
+                "   return blend_hue(src, dst);\n    case 26:\n        return "
+                "blend_saturation(src, dst);\n    case 27:\n        return blend_color(src, "
+                "dst);\n    case 28:\n        return blend_luminosity(src, dst);\n}\nreturn "
+                "half4(0.0);\n",
+                &blend_name);
         SkString sk_TransformedCoords2D_0 =
                 fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
         fragBuilder->codeAppendf(
-                "%s = %s * sample(%s, %s).%s;\n", args.fOutputColor, args.fInputColor,
+                "%s = blend(%d, sample(%s, %s).%s, %s);\n", args.fOutputColor, (int)_outer.mode,
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]),
                 sk_TransformedCoords2D_0.c_str(),
                 fragBuilder->getProgramBuilder()
                         ->samplerSwizzle(args.fTexSamplers[0])
                         .asString()
-                        .c_str());
+                        .c_str(),
+                args.fInputColor);
     }
 
 private:
@@ -45,19 +384,23 @@ GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
     return new GrGLSLSimpleTextureEffect();
 }
 void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {}
+                                                  GrProcessorKeyBuilder* b) const {
+    b->add32((int32_t)mode);
+}
 bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSimpleTextureEffect& that = other.cast<GrSimpleTextureEffect>();
     (void)that;
     if (image != that.image) return false;
     if (matrix != that.matrix) return false;
+    if (mode != that.mode) return false;
     return true;
 }
 GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
         : INHERITED(kGrSimpleTextureEffect_ClassID, src.optimizationFlags())
         , imageCoordTransform(src.imageCoordTransform)
         , image(src.image)
-        , matrix(src.matrix) {
+        , matrix(src.matrix)
+        , mode(src.mode) {
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&imageCoordTransform);
 }
@@ -87,6 +430,9 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
+    SkBlendMode mode = static_cast<SkBlendMode>(
+            testData->fRandom->nextULessThan(static_cast<uint32_t>(SkBlendMode::kLastMode) + 1));
+
     return GrSimpleTextureEffect::Make(std::move(proxy), at, matrix, params);
 }
 #endif

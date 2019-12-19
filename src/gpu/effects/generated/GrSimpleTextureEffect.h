@@ -16,11 +16,44 @@
 #include "src/gpu/GrFragmentProcessor.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
+    enum class SkBlendMode {
+        kClear = 0,
+        kColor = 27,
+        kColorBurn = 19,
+        kColorDodge = 18,
+        kDarken = 16,
+        kDifference = 22,
+        kDst = 2,
+        kDstATop = 10,
+        kDstIn = 6,
+        kDstOut = 8,
+        kDstOver = 4,
+        kExclusion = 23,
+        kHardLight = 20,
+        kHue = 25,
+        kLighten = 17,
+        kLuminosity = 28,
+        kModulate = 13,
+        kMultiply = 24,
+        kOverlay = 15,
+        kPlus = 12,
+        kSaturation = 26,
+        kScreen = 14,
+        kSoftLight = 21,
+        kSrc = 1,
+        kSrcATop = 9,
+        kSrcIn = 5,
+        kSrcOut = 7,
+        kSrcOver = 3,
+        kXor = 11
+    };
+
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
-                                                     const SkMatrix& matrix) {
+                                                     const SkMatrix& matrix,
+                                                     SkBlendMode mode = SkBlendMode::kSrcIn) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType,
+                new GrSimpleTextureEffect(std::move(proxy), matrix, (int)mode, alphaType,
                                           GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                          GrSamplerState::Filter::kNearest)));
     }
@@ -29,18 +62,20 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
-                                                     GrSamplerState::Filter filter) {
+                                                     GrSamplerState::Filter filter,
+                                                     SkBlendMode mode = SkBlendMode::kSrcIn) {
         return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(
-                std::move(proxy), matrix, alphaType,
+                std::move(proxy), matrix, (int)mode, alphaType,
                 GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
     }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
                                                      SkAlphaType alphaType,
                                                      const SkMatrix& matrix,
-                                                     const GrSamplerState& p) {
+                                                     const GrSamplerState& p,
+                                                     SkBlendMode mode = SkBlendMode::kSrcIn) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrSimpleTextureEffect(std::move(proxy), matrix, alphaType, p));
+                new GrSimpleTextureEffect(std::move(proxy), matrix, (int)mode, alphaType, p));
     }
     GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -48,10 +83,11 @@ public:
     GrCoordTransform imageCoordTransform;
     TextureSampler image;
     SkMatrix44 matrix;
+    SkBlendMode mode;
 
 private:
-    GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> image, SkMatrix44 matrix, SkAlphaType alphaType,
-                          GrSamplerState samplerParams)
+    GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> image, SkMatrix44 matrix, SkBlendMode mode,
+                          SkAlphaType alphaType, GrSamplerState samplerParams)
             : INHERITED(kGrSimpleTextureEffect_ClassID,
                         (OptimizationFlags)ModulateForSamplerOptFlags(
                                 alphaType,
@@ -61,7 +97,8 @@ private:
                                                 GrSamplerState::WrapMode::kClampToBorder))
             , imageCoordTransform(matrix, image.get())
             , image(std::move(image), samplerParams)
-            , matrix(matrix) {
+            , matrix(matrix)
+            , mode(mode) {
         this->setTextureSamplerCnt(1);
         this->addCoordTransform(&imageCoordTransform);
     }
