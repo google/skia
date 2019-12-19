@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e6e1f738_5d5f9ce1",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:53:44Z",
+      "side": 1,
+      "message": "At least for GL and Vulkan, a non-supported backend format will be rejected in GrGpu::wrapBackendTexture.",
+      "parentUuid": "6f7370bc_81f422ba",
+      "range": {
+        "startLine": 741,
+        "startChar": 4,
+        "endLine": 741,
+        "endChar": 53
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7179f7e_c08a61a2",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 3
@@ -82,6 +106,30 @@
       "writtenOn": "2019-12-18T21:07:20Z",
       "side": 1,
       "message": "Why is this?",
+      "range": {
+        "startLine": 1680,
+        "startChar": 7,
+        "endLine": 1680,
+        "endChar": 76
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c991f3e_bf21c74b",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-19T13:53:44Z",
+      "side": 1,
+      "message": "From the Vulkan 1.1 spec for vkCmdClearColorImage:\n\n\"image must not have a compressed or depth/stencil format\"\n\nand, also, bc it didn\u0027t work on the Pixel 2.",
+      "parentUuid": "2a349e1a_c12cdb3f",
       "range": {
         "startLine": 1680,
         "startChar": 7,
