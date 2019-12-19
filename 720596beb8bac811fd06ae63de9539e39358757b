@@ -22,6 +22,30 @@
       "revId": "720596beb8bac811fd06ae63de9539e39358757b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bb8cca4_1cedb599",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-19T15:46:21Z",
+      "side": 1,
+      "message": "Err, clearly I forgot the SkASSERT there... anyway, point is,\n\ntemplate \u003ctypename D, typename S\u003e constexpr D SkTo(S s) {\n    return SkASSERT(SkTFitsIn\u003cD\u003e(s)),\n           static_cast\u003cD\u003e(s);\n}",
+      "parentUuid": "d12b95e3_2f8d89b2",
+      "range": {
+        "startLine": 290,
+        "startChar": 7,
+        "endLine": 291,
+        "endChar": 75
+      },
+      "revId": "720596beb8bac811fd06ae63de9539e39358757b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
