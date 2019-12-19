@@ -105,10 +105,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
-                                auto dstContext = context->priv().makeWrappedSurfaceContext(
-                                        std::move(dst),
-                                        grColorType,
-                                        ii.alphaType());
+                                auto dstContext = GrSurfaceContext::Make(context, std::move(dst),
+                                                                         grColorType,
+                                                                         ii.alphaType(), nullptr);
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {

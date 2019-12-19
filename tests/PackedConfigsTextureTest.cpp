@@ -120,10 +120,13 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
                 controlPixelData.begin(), 0);
         SkASSERT(proxy);
 
-        auto sContext = context->priv().makeWrappedSurfaceContext(std::move(proxy), grColorType,
-                                                                  kPremul_SkAlphaType);
+        GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                       grColorType);
 
-        if (!sContext->readPixels(dstInfo, readBuffer.begin(), 0, {0, 0})) {
+        GrSurfaceContext sContext(context, std::move(proxy), grColorType, kPremul_SkAlphaType,
+                                  nullptr, origin, readSwizzle);
+
+        if (!sContext.readPixels(dstInfo, readBuffer.begin(), 0, {0, 0})) {
             // We only require this to succeed if the format is renderable.
             REPORTER_ASSERT(reporter, !context->colorTypeSupportedAsSurface(colorType));
             return;

@@ -941,22 +941,3 @@ std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext
                                       managedOpsTask));
 }
 
-std::unique_ptr<GrSurfaceContext> GrDrawingManager::makeSurfaceContext(
-        sk_sp<GrSurfaceProxy> sProxy,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace) {
-    if (this->wasAbandoned() || !sProxy->asTextureProxy()) {
-        return nullptr;
-    }
-
-    // GrTextureRenderTargets should always be using a GrRenderTargetContext
-    SkASSERT(!sProxy->asRenderTargetProxy());
-
-    GrSurfaceOrigin origin = sProxy->origin();
-    GrSwizzle readSwizzle = sProxy->textureSwizzle();
-
-    return std::unique_ptr<GrSurfaceContext>(new GrSurfaceContext(
-            fContext, std::move(sProxy), colorType, alphaType, std::move(colorSpace), origin,
-            readSwizzle));
-}
