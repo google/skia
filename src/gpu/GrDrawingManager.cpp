@@ -581,8 +581,7 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
         renderTask->prePrepare(fContext);
     }
 
-    ddl->fOpMemoryPool = fContext->priv().detachOpMemoryPool();
-    ddl->fRecordTimeData = fContext->priv().detachRecordTimeAllocator();
+    ddl->fArenas = std::move(fContext->priv().detachArenas());
 
     fContext->priv().detachProgramInfos(&ddl->fProgramInfos);
 
