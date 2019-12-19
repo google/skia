@@ -146,14 +146,13 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
 sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(int width, int height,
                                                              const GrBackendFormat& format,
-                                                             SkImage::CompressionType compression,
                                                              SkBudgeted budgeted, SkData* data) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->createCompressedTexture(width, height, format, compression, budgeted, data->data(),
-                                         data->size());
+    return fGpu->createCompressedTexture(width, height, format, budgeted,
+                                         data->data(), data->size());
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
@@ -229,7 +228,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     }
 
     // Currently we don't recycle compressed textures as scratch. Additionally all compressed
-    // textures should be created through the createCompressedTexture function.
+    // textures should be created through the gcreateCompressedTexture function.
     SkASSERT(!this->caps()->isFormatCompressed(format));
 
     if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
