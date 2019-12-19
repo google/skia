@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "86aff3d7_2cc75d1c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-19T14:02:19Z",
+      "side": 1,
+      "message": "From what I can tell GrGpu::wrapCompressedBackendFormat just checks if the format is texturable.  It is not checking that it is a compressed format. The getConfigFromCompressedBackendFormat will return kUnknown if you pass in a non compressed format",
+      "parentUuid": "e6e1f738_5d5f9ce1",
+      "range": {
+        "startLine": 741,
+        "startChar": 4,
+        "endLine": 741,
+        "endChar": 53
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7179f7e_c08a61a2",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 3
@@ -130,6 +154,30 @@
       "side": 1,
       "message": "From the Vulkan 1.1 spec for vkCmdClearColorImage:\n\n\"image must not have a compressed or depth/stencil format\"\n\nand, also, bc it didn\u0027t work on the Pixel 2.",
       "parentUuid": "2a349e1a_c12cdb3f",
+      "range": {
+        "startLine": 1680,
+        "startChar": 7,
+        "endLine": 1680,
+        "endChar": 76
+      },
+      "revId": "22ed455c6b387d601969297a1542fb5b80113d46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92884c5c_52064ec2",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-19T14:02:19Z",
+      "side": 1,
+      "message": "duh I looked through the list of requirements and somehow missed that the first time through.",
+      "parentUuid": "9c991f3e_bf21c74b",
       "range": {
         "startLine": 1680,
         "startChar": 7,
