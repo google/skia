@@ -309,6 +309,7 @@ tests_sources = [
 
 gl_tests_sources = [
   "$_tests/BackendAllocationTest.cpp",
+  "$_tests/CompressedBackendAllocationTest.cpp",
   "$_tests/EGLImageTest.cpp",
   "$_tests/GrGLExtensionsTest.cpp",
   "$_tests/ProxyTest.cpp",
