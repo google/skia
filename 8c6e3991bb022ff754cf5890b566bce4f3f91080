@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7494de41_01f9d8a4",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "It\u0027s not clear what \"them\" refers to. Frames? Other Debug Canvases? Themselves?",
+      "range": {
+        "startLine": 144,
+        "startChar": 70,
+        "endLine": 144,
+        "endChar": 74
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eddde009_827e6401",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "fInspectedLayer - I got a bit confused at first until I realized it was a field.",
+      "range": {
+        "startLine": 367,
+        "startChar": 10,
+        "endLine": 367,
+        "endChar": 24
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d52a32b_9921c727",
+        "filename": "experimental/wasm-skp-debugger/debugger_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "nit: alphabetize this list",
+      "range": {
+        "startLine": 437,
+        "startChar": 4,
+        "endLine": 455,
+        "endChar": 75
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "724f903d_701aa7fd",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 10
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b7b9bed_5d657a17",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 4
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5363e147_6d2a0d9d",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "nit: its",
+      "range": {
+        "startLine": 97,
+        "startChar": 69,
+        "endLine": 97,
+        "endChar": 73
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eb010435_72e07f67",
+        "filename": "tools/debugger/DebugLayerManager.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-19T14:26:22Z",
+      "side": 1,
+      "message": "still needed?",
+      "range": {
+        "startLine": 103,
+        "startChar": 4,
+        "endLine": 103,
+        "endChar": 55
+      },
+      "revId": "8c6e3991bb022ff754cf5890b566bce4f3f91080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
