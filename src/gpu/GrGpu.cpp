@@ -276,7 +276,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
                                                 const void* data,
                                                 size_t dataSize) {
     // If we ever add a new CompressionType, we should add a check here to make sure the
-    // GrBackendFormat and CompressionType are compatible with eachother.
+    // GrBackendFormat and CompressionType are compatible with each other.
     SkASSERT(compressionType == SkImage::CompressionType::kETC1);
 
     this->handleDirtyContext();
@@ -864,7 +864,7 @@ GrBackendTexture GrGpu::createCompressedBackendTexture(SkISize dimensions,
     }
 
     SkImage::CompressionType compressionType = caps->compressionType(format);
-    if (compressionType == SkImage::CompressionType::kNone) {
+    if (compressionType == SkImage::CompressionType::kNone2) {
         // Uncompressed formats must go through the createBackendTexture API
         return {};
     }

@@ -882,8 +882,8 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* tex, int left, int top, int w
         return false;
     }
 
-    SkImage::CompressionType textureCompressionType;
-    if (!GrVkFormatToCompressionType(tex->imageFormat(), &textureCompressionType) ||
+    auto textureCompressionType = GrVkFormatToCompressionType(tex->imageFormat());
+    if (textureCompressionType == SkImage::CompressionType::kNone2 ||
         textureCompressionType != compressionType) {
         return false;
     }
@@ -1531,14 +1531,15 @@ bool copy_compressed_data(GrVkGpu* gpu, const GrVkAlloc& alloc,
     return true;
 }
 
-bool generate_compressed_data(GrVkGpu* gpu, const GrVkAlloc& alloc, SkISize dimensions,
+bool generate_compressed_data(GrVkGpu* gpu, const GrVkAlloc& alloc,
+                              SkImage::CompressionType compression, SkISize dimensions,
                               GrMipMapped mipMapped, const SkColor4f& color) {
     char* mapPtr = (char*) GrVkMemory::MapAlloc(gpu, alloc);
     if (!mapPtr) {
         return false;
     }
 
-    GrFillInCompressedData(SkImage::CompressionType::kETC1, dimensions, mipMapped, mapPtr, color);
+    GrFillInCompressedData(compression, dimensions, mipMapped, mapPtr, color);
 
     GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, alloc.fSize);
     GrVkMemory::UnmapAlloc(gpu, alloc);
@@ -1677,6 +1678,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
     set_image_layout(this->vkInterface(), cmdBuffer, info, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                      numMipLevels, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
+    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
+
     // Unfortunately, CmdClearColorImage doesn't work for compressed formats
     bool fastPath = data->type() == BackendTextureData::Type::kColor &&
                     !GrVkFormatIsCompressed(vkFormat);
@@ -1694,9 +1697,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                                                   &individualMipOffsets,
                                                                   numMipLevels);
         } else {
-            combinedBufferSize = GrCompressedDataSize(SkImage::CompressionType::kETC1,
-                                                      dimensions, &individualMipOffsets,
-                                                      mipMapped);
+            combinedBufferSize = GrCompressedDataSize(compression, dimensions,
+                                                      &individualMipOffsets, mipMapped);
         }
         SkASSERT(individualMipOffsets.count() == numMipLevels);
 
@@ -1736,8 +1738,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                           data->compressedData(), data->compressedSize());
         } else {
             SkASSERT(data->type() == BackendTextureData::Type::kColor);
-            result = generate_compressed_data(this, bufferAlloc, dimensions, mipMapped,
-                                              data->color());
+            result = generate_compressed_data(this, bufferAlloc, compression, dimensions,
+                                              mipMapped, data->color());
         }
 
         if (!result) {
