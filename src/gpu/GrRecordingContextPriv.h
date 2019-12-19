@@ -41,11 +41,10 @@ public:
     // from GrRecordingContext
     GrDrawingManager* drawingManager() { return fContext->drawingManager(); }
 
-    GrOpMemoryPool* opMemoryPool() { return fContext->opMemoryPool(); }
-    std::unique_ptr<GrOpMemoryPool> detachOpMemoryPool();
+    GrOpMemoryPool* opMemoryPool() { return fContext->arenas().opMemoryPool(); }
+    SkArenaAlloc* recordTimeAllocator() { return fContext->arenas().recordTimeAllocator(); }
 
-    SkArenaAlloc* recordTimeAllocator() { return fContext->recordTimeAllocator(); }
-    std::unique_ptr<SkArenaAlloc> detachRecordTimeAllocator();
+    GrRecordingContext::OwnedArenas&& detachArenas() { return fContext->detachArenas(); }
 
     void recordProgramInfo(const GrProgramInfo* programInfo) {
         fContext->recordProgramInfo(programInfo);

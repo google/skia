@@ -15,6 +15,7 @@
 class SkDeferredDisplayListPriv;
 
 #if SK_SUPPORT_GPU
+#include "include/private/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
 #include <map>
 class GrOpMemoryPool;
@@ -68,7 +69,7 @@ private:
     }
 #endif
 
-    friend class GrDrawingManager; // for access to 'fRenderTasks', 'fLazyProxyData', 'fOpPOD'
+    friend class GrDrawingManager; // for access to 'fRenderTasks', 'fLazyProxyData', 'fArenas'
     friend class SkDeferredDisplayListRecorder; // for access to 'fLazyProxyData'
     friend class SkDeferredDisplayListPriv;
 
@@ -80,8 +81,7 @@ private:
 
     // These are ordered such that the destructor cleans op tasks up first (which may refer back
     // to the arena and memory pool in their destructors).
-    std::unique_ptr<SkArenaAlloc>   fRecordTimeData;
-    std::unique_ptr<GrOpMemoryPool> fOpMemoryPool;
+    GrRecordingContext::OwnedArenas fArenas;
     PendingPathsMap                 fPendingPaths;  // This is the path data from CCPR.
     SkTArray<sk_sp<GrRenderTask>>   fRenderTasks;
 
