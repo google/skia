@@ -424,7 +424,42 @@
       "DOCKER_CONFIG": "/home/chrome-bot/.docker",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Make code size treemap"
+    "name": "Make code size treemap [START_DIR]/build/skottie_tool"
+  },
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/build",
+      "dm"
+    ],
+    "cwd": "[START_DIR]/build",
+    "infra_step": true,
+    "name": "find dm",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/build/dm@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/work/skia/infra/bots/buildstats/make_treemap.py",
+      "[START_DIR]/build/dm",
+      "[START_DIR]/[SWARM_OUT_DIR]"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "DOCKER_CONFIG": "/home/chrome-bot/.docker",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Make code size treemap [START_DIR]/build/dm"
   },
   {
     "name": "$result"

@@ -86,6 +86,15 @@ def RunSteps(api):
     if files:
       make_treemap(api, checkout_root, out_dir, files)
 
+    files = api.file.glob_paths(
+        'find dm',
+        bin_dir,
+        'dm',
+        test_data=['dm'])
+    analyzed += len(files)
+    if files:
+      make_treemap(api, checkout_root, out_dir, files)
+
   if not analyzed: # pragma: nocover
     raise Exception('No files were analyzed!')
 
@@ -206,7 +215,7 @@ def make_treemap(api, checkout_root, out_dir, files):
       with api.context(cwd=skia_dir):
         script = skia_dir.join('infra', 'bots', 'buildstats',
                                'make_treemap.py')
-        api.run(api.python, 'Make code size treemap',
+        api.run(api.python, 'Make code size treemap %s' % f,
                              script=script,
                              args=[f, out_dir],
                              stdout=api.raw_io.output())
