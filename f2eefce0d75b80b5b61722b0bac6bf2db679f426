@@ -22,6 +22,30 @@
       "revId": "f2eefce0d75b80b5b61722b0bac6bf2db679f426",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9673addf_38caa8bf",
+        "filename": "include/private/GrRecordingContext.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-19T17:25:42Z",
+      "side": 1,
+      "message": "No, but Arenas by itself was really far away from the aligned fArenas, and I didn\u0027t want to not align fArenas with the other fields 😄",
+      "parentUuid": "3c5cb9af_3a8df475",
+      "range": {
+        "startLine": 170,
+        "startChar": 4,
+        "endLine": 170,
+        "endChar": 24
+      },
+      "revId": "f2eefce0d75b80b5b61722b0bac6bf2db679f426",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
