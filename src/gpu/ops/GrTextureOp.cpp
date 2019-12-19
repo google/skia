@@ -279,6 +279,18 @@ public:
         str += INHERITED::dumpInfo();
         return str;
     }
+
+    static void ValidateResourceLimits() {
+        // The op implementation has an upper bound on the number of quads that it can represent.
+        // However, the resource manager imposes its own limit on the number of quads, which should
+        // always be lower than the numerical limit this op can hold.
+        using CountStorage = decltype(Metadata::fTotalQuadCount);
+        CountStorage maxQuadCount = std::numeric_limits<CountStorage>::max();
+        // GrResourceProvider::Max...() is typed as int, so don't compare across signed/unsigned.
+        int resourceLimit = SkTo<int>(maxQuadCount);
+        SkASSERT(GrResourceProvider::MaxNumAAQuads() <= resourceLimit &&
+                 GrResourceProvider::MaxNumNonAAQuads() <= resourceLimit);
+    }
 #endif
 
     GrProcessorSet::Analysis finalize(
@@ -1149,8 +1161,7 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
                                    sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
     // Ensure that the index buffer limits are lower than the proxy and quad count limits of
     // the op's metadata so we don't need to worry about overflow.
-    SkASSERT(GrResourceProvider::MaxNumNonAAQuads() <= UINT16_MAX &&
-             GrResourceProvider::MaxNumAAQuads() <= UINT16_MAX);
+    SkDEBUGCODE(TextureOp::ValidateResourceLimits();)
     SkASSERT(proxy_run_count(set, cnt) == proxyRunCnt);
 
     // First check if we can support batches as a single op
