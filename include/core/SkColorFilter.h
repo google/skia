@@ -61,10 +61,10 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const;
 
-    virtual bool program(skvm::Builder*,
-                         SkColorSpace* dstCS,
-                         skvm::Uniforms* uniforms,
-                         skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
+    bool program(skvm::Builder*,
+                 SkColorSpace* dstCS,
+                 skvm::Uniforms* uniforms,
+                 skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
 
     enum Flags {
         /** If set the filter methods will not change the alpha channel of the colors.
@@ -147,6 +147,11 @@ private:
     virtual int privateComposedFilterCount() const { return 1; }
 
     virtual bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const = 0;
+
+    virtual bool onProgram(skvm::Builder*,
+                           SkColorSpace* dstCS,
+                           skvm::Uniforms* uniforms,
+                           skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
 
     friend class SkComposeColorFilter;
 
