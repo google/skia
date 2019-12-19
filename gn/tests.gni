@@ -242,6 +242,7 @@ tests_sources = [
   "$_tests/SkRasterPipelineTest.cpp",
   "$_tests/SkRemoteGlyphCacheTest.cpp",
   "$_tests/SkResourceCacheTest.cpp",
+  "$_tests/SkRuntimeEffectTest.cpp",
   "$_tests/SkSLErrorTest.cpp",
   "$_tests/SkSLFPTest.cpp",
   "$_tests/SkSLGLSLTest.cpp",
