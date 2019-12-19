@@ -1245,11 +1245,11 @@ DEF_TEST(SkSLFragCoord, r) {
          SkSL::Program::kVertex_Kind);
 
     test(r,
-         "in uniform float4 sk_RTAdjust; in float4 pos; void main() { sk_Position = pos; }",
+         "uniform float4 sk_RTAdjust; in float4 pos; void main() { sk_Position = pos; }",
          *SkSL::ShaderCapsFactory::CannotUseFragCoord(),
          "#version 400\n"
          "out vec4 sk_FragCoord_Workaround;\n"
-         "in uniform vec4 sk_RTAdjust;\n"
+         "uniform vec4 sk_RTAdjust;\n"
          "in vec4 pos;\n"
          "void main() {\n"
          "    sk_FragCoord_Workaround = (gl_Position = pos);\n"

@@ -59,11 +59,14 @@ public:
         size_t sizeInBytes() const;
     };
 
-    static sk_sp<SkRuntimeEffect> Make(SkString sksl);
+    // [Effect, ErrorText]
+    // If successful, Effect != nullptr, otherwise, ErrorText contains the reason for failure.
+    using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
+
+    static EffectResult Make(SkString sksl);
 
     const SkString& source() const { return fSkSL; }
     int index() const { return fIndex; }
-    bool isValid() const { return fBaseProgram != nullptr; }
     size_t inputSize() const;
     size_t childCount() const { return fChildren.size(); }
 
@@ -76,16 +79,20 @@ public:
                          std::vector<SkSL::Compiler::GLSLFunction>* outFunctions);
 #endif
 
-    // Returns ByteCode, ErrorCount, ErrorText
-    std::tuple<std::unique_ptr<SkSL::ByteCode>, int, SkString> toByteCode();
+    // [ByteCode, ErrorText]
+    // If successful, ByteCode != nullptr, otherwise, ErrorText contains the reason for failure.
+    using ByteCodeResult = std::tuple<std::unique_ptr<SkSL::ByteCode>, SkString>;
+
+    ByteCodeResult toByteCode();
 
 private:
-    SkRuntimeEffect(SkString sksl);
+    SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
+                    std::unique_ptr<SkSL::Program> baseProgram);
 
     int fIndex;
     SkString fSkSL;
 
-    SkSL::Compiler fCompiler;
+    std::unique_ptr<SkSL::Compiler> fCompiler;
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
