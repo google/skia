@@ -65,6 +65,12 @@ void DebugLayerManager::storeSkPicture(int nodeId, int frame, sk_sp<SkPicture> p
   keys.push_back(k);
 }
 
+void DebugLayerManager::drawLayerEventTo(SkCanvas* canvas, const int nodeId, const int frame) {
+    auto& evt = fDraws[{frame, nodeId}];
+    evt.debugCanvas->drawTo(canvas, evt.command);
+    canvas->flush();
+}
+
 sk_sp<SkImage> DebugLayerManager::getLayerAsImage(const int nodeId, const int frame) {
   // What is the last frame having an SkPicture for this layer? call it frame N
   // have cached image of it? if so, return it.
@@ -100,23 +106,28 @@ sk_sp<SkImage> DebugLayerManager::getLayerAsImage(const int nodeId, const int fr
   // count back up with i
   auto* canvas = surface->getCanvas();
   for (; i<relevantFrames.size() && relevantFrames[i]<=frameN; i++) {
-    auto& evt = fDraws[{relevantFrames[i], nodeId}];
-    evt.debugCanvas->drawTo(canvas, evt.command);
-    canvas->flush();
+    drawLayerEventTo(canvas, nodeId, relevantFrames[i]);
   }
   drawEvent.image = surface->makeImageSnapshot();
   return drawEvent.image;
 }
 
+DebugLayerManager::DrawEventSummary DebugLayerManager::event(int nodeId, int frame) const {
+  auto* evt = fDraws.find({frame, nodeId});
+  if (!evt) { return {}; }
+  return {
+    true, nodeId, evt->fullRedraw, evt->debugCanvas->getSize(),
+    evt->layerBounds.width(), evt->layerBounds.height()
+  };
+}
+
 std::vector<DebugLayerManager::DrawEventSummary> DebugLayerManager::summarizeEvents(int frame) const {
     std::vector<DrawEventSummary> result;
   for (const auto& node : listNodesForFrame(frame)) {
-    auto* evt = fDraws.find({frame, node});
-    if (!evt) { continue; }
-    result.push_back({
-      node, evt->fullRedraw, evt->debugCanvas->getSize(),
-      evt->layerBounds.width(), evt->layerBounds.height()
-    });
+    auto summary = event(node, frame);
+    if (summary.found) {
+      result.push_back(summary);
+    }
   }
   return result;
 }
@@ -139,4 +150,30 @@ std::vector<int> DebugLayerManager::listFramesForNode(int nodeId) const {
     }
   }
   return result;
+}
+
+DebugCanvas* DebugLayerManager::getEventDebugCanvas(int nodeId, int frame) {
+  auto& evt = fDraws[{frame, nodeId}];
+  return evt.debugCanvas.get();
+}
+
+void DebugLayerManager::setOverdrawViz(bool overdrawViz) {
+  for (const auto& key : keys) {
+    auto& evt = fDraws[key];
+    evt.debugCanvas->setOverdrawViz(overdrawViz);
+  }
+}
+
+void DebugLayerManager::setClipVizColor(SkColor clipVizColor) {
+  for (const auto& key : keys) {
+    auto& evt = fDraws[key];
+    evt.debugCanvas->setClipVizColor(clipVizColor);
+  }
+}
+
+void DebugLayerManager::setDrawGpuOpBounds(bool drawGpuOpBounds) {
+  for (const auto& key : keys) {
+    auto& evt = fDraws[key];
+    evt.debugCanvas->setDrawGpuOpBounds(drawGpuOpBounds);
+  }
 }
