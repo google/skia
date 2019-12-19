@@ -57,6 +57,34 @@ bool SkImage_GpuBase::ValidateBackendTexture(const GrCaps* caps, const GrBackend
     return caps->areColorTypeAndFormatCompatible(grCT, backendFormat);
 }
 
+bool SkImage_GpuBase::ValidateCompressedBackendTexture(const GrCaps* caps,
+                                                       const GrBackendTexture& tex,
+                                                       SkAlphaType at) {
+
+    if (!tex.isValid() || tex.width() <= 0 || tex.height() <= 0) {
+        return false;
+    }
+
+    if (tex.width() > caps->maxTextureSize() || tex.height() > caps->maxTextureSize()) {
+        return false;
+    }
+
+    if (at == kUnknown_SkAlphaType) {
+        return false;
+    }
+
+    GrBackendFormat backendFormat = tex.getBackendFormat();
+    if (!backendFormat.isValid()) {
+        return false;
+    }
+
+    if (!caps->isFormatCompressed(backendFormat)) {
+        return false;
+    }
+
+    return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkImage_GpuBase::getROPixels(SkBitmap* dst, CachingHint chint) const {
