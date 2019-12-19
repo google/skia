@@ -788,3 +788,17 @@ SKSHAPER_PRIMITIVE_SRCS = [
     "modules/skshaper/src/SkShaper.cpp",
     "modules/skshaper/src/SkShaper_primitive.cpp",
 ]
+
+################################################################################
+## skottie_ios_lib
+################################################################################
+
+SKOTTIE_IOS_LIB_SRCS = [
+    "tools/skottie_ios_app/SkAnimationDraw.h",
+    "tools/skottie_ios_app/SkTimeKeeper.h",
+    "tools/skottie_ios_app/SkottieUIView.mm",
+]
+
+SKOTTIE_IOS_LIB_HDRS = [
+    "tools/skottie_ios_app/SkottieUIView.h",
+]
