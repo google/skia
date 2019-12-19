@@ -16,6 +16,24 @@
       "revId": "2985605b2a6541694402bc2060b376c006ac963c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a416f42_7e19e5d2",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2019-12-19T19:35:58Z",
+      "side": 1,
+      "message": "Oops, I didn\u0027t save my description update. I ran into it while testing -- bringing up imGUI was causing a segfault here. Because Metal doesn\u0027t have geometry shaders, one of the sksl strings will always be nullptr.",
+      "parentUuid": "554b9fcb_5d961150",
+      "revId": "2985605b2a6541694402bc2060b376c006ac963c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
