@@ -630,7 +630,7 @@ bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
 
 SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) const {
     bool usePersp = rec.fCTM.hasPerspective();
-    auto updater = rec.fAlloc->make<SkImageStageUpdater>(this, usePersp);
+    auto updater = rec.fAlloc->make<SkImageStageUpdater>(this, usePersp || true);
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
