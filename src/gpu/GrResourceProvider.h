@@ -128,6 +128,10 @@ public:
     sk_sp<GrTexture> wrapBackendTexture(const GrBackendTexture& tex, GrColorType, GrWrapOwnership,
                                         GrWrapCacheable, GrIOType);
 
+    sk_sp<GrTexture> wrapCompressedBackendTexture(const GrBackendTexture& tex,
+                                                  GrWrapOwnership,
+                                                  GrWrapCacheable);
+
     /**
      * This makes the backend texture be renderable. If sampleCnt is > 1 and the underlying API
      * uses separate MSAA render buffers then a MSAA render buffer is created that resolves

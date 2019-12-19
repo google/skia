@@ -111,6 +111,11 @@ public:
                                              GrWrapOwnership, GrWrapCacheable, GrIOType,
                                              ReleaseProc = nullptr, ReleaseContext = nullptr);
 
+    sk_sp<GrTextureProxy> wrapCompressedBackendTexture(const GrBackendTexture&, GrSurfaceOrigin,
+                                                       GrWrapOwnership, GrWrapCacheable,
+                                                       ReleaseProc = nullptr,
+                                                       ReleaseContext = nullptr);
+
     /*
      * Create a texture proxy that wraps a backend texture and is both texture-able and renderable
      */

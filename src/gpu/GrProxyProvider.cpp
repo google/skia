@@ -567,6 +567,45 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapBackendTexture(const GrBackendTexture
             new GrTextureProxy(std::move(tex), origin, readSwizzle, UseAllocator::kNo));
 }
 
+sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBackendTexture& beTex,
+                                                                    GrSurfaceOrigin origin,
+                                                                    GrWrapOwnership ownership,
+                                                                    GrWrapCacheable cacheable,
+                                                                    ReleaseProc releaseProc,
+                                                                    ReleaseContext releaseCtx) {
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    // This is only supported on a direct GrContext.
+    GrContext* direct = fImageContext->priv().asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
+
+    sk_sp<GrTexture> tex = resourceProvider->wrapCompressedBackendTexture(beTex, ownership,
+                                                                          cacheable);
+    if (!tex) {
+        return nullptr;
+    }
+
+    if (releaseProc) {
+        tex->setRelease(releaseProc, releaseCtx);
+    }
+
+    SkASSERT(!tex->asRenderTarget());  // Strictly a GrTexture
+    // Make sure we match how we created the proxy with SkBudgeted::kNo
+    SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
+
+    // TODO: this will need to be changed for compressed RGBA formats
+    GrSwizzle texSwizzle = GrSwizzle::RGB1();
+
+    return sk_sp<GrTextureProxy>(
+        new GrTextureProxy(std::move(tex), origin, texSwizzle, UseAllocator::kNo));
+}
+
 sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
         const GrBackendTexture& backendTex, GrSurfaceOrigin origin, int sampleCnt,
         GrColorType colorType, GrWrapOwnership ownership, GrWrapCacheable cacheable,
