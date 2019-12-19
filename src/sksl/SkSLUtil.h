@@ -108,6 +108,10 @@ public:
         return false;
     }
 
+    bool mustGuardDivisionEvenAfterExplicitZeroCheck() const {
+        return false;
+    }
+
     bool mustEnableAdvBlendEqs() const {
         return false;
     }
