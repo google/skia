@@ -176,7 +176,7 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 
 static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkTileMode tileMode) {
     switch (tileMode) {

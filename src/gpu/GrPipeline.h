@@ -21,7 +21,7 @@
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/geometry/GrRect.h"
 
 class GrAppliedClip;

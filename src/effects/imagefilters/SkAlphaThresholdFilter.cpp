@@ -23,8 +23,8 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 #endif
 
 namespace {

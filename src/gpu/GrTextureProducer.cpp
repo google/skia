@@ -17,8 +17,8 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,

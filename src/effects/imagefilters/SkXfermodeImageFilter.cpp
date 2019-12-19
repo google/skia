@@ -24,9 +24,9 @@
 #include "src/gpu/GrTextureProxy.h"
 
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
 #endif
 #include "src/core/SkClipOpPriv.h"
 

@@ -19,7 +19,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/effects/generated/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "tests/TestUtils.h"
