@@ -109,7 +109,7 @@ public:
      * This does not currently support MIP maps. It will not be renderable.
      */
     sk_sp<GrTexture> createCompressedTexture(int width, int height, const GrBackendFormat&,
-                                             SkImage::CompressionType, SkBudgeted, SkData* data);
+                                             SkBudgeted, SkData* data);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces

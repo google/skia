@@ -165,9 +165,8 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
 // TODO: why no 'isProtected' ?!
 sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(int width, int height,
                                                       const GrBackendFormat& format,
-                                                      SkImage::CompressionType compressionType,
                                                       SkBudgeted budgeted,
-                                                      const void* data) {
+                                                      const void* data, size_t dataSize) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }
@@ -175,7 +174,6 @@ sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(int width, int height,
     // Uncompressed formats should go through onCreateTexture
     SkImage::CompressionType compression = format.asMockCompressionType();
     SkASSERT(compression != SkImage::CompressionType::kNone);
-    SkASSERT(compression == compressionType);
 
     GrSurfaceDesc desc;
     desc.fWidth = width;

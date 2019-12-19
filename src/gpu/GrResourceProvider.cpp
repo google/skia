@@ -146,14 +146,13 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
 
 sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(int width, int height,
                                                              const GrBackendFormat& format,
-                                                             SkImage::CompressionType compression,
                                                              SkBudgeted budgeted, SkData* data) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
-    return fGpu->createCompressedTexture(width, height, format, compression, budgeted, data->data(),
-                                         data->size());
+    return fGpu->createCompressedTexture(width, height, format, budgeted,
+                                         data->data(), data->size());
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
