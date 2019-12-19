@@ -87,6 +87,11 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     pipelineState->setDrawState(fActiveRenderCmdEncoder,
                                 programInfo.pipeline().outputSwizzle(),
                                 programInfo.pipeline().getXferProcessor());
+    if (this->gpu()->caps()->wireframeMode() || programInfo.pipeline().isWireframe()) {
+        [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+    } else {
+        [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeFill];
+    }
 
     bool hasDynamicScissors = programInfo.hasDynamicScissors();
     bool hasDynamicTextures = programInfo.hasDynamicPrimProcTextures();
