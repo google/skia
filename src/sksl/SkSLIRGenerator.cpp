@@ -1495,8 +1495,12 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Context& context,
         // (true || expr) -> (true) and (false || expr) -> (expr)
         return leftVal ? std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, true))
                        : right.clone();
+    } else if (op == Token::LOGICALXOR) {
+        // (true ^^ expr) -> !(expr) and (false ^^ expr) -> (expr)
+        return leftVal ? std::unique_ptr<Expression>(new PrefixExpression(Token::LOGICALNOT,
+                                                                          right.clone()))
+                       : right.clone();
     } else {
-        // Can't short circuit XOR
         return nullptr;
     }
 }
