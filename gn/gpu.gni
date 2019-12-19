@@ -326,6 +326,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrRRectEffect.h",
   "$_src/gpu/effects/GrShadowGeoProc.cpp",
   "$_src/gpu/effects/GrShadowGeoProc.h",
+  "$_src/gpu/effects/GrSimpleTextureEffect.cpp",
+  "$_src/gpu/effects/GrSimpleTextureEffect.h",
   "$_src/gpu/effects/GrSkSLFP.cpp",
   "$_src/gpu/effects/GrSkSLFP.h",
   "$_src/gpu/effects/GrSRGBEffect.cpp",
@@ -390,8 +392,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/generated/GrRRectBlurEffect.h",
   "$_src/gpu/effects/generated/GrSaturateProcessor.cpp",
   "$_src/gpu/effects/generated/GrSaturateProcessor.h",
-  "$_src/gpu/effects/generated/GrSimpleTextureEffect.cpp",
-  "$_src/gpu/effects/generated/GrSimpleTextureEffect.h",
 
   # gradients
   "$_src/gpu/gradients/GrGradientBitmapCache.cpp",
