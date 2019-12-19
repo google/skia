@@ -469,7 +469,9 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
             if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                     GrContextOptions::ShaderCacheStrategy::kSkSL) {
                 for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                    shaders[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
+                    if (sksl[i]) {
+                        shaders[i] = GrShaderUtils::PrettyPrint(*sksl[i]);
+                    }
                 }
                 isSkSL = true;
             }
