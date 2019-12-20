@@ -5,7 +5,7 @@ clean:
 
 release:
 	# Does an incremental build where possible.
-	./compile.sh
+	./compile.sh no_skottie no_particles no_fonts
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./canvaskit/bin
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./canvaskit/bin
@@ -34,11 +34,10 @@ debug_cpu:
 	cp ../../out/canvaskit_wasm_debug/canvaskit.wasm.map ./canvaskit/bin
 
 profile:
-	./compile.sh profiling
+	./compile.sh profiling no_skottie no_particles no_fonts
 	mkdir -p ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm.map ./canvaskit/bin
 
 profile_cpu:
 	./compile.sh profiling cpu_only

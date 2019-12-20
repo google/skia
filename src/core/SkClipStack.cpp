@@ -765,7 +765,8 @@ bool SkClipStack::asPath(SkPath *path) const {
         if (elementOp == kReplace_SkClipOp) {
             *path = operand;
         } else {
-            Op(*path, operand, (SkPathOp)elementOp, path);
+            SkASSERT(false);
+            //Op(*path, operand, (SkPathOp)elementOp, path);
         }
 
         // if the prev and curr clips disagree about aa -vs- not, favor the aa request.

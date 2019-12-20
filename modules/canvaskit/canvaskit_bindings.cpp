@@ -46,7 +46,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkTrimPathEffect.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -313,14 +312,6 @@ void ApplyTransform(SkPath& orig,
     orig.transform(m);
 }
 
-bool EMSCRIPTEN_KEEPALIVE ApplySimplify(SkPath& path) {
-    return Simplify(path, &path);
-}
-
-bool EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
-    return Op(pathOne, pathTwo, op, &pathOne);
-}
-
 JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
     SkString s;
     SkParsePath::ToSVGString(path, &s);
@@ -331,14 +322,6 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromSVGString(std::string str) {
     SkPath path;
     if (SkParsePath::FromSVGString(str.c_str(), &path)) {
         return emscripten::val(path);
-    }
-    return emscripten::val::null();
-}
-
-SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
-    SkPath out;
-    if (Op(pathOne, pathTwo, op, &out)) {
-        return emscripten::val(out);
     }
     return emscripten::val::null();
 }
@@ -736,7 +719,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
     function("_MakePathFromCmds", &MakePathFromCmds);
-    function("MakePathFromOp", &MakePathFromOp);
     function("MakePathFromSVGString", &MakePathFromSVGString);
 
     // These won't be called directly, there's a JS helper to deal with typed arrays.
@@ -1264,10 +1246,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_trim", &ApplyTrim)
         .function("_stroke", &ApplyStroke)
 
-        // PathOps
-        .function("_simplify", &ApplySimplify)
-        .function("_op", &ApplyPathOp)
-
         // Exporting
         .function("toSVGString", &ToSVGString)
         .function("toCmds", &ToCmds)
@@ -1541,13 +1519,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Fill",            SkPaint::Style::kFill_Style)
         .value("Stroke",          SkPaint::Style::kStroke_Style)
         .value("StrokeAndFill",   SkPaint::Style::kStrokeAndFill_Style);
-
-    enum_<SkPathOp>("PathOp")
-        .value("Difference",         SkPathOp::kDifference_SkPathOp)
-        .value("Intersect",          SkPathOp::kIntersect_SkPathOp)
-        .value("Union",              SkPathOp::kUnion_SkPathOp)
-        .value("XOR",                SkPathOp::kXOR_SkPathOp)
-        .value("ReverseDifference",  SkPathOp::kReverseDifference_SkPathOp);
 
     enum_<SkCanvas::PointMode>("PointMode")
         .value("Points",   SkCanvas::PointMode::kPoints_PointMode)
