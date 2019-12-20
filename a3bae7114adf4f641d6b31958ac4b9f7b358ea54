@@ -34,6 +34,24 @@
       "revId": "a3bae7114adf4f641d6b31958ac4b9f7b358ea54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e7972fc_b27d5348",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T21:01:28Z",
+      "side": 1,
+      "message": "Wait, don\u0027t we want to add it to the functions list so that Chrome can start initializing it?",
+      "parentUuid": "e8141d4d_9d03b835",
+      "revId": "a3bae7114adf4f641d6b31958ac4b9f7b358ea54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
