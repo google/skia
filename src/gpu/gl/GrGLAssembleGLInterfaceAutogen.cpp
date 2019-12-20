@@ -158,6 +158,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     GET_PROC(DeleteVertexArrays);
     GET_PROC(GenVertexArrays);
 
+    if (glVer >= GR_GL_VER(4,0)) {
+    } else if (extensions.has("GL_ARB_tessellation_shader")) {
+    }
+
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(BindFragDataLocation);
     }
