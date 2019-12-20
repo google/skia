@@ -79,9 +79,18 @@ void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
     if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
         rgn->setRect(bounds.round());
     } else {
-        SkPath path;
-        fClipStack.asPath(&path);
-        rgn->setPath(path, SkRegion(SkIRect::MakeWH(this->width(), this->height())));
+        SkRegion boundsRgn({0, 0, this->width(), this->height()});
+        SkPath tmpPath;
+
+        *rgn = boundsRgn;
+        SkClipStack::B2TIter iter(fClipStack);
+        while (auto elem = iter.next()) {
+            tmpPath.rewind();
+            elem->asDeviceSpacePath(&tmpPath);
+            SkRegion tmpRgn;
+            tmpRgn.setPath(tmpPath, boundsRgn);
+            rgn->op(tmpRgn, SkRegion::Op(elem->getOp()));
+        }
     }
 }
 
