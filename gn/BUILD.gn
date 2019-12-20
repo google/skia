@@ -253,17 +253,9 @@ config("default") {
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
 
-    if (sanitize == "ASAN" || sanitize == "UBSAN") {
+    if (sanitize == "ASAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "undefined"
-      if (sanitize == "ASAN") {
-        sanitizers += ",address"
-      }
-
-      if (is_android) {
-        # TODO(mtklein): work out UBSAN link errors
-        sanitizers = "address"
-      }
+      sanitizers = "undefined,address"
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
     } else if (sanitize == "MSAN") {

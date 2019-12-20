@@ -189,10 +189,7 @@ class DefaultFlavor(object):
     if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
       # Note: if you see "<unknown module>" in stacktraces for xSAN warnings,
       # try adding "fast_unwind_on_malloc=0" to xSAN_OPTIONS.
-      if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
-        env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
-      else:
-        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
+      env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
