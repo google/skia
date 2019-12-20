@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bd054d61_fb419985",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-20T15:14:38Z",
+      "side": 1,
+      "message": "As discussed off-line, this is the way all the cool kids are doing it nowadays.",
+      "parentUuid": "68e8ffed_9bff5eb1",
+      "range": {
+        "startLine": 98,
+        "startChar": 55,
+        "endLine": 98,
+        "endChar": 73
+      },
+      "revId": "0a32af3806a4170f3fdc5e6e1a05d5647ba15c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b98476e_0497505d",
         "filename": "src/gpu/GrResourceProvider.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "0a32af3806a4170f3fdc5e6e1a05d5647ba15c95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "571d51c7_ddb4f483",
+        "filename": "src/gpu/GrResourceProvider.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2019-12-20T15:14:38Z",
+      "side": 1,
+      "message": "same",
+      "parentUuid": "2b98476e_0497505d",
+      "range": {
+        "startLine": 111,
+        "startChar": 45,
+        "endLine": 111,
+        "endChar": 63
+      },
+      "revId": "0a32af3806a4170f3fdc5e6e1a05d5647ba15c95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
