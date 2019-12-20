@@ -79,13 +79,8 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         default: break;
     }
 
-#ifdef SKOTTIE_LEGACY_EFFECT_LOGFMT
-    fBuilder->log(Logger::Level::kWarning, nullptr,
-                  "Unsupported layer effect type: %d.", ParseDefault<int>(jeffect["ty"], -1));
-#else
     fBuilder->log(Logger::Level::kWarning, &jeffect,
                   "Unsupported layer effect: %s", mn ? mn->begin() : "(unknown)");
-#endif
 
     return nullptr;
 }
