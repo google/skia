@@ -98,6 +98,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
 #else
             return false;
 #endif
+        case kRGB_BC1_GrPixelConfig:
+            // Even Mac desktops only support the RGBA variants
+            return false;
         case kAlpha_16_GrPixelConfig:
             *format = MTLPixelFormatR16Unorm;
             return true;

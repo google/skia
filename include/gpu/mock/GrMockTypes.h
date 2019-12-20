@@ -109,6 +109,7 @@ struct GrMockOptions {
         fConfigOptions[(int)GrColorType::kBGRA_8888] = fConfigOptions[(int)GrColorType::kRGBA_8888];
 
         fCompressedOptions[(int)SkImage::CompressionType::kETC1].fTexturable = true;
+        fCompressedOptions[(int)SkImage::CompressionType::kBC1_RGB8_UNORM].fTexturable = true;
     }
 
     struct ConfigOptions {

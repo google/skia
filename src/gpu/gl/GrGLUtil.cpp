@@ -623,6 +623,7 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
     switch (format) {
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
             return true;
 
         case GrGLFormat::kRGBA8:
@@ -654,6 +655,8 @@ SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
             return SkImage::CompressionType::kETC1;
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
+            return SkImage::CompressionType::kBC1_RGB8_UNORM;
 
         case GrGLFormat::kRGBA8:
         case GrGLFormat::kR8:

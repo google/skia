@@ -60,6 +60,7 @@ enum GrPixelConfig {
     kRGBA_half_GrPixelConfig,
     kRGBA_half_Clamped_GrPixelConfig,
     kRGB_ETC1_GrPixelConfig,
+    kRGB_BC1_GrPixelConfig,
     kAlpha_16_GrPixelConfig,
     kRG_1616_GrPixelConfig,
     kRGBA_16161616_GrPixelConfig,
@@ -1206,6 +1207,7 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
         case kRGBA_half_Clamped_GrPixelConfig:
             return GrColorType::kRGBA_F16_Clamped;
         case kRGB_ETC1_GrPixelConfig:
+        case kRGB_BC1_GrPixelConfig:
             // We may need a roughly equivalent color type for a compressed texture. This should be
             // the logical format for decompressing the data into.
             return GrColorType::kRGB_888x;
@@ -1267,8 +1269,9 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
 
 static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::CompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone: return kUnknown_GrPixelConfig;
-        case SkImage::CompressionType::kETC1: return kRGB_ETC1_GrPixelConfig;
+        case SkImage::CompressionType::kNone:           return kUnknown_GrPixelConfig;
+        case SkImage::CompressionType::kETC1:           return kRGB_ETC1_GrPixelConfig;
+        case SkImage::CompressionType::kBC1_RGB8_UNORM: return kRGB_BC1_GrPixelConfig;
     }
 
     SkUNREACHABLE;
@@ -1341,8 +1344,9 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
 
 static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:          return "kNone";
-        case SkImage::CompressionType::kETC1:          return "kETC1";
+        case SkImage::CompressionType::kNone:           return "kNone";
+        case SkImage::CompressionType::kETC1:           return "kETC1";
+        case SkImage::CompressionType::kBC1_RGB8_UNORM: return "kBC1_RGB8_UNORM";
     }
     SkUNREACHABLE;
 }

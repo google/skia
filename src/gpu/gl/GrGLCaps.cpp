@@ -2616,6 +2616,20 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         }
     }
 
+    // Format: COMPRESSED_RGB8_BC1
+    {
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_BC1);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
+        info.fInternalFormatForTexImageOrStorage = GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+        if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
+            if (ctxInfo.hasExtension("GL_EXT_texture_compression_s3tc")) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
+        } // No WebGL support
+
+        // There are no support GrColorTypes for this format
+    }
+
     // Format: COMPRESSED_RGB8_ETC2
     {
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_ETC2);
@@ -3927,6 +3941,8 @@ SkImage::CompressionType GrGLCaps::compressionType(const GrBackendFormat& format
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as RGB8_ETC2
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
             return SkImage::CompressionType::kETC1;
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
+            return SkImage::CompressionType::kBC1_RGB8_UNORM;
         default:
             return SkImage::CompressionType::kNone;
     }
@@ -4071,6 +4087,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
             } else if (format == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
                        format == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
                 return kRGB_ETC1_GrPixelConfig;
+            } else if (format == GrGLFormat::kCOMPRESSED_RGB8_BC1) {
+                return kRGB_BC1_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_88:
@@ -4179,6 +4197,8 @@ GrPixelConfig GrGLCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFo
     if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
         glFormat == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
         return kRGB_ETC1_GrPixelConfig;
+    } else if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_BC1) {
+        return kRGB_BC1_GrPixelConfig;
     }
 
     return kUnknown_GrPixelConfig;
@@ -4231,6 +4251,12 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
             }
             if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_ETC1_RGB8)) {
                 return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D);
+            }
+            return {};
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+            if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGB8_BC1)) {
+                return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
+                                               GR_GL_TEXTURE_2D);
             }
             return {};
     }
