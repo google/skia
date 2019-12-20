@@ -22,6 +22,30 @@
       "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62c81ade_e634577c",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T21:27:44Z",
+      "side": 1,
+      "message": "It\u0027d be nice if it didn\u0027t take GrClip. The comment attempts to explain why it does but I\u0027d be surprised if it couldn\u0027t GrHardClip instead of GrClip.",
+      "parentUuid": "869416c3_a138e620",
+      "range": {
+        "startLine": 1694,
+        "startChar": 28,
+        "endLine": 1694,
+        "endChar": 40
+      },
+      "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
