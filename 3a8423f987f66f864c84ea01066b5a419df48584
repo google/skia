@@ -70,6 +70,30 @@
       "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27d2d1b1_388a91a3",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-12-20T18:10:29Z",
+      "side": 1,
+      "message": "Agreed. I went ahead and took out the asserts and added a comment.\n\nThe assert was really just a sanity check on the internal state of the class. Really not necessary since the whole thing is contained in a single .h file.",
+      "parentUuid": "484bbb4c_6f160a8e",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 58
+      },
+      "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
