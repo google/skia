@@ -12,6 +12,8 @@
          disable_blend_equation_advanced)               \
   GPU_OP(DISABLE_DISCARD_FRAMEBUFFER,                   \
          disable_discard_framebuffer)                   \
+  GPU_OP(DISABLE_DUAL_SOURCE_BLENDING_SUPPORT,          \
+         disable_dual_source_blending_support)          \
   GPU_OP(DISABLE_TEXTURE_STORAGE,                       \
          disable_texture_storage)                       \
   GPU_OP(DISALLOW_LARGE_INSTANCED_DRAW,                 \

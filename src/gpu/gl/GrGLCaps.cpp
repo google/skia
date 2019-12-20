@@ -352,9 +352,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Enable supported shader-related caps
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fDualSourceBlendingSupport = (version >= GR_GL_VER(3, 3) ||
-            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+        shaderCaps->fDualSourceBlendingSupport =
+                (version >= GR_GL_VER(3, 3) ||
+                 ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
+                ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
 
         shaderCaps->fShaderDerivativeSupport = true;
 
@@ -3581,6 +3582,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     if (fDriverBugWorkarounds.remove_pow_with_constant_exponent) {
         shaderCaps->fRemovePowWithConstantExponent = true;
+    }
+
+    if (fDriverBugWorkarounds.disable_dual_source_blending_support) {
+        shaderCaps->fDualSourceBlendingSupport = false;
     }
 
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer() ||
