@@ -173,6 +173,8 @@ static void test_compressed_data_init(GrContext* context,
         return;
     }
 
+    SkDebugf("w/mips\n");
+
     check_compressed_mipmaps(context, backendTex, expectedColors, mipMapped, reporter, "pixmap");
 
     context->deleteBackendTexture(backendTex);
@@ -186,10 +188,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
         SkImage::CompressionType fCompression;
         SkColor4f                fColor;
     } combinations[] = {
-        { SkImage::CompressionType::kETC1, SkColors::kRed },
+        { SkImage::CompressionType::kETC1,          SkColors::kRed },
+        { SkImage::CompressionType::kBC1_RGB8_UNORM, SkColors::kBlue },
     };
 
     for (auto combo : combinations) {
+        SkDebugf("backend %s - format %s\n",
+                 GrBackendApiToStr(context->backend()),
+                 GrCompressionTypeToStr(combo.fCompression));
+
         GrBackendFormat format = context->compressedBackendFormat(combo.fCompression);
         if (!format.isValid()) {
             continue;
