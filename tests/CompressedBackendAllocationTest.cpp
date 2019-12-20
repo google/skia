@@ -118,27 +118,27 @@ static void test_compressed_color_init(GrContext* context, skiatest::Reporter* r
     context->deleteBackendTexture(backendTex);
 }
 
-static std::unique_ptr<const char[]> make_etc1_data(SkColor4f levelColors[6], GrMipMapped mipMapped) {
+static std::unique_ptr<const char[]> make_compressed_data(SkImage::CompressionType compression,
+                                                          SkColor4f levelColors[6],
+                                                          GrMipMapped mipMapped) {
     SkISize dimensions { 32, 32 };
-
-    size_t dataSize = GrCompressedDataSize(SkImage::CompressionType::kETC1, dimensions,
-                                           nullptr, mipMapped);
-    char* data = new char[dataSize];
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
         numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    size_t offset = 0;
+    SkTArray<size_t> mipMapOffsets(numMipLevels);
+
+    size_t dataSize = GrCompressedDataSize(compression, dimensions, &mipMapOffsets, mipMapped);
+    char* data = new char[dataSize];
+
     for (int level = 0; level < numMipLevels; ++level) {
-        size_t levelSize = GrCompressedDataSize(SkImage::CompressionType::kETC1,
-                                                dimensions, nullptr, GrMipMapped::kNo);
+        // We have to do this a level at a time bc we might have a different color for
+        // each level
+        GrFillInCompressedData(compression, dimensions,
+                               GrMipMapped::kNo, &data[mipMapOffsets[level]], levelColors[level]);
 
-        GrFillInCompressedData(SkImage::CompressionType::kETC1, dimensions,
-                               GrMipMapped::kNo, &data[offset], levelColors[level]);
-
-        offset += levelSize;
         dimensions = {SkTMax(1, dimensions.width() /2), SkTMax(1, dimensions.height()/2)};
     }
 
@@ -151,6 +151,7 @@ static void test_compressed_data_init(GrContext* context,
                                                                       const char* data,
                                                                       size_t dataSize,
                                                                       GrMipMapped)> create,
+                                      SkImage::CompressionType compression,
                                       GrMipMapped mipMapped) {
 
     // TODO: make these transparent for RGBA compressed formats
@@ -163,9 +164,9 @@ static void test_compressed_data_init(GrContext* context,
         { 1.0f, 1.0f, 0.0f, 1.0f }, // Y
     };
 
-    std::unique_ptr<const char[]> data(make_etc1_data(expectedColors, mipMapped));
-    size_t dataSize = GrCompressedDataSize(SkImage::CompressionType::kETC1, { 32, 32 },
-                                           nullptr, mipMapped);
+    std::unique_ptr<const char[]> data(make_compressed_data(compression, expectedColors,
+                                                            mipMapped));
+    size_t dataSize = GrCompressedDataSize(compression, { 32, 32 }, nullptr, mipMapped);
 
     GrBackendTexture backendTex = create(context, data.get(), dataSize, mipMapped);
     if (!backendTex.isValid()) {
@@ -225,7 +226,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
                                                                    mipMapped, GrProtected::kNo);
                 };
 
-                test_compressed_data_init(context, reporter, createWithDataMtd, mipMapped);
+                test_compressed_data_init(context, reporter, createWithDataMtd,
+                                          combo.fCompression, mipMapped);
             }
 
         }
