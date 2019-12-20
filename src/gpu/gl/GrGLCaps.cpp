@@ -352,9 +352,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     // Enable supported shader-related caps
     if (GR_IS_GR_GL(standard)) {
-        shaderCaps->fDualSourceBlendingSupport = (version >= GR_GL_VER(3, 3) ||
-            ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
-            ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
+        shaderCaps->fDualSourceBlendingSupport =
+                (version >= GR_GL_VER(3, 3) ||
+                 ctxInfo.hasExtension("GL_ARB_blend_func_extended")) &&
+                ctxInfo.glslGeneration() >= k130_GrGLSLGeneration &&
+                !fDriverBugWorkarounds.disable_dual_source_blending_support;
 
         shaderCaps->fShaderDerivativeSupport = true;
 
