@@ -687,6 +687,11 @@
         "BuildStats-Debian9-Clang-x86_64-Release"
       ]
     },
+    "BuildStats-Debian9-Clang-x86_64-Release-Vulkan": {
+      "tasks": [
+        "BuildStats-Debian9-Clang-x86_64-Release-Vulkan"
+      ]
+    },
     "BuildStats-Debian9-EMCC-asmjs-Release-PathKit": {
       "tasks": [
         "Upload-BuildStats-Debian9-EMCC-asmjs-Release-PathKit"
@@ -13098,6 +13103,103 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Build-Debian9-Clang-x86_64-Release"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-9.8",
+        "pool:Skia",
+        "docker_installed:true"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "BuildStats-Debian9-Clang-x86_64-Release-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        },
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "work",
+          "path": "cache/work"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "skia/bots/bloaty",
+          "path": "bloaty",
+          "version": "version:1"
+        },
+        {
+          "name": "infra/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.24.0.chromium16"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compute_buildstats",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"BuildStats-Debian9-Clang-x86_64-Release-Vulkan\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
