@@ -1670,9 +1670,9 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
 ////////////////////////////////////////////////////////////////////////////////////
 
 bool SkGpuDevice::android_utils_clipWithStencil() {
-    SkRegion clipRegion;
-    this->onAsRgnClip(&clipRegion);
-    if (clipRegion.isEmpty()) {
+    const SkIRect bounds = {0, 0, this->width(), this->height()};
+
+    if (this->cs().isEmpty(bounds)) {
         return false;
     }
     GrRenderTargetContext* rtc = this->accessRenderTargetContext();
@@ -1691,8 +1691,8 @@ bool SkGpuDevice::android_utils_clipWithStencil() {
             GrUserStencilOp::kReplace,
             0x1>()
     );
-    rtc->drawRegion(noClip, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
-                    GrStyle::SimpleFill(), &kDrawToStencil);
+    rtc->priv().stencilRect(this->clip(), &kDrawToStencil, std::move(grPaint), GrAA::kNo,
+                            SkMatrix::I(), SkRect::Make(bounds));
     return true;
 }
 
