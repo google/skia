@@ -617,6 +617,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
         fHWVertexArrayState.invalidate();
         this->hwBufferState(GrGpuBufferType::kVertex)->invalidate();
         this->hwBufferState(GrGpuBufferType::kIndex)->invalidate();
+        fHWPatchVertexCount = 0;
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
@@ -2236,8 +2237,6 @@ void GrGLGpu::draw(GrRenderTarget* renderTarget,
     bool hasDynamicPrimProcTextures = programInfo.hasDynamicPrimProcTextures();
 
     for (int m = 0; m < meshCount; ++m) {
-        SkASSERT(meshes[m].primitiveType() == programInfo.primitiveType());
-
         if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
                                                                       *this->caps())) {
             this->xferBarrier(renderTarget, barrierType);
@@ -2289,6 +2288,8 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
             return GR_GL_LINES;
         case GrPrimitiveType::kLineStrip:
             return GR_GL_LINE_STRIP;
+        case GrPrimitiveType::kPatches:
+            return GR_GL_PATCHES;
         case GrPrimitiveType::kPath:
             SK_ABORT("non-mesh-based GrPrimitiveType");
             return 0;
@@ -2298,6 +2299,9 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
 
 void GrGLGpu::sendArrayMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
+    if (GR_GL_PATCHES == glPrimType) {
+        this->flushPatchVertexCount(mesh.tessellationPatchVertexCount());
+    }
     if (this->glCaps().drawArraysBaseVertexIsBroken()) {
         this->setupGeometry(nullptr, mesh.vertexBuffer(), baseVertex, nullptr, 0,
                             GrPrimitiveRestart::kNo);
@@ -2321,6 +2325,9 @@ static const GrGLvoid* element_ptr(const GrBuffer* indexBuffer, int baseIndex) {
 void GrGLGpu::sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount, int baseIndex,
                                    uint16_t minIndexValue, uint16_t maxIndexValue, int baseVertex) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
+    if (GR_GL_PATCHES == glPrimType) {
+        this->flushPatchVertexCount(mesh.tessellationPatchVertexCount());
+    }
 
     const GrGLvoid* elementPtr = element_ptr(mesh.indexBuffer(), baseIndex);
 
@@ -2339,6 +2346,9 @@ void GrGLGpu::sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount, int baseI
 void GrGLGpu::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex,
                                      int instanceCount, int baseInstance) {
     GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
+    if (GR_GL_PATCHES == glPrimType) {
+        this->flushPatchVertexCount(mesh.tessellationPatchVertexCount());
+    }
     int maxInstances = this->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
         this->setupGeometry(nullptr, mesh.vertexBuffer(), 0, mesh.instanceBuffer(),
@@ -2352,6 +2362,9 @@ void GrGLGpu::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int ba
 void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount, int baseIndex,
                                             int baseVertex, int instanceCount, int baseInstance) {
     const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
+    if (GR_GL_PATCHES == glPrimType) {
+        this->flushPatchVertexCount(mesh.tessellationPatchVertexCount());
+    }
     const GrGLvoid* elementPtr = element_ptr(mesh.indexBuffer(), baseIndex);
     int maxInstances = this->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
@@ -2790,6 +2803,14 @@ void GrGLGpu::onResetTextureBindings() {
             }
         }
         fHWTextureUnitBindings[i].invalidateAllTargets(true);
+    }
+}
+
+void GrGLGpu::flushPatchVertexCount(uint8_t count) {
+    SkASSERT(this->caps()->shaderCaps()->tessellationSupport());
+    if (fHWPatchVertexCount != count) {
+        GL_CALL(PatchParameteri(GR_GL_PATCH_VERTICES, count));
+        fHWPatchVertexCount = count;
     }
 }
 
