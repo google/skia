@@ -131,7 +131,7 @@ static void append_clip(const SkClipStack& clipStack,
 
     if (is_complex_clip(clipStack)) {
         SkPath clipPath;
-        (void)clipStack.asPath(&clipPath);
+        //SkPDF_ClipStackAsPath(clipStack, &clipPath);
         if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
             append_clip_path(clipPath, wStream);
         }

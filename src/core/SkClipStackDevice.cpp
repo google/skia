@@ -80,7 +80,7 @@ void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
         rgn->setRect(bounds.round());
     } else {
         SkPath path;
-        fClipStack.asPath(&path);
+//        SkPDF_ClipStackAsPath(fClipStack, &path);
         rgn->setPath(path, SkRegion(SkIRect::MakeWH(this->width(), this->height())));
     }
 }

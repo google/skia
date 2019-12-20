@@ -748,35 +748,6 @@ bool SkClipStack::internalQuickContains(const SkRRect& rrect) const {
     return true;
 }
 
-bool SkClipStack::asPath(SkPath *path) const {
-    bool isAA = false;
-
-    path->reset();
-    path->setFillType(SkPathFillType::kInverseEvenOdd);
-
-    SkClipStack::Iter iter(*this, SkClipStack::Iter::kBottom_IterStart);
-    while (const SkClipStack::Element* element = iter.next()) {
-        SkPath operand;
-        if (element->getDeviceSpaceType() != SkClipStack::Element::DeviceSpaceType::kEmpty) {
-            element->asDeviceSpacePath(&operand);
-        }
-
-        SkClipOp elementOp = element->getOp();
-        if (elementOp == kReplace_SkClipOp) {
-            *path = operand;
-        } else {
-            Op(*path, operand, (SkPathOp)elementOp, path);
-        }
-
-        // if the prev and curr clips disagree about aa -vs- not, favor the aa request.
-        // perhaps we need an API change to avoid this sort of mixed-signals about
-        // clipping.
-        isAA = (isAA || element->isAA());
-    }
-
-    return isAA;
-}
-
 void SkClipStack::pushElement(const Element& element) {
     // Use reverse iterator instead of back because Rect path may need previous
     SkDeque::Iter iter(fDeque, SkDeque::Iter::kBack_IterStart);
