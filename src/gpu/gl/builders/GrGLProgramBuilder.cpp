@@ -362,6 +362,38 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
         }
 
         /*
+           Tessellation Shaders
+        */
+        if (fProgramInfo.primProc().willUseTessellationShaders()) {
+            // Tessellation shaders are not currently supported by SkSL. So here, we temporarily
+            // generate GLSL strings directly using back door methods on GrPrimitiveProcessor, and
+            // pass those raw strings on to the driver.
+            SkString versionAndExtensionDecls;
+            versionAndExtensionDecls.appendf("%s\n", this->shaderCaps()->versionDeclString());
+            if (const char* extensionString = this->shaderCaps()->tessellationExtensionString()) {
+                versionAndExtensionDecls.appendf("#extension %s : require\n", extensionString);
+            }
+
+            SkString tessControlShader = primProc.getTessControlShaderGLSL(
+                    versionAndExtensionDecls.c_str(), *this->shaderCaps());
+            if (!this->compileAndAttachShaders(tessControlShader.c_str(), programID,
+                                               GR_GL_TESS_CONTROL_SHADER, &shadersToDelete,
+                                               errorHandler)) {
+                cleanup_program(fGpu, programID, shadersToDelete);
+                return nullptr;
+            }
+
+            SkString tessEvaluationShader = primProc.getTessEvaluationShaderGLSL(
+                    versionAndExtensionDecls.c_str(), *this->shaderCaps());
+            if (!this->compileAndAttachShaders(tessEvaluationShader.c_str(), programID,
+                                               GR_GL_TESS_EVALUATION_SHADER, &shadersToDelete,
+                                               errorHandler)) {
+                cleanup_program(fGpu, programID, shadersToDelete);
+                return nullptr;
+            }
+        }
+
+        /*
            Geometry Shader
         */
         if (primProc.willUseGeoShader()) {
