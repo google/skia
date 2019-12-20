@@ -169,7 +169,10 @@ var (
 
 	// BUILD_STATS_NO_UPLOAD indicates which BuildStats tasks should not
 	// have their results uploaded.
-	BUILD_STATS_NO_UPLOAD = []string{"BuildStats-Debian9-Clang-x86_64-Release"}
+	BUILD_STATS_NO_UPLOAD = []string{
+		"BuildStats-Debian9-Clang-x86_64-Release",
+		"BuildStats-Debian9-Clang-x86_64-Release-Vulkan",
+	}
 )
 
 // Config contains general configuration information.
