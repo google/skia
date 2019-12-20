@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "869416c3_a138e620",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T21:26:23Z",
+      "side": 1,
+      "message": "This function doesn\u0027t support passing an arbitrary clip as it is part of the implementation of arbitrary clips (at least that\u0027s how I read the comment on the stencilRect() method).",
+      "range": {
+        "startLine": 1694,
+        "startChar": 28,
+        "endLine": 1694,
+        "endChar": 40
+      },
+      "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
