@@ -22,6 +22,30 @@
       "revId": "dcac29b02d02c40ef9ffc64fa5adcf259d1bdd7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5240f4e_99ff85b2",
+        "filename": "src/core/SkClipStackDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-20T17:49:47Z",
+      "side": 0,
+      "message": "Perhaps. Was shooting for the simplest version, since a clipstack of only rects will also run very very fast in the lower-loop, but I\u0027ll restore the extra code.",
+      "parentUuid": "9dc9bccd_219c0d52",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 37
+      },
+      "revId": "dcac29b02d02c40ef9ffc64fa5adcf259d1bdd7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
