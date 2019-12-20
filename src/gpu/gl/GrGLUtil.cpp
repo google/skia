@@ -130,12 +130,12 @@ void GrGLGetDriverInfo(GrGLStandard standard,
     }
 
     if (GR_IS_GR_GL(standard)) {
-        if (kNVIDIA_GrGLVendor == vendor) {
+        if (vendor == kNVIDIA_GrGLVendor) {
             *outDriver = kNVIDIA_GrGLDriver;
             int n = sscanf(versionString, "%d.%d.%d NVIDIA %d.%d",
                            &major, &minor, &rev, &driverMajor, &driverMinor);
             // Some older NVIDIA drivers don't report the driver version.
-            if (5 == n) {
+            if (n == 5) {
                 *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
             return;
@@ -146,18 +146,18 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             n = sscanf(versionString, "%d.%d (Core Profile) Mesa %d.%d",
                        &major, &minor, &driverMajor, &driverMinor);
         }
-        if (4 == n) {
+        if (n == 4) {
             *outDriver = kMesa_GrGLDriver;
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             return;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
-        if (kNVIDIA_GrGLVendor == vendor) {
+        if (vendor == kNVIDIA_GrGLVendor) {
             *outDriver = kNVIDIA_GrGLDriver;
             int n = sscanf(versionString, "OpenGL ES %d.%d NVIDIA %d.%d",
                            &major, &minor, &driverMajor, &driverMinor);
             // Some older NVIDIA drivers don't report the driver version.
-            if (4 == n) {
+            if (n == 4) {
                 *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
             return;
@@ -165,7 +165,7 @@ void GrGLGetDriverInfo(GrGLStandard standard,
 
         int n = sscanf(versionString, "OpenGL ES %d.%d Mesa %d.%d",
                        &major, &minor, &driverMajor, &driverMinor);
-        if (4 == n) {
+        if (n == 4) {
             *outDriver = kMesa_GrGLDriver;
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             return;
@@ -174,14 +174,14 @@ void GrGLGetDriverInfo(GrGLStandard standard,
             *outDriver = kANGLE_GrGLDriver;
             n = sscanf(versionString, "OpenGL ES %d.%d (ANGLE %d.%d", &major, &minor, &driverMajor,
                                                                       &driverMinor);
-            if (4 == n) {
+            if (n == 4) {
                 *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
             return;
         }
     }
 
-    if (kGoogle_GrGLVendor == vendor) {
+    if (vendor == kGoogle_GrGLVendor) {
         // Swiftshader is the only Google vendor at the moment
         *outDriver = kSwiftShader_GrGLDriver;
 
@@ -190,13 +190,13 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         // As of writing, version is 4.0.0.6
         int n = sscanf(versionString, "OpenGL ES %d.%d SwiftShader %d.%d.0.%d", &major, &minor,
                        &driverMajor, &driverMinor, &driverPoint);
-        if (5 == n) {
+        if (n == 5) {
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
         }
         return;
     }
 
-    if (kIntel_GrGLVendor == vendor) {
+    if (vendor == kIntel_GrGLVendor) {
         // We presume we're on the Intel driver since it hasn't identified itself as Mesa.
         *outDriver = kIntel_GrGLDriver;
 
@@ -204,20 +204,33 @@ void GrGLGetDriverInfo(GrGLStandard standard,
         // OSes.
         int n = sscanf(versionString, "%d.%d INTEL-%d.%d.%d", &major, &minor, &driverMajor,
                        &driverMinor, &driverPoint);
-        if (5 == n) {
+        if (n == 5) {
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, driverPoint);
         }
     }
 
-    if (kQualcomm_GrGLVendor == vendor) {
+    if (vendor == kQualcomm_GrGLVendor) {
         *outDriver = kQualcomm_GrGLDriver;
         int n = sscanf(versionString, "OpenGL ES %d.%d V@%d.%d", &major, &minor, &driverMajor,
                        &driverMinor);
-        if (4 == n) {
+        if (n == 4) {
             *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
         }
         return;
     }
+
+    if (vendor == kImagination_GrGLVendor) {
+        int revision;
+        int n = sscanf(versionString, "OpenGL ES %d.%d build %d.%d@%d", &major, &minor,
+                       &driverMajor, &driverMinor, &revision);
+        if (n == 5) {
+            // Revision is a large number (looks like a source control revision number) that
+            // doesn't fit into the 'patch' bits, so omit it until we need it.
+            *outVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
+        }
+        return;
+    }
+
     static constexpr char kEmulatorPrefix[] = "Android Emulator OpenGL ES Translator";
     if (0 == strncmp(kEmulatorPrefix, rendererString, strlen(kEmulatorPrefix))) {
         *outDriver = kAndroidEmulator_GrGLDriver;

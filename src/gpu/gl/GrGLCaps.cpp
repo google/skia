@@ -3607,6 +3607,20 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
     }
 
+    // Advanced blending can cause shader compilation to fail with message
+    // "Interface block type in this shader".
+    // on some shaders that use advanced blending on the line:
+    // "layout (blend_support_all_equations) out;"
+    // It has been triggered multiple times in the random Programs test, particularly on longer
+    // shaders. This was seen on a Tecno Spark 3 Pro with a PowerVR Rogue GE8300 running Android P
+    // driver version "1.10@5130912". It's unknown if it is fixed on later driver versions.
+    if (ctxInfo.vendor() == kImagination_GrGLVendor &&
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(1, 11, 0) &&
+        fBlendEquationSupport != kBasic_BlendEquationSupport) {
+        fBlendEquationSupport = kBasic_BlendEquationSupport;
+        shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
+    }
+
     if (fDriverBugWorkarounds.disable_blend_equation_advanced) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;

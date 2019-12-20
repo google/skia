@@ -393,6 +393,14 @@ static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
 #ifdef SK_BUILD_FOR_IOS
         maxTreeLevels = 2;
 #endif
+#ifdef SK_BUILD_FOR_ANDROID
+        GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.grContext()->priv().getGpu());
+        // Tecno Spark 3 Pro with Power VR Rogue GE8300 will fail shader compiles with
+        // no message if the shader is particularly long.
+        if (gpu->ctxInfo().vendor() == kImagination_GrGLVendor) {
+            maxTreeLevels = 3;
+        }
+#endif
         if (ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D9_ES2_ContextType ||
             ctxInfo.type() == sk_gpu_test::GrContextFactory::kANGLE_D3D11_ES2_ContextType) {
             // On Angle D3D we will hit a limit of out variables if we use too many stages.
