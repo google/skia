@@ -2521,12 +2521,6 @@ public:
                                const SkPaint* paint,
                                SrcRectConstraint constraint = kStrict_SrcRectConstraint);
 
-    /**
-     *  Returns the global clip as a region. If the clip contains AA, then only the bounds
-     *  of the clip may be returned.
-     */
-    void temporary_internal_getRgnClip(SkRegion* region);
-
     void private_draw_shadow_rec(const SkPath&, const SkDrawShadowRec&);
 
 
