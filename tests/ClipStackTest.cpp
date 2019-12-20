@@ -1563,32 +1563,3 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ClipMaskCache, reporter, ctxInfo) {
     }
 #endif
 }
-
-DEF_GPUTEST_FOR_ALL_CONTEXTS(canvas_private_clipRgn, reporter, ctxInfo) {
-    GrContext* context = ctxInfo.grContext();
-
-    const int w = 10;
-    const int h = 10;
-    SkImageInfo info = SkImageInfo::Make(w, h, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
-    SkCanvas* canvas = surf->getCanvas();
-    SkRegion rgn;
-
-    canvas->temporary_internal_getRgnClip(&rgn);
-    REPORTER_ASSERT(reporter, rgn.isRect());
-    REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeWH(w, h));
-
-    canvas->save();
-    canvas->clipRect(SkRect::MakeWH(5, 5), kDifference_SkClipOp);
-    canvas->temporary_internal_getRgnClip(&rgn);
-    REPORTER_ASSERT(reporter, rgn.isComplex());
-    REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeWH(w, h));
-    canvas->restore();
-
-    canvas->save();
-    canvas->clipRRect(SkRRect::MakeOval(SkRect::MakeLTRB(3, 3, 7, 7)));
-    canvas->temporary_internal_getRgnClip(&rgn);
-    REPORTER_ASSERT(reporter, rgn.isComplex());
-    REPORTER_ASSERT(reporter, rgn.getBounds() == SkIRect::MakeLTRB(3, 3, 7, 7));
-    canvas->restore();
-}

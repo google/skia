@@ -1635,14 +1635,6 @@ public:
     }
 };
 
-void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
-    RgnAccumulator accum(rgn);
-    SkRegion tmp;
-
-    rgn->setEmpty();
-    FOR_EACH_TOP_DEVICE(device->onAsRgnClip(&tmp); accum.accumulate(device, &tmp));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::isClipEmpty() const {
