@@ -125,8 +125,8 @@ void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) c
     SkASSERT(!fNumDynamicStateArrays || meshCount == fNumDynamicStateArrays);
 
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(fPrimProc->hasVertexAttributes() == meshes[i].hasVertexData());
-        SkASSERT(fPrimProc->hasInstanceAttributes() == meshes[i].hasInstanceData());
+        SkASSERT(fPrimProc->hasVertexAttributes() == SkToBool(meshes[i].vertexBuffer()));
+        SkASSERT(fPrimProc->hasInstanceAttributes() == SkToBool(meshes[i].instanceBuffer()));
         if (fPipeline->usesConservativeRaster()) {
             // Conservative raster, by default, only supports triangles. Implementations can
             // optionally indicate that they also support points and lines, but we don't currently

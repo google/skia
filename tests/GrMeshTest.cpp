@@ -434,8 +434,8 @@ void DrawMeshHelper::drawMesh(const GrMesh& mesh, GrPrimitiveType primitiveType)
                                                              std::move(processorSet),
                                                              GrPipeline::InputFlags::kNone);
 
-    GrGeometryProcessor* mtp = GrMeshTestProcessor::Make(fState->allocator(),
-                                                         mesh.isInstanced(), mesh.hasVertexData());
+    GrGeometryProcessor* mtp = GrMeshTestProcessor::Make(
+            fState->allocator(), mesh.isInstanced(), SkToBool(mesh.vertexBuffer()));
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(),
                               fState->proxy()->numStencilSamples(),
