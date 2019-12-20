@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "209145a8_8ca42fd7",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2019-12-20T20:21:28Z",
+      "side": 1,
+      "message": "This was git cl format...",
+      "range": {
+        "startLine": 376,
+        "startChar": 0,
+        "endLine": 379,
+        "endChar": 66
+      },
+      "revId": "e9fc2ba7997f20b2d34b6ac511f2c4e93d3c71ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
