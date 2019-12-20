@@ -70,6 +70,30 @@
       "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5459954f_f086c089",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T21:33:13Z",
+      "side": 1,
+      "message": "GrHardClip encapsulates setting stencil settings for something already in the stencil buffer, a scissor rect, and \"window rectangles\" (NVIDIA only).",
+      "parentUuid": "90961c1b_1b4d76b3",
+      "range": {
+        "startLine": 1694,
+        "startChar": 28,
+        "endLine": 1694,
+        "endChar": 40
+      },
+      "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
