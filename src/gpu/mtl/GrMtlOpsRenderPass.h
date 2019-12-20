@@ -61,22 +61,14 @@ private:
 
     // GrMesh::SendToGpuImpl methods. These issue the actual Metal draw commands.
     // Marked final as a hint to the compiler to not use virtual dispatch.
-    void sendMeshToGpu(GrPrimitiveType primType, const GrBuffer* vertexBuffer, int vertexCount,
-                       int baseVertex) final;
-
-    void sendIndexedMeshToGpu(GrPrimitiveType primType, const GrBuffer* indexBuffer, int indexCount,
-                              int baseIndex, uint16_t /*minIndexValue*/, uint16_t /*maxIndexValue*/,
-                              const GrBuffer* vertexBuffer, int baseVertex,
-                              GrPrimitiveRestart restart) final;
-
-    void sendInstancedMeshToGpu(GrPrimitiveType, const GrBuffer* vertexBuffer, int vertexCount,
-                                int baseVertex, const GrBuffer* instanceBuffer, int instanceCount,
+    void sendArrayMeshToGpu(const GrMesh&, int vertexCount, int baseVertex) final;
+    void sendIndexedMeshToGpu(const GrMesh&, int indexCount, int baseIndex,
+                              uint16_t /*minIndexValue*/, uint16_t /*maxIndexValue*/,
+                              int baseVertex) final;
+    void sendInstancedMeshToGpu(const GrMesh&, int vertexCount, int baseVertex, int instanceCount,
                                 int baseInstance) final;
-
-    void sendIndexedInstancedMeshToGpu(GrPrimitiveType, const GrBuffer* indexBuffer, int indexCount,
-                                       int baseIndex, const GrBuffer* vertexBuffer, int baseVertex,
-                                       const GrBuffer* instanceBuffer, int instanceCount,
-                                       int baseInstance, GrPrimitiveRestart) final;
+    void sendIndexedInstancedMeshToGpu(const GrMesh&, int indexCount, int baseIndex, int baseVertex,
+                                       int instanceCount, int baseInstance) final;
 
     void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrMtlBuffer*, size_t offset,
                          size_t index);

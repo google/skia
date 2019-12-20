@@ -178,31 +178,20 @@ void GrDawnOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     }
 }
 
-void GrDawnOpsRenderPass::sendInstancedMeshToGpu(GrPrimitiveType,
-                                                 const GrBuffer* vertexBuffer,
-                                                 int vertexCount,
-                                                 int baseVertex,
-                                                 const GrBuffer* instanceBuffer,
-                                                 int instanceCount,
+void GrDawnOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount,
+                                                 int baseVertex, int instanceCount,
                                                  int baseInstance) {
-    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
+    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(mesh.vertexBuffer()())->get();
     fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.Draw(vertexCount, 1, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
 }
 
-void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(GrPrimitiveType,
-                                                        const GrBuffer* indexBuffer,
-                                                        int indexCount,
-                                                        int baseIndex,
-                                                        const GrBuffer* vertexBuffer,
-                                                        int baseVertex,
-                                                        const GrBuffer* instanceBuffer,
-                                                        int instanceCount,
-                                                        int baseInstance,
-                                                        GrPrimitiveRestart restart) {
-    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(vertexBuffer)->get();
-    wgpu::Buffer ib = static_cast<const GrDawnBuffer*>(indexBuffer)->get();
+void GrDawnOpsRenderPass::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount,
+                                                        int baseIndex, int baseVertex,
+                                                        int instanceCount, int baseInstance) {
+    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(mesh.vertexBuffer())->get();
+    wgpu::Buffer ib = static_cast<const GrDawnBuffer*>(mesh.indexBuffer())->get();
     fPassEncoder.SetIndexBuffer(ib);
     fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.DrawIndexed(indexCount, 1, baseIndex, baseVertex, baseInstance);

@@ -2422,14 +2422,14 @@ static GrGLenum gr_primitive_type_to_gl_mode(GrPrimitiveType primitiveType) {
     SK_ABORT("invalid GrPrimitiveType");
 }
 
-void GrGLGpu::sendMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* vertexBuffer,
-                            int vertexCount, int baseVertex) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+void GrGLGpu::sendArrayMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex) {
+    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
     if (this->glCaps().drawArraysBaseVertexIsBroken()) {
-        this->setupGeometry(nullptr, vertexBuffer, baseVertex, nullptr, 0, GrPrimitiveRestart::kNo);
+        this->setupGeometry(nullptr, mesh.vertexBuffer(), baseVertex, nullptr, 0,
+                            GrPrimitiveRestart::kNo);
         GL_CALL(DrawArrays(glPrimType, 0, vertexCount));
     } else {
-        this->setupGeometry(nullptr, vertexBuffer, 0, nullptr, 0, GrPrimitiveRestart::kNo);
+        this->setupGeometry(nullptr, mesh.vertexBuffer(), 0, nullptr, 0, GrPrimitiveRestart::kNo);
         GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
     }
     fStats.incNumDraws();
@@ -2444,14 +2444,14 @@ static const GrGLvoid* element_ptr(const GrBuffer* indexBuffer, int baseIndex) {
     }
 }
 
-void GrGLGpu::sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* indexBuffer,
-                                   int indexCount, int baseIndex, uint16_t minIndexValue,
-                                   uint16_t maxIndexValue, const GrBuffer* vertexBuffer,
-                                   int baseVertex, GrPrimitiveRestart enablePrimitiveRestart) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
-    const GrGLvoid* elementPtr = element_ptr(indexBuffer, baseIndex);
+void GrGLGpu::sendIndexedMeshToGpu(const GrMesh& mesh, int indexCount, int baseIndex,
+                                   uint16_t minIndexValue, uint16_t maxIndexValue, int baseVertex) {
+    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
 
-    this->setupGeometry(indexBuffer, vertexBuffer, baseVertex, nullptr, 0, enablePrimitiveRestart);
+    const GrGLvoid* elementPtr = element_ptr(mesh.indexBuffer(), baseIndex);
+
+    this->setupGeometry(mesh.indexBuffer(), mesh.vertexBuffer(), baseVertex, nullptr, 0,
+                        mesh.primitiveRestart());
 
     if (this->glCaps().drawRangeElementsSupport()) {
         GL_CALL(DrawRangeElements(glPrimType, minIndexValue, maxIndexValue, indexCount,
@@ -2462,33 +2462,27 @@ void GrGLGpu::sendIndexedMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer
     fStats.incNumDraws();
 }
 
-void GrGLGpu::sendInstancedMeshToGpu(GrPrimitiveType primitiveType, const GrBuffer* vertexBuffer,
-                                     int vertexCount, int baseVertex,
-                                     const GrBuffer* instanceBuffer, int instanceCount,
-                                     int baseInstance) {
-    GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
+void GrGLGpu::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount, int baseVertex,
+                                     int instanceCount, int baseInstance) {
+    GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
     int maxInstances = this->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
-        this->setupGeometry(nullptr, vertexBuffer, 0, instanceBuffer, baseInstance + i,
-                            GrPrimitiveRestart::kNo);
+        this->setupGeometry(nullptr, mesh.vertexBuffer(), 0, mesh.instanceBuffer(),
+                            baseInstance + i, GrPrimitiveRestart::kNo);
         GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount,
                                     SkTMin(instanceCount - i, maxInstances)));
         fStats.incNumDraws();
     }
 }
 
-void GrGLGpu::sendIndexedInstancedMeshToGpu(GrPrimitiveType primitiveType,
-                                            const GrBuffer* indexBuffer, int indexCount,
-                                            int baseIndex, const GrBuffer* vertexBuffer,
-                                            int baseVertex, const GrBuffer* instanceBuffer,
-                                            int instanceCount, int baseInstance,
-                                            GrPrimitiveRestart enablePrimitiveRestart) {
-    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(primitiveType);
-    const GrGLvoid* elementPtr = element_ptr(indexBuffer, baseIndex);
+void GrGLGpu::sendIndexedInstancedMeshToGpu(const GrMesh& mesh, int indexCount, int baseIndex,
+                                            int baseVertex, int instanceCount, int baseInstance) {
+    const GrGLenum glPrimType = gr_primitive_type_to_gl_mode(mesh.primitiveType());
+    const GrGLvoid* elementPtr = element_ptr(mesh.indexBuffer(), baseIndex);
     int maxInstances = this->glCaps().maxInstancesPerDrawWithoutCrashing(instanceCount);
     for (int i = 0; i < instanceCount; i += maxInstances) {
-        this->setupGeometry(indexBuffer, vertexBuffer, baseVertex, instanceBuffer, baseInstance + i,
-                            enablePrimitiveRestart);
+        this->setupGeometry(mesh.indexBuffer(), mesh.vertexBuffer(), baseVertex,
+                            mesh.instanceBuffer(), baseInstance + i, mesh.primitiveRestart());
         GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT, elementPtr,
                                       SkTMin(instanceCount - i, maxInstances)));
         fStats.incNumDraws();
