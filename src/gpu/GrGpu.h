@@ -132,9 +132,8 @@ public:
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
 
-    sk_sp<GrTexture> createCompressedTexture(int width, int height, const GrBackendFormat&,
-                                             SkImage::CompressionType, SkBudgeted, const void* data,
-                                             size_t dataSize);
+    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions, const GrBackendFormat&,
+                                             SkBudgeted, const void* data, size_t dataSize);
 
     /**
      * Implements GrResourceProvider::wrapBackendTexture
@@ -661,10 +660,10 @@ private:
                                              GrProtected,
                                              int mipLevelCoont,
                                              uint32_t levelClearMask) = 0;
-    virtual sk_sp<GrTexture> onCreateCompressedTexture(int width, int height,
+    virtual sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                        const GrBackendFormat&,
-                                                       SkImage::CompressionType, SkBudgeted,
-                                                       const void* data) = 0;
+                                                       SkBudgeted,
+                                                       const void* data, size_t dataSize) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                                   GrWrapOwnership, GrWrapCacheable, GrIOType) = 0;
 

@@ -1045,6 +1045,9 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
 #else
             return GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8);
 #endif
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+            // Metal only supports the RGBA BC1 variants
+            return {};
     }
     SK_ABORT("Invalid compression type");
 }
