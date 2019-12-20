@@ -323,7 +323,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     SkPath path = to_path(rect);
     path.transform(this->localToDevice(), &path);
     SkPath clip;
-    (void)this->cs().asPath(&clip);
+    SkPDFUtils::ClipStackAsPath(this->cs(), &clip);
     Op(clip, path, kIntersect_SkPathOp, &path);
     // PDF wants a rectangle only.
     SkRect transformedRect =
