@@ -15,3 +15,4 @@ restore_scissor_on_fbo_change
 rewrite_do_while_loops
 unbind_attachments_on_bound_render_fbo_delete
 unfold_short_circuit_as_ternary_operation
+disable_dual_source_blending_support
