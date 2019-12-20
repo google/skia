@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7017cd5_cea398be",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T13:46:18Z",
+      "side": 1,
+      "message": "We should check this in GrGLCaps::applyDriverCorrectnessWorkarounds(). This allows us to respect a GrContextOption that overrides applying any correctness workarounds.",
+      "range": {
+        "startLine": 358,
+        "startChar": 65,
+        "endLine": 359,
+        "endChar": 75
+      },
+      "revId": "3a8f97ce1041def52d21a5322d725af834a64f7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
