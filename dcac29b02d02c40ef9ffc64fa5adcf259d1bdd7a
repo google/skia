@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dc9bccd_219c0d52",
+        "filename": "src/core/SkClipStackDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-12-20T17:32:31Z",
+      "side": 0,
+      "message": "If the stack already tracks all rects and their intersection, this optimization seems worthwhile to avoid iterating/recomputing with SkRegion.",
+      "range": {
+        "startLine": 80,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 37
+      },
+      "revId": "dcac29b02d02c40ef9ffc64fa5adcf259d1bdd7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
