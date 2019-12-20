@@ -136,8 +136,11 @@ class DefaultFlavor(object):
         env['VK_ICD_FILENAMES'] = str(dri_path.join('intel_icd.x86_64.json'))
 
       if 'Vulkan' in extra_tokens:
+        env['VULKAN_SDK'] = str(slave_dir.join('linux_vulkan_sdk'))
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
+        env['VK_LAYER_PATH'] = str(slave_dir.join(
+            'linux_vulkan_sdk', 'etc', 'explicit_layer.d'))
 
       if 'OpenCL' in extra_tokens:
         ld_library_path.append(slave_dir.join('opencl_ocl_icd_linux'))
