@@ -177,14 +177,13 @@ bool GrVkFormatIsCompressed(VkFormat vkFormat) {
         default:
             return false;
     }
+    SkUNREACHABLE;
 }
 
-bool GrVkFormatToCompressionType(VkFormat vkFormat, SkImage::CompressionType* compressionType) {
+SkImage::CompressionType GrVkFormatToCompressionType(VkFormat vkFormat) {
     switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
-            *compressionType = SkImage::CompressionType::kETC1;
-            return true;
-        default:
-            return false;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkImage::CompressionType::kETC1;
+        default:                                return SkImage::CompressionType::kNone;
     }
+    SkUNREACHABLE;
 }

@@ -269,19 +269,14 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
+sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
                                                 const GrBackendFormat& format,
-                                                SkImage::CompressionType compressionType,
                                                 SkBudgeted budgeted,
                                                 const void* data,
                                                 size_t dataSize) {
-    // If we ever add a new CompressionType, we should add a check here to make sure the
-    // GrBackendFormat and CompressionType are compatible with eachother.
-    SkASSERT(compressionType == SkImage::CompressionType::kETC1);
-
     this->handleDirtyContext();
-    if (width  < 1 || width  > this->caps()->maxTextureSize() ||
-        height < 1 || height > this->caps()->maxTextureSize()) {
+    if (dimensions.width()  < 1 || dimensions.width()  > this->caps()->maxTextureSize() ||
+        dimensions.height() < 1 || dimensions.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
     // Note if we relax the requirement that data must be provided then we must check
@@ -292,11 +287,15 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(int width, int height,
     if (!this->caps()->isFormatTexturable(format)) {
         return nullptr;
     }
-    if (dataSize < GrCompressedDataSize(compressionType, {width, height},
+
+    // TODO: expand CompressedDataIsCorrect to work here too
+    SkImage::CompressionType compressionType = this->caps()->compressionType(format);
+
+    if (dataSize < GrCompressedDataSize(compressionType, dimensions,
                                         nullptr, GrMipMapped::kNo)) {
         return nullptr;
     }
-    return this->onCreateCompressedTexture(width, height, format, compressionType, budgeted, data);
+    return this->onCreateCompressedTexture(dimensions, format, budgeted, data, dataSize);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
