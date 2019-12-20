@@ -83,7 +83,7 @@ bool GrVkFormatIsCompressed(VkFormat);
 /**
  * Maps a vk format into the CompressionType enum if applicable.
  */
-bool GrVkFormatToCompressionType(VkFormat vkFormat, SkImage::CompressionType* compressionType);
+SkImage::CompressionType GrVkFormatToCompressionType(VkFormat vkFormat);
 
 #if GR_TEST_UTILS
 static constexpr const char* GrVkFormatToStr(VkFormat vkFormat) {

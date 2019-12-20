@@ -159,6 +159,11 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
     return totalSize;
 }
 
+size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
+                                  SkISize dimensions, GrMipMapped mipMapped) {
+    return GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped);
+}
+
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:

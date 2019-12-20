@@ -221,7 +221,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext* context, sk_sp<SkData> dat
                                            int width, int height, CompressionType type) {
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createCompressedTextureProxy(
-            width, height, SkBudgeted::kYes, type, std::move(data));
+            {width, height}, SkBudgeted::kYes, type, std::move(data));
     if (!proxy) {
         return nullptr;
     }

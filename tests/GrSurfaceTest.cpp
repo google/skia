@@ -95,9 +95,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(compression, dimensions, GrMipMapped::kNo,
                                    (char*)data->writable_data(), color);
-            return rp->createCompressedTexture(dimensions.width(), dimensions.height(),
-                                               format, compression,
-                                               SkBudgeted::kNo, data.get());
+            return rp->createCompressedTexture(dimensions, format, SkBudgeted::kNo, data.get());
         } else {
             GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
 

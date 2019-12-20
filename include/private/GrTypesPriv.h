@@ -808,18 +808,8 @@ GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 /**
  * Returns the data size for the given SkImage::CompressionType
  */
-static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
-                                                SkISize dimensions) {
-    switch (compressionType) {
-        case SkImage::CompressionType::kNone:
-            return 0;
-        case SkImage::CompressionType::kETC1:
-            SkASSERT((dimensions.width() & 3) == 0);
-            SkASSERT((dimensions.height() & 3) == 0);
-            return (dimensions.width() >> 2) * (dimensions.height() >> 2) * 8;
-    }
-    SkUNREACHABLE;
-}
+size_t GrCompressedFormatDataSize(SkImage::CompressionType, SkISize dimensions,
+                                  GrMipMapped = GrMipMapped::kNo);
 
 /**
  * Like SkColorType this describes a layout of pixel data in CPU memory. It specifies the channels,

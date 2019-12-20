@@ -1440,8 +1440,7 @@ GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
         // We can't directly read from a compressed format
-        SkImage::CompressionType compressionType;
-        if (GrVkFormatToCompressionType(tex->imageFormat(), &compressionType)) {
+        if (GrVkFormatIsCompressed(tex->imageFormat())) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
     }
