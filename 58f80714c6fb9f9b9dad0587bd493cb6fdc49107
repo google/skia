@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "508894d0_59f40952",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-20T19:27:27Z",
+      "side": 1,
+      "message": "if (this-\u003ecs().isWideOpen()) return false",
+      "range": {
+        "startLine": 1673,
+        "startChar": 4,
+        "endLine": 1677,
+        "endChar": 4
+      },
+      "revId": "58f80714c6fb9f9b9dad0587bd493cb6fdc49107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6111947_a6498d0d",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1695,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-20T19:27:27Z",
+      "side": 1,
+      "message": "rtc-\u003epriv().stencilRect(this-\u003eclip(), std::move(grPaint), GrAA::kNo, SkMatrix::I(), deviceRect);",
+      "range": {
+        "startLine": 1694,
+        "startChar": 4,
+        "endLine": 1695,
+        "endChar": 60
+      },
+      "revId": "58f80714c6fb9f9b9dad0587bd493cb6fdc49107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
