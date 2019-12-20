@@ -6,6 +6,7 @@
 #include "include/core/SkStream.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/utils/SkClipStackUtils.h"
 
 static SkPath to_path(const SkRect& r) {
     SkPath p;
@@ -131,7 +132,7 @@ static void append_clip(const SkClipStack& clipStack,
 
     if (is_complex_clip(clipStack)) {
         SkPath clipPath;
-        (void)clipStack.asPath(&clipPath);
+        SkClipStack_AsPath(clipStack, &clipPath);
         if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
             append_clip_path(clipPath, wStream);
         }
