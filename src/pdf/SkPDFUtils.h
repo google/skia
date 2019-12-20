@@ -16,6 +16,7 @@
 #include "src/shaders/SkShaderBase.h"
 #include "src/utils/SkFloatToDecimal.h"
 
+class SkClipStack;
 class SkMatrix;
 class SkPDFArray;
 struct SkRect;
@@ -131,6 +132,9 @@ void Base85Encode(std::unique_ptr<SkStreamAsset> src, SkDynamicMemoryWStream* ds
 #endif //  SK_PDF_BASE85_BINARY
 
 void AppendTransform(const SkMatrix&, SkWStream*);
+
+void ClipStackAsPath(const SkClipStack& cs, SkPath *path);
+
 }  // namespace SkPDFUtils
 
 #endif
