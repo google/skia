@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44d07a84_c93627d5",
+        "filename": "tests/CompressedBackendAllocationTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-20T14:41:35Z",
+      "side": 1,
+      "message": "why these spaces?",
+      "range": {
+        "startLine": 189,
+        "startChar": 43,
+        "endLine": 189,
+        "endChar": 52
+      },
+      "revId": "12faf88f9c2ec61be7b17927e61949c17e0ca6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
