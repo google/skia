@@ -70,6 +70,30 @@
       "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a00e37bc_e5656bc5",
+        "filename": "infra/bots/recipes/compute_buildstats.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-20T13:22:18Z",
+      "side": 1,
+      "message": "Omitting the checks, as per offline discussion.",
+      "parentUuid": "3039d8ab_0baa98b5",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 54
+      },
+      "revId": "043a258460e8b1fc9872cf11fa1cde4f617616c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
