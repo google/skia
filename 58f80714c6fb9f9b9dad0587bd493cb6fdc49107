@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "538e4dc3_7ec90a19",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-20T19:35:50Z",
+      "side": 1,
+      "message": "In a follow-up CL",
+      "parentUuid": "e05d6b92_c55e98e3",
+      "range": {
+        "startLine": 1673,
+        "startChar": 4,
+        "endLine": 1677,
+        "endChar": 4
+      },
+      "revId": "58f80714c6fb9f9b9dad0587bd493cb6fdc49107",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b6111947_a6498d0d",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 4
