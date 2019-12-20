@@ -788,6 +788,13 @@ void SkBitmapDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction)
     }
 }
 
+bool SkBitmapDevice::onClipIsWideOpen() const {
+    const SkRasterClip& rc = fRCStack.rc();
+    // If we're AA, we can't be wide-open (we would represent that as BW)
+    return rc.isBW() && rc.bwRgn().isRect() &&
+           rc.bwRgn().getBounds() == SkIRect{0, 0, this->width(), this->height()};
+}
+
 bool SkBitmapDevice::onClipIsAA() const {
     const SkRasterClip& rc = fRCStack.rc();
     return !rc.isEmpty() && rc.isAA();
