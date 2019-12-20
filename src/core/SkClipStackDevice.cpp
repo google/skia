@@ -72,16 +72,17 @@ bool SkClipStackDevice::onClipIsAA() const {
 }
 
 void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
-    SkClipStack::BoundsType boundType;
-    bool isIntersectionOfRects;
-    SkRect bounds;
-    fClipStack.getBounds(&bounds, &boundType, &isIntersectionOfRects);
-    if (isIntersectionOfRects && SkClipStack::kNormal_BoundsType == boundType) {
-        rgn->setRect(bounds.round());
-    } else {
-        SkPath path;
-        fClipStack.asPath(&path);
-        rgn->setPath(path, SkRegion(SkIRect::MakeWH(this->width(), this->height())));
+    SkRegion bounds({0, 0, this->width(), this->height()});
+    SkPath tmpPath;
+
+    *rgn = bounds;
+    SkClipStack::B2TIter iter(fClipStack);
+    while (auto elem = iter.next()) {
+        tmpPath.rewind();
+        elem->asDeviceSpacePath(&tmpPath);
+        SkRegion tmpRgn;
+        tmpRgn.setPath(tmpPath, bounds);
+        rgn->op(tmpRgn, SkRegion::Op(elem->getOp()));
     }
 }
 
