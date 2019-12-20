@@ -16,6 +16,24 @@
       "revId": "a3bae7114adf4f641d6b31958ac4b9f7b358ea54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e8141d4d_9d03b835",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-12-20T20:57:55Z",
+      "side": 1,
+      "message": "Doing it this was was intentional or else the roll will break chrome 😭\n\nSo We need to do it in three steps:\n1) Just add it to the interface as optional\n2) Setup the interface in Chrome once it rolls\n3) Switch from optional to \"functions\"",
+      "parentUuid": "7fe69e39_27c218dd",
+      "revId": "a3bae7114adf4f641d6b31958ac4b9f7b358ea54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
