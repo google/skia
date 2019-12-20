@@ -21,12 +21,12 @@ struct ETC1Block {
     uint32_t fLow;
 };
 
-static const int kNumModifierTables = 8;
-static const int kNumPixelIndices = 4;
+static const int kNumETC1ModifierTables = 8;
+static const int kNumETC1PixelIndices = 4;
 
 // The index of each row in this table is the ETC1 table codeword
 // The index of each column in this table is the ETC1 pixel index value
-static const int kModifierTables[kNumModifierTables][kNumPixelIndices] = {
+static const int kETC1ModifierTables[kNumETC1ModifierTables][kNumETC1PixelIndices] = {
     /* 0 */ { 2,    8,  -2,   -8 },
     /* 1 */ { 5,   17,  -5,  -17 },
     /* 2 */ { 9,   29,  -9,  -29 },
@@ -50,9 +50,9 @@ static int test_table_entry(int rOrig, int gOrig, int bOrig,
     SkASSERT(0 <= table && table < 8);
     SkASSERT(0 <= offset && offset < 4);
 
-    r8 = SkTPin<int>(r8 + kModifierTables[table][offset], 0, 255);
-    g8 = SkTPin<int>(g8 + kModifierTables[table][offset], 0, 255);
-    b8 = SkTPin<int>(b8 + kModifierTables[table][offset], 0, 255);
+    r8 = SkTPin<int>(r8 + kETC1ModifierTables[table][offset], 0, 255);
+    g8 = SkTPin<int>(g8 + kETC1ModifierTables[table][offset], 0, 255);
+    b8 = SkTPin<int>(b8 + kETC1ModifierTables[table][offset], 0, 255);
 
     return SkTAbs(rOrig - r8) + SkTAbs(gOrig - g8) + SkTAbs(bOrig - b8);
 }
@@ -79,8 +79,8 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
 
     int bestTableIndex = 0, bestPixelIndex = 0;
     int bestSoFar = 1024;
-    for (int tableIndex = 0; tableIndex < kNumModifierTables; ++tableIndex) {
-        for (int pixelIndex = 0; pixelIndex < kNumPixelIndices; ++pixelIndex) {
+    for (int tableIndex = 0; tableIndex < kNumETC1ModifierTables; ++tableIndex) {
+        for (int pixelIndex = 0; pixelIndex < kNumETC1PixelIndices; ++pixelIndex) {
             int score = test_table_entry(rOrig, gOrig, bOrig, r8, g8, b8,
                                          tableIndex, pixelIndex);
 
@@ -128,6 +128,25 @@ static int num_ETC1_blocks(int w, int h) {
     return w * h;
 }
 
+struct BC1Block {
+    uint16_t fColor0;
+    uint16_t fColor1;
+    uint32_t fIndices;
+};
+
+// Create a BC1 compressed block that is filled with 'col'
+static void create_BC1_block(SkColor col, BC1Block* block) {
+    int r5 = SkMulDiv255Round(31, SkColorGetR(col));
+    int g6 = SkMulDiv255Round(63, SkColorGetG(col));
+    int b5 = SkMulDiv255Round(31, SkColorGetB(col));
+
+    uint16_t c565 = (r5 << 11) | (g6 << 5) | b5;
+    block->fColor0 = c565;
+    block->fColor1 = c565;
+    // This sets all 16 pixels to just use 'fColor0'
+    block->fIndices = 0;
+}
+
 size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
                             SkTArray<size_t>* individualMipOffsets, GrMipMapped mipMapped) {
     SkASSERT(!individualMipOffsets || !individualMipOffsets->count());
@@ -141,7 +160,8 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
     switch (type) {
         case SkImage::CompressionType::kNone:
             break;
-        case SkImage::CompressionType::kETC1: {
+        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM: {
             for (int i = 0; i < numMipLevels; ++i) {
                 int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
@@ -149,6 +169,7 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
                     individualMipOffsets->push_back(totalSize);
                 }
 
+                static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
                 totalSize += numBlocks * sizeof(ETC1Block);
 
                 dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
@@ -168,8 +189,11 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:
             return 0;
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
         case SkImage::CompressionType::kETC1:
             int numBlocksWidth = num_ETC1_blocks_w(width);
+
+            static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
             return numBlocksWidth * sizeof(ETC1Block);
     }
     SkUNREACHABLE;
@@ -187,6 +211,21 @@ static void fillin_ETC1_with_color(SkISize dimensions, const SkColor4f& colorf, 
     for (int i = 0; i < numBlocks; ++i) {
         memcpy(dest, &block, sizeof(ETC1Block));
         dest += sizeof(ETC1Block);
+    }
+}
+
+// Fill in 'dest' with BC1 blocks derived from 'colorf'
+static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, char* dest) {
+    SkColor color = colorf.toSkColor();
+
+    BC1Block block;
+    create_BC1_block(color, &block);
+
+    int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
+
+    for (int i = 0; i < numBlocks; ++i) {
+        memcpy(dest, &block, sizeof(BC1Block));
+        dest += sizeof(BC1Block);
     }
 }
 
@@ -234,18 +273,20 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
         numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    if (SkImage::CompressionType::kETC1 == type) {
-        size_t offset = 0;
+    size_t offset = 0;
 
-        for (int i = 0; i < numMipLevels; ++i) {
-            size_t levelSize = GrCompressedDataSize(type, dimensions, nullptr, GrMipMapped::kNo);
+    for (int i = 0; i < numMipLevels; ++i) {
+        size_t levelSize = GrCompressedDataSize(type, dimensions, nullptr, GrMipMapped::kNo);
 
+        if (SkImage::CompressionType::kETC1 == type) {
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
-
-            offset += levelSize;
-
-            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+        } else {
+            SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM);
+            fillin_BC1_with_color(dimensions, colorf, &dstPixels[offset]);
         }
+
+        offset += levelSize;
+        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
     }
 }
 
