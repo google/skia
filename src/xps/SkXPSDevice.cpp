@@ -49,6 +49,7 @@
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/sfnt/SkTTCFHeader.h"
 #include "src/shaders/SkShaderBase.h"
+#include "src/utils/SkClipStackUtils.h"
 #include "src/utils/win/SkHRESULT.h"
 #include "src/utils/win/SkIStream.h"
 #include "src/utils/win/SkTScopedComPtr.h"
@@ -1682,7 +1683,7 @@ HRESULT SkXPSDevice::clip(IXpsOMVisual* xpsVisual) {
     }
     SkPath clipPath;
     // clipPath.addRect(this->cs().bounds(size(*this)));
-    (void)this->cs().asPath(&clipPath);
+    SkClipStack_AsPath(this->cs(), &clipPath);
     // TODO: handle all the kinds of paths, like drawPath does
     return this->clipToPath(xpsVisual, clipPath, XPS_FILL_RULE_EVENODD);
 }

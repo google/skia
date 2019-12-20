@@ -337,12 +337,6 @@ public:
         return this->isWideOpen() || this->internalQuickContains(devRRect);
     }
 
-    /**
-     * Flattens the clip stack into a single SkPath. Returns true if any of
-     * the clip stack components requires anti-aliasing.
-     */
-    bool asPath(SkPath* path) const;
-
     void clipDevRect(const SkIRect& ir, SkClipOp op) {
         SkRect r;
         r.set(ir);

@@ -48,6 +48,7 @@
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/utils/SkClipStackUtils.h"
 #include "src/utils/SkUTF.h"
 
 #include <vector>
@@ -323,7 +324,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     SkPath path = to_path(rect);
     path.transform(this->localToDevice(), &path);
     SkPath clip;
-    (void)this->cs().asPath(&clip);
+    SkClipStack_AsPath(this->cs(), &clip);
     Op(clip, path, kIntersect_SkPathOp, &path);
     // PDF wants a rectangle only.
     SkRect transformedRect =
