@@ -192,9 +192,9 @@ class DefaultFlavor(object):
       if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
         env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
       else:
-        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
-      env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
-      env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
+        env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1 fast_unwind_on_malloc=0'
+      env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1 fast_unwind_on_malloc=0'
+      env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1 fast_unwind_on_malloc=0'
 
     if 'TSAN' in extra_tokens:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
