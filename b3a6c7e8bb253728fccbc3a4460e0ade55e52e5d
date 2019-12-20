@@ -16,6 +16,24 @@
       "revId": "b3a6c7e8bb253728fccbc3a4460e0ade55e52e5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c53a46d4_33403341",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1672,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-20T19:56:12Z",
+      "side": 1,
+      "message": "This way the gpudevice is free to impl however it wishes. I have a pending CL that \nremoves all references to regions (by using more gpu specific methods).",
+      "parentUuid": "687b6c7d_f03a0b11",
+      "revId": "b3a6c7e8bb253728fccbc3a4460e0ade55e52e5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
