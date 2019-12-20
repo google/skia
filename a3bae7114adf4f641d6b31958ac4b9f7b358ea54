@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7fe69e39_27c218dd",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2019-12-20T20:33:18Z",
+      "side": 1,
+      "message": "You also need to list this in \"functions\" or the method doesn\u0027t actually get added to the interface.",
+      "revId": "a3bae7114adf4f641d6b31958ac4b9f7b358ea54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
