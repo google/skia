@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c9d377d_bde38643",
+        "filename": "gm/tessellation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T16:08:06Z",
+      "side": 1,
+      "message": "I think these should just return SkString.",
+      "revId": "577c67a0ea4f2fb5b59e30bd4be8de29d13b65a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ebad57a_30463363",
+        "filename": "gm/tessellation.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T16:08:06Z",
+      "side": 1,
+      "message": "Are there desktop GL versions that support tessellation shaders but don\u0027t have precision modifiers?",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 34
+      },
+      "revId": "577c67a0ea4f2fb5b59e30bd4be8de29d13b65a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d8fc783_7359477a",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T16:08:06Z",
+      "side": 1,
+      "message": "currently",
+      "range": {
+        "startLine": 368,
+        "startChar": 44,
+        "endLine": 368,
+        "endChar": 54
+      },
+      "revId": "577c67a0ea4f2fb5b59e30bd4be8de29d13b65a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2eee4d8_4b90acd1",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T16:08:06Z",
+      "side": 1,
+      "message": "I wonder if this will burn you on Chrome. You may have to do the dance of adding this as optional, update Chrome to provide it, make it required.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 4
+      },
+      "revId": "577c67a0ea4f2fb5b59e30bd4be8de29d13b65a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
