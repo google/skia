@@ -46,6 +46,30 @@
       "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "484bbb4c_6f160a8e",
+        "filename": "src/gpu/GrMesh.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-20T16:12:57Z",
+      "side": 1,
+      "message": "So what is the assert checking then? That you didn\u0027t call this when there is an instance buffer but the draw isn\u0027t instanced?\n\nAlso kind of wonder about the assert in indexBuffer(). I don\u0027t see why it\u0027s wrong to query for the index buffer without first calling isIndexed(), esp given that the implementation of isIndexed().  It seems like the asserts are overly prescriptive about how the user of this class works.",
+      "parentUuid": "02e73b45_6dee1172",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 58
+      },
+      "revId": "3a8423f987f66f864c84ea01066b5a419df48584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
