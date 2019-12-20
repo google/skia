@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "687b6c7d_f03a0b11",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1672,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2019-12-20T19:53:37Z",
+      "side": 1,
+      "message": "Does this have to be a SkDevice method?  I guess for access to onAsRgnClip()?",
+      "revId": "b3a6c7e8bb253728fccbc3a4460e0ade55e52e5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
