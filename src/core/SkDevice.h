@@ -131,6 +131,8 @@ public:
     void setGlobalCTM(const SkMatrix& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
 
+    virtual bool android_utils_clipWithStencil() { return false; }
+
 protected:
     enum TileUsage {
         kPossible_TileUsage,    //!< the created device may be drawn tiled
