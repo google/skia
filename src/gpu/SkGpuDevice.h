@@ -126,6 +126,8 @@ public:
 
     bool onAccessPixels(SkPixmap*) override;
 
+    bool android_utils_clipWithStencil() override;
+
 protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;

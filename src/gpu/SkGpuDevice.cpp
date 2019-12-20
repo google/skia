@@ -1667,3 +1667,32 @@ SkImageFilterCache* SkGpuDevice::getImageFilterCache() {
     return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
 
+////////////////////////////////////////////////////////////////////////////////////
+
+bool SkGpuDevice::android_utils_clipWithStencil() {
+    SkRegion clipRegion;
+    this->onAsRgnClip(&clipRegion);
+    if (clipRegion.isEmpty()) {
+        return false;
+    }
+    GrRenderTargetContext* rtc = this->accessRenderTargetContext();
+    if (!rtc) {
+        return false;
+    }
+    GrPaint grPaint;
+    grPaint.setXPFactory(GrDisableColorXPFactory::Get());
+    GrNoClip noClip;
+    static constexpr GrUserStencilSettings kDrawToStencil(
+        GrUserStencilSettings::StaticInit<
+            0x1,
+            GrUserStencilTest::kAlways,
+            0x1,
+            GrUserStencilOp::kReplace,
+            GrUserStencilOp::kReplace,
+            0x1>()
+    );
+    rtc->drawRegion(noClip, std::move(grPaint), GrAA::kNo, SkMatrix::I(), clipRegion,
+                    GrStyle::SimpleFill(), &kDrawToStencil);
+    return true;
+}
+
