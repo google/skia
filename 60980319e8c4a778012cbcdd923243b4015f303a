@@ -46,6 +46,30 @@
       "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90961c1b_1b4d76b3",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1694,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2019-12-20T21:29:15Z",
+      "side": 1,
+      "message": "Certainly this is only used for hard-clips, if that helps.",
+      "parentUuid": "62c81ade_e634577c",
+      "range": {
+        "startLine": 1694,
+        "startChar": 28,
+        "endLine": 1694,
+        "endChar": 40
+      },
+      "revId": "60980319e8c4a778012cbcdd923243b4015f303a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
