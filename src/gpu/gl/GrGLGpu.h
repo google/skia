@@ -206,9 +206,10 @@ private:
                                      GrProtected,
                                      int mipLevelCount,
                                      uint32_t levelClearMask) override;
-    sk_sp<GrTexture> onCreateCompressedTexture(int width, int height, const GrBackendFormat&,
-                                               SkImage::CompressionType compression, SkBudgeted,
-                                               const void* data) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
+                                               const GrBackendFormat&,
+                                               SkBudgeted,
+                                               const void* data, size_t dataSize) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
                                       const void* data) override;
@@ -242,9 +243,9 @@ private:
                              int mipLevelCount);
 
     GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat,
-                                       SkImage::CompressionType, GrMipMapped,
+                                       GrMipMapped,
                                        GrGLTextureParameters::SamplerOverriddenState* initialState,
-                                       const void* data);
+                                       const void* data, size_t dataSize);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,
                       GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
@@ -388,11 +389,10 @@ private:
     // Helper for onCreateCompressedTexture. Compressed textures are read-only so we only use this
     // to populate a new texture. Returns false if we failed to create and upload the texture.
     bool uploadCompressedTexData(GrGLFormat,
-                                 SkImage::CompressionType,
                                  SkISize dimensions,
                                  GrMipMapped,
                                  GrGLenum target,
-                                 const void* data);
+                                 const void* data, size_t dataSize);
 
     bool createRenderTargetObjects(const GrGLTexture::Desc&,
                                    int sampleCount,
