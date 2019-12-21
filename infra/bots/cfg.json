@@ -14,7 +14,6 @@
     "OpenCL",
     "SKQP",
     "TSAN",
-    "UBSAN",
     "Valgrind"
   ],
   "service_account_compile": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com",

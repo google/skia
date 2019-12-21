@@ -823,6 +823,8 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::fallback(const WCHAR* dwFamilyName,
     return this->makeTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
 }
 
+static const WCHAR constexpr *kWEmpty = L"";
+
 sk_sp<SkTypeface> SkFontMgr_DirectWrite::layoutFallback(const WCHAR* dwFamilyName,
                                                         DWriteStyle dwStyle,
                                                         const WCHAR* dwBcp47,
@@ -832,7 +834,7 @@ sk_sp<SkTypeface> SkFontMgr_DirectWrite::layoutFallback(const WCHAR* dwFamilyNam
     UINT32 strLen = SkTo<UINT32>(SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
 
     SkTScopedComPtr<IDWriteTextFormat> fallbackFormat;
-    HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : L"",
+    HRNM(fFactory->CreateTextFormat(dwFamilyName ? dwFamilyName : kWEmpty,
                                     fFontCollection.get(),
                                     dwStyle.fWeight,
                                     dwStyle.fSlant,
@@ -1182,7 +1184,7 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
         }
     }
 
-    const WCHAR* defaultFamilyName = L"";
+    const WCHAR* defaultFamilyName = kWEmpty;
     int defaultFamilyNameLen = 1;
     NONCLIENTMETRICSW metrics;
     metrics.cbSize = sizeof(metrics);
@@ -1194,7 +1196,7 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
     }
 
     WCHAR localeNameStorage[LOCALE_NAME_MAX_LENGTH];
-    const WCHAR* localeName = L"";
+    const WCHAR* localeName = kWEmpty;
     int localeNameLen = 1;
 
     // Dynamically load GetUserDefaultLocaleName function, as it is not available on XP.
