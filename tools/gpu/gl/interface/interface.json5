@@ -81,6 +81,22 @@
   },
 
   {
+    "GL":    [{"min_version": [4, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_tessellation_shader"}],
+    "GLES":  [{"min_version": [3, 2], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_OES_tessellation_shader"}],
+    "WebGL": null,
+
+    "functions": [
+      "PatchParameteri",
+    ],
+    // FIXME: Make this method non-optional once Chrome starts adding it to the interface.
+    "optional": [
+      "PatchParameteri",
+    ]
+  },
+
+  {
     "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "GL_EXT_blend_func_extended"}],
     "WebGL": null,
