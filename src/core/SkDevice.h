@@ -122,9 +122,7 @@ public:
     void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
         this->onSetDeviceClipRestriction(mutableClipRestriction);
     }
-    bool clipIsWideOpen() const {
-        return this->onClipIsWideOpen();
-    }
+    bool clipIsWideOpen() const;
 
     const SkMatrix& localToDevice() const { return fLocalToDevice; }
     void setLocalToDevice(const SkMatrix& localToDevice) {
@@ -153,7 +151,6 @@ protected:
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
     virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
-    virtual bool onClipIsWideOpen() const = 0;
     virtual void onAsRgnClip(SkRegion*) const = 0;
     enum class ClipType {
         kEmpty,
@@ -416,7 +413,6 @@ protected:
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override {}
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {}
     bool onClipIsAA() const override { return false; }
-    bool onClipIsWideOpen() const override { return true; }
     void onAsRgnClip(SkRegion* rgn) const override {
         rgn->setRect(SkIRect::MakeWH(this->width(), this->height()));
     }
