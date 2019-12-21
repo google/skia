@@ -175,6 +175,30 @@
       "revId": "577c67a0ea4f2fb5b59e30bd4be8de29d13b65a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f5db4b3_ff1cc21b",
+        "filename": "tools/gpu/gl/interface/interface.json5",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2019-12-21T01:55:25Z",
+      "side": 1,
+      "message": "Done.. As long as we are ok leaving this method unchecked until we can update Chrome? The only place to try and use it will be gm.",
+      "parentUuid": "17ec20b0_043764f6",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 4
+      },
+      "revId": "577c67a0ea4f2fb5b59e30bd4be8de29d13b65a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
