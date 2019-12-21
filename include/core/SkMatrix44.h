@@ -443,6 +443,18 @@ public:
 
     double determinant() const;
 
+    bool mapRect(SkRect* dst, const SkRect& src) const;
+    SkMatrix44& preTranslate(SkScalar x, SkScalar y);
+    SkMatrix44& preScale(SkScalar sx, SkScalar sy);
+    SkMatrix44& preRotate(SkScalar degrees);
+    SkMatrix44& preConcat(const SkMatrix&);
+    SkMatrix44& preCocnat(const SkMatrix44&);
+    bool rectStaysRect() const;
+    SkScalar getScaleX() const;
+    SkScalar getScaleY() const;
+    SkScalar getTranslateX() const;
+    SkScalar getTranslateY() const;
+
 private:
     /* This is indexed by [col][row]. */
     SkMScalar fMat[4][4];
