@@ -204,7 +204,7 @@
       "--some-flag"
     ],
     "env": {
-      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
+      "ASAN_OPTIONS": "symbolize=1",
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]\\clang_linux/lib",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
