@@ -1127,7 +1127,7 @@ func attempts(name string) int {
 		return 1
 	}
 	if !(strings.HasPrefix(name, "Build-") || strings.HasPrefix(name, "Upload-")) {
-		for _, extraConfig := range []string{"ASAN", "MSAN", "TSAN", "UBSAN", "Valgrind"} {
+		for _, extraConfig := range []string{"ASAN", "MSAN", "TSAN", "Valgrind"} {
 			if strings.Contains(name, extraConfig) {
 				// Sanitizers often find non-deterministic issues that retries would hide.
 				return 1

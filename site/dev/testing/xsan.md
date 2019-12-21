@@ -6,7 +6,7 @@ MSAN, ASAN, & TSAN
 Compiling Skia with ASAN, UBSAN, or TSAN can be done with the latest version of Clang.
 
 - UBSAN works on Linux, Mac, Android, and Windows, though some checks are platform-specific.
-- ASAN works on Linux, Mac, Android.
+- ASAN works on Linux, Mac, Android, and Windows.
 - TSAN works on Linux and Mac.
 - MSAN works on Linux[1].
 

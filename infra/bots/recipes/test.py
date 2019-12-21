@@ -28,7 +28,6 @@ def upload_dm_results(buildername):
     'Coverage',
     'MSAN',
     'TSAN',
-    'UBSAN',
     'Valgrind',
   ]
   for s in skip_upload_bots:
