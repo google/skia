@@ -469,8 +469,11 @@ time.sleep(60)
               addr, path = tokens[-2:]
               local = os.path.join(out, os.path.basename(path))
               if os.path.exists(local):
-                sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
-                line = line.replace(addr, addr + ' ' + sym.strip())
+                try:
+                  sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])
+                  line = line.replace(addr, addr + ' ' + sym.strip())
+                except subprocess.CalledProcessError:
+                  pass
             print line
           """ % self.ADB_BINARY,
           args=[self.host_dirs.bin_dir],
