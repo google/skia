@@ -71,10 +71,6 @@ bool SkClipStackDevice::onClipIsAA() const {
     return false;
 }
 
-bool SkClipStackDevice::onClipIsWideOpen() const {
-    return fClipStack.quickContains(SkRect::MakeIWH(this->width(), this->height()));
-}
-
 void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
     SkClipStack::BoundsType boundType;
     bool isIntersectionOfRects;

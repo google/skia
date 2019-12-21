@@ -54,6 +54,17 @@ void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
     }
 }
 
+bool SkBaseDevice::clipIsWideOpen() const {
+    if (ClipType::kRect == this->onGetClipType()) {
+        SkRegion rgn;
+        this->onAsRgnClip(&rgn);
+        SkASSERT(rgn.isRect());
+        return rgn.getBounds() == SkIRect::MakeWH(this->width(), this->height());
+    } else {
+        return false;
+    }
+}
+
 SkPixelGeometry SkBaseDevice::CreateInfo::AdjustGeometry(TileUsage tileUsage, SkPixelGeometry geo) {
     switch (tileUsage) {
         case kPossible_TileUsage:
