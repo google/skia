@@ -253,12 +253,9 @@ config("default") {
     # or pass one of the couple common aliases used by the bots.
     sanitizers = sanitize
 
-    if (sanitize == "ASAN" || sanitize == "UBSAN") {
+    if (sanitize == "ASAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "undefined"
-      if (sanitize == "ASAN") {
-        sanitizers += ",address"
-      }
+      sanitizers = "undefined,address"
 
       if (is_android) {
         # TODO(mtklein): work out UBSAN link errors
@@ -284,15 +281,23 @@ config("default") {
     # See skia:9731.
     cflags += [ "-fsanitize-recover=pointer-overflow" ]
 
-    ldflags += [ "-fsanitize=$sanitizers" ]
-
     if (is_win) {
-      cflags += [ "/FI$_blacklist" ]
+      cflags += [
+        "/FI$_blacklist",
+
+        # On Release builds, we get strange warnings about string literals.
+        "/GF-",
+      ]
+
+      assert(clang_win != "")
+      libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan-x86_64.lib" ]
     } else {
       cflags += [
         "-include$_blacklist",
         "-fno-omit-frame-pointer",
       ]
+
+      ldflags += [ "-fsanitize=$sanitizers" ]
     }
 
     if (is_linux) {

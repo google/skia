@@ -186,11 +186,13 @@ class DefaultFlavor(object):
       #   specified dir
       cmd = [procdump, '-accepteula', '-mp', '-e', '1', '-x', dumps_dir] + cmd
 
-    if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
+    if 'ASAN' in extra_tokens:
       # Note: if you see "<unknown module>" in stacktraces for xSAN warnings,
       # try adding "fast_unwind_on_malloc=0" to xSAN_OPTIONS.
-      if 'Mac' in self.m.vars.builder_cfg.get('os', ''):
-        env['ASAN_OPTIONS'] = 'symbolize=1'  # Mac doesn't support detect_leaks.
+      os = self.m.vars.builder_cfg.get('os', '')
+      if 'Mac' in os or 'Win' in os:
+        # Mac and Win don't support detect_leaks.
+        env['ASAN_OPTIONS'] = 'symbolize=1'
       else:
         env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'

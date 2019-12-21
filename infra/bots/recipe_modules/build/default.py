@@ -207,7 +207,7 @@ def compile_fn(api, checkout_root, out_dir):
     api.run.run_once(build_command_buffer, api, chrome_dir, skia_dir, out_dir)
   if 'MSAN' in extra_tokens:
     args['skia_use_fontconfig'] = 'false'
-  if 'ASAN' in extra_tokens or 'UBSAN' in extra_tokens:
+  if 'ASAN' in extra_tokens:
     args['skia_enable_spirv_validation'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
