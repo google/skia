@@ -129,6 +129,7 @@ protected:
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override;
+    bool onClipIsWideOpen() const override;
     void onAsRgnClip(SkRegion*) const override;
     void validateDevBounds(const SkIRect& r) override;
     ClipType onGetClipType() const override;
