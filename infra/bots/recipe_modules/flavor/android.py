@@ -351,17 +351,19 @@ if actual_freq != str(freq):
         timeout=30)
 
 
+  def _asan_setup_path(self):
+    return self.m.vars.slave_dir.join(
+        'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt', 'linux-x86_64',
+        'lib64', 'clang', '8.0.7', 'bin', 'asan_device_setup')
+
+
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
-      asan_setup = self.m.vars.slave_dir.join(
-            'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
-            'linux-x86_64', 'lib64', 'clang', '8.0.7', 'bin',
-            'asan_device_setup')
       self.m.run(self.m.python.inline, 'Setting up device to run ASAN',
-        program="""
+                 program="""
 import os
 import subprocess
 import sys
@@ -433,27 +435,24 @@ wait_for_device()
 # directory" when pushing resources to the device.
 time.sleep(60)
 """,
-        args = [self.ADB_BINARY, asan_setup],
-          infra_step=True,
-          timeout=300,
-          abort_on_failure=True)
+                 args = [self.ADB_BINARY, self._asan_setup_path()],
+                 infra_step=True,
+                 timeout=300,
+                 abort_on_failure=True)
 
 
   def cleanup_steps(self):
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
       # Remove ASAN.
-      asan_setup = self.m.vars.slave_dir.join(
-            'android_ndk_linux', 'toolchains', 'llvm', 'prebuilt',
-            'linux-x86_64', 'lib64', 'clang', '8.0.2', 'bin',
-            'asan_device_setup')
       self.m.run(self.m.step,
                  'wait for device before uninstalling ASAN',
                  cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
       self.m.run(self.m.step, 'uninstall ASAN',
-                 cmd=[asan_setup, '--revert'], infra_step=True, timeout=300,
+                 cmd=[self._asan_setup_path(), '--revert'],
+                 infra_step=True, timeout=300,
                  abort_on_failure=False, fail_build_on_failure=False)
 
     if self._ever_ran_adb:

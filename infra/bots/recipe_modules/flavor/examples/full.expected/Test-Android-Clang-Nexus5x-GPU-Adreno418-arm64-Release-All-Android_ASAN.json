@@ -1385,7 +1385,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/8.0.2/bin/asan_device_setup",
+      "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/8.0.7/bin/asan_device_setup",
       "--revert"
     ],
     "env": {
