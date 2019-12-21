@@ -34,7 +34,6 @@ def upload_perf_results(buildername):
     'Coverage',
     'MSAN',
     'TSAN',
-    'UBSAN',
     'Valgrind',
   ]
   for s in skip_upload_bots:
@@ -215,7 +214,7 @@ def nanobench_flags(api, bot):
     match.append('~compositing_images')
   if 'MacBook10.1' in bot and 'CommandBuffer' in bot:
     match.append('~^desk_micrographygirlsvg.skp_1.1$')
-  if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
+  if 'ASAN' in bot and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
   if 'AcerChromebook13_CB5_311-GPU-TegraK1' in bot:
