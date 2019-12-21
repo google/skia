@@ -1832,7 +1832,7 @@ GrProgramDesc GrVkCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& 
     b.add32(programInfo.numRasterSamples());
 
     // Vulkan requires the full primitive type as part of its key
-    b.add32((uint32_t)programInfo.primitiveType());
+    b.add32(programInfo.primitiveTypeKey());
 
     if (this->mixedSamplesSupport()) {
         // Add "0" to indicate that coverage modulation will not be enabled, or the (non-zero)

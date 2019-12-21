@@ -84,13 +84,13 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor,
     GrShaderFlags rtAdjustVisibility;
     if (proc.willUseGeoShader()) {
         rtAdjustVisibility = kGeometry_GrShaderFlag;
+    } else if (proc.willUseTessellationShaders()) {
+        rtAdjustVisibility = kTessEvaluation_GrShaderFlag;
     } else {
         rtAdjustVisibility = kVertex_GrShaderFlag;
     }
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
-                                                                     rtAdjustVisibility,
-                                                                     kFloat4_GrSLType,
-                                                                     SkSL::Compiler::RTADJUST_NAME);
+            rtAdjustVisibility, kFloat4_GrSLType, SkSL::Compiler::RTADJUST_NAME);
     const char* rtAdjustName =
         this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
 

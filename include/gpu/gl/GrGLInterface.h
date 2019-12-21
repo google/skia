@@ -183,6 +183,7 @@ public:
         GrGLFunction<GrGLMapTexSubImage2DFn> fMapTexSubImage2D;
         GrGLFunction<GrGLMultiDrawArraysIndirectFn> fMultiDrawArraysIndirect;
         GrGLFunction<GrGLMultiDrawElementsIndirectFn> fMultiDrawElementsIndirect;
+        GrGLFunction<GrGLPatchParameteriFn> fPatchParameteri;
         GrGLFunction<GrGLPixelStoreiFn> fPixelStorei;
         GrGLFunction<GrGLPolygonModeFn> fPolygonMode;
         GrGLFunction<GrGLPopGroupMarkerFn> fPopGroupMarker;
