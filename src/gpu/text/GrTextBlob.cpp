@@ -84,7 +84,6 @@ public:
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
     void setStrike(sk_sp<GrTextStrike> strike);
     GrTextStrike* strike() const;
-    sk_sp<GrTextStrike> refStrike() const;
 
     void setAtlasGeneration(uint64_t atlasGeneration);
     uint64_t atlasGeneration() const;
@@ -222,7 +221,6 @@ void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
 void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
-sk_sp<GrTextStrike> GrTextBlob::SubRun::refStrike() const { return fStrike; }
 void GrTextBlob::SubRun::setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
 uint64_t GrTextBlob::SubRun::atlasGeneration() const { return fAtlasGeneration; }
 void GrTextBlob::SubRun::setColor(GrColor color) { fColor = color; }
@@ -911,7 +909,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         }
     }
 
-    sk_sp<GrTextStrike> grStrike = fSubRun->refStrike();
+    GrTextStrike* grStrike = fSubRun->strike();
     bool hasW = fSubRun->hasW();
     auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
@@ -924,11 +922,9 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fFullAtlasManager->hasGlyph(glyph)) {
-                GrDrawOpAtlas::ErrorCode code;
-                code = grStrike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGrStrikeCache,
-                                                 fFullAtlasManager, glyph,
-                                                 fMetricsAndImages.get(), fSubRun->maskFormat(),
-                                                 fSubRun->needsTransform());
+                GrDrawOpAtlas::ErrorCode code = grStrike->addGlyphToAtlas(
+                        fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
+                        fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
                 if (GrDrawOpAtlas::ErrorCode::kError == code) {
                     // Something horrible has happened - drop the op
                     return false;
