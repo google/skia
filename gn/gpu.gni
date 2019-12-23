@@ -393,6 +393,9 @@ skia_gpu_sources = [
   "$_src/gpu/effects/generated/GrSaturateProcessor.cpp",
   "$_src/gpu/effects/generated/GrSaturateProcessor.h",
 
+  #"$_src/gpu/effects/generated/GrTestEffect.cpp",
+  #"$_src/gpu/effects/generated/GrTestEffect.h",
+
   # gradients
   "$_src/gpu/gradients/GrGradientBitmapCache.cpp",
   "$_src/gpu/gradients/GrGradientBitmapCache.h",
