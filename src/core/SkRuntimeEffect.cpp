@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
 #include "src/core/SkRuntimeEffect.h"
+#include "src/shaders/SkRTShader.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -231,4 +233,13 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() {
     auto byteCode = fCompiler->toByteCode(*fBaseProgram);
     return std::make_tuple(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
+}
+
+sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
+                                            sk_sp<SkShader> children[], size_t childCount,
+                                            const SkMatrix* localMatrix, bool isOpaque) {
+    return inputs->size() >= this->inputSize() && childCount >= this->childCount()
+        ? sk_sp<SkShader>(new SkRTShader(sk_ref_sp(this), std::move(inputs), localMatrix,
+                                         children, childCount, isOpaque))
+        : nullptr;
 }
