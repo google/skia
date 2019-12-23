@@ -38,4 +38,13 @@ DEF_TEST(SkRuntimeEffectInvalidPrograms, r) {
     test("layout(tracked) uniform float Input;"
          "void main(float x, float y, inout half4 color) {}",
          "tracked");
+
+    // 'in' variables can't be arrays
+    test("in int Input[2];"
+         "void main(float x, float y, inout half4 color) {}",
+         "array");
+
+    test("uniform bool Input;"
+         "void main(float x, float y, inout half4 color) {}",
+         "uniform");
 }
