@@ -34,6 +34,7 @@
 #define GR_GL_TRIANGLES                      0x0004
 #define GR_GL_TRIANGLE_STRIP                 0x0005
 #define GR_GL_TRIANGLE_FAN                   0x0006
+#define GR_GL_PATCHES                        0x000E
 
 /* AlphaFunction (not supported in ES20) */
 /*      GL_NEVER */
@@ -539,6 +540,8 @@
 #define GR_GL_FRAGMENT_SHADER                          0x8B30
 #define GR_GL_VERTEX_SHADER                            0x8B31
 #define GR_GL_GEOMETRY_SHADER                          0x8DD9
+#define GR_GL_TESS_CONTROL_SHADER                      0x8E88
+#define GR_GL_TESS_EVALUATION_SHADER                   0x8E87
 #define GR_GL_MAX_VERTEX_ATTRIBS                       0x8869
 #define GR_GL_MAX_VERTEX_UNIFORM_VECTORS               0x8DFB
 #define GR_GL_MAX_VARYING_VECTORS                      0x8DFC
@@ -1090,6 +1093,8 @@
 
 /* GL_EXT_geometry_shader */
 #define GR_GL_LINES_ADJACENCY                               0x000A
+
+#define GR_GL_PATCH_VERTICES                                0x8E72
 
 /* GL_ARB_internalformat_query */
 #define GR_GL_NUM_SAMPLE_COUNTS                             0x9380
