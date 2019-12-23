@@ -93,6 +93,8 @@ public:
 
     GrMaskFormat maskFormat() const;
 
+    size_t vertexStride() const;
+
     const SkRect& vertexBounds() const;
     void joinGlyphBounds(const SkRect& glyphBounds);
 
@@ -173,7 +175,7 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
     GrColor color = this->color();
     // glyphs drawn in perspective must always have a w coord.
     SkASSERT(hasW || !fBlob->fInitialMatrix.hasPerspective());
-    size_t vertexStride = GetVertexStride(fMaskFormat, hasW);
+    size_t vertexStride = this->vertexStride();
     // We always write the third position component used by SDFs. If it is unused it gets
     // overwritten. Similarly, we always write the color and the blob will later overwrite it
     // with texture coords if it is unused.
@@ -226,6 +228,10 @@ uint64_t GrTextBlob::SubRun::atlasGeneration() const { return fAtlasGeneration; 
 void GrTextBlob::SubRun::setColor(GrColor color) { fColor = color; }
 GrColor GrTextBlob::SubRun::color() const { return fColor; }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
+size_t GrTextBlob::SubRun::vertexStride() const {
+    return GetVertexStride(this->maskFormat(), this->hasW());
+}
+
 const SkRect& GrTextBlob::SubRun::vertexBounds() const { return fVertexBounds; }
 void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
     fVertexBounds.joinNonEmptyArg(glyphBounds);
@@ -910,8 +916,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     }
 
     GrTextStrike* grStrike = fSubRun->strike();
-    bool hasW = fSubRun->hasW();
-    auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
+    auto vertexStride = fSubRun->vertexStride();
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
 
@@ -982,8 +987,7 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
        |fActions.regenPositions) {
             return this->doRegen(result);
     } else {
-        bool hasW = fSubRun->hasW();
-        auto vertexStride = GetVertexStride(fSubRun->maskFormat(), hasW);
+        auto vertexStride = fSubRun->vertexStride();
         result->fFinished = true;
         result->fGlyphsRegenerated = fSubRun->fGlyphs.size() - fCurrGlyph;
         result->fFirstVertex = fSubRun->fVertexData.data() +
