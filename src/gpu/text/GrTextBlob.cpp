@@ -917,33 +917,30 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
 
-    for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->fGlyphs.size(); glyphIdx++) {
-        GrGlyph* glyph = nullptr;
-        if (fActions.regenTextureCoordinates) {
-            glyph = fSubRun->fGlyphs[glyphIdx];
-            SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
-
-            if (!fFullAtlasManager->hasGlyph(glyph)) {
-                GrDrawOpAtlas::ErrorCode code;
-                code = grStrike->addGlyphToAtlas(fResourceProvider, fUploadTarget, fGrStrikeCache,
-                                                 fFullAtlasManager, glyph,
-                                                 fMetricsAndImages.get(), fSubRun->maskFormat(),
-                                                 fSubRun->needsTransform());
-                if (GrDrawOpAtlas::ErrorCode::kError == code) {
-                    // Something horrible has happened - drop the op
-                    return false;
+    GrDrawOpAtlas::ErrorCode code = GrDrawOpAtlas::ErrorCode::kSucceeded;
+    SkSpan<GrGlyph*> glyphsInAtlas = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - fCurrGlyph);
+    if (fActions.regenTextureCoordinates) {
+        auto restoreAtlas = [this, glyphsInAtlas, grStrike]() {
+            SkSpan<GrGlyph*> grGlyphs = glyphsInAtlas;
+            for (auto[i, grGlyph] : SkMakeEnumerate(grGlyphs)) {
+                GrDrawOpAtlas::ErrorCode code = grStrike->addGlyphToAtlas(
+                        fResourceProvider, fUploadTarget, fGrStrikeCache,
+                        fFullAtlasManager, grGlyph, fMetricsAndImages.get(), fSubRun->maskFormat(),
+                        fSubRun->needsTransform());
+                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                    return std::make_tuple(code, fSubRun->fGlyphs.first(i));
                 }
-                else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    fBrokenRun = glyphIdx > 0;
-                    result->fFinished = false;
-                    return true;
-                }
+                auto tokenTracker = fUploadTarget->tokenTracker();
+                fFullAtlasManager->addGlyphToBulkAndSetUseToken(
+                        fSubRun->bulkUseToken(), grGlyph, tokenTracker->nextDrawToken());
             }
-            auto tokenTracker = fUploadTarget->tokenTracker();
-            fFullAtlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                            tokenTracker->nextDrawToken());
-        }
+            return std::make_tuple(GrDrawOpAtlas::ErrorCode::kSucceeded, grGlyphs);
+        };
 
+        std::tie(code, glyphsInAtlas) = restoreAtlas();
+    }
+
+    for (auto grGlyph : glyphsInAtlas) {
         if (fActions.regenPositions) {
             regen_positions(currVertex, vertexStride, fDrawTranslation);
         }
@@ -951,12 +948,21 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             regen_colors(currVertex, vertexStride, fColor);
         }
         if (fActions.regenTextureCoordinates) {
-            regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
+            regen_texcoords(currVertex, vertexStride, grGlyph, fSubRun->drawAsDistanceFields());
         }
 
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         ++result->fGlyphsRegenerated;
         ++fCurrGlyph;
+    }
+
+    if (code == GrDrawOpAtlas::ErrorCode::kError) {
+        // Something horrible has happened - drop the op
+        return false;
+    } else if (code == GrDrawOpAtlas::ErrorCode::kTryAgain) {
+        fBrokenRun = fCurrGlyph > 0;
+        result->fFinished = false;
+        return true;
     }
 
     // We may have changed the color so update it here
