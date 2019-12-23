@@ -376,9 +376,9 @@ const curves = {
 
     const canvas = surface.getCanvas();
 
-    const fact = CanvasKit._RTShaderFactory.MakeFromProgram(prog, true);
+    const effect = CanvasKit._SkRuntimeEffect.Make(prog);
     const rot = CanvasKit.SkMatrix.rotated(90, 128, 128);
-    const shader = fact.make([1, 0, 0, 1], rot);
+    const shader = effect.makeShader(true, [1, 0, 0, 1], rot);
 
     const paint = new CanvasKit.SkPaint();
     paint.setShader(shader);
@@ -387,6 +387,6 @@ const curves = {
     surface.flush();
     shader.delete();
     paint.delete();
-    fact.delete();
+    effect.delete();
   }
 </script>
