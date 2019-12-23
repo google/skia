@@ -8,7 +8,6 @@
 #ifndef SkRTShader_DEFINED
 #define SkRTShader_DEFINED
 
-#include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -49,29 +48,6 @@ private:
     mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 
     typedef SkShaderBase INHERITED;
-};
-
-class SK_API SkRuntimeShaderFactory {
-public:
-    SkRuntimeShaderFactory(SkString sksl, bool isOpaque);
-    SkRuntimeShaderFactory(const SkRuntimeShaderFactory&);
-    SkRuntimeShaderFactory(SkRuntimeShaderFactory&&);
-
-    ~SkRuntimeShaderFactory();
-
-    SkRuntimeShaderFactory& operator=(const SkRuntimeShaderFactory&);
-    SkRuntimeShaderFactory& operator=(SkRuntimeShaderFactory&&);
-
-    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
-        return this->make(std::move(inputs), localMatrix, nullptr, 0);
-    }
-
-    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-                         sk_sp<SkShader>* children, size_t childCount);
-
-private:
-    sk_sp<SkRuntimeEffect> fEffect;
-    bool fIsOpaque;
 };
 
 #endif
