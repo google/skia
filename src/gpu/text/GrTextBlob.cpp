@@ -106,7 +106,6 @@ public:
     bool drawAsDistanceFields() const;
     bool drawAsPaths() const;
     bool needsTransform() const;
-    bool hasW() const;
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -135,6 +134,10 @@ public:
     SkPoint fCurrentOrigin;
     SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
+
+private:
+    bool hasW() const;
+
 };  // SubRun
 
 GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
