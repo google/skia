@@ -10,6 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkMatrix44.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRRect.h"
@@ -58,6 +59,8 @@
 static_assert(std::max(3,4) == 4);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef SkMatrix44 SkCanvasMatrix;
 
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
@@ -235,7 +238,7 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkMatrix44 fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
@@ -1583,8 +1586,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1742,7 +1744,7 @@ SkRect SkCanvas::getLocalClipBounds() const {
         return SkRect::MakeEmpty();
     }
 
-    SkMatrix inverse;
+    SkCanvasMatrix inverse;
     // if we can't invert the CTM, we can't return local clip bounds
     if (!fMCRec->fMatrix.invert(&inverse)) {
         return SkRect::MakeEmpty();
@@ -1761,7 +1763,7 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 

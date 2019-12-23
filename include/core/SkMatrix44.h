@@ -370,12 +370,12 @@ public:
     void setRotateAboutUnit(SkMScalar x, SkMScalar y, SkMScalar z,
                             SkMScalar radians);
 
-    void setConcat(const SkMatrix44& a, const SkMatrix44& b);
-    inline void preConcat(const SkMatrix44& m) {
-        this->setConcat(*this, m);
+    SkMatrix44& setConcat(const SkMatrix44& a, const SkMatrix44& b);
+    inline SkMatrix44& preConcat(const SkMatrix44& m) {
+        return this->setConcat(*this, m);
     }
-    inline void postConcat(const SkMatrix44& m) {
-        this->setConcat(m, *this);
+    inline SkMatrix44& postConcat(const SkMatrix44& m) {
+        return this->setConcat(m, *this);
     }
 
     friend SkMatrix44 operator*(const SkMatrix44& a, const SkMatrix44& b) {
@@ -442,6 +442,17 @@ public:
     void dump() const;
 
     double determinant() const;
+
+    bool mapRect(SkRect* dst, const SkRect& src) const;
+    SkMatrix44& preTranslate(SkScalar x, SkScalar y);
+    SkMatrix44& preScale(SkScalar sx, SkScalar sy);
+    SkMatrix44& preRotate(SkScalar degrees);
+    SkMatrix44& preConcat(const SkMatrix&);
+    bool rectStaysRect() const;
+    SkScalar getScaleX() const { return this->scaleX(); }
+    SkScalar getScaleY() const { return this->scaleY(); }
+    SkScalar getTranslateX() const { return this->transX(); }
+    SkScalar getTranslateY() const { return this->transY(); }
 
 private:
     /* This is indexed by [col][row]. */
