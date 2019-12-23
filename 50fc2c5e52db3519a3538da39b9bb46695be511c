@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "dce6b17e_8e1a1266",
+        "filename": "include/core/SkMatrix.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2019-12-23T00:52:50Z",
+      "side": 1,
+      "message": "There\u0027s a couple of small but consistent SVG perf regressions related to this CL.  I\u0027m guessing it has to do with uninlining this method? PTAL.",
+      "parentUuid": "1e440183_3cdb5632",
+      "revId": "50fc2c5e52db3519a3538da39b9bb46695be511c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "df6eb016_6452c32e",
         "filename": "src/core/SkMatrix44.cpp",
         "patchSetId": 8
