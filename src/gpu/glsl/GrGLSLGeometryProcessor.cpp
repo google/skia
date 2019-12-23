@@ -17,6 +17,12 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
+    if (args.fGP.willUseTessellationShaders()) {
+        // Tessellation shaders are temporarily responsible for integrating their own code strings
+        // while we work out full support.
+        return;
+    }
+
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
     if (!args.fGP.willUseGeoShader()) {
         // Emit the vertex position to the hardware in the normalized window coordinates it expects.
