@@ -52,7 +52,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkResourceCache.h"
-#include "src/shaders/SkRTShader.h"
+#include "src/core/SkRuntimeEffect.h"
 
 #include <iostream>
 #include <string>
@@ -1351,22 +1351,20 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkShaders::Lerp(t, dst, src, &m);
         }));
 
-    class_<SkRuntimeShaderFactory>("_RTShaderFactory")
-        .class_function("MakeFromProgram", optional_override([](std::string sksl, bool isOpaque)->SkRuntimeShaderFactory {
+    class_<SkRuntimeEffect>("_SkRuntimeEffect")
+        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<SkRuntimeEffect>")
+        .class_function("Make", optional_override([](std::string sksl)->sk_sp<SkRuntimeEffect> {
             SkString s(sksl.c_str(), sksl.length());
-            return SkRuntimeShaderFactory(s, isOpaque);
+            return std::get<0>(SkRuntimeEffect::Make(s));
         }))
-        .function("_make", optional_override([](SkRuntimeShaderFactory& self, uintptr_t fptr, size_t len)->sk_sp<SkShader> {
-            uint8_t* floatData = reinterpret_cast<uint8_t*>(fptr);
-            sk_sp<SkData> bytes = SkData::MakeFromMalloc(floatData, len);
-            return self.make(bytes, nullptr);
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fptr, size_t len, bool isOpaque)->sk_sp<SkShader> {
+            sk_sp<SkData> inputs = SkData::MakeFromMalloc(reinterpret_cast<void*>(fptr), len);
+            return self.makeShader(inputs, nullptr, 0, nullptr, isOpaque);
         }))
-        .function("_make", optional_override([](SkRuntimeShaderFactory& self, uintptr_t fptr, size_t len,
-                                                SimpleMatrix sm)->sk_sp<SkShader> {
-            uint8_t* floatData = reinterpret_cast<uint8_t*>(fptr);
-            sk_sp<SkData> bytes = SkData::MakeFromMalloc(floatData, len);
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fptr, size_t len, SimpleMatrix sm, bool isOpaque)->sk_sp<SkShader> {
+            sk_sp<SkData> inputs = SkData::MakeFromMalloc(reinterpret_cast<void*>(fptr), len);
             auto m = toSkMatrix(sm);
-            return self.make(bytes, &m);
+            return self.makeShader(inputs, nullptr, 0, &m, isOpaque);
         }));
 
     class_<SkSurface>("SkSurface")
