@@ -323,7 +323,7 @@ bool SkXPSDevice::endSheet() {
 }
 
 static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
-#if SK_BUILD_FOR_WINRT
+#if SK_BUILD_FOR_WINRT || SK_BUILD_FOR_NANOSERVER
     return E_UNEXPECTED;
 #else
     //CreateFontPackage wants unsigned short.

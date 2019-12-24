@@ -69,6 +69,11 @@ sk_shader_t* sk_shader_new_perlin_noise_turbulence(float baseFrequencyX, float b
         baseFrequencyX, baseFrequencyY,  numOctaves,  seed,  AsISize(ctileSize)).release());
 }
 
+sk_shader_t* sk_shader_new_perlin_noise_improved_noise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float z) {
+    return ToShader(SkPerlinNoiseShader::MakeImprovedNoise(
+        baseFrequencyX, baseFrequencyY, numOctaves, z).release());
+}
+
 void sk_shader_ref(sk_shader_t* cshader) {
     SkSafeRef(AsShader(cshader));
 }

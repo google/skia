@@ -33,7 +33,6 @@ SK_C_API uint16_t sk_bitmap_get_addr_16(sk_bitmap_t* cbitmap, int x, int y);
 SK_C_API uint32_t sk_bitmap_get_addr_32(sk_bitmap_t* cbitmap, int x, int y);
 SK_C_API void* sk_bitmap_get_addr(sk_bitmap_t* cbitmap, int x, int y);
 SK_C_API sk_color_t sk_bitmap_get_pixel_color(sk_bitmap_t* cbitmap, int x, int y);
-SK_C_API sk_pmcolor_t sk_bitmap_get_index8_color(sk_bitmap_t* cbitmap, int x, int y);
 SK_C_API void sk_bitmap_set_pixel_color(sk_bitmap_t* cbitmap, int x, int y, sk_color_t color);
 SK_C_API bool sk_bitmap_ready_to_draw(sk_bitmap_t* cbitmap);
 SK_C_API void sk_bitmap_get_pixel_colors(sk_bitmap_t* cbitmap, sk_color_t* colors);
