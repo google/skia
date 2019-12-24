@@ -87,6 +87,7 @@ typedef enum {
 } sk_pixelgeometry_t;
 
 typedef enum {
+    NONE_SK_SURFACE_PROPS_FLAGS = 0,
     USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS = 1 << 0,
 } sk_surfaceprops_flags_t;
 
@@ -167,7 +168,9 @@ typedef struct {
         }
 */
 typedef struct {
-    float   mat[9];
+    float scaleX, skewX, transX;
+    float skewY, scaleY, transY;
+    float persp0, persp1, persp2;
 } sk_matrix_t;
 
 typedef struct sk_matrix44_t sk_matrix44_t;
@@ -177,7 +180,7 @@ typedef enum {
     TRANSLATE_SK_MATRIX44_TYPE_MASK = 0x01,
     SCALE_SK_MATRIX44_TYPE_MASK = 0x02,
     AFFINE_SK_MATRIX44_TYPE_MASK = 0x04,
-    PERSPECTIVE_SK_MATRIX44_TYPE_MASK = 0x08 
+    PERSPECTIVE_SK_MATRIX44_TYPE_MASK = 0x08
 } sk_matrix44_type_mask_t;
 
 /**
@@ -296,8 +299,8 @@ typedef struct {
 } sk_point3_t;
 
 typedef struct {
-    float   x;
-    float   y;
+    int32_t   x;
+    int32_t   y;
 } sk_ipoint_t;
 
 typedef struct {
@@ -306,8 +309,8 @@ typedef struct {
 } sk_size_t;
 
 typedef struct {
-    float   w;
-    float   h;
+    int32_t   w;
+    int32_t   h;
 } sk_isize_t;
 
 typedef struct {
@@ -421,6 +424,7 @@ typedef enum {
 } sk_filter_quality_t;
 
 typedef enum {
+    HAS_NONE_SK_CROP_RECT_FLAG   = 0x00,
     HAS_LEFT_SK_CROP_RECT_FLAG   = 0x01,
     HAS_TOP_SK_CROP_RECT_FLAG    = 0x02,
     HAS_WIDTH_SK_CROP_RECT_FLAG  = 0x04,
@@ -561,7 +565,7 @@ typedef enum {
     INVERTED_SK_PATH_EFFECT_TRIM_MODE,
 } sk_path_effect_trim_mode_t;
 
-typedef struct sk_path_effect_t sk_path_effect_t;  
+typedef struct sk_path_effect_t sk_path_effect_t;
 
 typedef enum {
     BUTT_SK_STROKE_CAP,
@@ -673,11 +677,6 @@ typedef struct {
     sk_mask_format_t  fFormat;
 } sk_mask_t;
 
-typedef enum {
-    NONE_GR_CONTEXT_FLUSHBITS = 0,
-    DISCARD_GR_CONTEXT_FLUSHBITS = 0x2,
-} gr_context_flushbits_t;
-
 typedef intptr_t gr_backendobject_t;
 
 typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;
@@ -765,6 +764,7 @@ typedef enum {
 } sk_image_caching_hint_t;
 
 typedef enum {
+    NONE_SK_BITMAP_ALLOC_FLAGS = 0,
     ZERO_PIXELS_SK_BITMAP_ALLOC_FLAGS = 1 << 0,
 } sk_bitmap_allocflags_t;
 
@@ -876,8 +876,8 @@ typedef enum {
     PAETH_SK_PNGENCODER_FILTER_FLAGS = 0x80,
     ALL_SK_PNGENCODER_FILTER_FLAGS   = NONE_SK_PNGENCODER_FILTER_FLAGS |
                                        SUB_SK_PNGENCODER_FILTER_FLAGS |
-                                       UP_SK_PNGENCODER_FILTER_FLAGS | 
-                                       AVG_SK_PNGENCODER_FILTER_FLAGS | 
+                                       UP_SK_PNGENCODER_FILTER_FLAGS |
+                                       AVG_SK_PNGENCODER_FILTER_FLAGS |
                                        PAETH_SK_PNGENCODER_FILTER_FLAGS,
 } sk_pngencoder_filterflags_t;
 

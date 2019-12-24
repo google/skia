@@ -12,6 +12,7 @@
 .settings/
 .vs/
 .vscode/
+/_ReSharper.Caches
 TAGS
 bower_components
 imgui.ini
@@ -47,4 +48,3 @@ bin/clang-format.exe
 
 node_modules
 tools/lottiecap/filmstrip.png
-/_ReSharper.Caches

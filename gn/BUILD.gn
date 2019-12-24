@@ -333,7 +333,6 @@ config("warnings") {
   cflags_objcc = []
   if (is_win) {
     cflags += [
-      "/WX",  # Treat warnings as errors.
       "/W3",  # Turn on lots of warnings.
 
       # Disable a bunch of warnings:
@@ -351,7 +350,6 @@ config("warnings") {
     ]
   } else {
     cflags += [
-      "-Werror",
       "-Wall",
       "-Wextra",
       "-Winit-self",

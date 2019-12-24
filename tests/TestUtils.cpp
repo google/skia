@@ -286,6 +286,17 @@ bool check_solid_pixels(const SkColor4f& col, const SkPixmap& pixmap,
                           tolRGBA, error);
 }
 
+void check_single_threaded_proxy_refs(skiatest::Reporter* reporter,
+                                      GrTextureProxy* proxy,
+                                      int32_t expectedProxyRefs,
+                                      int32_t expectedBackingRefs) {
+    int32_t actualBackingRefs = proxy->testingOnly_getBackingRefCnt();
+
+    REPORTER_ASSERT(reporter, proxy->refCntGreaterThan(expectedProxyRefs - 1) &&
+                              !proxy->refCntGreaterThan(expectedProxyRefs));
+    REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
+}
+
 #include "src/utils/SkCharToGlyphCache.h"
 
 static SkGlyphID hash_to_glyph(uint32_t value) {
