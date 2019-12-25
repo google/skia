@@ -109,6 +109,8 @@ public:
     bool drawAsPaths() const;
     bool needsTransform() const;
 
+    void updateTranslation(SkVector translation);
+
     // df properties
     void setUseLCDText(bool useLCDText);
     bool hasUseLCDText() const;
@@ -275,6 +277,17 @@ bool GrTextBlob::SubRun::needsTransform() const {
 
 bool GrTextBlob::SubRun::hasW() const {
     return fBlob->hasW(fType);
+}
+
+void GrTextBlob::SubRun::updateTranslation(SkVector translation) {
+    size_t vertexStride = this->vertexStride();
+    for(size_t i = 0; i < fGlyphs.size(); i++) {
+        SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(i));
+        for (int i = 0; i < 4; ++i) {
+            *vertexCursor += translation;
+            vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
+        }
+    }
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -773,14 +786,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
-static void regen_positions(char* vertex, size_t vertexStride, SkVector translation) {
-    SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-    for (int i = 0; i < 4; ++i) {
-        *point += translation;
-        point = SkTAddOffset<SkPoint>(point, vertexStride);
-    }
-}
-
 static void regen_colors(char* vertex, size_t vertexStride, GrColor color) {
     // This is a bit wonky, but sometimes we have ARGB text, in which case we won't have color
     // vertices, hence vertexStride - sizeof(SkIPoint16)
@@ -895,7 +900,9 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
     fActions.regenStrike = fSubRun->strike()->isAbandoned();
     fActions.regenColor = kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color;
-    fActions.regenPositions = fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f;
+    if (fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f) {
+        fSubRun->updateTranslation(fDrawTranslation);
+    }
 }
 
 bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
@@ -957,9 +964,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     result->fFirstVertex = currentQuad;
 
     for (auto grGlyph : glyphsInAtlas) {
-        if (fActions.regenPositions) {
-            regen_positions(currentQuad, vertexStride, fDrawTranslation);
-        }
         if (fActions.regenColor) {
             regen_colors(currentQuad, vertexStride, fColor);
         }
@@ -1004,8 +1008,7 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
 
     if (fActions.regenStrike
        |fActions.regenTextureCoordinates
-       |fActions.regenColor
-       |fActions.regenPositions) {
+       |fActions.regenColor) {
             return this->doRegen(result);
     } else {
         auto vertexStride = fSubRun->vertexStride();
