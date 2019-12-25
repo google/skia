@@ -321,3 +321,60 @@ DEF_BENCH(return new GameBench(GameBench::kRotate_Type, GameBench::kFull_Clear);
 DEF_BENCH(return new GameBench(GameBench::kTranslate_Type, GameBench::kFull_Clear, false, true);)
 DEF_BENCH(return new GameBench(
                          GameBench::kTranslate_Type, GameBench::kFull_Clear, false, true, true);)
+
+
+class CanvasMatrixBench : public Benchmark {
+    SkString fName;
+public:
+    enum Type {
+        kTranslate_Type,
+        kScale_Type,
+        k2x3_Type,
+        k3x3_Type,
+    };
+    Type fType;
+
+    CanvasMatrixBench(Type t) : fType(t) {
+        fName.set("canvas_matrix");
+        switch (fType) {
+            case kTranslate_Type: fName.append("_trans"); break;
+            case kScale_Type:     fName.append("_scale"); break;
+            case k2x3_Type:       fName.append("_2x3"); break;
+            case k3x3_Type:       fName.append("_3x3"); break;
+        }
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkMatrix m;
+        m.setRotate(1);
+        if (fType == k3x3_Type) {
+            m[7] = 0.0001f;
+        }
+
+        for (int i = 0; i < loops; ++i) {
+            canvas->save();
+            for (int j = 0; j < 10000; ++j) {
+                switch (fType) {
+                    case kTranslate_Type: canvas->translate(0.0001f, 0.0001f); break;
+                    case kScale_Type:     canvas->scale(1.0001f, 0.9999f); break;
+                    case k2x3_Type:       canvas->concat(m); break;
+                    case k3x3_Type:       canvas->concat(m); break;
+                }
+            }
+            canvas->restore();
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kTranslate_Type));
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kScale_Type));
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k2x3_Type));
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k3x3_Type));

@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <utility>
 
-void SkMatrix::normalizePerspective() {
+void SkMatrix::doNormalizePerspective() {
     // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
     // is in perspective, even though it stills behaves like its affine. If we divide everything
     // by the not_one value, then it will behave the same, but will be treated as affine,
@@ -614,9 +614,11 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0
 static inline float muladdmul(float a, float b, float c, float d) {
     return sk_double_to_float((double)a * b + (double)c * d);
 }
+#endif
 
 static inline float rowcol3(const float row[], const float col[]) {
     return row[0] * col[0] + row[1] * col[3] + row[2] * col[6];
@@ -655,36 +657,32 @@ SkMatrix& SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
 
             tmp.setTypeMask(kUnknown_Mask);
         } else {
-            tmp.fMat[kMScaleX] = muladdmul(a.fMat[kMScaleX],
-                                           b.fMat[kMScaleX],
-                                           a.fMat[kMSkewX],
-                                           b.fMat[kMSkewY]);
+#if 0
+            tmp.fMat[kMScaleX] = rowcol3(&a.fMat[0], &b.fMat[0]);
+            tmp.fMat[kMSkewX]  = rowcol3(&a.fMat[0], &b.fMat[1]);
+            tmp.fMat[kMTransX] = rowcol3(&a.fMat[0], &b.fMat[2]);
+            tmp.fMat[kMSkewY]  = rowcol3(&a.fMat[3], &b.fMat[0]);
+            tmp.fMat[kMScaleY] = rowcol3(&a.fMat[3], &b.fMat[1]);
+            tmp.fMat[kMTransY] = rowcol3(&a.fMat[3], &b.fMat[2]);
+#else
+            tmp.fMat[kMScaleX] = a.fMat[kMScaleX] * b.fMat[kMScaleX] +
+                                 a.fMat[kMSkewX]  * b.fMat[kMSkewY];
 
-            tmp.fMat[kMSkewX]  = muladdmul(a.fMat[kMScaleX],
-                                           b.fMat[kMSkewX],
-                                           a.fMat[kMSkewX],
-                                           b.fMat[kMScaleY]);
+            tmp.fMat[kMSkewX]  = a.fMat[kMScaleX] * b.fMat[kMSkewX] +
+                                 a.fMat[kMSkewX]  * b.fMat[kMScaleY];
 
-            tmp.fMat[kMTransX] = muladdmul(a.fMat[kMScaleX],
-                                           b.fMat[kMTransX],
-                                           a.fMat[kMSkewX],
-                                           b.fMat[kMTransY]) + a.fMat[kMTransX];
+            tmp.fMat[kMTransX] = a.fMat[kMScaleX] * b.fMat[kMTransX] +
+                                 a.fMat[kMSkewX]  * b.fMat[kMTransY]  + a.fMat[kMTransX];
 
-            tmp.fMat[kMSkewY]  = muladdmul(a.fMat[kMSkewY],
-                                           b.fMat[kMScaleX],
-                                           a.fMat[kMScaleY],
-                                           b.fMat[kMSkewY]);
+            tmp.fMat[kMSkewY]  = a.fMat[kMSkewY]  * b.fMat[kMScaleX] +
+                                 a.fMat[kMScaleY] * b.fMat[kMSkewY];
 
-            tmp.fMat[kMScaleY] = muladdmul(a.fMat[kMSkewY],
-                                           b.fMat[kMSkewX],
-                                           a.fMat[kMScaleY],
-                                           b.fMat[kMScaleY]);
+            tmp.fMat[kMScaleY] = a.fMat[kMSkewY]  * b.fMat[kMSkewX] +
+                                 a.fMat[kMScaleY] * b.fMat[kMScaleY];
 
-            tmp.fMat[kMTransY] = muladdmul(a.fMat[kMSkewY],
-                                           b.fMat[kMTransX],
-                                           a.fMat[kMScaleY],
-                                           b.fMat[kMTransY]) + a.fMat[kMTransY];
-
+            tmp.fMat[kMTransY] = a.fMat[kMSkewY]  * b.fMat[kMTransX] +
+                                 a.fMat[kMScaleY] * b.fMat[kMTransY] + a.fMat[kMTransY];
+#endif
             tmp.fMat[kMPersp0] = 0;
             tmp.fMat[kMPersp1] = 0;
             tmp.fMat[kMPersp2] = 1;
