@@ -165,7 +165,7 @@ sk_font_t* sk_font_new() {
     return ToFont(new SkFont());
 }
 
-sk_font_t* sk_font_new(sk_typeface_t* typeface, float size, float scaleX, float skewX) {
+sk_font_t* sk_font_new_with_values(sk_typeface_t* typeface, float size, float scaleX, float skewX) {
     return ToFont(new SkFont(sk_ref_sp(AsTypeface(typeface)), size, scaleX, skewX));
 }
 

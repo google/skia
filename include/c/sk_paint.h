@@ -53,7 +53,7 @@ SK_C_API bool sk_paint_get_fill_path(const sk_paint_t*, const sk_path_t* src, sk
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 SK_C_API sk_font_t* sk_font_new();
-SK_C_API sk_font_t* sk_font_new(sk_typeface_t* typeface, float size, float scaleX, float skewX);
+SK_C_API sk_font_t* sk_font_new_with_values(sk_typeface_t* typeface, float size, float scaleX, float skewX);
 SK_C_API void sk_font_delete(sk_font_t* font);
 SK_C_API bool sk_font_is_force_auto_hinting(const sk_font_t* font);
 SK_C_API void sk_font_set_force_auto_hinting(sk_font_t* font, bool value);
