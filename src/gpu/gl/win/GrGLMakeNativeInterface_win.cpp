@@ -18,51 +18,6 @@
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return nullptr; }
 
 #else
-
-class AutoLibraryUnload {
-public:
-    AutoLibraryUnload(const char* moduleName) {
-        fModule = LoadLibraryA(moduleName);
-    }
-    ~AutoLibraryUnload() {
-        if (fModule) {
-            FreeLibrary(fModule);
-        }
-    }
-    HMODULE get() const { return fModule; }
-
-private:
-    HMODULE fModule;
-};
-
-class GLProcGetter {
-public:
-    GLProcGetter() : fGLLib("opengl32.dll") {}
-
-    bool isInitialized() const { return SkToBool(fGLLib.get()); }
-
-    GrGLFuncPtr getProc(const char name[]) const {
-        GrGLFuncPtr proc;
-        if ((proc = (GrGLFuncPtr) GetProcAddress(fGLLib.get(), name))) {
-            return proc;
-        }
-        if ((proc = (GrGLFuncPtr) wglGetProcAddress(name))) {
-            return proc;
-        }
-        return nullptr;
-    }
-
-private:
-    AutoLibraryUnload fGLLib;
-};
-
-static GrGLFuncPtr win_get_gl_proc(void* ctx, const char name[]) {
-    SkASSERT(ctx);
-    SkASSERT(wglGetCurrentContext());
-    const GLProcGetter* getter = (const GLProcGetter*) ctx;
-    return getter->getProc(name);
-}
-
 /*
  * Windows makes the GL funcs all be __stdcall instead of __cdecl :(
  * This implementation will only work if GR_GL_FUNCTION_TYPE is __stdcall.
@@ -73,12 +28,25 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
         return nullptr;
     }
 
-    GLProcGetter getter;
-    if (!getter.isInitialized()) {
+    std::unique_ptr<typename std::remove_pointer<HMODULE>::type,
+                    SkFunctionWrapper<BOOL(HMODULE), FreeLibrary>> module(
+            LoadLibraryA("opengl32.dll"));
+    if (!module) {
+        return nullptr;
+    }
+    const GrGLGetProc win_get_gl_proc = [](void* ctx, const char* name) {
+        SkASSERT(wglGetCurrentContext());
+        if ((GrGLFuncPtr p = (GrGLFuncPtr)GetProcAddress((HMODULE)ctx, name))) {
+            return p;
+        }
+        if ((GrGLFuncPtr p = (GrGLFuncPtr)wglGetProcAddress(name))) {
+            return p;
+        }
         return nullptr;
     }
 
-    GrGLGetStringFn* getString = (GrGLGetStringFn*)getter.getProc("glGetString");
+    GrGLGetStringFn* getString =
+        (GrGLGetStringFn*)win_get_gl_proc((void*)module.get(), "glGetString");
     if (nullptr == getString) {
         return nullptr;
     }
@@ -86,9 +54,9 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
     if (GR_IS_GR_GL_ES(standard)) {
-        return GrGLMakeAssembledGLESInterface(&getter, win_get_gl_proc);
+        return GrGLMakeAssembledGLESInterface((void*)module.get(), win_get_gl_proc);
     } else if (GR_IS_GR_GL(standard)) {
-        return GrGLMakeAssembledGLInterface(&getter, win_get_gl_proc);
+        return GrGLMakeAssembledGLInterface((void*)module.get(), win_get_gl_proc);
     }
     return nullptr;
 }
