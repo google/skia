@@ -373,9 +373,4 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test);
  */
 bool GrGLFormatIsCompressed(GrGLFormat);
 
-/**
- * This will return CompressionType::kNone if the format is uncompressed.
- */
-SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat);
-
 #endif
