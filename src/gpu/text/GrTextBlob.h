@@ -332,11 +332,10 @@ private:
     GrColor fColor;
     SkVector fDrawTranslation;
     struct {
-        bool regenPositions:1;
         bool regenColor:1;
         bool regenTextureCoordinates:1;
         bool regenStrike:1;
-    } fActions = {false, false, false, false};
+    } fActions = {false, false, false};
     int fCurrGlyph = 0;
     bool fBrokenRun = false;
 };
