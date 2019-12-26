@@ -7,6 +7,7 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/gpu/GrContext.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/gpu/GrBlurUtils.h"
@@ -96,6 +97,7 @@ public:
 
     size_t vertexStride() const;
     size_t colorOffset() const;
+    char* quadStart(size_t index) const;
 
     const SkRect& vertexBounds() const;
     void joinGlyphBounds(const SkRect& glyphBounds);
@@ -106,6 +108,8 @@ public:
     bool drawAsDistanceFields() const;
     bool drawAsPaths() const;
     bool needsTransform() const;
+
+    void updateTranslation(SkVector translation);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -236,6 +240,10 @@ size_t GrTextBlob::SubRun::vertexStride() const {
 size_t GrTextBlob::SubRun::colorOffset() const {
     return this->hasW() ? offsetof(SDFT3DVertex, color) : offsetof(Mask2DVertex, color);
 }
+char* GrTextBlob::SubRun::quadStart(size_t index) const {
+    return SkTAddOffset<char>(
+            fVertexData.data(), index * kVerticesPerGlyph * this->vertexStride());
+}
 
 const SkRect& GrTextBlob::SubRun::vertexBounds() const { return fVertexBounds; }
 void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
@@ -269,6 +277,17 @@ bool GrTextBlob::SubRun::needsTransform() const {
 
 bool GrTextBlob::SubRun::hasW() const {
     return fBlob->hasW(fType);
+}
+
+void GrTextBlob::SubRun::updateTranslation(SkVector translation) {
+    size_t vertexStride = this->vertexStride();
+    for(size_t i = 0; i < fGlyphs.size(); i++) {
+        SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(i));
+        for (int i = 0; i < 4; ++i) {
+            *vertexCursor += translation;
+            vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
+        }
+    }
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -767,14 +786,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
-static void regen_positions(char* vertex, size_t vertexStride, SkVector translation) {
-    SkPoint* point = reinterpret_cast<SkPoint*>(vertex);
-    for (int i = 0; i < 4; ++i) {
-        *point += translation;
-        point = SkTAddOffset<SkPoint>(point, vertexStride);
-    }
-}
-
 static void regen_colors(char* vertex, size_t vertexStride, GrColor color) {
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
     // vertices, hence vertexStride - sizeof(SkIPoint16)
@@ -889,7 +900,9 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
     fActions.regenStrike = fSubRun->strike()->isAbandoned();
     fActions.regenColor = kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color;
-    fActions.regenPositions = fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f;
+    if (fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f) {
+        fSubRun->updateTranslation(fDrawTranslation);
+    }
 }
 
 bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
@@ -953,9 +966,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                                                             tokenTracker->nextDrawToken());
         }
 
-        if (fActions.regenPositions) {
-            regen_positions(currVertex, vertexStride, fDrawTranslation);
-        }
         if (fActions.regenColor) {
             regen_colors(currVertex, vertexStride, fColor);
         }
@@ -991,8 +1001,7 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
 
     if (fActions.regenStrike
        |fActions.regenTextureCoordinates
-       |fActions.regenColor
-       |fActions.regenPositions) {
+       |fActions.regenColor) {
             return this->doRegen(result);
     } else {
         auto vertexStride = fSubRun->vertexStride();
