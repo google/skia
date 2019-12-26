@@ -19,6 +19,7 @@
 #include "include/c/sk_data.h"
 #include "include/c/sk_document.h"
 #include "include/c/sk_drawable.h"
+#include "include/c/sk_font.h"
 #include "include/c/sk_general.h"
 #include "include/c/sk_image.h"
 #include "include/c/sk_imagefilter.h"
@@ -63,6 +64,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_data_new_empty,
         (void*)sk_document_unref,
         (void*)sk_drawable_unref,
+        (void*)sk_font_new,
         (void*)sk_image_ref,
         (void*)sk_imagefilter_croprect_new,
         (void*)sk_mask_alloc_image,
