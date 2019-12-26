@@ -14,12 +14,8 @@
 #include "src/shaders/SkRTShader.h"
 
 #include "src/sksl/SkSLByteCode.h"
-#include "src/sksl/SkSLCompiler.h"
 
 #if SK_SUPPORT_GPU
-#include "include/private/GrRecordingContext.h"
-#include "src/gpu/GrCaps.h"
-
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #endif

@@ -9,7 +9,6 @@
 
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkEnumerate.h"
-#include "src/shaders/SkRTShader.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
 
@@ -172,8 +171,9 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     ImGui::End();
 
     auto inputs = SkData::MakeWithoutCopy(fInputs.get(), fEffect->inputSize());
-    sk_sp<SkRTShader> shader(new SkRTShader(fEffect, std::move(inputs),
-                                            nullptr, fChildren.data(), fChildren.count(), false));
+    auto shader = fEffect->makeShader(std::move(inputs), fChildren.data(), fChildren.count(),
+                                      nullptr, false);
+
     SkPaint p;
     p.setShader(std::move(shader));
     canvas->drawRect({ 0, 0, 256, 256 }, p);

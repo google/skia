@@ -14,6 +14,8 @@
 #include <vector>
 
 class GrShaderCaps;
+class SkMatrix;
+class SkShader;
 
 namespace SkSL {
 class ByteCode;
@@ -64,6 +66,9 @@ public:
     using EffectResult = std::tuple<sk_sp<SkRuntimeEffect>, SkString>;
 
     static EffectResult Make(SkString sksl);
+
+    sk_sp<SkShader> makeShader(sk_sp<SkData> inputs, sk_sp<SkShader> children[], size_t childCount,
+                               const SkMatrix* localMatrix, bool isOpaque);
 
     const SkString& source() const { return fSkSL; }
     int index() const { return fIndex; }

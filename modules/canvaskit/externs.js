@@ -124,12 +124,12 @@ var CanvasKit = {
 		_getRectsForRange: function() {},
 	},
 
-	_RTShaderFactory: {
+	_SkRuntimeEffect: {
 		// public API (from C++ bindings)
-		MakeFromProgram: function() {},
+		Make: function() {},
 
 		// private API
-		_make: function() {},
+		_makeShader: function() {},
 	},
 
 	ParagraphStyle: function() {},
@@ -802,7 +802,7 @@ CanvasKit.SkColorBuilder.prototype.delete = function() {};
 CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
-CanvasKit._RTShaderFactory.prototype.make = function() {};
+CanvasKit._SkRuntimeEffect.prototype.makeShader = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
