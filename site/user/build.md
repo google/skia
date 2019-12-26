@@ -264,7 +264,7 @@ case, you can pass your `VC` path to GN via `win_vc`.
 Skia can be compiled with the free [Build Tools for Visual Studio 2017 or
 2019](https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2019).
 
-The bots use a packaged 2017 toolchain, which Googlers can download like this:
+The bots use a packaged 2019 toolchain, which Googlers can download like this:
 
     python2 infra/bots/assets/win_toolchain/download.py -t C:/toolchain
 
