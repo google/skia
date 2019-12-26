@@ -110,6 +110,7 @@ public:
     bool needsTransform() const;
 
     void updateTranslation(SkVector translation);
+    void updateColor(GrColor newColor);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -281,13 +282,26 @@ bool GrTextBlob::SubRun::hasW() const {
 
 void GrTextBlob::SubRun::updateTranslation(SkVector translation) {
     size_t vertexStride = this->vertexStride();
-    for(size_t i = 0; i < fGlyphs.size(); i++) {
-        SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(i));
+    for(size_t quad = 0; quad < fGlyphs.size(); quad++) {
+        SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(quad));
         for (int i = 0; i < 4; ++i) {
             *vertexCursor += translation;
             vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
         }
     }
+}
+
+void GrTextBlob::SubRun::updateColor(GrColor newColor) {
+    size_t vertexStride = this->vertexStride();
+    size_t colorOffset = this->colorOffset();
+    for(size_t quad = 0; quad < fGlyphs.size(); quad++) {
+        GrColor* colorCursor = SkTAddOffset<GrColor>(quadStart(quad), colorOffset);
+        for (int i = 0; i < 4; ++i) {
+            *colorCursor = newColor;
+            colorCursor = SkTAddOffset<GrColor>(colorCursor, vertexStride);
+        }
+    }
+    this->fColor = newColor;
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -786,17 +800,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
-static void regen_colors(char* vertex, size_t vertexStride, GrColor color) {
-    // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
-    // vertices, hence vertexStride - sizeof(SkIPoint16)
-    size_t colorOffset = vertexStride - sizeof(SkIPoint16) - sizeof(GrColor);
-    GrColor* vcolor = reinterpret_cast<GrColor*>(vertex + colorOffset);
-    for (int i = 0; i < 4; ++i) {
-        *vcolor = color;
-        vcolor = SkTAddOffset<GrColor>(vcolor, vertexStride);
-    }
-}
-
 static void regen_texcoords(char* vertex, size_t vertexStride, const GrGlyph* glyph,
                             bool useDistanceFields) {
     // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
@@ -899,7 +902,9 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
     fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
     fActions.regenStrike = fSubRun->strike()->isAbandoned();
-    fActions.regenColor = kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color;
+    if (kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color) {
+        fSubRun->updateColor(color);
+    }
     if (fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f) {
         fSubRun->updateTranslation(fDrawTranslation);
     }
@@ -966,9 +971,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                                                             tokenTracker->nextDrawToken());
         }
 
-        if (fActions.regenColor) {
-            regen_colors(currVertex, vertexStride, fColor);
-        }
         if (fActions.regenTextureCoordinates) {
             regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
         }
@@ -1000,8 +1002,7 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
     fActions.regenTextureCoordinates |= fSubRun->atlasGeneration() != currentAtlasGen;
 
     if (fActions.regenStrike
-       |fActions.regenTextureCoordinates
-       |fActions.regenColor) {
+       |fActions.regenTextureCoordinates) {
             return this->doRegen(result);
     } else {
         auto vertexStride = fSubRun->vertexStride();
