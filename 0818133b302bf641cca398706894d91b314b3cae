@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "338faf9e_6e2e8e87",
+        "filename": "third_party/third_party.gni",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-26T17:53:41Z",
+      "side": 1,
+      "message": "Hoping that this is temporary, and that once I update to 2019 (after this lands), the compiler bug is fixed and we can remove it.",
+      "revId": "0818133b302bf641cca398706894d91b314b3cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
