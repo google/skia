@@ -22,27 +22,6 @@
 #include <cstddef>
 #include <new>
 
-static SkVector calculate_translation(bool applyVM,
-                                      const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                                      const SkMatrix& currentViewMatrix, SkPoint currentOrigin) {
-    SkVector translate;
-    if (applyVM) {
-        translate.fX = drawMatrix.getTranslateX() +
-                       drawMatrix.getScaleX() * (drawOrigin.x() - currentOrigin.x()) +
-                       drawMatrix.getSkewX() * (drawOrigin.y() - currentOrigin.y()) -
-                       currentViewMatrix.getTranslateX();
-
-        translate.fY = drawMatrix.getTranslateY() +
-                       drawMatrix.getSkewY() * (drawOrigin.x() - currentOrigin.x()) +
-                       drawMatrix.getScaleY() * (drawOrigin.y() - currentOrigin.y()) -
-                       currentViewMatrix.getTranslateY();
-    } else {
-        translate = drawOrigin - currentOrigin;
-    }
-
-    return translate;
-}
-
 static SkMatrix make_inverse(const SkMatrix& matrix) {
     SkMatrix inverseMatrix;
     if (!matrix.invert(&inverseMatrix)) {
@@ -90,9 +69,6 @@ public:
     void setAtlasGeneration(uint64_t atlasGeneration);
     uint64_t atlasGeneration() const;
 
-    void setColor(GrColor color);
-    GrColor color() const;
-
     GrMaskFormat maskFormat() const;
 
     size_t vertexStride() const;
@@ -102,15 +78,12 @@ public:
     const SkRect& vertexBounds() const;
     void joinGlyphBounds(const SkRect& glyphBounds);
 
-    // This function assumes the translation will be applied before it is called again
-    SkVector computeTranslation(const SkMatrix& drawMatrix, SkPoint drawOrigin);
-
     bool drawAsDistanceFields() const;
     bool drawAsPaths() const;
     bool needsTransform() const;
 
-    void updateTranslation(SkVector translation);
-    void updateColor(GrColor newColor);
+    void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    void updateVerticesColorIfNeeded(GrColor newColor);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -132,10 +105,10 @@ public:
         bool useLCDText:1;
         bool antiAliased:1;
     } fFlags{false, false};
-    GrColor fColor;
     GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
     SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+    GrColor fCurrentColor;
     SkPoint fCurrentOrigin;
     SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
@@ -156,7 +129,7 @@ GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrike
         , fVertexData{vertexData}
         , fStrikeSpec{strikeSpec}
         , fStrike{grStrike}
-        , fColor{textBlob->fColor}
+        , fCurrentColor{textBlob->fColor}
         , fCurrentOrigin{textBlob->fInitialOrigin}
         , fCurrentMatrix{textBlob->fInitialMatrix} {
     SkASSERT(type != kTransformedPath);
@@ -171,7 +144,7 @@ GrTextBlob::SubRun::SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec)
         , fVertexData{SkSpan<char>{}}
         , fStrikeSpec{strikeSpec}
         , fStrike{nullptr}
-        , fColor{textBlob->fColor}
+        , fCurrentColor{textBlob->fColor}
         , fPaths{} {
     textBlob->insertSubRun(this);
 }
@@ -181,7 +154,6 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
     SkScalar strikeToSource = fStrikeSpec.strikeToSourceRatio();
     GrGlyph** glyphCursor = fGlyphs.data();
     char* vertexCursor = fVertexData.data();
-    GrColor color = this->color();
     size_t vertexStride = this->vertexStride();
     // We always write the third position component used by SDFs. If it is unused it gets
     // overwritten. Similarly, we always write the color and the blob will later overwrite it
@@ -203,22 +175,22 @@ void GrTextBlob::SubRun::appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& draw
 
         // V0
         *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fLeft, dstRect.fTop, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = color;
+        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
         vertexCursor += vertexStride;
 
         // V1
         *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fLeft, dstRect.fBottom, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = color;
+        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
         vertexCursor += vertexStride;
 
         // V2
         *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fRight, dstRect.fTop, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = color;
+        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
         vertexCursor += vertexStride;
 
         // V3
         *reinterpret_cast<SkPoint3*>(vertexCursor) = {dstRect.fRight, dstRect.fBottom, 1.f};
-        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = color;
+        *reinterpret_cast<GrColor*>(vertexCursor + colorOffset) = fCurrentColor;
         vertexCursor += vertexStride;
 
         *glyphCursor++ = grGlyph;
@@ -232,8 +204,6 @@ void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
 void GrTextBlob::SubRun::setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
 uint64_t GrTextBlob::SubRun::atlasGeneration() const { return fAtlasGeneration; }
-void GrTextBlob::SubRun::setColor(GrColor color) { fColor = color; }
-GrColor GrTextBlob::SubRun::color() const { return fColor; }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
     return GetVertexStride(this->maskFormat(), this->hasW());
@@ -251,21 +221,6 @@ void GrTextBlob::SubRun::joinGlyphBounds(const SkRect& glyphBounds) {
     fVertexBounds.joinNonEmptyArg(glyphBounds);
 }
 
-SkVector GrTextBlob::SubRun::computeTranslation(
-        const SkMatrix& drawMatrix, SkPoint drawOrigin){
-    // Don't use the matrix to translate on distance field for fallback subruns.
-
-    SkVector translate = calculate_translation(
-            !this->drawAsDistanceFields() && !this->needsTransform(),
-            drawMatrix, drawOrigin, fCurrentMatrix, fCurrentOrigin);
-
-    // Update SubRun indicating that the vertices now correspond to the origin and matrix used in
-    // the draw.
-    fCurrentMatrix = drawMatrix;
-    fCurrentOrigin = drawOrigin;
-    return translate;
-}
-
 bool GrTextBlob::SubRun::drawAsDistanceFields() const { return fType == kTransformedSDFT; }
 
 bool GrTextBlob::SubRun::drawAsPaths() const { return fType == kTransformedPath; }
@@ -280,28 +235,55 @@ bool GrTextBlob::SubRun::hasW() const {
     return fBlob->hasW(fType);
 }
 
-void GrTextBlob::SubRun::updateTranslation(SkVector translation) {
-    size_t vertexStride = this->vertexStride();
-    for(size_t quad = 0; quad < fGlyphs.size(); quad++) {
-        SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(quad));
-        for (int i = 0; i < 4; ++i) {
-            *vertexCursor += translation;
-            vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
+void GrTextBlob::SubRun::translateVerticesIfNeeded(
+        const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+    SkVector translation;
+    if (this->needsTransform()) {
+        // If transform is needed, then the vertices are in source space, calculate the source
+        // space translation.
+        translation = drawOrigin - fCurrentOrigin;
+    } else {
+        // Calculate the translation in source space to a translation in device space. Calculate
+        // the translation by mapping (0, 0) through both the current matrix, and the draw
+        // matrix, and taking the difference.
+        SkMatrix currentMatrix{fCurrentMatrix};
+        currentMatrix.preTranslate(fCurrentOrigin.x(), fCurrentOrigin.y());
+        SkPoint currentDeviceOrigin{0, 0};
+        currentMatrix.mapPoints(&currentDeviceOrigin, 1);
+        SkMatrix completeDrawMatrix{drawMatrix};
+        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+        SkPoint drawDeviceOrigin{0, 0};
+        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
+        translation = drawDeviceOrigin - currentDeviceOrigin;
+    }
+
+    if (translation != SkPoint{0, 0}) {
+        size_t vertexStride = this->vertexStride();
+        for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
+            SkPoint* vertexCursor = reinterpret_cast<SkPoint*>(quadStart(quad));
+            for (int i = 0; i < 4; ++i) {
+                *vertexCursor += translation;
+                vertexCursor = SkTAddOffset<SkPoint>(vertexCursor, vertexStride);
+            }
         }
+        fCurrentMatrix = drawMatrix;
+        fCurrentOrigin = drawOrigin;
     }
 }
 
-void GrTextBlob::SubRun::updateColor(GrColor newColor) {
-    size_t vertexStride = this->vertexStride();
-    size_t colorOffset = this->colorOffset();
-    for(size_t quad = 0; quad < fGlyphs.size(); quad++) {
-        GrColor* colorCursor = SkTAddOffset<GrColor>(quadStart(quad), colorOffset);
-        for (int i = 0; i < 4; ++i) {
-            *colorCursor = newColor;
-            colorCursor = SkTAddOffset<GrColor>(colorCursor, vertexStride);
+void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
+    if (this->maskFormat() != kARGB_GrMaskFormat && fCurrentColor != newColor) {
+        size_t vertexStride = this->vertexStride();
+        size_t colorOffset = this->colorOffset();
+        for (size_t quad = 0; quad < fGlyphs.size(); quad++) {
+            GrColor* colorCursor = SkTAddOffset<GrColor>(quadStart(quad), colorOffset);
+            for (int i = 0; i < 4; ++i) {
+                *colorCursor = newColor;
+                colorCursor = SkTAddOffset<GrColor>(colorCursor, vertexStride);
+            }
         }
+        this->fCurrentColor = newColor;
     }
-    this->fColor = newColor;
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -883,15 +865,10 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
                                                  GrStrikeCache* grStrikeCache,
                                                  GrAtlasManager* fullAtlasManager)
         : fResourceProvider(resourceProvider)
-        , fDrawMatrix(drawMatrix)
         , fUploadTarget(uploadTarget)
         , fGrStrikeCache(grStrikeCache)
         , fFullAtlasManager(fullAtlasManager)
-        , fSubRun(subRun)
-        , fColor(color) {
-    // Compute translation if any
-    fDrawTranslation = fSubRun->computeTranslation(fDrawMatrix, drawOrigin);
-
+        , fSubRun(subRun){
     // Because the GrStrikeCache may evict the strike a blob depends on using for
     // generating its texture coords, we have to track whether or not the strike has
     // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
@@ -902,12 +879,9 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
     fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
     fActions.regenStrike = fSubRun->strike()->isAbandoned();
-    if (kARGB_GrMaskFormat != fSubRun->maskFormat() && fSubRun->color() != color) {
-        fSubRun->updateColor(color);
-    }
-    if (fDrawTranslation.x() != 0.f || fDrawTranslation.y() != 0.f) {
-        fSubRun->updateTranslation(fDrawTranslation);
-    }
+
+    fSubRun->updateVerticesColorIfNeeded(color);
+    fSubRun->translateVerticesIfNeeded(drawMatrix, drawOrigin);
 }
 
 bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
@@ -980,8 +954,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         ++fCurrGlyph;
     }
 
-    // We may have changed the color so update it here
-    fSubRun->setColor(fColor);
     if (fActions.regenTextureCoordinates) {
         fSubRun->setAtlasGeneration(fBrokenRun
                                     ? GrDrawOpAtlas::kInvalidAtlasGeneration

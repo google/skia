@@ -323,14 +323,11 @@ private:
     bool doRegen(Result* result);
 
     GrResourceProvider* fResourceProvider;
-    const SkMatrix& fDrawMatrix;
     GrDeferredUploadTarget* fUploadTarget;
     GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
-    GrColor fColor;
-    SkVector fDrawTranslation;
     struct {
         bool regenTextureCoordinates:1;
         bool regenStrike:1;
