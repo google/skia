@@ -895,10 +895,133 @@ func (b *builder) createDockerImage(name, imageName, imageDir string) string {
 			"--patch_issue", specs.PLACEHOLDER_ISSUE,
 			"--patch_set", specs.PLACEHOLDER_PATCHSET,
 			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--swarm_out_dir", specs.PLACEHOLDER_ISOLATED_OUTDIR,
 			"--alsologtostderr",
 		},
 		Dependencies: []string{BUILD_TASK_DRIVERS_NAME},
 		Dimensions:   b.dockerGceDimensions(),
+		EnvPrefixes: map[string][]string{
+			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+		},
+		Isolate:        "empty.isolate",
+		ServiceAccount: b.cfg.ServiceAccountCompile,
+	}
+	b.MustAddTask(name, t)
+	return name
+}
+
+// createPushAppsFromSkiaDockerImage creates and pushes docker images of some apps
+// (eg: fiddler, debugger, api) using the skia-release-v2 docker image.
+func (b *builder) createPushAppsFromSkiaDockerImage(name string) string {
+	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+
+	t := &specs.TaskSpec{
+		Caches:       append(CACHES_GO, CACHES_DOCKER...),
+		CipdPackages: cipd,
+		Command: []string{
+			"./push_apps_from_skia_image",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", name,
+			"--workdir", ".",
+			"--gerrit_project", "buildbot",
+			"--gerrit_url", "https://skia-review.googlesource.com",
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr",
+		},
+		Dependencies: []string{
+			BUILD_TASK_DRIVERS_NAME,
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release-v2", filepath.Join("docker", "skia-release")),
+		},
+		Dimensions: b.dockerGceDimensions(),
+		EnvPrefixes: map[string][]string{
+			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+		},
+		Isolate:        "empty.isolate",
+		ServiceAccount: b.cfg.ServiceAccountCompile,
+	}
+	b.MustAddTask(name, t)
+	return name
+}
+
+// createPushAppsFromWASMDockerImage creates and pushes docker images of some apps
+// (eg: jsfiddle, skottie, particles) using the skia-wasm-release-v2 docker image.
+func (b *builder) createPushAppsFromWASMDockerImage(name string) string {
+	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+
+	t := &specs.TaskSpec{
+		Caches:       append(CACHES_GO, CACHES_DOCKER...),
+		CipdPackages: cipd,
+		Command: []string{
+			"./push_apps_from_wasm_image",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", name,
+			"--workdir", ".",
+			"--gerrit_project", "buildbot",
+			"--gerrit_url", "https://skia-review.googlesource.com",
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr",
+		},
+		Dependencies: []string{
+			BUILD_TASK_DRIVERS_NAME,
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release-v2", filepath.Join("docker", "skia-wasm-release")),
+		},
+		Dimensions: b.dockerGceDimensions(),
+		EnvPrefixes: map[string][]string{
+			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
+		},
+		Isolate:        "empty.isolate",
+		ServiceAccount: b.cfg.ServiceAccountCompile,
+	}
+	b.MustAddTask(name, t)
+	return name
+}
+
+// createPushAppsFromSkiaWASMDockerImages creates and pushes docker images of some apps
+// (eg: debugger-assets) using the skia-release-v2 and skia-wasm-release-v2
+// docker images.
+func (b *builder) createPushAppsFromSkiaWASMDockerImages(name string) string {
+	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
+	cipd = append(cipd, b.MustGetCipdPackageFromAsset("protoc"))
+
+	t := &specs.TaskSpec{
+		Caches:       append(CACHES_GO, CACHES_DOCKER...),
+		CipdPackages: cipd,
+		Command: []string{
+			"./push_apps_from_skia_wasm_images",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", name,
+			"--workdir", ".",
+			"--gerrit_project", "buildbot",
+			"--gerrit_url", "https://skia-review.googlesource.com",
+			"--repo", specs.PLACEHOLDER_REPO,
+			"--revision", specs.PLACEHOLDER_REVISION,
+			"--patch_issue", specs.PLACEHOLDER_ISSUE,
+			"--patch_set", specs.PLACEHOLDER_PATCHSET,
+			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
+			"--alsologtostderr",
+		},
+		Dependencies: []string{
+			BUILD_TASK_DRIVERS_NAME,
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release-v2", filepath.Join("docker", "skia-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release-v2", filepath.Join("docker", "skia-wasm-release")),
+		},
+		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
 			"PATH": {"cipd_bin_packages", "cipd_bin_packages/bin", "go/go/bin"},
 		},
@@ -1483,6 +1606,15 @@ func (b *builder) process(name string) {
 		}
 	}
 
+	// Push apps from docker image.
+	if strings.Contains(name, "PushAppsFromSkiaDockerImage") {
+		deps = append(deps, b.createPushAppsFromSkiaDockerImage(name))
+	} else if strings.Contains(name, "PushAppsFromWASMDockerImage") {
+		deps = append(deps, b.createPushAppsFromWASMDockerImage(name))
+	} else if strings.Contains(name, "PushAppsFromSkiaWASMDockerImages") {
+		deps = append(deps, b.createPushAppsFromSkiaWASMDockerImages(name))
+	}
+
 	// Infra tests.
 	if strings.Contains(name, "Housekeeper-PerCommit-InfraTests") {
 		deps = append(deps, b.infra(name))
@@ -1518,6 +1650,7 @@ func (b *builder) process(name string) {
 		name != "Housekeeper-PerCommit" &&
 		name != BUILD_TASK_DRIVERS_NAME &&
 		!strings.Contains(name, "CreateDockerImage") &&
+		!strings.Contains(name, "PushAppsFrom") &&
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "G3_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
