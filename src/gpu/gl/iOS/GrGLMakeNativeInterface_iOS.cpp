@@ -4,54 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkTypes.h"
+#ifdef SK_BUILD_FOR_IOS
+
+#include "include/gpu/gl/GrGLInterface.h"
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/SkTemplates.h"
+
 #include <dlfcn.h>
-
-class GLLoader {
-public:
-    GLLoader() {
-        fLibrary = dlopen(
-            "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
-            RTLD_LAZY);
-    }
-
-    ~GLLoader() {
-        if (fLibrary) {
-            dlclose(fLibrary);
-        }
-    }
-
-    void* handle() const {
-        return nullptr == fLibrary ? RTLD_DEFAULT : fLibrary;
-    }
-
-private:
-    void* fLibrary;
-};
-
-class GLProcGetter {
-public:
-    GLProcGetter() {}
-
-    GrGLFuncPtr getProc(const char name[]) const {
-        return (GrGLFuncPtr) dlsym(fLoader.handle(), name);
-    }
-
-private:
-    GLLoader fLoader;
-};
-
-static GrGLFuncPtr ios_get_gl_proc(void* ctx, const char name[]) {
-    SkASSERT(ctx);
-    const GLProcGetter* getter = (const GLProcGetter*) ctx;
-    return getter->getProc(name);
-}
+#include <memory>
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
-    GLProcGetter getter;
-    return GrGLMakeAssembledGLESInterface(&getter, ios_get_gl_proc);
+    static const char kPath[] =
+        "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
+    std::unique_ptr<void, SkFunctionWrapper<int(void*), dlclose>> lib(dlopen(kPath, RTLD_LAZY));
+    return GrGLMakeAssembledGLESInterface(lib.get(), [](void* ctx, const char* name) {
+            return (GrGLFuncPtr)dlsym(ctx ? ctx : RTLD_DEFAULT, name); });
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
+
+#endif  // SK_BUILD_FOR_IOS
