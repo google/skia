@@ -206,7 +206,6 @@ icu_sources = [
   "$_src/common/uinvchar.cpp",
   "$_src/common/uinvchar.h",
   "$_src/common/uiter.cpp",
-  "$_src/common/ulayout_props_data.h",
   "$_src/common/ulist.cpp",
   "$_src/common/ulist.h",
   "$_src/common/uloc.cpp",
