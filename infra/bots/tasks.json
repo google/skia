@@ -14932,7 +14932,7 @@
         {
           "name": "skia/bots/win_toolchain",
           "path": "win_toolchain",
-          "version": "version:10"
+          "version": "version:11"
         }
       ],
       "command": [
