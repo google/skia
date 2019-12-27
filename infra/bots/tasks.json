@@ -14443,7 +14443,7 @@
       "command": [
         "./build_push_docker_image",
         "--image_name",
-        "gcr.io/skia-public/skia-release-v2",
+        "gcr.io/skia-public/skia-release",
         "--dockerfile_dir",
         "docker/skia-release",
         "--project_id",
@@ -14538,7 +14538,7 @@
       "command": [
         "./build_push_docker_image",
         "--image_name",
-        "gcr.io/skia-public/skia-wasm-release-v2",
+        "gcr.io/skia-public/skia-wasm-release",
         "--dockerfile_dir",
         "docker/skia-wasm-release",
         "--project_id",
