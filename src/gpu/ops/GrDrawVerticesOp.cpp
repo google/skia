@@ -612,6 +612,7 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kLines:
         case GrPrimitiveType::kLineStrip:
             return 2;
+        case GrPrimitiveType::kPatches:
         case GrPrimitiveType::kPath:
             SkASSERT(0);
             return 0;
@@ -629,6 +630,7 @@ static uint32_t primitive_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kPoints:
         case GrPrimitiveType::kLineStrip:
             return 1;
+        case GrPrimitiveType::kPatches:
         case GrPrimitiveType::kPath:
             SkASSERT(0);
             return 0;
@@ -667,7 +669,7 @@ GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
     GrPrimitiveType type;
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
-    } while (type == GrPrimitiveType::kPath);
+    } while (type == GrPrimitiveType::kPath || type == GrPrimitiveType::kPatches);
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

@@ -865,6 +865,19 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     }
 
+    if (GR_IS_GR_GL(standard)) {
+        shaderCaps->fTessellationSupport =
+                version >= GR_GL_VER(4,0) ||
+                ctxInfo.hasExtension("GL_ARB_tessellation_shader");
+    } else {
+        if (version >= GR_GL_VER(3,2)) {
+            shaderCaps->fTessellationSupport = true;
+        } else if (ctxInfo.hasExtension("GL_OES_tessellation_shader")) {
+            shaderCaps->fTessellationSupport = true;
+            shaderCaps->fTessellationExtensionString = "GL_OES_tessellation_shader";
+        }
+    }
+
     shaderCaps->fVersionDeclString = get_glsl_version_decl_string(standard,
                                                                   shaderCaps->fGLSLGeneration,
                                                                   fIsCoreProfile);
