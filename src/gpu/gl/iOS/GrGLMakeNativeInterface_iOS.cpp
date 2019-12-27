@@ -22,7 +22,4 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     return GrGLMakeAssembledGLESInterface(lib.get(), [](void* ctx, const char* name) {
             return (GrGLFuncPtr)dlsym(ctx ? ctx : RTLD_DEFAULT, name); });
 }
-
-const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
-
 #endif  // SK_BUILD_FOR_IOS
