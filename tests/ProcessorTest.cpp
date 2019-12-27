@@ -389,16 +389,20 @@ bool legal_modulation(const GrColor in[3], const GrColor out[3]) {
     // When the original input is very small, it may cause the final output color to round
     // to 0, in which case we estimate the pre-modulated color using one of the stepped frames that
     // will then have a guaranteed larger channel value (since the offset will be added to it).
-    SkPMColor4f fpPreColorModulation;
-    SkPMColor4f fpPreAlphaModulation;
+    SkPMColor4f fpPreColorModulation = {0,0,0,0};
+    SkPMColor4f fpPreAlphaModulation = {0,0,0,0};
     for (int i = 0; i < 4; i++) {
         // Use the most stepped up frame
         int maxInIdx = inf[0][i] > inf[1][i] ? 0 : 1;
         maxInIdx = inf[maxInIdx][i] > inf[2][i] ? maxInIdx : 2;
         const auto& in = inf[maxInIdx];
         const auto& out = outf[maxInIdx];
-        fpPreColorModulation[i] = out[i] / in[i];
-        fpPreAlphaModulation[i] = out[i] / in[3];
+        if (in[i] > 0) {
+            fpPreColorModulation[i] = out[i] / in[i];
+        }
+        if (in[3] > 0) {
+            fpPreAlphaModulation[i] = out[i] / in[3];
+        }
     }
 
     // With reconstructed pre-modulated FP output, derive the expected value of fp * input for each
