@@ -22,6 +22,30 @@
       "revId": "9d5e76cf5d683cd880905ecf5897553657ae56ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72dcb351_bd2488c0",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2019-12-27T15:53:54Z",
+      "side": 0,
+      "message": "Sorry. This was not obvious. Here is the argument for the translation of this if-statement to the if-statement in translateVerticesIfNeeded().\n\nMoving the condition into calculate_translation we get...\nif (!this-\u003edrawAsDistanceFields() \u0026\u0026 !this-\u003eneedsTransform()) {\n   // vertices are in device space\n} else {\n   // vertices are in source space\n}\n\nbecomes...\n\nif (!(this-\u003edrawAsDistanceFields() || this-\u003eneedsTransform())) {\n   // vertices are in device space\n} else {\n   // vertices are in source space\n}\n\nbecomes...\n\nif (this-\u003edrawAsDistanceFields() || this-\u003eneedsTransform()) {\n   // vertices are in source space\n} else {\n   // vertices are in device space\n}\n\nNow, drawAsDistanceFields is {return fType \u003d\u003d kTransformedSDF;} and needsTransform() is\nreturn fType \u003d\u003d kTransformedPath\n           || fType \u003d\u003d kTransformedMask\n           || fType \u003d\u003d kTransformedSDFT;\n\nthe if statement becomes\n\nif (fType \u003d\u003d kTransformedSDF || fType \u003d\u003d kTransformedPath\n           || fType \u003d\u003d kTransformedMask\n           || fType \u003d\u003d kTransformedSDFT) ...\n\nbecomes\nif (fType \u003d\u003d kTransformedPath\n           || fType \u003d\u003d kTransformedMask\n           || fType \u003d\u003d kTransformedSDFT) ...\n\nbecomes\nif (this-\u003eneedsTransform())...",
+      "parentUuid": "69726607_618be65d",
+      "range": {
+        "startLine": 259,
+        "startChar": 12,
+        "endLine": 259,
+        "endChar": 41
+      },
+      "revId": "9d5e76cf5d683cd880905ecf5897553657ae56ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
