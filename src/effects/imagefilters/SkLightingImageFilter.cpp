@@ -72,7 +72,15 @@ static inline void shiftMatrixLeft(int m[9]) {
 static inline void fast_normalize(SkPoint3* vector) {
     // add a tiny bit so we don't have to worry about divide-by-zero
     SkScalar magSq = vector->dot(*vector) + SK_ScalarNearlyZero;
+#if defined(_MSC_VER) && _MSC_VER >= 1920
+    // Visual Studio 2019 has some kind of code-generation bug in release builds involving the
+    // lighting math in this file. Using the portable rsqrt avoids the issue. This issue appears
+    // to be specific to the collection of (inline) functions in this file that call into this
+    // function, not with sk_float_rsqrt itself.
+    SkScalar scale = sk_float_rsqrt_portable(magSq);
+#else
     SkScalar scale = sk_float_rsqrt(magSq);
+#endif
     vector->fX *= scale;
     vector->fY *= scale;
     vector->fZ *= scale;
