@@ -30,6 +30,7 @@ bool CollectImages(CommandLineFlags::StringArray dir, SkTArray<SkString>* output
  *     --cachePathMasks
  *     --noGS
  *     --pr
+ *     --internalSamples
  *     --disableDriverCorrectnessWorkarounds
  *     --reduceOpsTaskSplitting
  *     --dontReduceOpsTaskSplitting
