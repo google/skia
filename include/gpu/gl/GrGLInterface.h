@@ -181,6 +181,7 @@ public:
         GrGLFunction<GrGLMapBufferRangeFn> fMapBufferRange;
         GrGLFunction<GrGLMapBufferSubDataFn> fMapBufferSubData;
         GrGLFunction<GrGLMapTexSubImage2DFn> fMapTexSubImage2D;
+        GrGLFunction<GrGLMemoryBarrierFn> fMemoryBarrier;
         GrGLFunction<GrGLMultiDrawArraysIndirectFn> fMultiDrawArraysIndirect;
         GrGLFunction<GrGLMultiDrawElementsIndirectFn> fMultiDrawElementsIndirect;
         GrGLFunction<GrGLPatchParameteriFn> fPatchParameteri;

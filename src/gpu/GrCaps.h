@@ -87,6 +87,11 @@ public:
 
     bool avoidWritePixelsFastPath() const { return fAvoidWritePixelsFastPath; }
 
+    // http://skbug.com/9739
+    bool requiresManualFBBarrierAfterTessellatedStencilDraw() const {
+        return fRequiresManualFBBarrierAfterTessellatedStencilDraw;
+    }
+
     /**
      * Indicates the capabilities of the fixed function blend unit.
      */
@@ -515,6 +520,7 @@ protected:
     bool fDriverBlacklistMSAACCPR                    : 1;
     bool fAvoidStencilBuffers                        : 1;
     bool fAvoidWritePixelsFastPath                   : 1;
+    bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
