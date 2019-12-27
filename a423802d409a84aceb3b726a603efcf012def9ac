@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85181df2_5c4fa394",
+        "filename": "src/gpu/gl/mac/GrGLMakeNativeInterface_mac.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-27T17:42:38Z",
+      "side": 1,
+      "message": "Oops. This should probably just be GLInterface...",
+      "range": {
+        "startLine": 22,
+        "startChar": 30,
+        "endLine": 22,
+        "endChar": 32
+      },
+      "revId": "a423802d409a84aceb3b726a603efcf012def9ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
