@@ -26,6 +26,9 @@ static DEFINE_string(pr, "",
               "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
               "[~]small [~]tess] [~]all");
 
+static DEFINE_int(internalSamples, 4,
+                  "Number of samples for internal draws that use MSAA or mixed samples.");
+
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
 
@@ -87,6 +90,7 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fAllowPathMaskCaching                = FLAGS_cachePathMasks;
     ctxOptions->fSuppressGeometryShaders             = FLAGS_noGS;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
+    ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
 
     if (FLAGS_reduceOpsTaskSplitting) {
