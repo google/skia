@@ -22,6 +22,30 @@
       "revId": "03a3c196291b72e5d8fdd546772d1b86dd4b8c1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05e55836_6b91e1b9",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-27T17:18:25Z",
+      "side": 1,
+      "message": "I\u0027m so dumb. But even if I got the assert right, it\u0027s still wrong. The premul step when computing the boosted colors can produce zeros in r,g,b when alpha is small. All we can do is verify that if the channel is zero for all inputs then the outputs are all zeros, which we can do by initializing the fpPreColorModulation to zeros.",
+      "parentUuid": "647e7634_c9924ad2",
+      "range": {
+        "startLine": 403,
+        "startChar": 12,
+        "endLine": 403,
+        "endChar": 95
+      },
+      "revId": "03a3c196291b72e5d8fdd546772d1b86dd4b8c1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
