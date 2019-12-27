@@ -49,6 +49,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fPreferFlatInterpolation = false;
     fNoPerspectiveInterpolationSupport = false;
     fSampleMaskSupport = false;
+    fTessellationSupport = false;
     fExternalTextureSupport = false;
     fVertexIDSupport = false;
     fFPManipulationSupport = false;
@@ -70,6 +71,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fSecondExternalTextureExtensionString = nullptr;
     fNoPerspectiveInterpolationExtensionString = nullptr;
     fSampleVariablesExtensionString = nullptr;
+    fTessellationExtensionString = nullptr;
     fFBFetchColorName = nullptr;
     fFBFetchExtensionString = nullptr;
     fMaxFragmentSamplers = 0;
@@ -129,6 +131,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
     writer->appendBool("No perspective interpolation support", fNoPerspectiveInterpolationSupport);
     writer->appendBool("Sample mask support", fSampleMaskSupport);
+    writer->appendBool("Tessellation Support", fTessellationSupport);
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
     writer->appendBool("Floating point manipulation support", fFPManipulationSupport);

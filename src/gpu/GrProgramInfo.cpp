@@ -121,10 +121,15 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
     }
 }
 
-void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) const {
+void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount,
+                                         const GrCaps& caps) const {
     SkASSERT(!fNumDynamicStateArrays || meshCount == fNumDynamicStateArrays);
 
     for (int i = 0; i < meshCount; ++i) {
+        SkASSERT(fPrimitiveType == meshes[i].primitiveType());
+        if (GrPrimitiveType::kPatches == fPrimitiveType) {
+            SkASSERT(fTessellationPatchVertexCount == meshes[i].tessellationPatchVertexCount());
+        }
         SkASSERT(fPrimProc->hasVertexAttributes() == SkToBool(meshes[i].vertexBuffer()));
         SkASSERT(fPrimProc->hasInstanceAttributes() == SkToBool(meshes[i].instanceBuffer()));
         if (fPipeline->usesConservativeRaster()) {
@@ -133,6 +138,10 @@ void GrProgramInfo::compatibleWithMeshes(const GrMesh meshes[], int meshCount) c
             // query or track that info.
             SkASSERT(GrIsPrimTypeTris(meshes[i].primitiveType()));
         }
+        SkASSERT(GrPrimitiveType::kPatches != meshes[i].primitiveType() ||
+                 caps.shaderCaps()->tessellationSupport());
+        SkASSERT(GrPrimitiveRestart::kNo == meshes[i].primitiveRestart() ||
+                 caps.usePrimitiveRestart());
     }
 }
 

@@ -166,6 +166,15 @@ bool GrGLInterface::validate() const {
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
+          (glVer >= GR_GL_VER(4,0)) ||
+          fExtensions.has("GL_ARB_tessellation_shader"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          (glVer >= GR_GL_VER(3,2)) ||
+          fExtensions.has("GL_OES_tessellation_shader")))) {
+        // all functions were marked optional or test_only
+    }
+
+    if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(3,0)))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0) && fExtensions.has("GL_EXT_blend_func_extended"))))) {

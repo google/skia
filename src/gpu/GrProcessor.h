@@ -158,6 +158,8 @@ public:
         kStencilResolveProcessor_ClassID,
         kFwidthSquircleTestProcessor_ClassID,
         kSwizzleFragmentProcessor_ClassID,
+        kTessellationTestTriShader_ClassID,
+        kTessellationTestRectShader_ClassID,
         kTestFP_ClassID,
         kTestRectOp_ClassID,
         kFlatNormalsFP_ClassID,

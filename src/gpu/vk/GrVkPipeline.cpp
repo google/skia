@@ -160,6 +160,7 @@ static VkPrimitiveTopology gr_primitive_type_to_vk_topology(GrPrimitiveType prim
             return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
         case GrPrimitiveType::kLineStrip:
             return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+        case GrPrimitiveType::kPatches:
         case GrPrimitiveType::kPath:
             SK_ABORT("Unsupported primitive type");
     }

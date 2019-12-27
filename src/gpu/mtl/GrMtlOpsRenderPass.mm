@@ -116,7 +116,6 @@ void GrMtlOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         SkASSERT(nil != fActiveRenderCmdEncoder);
-        SkASSERT(mesh.primitiveType() == programInfo.primitiveType());
 
         if (hasDynamicScissors) {
             GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,

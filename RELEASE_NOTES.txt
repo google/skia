@@ -209,3 +209,5 @@ Milestone 78
 
   * Added RELEASE_NOTES.txt file
     https://review.skia.org/229760
+
+  * Implemented internal support for OpenGL tessellation.

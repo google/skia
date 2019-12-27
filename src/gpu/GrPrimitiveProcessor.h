@@ -164,9 +164,13 @@ public:
     size_t vertexStride() const { return fVertexAttributes.fStride; }
     size_t instanceStride() const { return fInstanceAttributes.fStride; }
 
-    // Only the GrGeometryProcessor subclass actually has a geo shader or vertex attributes, but
-    // we put these calls on the base class to prevent having to cast
-    virtual bool willUseGeoShader() const = 0;
+    bool willUseTessellationShaders() const {
+        return fShaders & (kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag);
+    }
+
+    bool willUseGeoShader() const {
+        return fShaders & kGeometry_GrShaderFlag;
+    }
 
     /**
      * Computes a key for the transforms owned by an FP based on the shader code that will be
@@ -206,6 +210,17 @@ public:
 
     virtual bool isPathRendering() const { return false; }
 
+    // We use these methods as a temporary back door to inject OpenGL tessellation code. Once
+    // tessellation is supported by SkSL we can remove these.
+    virtual SkString getTessControlShaderGLSL(const char* versionAndExtensionDecls,
+                                              const GrShaderCaps&) const {
+        SK_ABORT("Not implemented.");
+    }
+    virtual SkString getTessEvaluationShaderGLSL(const char* versionAndExtensionDecls,
+                                                 const GrShaderCaps&) const {
+        SK_ABORT("Not implemented.");
+    }
+
 protected:
     void setVertexAttributes(const Attribute* attrs, int attrCount) {
         fVertexAttributes.init(attrs, attrCount);
@@ -214,6 +229,10 @@ protected:
         SkASSERT(attrCount >= 0);
         fInstanceAttributes.init(attrs, attrCount);
     }
+    void setWillUseTessellationShaders() {
+        fShaders |= kTessControl_GrShaderFlag | kTessEvaluation_GrShaderFlag;
+    }
+    void setWillUseGeoShader() { fShaders |= kGeometry_GrShaderFlag; }
     void setTextureSamplerCnt(int cnt) {
         SkASSERT(cnt >= 0);
         fTextureSamplerCnt = cnt;
@@ -232,6 +251,8 @@ protected:
 
 private:
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
+
+    GrShaderFlags fShaders = kVertex_GrShaderFlag | kFragment_GrShaderFlag;
 
     AttributeSet fVertexAttributes;
     AttributeSet fInstanceAttributes;

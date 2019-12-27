@@ -158,6 +158,12 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC_SUFFIX(GenVertexArrays, OES);
     }
 
+    if (glVer >= GR_GL_VER(3,2)) {
+        GET_PROC(PatchParameteri);
+    } else if (extensions.has("GL_OES_tessellation_shader")) {
+        GET_PROC_SUFFIX(PatchParameteri, OES);
+    }
+
     if (glVer >= GR_GL_VER(3,0) && extensions.has("GL_EXT_blend_func_extended")) {
         GET_PROC_SUFFIX(BindFragDataLocation, EXT);
     }

@@ -26,7 +26,8 @@ public:
                   const GrPipeline::FixedDynamicState* fixedDynamicState,
                   const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                   int numDynamicStateArrays,
-                  GrPrimitiveType primitiveType)
+                  GrPrimitiveType primitiveType,
+                  uint8_t tessellationPatchVertexCount = 0)
             : fNumRasterSamples(pipeline->isStencilEnabled() ? numStencilSamples : numSamples)
             , fIsMixedSampled(fNumRasterSamples > numSamples)
             , fBackendFormat(backendFormat)
@@ -36,8 +37,11 @@ public:
             , fFixedDynamicState(fixedDynamicState)
             , fDynamicStateArrays(dynamicStateArrays)
             , fNumDynamicStateArrays(numDynamicStateArrays)
-            , fPrimitiveType(primitiveType) {
+            , fPrimitiveType(primitiveType)
+            , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
         SkASSERT(fNumRasterSamples > 0);
+        SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
+                 (fTessellationPatchVertexCount > 0));
         fRequestedFeatures = fPrimProc->requestedFeatures();
         for (int i = 0; i < fPipeline->numFragmentProcessors(); ++i) {
             fRequestedFeatures |= fPipeline->getFragmentProcessor(i).requestedFeatures();
@@ -101,6 +105,14 @@ public:
     }
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
+    uint8_t tessellationPatchVertexCount() const {
+        SkASSERT(GrPrimitiveType::kPatches == fPrimitiveType);
+        return fTessellationPatchVertexCount;
+    }
+
+    uint16_t primitiveTypeKey() const {
+        return ((uint16_t)fPrimitiveType << 8) | fTessellationPatchVertexCount;
+    }
 
     // For Dawn, Metal and Vulkan the number of stencil bits is known a priori so we can
     // create the stencil settings here.
@@ -114,7 +126,7 @@ public:
     void validate(bool flushTime) const;
     void checkAllInstantiated() const;
     void checkMSAAAndMIPSAreResolved() const;
-    void compatibleWithMeshes(const GrMesh meshes[], int meshCount) const;
+    void compatibleWithMeshes(const GrMesh meshes[], int meshCount, const GrCaps&) const;
 
     bool isNVPR() const {
         return fPrimProc->isPathRendering() && !fPrimProc->willUseGeoShader() &&
@@ -134,6 +146,7 @@ private:
     const int                             fNumDynamicStateArrays;
     GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
+    uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
 };
 
 #endif

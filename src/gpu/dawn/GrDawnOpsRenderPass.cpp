@@ -167,7 +167,6 @@ void GrDawnOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
         fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
     }
     for (int i = 0; i < meshCount; ++i) {
-        SkASSERT(meshes[i].primitiveType() == programInfo.primitiveType());
         if (programInfo.hasDynamicPrimProcTextures()) {
             auto textures = programInfo.dynamicPrimProcTextures(i);
             auto bindGroup = program->setTextures(fGpu, programInfo, textures);

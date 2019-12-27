@@ -344,6 +344,7 @@ gm_sources = [
   "$_gm/surface.cpp",
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
+  "$_gm/tessellation.cpp",
   "$_gm/testgradient.cpp",
   "$_gm/text_scale_skew.cpp",
   "$_gm/textblob.cpp",

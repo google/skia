@@ -26,15 +26,9 @@
  */
 class GrGeometryProcessor : public GrPrimitiveProcessor {
 public:
-    GrGeometryProcessor(ClassID classID)
-        : INHERITED(classID)
-        , fWillUseGeoShader(false) {}
-
-    bool willUseGeoShader() const final { return fWillUseGeoShader; }
+    GrGeometryProcessor(ClassID classID) : INHERITED(classID) {}
 
 protected:
-    void setWillUseGeoShader() { fWillUseGeoShader = true; }
-
     // GPs that need to use either float or ubyte colors can just call this to get a correctly
     // configured Attribute struct
     static Attribute MakeColorAttribute(const char* name, bool wideColor) {
@@ -44,8 +38,6 @@ protected:
     }
 
 private:
-    bool fWillUseGeoShader;
-
     typedef GrPrimitiveProcessor INHERITED;
 };
 

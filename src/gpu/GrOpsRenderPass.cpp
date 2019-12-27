@@ -49,7 +49,7 @@ bool GrOpsRenderPass::draw(const GrProgramInfo& programInfo,
     SkASSERT(!programInfo.pipeline().isWireframe() ||
              this->gpu()->caps()->wireframeSupport());
 
-    programInfo.compatibleWithMeshes(meshes, meshCount);
+    programInfo.compatibleWithMeshes(meshes, meshCount, *this->gpu()->caps());
     programInfo.checkAllInstantiated();
     programInfo.checkMSAAAndMIPSAreResolved();
 #endif
