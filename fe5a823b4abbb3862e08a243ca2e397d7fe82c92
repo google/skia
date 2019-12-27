@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d6d63bf_bec6719f",
+        "filename": "gm/runtimeshader.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2019-12-27T21:35:23Z",
+      "side": 1,
+      "message": "lol",
+      "range": {
+        "startLine": 32,
+        "startChar": 8,
+        "endLine": 32,
+        "endChar": 56
+      },
+      "revId": "fe5a823b4abbb3862e08a243ca2e397d7fe82c92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
