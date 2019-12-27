@@ -5,24 +5,59 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
-#ifdef SK_BUILD_FOR_MAC
+#if defined(SK_BUILD_FOR_MAC)
 
-#include "include/gpu/gl/GrGLInterface.h"
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/private/SkTemplates.h"
+#include "include/gpu/gl/GrGLInterface.h"
 
 #include <dlfcn.h>
-#include <memory>
+
+class GLLoader {
+public:
+    GLLoader() {
+        fLibrary = dlopen(
+                    "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+                    RTLD_LAZY);
+    }
+
+    ~GLLoader() {
+        if (fLibrary) {
+            dlclose(fLibrary);
+        }
+    }
+
+    void* handle() const {
+        return nullptr == fLibrary ? RTLD_DEFAULT : fLibrary;
+    }
+
+private:
+    void* fLibrary;
+};
+
+class GLProcGetter {
+public:
+    GLProcGetter() {}
+
+    GrGLFuncPtr getProc(const char name[]) const {
+        return (GrGLFuncPtr) dlsym(fLoader.handle(), name);
+    }
+
+private:
+    GLLoader fLoader;
+};
+
+static GrGLFuncPtr mac_get_gl_proc(void* ctx, const char name[]) {
+    SkASSERT(ctx);
+    const GLProcGetter* getter = (const GLProcGetter*) ctx;
+    return getter->getProc(name);
+}
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
-    static const char kPath[] =
-        "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
-    std::unique_ptr<void, SkFunctionWrapper<int(void*), dlclose>> lib(dlopen(kPath, RTLD_LAZY));
-    return GrGLMakeAssembledGLESInterface(lib.get(), [](void* ctx, const char* name) {
-            return (GrGLFuncPtr)dlsym(ctx ? ctx : RTLD_DEFAULT, name); });
+    GLProcGetter getter;
+    return GrGLMakeAssembledGLInterface(&getter, mac_get_gl_proc);
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
 
-#endif  // SK_BUILD_FOR_MAC
+#endif//defined(SK_BUILD_FOR_MAC)
