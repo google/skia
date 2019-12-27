@@ -369,7 +369,7 @@ sk_imagefilter_t* sk_imagefilter_new_xfermode(
     return ToImageFilter(filter.release());
 }
 
-SK_API sk_imagefilter_t* sk_imagefilter_new_arithmetic(
+sk_imagefilter_t* sk_imagefilter_new_arithmetic(
     float k1, float k2, float k3, float k4,
     bool enforcePMColor,
     sk_imagefilter_t* background,
