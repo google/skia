@@ -911,7 +911,7 @@ func (b *builder) createDockerImage(name, imageName, imageDir string) string {
 }
 
 // createPushAppsFromSkiaDockerImage creates and pushes docker images of some apps
-// (eg: fiddler, debugger, api) using the skia-release-v2 docker image.
+// (eg: fiddler, debugger, api) using the skia-release docker image.
 func (b *builder) createPushAppsFromSkiaDockerImage(name string) string {
 	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
 	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
@@ -937,7 +937,7 @@ func (b *builder) createPushAppsFromSkiaDockerImage(name string) string {
 		},
 		Dependencies: []string{
 			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release-v2", filepath.Join("docker", "skia-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", filepath.Join("docker", "skia-release")),
 		},
 		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
@@ -951,7 +951,7 @@ func (b *builder) createPushAppsFromSkiaDockerImage(name string) string {
 }
 
 // createPushAppsFromWASMDockerImage creates and pushes docker images of some apps
-// (eg: jsfiddle, skottie, particles) using the skia-wasm-release-v2 docker image.
+// (eg: jsfiddle, skottie, particles) using the skia-wasm-release docker image.
 func (b *builder) createPushAppsFromWASMDockerImage(name string) string {
 	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
 	cipd = append(cipd, b.MustGetCipdPackageFromAsset("go"))
@@ -977,7 +977,7 @@ func (b *builder) createPushAppsFromWASMDockerImage(name string) string {
 		},
 		Dependencies: []string{
 			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release-v2", filepath.Join("docker", "skia-wasm-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", filepath.Join("docker", "skia-wasm-release")),
 		},
 		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
@@ -991,7 +991,7 @@ func (b *builder) createPushAppsFromWASMDockerImage(name string) string {
 }
 
 // createPushAppsFromSkiaWASMDockerImages creates and pushes docker images of some apps
-// (eg: debugger-assets) using the skia-release-v2 and skia-wasm-release-v2
+// (eg: debugger-assets) using the skia-release and skia-wasm-release
 // docker images.
 func (b *builder) createPushAppsFromSkiaWASMDockerImages(name string) string {
 	cipd := append([]*specs.CipdPackage{}, specs.CIPD_PKGS_GIT...)
@@ -1018,8 +1018,8 @@ func (b *builder) createPushAppsFromSkiaWASMDockerImages(name string) string {
 		},
 		Dependencies: []string{
 			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release-v2", filepath.Join("docker", "skia-release")),
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release-v2", filepath.Join("docker", "skia-wasm-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", filepath.Join("docker", "skia-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", filepath.Join("docker", "skia-wasm-release")),
 		},
 		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
@@ -1600,9 +1600,9 @@ func (b *builder) process(name string) {
 	// Create docker image.
 	if strings.Contains(name, "CreateDockerImage") {
 		if strings.Contains(parts["extra_config"], "Skia_Release") {
-			deps = append(deps, b.createDockerImage(name, "skia-release-v2", filepath.Join("docker", "skia-release")))
+			deps = append(deps, b.createDockerImage(name, "skia-release", filepath.Join("docker", "skia-release")))
 		} else if strings.Contains(parts["extra_config"], "Skia_WASM_Release") {
-			deps = append(deps, b.createDockerImage(name, "skia-wasm-release-v2", filepath.Join("docker", "skia-wasm-release")))
+			deps = append(deps, b.createDockerImage(name, "skia-wasm-release", filepath.Join("docker", "skia-wasm-release")))
 		}
 	}
 
