@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6de663f_7ee6cbc8",
+        "filename": "tests/ProcessorTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-27T14:52:30Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 373,
+        "startChar": 27,
+        "endLine": 373,
+        "endChar": 32
+      },
+      "revId": "f521deb4f480ab02ddc90ff0978ce4b8f7ebb985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
