@@ -16,25 +16,28 @@
 
 std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
                                                                  SkAlphaType alphaType,
+                                                                 SkBlendMode mode,
                                                                  const SkMatrix& matrix,
                                                                  GrSamplerState::Filter filter) {
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), alphaType, matrix,
+            new GrSimpleTextureEffect(std::move(proxy), alphaType, mode, matrix,
                                       GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
                                                                  SkAlphaType alphaType,
+                                                                 SkBlendMode mode,
                                                                  const SkMatrix& matrix,
                                                                  GrSamplerState sampler) {
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), alphaType, matrix, sampler));
+            new GrSimpleTextureEffect(std::move(proxy), alphaType, mode, matrix, sampler));
 }
 
 GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
+            const auto& ste = args.fFp.cast<GrSimpleTextureEffect>();
             const char* coords;
             GrSLType coordsType;
             if (args.fFp.coordTransformsApplyToLocalCoords()) {
@@ -46,8 +49,8 @@ GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
             }
             auto* fb = args.fFragBuilder;
             fb->codeAppendf("%s = ", args.fOutputColor);
-            fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                            args.fTexSamplers[0], coords, coordsType);
+            fb->appendTextureLookupAndBlend(args.fInputColor, ste.fMode, args.fTexSamplers[0],
+                                            coords, coordsType);
             fb->codeAppendf(";");
         }
     };
@@ -65,11 +68,13 @@ static inline bool uses_border(const GrSamplerState s) {
 }
 
 GrSimpleTextureEffect::GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alphaType,
-                                             const SkMatrix& matrix, GrSamplerState sampler)
+                                             SkBlendMode mode, const SkMatrix& matrix,
+                                             GrSamplerState sampler)
         : GrFragmentProcessor(kGrSimpleTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, uses_border(sampler)))
         , fCoordTransform(matrix, texture.get())
-        , fSampler(std::move(texture), sampler) {
+        , fSampler(std::move(texture), sampler)
+        , fMode(mode) {
     this->setTextureSamplerCnt(1);
     this->addCoordTransform(&fCoordTransform);
 }
@@ -109,6 +114,8 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    return GrSimpleTextureEffect::Make(std::move(proxy), at, matrix, params);
+    SkBlendMode mode = GrTest::TestBlendMode(testData->fRandom);
+
+    return GrSimpleTextureEffect::Make(std::move(proxy), at, mode, matrix, params);
 }
 #endif

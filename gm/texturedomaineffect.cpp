@@ -127,7 +127,8 @@ protected:
                         continue;
                     }
                     auto fp1 = GrSimpleTextureEffect::Make(proxy, fBitmap.alphaType(),
-                                                           textureMatrices[tm], fFilter);
+                                                           SkBlendMode::kSrc, textureMatrices[tm],
+                                                           fFilter);
                     fp1 = GrDomainEffect::Make(
                             std::move(fp1), GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
                             mode, fFilter);

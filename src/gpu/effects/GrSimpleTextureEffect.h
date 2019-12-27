@@ -13,20 +13,24 @@
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
+/**
+ * Samples a texture using a coord transform to compute the texture coordinates.
+ * The input color is blended with the color read from the texture using the passed
+ * SkBlendMode.
+ */
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
     /** Uses kClamp wrap mode in both dimensions. */
     static std::unique_ptr<GrFragmentProcessor> Make(
             sk_sp<GrSurfaceProxy>,
             SkAlphaType,
+            SkBlendMode,
             const SkMatrix&,
             GrSamplerState::Filter = GrSamplerState::Filter::kNearest);
 
     /** Allows full specification of the sampling parameters. */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
-                                                     SkAlphaType,
-                                                     const SkMatrix&,
-                                                     GrSamplerState);
+    static std::unique_ptr<GrFragmentProcessor> Make(
+            sk_sp<GrSurfaceProxy>, SkAlphaType, SkBlendMode, const SkMatrix&, GrSamplerState);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -35,10 +39,11 @@ public:
 private:
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
+    SkBlendMode fMode;
 
     GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
 
-    inline GrSimpleTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&,
+    inline GrSimpleTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, SkBlendMode, const SkMatrix&,
                                  GrSamplerState);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;

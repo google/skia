@@ -188,7 +188,7 @@ std::unique_ptr<GrFragmentProcessor> ComposeTwoFragmentProcessor::TestCreate(
 
     SkBlendMode mode;
     do {
-        mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0, (int)SkBlendMode::kLastMode));
+        mode = GrTest::TestBlendMode(d->fRandom);
     } while (SkBlendMode::kClear == mode || SkBlendMode::kSrc == mode || SkBlendMode::kDst == mode);
     return std::unique_ptr<GrFragmentProcessor>(
             new ComposeTwoFragmentProcessor(std::move(fpA), std::move(fpB), mode));
@@ -469,7 +469,7 @@ std::unique_ptr<GrFragmentProcessor> ComposeOneFragmentProcessor::TestCreate(
     SkBlendMode mode;
     ComposeOneFragmentProcessor::Child child;
     do {
-        mode = static_cast<SkBlendMode>(d->fRandom->nextRangeU(0, (int)SkBlendMode::kLastMode));
+        mode = GrTest::TestBlendMode(d->fRandom);
         child = d->fRandom->nextBool() ? kDst_Child : kSrc_Child;
     } while (SkBlendMode::kClear == mode || (SkBlendMode::kDst == mode && child == kSrc_Child) ||
              (SkBlendMode::kSrc == mode && child == kDst_Child));

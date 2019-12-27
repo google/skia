@@ -41,6 +41,7 @@ const SkMatrix& TestMatrixRectStaysRect(SkRandom*);
 const SkMatrix& TestMatrixInvertible(SkRandom*);
 const SkMatrix& TestMatrixPerspective(SkRandom*);
 void TestWrapModes(SkRandom*, GrSamplerState::WrapMode[2]);
+SkBlendMode TestBlendMode(SkRandom*);
 const SkRect& TestRect(SkRandom*);
 const SkRect& TestSquare(SkRandom*);
 const SkRRect& TestRRectSimple(SkRandom*);

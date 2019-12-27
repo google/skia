@@ -202,9 +202,9 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
 
         std::unique_ptr<GrFragmentProcessor> fp;
         if (canvas2DFastPath) {
-            fp = direct->priv().createPMToUPMEffect(
-                    GrSimpleTextureEffect::Make(sk_ref_sp(srcProxy->asTextureProxy()),
-                                                this->colorInfo().alphaType(), SkMatrix::I()));
+            fp = direct->priv().createPMToUPMEffect(GrSimpleTextureEffect::Make(
+                    sk_ref_sp(srcProxy->asTextureProxy()), this->colorInfo().alphaType(),
+                    SkBlendMode::kSrc, SkMatrix::I()));
             if (dstInfo.colorType() == GrColorType::kBGRA_8888) {
                 fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
                 dstInfo = dstInfo.makeColorType(GrColorType::kRGBA_8888);
@@ -215,7 +215,8 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
             dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
         } else {
             fp = GrSimpleTextureEffect::Make(sk_ref_sp(srcProxy->asTextureProxy()),
-                                             this->colorInfo().alphaType(), SkMatrix::I());
+                                             this->colorInfo().alphaType(), SkBlendMode::kSrc,
+                                             SkMatrix::I());
         }
         if (!fp) {
             return false;
@@ -395,13 +396,14 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
             std::unique_ptr<GrFragmentProcessor> fp;
             if (canvas2DFastPath) {
                 fp = direct->priv().createUPMToPMEffect(GrSimpleTextureEffect::Make(
-                        std::move(tempProxy), alphaType, SkMatrix::I()));
+                        std::move(tempProxy), alphaType, SkBlendMode::kSrc, SkMatrix::I()));
                 // Important: check the original src color type here!
                 if (origSrcInfo.colorType() == GrColorType::kBGRA_8888) {
                     fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
                 }
             } else {
-                fp = GrSimpleTextureEffect::Make(std::move(tempProxy), alphaType, SkMatrix::I());
+                fp = GrSimpleTextureEffect::Make(std::move(tempProxy), alphaType, SkBlendMode::kSrc,
+                                                 SkMatrix::I());
             }
             if (!fp) {
                 return false;

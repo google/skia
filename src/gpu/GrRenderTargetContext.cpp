@@ -1812,8 +1812,10 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(yM, 15, 0.f);
     std::copy_n(baseM + 0, 5, yM + 15);
     GrPaint yPaint;
-    yPaint.addColorTextureProcessor(srcProxy, this->colorInfo().alphaType(), texMatrix);
-    auto yFP = GrColorMatrixFragmentProcessor::Make(yM, false, true, false);
+    auto yFP = GrSimpleTextureEffect::Make(srcProxy, this->colorInfo().alphaType(),
+                                           SkBlendMode::kSrc, texMatrix);
+    yPaint.addColorFragmentProcessor(std::move(yFP));
+    yFP = GrColorMatrixFragmentProcessor::Make(yM, false, true, false);
     yPaint.addColorFragmentProcessor(std::move(yFP));
     yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     yRTC->fillRectToRect(GrNoClip(), std::move(yPaint), GrAA::kNo, SkMatrix::I(),
@@ -1831,9 +1833,11 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(uM, 15, 0.f);
     std::copy_n(baseM + 5, 5, uM + 15);
     GrPaint uPaint;
-    uPaint.addColorTextureProcessor(srcProxy, this->colorInfo().alphaType(), texMatrix,
-                                    GrSamplerState::ClampBilerp());
-    auto uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
+    auto uFP =
+            GrSimpleTextureEffect::Make(srcProxy, this->colorInfo().alphaType(), SkBlendMode::kSrc,
+                                        texMatrix, GrSamplerState::ClampBilerp());
+    uPaint.addColorFragmentProcessor(std::move(uFP));
+    uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
     uPaint.addColorFragmentProcessor(std::move(uFP));
     uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     uRTC->fillRectToRect(GrNoClip(), std::move(uPaint), GrAA::kNo, SkMatrix::I(),
@@ -1850,9 +1854,11 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(vM, 15, 0.f);
     std::copy_n(baseM + 10, 5, vM + 15);
     GrPaint vPaint;
-    vPaint.addColorTextureProcessor(srcProxy, this->colorInfo().alphaType(), texMatrix,
-                                    GrSamplerState::ClampBilerp());
-    auto vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
+    auto vFP =
+            GrSimpleTextureEffect::Make(srcProxy, this->colorInfo().alphaType(), SkBlendMode::kSrc,
+                                        texMatrix, GrSamplerState::ClampBilerp());
+    vPaint.addColorFragmentProcessor(std::move(vFP));
+    vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
     vPaint.addColorFragmentProcessor(std::move(vFP));
     vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     vRTC->fillRectToRect(GrNoClip(), std::move(vPaint), GrAA::kNo, SkMatrix::I(),
@@ -2371,7 +2377,8 @@ bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcR
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    auto fp = GrSimpleTextureEffect::Make(sk_ref_sp(src), kUnknown_SkAlphaType, SkMatrix::I());
+    auto fp = GrSimpleTextureEffect::Make(sk_ref_sp(src), kUnknown_SkAlphaType, SkBlendMode::kSrc,
+                                          SkMatrix::I());
     if (!fp) {
         return false;
     }

@@ -59,7 +59,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
     GrPaint paint;
 
     auto fp = GrSimpleTextureEffect::Make(std::move(inputProxy), kUnknown_SkAlphaType,
-                                          SkMatrix::I(), copyParams.fFilter);
+                                          SkBlendMode::kSrc, SkMatrix::I(), copyParams.fFilter);
     if (needsDomain) {
         const SkRect domain = localRect.makeInset(0.5f, 0.5f);
         // This would cause us to read values from outside the subset. Surely, the caller knows
@@ -205,8 +205,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                                                     ? GrSamplerState::WrapMode::kClampToBorder
                                                     : GrSamplerState::WrapMode::kClamp;
         GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
-        auto fp = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix,
-                                              samplerState);
+        auto fp = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType,
+                                              SkBlendMode::kModulate, textureMatrix, samplerState);
         if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
             GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
                                                                : GrTextureDomain::kClamp_Mode;

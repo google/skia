@@ -54,6 +54,11 @@ static const SkMatrix& test_matrix(SkRandom* random,
 namespace GrTest {
 const SkMatrix& TestMatrix(SkRandom* random) { return test_matrix(random, true, true); }
 
+SkBlendMode TestBlendMode(SkRandom* random) {
+    static constexpr uint32_t kLimit = static_cast<uint32_t>(SkBlendMode::kLastMode) + 1;
+    return static_cast<SkBlendMode>(random->nextULessThan(kLimit));
+}
+
 const SkMatrix& TestMatrixPreservesRightAngles(SkRandom* random) {
     static SkMatrix gMatrices[5];
     static bool gOnce;

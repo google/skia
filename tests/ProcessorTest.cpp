@@ -236,7 +236,9 @@ void test_draw_op(GrContext* context,
                   sk_sp<GrTextureProxy> inputDataProxy,
                   SkAlphaType inputAlphaType) {
     GrPaint paint;
-    paint.addColorTextureProcessor(std::move(inputDataProxy), inputAlphaType, SkMatrix::I());
+    auto textureFP = GrSimpleTextureEffect::Make(std::move(inputDataProxy), inputAlphaType,
+                                                 SkBlendMode::kSrc, SkMatrix::I());
+    paint.addColorFragmentProcessor(std::move(textureFP));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

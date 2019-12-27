@@ -1073,7 +1073,8 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
 
         GrSurfaceProxy* proxy = proxyView.proxy();
         std::unique_ptr<GrFragmentProcessor> fp;
-        fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
+        fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkBlendMode::kModulate,
+                                         SkMatrix::I(), filter);
         if (domain) {
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any
             // normalization since GrTextureDomainEffect handles that and the origin.

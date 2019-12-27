@@ -88,7 +88,9 @@ public:
         std::unique_ptr<GrFragmentProcessor> upmToPM(
                 new GrConfigConversionEffect(PMConversion::kToPremul));
 
-        paint1.addColorTextureProcessor(dataProxy, kPremul_SkAlphaType, SkMatrix::I());
+        auto textureFP = GrSimpleTextureEffect::Make(dataProxy, kPremul_SkAlphaType,
+                                                     SkBlendMode::kSrc, SkMatrix::I());
+        paint1.addColorFragmentProcessor(std::move(textureFP));
         paint1.addColorFragmentProcessor(pmToUPM->clone());
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -102,16 +104,18 @@ public:
         // draw
         tempRTC->discard();
 
-        paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), kUnpremul_SkAlphaType,
-                                        SkMatrix::I());
+        textureFP = GrSimpleTextureEffect::Make(readRTC->asTextureProxyRef(), kUnpremul_SkAlphaType,
+                                                SkBlendMode::kSrc, SkMatrix::I());
+        paint2.addColorFragmentProcessor(std::move(textureFP));
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
-        paint3.addColorTextureProcessor(tempRTC->asTextureProxyRef(), kPremul_SkAlphaType,
-                                        SkMatrix::I());
+        textureFP = GrSimpleTextureEffect::Make(tempRTC->asTextureProxyRef(), kPremul_SkAlphaType,
+                                                SkBlendMode::kSrc, SkMatrix::I());
+        paint3.addColorFragmentProcessor(std::move(textureFP));
         paint3.addColorFragmentProcessor(std::move(pmToUPM));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
