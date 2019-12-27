@@ -73,6 +73,7 @@ public:
 
     size_t vertexStride() const;
     size_t colorOffset() const;
+    size_t texCoordOffset() const;
     char* quadStart(size_t index) const;
 
     const SkRect& vertexBounds() const;
@@ -84,6 +85,7 @@ public:
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
+    void updateTexCoord(size_t index);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -211,6 +213,21 @@ size_t GrTextBlob::SubRun::vertexStride() const {
 size_t GrTextBlob::SubRun::colorOffset() const {
     return this->hasW() ? offsetof(SDFT3DVertex, color) : offsetof(Mask2DVertex, color);
 }
+
+size_t GrTextBlob::SubRun::texCoordOffset() const {
+    switch (fMaskFormat) {
+        case kA8_GrMaskFormat:
+            return this->hasW() ? offsetof(SDFT3DVertex, atlasPos)
+                                : offsetof(Mask2DVertex, atlasPos);
+        case kARGB_GrMaskFormat:
+            return this->hasW() ? offsetof(ARGB3DVertex, atlasPos)
+                                : offsetof(ARGB2DVertex, atlasPos);
+        default:
+            SkASSERT(!this->hasW());
+            return offsetof(Mask2DVertex, atlasPos);
+    }
+}
+
 char* GrTextBlob::SubRun::quadStart(size_t index) const {
     return SkTAddOffset<char>(
             fVertexData.data(), index * kVerticesPerGlyph * this->vertexStride());
@@ -284,6 +301,56 @@ void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
         }
         this->fCurrentColor = newColor;
     }
+}
+
+void GrTextBlob::SubRun::updateTexCoord(size_t index) {
+    GrGlyph* glyph = this->fGlyphs[index];
+    SkASSERT(glyph != nullptr);
+
+    int width = glyph->fBounds.width();
+    int height = glyph->fBounds.height();
+    uint16_t u0, v0, u1, v1;
+    if (this->drawAsDistanceFields()) {
+        u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
+        v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
+        u1 = u0 + width - 2 * SK_DistanceFieldInset;
+        v1 = v0 + height - 2 * SK_DistanceFieldInset;
+    } else {
+        u0 = glyph->fAtlasLocation.fX;
+        v0 = glyph->fAtlasLocation.fY;
+        u1 = u0 + width;
+        v1 = v0 + height;
+    }
+
+    // We pack the 2bit page index in the low bit of the u and v texture coords
+    uint32_t pageIndex = glyph->pageIndex();
+    SkASSERT(pageIndex < 4);
+    uint16_t uBit = (pageIndex >> 1u) & 0x1u;
+    uint16_t vBit = pageIndex & 0x1u;
+    u0 <<= 1u;
+    u0 |= uBit;
+    v0 <<= 1u;
+    v0 |= vBit;
+    u1 <<= 1u;
+    u1 |= uBit;
+    v1 <<= 1u;
+    v1 |= vBit;
+
+    char* vertex = this->quadStart(index);
+    size_t vertexStride = this->vertexStride();
+    size_t texCoordOffset = this->texCoordOffset();
+    uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
+    textureCoords[0] = u0;
+    textureCoords[1] = v0;
+    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    textureCoords[0] = u0;
+    textureCoords[1] = v1;
+    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    textureCoords[0] = u1;
+    textureCoords[1] = v0;
+    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    textureCoords[0] = u1;
+    textureCoords[1] = v1;
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -782,80 +849,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 }
 
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
-static void regen_texcoords(char* vertex, size_t vertexStride, const GrGlyph* glyph,
-                            bool useDistanceFields) {
-    // This is a bit wonky, but sometimes we have LCD text, in which case we won't have color
-    // vertices, hence vertexStride - sizeof(SkIPoint16)
-    size_t texCoordOffset = vertexStride - sizeof(SkIPoint16);
-
-    uint16_t u0, v0, u1, v1;
-    SkASSERT(glyph);
-    int width = glyph->fBounds.width();
-    int height = glyph->fBounds.height();
-
-    if (useDistanceFields) {
-        u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
-        v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
-        u1 = u0 + width - 2 * SK_DistanceFieldInset;
-        v1 = v0 + height - 2 * SK_DistanceFieldInset;
-    } else {
-        u0 = glyph->fAtlasLocation.fX;
-        v0 = glyph->fAtlasLocation.fY;
-        u1 = u0 + width;
-        v1 = v0 + height;
-    }
-    // We pack the 2bit page index in the low bit of the u and v texture coords
-    uint32_t pageIndex = glyph->pageIndex();
-    SkASSERT(pageIndex < 4);
-    uint16_t uBit = (pageIndex >> 1) & 0x1;
-    uint16_t vBit = pageIndex & 0x1;
-    u0 <<= 1;
-    u0 |= uBit;
-    v0 <<= 1;
-    v0 |= vBit;
-    u1 <<= 1;
-    u1 |= uBit;
-    v1 <<= 1;
-    v1 |= vBit;
-
-    uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-    textureCoords[0] = u0;
-    textureCoords[1] = v0;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u0;
-    textureCoords[1] = v1;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u1;
-    textureCoords[1] = v0;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u1;
-    textureCoords[1] = v1;
-
-#ifdef DISPLAY_PAGE_INDEX
-    // Enable this to visualize the page from which each glyph is being drawn.
-    // Green Red Magenta Cyan -> 0 1 2 3; Black -> error
-    GrColor hackColor;
-    switch (pageIndex) {
-        case 0:
-            hackColor = GrColorPackRGBA(0, 255, 0, 255);
-            break;
-        case 1:
-            hackColor = GrColorPackRGBA(255, 0, 0, 255);;
-            break;
-        case 2:
-            hackColor = GrColorPackRGBA(255, 0, 255, 255);
-            break;
-        case 3:
-            hackColor = GrColorPackRGBA(0, 255, 255, 255);
-            break;
-        default:
-            hackColor = GrColorPackRGBA(0, 0, 0, 255);
-            break;
-    }
-    regen_colors(vertex, vertexStride, hackColor);
-#endif
-}
-
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
                                                  const SkMatrix& drawMatrix,
@@ -946,7 +939,7 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         }
 
         if (fActions.regenTextureCoordinates) {
-            regen_texcoords(currVertex, vertexStride, glyph, fSubRun->drawAsDistanceFields());
+            fSubRun->updateTexCoord(glyphIdx);
         }
 
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
