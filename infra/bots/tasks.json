@@ -14224,7 +14224,12 @@
       "command": [
         "/bin/bash",
         "skia/infra/bots/build_task_drivers.sh",
-        "${ISOLATED_OUTDIR}"
+        "${ISOLATED_OUTDIR}",
+        "<(REPO)",
+        "<(REVISION)",
+        "<(ISSUE)",
+        "<(PATCHSET)",
+        "<(CODEREVIEW_SERVER)"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
