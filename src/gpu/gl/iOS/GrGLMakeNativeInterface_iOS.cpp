@@ -53,5 +53,3 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     GLProcGetter getter;
     return GrGLMakeAssembledGLESInterface(&getter, ios_get_gl_proc);
 }
-
-const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

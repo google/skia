@@ -33,5 +33,3 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
 
     return GrGLMakeAssembledInterface(nullptr, glx_get);
 }
-
-const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }

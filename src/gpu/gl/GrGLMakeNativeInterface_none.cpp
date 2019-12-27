@@ -8,5 +8,3 @@
 #include "include/gpu/gl/GrGLInterface.h"
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return nullptr; }
-
-const GrGLInterface* GrGLCreateNativeInterface() { return nullptr; }
