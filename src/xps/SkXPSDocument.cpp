@@ -52,6 +52,9 @@ SkXPSDocument::SkXPSDocument(SkWStream* stream,
 SkXPSDocument::~SkXPSDocument() {
     // subclasses must call close() in their destructors
     this->close();
+
+    // Release the factory if we have one.
+    if (fXpsFactory) fXpsFactory->Release();
 }
 
 SkCanvas* SkXPSDocument::onBeginPage(SkScalar width, SkScalar height) {
