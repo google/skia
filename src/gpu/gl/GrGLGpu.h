@@ -164,6 +164,8 @@ public:
     void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
     void deleteFramebuffer(GrGLuint fboid);
 
+    void insertManualFramebufferBarrier() override;
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 

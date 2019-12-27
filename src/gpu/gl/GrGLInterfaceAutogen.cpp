@@ -150,6 +150,13 @@ bool GrGLInterface::validate() const {
         }
     }
 
+    if ((GR_IS_GR_GL(fStandard) && (
+          (glVer >= GR_GL_VER(4,2)))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          (glVer >= GR_GL_VER(3,1))))) {
+        // all functions were marked optional or test_only
+    }
+
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||

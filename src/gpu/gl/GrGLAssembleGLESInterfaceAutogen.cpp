@@ -148,6 +148,10 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(GetStringi);
     }
 
+    if (glVer >= GR_GL_VER(3,1)) {
+        GET_PROC(MemoryBarrier);
+    }
+
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(BindVertexArray);
         GET_PROC(DeleteVertexArrays);
