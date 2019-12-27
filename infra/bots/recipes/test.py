@@ -282,6 +282,10 @@ def dm_flags(api, bot):
         blacklist('gltestprecompile gm _ atlastext')
         blacklist('gltestprecompile gm _ dftext')
         blacklist('gltestprecompile gm _ glyph_pos_h_b')
+        # Tessellation shaders do not yet participate in the persistent cache.
+        blacklist('gltestpersistentcache gm _ tessellation')
+        blacklist('gltestglslcache gm _ tessellation')
+        blacklist('gltestprecompile gm _ tessellation')
 
     # We also test the SkSL precompile config on Pixel2XL as a representative
     # Android device - this feature is primarily used by Flutter.

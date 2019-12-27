@@ -1153,7 +1153,7 @@ GrProgramDesc GrMtlCaps::makeDesc(const GrRenderTarget* rt,
 
     programInfo.pipeline().genKey(&b, *this);
 
-    b.add32((uint32_t)programInfo.primitiveType());
+    b.add32(programInfo.primitiveTypeKey());
 
     return desc;
 }
