@@ -397,8 +397,17 @@ bool legal_modulation(const GrColor in[3], const GrColor out[3]) {
         maxInIdx = inf[maxInIdx][i] > inf[2][i] ? maxInIdx : 2;
         const auto& in = inf[maxInIdx];
         const auto& out = outf[maxInIdx];
-        fpPreColorModulation[i] = out[i] / in[i];
-        fpPreAlphaModulation[i] = out[i] / in[3];
+        // We have to do these > 0 tests to please ASAN even though we wind up not using the result
+        // of the divide if the input color is zero later.
+        if (in[i] > 0) {
+            fpPreColorModulation[i] = out[i] / in[i];
+        } else {
+            // Should only have a max channel value of zero if the input color is trans. black.
+            SkASSERT(in[3] == 0);
+        }
+        if (in[3] > 0) {
+            fpPreAlphaModulation[i] = out[i] / in[3];
+        }
     }
 
     // With reconstructed pre-modulated FP output, derive the expected value of fp * input for each
