@@ -793,9 +793,7 @@ enum class GpuPathRenderers {
     kSmall             = 1 << 6,
     kTessellating      = 1 << 7,
 
-    kAll               = (kTessellating | (kTessellating - 1)),
-    kDefault           = kAll & ~kCoverageCounting
-
+    kDefault           = (kTessellating | (kTessellating - 1))
 };
 
 /**
