@@ -144,17 +144,17 @@ SkString TessellationTestTriShader::getTessEvaluationShaderGLSL(
                         i += gl_TessCoord.y * P[0].z;
                     } else {
                         i += P[0].z;
-                    if (gl_TessCoord.z == 0.0) {
-                        i += gl_TessCoord.x * P[2].z;
-                    } else {
-                        barycentric_coord = vec3(0, 1, 0);
-                        return;
+                        if (gl_TessCoord.z == 0.0) {
+                            i += gl_TessCoord.x * P[2].z;
+                        } else {
+                            barycentric_coord = vec3(0, 1, 0);
+                            return;
+                        }
                     }
                 }
-            }
-            i = abs(mod(i, 2.0) - 1.0);
-            barycentric_coord = vec3(i, 0, 1.0 - i);
-        })");
+                i = abs(mod(i, 2.0) - 1.0);
+                barycentric_coord = vec3(i, 0, 1.0 - i);
+            })");
 
     return code;
 }
