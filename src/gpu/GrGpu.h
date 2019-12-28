@@ -606,6 +606,12 @@ public:
 
     virtual void storeVkPipelineCacheData() {}
 
+    // http://skbug.com/9739
+    virtual void insertManualFramebufferBarrier() {
+        SkASSERT(!this->caps()->requiresManualFBBarrierAfterTessellatedStencilDraw());
+        SK_ABORT("Manual framebuffer barrier not supported.");
+    }
+
 protected:
     static bool MipMapsAreCorrect(SkISize dimensions, const BackendTextureData*, int numMipLevels);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
