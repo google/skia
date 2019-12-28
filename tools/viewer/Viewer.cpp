@@ -276,6 +276,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkGraphics::Init();
 
     gPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
+    gPathRendererNames[GpuPathRenderers::kGpuTessellation] = "GPU Tessellation";
     gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
     gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
     gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "CCPR";
@@ -1708,6 +1709,9 @@ void Viewer::drawImGui() {
                         const auto* caps = ctx->priv().caps();
                         prButton(GpuPathRenderers::kDefault);
                         if (fWindow->sampleCount() > 1 || caps->mixedSamplesSupport()) {
+                            if (caps->shaderCaps()->tessellationSupport()) {
+                                prButton(GpuPathRenderers::kGpuTessellation);
+                            }
                             if (caps->shaderCaps()->pathRenderingSupport()) {
                                 prButton(GpuPathRenderers::kStencilAndCover);
                             }
@@ -2371,6 +2375,10 @@ void Viewer::updateUIState() {
                 const auto* caps = ctx->priv().caps();
                 writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault].c_str());
                 if (fWindow->sampleCount() > 1 || caps->mixedSamplesSupport()) {
+                    if (caps->shaderCaps()->tessellationSupport()) {
+                        writer.appendString(
+                                gPathRendererNames[GpuPathRenderers::kGpuTessellation].c_str());
+                    }
                     if (caps->shaderCaps()->pathRenderingSupport()) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kStencilAndCover].c_str());
