@@ -1117,5 +1117,19 @@
 /* GL_NV_conservative_raster */
 #define GR_GL_CONSERVATIVE_RASTERIZATION                    0x9346
 
+/* Barriers */
+#define GR_GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT               0x0001
+#define GR_GL_ELEMENT_ARRAY_BARRIER_BIT                     0x0002
+#define GR_GL_UNIFORM_BARRIER_BIT                           0x0004
+#define GR_GL_TEXTURE_FETCH_BARRIER_BIT                     0x0008
+#define GR_GL_SHADER_IMAGE_ACCESS_BARRIER_BIT               0x0020
+#define GR_GL_COMMAND_BARRIER_BIT                           0x0040
+#define GR_GL_PIXEL_BUFFER_BARRIER_BIT                      0x0080
+#define GR_GL_TEXTURE_UPDATE_BARRIER_BIT                    0x0100
+#define GR_GL_BUFFER_UPDATE_BARRIER_BIT                     0x0200
+#define GR_GL_FRAMEBUFFER_BARRIER_BIT                       0x0400
+#define GR_GL_TRANSFORM_FEEDBACK_BARRIER_BIT                0x0800
+#define GR_GL_ATOMIC_COUNTER_BARRIER_BIT                    0x1000
+#define GR_GL_ALL_BARRIER_BITS                              0xffffffff
 
 #endif

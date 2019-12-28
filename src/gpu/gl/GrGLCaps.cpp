@@ -3693,6 +3693,22 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverBlacklistMSAACCPR = true;
     }
 
+    if (shaderCaps->fTessellationSupport && kNVIDIA_GrGLDriver == ctxInfo.driver()) {
+        if (GR_IS_GR_GL(ctxInfo.standard())) {
+            if (ctxInfo.version() >= GR_GL_VER(4,2)) {
+                fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
+            } else {
+                shaderCaps->fTessellationSupport = false;
+            }
+        } else {
+            if (ctxInfo.version() >= GR_GL_VER(3,1)) {
+                fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
+            } else {
+                shaderCaps->fTessellationSupport = false;
+            }
+        }
+    }
+
     if (kQualcomm_GrGLDriver == ctxInfo.driver()) {
         // Qualcomm fails to link programs with tessellation and does not give an error message.
         // http://skbug.com/9740

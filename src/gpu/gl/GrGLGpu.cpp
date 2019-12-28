@@ -3756,6 +3756,11 @@ void GrGLGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
     }
 }
 
+void GrGLGpu::insertManualFramebufferBarrier() {
+    SkASSERT(this->caps()->requiresManualFBBarrierAfterTessellatedStencilDraw());
+    GL_CALL(MemoryBarrier(GR_GL_FRAMEBUFFER_BARRIER_BIT));
+}
+
 static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
     switch (format) {
         case GrGLFormat::kRGBA8:                return kRGBA_8888_GrPixelConfig;

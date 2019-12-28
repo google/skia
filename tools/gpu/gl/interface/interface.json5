@@ -64,6 +64,19 @@
       "GetStringi",
     ]
   },
+  {
+    "GL":    [{"min_version": [4, 2], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 1], "ext": "<core>"}],
+    "WebGL": null,
+
+    "functions": [
+      "MemoryBarrier",
+    ],
+    // TODO: Remove 'optional' once Chrome sets this function in the interface.
+    "optional": [
+      "MemoryBarrier",
+    ]
+  },
 
   {
     "GL":    [{"ext": "<core>"}],
