@@ -3707,6 +3707,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverBlacklistMSAACCPR = true;
     }
 
+    if (kQualcomm_GrGLDriver == ctxInfo.driver()) {
+        // Qualcomm fails to link programs with tessellation and does not give an error message.
+        // http://skbug.com/9740
+        shaderCaps->fTessellationSupport = false;
+    }
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Older versions of Android have problems with setting GL_TEXTURE_BASE_LEVEL or
     // GL_TEXTURE_MAX_LEVEL on GL_TEXTURE_EXTERTNAL_OES textures. We just leave them as is and hope
