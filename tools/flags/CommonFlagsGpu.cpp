@@ -54,19 +54,19 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kSmall;
     } else if (!strcmp(name, "tess")) {
         return GpuPathRenderers::kTessellating;
-    } else if (!strcmp(name, "all")) {
-        return GpuPathRenderers::kAll;
+    } else if (!strcmp(name, "default")) {
+        return GpuPathRenderers::kDefault;
     }
     SK_ABORT(SkStringPrintf("error: unknown named path renderer \"%s\"\n", name).c_str());
 }
 
 static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
     if (FLAGS_pr.isEmpty()) {
-        return GpuPathRenderers::kAll;
+        return GpuPathRenderers::kDefault;
     }
 
     GpuPathRenderers gpuPathRenderers = ('~' == FLAGS_pr[0][0])
-            ? GpuPathRenderers::kAll
+            ? GpuPathRenderers::kDefault
             : GpuPathRenderers::kNone;
 
     for (int i = 0; i < FLAGS_pr.count(); ++i) {
