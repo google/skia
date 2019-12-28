@@ -443,9 +443,9 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
     // much point in doing so.
     if (!cached && !primProc.isPathRendering() && !primProc.willUseTessellationShaders() &&
         !precompiledProgram) {
-        static_assert(&GrPrimitiveProcessor::getTessControlShaderGLSL,
-                      "FIXME: Remove the check for tessellation shaders in the above 'if' once the "
-                      "back door GLSL mechanism is removed.");
+        // FIXME: Remove the check for tessellation shaders in the above 'if' once the back door
+        // GLSL mechanism is removed.
+        (void)&GrPrimitiveProcessor::getTessControlShaderGLSL;
         bool isSkSL = false;
         if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                 GrContextOptions::ShaderCacheStrategy::kSkSL) {
