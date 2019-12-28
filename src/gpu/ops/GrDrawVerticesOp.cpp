@@ -666,10 +666,14 @@ static void randomize_params(size_t count, size_t maxVertex, SkScalar min, SkSca
 }
 
 GR_DRAW_OP_TEST_DEFINE(DrawVerticesOp) {
-    GrPrimitiveType type;
-    do {
-       type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
-    } while (type == GrPrimitiveType::kPath || type == GrPrimitiveType::kPatches);
+    GrPrimitiveType types[] = {
+        GrPrimitiveType::kTriangles,
+        GrPrimitiveType::kTriangleStrip,
+        GrPrimitiveType::kPoints,
+        GrPrimitiveType::kLines,
+        GrPrimitiveType::kLineStrip
+    };
+    auto type = types[random->nextULessThan(SK_ARRAY_COUNT(types))];
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 
