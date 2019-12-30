@@ -10,7 +10,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "modules/skparagraph/include/Paragraph.h"

@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
 

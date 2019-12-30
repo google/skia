@@ -12,7 +12,6 @@
 #define GrRRectBlurEffect_DEFINED
 #include "include/core/SkTypes.h"
 
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkBlurPriv.h"
