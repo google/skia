@@ -53,6 +53,7 @@
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkRuntimeEffect.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #include <iostream>
 #include <string>
