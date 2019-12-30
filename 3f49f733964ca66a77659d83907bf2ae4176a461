@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad67d769_1c5b4eee",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-30T17:12:36Z",
+      "side": 1,
+      "message": "SkCanvasMatrix?",
+      "range": {
+        "startLine": 241,
+        "startChar": 4,
+        "endLine": 241,
+        "endChar": 14
+      },
+      "revId": "3f49f733964ca66a77659d83907bf2ae4176a461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "068abcd7_02f2bf19",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-30T17:12:36Z",
+      "side": 1,
+      "message": "why not just \u0027return this-\u003epreTranslate(x, y, 0);\u0027",
+      "range": {
+        "startLine": 1044,
+        "startChar": 4,
+        "endLine": 1046,
+        "endChar": 32
+      },
+      "revId": "3f49f733964ca66a77659d83907bf2ae4176a461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b736e13_825b400b",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-30T17:12:36Z",
+      "side": 1,
+      "message": "similarly, there\u0027s a 3D preScale function that would simplify this guy.",
+      "range": {
+        "startLine": 1050,
+        "startChar": 4,
+        "endLine": 1052,
+        "endChar": 32
+      },
+      "revId": "3f49f733964ca66a77659d83907bf2ae4176a461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc6f1c8c_d8196172",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1060,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-30T17:12:36Z",
+      "side": 1,
+      "message": "Eventually, it will be nice to make a pass over SkMatrix and SkMatrix44 and make sure all of the convenience functions are offered as set/pre/post, as well as MakeX().",
+      "range": {
+        "startLine": 1055,
+        "startChar": 0,
+        "endLine": 1060,
+        "endChar": 0
+      },
+      "revId": "3f49f733964ca66a77659d83907bf2ae4176a461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f8de328_2519286e",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1065,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-30T17:12:36Z",
+      "side": 1,
+      "message": "TODO?",
+      "range": {
+        "startLine": 1061,
+        "startChar": 0,
+        "endLine": 1065,
+        "endChar": 1
+      },
+      "revId": "3f49f733964ca66a77659d83907bf2ae4176a461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7a0b9cc_a3be24e7",
+        "filename": "src/core/SkMatrix44.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1069,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2019-12-30T17:12:36Z",
+      "side": 1,
+      "message": "This doesn\u0027t really get this as a const SkMatrix\u0026, right? We only define the \u0027operator SkMatrix\u0027, so it\u0027s a const\u0026 to the temporary SkMatrix the operator produced, so eventually we\u0027ll want to a dedicated SkMatrix44::mapRect so there\u0027s no copy overhead.",
+      "range": {
+        "startLine": 1068,
+        "startChar": 11,
+        "endLine": 1069,
+        "endChar": 1
+      },
+      "revId": "3f49f733964ca66a77659d83907bf2ae4176a461",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
