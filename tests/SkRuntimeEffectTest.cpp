@@ -8,9 +8,10 @@
 #include "src/core/SkRuntimeEffect.h"
 #include "tests/Test.h"
 
-DEF_TEST(SkRuntimeEffectInvalidPrograms, r) {
-    auto test = [r](const char* src, const char* expected) {
-        auto [effect, errorText] = SkRuntimeEffect::Make(SkString(src));
+DEF_TEST(SkRuntimeEffectInvalidInputs, r) {
+    auto test = [r](const char* hdr, const char* expected) {
+        SkString src = SkStringPrintf("%s void main(float x, float y, inout half4 color) {}", hdr);
+        auto [effect, errorText] = SkRuntimeEffect::Make(src);
         REPORTER_ASSERT(r, !effect);
         REPORTER_ASSERT(r, errorText.contains(expected),
                         "Expected error message to contain \"%s\". Actual message: \"%s\"",
@@ -19,23 +20,15 @@ DEF_TEST(SkRuntimeEffectInvalidPrograms, r) {
 
     // Features that are only allowed in .fp files (key, in uniform, ctype, when, tracked).
     // Ensure that these fail, and the error messages contain the relevant keyword.
-    test("layout(key) in bool Input;"
-         "void main(float x, float y, inout half4 color) {}",
-         "key");
+    test("layout(key) in bool Input;", "key");
+    test("in uniform float Input;", "in uniform");
+    test("layout(ctype=SkRect) float4 Input;", "ctype");
+    test("in bool Flag; layout(when=Flag) uniform float Input;", "when");
+    test("layout(tracked) uniform float Input;", "tracked");
 
-    test("in uniform float Input;"
-         "void main(float x, float y, inout half4 color) {}",
-         "in uniform");
+    // Runtime SkSL supports a limited set of uniform types. No samplers, for example:
+    test("uniform sampler2D s;", "sampler2D");
 
-    test("layout(ctype=SkRect) float4 Input;"
-         "void main(float x, float y, inout half4 color) {}",
-         "ctype");
-
-    test("in bool Flag; layout(when=Flag) uniform float Input;"
-         "void main(float x, float y, inout half4 color) {}",
-         "when");
-
-    test("layout(tracked) uniform float Input;"
-         "void main(float x, float y, inout half4 color) {}",
-         "tracked");
+    // 'in' variables can't be arrays
+    test("in int Input[2];", "array");
 }

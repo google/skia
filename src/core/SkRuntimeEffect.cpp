@@ -22,71 +22,48 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
                                             SkSL::Program::Settings());
+    // TODO: Many errors aren't caught until we process the generated Program here. Catching those
+    // in the IR generator would provide better errors messages (with locations).
+    #define RETURN_FAILURE(...) return std::make_pair(nullptr, SkStringPrintf(__VA_ARGS__))
+
     if (!program) {
-        return std::make_pair(nullptr, SkString(compiler->errorText().c_str()));
+        RETURN_FAILURE("%s", compiler->errorText().c_str());
     }
     SkASSERT(!compiler->errorCount());
 
-    sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl), std::move(compiler),
-                                                      std::move(program)));
-    return std::make_pair(std::move(effect), SkString());
-}
-
-size_t SkRuntimeEffect::Variable::sizeInBytes() const {
-    auto element_size = [](Type type) -> size_t {
-        switch (type) {
-            case Type::kBool:   return 1;
-            case Type::kInt:    return sizeof(int32_t);
-            case Type::kFloat:  return sizeof(float);
-            case Type::kFloat2: return sizeof(float) * 2;
-            case Type::kFloat3: return sizeof(float) * 3;
-            case Type::kFloat4: return sizeof(float) * 4;
-
-            case Type::kFloat2x2: return sizeof(float) * 4;
-            case Type::kFloat3x3: return sizeof(float) * 9;
-            case Type::kFloat4x4: return sizeof(float) * 16;
-            default: SkUNREACHABLE;
-        }
-    };
-    return element_size(fType) * fCount;
-}
-
-SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
-                                 std::unique_ptr<SkSL::Program> baseProgram)
-        : fIndex(new_sksl_index())
-        , fSkSL(std::move(sksl))
-        , fCompiler(std::move(compiler))
-        , fBaseProgram(std::move(baseProgram)) {
-    SkASSERT(fCompiler && fBaseProgram);
-
     size_t offset = 0;
-    auto gather_variables = [this, &offset](SkSL::Modifiers::Flag flag) {
-        for (const auto& e : *fBaseProgram) {
+    std::vector<Variable> inAndUniformVars;
+    std::vector<SkString> children;
+    const SkSL::Context& ctx(compiler->context());
+
+    // Gather the inputs in two passes, to de-interleave them in our input layout
+    for (auto flag : { SkSL::Modifiers::kIn_Flag, SkSL::Modifiers::kUniform_Flag }) {
+        for (const auto& e : *program) {
             if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
                 SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
                 for (const auto& varStatement : v.fVars) {
-                    const SkSL::Variable& var = *((SkSL::VarDeclaration&) * varStatement).fVar;
+                    const SkSL::Variable& var = *((SkSL::VarDeclaration&) *varStatement).fVar;
 
                     // Sanity check some rules that should be enforced by the IR generator.
                     // These are all layout options that only make sense in .fp files.
                     SkASSERT(!var.fModifiers.fLayout.fKey);
                     SkASSERT((var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) == 0 ||
-                             (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
+                        (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) == 0);
                     SkASSERT(var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kDefault);
                     SkASSERT(var.fModifiers.fLayout.fWhen.fLength == 0);
                     SkASSERT((var.fModifiers.fLayout.fFlags & SkSL::Layout::kTracked_Flag) == 0);
 
                     if (var.fModifiers.fFlags & flag) {
-                        if (&var.fType == fCompiler->context().fFragmentProcessor_Type.get()) {
-                            fChildren.push_back(var.fName);
+                        if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
+                            children.push_back(var.fName);
                             continue;
                         }
 
                         Variable v;
                         v.fName = var.fName;
                         v.fQualifier = (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag)
-                            ? Variable::Qualifier::kUniform
-                            : Variable::Qualifier::kIn;
+                                ? Variable::Qualifier::kUniform
+                                : Variable::Qualifier::kIn;
                         v.fFlags = 0;
                         v.fCount = 1;
 
@@ -103,7 +80,6 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> 
 #define SET_TYPES(cpuType, gpuType) do { v.fType = cpuType; } while (false)
 #endif
 
-                        const SkSL::Context& ctx(fCompiler->context());
                         if (type == ctx.fBool_Type.get()) {
                             SET_TYPES(Variable::Type::kBool, kVoid_GrSLType);
                         } else if (type == ctx.fInt_Type.get()) {
@@ -137,8 +113,8 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> 
                         } else if (type == ctx.fHalf4x4_Type.get()) {
                             SET_TYPES(Variable::Type::kFloat4x4, kHalf4x4_GrSLType);
                         } else {
-                            SkDEBUGFAILF("Unsupported input/uniform type: %s\n",
-                                         type->description().c_str());
+                            RETURN_FAILURE("Invalid input/uniform type: '%s'",
+                                           type->description().c_str());
 
                         }
 
@@ -149,16 +125,53 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> 
                         }
                         v.fOffset = offset;
                         offset += v.sizeInBytes();
-                        fInAndUniformVars.push_back(v);
+                        inAndUniformVars.push_back(v);
                     }
                 }
             }
         }
-    };
+    }
 
-    // Gather the inputs in two passes, to de-interleave them in our input layout
-    gather_variables(SkSL::Modifiers::kIn_Flag);
-    gather_variables(SkSL::Modifiers::kUniform_Flag);
+#undef RETURN_FAILURE
+
+    sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
+                                                      std::move(compiler),
+                                                      std::move(program),
+                                                      std::move(inAndUniformVars),
+                                                      std::move(children)));
+    return std::make_pair(std::move(effect), SkString());
+}
+
+size_t SkRuntimeEffect::Variable::sizeInBytes() const {
+    auto element_size = [](Type type) -> size_t {
+        switch (type) {
+            case Type::kBool:   return 1;
+            case Type::kInt:    return sizeof(int32_t);
+            case Type::kFloat:  return sizeof(float);
+            case Type::kFloat2: return sizeof(float) * 2;
+            case Type::kFloat3: return sizeof(float) * 3;
+            case Type::kFloat4: return sizeof(float) * 4;
+
+            case Type::kFloat2x2: return sizeof(float) * 4;
+            case Type::kFloat3x3: return sizeof(float) * 9;
+            case Type::kFloat4x4: return sizeof(float) * 16;
+            default: SkUNREACHABLE;
+        }
+    };
+    return element_size(fType) * fCount;
+}
+
+SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
+                                 std::unique_ptr<SkSL::Program> baseProgram,
+                                 std::vector<Variable>&& inAndUniformVars,
+                                 std::vector<SkString>&& children)
+        : fIndex(new_sksl_index())
+        , fSkSL(std::move(sksl))
+        , fCompiler(std::move(compiler))
+        , fBaseProgram(std::move(baseProgram))
+        , fInAndUniformVars(std::move(inAndUniformVars))
+        , fChildren(std::move(children)) {
+    SkASSERT(fCompiler && fBaseProgram);
 }
 
 size_t SkRuntimeEffect::inputSize() const {
