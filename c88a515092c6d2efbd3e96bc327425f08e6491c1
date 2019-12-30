@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd16f3a_28c9904c",
+        "filename": "samplecode/SampleTessellatedWedge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-30T16:16:26Z",
+      "side": 1,
+      "message": "This doesn\u0027t actually do anything does it? We should only even have a verb where index is between start and end once right?",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 23
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
