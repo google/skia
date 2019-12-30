@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d5d317e_bfa3a899",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2019-12-30T17:16:28Z",
+      "side": 1,
+      "message": "Largely, they do not.\n\n~/skia (invalid-enum↑2|✔) $ git grep didTranslate\ninclude/core/SkCanvas.h:    virtual void didTranslate(SkScalar dx, SkScalar dy) {\nsrc/core/SkCanvas.cpp:        this-\u003edidTranslate(dx,dy);\nsrc/core/SkRecorder.cpp:void SkRecorder::didTranslate(SkScalar dx, SkScalar dy) {\nsrc/core/SkRecorder.h:    void didTranslate(SkScalar, SkScalar) override;\n\n~/skia (invalid-enum↑2|✔) $ git grep didConcat\ninclude/core/SkCanvas.h:    virtual void didConcat(const SkMatrix\u0026 ) {}\ninclude/core/SkCanvas.h:        this-\u003edidConcat(SkMatrix::MakeTrans(dx, dy));\ninclude/utils/SkLuaCanvas.h:    void didConcat(const SkMatrix\u0026) override;\ninclude/utils/SkNWayCanvas.h:    void didConcat(const SkMatrix\u0026) override;\nsrc/core/SkCanvas.cpp:    this-\u003edidConcat(matrix);\nsrc/core/SkPictureRecord.cpp:void SkPictureRecord::didConcat(const SkMatrix\u0026 matrix) {\nsrc/core/SkPictureRecord.cpp:    this-\u003eINHERITED::didConcat(matrix);\nsrc/core/SkPictureRecord.h:    void didConcat(const SkMatrix\u0026) override;\nsrc/core/SkRecorder.cpp:void SkRecorder::didConcat(const SkMatrix\u0026 matrix) {\nsrc/core/SkRecorder.h:    void didConcat(const SkMatrix\u0026) override;\nsrc/utils/SkLuaCanvas.cpp:void SkLuaCanvas::didConcat(const SkMatrix\u0026 matrix) {\nsrc/utils/SkLuaCanvas.cpp:    this-\u003eINHERITED::didConcat(matrix);\nsrc/utils/SkNWayCanvas.cpp:void SkNWayCanvas::didConcat(const SkMatrix\u0026 matrix) {\nsrc/utils/SkNWayCanvas.cpp:    this-\u003eINHERITED::didConcat(matrix);\ntools/debugger/DebugCanvas.cpp:void DebugCanvas::didConcat(const SkMatrix\u0026 matrix) {\ntools/debugger/DebugCanvas.cpp:    this-\u003eINHERITED::didConcat(matrix);\ntools/debugger/DebugCanvas.h:    void didConcat(const SkMatrix\u0026) override;",
+      "revId": "2210e0df7b24c272928af8d22566b3ac6aab6ee9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
