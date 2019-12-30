@@ -198,7 +198,8 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 }
 
 bool SkShaderBase::program(skvm::Builder* p,
-                           SkColorSpace* dstCS,
+                           const SkMatrix& ctm, const SkMatrix* localM,
+                           SkFilterQuality quality, SkColorSpace* dstCS,
                            skvm::Uniforms* uniforms,
                            skvm::F32 x, skvm::F32 y,
                            skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
@@ -214,7 +215,7 @@ bool SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (this->onProgram(p, dstCS, uniforms, x,y, r,g,b,a)) {
+    if (this->onProgram(p, ctm,localM, quality,dstCS, uniforms, x,y, r,g,b,a)) {
         if (this->isOpaque()) {
             *a = p->splat(1.0f);
         }
