@@ -208,13 +208,15 @@ public:
     }
 
     bool program(skvm::Builder*,
-                 SkColorSpace* dstCS,
+                 const SkMatrix& ctm, const SkMatrix* localM,
+                 SkFilterQuality quality, SkColorSpace* dstCS,
                  skvm::Uniforms* uniforms,
                  skvm::F32 x, skvm::F32 y,
                  skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const;
 
     virtual bool onProgram(skvm::Builder*,
-                           SkColorSpace* dstCS,
+                           const SkMatrix& ctm, const SkMatrix* localM,
+                           SkFilterQuality quality, SkColorSpace* dstCS,
                            skvm::Uniforms* uniforms,
                            skvm::F32 x, skvm::F32 y,
                            skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {

@@ -21,6 +21,8 @@
 // Just a tiny example that the (x,y) coordinate parameters are vaguely working.
 // In this case we'll fade the red channel over its span vertically using `y`,
 // and green horizontally using `x`.
+//
+// TODO: this doesn't really need to wrap another shader.
 struct Fade : public SkShaderBase {
     explicit Fade(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 
@@ -29,11 +31,14 @@ struct Fade : public SkShaderBase {
     bool isOpaque() const override { return fShader->isOpaque(); }
 
     bool onProgram(skvm::Builder* p,
-                   SkColorSpace* dstCS,
+                   const SkMatrix& ctm, const SkMatrix* localM,
+                   SkFilterQuality quality, SkColorSpace* dstCS,
                    skvm::Uniforms* uniforms,
                    skvm::F32 x, skvm::F32 y,
                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-        if (as_SB(fShader)->program(p, dstCS,
+        if (as_SB(fShader)->program(p,
+                                    ctm, localM,
+                                    quality, dstCS,
                                     uniforms,
                                     x,y, r,g,b,a)) {
             // In this GM `y` will range over 0-50 and `x` over 50-100.
