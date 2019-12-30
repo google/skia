@@ -15,7 +15,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkCamera.h"
 #include "include/utils/SkInterpolator.h"

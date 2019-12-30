@@ -19,7 +19,6 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/utils/SkUTF.h"
 
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkGradientShader.h"
 
 #include "include/effects/Sk2DPathEffect.h"

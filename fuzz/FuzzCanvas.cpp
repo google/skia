@@ -32,7 +32,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/Sk2DPathEffect.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"

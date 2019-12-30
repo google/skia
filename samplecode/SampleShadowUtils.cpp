@@ -9,7 +9,6 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint3.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkCamera.h"
 #include "include/utils/SkShadowUtils.h"

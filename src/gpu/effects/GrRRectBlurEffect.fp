@@ -13,7 +13,6 @@ layout(ctype=SkRect) uniform float4 proxyRect;
 uniform half blurRadius;
 
 @header {
-    #include "include/effects/SkBlurMaskFilter.h"
     #include "include/gpu/GrContext.h"
     #include "include/private/GrRecordingContext.h"
     #include "src/core/SkBlurPriv.h"

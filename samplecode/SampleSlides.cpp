@@ -7,7 +7,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkVertices.h"
-#include "include/effects/SkBlurMaskFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"

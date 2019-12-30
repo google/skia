@@ -25,8 +25,8 @@
 #include "src/utils/SkUTF.h"
 
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkStream.h"
-#include "include/effects/SkBlurMaskFilter.h"
 
 static void setNamedTypeface(SkFont* font, const char name[]) {
     font->setTypeface(SkTypeface::MakeFromName(name, SkFontStyle()));
