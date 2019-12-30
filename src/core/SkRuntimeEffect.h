@@ -9,9 +9,12 @@
 #define SkRuntimeEffect_DEFINED
 
 #include "include/core/SkString.h"
-#include "src/sksl/SkSLCompiler.h"
 
 #include <vector>
+
+#if SK_SUPPORT_GPU
+#include "include/private/GrTypesPriv.h"
+#endif
 
 class GrShaderCaps;
 class SkMatrix;
@@ -19,6 +22,8 @@ class SkShader;
 
 namespace SkSL {
 class ByteCode;
+class Compiler;
+struct PipelineStageArgs;
 struct Program;
 }
 
@@ -79,9 +84,7 @@ public:
     // This re-compiles the program from scratch, using the supplied shader caps.
     // This is necessary to get the correct values of settings.
     bool toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
-                         SkSL::String* outCode,
-                         std::vector<SkSL::Compiler::FormatArg>* outFormatArgs,
-                         std::vector<SkSL::Compiler::GLSLFunction>* outFunctions);
+                         SkSL::PipelineStageArgs* outArgs);
 #endif
 
     // [ByteCode, ErrorText]

@@ -1597,18 +1597,16 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 #endif
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-bool Compiler::toPipelineStage(const Program& program, String* out,
-                               std::vector<FormatArg>* outFormatArgs,
-                               std::vector<GLSLFunction>* outFunctions) {
+bool Compiler::toPipelineStage(const Program& program, PipelineStageArgs* outArgs) {
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs,
-                                  outFunctions);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, &outArgs->fFormatArgs,
+                                  &outArgs->fFunctions);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
-        *out = buffer.str();
+        outArgs->fCode = buffer.str();
     }
     return result;
 }

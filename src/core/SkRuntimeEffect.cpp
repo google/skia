@@ -182,9 +182,7 @@ size_t SkRuntimeEffect::inputSize() const {
 
 #if SK_SUPPORT_GPU
 bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
-                                      SkSL::String* outCode,
-                                      std::vector<SkSL::Compiler::FormatArg>* outFormatArgs,
-                                      std::vector<SkSL::Compiler::GLSLFunction>* outFunctions) {
+                                      SkSL::PipelineStageArgs* outArgs) {
     // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
     // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
     SkSL::Program::Settings settings;
@@ -233,7 +231,7 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
         return false;
     }
 
-    if (!fCompiler->toPipelineStage(*specialized, outCode, outFormatArgs, outFunctions)) {
+    if (!fCompiler->toPipelineStage(*specialized, outArgs)) {
         SkDebugf("%s\n", fCompiler->errorText().c_str());
         SkASSERT(false);
         return false;

@@ -217,12 +217,10 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
 
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     // Note: This is actually SkSL (again) but with inline format specifiers.
-    SkSL::String code;
-    std::vector<SkSL::Compiler::FormatArg> formatArgs;
-    std::vector<SkSL::Compiler::GLSLFunction> functions;
-    SkAssertResult(fEffect->toPipelineStage(fInputs.get(), fShaderCaps.get(),
-                                            &code, &formatArgs, &functions));
-    return new GrGLSLSkSLFP(code, formatArgs, functions);
+    SkSL::PipelineStageArgs args;
+    SkAssertResult(fEffect->toPipelineStage(fInputs.get(), fShaderCaps.get(), &args));
+    return new GrGLSLSkSLFP(std::move(args.fCode), std::move(args.fFormatArgs),
+                            std::move(args.fFunctions));
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

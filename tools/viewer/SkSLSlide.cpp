@@ -12,6 +12,7 @@
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
 
+#include <algorithm>
 #include "imgui.h"
 
 using namespace sk_app;

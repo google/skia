@@ -50,6 +50,7 @@ namespace SkSL {
 class ByteCode;
 class ExternalValue;
 class IRGenerator;
+struct PipelineStageArgs;
 
 /**
  * Main compiler entry point. This is a traditional compiler design which first parses the .sksl
@@ -147,9 +148,7 @@ public:
     std::unique_ptr<ByteCode> toByteCode(Program& program);
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-    bool toPipelineStage(const Program& program, String* out,
-                         std::vector<FormatArg>* outFormatArgs,
-                         std::vector<GLSLFunction>* outFunctions);
+    bool toPipelineStage(const Program& program, PipelineStageArgs* outArgs);
 #endif
 
     /**
@@ -240,6 +239,14 @@ private:
     int fErrorCount;
     String fErrorText;
 };
+
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+struct PipelineStageArgs {
+    String fCode;
+    std::vector<Compiler::FormatArg>    fFormatArgs;
+    std::vector<Compiler::GLSLFunction> fFunctions;
+};
+#endif
 
 } // namespace
 
