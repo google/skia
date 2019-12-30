@@ -614,7 +614,11 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
 ///////////////////////////////////////////////////////////////////////////////
 
 static inline float muladdmul(float a, float b, float c, float d) {
+#ifdef SK_SUPPORT_LEGACY_MATRIX_CONCAT_USING_DOUBLES
     return sk_double_to_float((double)a * b + (double)c * d);
+#else
+    return a * b + c * d;
+#endif
 }
 
 static inline float rowcol3(const float row[], const float col[]) {
