@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ffecd404_f3055f8c",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-30T18:51:18Z",
+      "side": 1,
+      "message": "I think it\u0027s okay to universally reject this in the IR generator, here. Note that if you try to declare an \u0027in\u0027 variable in an fp file, the generate h/cpp won\u0027t even compile, as the code generator puts the complete type before the variable name:\n\nFoo.fp:\nin int bar[2];\n\nFoo.h:\nclass Foo {\n  int[2] bar;\n};",
+      "revId": "21f4ee481c8e9dcb664f13dfa95eaf57cda5f59e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
