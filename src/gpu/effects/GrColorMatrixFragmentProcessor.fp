@@ -21,7 +21,7 @@ void main() {
         // The max() is to guard against 0 / 0 during unpremul when the incoming color is
         // transparent black.
         half nonZeroAlpha = max(inputColor.a, 0.0001);
-        inputColor = half4(inputColor.rgb / nonZeroAlpha, nonZeroAlpha);
+        inputColor = half4(inputColor.rgb / nonZeroAlpha, inputColor.a);
     }
     sk_OutColor = m * inputColor + v;
     @if (clampRGBOutput) {
