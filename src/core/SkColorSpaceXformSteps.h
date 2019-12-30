@@ -43,10 +43,6 @@ struct SkColorSpaceXformSteps {
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*, bool src_is_normalized) const;
 
-    void apply(SkRasterPipeline* p, SkColorType srcCT) const {
-        return this->apply(p, SkColorTypeIsNormalized(srcCT));
-    }
-
     Flags flags;
 
     bool srcTF_is_sRGB,
