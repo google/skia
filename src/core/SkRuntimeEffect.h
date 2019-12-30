@@ -92,7 +92,8 @@ public:
 
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
-                    std::unique_ptr<SkSL::Program> baseProgram);
+                    std::unique_ptr<SkSL::Program> baseProgram,
+                    std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children);
 
     int fIndex;
     SkString fSkSL;
