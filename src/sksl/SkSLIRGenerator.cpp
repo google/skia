@@ -331,12 +331,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                                                                                   (int) count)));
                 sizes.push_back(std::move(size));
             } else {
-                type = (Type*) fSymbolTable->takeOwnership(
-                                               std::unique_ptr<Symbol>(new Type(type->name() + "[]",
-                                                                                Type::kArray_Kind,
-                                                                                *type,
-                                                                                -1)));
-                sizes.push_back(nullptr);
+                fErrors.error(varDecl.fOffset, "array size must be specified");
+                return nullptr;
             }
         }
         auto var = std::unique_ptr<Variable>(new Variable(varDecl.fOffset, modifiers,
