@@ -56,11 +56,7 @@ template("third_party") {
 
       # Warnings are just noise if we're not maintaining the code.
       if (is_win) {
-        # 4244 (conversion from 'double' to 'float') is triggering even with "/w". Sigh.
-        cflags = [
-          "/w",
-          "/wd4244",
-        ]
+        cflags = [ "/w" ]
       } else {
         cflags = [ "-w" ]
       }
