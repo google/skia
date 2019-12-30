@@ -2558,11 +2558,9 @@ protected:
     virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
     virtual void didRestore() {}
-    virtual void didConcat(const SkMatrix& ) {}
-    virtual void didSetMatrix(const SkMatrix& ) {}
-    virtual void didTranslate(SkScalar dx, SkScalar dy) {
-        this->didConcat(SkMatrix::MakeTrans(dx, dy));
-    }
+    virtual void didConcat(const SkMatrix&) {}
+    virtual void didSetMatrix(const SkMatrix&) {}
+    virtual void didTranslate(SkScalar, SkScalar) {}
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
