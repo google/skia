@@ -1206,7 +1206,11 @@ public:
      *  | D E F | -> | D/X E/X F/X |   for X != 0
      *  | 0 0 X |    |  0   0   1  |
      */
-    void normalizePerspective();
+    void normalizePerspective() {
+        if (fMat[8] != 1) {
+            this->doNormalizePerspective();
+        }
+    }
 
     /** Maps src SkPoint array of length count to dst SkPoint array of equal or greater
         length. SkPoint are mapped by multiplying each SkPoint by SkMatrix. Given:
@@ -1866,6 +1870,7 @@ private:
 
     // legacy method -- still needed? why not just postScale(1/divx, ...)?
     bool postIDiv(int divx, int divy);
+    void doNormalizePerspective();
 
     friend class SkPerspIter;
     friend class SkMatrixPriv;
