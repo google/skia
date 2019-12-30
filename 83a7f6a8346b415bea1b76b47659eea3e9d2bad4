@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d17d086b_f3d54dcc",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-30T17:45:28Z",
+      "side": 1,
+      "message": "^",
+      "revId": "83a7f6a8346b415bea1b76b47659eea3e9d2bad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ec884f5_5d1463ce",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-30T17:45:28Z",
+      "side": 1,
+      "message": "^",
+      "revId": "83a7f6a8346b415bea1b76b47659eea3e9d2bad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0769c8fd_1112922b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 995,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-30T17:45:28Z",
+      "side": 1,
+      "message": "^",
+      "revId": "83a7f6a8346b415bea1b76b47659eea3e9d2bad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
