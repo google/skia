@@ -35,30 +35,6 @@ SkCanvas::SaveLayerFlags SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(uint32_t 
     return layerFlags;
 }
 
-/*
- * Read the next op code and chunk size from 'reader'. The returned size
- * is the entire size of the chunk (including the opcode). Thus, the
- * offset just prior to calling ReadOpAndSize + 'size' is the offset
- * to the next chunk's op code. This also means that the size of a chunk
- * with no arguments (just an opcode) will be 4.
- */
-uint32_t SkPicturePlayback::ReadOpAndSize(SkReadBuffer* reader, uint32_t* size) {
-    uint32_t temp = reader->readInt();
-    uint32_t op;
-    if ((temp & 0xFF) == temp) {
-        // old skp file - no size information
-        op = temp;
-        *size = 0;
-    } else {
-        UNPACK_8_24(temp, op, *size);
-        if (MASK_24 == *size) {
-            *size = reader->readInt();
-        }
-    }
-    return op;
-}
-
-
 static const SkRect* get_rect_ptr(SkReadBuffer* reader, SkRect* storage) {
     if (reader->readBool()) {
         reader->readRect(storage);
@@ -88,9 +64,15 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
         }
 
         fCurOffset = reader.offset();
-        uint32_t size;
-        uint32_t op = ReadOpAndSize(&reader, &size);
-        if (!reader.validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
+
+        uint32_t bits = reader.readInt();
+        uint32_t op   = bits >> 24,
+                 size = bits & 0xffffff;
+        if (size == 0xffffff) {
+            size = reader.readInt();
+        }
+
+        if (!reader.validate(size > 0 && op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
             return;
         }
 
