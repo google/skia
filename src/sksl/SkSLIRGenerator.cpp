@@ -304,6 +304,9 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
         const Type* type = baseType;
         std::vector<std::unique_ptr<Expression>> sizes;
         auto iter = varDecl.begin();
+        if (varData.fSizeCount > 0 && (modifiers.fFlags & Modifiers::kIn_Flag)) {
+            fErrors.error(varDecl.fOffset, "'in' variables may not have array type");
+        }
         for (size_t i = 0; i < varData.fSizeCount; ++i, ++iter) {
             const ASTNode& rawSize = *iter;
             if (rawSize) {
