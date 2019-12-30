@@ -636,3 +636,26 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
+bool SkImageShader::onProgram(skvm::Builder* p,
+                              const SkMatrix& ctm, const SkMatrix* localM,
+                              const SkPaint& paint, SkColorSpace* dstCS,
+                              skvm::Uniforms* uniforms,
+                              skvm::F32 x, skvm::F32 y,
+                              skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    SkMatrix inv;
+    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+        return false;
+    }
+    SkFilterQuality quality = paint.getFilterQuality();
+
+    SkBitmapController::State state{as_IB(fImage.get()), inv, quality};
+    const SkPixmap& pm = state.pixmap();
+    if (!pm.addr()) {
+        return false;
+    }
+    inv     = state.invMatrix();
+    quality = state.quality();
+
+    return false;
+}
+
