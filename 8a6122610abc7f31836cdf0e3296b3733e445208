@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5802c772_38bb14db",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-30T14:34:40Z",
+      "side": 0,
+      "message": "glad to remove this, just may have to make sure people know they need an updated SDK/layers or they will all the sudden start getting errors.",
+      "range": {
+        "startLine": 118,
+        "startChar": 20,
+        "endLine": 119,
+        "endChar": 92
+      },
+      "revId": "8a6122610abc7f31836cdf0e3296b3733e445208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

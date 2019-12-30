@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25bf5008_5d9e4126",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-30T14:34:40Z",
+      "side": 1,
+      "message": "This worries me a little but I get why we\u0027d want this for the bots. Often when debugging it good to see all the errors that get reported by the layers. Does it make sense to wrap this is so compile time flag for the bots?",
+      "range": {
+        "startLine": 126,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 48
+      },
+      "revId": "fd0fee464a36f8e6ded418877c1b661c78f4e056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d342e0c_4abb3993",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2019-12-30T14:34:40Z",
+      "side": 1,
+      "message": "I don\u0027t think we always want to print the back trace. Our default use of layers is to just report errors and warnings, but if you turn on the info/debug categories you wouldn\u0027t want to spam the output with backtraces. I\u0027m not sure about warnings whether I\u0027d want to see the backtrace, but for starters I think we turn it on and see how noisy it gets",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 135,
+        "endChar": 22
+      },
+      "revId": "fd0fee464a36f8e6ded418877c1b661c78f4e056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
