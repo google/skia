@@ -522,6 +522,11 @@ bool SkRuntimeColorFilterFactory::testCompile() const {
     return fEffect != nullptr;
 }
 
+sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs) {
+    return sk_sp<SkColorFilter>(
+            new SkRuntimeColorFilter(std::move(effect), std::move(inputs), nullptr));
+}
+
 #endif // SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

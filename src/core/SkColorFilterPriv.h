@@ -60,6 +60,8 @@ private:
     SkRuntimeColorFilterFn fCpuFunc;
 };
 
+sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs);
+
 #endif // SK_SUPPORT_GPU
 
 #endif  // SkColorFilterPriv_DEFINED
