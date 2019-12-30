@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <utility>
 
-void SkMatrix::normalizePerspective() {
+void SkMatrix::doNormalizePerspective() {
     // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
     // is in perspective, even though it stills behaves like its affine. If we divide everything
     // by the not_one value, then it will behave the same, but will be treated as affine,
@@ -37,7 +37,6 @@ void SkMatrix::normalizePerspective() {
             fMat[SkMatrix::kMPersp2] = 1;
         }
         this->setTypeMask(kUnknown_Mask);
-        (void)this->getType();  // trigger computing the new mask
     }
 }
 
