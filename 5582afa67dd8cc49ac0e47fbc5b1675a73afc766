@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54be179c_3d40230f",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2019-12-30T20:41:40Z",
+      "side": 1,
+      "message": "I know this was present before, and is technically correct (because kMedium isn\u0027t supported here), but might be nice to make the logic match the comment and intent by checking if (quality \u003e kMedium) instead?",
+      "revId": "5582afa67dd8cc49ac0e47fbc5b1675a73afc766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
