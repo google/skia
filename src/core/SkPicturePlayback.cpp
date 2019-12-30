@@ -42,7 +42,7 @@ SkCanvas::SaveLayerFlags SkCanvasPriv::LegacySaveFlagsToSaveLayerFlags(uint32_t 
  * to the next chunk's op code. This also means that the size of a chunk
  * with no arguments (just an opcode) will be 4.
  */
-DrawType SkPicturePlayback::ReadOpAndSize(SkReadBuffer* reader, uint32_t* size) {
+uint32_t SkPicturePlayback::ReadOpAndSize(SkReadBuffer* reader, uint32_t* size) {
     uint32_t temp = reader->readInt();
     uint32_t op;
     if ((temp & 0xFF) == temp) {
@@ -55,7 +55,7 @@ DrawType SkPicturePlayback::ReadOpAndSize(SkReadBuffer* reader, uint32_t* size) 
             *size = reader->readInt();
         }
     }
-    return (DrawType)op;
+    return op;
 }
 
 
@@ -89,12 +89,12 @@ void SkPicturePlayback::draw(SkCanvas* canvas,
 
         fCurOffset = reader.offset();
         uint32_t size;
-        DrawType op = ReadOpAndSize(&reader, &size);
+        uint32_t op = ReadOpAndSize(&reader, &size);
         if (!reader.validate(op > UNUSED && op <= LAST_DRAWTYPE_ENUM)) {
             return;
         }
 
-        this->handleOp(&reader, op, size, canvas, initialMatrix);
+        this->handleOp(&reader, (DrawType)op, size, canvas, initialMatrix);
     }
 
     // need to propagate invalid state to the parent reader
