@@ -281,15 +281,6 @@ static inline SkScalar scross(SkScalar a, SkScalar b, SkScalar c, SkScalar d) {
     return a * b - c * d;
 }
 
-SkMatrix& SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
-    *this = SkMatrix(1, 0, dx,
-                     0, 1, dy,
-                     0, 0, 1,
-                     (dx != 0 || dy != 0) ? kTranslate_Mask | kRectStaysRect_Mask
-                                          : kIdentity_Mask  | kRectStaysRect_Mask);
-    return *this;
-}
-
 SkMatrix& SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
     const unsigned mask = this->getType();
 
@@ -329,15 +320,6 @@ SkMatrix& SkMatrix::setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py)
     } else {
         this->setScaleTranslate(sx, sy, px - sx * px, py - sy * py);
     }
-    return *this;
-}
-
-SkMatrix& SkMatrix::setScale(SkScalar sx, SkScalar sy) {
-    *this = SkMatrix(sx, 0,  0,
-                     0,  sy, 0,
-                     0,  0,  1,
-                     (sx == 1 && sy == 1) ? kIdentity_Mask | kRectStaysRect_Mask
-                                          : kScale_Mask    | kRectStaysRect_Mask);
     return *this;
 }
 

@@ -558,7 +558,14 @@ public:
         @param dx  horizontal translation
         @param dy  vertical translation
     */
-    SkMatrix& setTranslate(SkScalar dx, SkScalar dy);
+    SkMatrix& setTranslate(SkScalar dx, SkScalar dy) {
+        *this = SkMatrix(1, 0, dx,
+                         0, 1, dy,
+                         0, 0, 1,
+                         (dx != 0 || dy != 0) ? kTranslate_Mask | kRectStaysRect_Mask
+                                              : kIdentity_Mask  | kRectStaysRect_Mask);
+        return *this;
+    }
 
     /** Sets SkMatrix to translate by (v.fX, v.fY).
 
@@ -581,7 +588,14 @@ public:
         @param sx  horizontal scale factor
         @param sy  vertical scale factor
     */
-    SkMatrix& setScale(SkScalar sx, SkScalar sy);
+    SkMatrix& setScale(SkScalar sx, SkScalar sy) {
+        *this = SkMatrix(sx, 0,  0,
+                         0,  sy, 0,
+                         0,  0,  1,
+                         (sx == 1 && sy == 1) ? kIdentity_Mask | kRectStaysRect_Mask
+                                              : kScale_Mask    | kRectStaysRect_Mask);
+        return *this;
+    }
 
     /** Sets SkMatrix to rotate by degrees about a pivot point at (px, py).
         The pivot point is unchanged when mapped with SkMatrix.
