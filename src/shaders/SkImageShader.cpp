@@ -503,7 +503,8 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
             p->append(SkRasterPipeline::clamp_0);
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
-            src_is_normalized = true;
+            // TODO:
+            //src_is_normalized = true;
         }
 
         // Transform color space and alpha type to match shader convention (dst CS, premul alpha).
