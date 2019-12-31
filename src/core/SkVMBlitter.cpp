@@ -36,8 +36,6 @@ namespace {
         SkAlphaType         alphaType;
         SkBlendMode         blendMode;
         Coverage            coverage;
-        SkFilterQuality     quality;
-        SkMatrix            ctm;
 
         Params withCoverage(Coverage c) const {
             Params p = *this;
@@ -54,9 +52,6 @@ namespace {
                  alphaType,
                  blendMode,
                  coverage;
-        // Params::quality and Params::ctm are only passed to shader->program(),
-        // not used here by the blitter itself.  No need to include them in the key;
-        // they'll be folded into the shader key if used.
 
         bool operator==(const Key& that) const {
             return this->colorSpace == that.colorSpace
@@ -153,8 +148,7 @@ namespace {
                                                    offsetof(BlitterUniforms, y)));
                 skvm::F32 r,g,b,a;
                 if (shader->program(&p,
-                                    params.ctm, /*localM=*/nullptr,
-                                    params.quality, params.colorSpace.get(),
+                                    params.colorSpace.get(),
                                     uniforms,
                                     x,y, &r,&g,&b,&a)) {
                     shaderHash = p.hash();
@@ -206,8 +200,7 @@ namespace {
                       y = to_f32(uniform32(uniforms->ptr,
                                            offsetof(BlitterUniforms, y)));
             SkAssertResult(as_SB(params.shader)->program(this,
-                                                         params.ctm, /*localM=*/nullptr,
-                                                         params.quality, params.colorSpace.get(),
+                                                         params.colorSpace.get(),
                                                          uniforms,
                                                          x,y, &src.r, &src.g, &src.b, &src.a));
             // We don't know if the src color is normalized (logical [0,1], premul [0,a]) or not.
@@ -353,7 +346,6 @@ namespace {
     };
 
     // Scale the output of another shader by alpha.
-    // TODO: this would make more sense as a color filter
     struct AlphaShader : public SkShaderBase {
         AlphaShader(sk_sp<SkShader> shader, float alpha)
             : fShader(std::move(shader))
@@ -363,14 +355,11 @@ namespace {
         float           fAlpha;
 
         bool onProgram(skvm::Builder* p,
-                       const SkMatrix& ctm, const SkMatrix* localM,
-                       SkFilterQuality quality, SkColorSpace* dstCS,
+                       SkColorSpace* dstCS,
                        skvm::Uniforms* uniforms,
                        skvm::F32 x, skvm::F32 y,
                        skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-            if (as_SB(fShader)->program(p,
-                                        ctm, localM,
-                                        quality, dstCS,
+            if (as_SB(fShader)->program(p, dstCS,
                                         uniforms,
                                         x,y, r,g,b,a)) {
                 skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
@@ -388,9 +377,7 @@ namespace {
         const char* getTypeName() const override { return "AlphaShader"; }
     };
 
-    static Params effective_params(const SkPixmap& device,
-                                   const SkPaint& paint,
-                                   const SkMatrix& ctm) {
+    static Params effective_params(const SkPixmap& device, const SkPaint& paint) {
         // Color filters have been handled for us by SkBlitter::Choose().
         SkASSERT(!paint.getColorFilter());
 
@@ -428,17 +415,15 @@ namespace {
             device.alphaType(),
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
-            paint.getFilterQuality(),
-            ctm,
         };
     }
 
     class Blitter final : public SkBlitter {
     public:
-        Blitter(const SkPixmap& device, const SkPaint& paint, const SkMatrix& ctm, bool* ok)
+        Blitter(const SkPixmap& device, const SkPaint& paint, bool* ok)
             : fDevice(device)
             , fUniforms(kBlitterUniformsCount)
-            , fParams(effective_params(device, paint, ctm))
+            , fParams(effective_params(device, paint))
             , fKey(Builder::CacheKey(fParams, &fUniforms, ok))
         {}
 
@@ -691,6 +676,6 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                const SkMatrix& ctm,
                                SkArenaAlloc* alloc) {
     bool ok = true;
-    auto blitter = alloc->make<Blitter>(device, paint, ctm, &ok);
+    auto blitter = alloc->make<Blitter>(device, paint, &ok);
     return ok ? blitter : nullptr;
 }
