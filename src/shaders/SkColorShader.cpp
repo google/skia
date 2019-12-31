@@ -106,8 +106,7 @@ static bool common_program(SkColor4f color, SkColorSpace* cs,
 }
 
 bool SkColorShader::onProgram(skvm::Builder* p,
-                              const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
-                              SkFilterQuality /*quality*/, SkColorSpace* dstCS,
+                              SkColorSpace* dstCS,
                               skvm::Uniforms* uniforms,
                               skvm::F32 /*x*/, skvm::F32 /*y*/,
                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
@@ -115,8 +114,7 @@ bool SkColorShader::onProgram(skvm::Builder* p,
                           p, dstCS, uniforms, r,g,b,a);
 }
 bool SkColor4Shader::onProgram(skvm::Builder* p,
-                               const SkMatrix& /*ctm*/, const SkMatrix* /*localM*/,
-                               SkFilterQuality /*quality*/, SkColorSpace* dstCS,
+                               SkColorSpace* dstCS,
                                skvm::Uniforms* uniforms,
                                skvm::F32 /*x*/, skvm::F32 /*y*/,
                                skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
