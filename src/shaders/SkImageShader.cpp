@@ -499,7 +499,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         bool src_is_normalized = SkColorTypeIsNormalized(info.colorType());
 
         // Bicubic filtering naturally produces out of range values on both sides of [0,1].
-        if (quality == kHigh_SkFilterQuality) {
+        if (quality > kLow_SkFilterQuality) {
             p->append(SkRasterPipeline::clamp_0);
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
@@ -597,7 +597,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         p->append(SkRasterPipeline::move_dst_src);
 
     } else {
-        SkASSERT(quality == kHigh_SkFilterQuality);
         p->append(SkRasterPipeline::save_xy, sampler);
 
         sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n3y);
