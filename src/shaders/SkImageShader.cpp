@@ -479,37 +479,36 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     };
 
     auto append_misc = [&] {
-        SkColorSpace* cs = info.colorSpace();
-        SkAlphaType   at = info.alphaType();
-
-        // Color for A8 images comes from the paint.    TODO: all alpha formats?  maybe none?
+        // TODO: if ref.fDstCS isn't null, we'll premul here then immediately unpremul
+        // to do the color space transformation.  Might be possible to streamline.
         if (info.colorType() == kAlpha_8_SkColorType) {
+            // The color for A8 images comes from the (sRGB) paint color.
             p->append_set_rgb(alloc, rec.fPaint.getColor4f());
             p->append(SkRasterPipeline::premul);
-            cs = sk_srgb_singleton();  // TODO: transform to dstCS here instead of at runtime?
-            at = kPremul_SkAlphaType;
+        } else if (info.alphaType() == kUnpremul_SkAlphaType) {
+            // Convert unpremul images to premul before we carry on with the rest of the pipeline.
+            p->append(SkRasterPipeline::premul);
         }
 
-        // This is an unessential optimization... it's logically safe to set this to false.
-        // But if...
-        //      - we know the image is definitely normalized, and
-        //      - we're doing some color space conversion, and
-        //      - sRGB curves are involved,
-        // then we can use slightly faster math that doesn't work well outside [0,1].
-        bool src_is_normalized = SkColorTypeIsNormalized(info.colorType());
-
-        // Bicubic filtering naturally produces out of range values on both sides of [0,1].
         if (quality > kLow_SkFilterQuality) {
+            // Bicubic filtering naturally produces out of range values on both sides.
             p->append(SkRasterPipeline::clamp_0);
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
-            src_is_normalized = true;
         }
 
-        // Transform color space and alpha type to match shader convention (dst CS, premul alpha).
-        alloc->make<SkColorSpaceXformSteps>(cs, at,
-                                            rec.fDstCS, kPremul_SkAlphaType)
-            ->apply(p, src_is_normalized);
+        if (rec.fDstCS) {
+            // If color managed, convert from premul source all the way to premul dst color space.
+            auto srcCS = info.colorSpace();
+            if (!srcCS || info.colorType() == kAlpha_8_SkColorType) {
+                // We treat untagged images as sRGB.
+                // A8 images get their r,g,b from the paint color, so they're also sRGB.
+                srcCS = sk_srgb_singleton();
+            }
+            alloc->make<SkColorSpaceXformSteps>(srcCS     , kPremul_SkAlphaType,
+                                                rec.fDstCS, kPremul_SkAlphaType)
+                ->apply(p, info.colorType());
+        }
 
         return true;
     };
