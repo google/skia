@@ -47,6 +47,11 @@ struct Expression : public IRNode {
         kDefined_Kind
     };
 
+    enum class Property {
+        kSideEffects,
+        kContainsRTAdjust
+    };
+
     Expression(int offset, Kind kind, const Type& type)
     : INHERITED(offset)
     , fKind(kind)
@@ -85,12 +90,15 @@ struct Expression : public IRNode {
         ABORT("not a constant float");
     }
 
-    /**
-     * Returns true if evaluating the expression potentially has side effects. Expressions may never
-     * return false if they actually have side effects, but it is legal (though suboptimal) to
-     * return true if there are not actually any side effects.
-     */
-    virtual bool hasSideEffects() const = 0;
+    virtual bool hasProperty(Property property) const = 0;
+
+    bool hasSideEffects() const {
+        return this->hasProperty(Property::kSideEffects);
+    }
+
+    bool containsRTAdjust() const {
+        return this->hasProperty(Property::kContainsRTAdjust);
+    }
 
     /**
      * Given a map of known constant variable values, substitute them in for references to those

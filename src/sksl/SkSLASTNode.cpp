@@ -11,6 +11,7 @@
 
 namespace SkSL {
 
+#ifdef SK_DEBUG
 String ASTNode::description() const {
     switch (fKind) {
         case Kind::kNull: return "";
@@ -234,5 +235,6 @@ String ASTNode::description() const {
             return "<error>";
     }
 }
+#endif
 
 } // namespace

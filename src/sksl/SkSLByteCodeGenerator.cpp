@@ -27,7 +27,7 @@ static TypeCategory type_category(const Type& type) {
                 SkASSERT(type.fName == "float" || type.fName == "half");
                 return TypeCategory::kFloat;
             }
-            ABORT("unsupported type: %s\n", type.description().c_str());
+            ABORT("unsupported type: %s\n", type.displayName().c_str());
     }
 }
 
@@ -1303,7 +1303,9 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
             this->writeTernaryExpression((TernaryExpression&) e);
             break;
         default:
+#ifdef SK_DEBUG
             printf("unsupported expression %s\n", e.description().c_str());
+#endif
             SkASSERT(false);
     }
     if (discard) {
@@ -1455,7 +1457,9 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
         }
         case Expression::kTernary_Kind:
         default:
-            printf("unsupported lvalue %s\n", e.description().c_str());
+#ifdef SK_DEBUG
+            ABORT("unsupported lvalue %s\n", e.description().c_str());
+#endif
             return nullptr;
     }
 }
