@@ -490,7 +490,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
             p->append(SkRasterPipeline::premul);
         }
 
-        if (quality > kLow_SkFilterQuality) {
+        if (quality == kHigh_SkFilterQuality) {
             // Bicubic filtering naturally produces out of range values on both sides.
             p->append(SkRasterPipeline::clamp_0);
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
@@ -596,6 +596,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         p->append(SkRasterPipeline::move_dst_src);
 
     } else {
+        SkASSERT(quality == kHigh_SkFilterQuality);
         p->append(SkRasterPipeline::save_xy, sampler);
 
         sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n3y);
