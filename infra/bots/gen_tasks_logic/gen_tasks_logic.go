@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -944,7 +945,7 @@ func (b *builder) createPushAppsFromSkiaDockerImage(name string) string {
 		},
 		Dependencies: []string{
 			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", filepath.Join("docker", "skia-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", path.Join("docker", "skia-release")),
 		},
 		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
@@ -984,7 +985,7 @@ func (b *builder) createPushAppsFromWASMDockerImage(name string) string {
 		},
 		Dependencies: []string{
 			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", filepath.Join("docker", "skia-wasm-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", path.Join("docker", "skia-wasm-release")),
 		},
 		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
@@ -1025,8 +1026,8 @@ func (b *builder) createPushAppsFromSkiaWASMDockerImages(name string) string {
 		},
 		Dependencies: []string{
 			BUILD_TASK_DRIVERS_NAME,
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", filepath.Join("docker", "skia-release")),
-			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", filepath.Join("docker", "skia-wasm-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_Release", "skia-release", path.Join("docker", "skia-release")),
+			b.createDockerImage("Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release", "skia-wasm-release", path.Join("docker", "skia-wasm-release")),
 		},
 		Dimensions: b.dockerGceDimensions(),
 		EnvPrefixes: map[string][]string{
@@ -1607,9 +1608,9 @@ func (b *builder) process(name string) {
 	// Create docker image.
 	if strings.Contains(name, "CreateDockerImage") {
 		if strings.Contains(parts["extra_config"], "Skia_Release") {
-			deps = append(deps, b.createDockerImage(name, "skia-release", filepath.Join("docker", "skia-release")))
+			deps = append(deps, b.createDockerImage(name, "skia-release", path.Join("docker", "skia-release")))
 		} else if strings.Contains(parts["extra_config"], "Skia_WASM_Release") {
-			deps = append(deps, b.createDockerImage(name, "skia-wasm-release", filepath.Join("docker", "skia-wasm-release")))
+			deps = append(deps, b.createDockerImage(name, "skia-wasm-release", path.Join("docker", "skia-wasm-release")))
 		}
 	}
 
