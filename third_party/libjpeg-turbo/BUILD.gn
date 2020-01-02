@@ -21,6 +21,9 @@ if (skia_use_system_libjpeg_turbo) {
     ]
 
     defines = [ "TURBO_FOR_WINDOWS" ]
+    if (!is_win || is_clang) {
+      defines += [ "USE_CLZ_INTRINSIC" ]  # Cuts a 64K table.
+    }
 
     sources = [
       "../externals/libjpeg-turbo/jaricom.c",
