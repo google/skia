@@ -46,6 +46,30 @@
       "revId": "8a6122610abc7f31836cdf0e3296b3733e445208",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18eaac61_b944484d",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-02T16:42:23Z",
+      "side": 0,
+      "message": "I don\u0027t think you should add it to any release notes for branch. This is an internal tool. Maybe just send a note out to skia-staff",
+      "parentUuid": "780cf0bc_17afe267",
+      "range": {
+        "startLine": 118,
+        "startChar": 20,
+        "endLine": 119,
+        "endChar": 92
+      },
+      "revId": "8a6122610abc7f31836cdf0e3296b3733e445208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
