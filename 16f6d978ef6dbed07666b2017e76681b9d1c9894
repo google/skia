@@ -16,6 +16,24 @@
       "revId": "16f6d978ef6dbed07666b2017e76681b9d1c9894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aec6aec3_d256d30d",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-01-02T19:17:38Z",
+      "side": 1,
+      "message": "Oh, I forgot about that option :(",
+      "parentUuid": "97c62a11_a4265471",
+      "revId": "16f6d978ef6dbed07666b2017e76681b9d1c9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
