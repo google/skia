@@ -89,7 +89,7 @@
 #define DEBUGCANVAS_ATTRIBUTE_COLORFILTER "colorfilter"
 #define DEBUGCANVAS_ATTRIBUTE_IMAGEFILTER "imagefilter"
 #define DEBUGCANVAS_ATTRIBUTE_IMAGE "image"
-#define DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS "imageAddress"
+#define DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX "imageIndex"
 #define DEBUGCANVAS_ATTRIBUTE_BITMAP "bitmap"
 #define DEBUGCANVAS_ATTRIBUTE_SRC "src"
 #define DEBUGCANVAS_ATTRIBUTE_DST "dst"
@@ -1318,12 +1318,16 @@ bool DrawImageCommand::render(SkCanvas* canvas) const {
 
 void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
-    flatten(*fImage, writer, urlDataManager);
-    writer.endObject();  // image
 
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
-    writer.appendU64((uint64_t)fImage.get());
+
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
 
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     MakeJsonPoint(writer, fLeft, fTop);
@@ -1377,12 +1381,14 @@ bool DrawImageLatticeCommand::render(SkCanvas* canvas) const {
 
 void DrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
-    flatten(*fImage, writer, urlDataManager);
-    writer.endObject();  // image
-
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
-    writer.appendU64((uint64_t)fImage.get());
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
 
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_LATTICE);
     MakeJsonLattice(writer, fLattice);
@@ -1426,12 +1432,14 @@ bool DrawImageRectCommand::render(SkCanvas* canvas) const {
 
 void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
-    flatten(*fImage, writer, urlDataManager);
-    writer.endObject();  // image
-
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
-    writer.appendU64((uint64_t)fImage.get());
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
 
     if (fSrc.isValid()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_SRC);
@@ -1536,12 +1544,14 @@ bool DrawImageNineCommand::render(SkCanvas* canvas) const {
 
 void DrawImageNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-    writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
-    flatten(*fImage, writer, urlDataManager);
-    writer.endObject();  // image
-
-    writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_ADDRESS);
-    writer.appendU64((uint64_t)fImage.get());
+    if (urlDataManager.hasImageIndex()) {
+        writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
+        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+    } else {
+        writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
+        flatten(*fImage, writer, urlDataManager);
+        writer.endObject();  // image
+    }
 
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_CENTER);
     MakeJsonIRect(writer, fCenter);
