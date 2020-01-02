@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "889f5263_0d0158b5",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-02T12:57:31Z",
+      "side": 1,
+      "message": "Not that it matters too much (at all?), but this should be _SkRuntimeEffect",
+      "range": {
+        "startLine": 1355,
+        "startChar": 50,
+        "endLine": 1355,
+        "endChar": 65
+      },
+      "revId": "93de162dc23b10677801c5cf8d31c084b2365123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e66075e_92cc1e5e",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-02T12:57:31Z",
+      "side": 1,
+      "message": "In a debug build, maybe we want to print the string part of EffectResult? (it might get printed elsewhere)",
+      "range": {
+        "startLine": 1358,
+        "startChar": 12,
+        "endLine": 1358,
+        "endChar": 57
+      },
+      "revId": "93de162dc23b10677801c5cf8d31c084b2365123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "857f3332_bdccec27",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-02T12:57:31Z",
+      "side": 1,
+      "message": "nit: I usually like to cast these on their own lines and have a comment explaining why. Looks like I forgot the comment in the original implementation. Also add comment to cast below.",
+      "range": {
+        "startLine": 1361,
+        "startChar": 58,
+        "endLine": 1361,
+        "endChar": 87
+      },
+      "revId": "93de162dc23b10677801c5cf8d31c084b2365123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4758f4bb_62649430",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-02T12:57:31Z",
+      "side": 1,
+      "message": "nit: put the optional argument (SimpleMatrix) as the last argument, so it\u0027s more clear that 1364 and 1360 are the same except for that argument",
+      "range": {
+        "startLine": 1364,
+        "startChar": 122,
+        "endLine": 1364,
+        "endChar": 135
+      },
+      "revId": "93de162dc23b10677801c5cf8d31c084b2365123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9fe21c4_47f223a3",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 11
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-02T12:57:31Z",
+      "side": 1,
+      "message": "I\u0027d prefer the order to go floats, isOpaque, matrix. Then use !!isOpaque on 224 and 226. That way omitting the isOpaque argument works as a JS user would expect (default to false).",
+      "range": {
+        "startLine": 219,
+        "startChar": 61,
+        "endLine": 219,
+        "endChar": 70
+      },
+      "revId": "93de162dc23b10677801c5cf8d31c084b2365123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
