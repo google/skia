@@ -51,6 +51,7 @@ void CFG::addExit(BlockId from, BlockId to) {
     }
 }
 
+#ifdef SK_DEBUG
 void CFG::dump() {
     for (size_t i = 0; i < fBlocks.size(); i++) {
         printf("Block %d\n-------\nBefore: ", (int) i);
@@ -82,6 +83,7 @@ void CFG::dump() {
         printf("\n\n");
     }
 }
+#endif
 
 bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                            Expression* e) {
@@ -149,7 +151,10 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
             }
             return this->tryRemoveLValueBefore(iter, ((TernaryExpression*) lvalue)->fIfFalse.get());
         default:
+#ifdef SK_DEBUG
             ABORT("invalid lvalue: %s\n", lvalue->description().c_str());
+#endif
+            return false;
     }
 }
 
@@ -247,7 +252,10 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
             *iter = fNodes.erase(*iter);
             return true;
         default:
+#ifdef SK_DEBUG
             ABORT("unhandled expression: %s\n", expr->description().c_str());
+#endif
+            return false;
     }
 }
 
@@ -655,8 +663,10 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         case Statement::kNop_Kind:
             break;
         default:
-            printf("statement: %s\n", (*s)->description().c_str());
-            ABORT("unsupported statement kind");
+#ifdef SK_DEBUG
+            ABORT("unsupported statement: %s\n", (*s)->description().c_str());
+#endif
+            break;
     }
 }
 

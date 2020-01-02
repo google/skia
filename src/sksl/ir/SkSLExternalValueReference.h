@@ -21,13 +21,15 @@ struct ExternalValueReference : public Expression {
     : INHERITED(offset, kExternalValue_Kind, ev->type())
     , fValue(ev) {}
 
-    bool hasSideEffects() const override {
-        return true;
+    bool hasProperty(Property property) const override {
+        return property == Property::kSideEffects;
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         return String(fValue->fName);
     }
+#endif
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new ExternalValueReference(fOffset, fValue));
