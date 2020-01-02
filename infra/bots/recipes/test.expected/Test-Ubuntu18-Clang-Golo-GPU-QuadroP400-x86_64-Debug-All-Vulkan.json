@@ -405,7 +405,9 @@
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/linux_vulkan_sdk/lib",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin",
+      "VK_LAYER_PATH": "[START_DIR]/linux_vulkan_sdk/etc/explicit_layer.d",
+      "VULKAN_SDK": "[START_DIR]/linux_vulkan_sdk"
     },
     "name": "symbolized dm"
   },
