@@ -22,6 +22,30 @@
       "revId": "8a6122610abc7f31836cdf0e3296b3733e445208",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "780cf0bc_17afe267",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-01-02T16:35:59Z",
+      "side": 0,
+      "message": "I can put it in the release notes for the next branch. Should I also announce it to a mailing list?",
+      "parentUuid": "5802c772_38bb14db",
+      "range": {
+        "startLine": 118,
+        "startChar": 20,
+        "endLine": 119,
+        "endChar": 92
+      },
+      "revId": "8a6122610abc7f31836cdf0e3296b3733e445208",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3e5e680a_558d2fd6",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-01-02T16:35:59Z",
+      "side": 1,
+      "message": "My reasoning is that if you\u0027re debugging, it would be fairly easy to comment this out and recompile. If we don\u0027t do this, we will never notice errors on the bots. I\u0027m not aware of any ifdef for running on the bots, and I don\u0027t think that would be a good idea.",
+      "parentUuid": "25bf5008_5d9e4126",
+      "range": {
+        "startLine": 126,
+        "startChar": 8,
+        "endLine": 126,
+        "endChar": 48
+      },
+      "revId": "fd0fee464a36f8e6ded418877c1b661c78f4e056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d342e0c_4abb3993",
         "filename": "tools/gpu/vk/VkTestUtils.cpp",
         "patchSetId": 19
@@ -45,6 +69,30 @@
       "revId": "fd0fee464a36f8e6ded418877c1b661c78f4e056",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "770a15fc_9be7b216",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-01-02T16:35:59Z",
+      "side": 1,
+      "message": "Moved it to warning / perf warning. Similar to above, I figure when debugging you can just comment it out. OTOH, we probably will never notice if this happens on the bots, so maybe there\u0027s no point? I suppose if we do notice a warning then it will be easier to figure out how to reproduce if we have a backtrace.",
+      "parentUuid": "8d342e0c_4abb3993",
+      "range": {
+        "startLine": 135,
+        "startChar": 4,
+        "endLine": 135,
+        "endChar": 22
+      },
+      "revId": "fd0fee464a36f8e6ded418877c1b661c78f4e056",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
