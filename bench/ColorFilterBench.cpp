@@ -128,6 +128,7 @@ const char RuntimeNone_GPU_SRC[] = R"(
     void main(inout half4 c) {}
 )";
 
+// TODO: Use intrinsic max/saturate when those are implemented by the interpreter
 const char RuntimeColorMatrix_GPU_SRC[] = R"(
     // WTB matrix/vector inputs.
     uniform half m0 , m1 , m2 , m3 , m4 ,
@@ -135,7 +136,7 @@ const char RuntimeColorMatrix_GPU_SRC[] = R"(
                  m10, m11, m12, m13, m14,
                  m15, m16, m17, m18, m19;
     void main(inout half4 c) {
-        half nonZeroAlpha = max(c.a, 0.0001);
+        half nonZeroAlpha = c.a < 0.0001 ? 0.0001 : c.a;
         c = half4(c.rgb / nonZeroAlpha, nonZeroAlpha);
 
         half4x4 m = half4x4(m0, m5, m10, m15,
@@ -144,7 +145,7 @@ const char RuntimeColorMatrix_GPU_SRC[] = R"(
                             m3, m8, m13, m18);
         c = m * c + half4  (m4, m9, m14, m19);
 
-        c = saturate(c);
+        // c = saturate(c);
         c.rgb *= c.a;
     }
 )";
@@ -186,7 +187,7 @@ DEF_BENCH( return new ColorMatrixBench("lerp_src",
 DEF_BENCH( return new ColorMatrixBench("src_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
                 SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)));
-        return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
+        return gEffect->makeColorFilter(SkData::MakeEmpty());
     });)
 DEF_BENCH( return new ColorMatrixBench("matrix_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
