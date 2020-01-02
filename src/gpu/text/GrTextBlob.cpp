@@ -66,9 +66,6 @@ public:
     void setStrike(sk_sp<GrTextStrike> strike);
     GrTextStrike* strike() const;
 
-    void setAtlasGeneration(uint64_t atlasGeneration);
-    uint64_t atlasGeneration() const;
-
     GrMaskFormat maskFormat() const;
 
     size_t vertexStride() const;
@@ -204,8 +201,6 @@ void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
 void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
-void GrTextBlob::SubRun::setAtlasGeneration(uint64_t atlasGeneration) { fAtlasGeneration = atlasGeneration;}
-uint64_t GrTextBlob::SubRun::atlasGeneration() const { return fAtlasGeneration; }
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
     return GetVertexStride(this->maskFormat(), this->hasW());
@@ -948,9 +943,9 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     }
 
     if (fActions.regenTextureCoordinates) {
-        fSubRun->setAtlasGeneration(fBrokenRun
-                                    ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                                    : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat()));
+        fSubRun->fAtlasGeneration =
+                fBrokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                           : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     } else {
         // For the non-texCoords case we need to ensure that we update the associated use tokens
         fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
@@ -964,7 +959,7 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
-    fActions.regenTextureCoordinates |= fSubRun->atlasGeneration() != currentAtlasGen;
+    fActions.regenTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
 
     if (fActions.regenStrike
        |fActions.regenTextureCoordinates) {
