@@ -242,7 +242,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         bool done = false;
         while (!done) {
             GrTextBlob::VertexRegenerator::Result result;
-            if (!regenerator.regenerate(&result)) {
+            if (!regenerator.regenerate(&result, INT_MAX)) {
                 break;
             }
             done = result.fFinished;

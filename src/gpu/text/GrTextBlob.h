@@ -317,10 +317,10 @@ public:
         const char* fFirstVertex;
     };
 
-    bool regenerate(Result*);
+    bool regenerate(Result*, int maxGlyphs);
 
 private:
-    bool doRegen(Result* result);
+    bool doRegen(Result* result, int maxGlyphs);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
