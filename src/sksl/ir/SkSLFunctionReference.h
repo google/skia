@@ -24,7 +24,7 @@ struct FunctionReference : public Expression {
     : INHERITED(offset, kFunctionReference_Kind, *context.fInvalid_Type)
     , fFunctions(function) {}
 
-    bool hasSideEffects() const override {
+    bool hasProperty(Property property) const override {
         return false;
     }
 
@@ -32,9 +32,11 @@ struct FunctionReference : public Expression {
         return std::unique_ptr<Expression>(new FunctionReference(fOffset, fFunctions, &fType));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         return String("<function>");
     }
+#endif
 
     const std::vector<const FunctionDeclaration*> fFunctions;
 
