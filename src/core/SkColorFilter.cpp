@@ -392,11 +392,12 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "include/private/SkMutex.h"
+#include "src/sksl/SkSLByteCode.h"
 
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/sksl/SkSLByteCode.h"
+#endif
 
 class SkRuntimeColorFilter : public SkColorFilter {
 public:
@@ -522,7 +523,10 @@ bool SkRuntimeColorFilterFactory::testCompile() const {
     return fEffect != nullptr;
 }
 
-#endif // SK_SUPPORT_GPU
+sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs) {
+    return sk_sp<SkColorFilter>(
+            new SkRuntimeColorFilter(std::move(effect), std::move(inputs), nullptr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -533,7 +537,5 @@ void SkColorFilter::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkModeColorFilter);
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
     SK_REGISTER_FLATTENABLE(SkMixerColorFilter);
-#if SK_SUPPORT_GPU
     SK_REGISTER_FLATTENABLE(SkRuntimeColorFilter);
-#endif
 }

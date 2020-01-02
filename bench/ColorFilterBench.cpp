@@ -10,7 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/core/SkColorFilterPriv.h"
+#include "src/core/SkRuntimeEffect.h"
 #include "tools/Resources.h"
 
 // Just need an interesting filter, nothing to special about colormatrix
@@ -124,27 +124,9 @@ private:
     sk_sp<SkColorFilter> fColorFilter;
 };
 
-void RuntimeNone_CPU(float[4], const void*) {}
-
 const char RuntimeNone_GPU_SRC[] = R"(
     void main(inout half4 c) {}
 )";
-
-void RuntimeColorMatrix_CPU(float colors[4], const void* ctx) {
-    auto c = reinterpret_cast<SkRGBA4f<kPremul_SkAlphaType>*>(colors)->unpremul();
-
-    const auto* m = static_cast<const float*>(ctx);
-    const auto c0 = c[0]*m[ 0] + c[1]*m[ 1] + c[2]*m[ 2] + c[3]*m[ 3] + m[ 4],
-               c1 = c[0]*m[ 5] + c[1]*m[ 6] + c[2]*m[ 7] + c[3]*m[ 8] + m[ 9],
-               c2 = c[0]*m[10] + c[1]*m[11] + c[2]*m[12] + c[3]*m[13] + m[14],
-               c3 = c[0]*m[15] + c[1]*m[16] + c[2]*m[17] + c[3]*m[18] + m[19];
-    c[0] = c0;
-    c[1] = c1;
-    c[2] = c2;
-    c[3] = c3;
-
-    *reinterpret_cast<SkRGBA4f<kPremul_SkAlphaType>*>(colors) = c.premul();
-}
 
 const char RuntimeColorMatrix_GPU_SRC[] = R"(
     // WTB matrix/vector inputs.
@@ -202,13 +184,13 @@ DEF_BENCH( return new ColorMatrixBench("lerp_src",
 
 #ifdef SK_SUPPORT_GPU
 DEF_BENCH( return new ColorMatrixBench("src_runtime", []() {
-        static SkRuntimeColorFilterFactory gRuntimeFact(SkString(RuntimeNone_GPU_SRC),
-                                                        RuntimeNone_CPU);
-        return gRuntimeFact.make(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
+        static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
+                SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)));
+        return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
     });)
 DEF_BENCH( return new ColorMatrixBench("matrix_runtime", []() {
-        static SkRuntimeColorFilterFactory gRuntimeFact(SkString(RuntimeColorMatrix_GPU_SRC),
-                                                        RuntimeColorMatrix_CPU);
-        return gRuntimeFact.make(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
+        static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
+                SkRuntimeEffect::Make(SkString(RuntimeColorMatrix_GPU_SRC)));
+        return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
     });)
 #endif

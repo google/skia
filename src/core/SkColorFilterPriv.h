@@ -7,8 +7,6 @@
 #ifndef SkColorFilterPriv_DEFINED
 #define SkColorFilterPriv_DEFINED
 
-#ifdef SK_SUPPORT_GPU
-
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkString.h"
 
@@ -60,6 +58,6 @@ private:
     SkRuntimeColorFilterFn fCpuFunc;
 };
 
-#endif // SK_SUPPORT_GPU
+sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs);
 
 #endif  // SkColorFilterPriv_DEFINED
