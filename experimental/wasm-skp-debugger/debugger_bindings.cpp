@@ -323,6 +323,8 @@ class SkpDebugPlayer {
           i++;
         }
         fImages = deserialContext->fImages;
+
+        udm.indexImages(fImages);
       }
 
       // constrains the draw command index to the frame's command list length.
