@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97c62a11_a4265471",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-01-02T19:15:34Z",
+      "side": 1,
+      "message": "I don\u0027t think this is what you intended. This adds linux-blink-rel as a tryjob for *all* CLs. I think you intended to use the \u0027includable_only: true\u0027 option.",
+      "revId": "16f6d978ef6dbed07666b2017e76681b9d1c9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
