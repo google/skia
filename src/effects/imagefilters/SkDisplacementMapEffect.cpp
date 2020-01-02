@@ -340,7 +340,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         if (!colorProxy || !displProxy) {
             return nullptr;
         }
-        const auto isProtected = colorProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+        const auto isProtected = colorProxy->isProtected();
 
         SkMatrix offsetMatrix = SkMatrix::MakeTrans(SkIntToScalar(colorOffset.fX - displOffset.fX),
                                                     SkIntToScalar(colorOffset.fY - displOffset.fY));

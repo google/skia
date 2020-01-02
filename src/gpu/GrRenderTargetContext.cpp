@@ -1640,7 +1640,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
     SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
     SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
 
-    if (this->asSurfaceProxy()->isProtected()) {
+    if (this->asSurfaceProxy()->isProtected() == GrProtected::kYes) {
         callback(context, nullptr);
         return;
     }
@@ -1723,7 +1723,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
         callback(context, nullptr);
         return;
     }
-    if (this->asSurfaceProxy()->isProtected()) {
+    if (this->asSurfaceProxy()->isProtected() == GrProtected::kYes) {
         callback(context, nullptr);
         return;
     }

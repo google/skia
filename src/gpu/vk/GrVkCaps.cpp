@@ -183,7 +183,7 @@ bool GrVkCaps::canCopyAsResolve(VkFormat dstFormat, int dstSampleCnt, bool dstHa
 
 bool GrVkCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    if (src->isProtected() && !dst->isProtected()) {
+    if (src->isProtected() == GrProtected::kYes && dst->isProtected() != GrProtected::kYes) {
         return false;
     }
 

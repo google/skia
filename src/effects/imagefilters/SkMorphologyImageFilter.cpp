@@ -578,7 +578,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                 kBottomLeft_GrSurfaceOrigin,
                 nullptr,
                 SkBudgeted::kYes,
-                srcTexture->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+                srcTexture->isProtected());
         if (!dstRTContext) {
             return nullptr;
         }
@@ -607,7 +607,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
                 kBottomLeft_GrSurfaceOrigin,
                 nullptr,
                 SkBudgeted::kYes,
-                srcTexture->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+                srcTexture->isProtected());
         if (!dstRTContext) {
             return nullptr;
         }

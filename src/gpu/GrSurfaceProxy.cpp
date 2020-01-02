@@ -289,7 +289,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            SkBudgeted budgeted,
                                            RectsMustMatch rectsMustMatch) {
     SkASSERT(!src->isFullyLazy());
-    GrProtected isProtected = src->isProtected() ? GrProtected::kYes : GrProtected::kNo;
     int width;
     int height;
 
@@ -322,9 +321,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     GrSurfaceOrigin origin = src->origin();
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         auto dstContext = GrSurfaceContext::Make(context, {width, height}, format,
-                                                 GrRenderable::kNo, 1, mipMapped, isProtected,
-                                                 origin, colorType, kUnknown_SkAlphaType, nullptr,
-                                                 fit, budgeted);
+                                                 GrRenderable::kNo, 1, mipMapped,
+                                                 src->isProtected(), origin, colorType,
+                                                 kUnknown_SkAlphaType, nullptr, fit, budgeted);
         if (dstContext && dstContext->copy(src, srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();
         }

@@ -119,7 +119,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
             srcProxy->origin(),
             nullptr,
             SkBudgeted::kYes,
-            srcProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+            srcProxy->isProtected());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -178,7 +178,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
             srcProxy->origin(),
             nullptr,
             SkBudgeted::kYes,
-            srcProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+            srcProxy->isProtected());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -314,7 +314,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                 srcProxy->origin(),
                 nullptr,
                 SkBudgeted::kYes,
-                srcProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+                srcProxy->isProtected());
         if (!dstRenderTargetContext) {
             return nullptr;
         }
