@@ -229,7 +229,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['is_component_build'] = 'true'
   if 'Vulkan' in extra_tokens and not 'Android' in extra_tokens:
     args['skia_use_vulkan'] = 'true'
-    args['skia_enable_vulkan_debug_layers'] = 'false'
+    args['skia_enable_vulkan_debug_layers'] = 'true'
     if 'MoltenVK' in extra_tokens:
       args['skia_moltenvk_path'] = '"%s"' % moltenvk
   if 'Metal' in extra_tokens:
