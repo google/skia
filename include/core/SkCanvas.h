@@ -14,6 +14,7 @@
 #include "include/core/SkDeque.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkM4.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -2505,7 +2506,9 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_getTotalMatrix
         example: https://fiddle.skia.org/c/@Clip
     */
-    const SkMatrix& getTotalMatrix() const;
+    SkMatrix getTotalMatrix() const;
+
+    SkM4 get44() const;
 
     ///////////////////////////////////////////////////////////////////////////
 

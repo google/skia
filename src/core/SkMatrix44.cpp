@@ -401,17 +401,17 @@ static bool bits_isonly(int value, int mask) {
     return 0 == (value & ~mask);
 }
 
-void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
+SkMatrix44& SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
     const SkMatrix44::TypeMask a_mask = a.getType();
     const SkMatrix44::TypeMask b_mask = b.getType();
 
     if (kIdentity_Mask == a_mask) {
         *this = b;
-        return;
+        return *this;
     }
     if (kIdentity_Mask == b_mask) {
         *this = a;
-        return;
+        return *this;
     }
 
     bool useStorage = (this == &a || this == &b);
@@ -446,6 +446,7 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
         memcpy(fMat, storage, sizeof(storage));
     }
     this->recomputeTypeMask();
+    return *this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1035,4 +1036,37 @@ SkMatrix44::operator SkMatrix() const {
     dst[SkMatrix::kMPersp2] = SkMScalarToScalar(fMat[3][3]);
 
     return dst;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+SkMatrix44& SkMatrix44::preTranslate(SkScalar x, SkScalar y) {
+    SkMatrix44 tmp;
+    tmp.setTranslate(x, y, 0);
+    return this->preConcat(tmp);
+}
+
+SkMatrix44& SkMatrix44::preScale(SkScalar sx, SkScalar sy) {
+    SkMatrix44 tmp;
+    tmp.setScale(sx, sy, 1);
+    return this->preConcat(tmp);
+}
+
+SkMatrix44& SkMatrix44::preRotate(SkScalar degrees) {
+    SkMatrix44 tmp;
+    tmp.setRotateDegreesAbout(0, 0, 0, degrees);
+    return this->preConcat(tmp);
+}
+
+SkMatrix44& SkMatrix44::preConcat(const SkMatrix& m) {
+    SkMatrix44 tmp(m);
+    return this->preConcat(tmp);
+}
+
+bool SkMatrix44::rectStaysRect() const {
+    return false;
+}
+
+bool SkMatrix44::mapRect(SkRect* dst, const SkRect& src) const {
+    return ((const SkMatrix&)*this).mapRect(dst, src);
 }

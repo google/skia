@@ -59,6 +59,8 @@ static_assert(std::max(3,4) == 4);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef SkM4 SkCanvasMatrix;
+
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
  *
@@ -235,13 +237,13 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkCanvasMatrix fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
         fLayer      = nullptr;
         fTopLayer   = nullptr;
-        fMatrix.reset();
+        fMatrix.setIdentity();
         fDeferredSaveCount = 0;
 
         // don't bother initializing fNext
@@ -264,7 +266,7 @@ public:
         SkASSERT(fLayer);
         SkASSERT(fDeferredSaveCount == 0);
 
-        fMatrix.reset();
+        fMatrix.setIdentity();
         fRasterClip.setRect(bounds);
         fLayer->reset(bounds);
     }
@@ -795,7 +797,7 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveLayerFlags saveLayerFlag
         return false;
     }
 
-    const SkMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
+    const SkCanvasMatrix& ctm = fMCRec->fMatrix;  // this->getTotalMatrix()
 
     if (imageFilter && bounds && !imageFilter->canComputeFastBounds()) {
         // If the image filter DAG affects transparent black then we will need to render
@@ -1428,7 +1430,7 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         fMCRec->fMatrix.preTranslate(dx,dy);
 
         // Translate shouldn't affect the is-scale-translateness of the matrix.
-        SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
+ //       SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 
         FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
@@ -1583,8 +1585,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1702,7 +1703,7 @@ bool SkCanvas::quickReject(const SkRect& src) const {
     }
 
     // Verify that fIsScaleTranslate is set properly.
-    SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
+//    SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 #endif
 
     if (!fIsScaleTranslate) {
@@ -1742,7 +1743,7 @@ SkRect SkCanvas::getLocalClipBounds() const {
         return SkRect::MakeEmpty();
     }
 
-    SkMatrix inverse;
+    SkCanvasMatrix inverse;
     // if we can't invert the CTM, we can't return local clip bounds
     if (!fMCRec->fMatrix.invert(&inverse)) {
         return SkRect::MakeEmpty();
@@ -1761,7 +1762,7 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
