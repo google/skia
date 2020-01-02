@@ -16,6 +16,24 @@
       "revId": "e994ee6fe2a970dc473e5ff538794795f11634cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86905e77_47278afd",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-02T20:49:22Z",
+      "side": 1,
+      "message": "Honestly, I\u0027m hoping this disappears. It feels like it is just an invariant of some of the other bits of data floating around. I\u0027m going to document more of this class in hopes of grasping the entire problem.",
+      "parentUuid": "03d46470_35bd60de",
+      "revId": "e994ee6fe2a970dc473e5ff538794795f11634cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
