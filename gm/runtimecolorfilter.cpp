@@ -14,7 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "src/core/SkRuntimeEffect.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
 
 #include <stddef.h>

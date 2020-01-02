@@ -10,7 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
-#include "src/core/SkRuntimeEffect.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "tools/Resources.h"
 
 // Just need an interesting filter, nothing to special about colormatrix

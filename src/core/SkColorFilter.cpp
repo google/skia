@@ -9,6 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkNx.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
@@ -17,7 +18,6 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffect.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 

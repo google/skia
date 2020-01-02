@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkRuntimeEffect.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "tests/Test.h"
 
 DEF_TEST(SkRuntimeEffectInvalidInputs, r) {
