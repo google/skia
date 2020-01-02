@@ -909,13 +909,12 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     }
 
     GrTextStrike* grStrike = fSubRun->strike();
-    auto vertexStride = fSubRun->vertexStride();
-    char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
-    result->fFirstVertex = currVertex;
-
-    for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->fGlyphs.size(); glyphIdx++) {
-        GrGlyph* glyph = nullptr;
-        if (fActions.regenTextureCoordinates) {
+    GrDrawOpAtlas::ErrorCode atlasErrorCode = GrDrawOpAtlas::ErrorCode::kSucceeded;
+    size_t lastAtlasGlyph = fSubRun->fGlyphs.size();
+    if (fActions.regenTextureCoordinates) {
+        lastAtlasGlyph = fCurrGlyph;
+        for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->fGlyphs.size(); glyphIdx++) {
+            GrGlyph* glyph = nullptr;
             glyph = fSubRun->fGlyphs[glyphIdx];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
@@ -923,21 +922,23 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                 GrDrawOpAtlas::ErrorCode code = grStrike->addGlyphToAtlas(
                         fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
                         fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
-                if (GrDrawOpAtlas::ErrorCode::kError == code) {
-                    // Something horrible has happened - drop the op
-                    return false;
-                }
-                else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    fBrokenRun = glyphIdx > 0;
-                    result->fFinished = false;
-                    return true;
+                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                    atlasErrorCode = code;
+                    break;
                 }
             }
+            lastAtlasGlyph = glyphIdx + 1;
             auto tokenTracker = fUploadTarget->tokenTracker();
-            fFullAtlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                            tokenTracker->nextDrawToken());
+            fFullAtlasManager->addGlyphToBulkAndSetUseToken(
+                    fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
         }
+    }
 
+    auto vertexStride = fSubRun->vertexStride();
+    char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
+    result->fFirstVertex = currVertex;
+    bool broken = lastAtlasGlyph > fCurrGlyph;
+    for (size_t glyphIdx = fCurrGlyph; glyphIdx < lastAtlasGlyph; glyphIdx++) {
         if (fActions.regenTextureCoordinates) {
             fSubRun->updateTexCoord(glyphIdx);
         }
@@ -945,6 +946,15 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         ++result->fGlyphsRegenerated;
         ++fCurrGlyph;
+    }
+
+    if (atlasErrorCode == GrDrawOpAtlas::ErrorCode::kError) {
+        // Something horrible has happened - drop the op
+        return false;
+    } else if (atlasErrorCode == GrDrawOpAtlas::ErrorCode::kTryAgain) {
+        fBrokenRun = broken;
+        result->fFinished = false;
+        return true;
     }
 
     if (fActions.regenTextureCoordinates) {
