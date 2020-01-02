@@ -306,8 +306,7 @@ public:
     inline GrSurfaceProxyPriv priv();
     inline const GrSurfaceProxyPriv priv() const;
 
-    // Returns true if we are working with protected content.
-    bool isProtected() const { return fIsProtected == GrProtected::kYes; }
+    GrProtected isProtected() const { return fIsProtected; }
 
 protected:
     // Deferred version - takes a new UniqueID from the shared resource/proxy pool.

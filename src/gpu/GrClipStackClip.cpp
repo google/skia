@@ -354,7 +354,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrRecordingContext* c
         return proxy;
     }
 
-    auto isProtected = proxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+    auto isProtected = proxy->isProtected();
     auto rtc = context->priv().makeDeferredRenderTargetContextWithFallback(SkBackingFit::kApprox,
                                                                            reducedClip.width(),
                                                                            reducedClip.height(),

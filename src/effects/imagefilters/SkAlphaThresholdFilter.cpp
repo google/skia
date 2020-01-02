@@ -151,7 +151,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
 
         sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
         SkASSERT(inputProxy);
-        const bool isProtected = inputProxy->isProtected();
+        const GrProtected isProtected = inputProxy->isProtected();
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
@@ -188,7 +188,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
         auto fp = GrFragmentProcessor::RunInSeries(fpSeries, 2);
 
         return DrawWithFP(context, std::move(fp), bounds, ctx.colorType(), ctx.colorSpace(),
-                          isProtected ? GrProtected::kYes : GrProtected::kNo);
+                          isProtected);
     }
 #endif
 

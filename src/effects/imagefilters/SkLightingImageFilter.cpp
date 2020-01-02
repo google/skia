@@ -499,7 +499,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
             kBottomLeft_GrSurfaceOrigin,
             nullptr,
             SkBudgeted::kYes,
-            inputProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo);
+            inputProxy->isProtected());
     if (!renderTargetContext) {
         return nullptr;
     }

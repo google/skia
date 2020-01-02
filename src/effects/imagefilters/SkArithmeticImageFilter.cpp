@@ -338,12 +338,12 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
     GrProtected isProtected = GrProtected::kNo;
     if (background) {
         backgroundProxy = background->asTextureProxyRef(context);
-        isProtected = backgroundProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+        isProtected = backgroundProxy->isProtected();
     }
 
     if (foreground) {
         foregroundProxy = foreground->asTextureProxyRef(context);
-        isProtected = foregroundProxy->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+        isProtected = foregroundProxy->isProtected();
     }
 
     GrPaint paint;

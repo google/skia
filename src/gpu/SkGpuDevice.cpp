@@ -1639,8 +1639,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
             kBottomLeft_GrSurfaceOrigin,
             &props,
             SkBudgeted::kYes,
-            fRenderTargetContext->asSurfaceProxy()->isProtected() ? GrProtected::kYes
-                                                                  : GrProtected::kNo);
+            fRenderTargetContext->asSurfaceProxy()->isProtected());
     if (!rtc) {
         return nullptr;
     }

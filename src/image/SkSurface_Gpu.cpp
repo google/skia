@@ -226,7 +226,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
                           SkSurfaceCharacterization::MipMapped(mipmapped),
                           SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
-                          GrProtected(rtc->asRenderTargetProxy()->isProtected()),
+                          rtc->asRenderTargetProxy()->isProtected(),
                           this->props());
     return true;
 }
@@ -310,7 +310,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
-    GrProtected isProtected = GrProtected(rtc->asSurfaceProxy()->isProtected());
+    GrProtected isProtected = rtc->asSurfaceProxy()->isProtected();
 
     return characterization.contextInfo() && characterization.contextInfo()->priv().matches(ctx) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
