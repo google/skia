@@ -7,9 +7,9 @@
 
 #include "src/gpu/effects/GrSkSLFP.h"
 
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrTexture.h"
 #include "include/private/GrContext_Base.h"
-#include "src/core/SkRuntimeEffect.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/sksl/SkSLUtil.h"
 

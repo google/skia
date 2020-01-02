@@ -11,7 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "src/core/SkRuntimeEffect.h"
+#include "include/effects/SkRuntimeEffect.h"
 
 static const char* RUNTIME_FUNCTIONS_SRC = R"(
     uniform half4 gColor;

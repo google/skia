@@ -8,6 +8,9 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+Moved SkRuntimeEffect to public API. This is the new (experimental) interface to custom SkSL
+shaders and color filters.
+
 Added BC1 compressed format support. Metal and Vulkan seem to only support the BC
 formats on desktop machines.
 

@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkData.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
-#include "src/core/SkRuntimeEffect.h"
 #include "src/shaders/SkRTShader.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
