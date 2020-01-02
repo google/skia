@@ -1353,17 +1353,25 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }));
 
     class_<SkRuntimeEffect>("_SkRuntimeEffect")
-        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<SkRuntimeEffect>")
+        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<_SkRuntimeEffect>")
         .class_function("Make", optional_override([](std::string sksl)->sk_sp<SkRuntimeEffect> {
             SkString s(sksl.c_str(), sksl.length());
-            return std::get<0>(SkRuntimeEffect::Make(s));
+            auto [effect, errorText] = SkRuntimeEffect::Make(s);
+            if (!effect) {
+                SkDebugf("Runtime effect failed to compile:\n%s\n", errorText.c_str());
+            }
+            return effect;
         }))
         .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fptr, size_t len, bool isOpaque)->sk_sp<SkShader> {
-            sk_sp<SkData> inputs = SkData::MakeFromMalloc(reinterpret_cast<void*>(fptr), len);
+            // See comment above for uintptr_t explanation
+            void* inputData = reinterpret_cast<void*>(fptr);
+            sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, len);
             return self.makeShader(inputs, nullptr, 0, nullptr, isOpaque);
         }))
-        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fptr, size_t len, SimpleMatrix sm, bool isOpaque)->sk_sp<SkShader> {
-            sk_sp<SkData> inputs = SkData::MakeFromMalloc(reinterpret_cast<void*>(fptr), len);
+        .function("_makeShader", optional_override([](SkRuntimeEffect& self, uintptr_t fptr, size_t len, bool isOpaque, SimpleMatrix sm)->sk_sp<SkShader> {
+            // See comment above for uintptr_t explanation
+            void* inputData = reinterpret_cast<void*>(fptr);
+            sk_sp<SkData> inputs = SkData::MakeFromMalloc(inputData, len);
             auto m = toSkMatrix(sm);
             return self.makeShader(inputs, nullptr, 0, &m, isOpaque);
         }));

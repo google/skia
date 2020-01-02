@@ -216,14 +216,14 @@ CanvasKit.onRuntimeInitialized = function() {
     return m;
   }
 
-  CanvasKit._SkRuntimeEffect.prototype.makeShader = function(isOpaque, floats, matrix) {
+  CanvasKit._SkRuntimeEffect.prototype.makeShader = function(floats, isOpaque, matrix) {
     var fptr = copy1dArray(floats, CanvasKit.HEAPF32);
     // Our array has 4 bytes per float, so be sure to account for that before
     // sending it over the wire.
     if (!matrix) {
-      return this._makeShader(fptr, floats.length * 4, isOpaque);
+      return this._makeShader(fptr, floats.length * 4, !!isOpaque);
     }
-    return this._makeShader(fptr, floats.length * 4, matrix, isOpaque);
+    return this._makeShader(fptr, floats.length * 4, !!isOpaque, matrix);
   }
 
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {

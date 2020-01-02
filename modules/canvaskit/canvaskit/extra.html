@@ -378,7 +378,7 @@ const curves = {
 
     const effect = CanvasKit._SkRuntimeEffect.Make(prog);
     const rot = CanvasKit.SkMatrix.rotated(90, 128, 128);
-    const shader = effect.makeShader(true, [1, 0, 0, 1], rot);
+    const shader = effect.makeShader([1, 0, 0, 1], true, rot);
 
     const paint = new CanvasKit.SkPaint();
     paint.setShader(shader);
