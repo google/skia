@@ -560,7 +560,9 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 if (type == *fContext.fVoid_Type) {
                     this->writeInstruction(SpvOpTypeVoid, result, fConstantBuffer);
                 } else {
+#ifdef SK_DEBUG
                     ABORT("invalid type: %s", type.description().c_str());
+#endif
                 }
         }
         fTypeMap[key] = result;
@@ -578,12 +580,12 @@ SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
-    String key = function.fReturnType.description() + "(";
+    String key = function.fReturnType.displayName() + "(";
     String separator;
     for (size_t i = 0; i < function.fParameters.size(); i++) {
         key += separator;
         separator = ", ";
-        key += function.fParameters[i]->fType.description();
+        key += function.fParameters[i]->fType.displayName();
     }
     key += ")";
     auto entry = fTypeMap.find(key);
@@ -641,7 +643,7 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ stor
 SpvId SPIRVCodeGenerator::getPointerType(const Type& rawType, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
     Type type = this->getActualType(rawType);
-    String key = type.description() + "*" + to_string(layout.fStd) + to_string(storageClass);
+    String key = type.displayName() + "*" + to_string(layout.fStd) + to_string(storageClass);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
@@ -682,7 +684,10 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
         case Expression::kIndex_Kind:
             return this->writeIndexExpression((IndexExpression&) expr, out);
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported expression: %s", expr.description().c_str());
+#endif
+            break;
     }
     return -1;
 }
@@ -1507,7 +1512,10 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
         case Type::kArray_Kind:
             return this->writeArrayConstructor(c, out);
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported constructor: %s", c.description().c_str());
+#endif
+            return -1;
     }
 }
 
@@ -1972,7 +1980,9 @@ SpvId SPIRVCodeGenerator::writeBinaryOperation(const Type& resultType,
         this->writeInstruction(ifBool, this->getType(resultType), result, lhs, rhs, out);
         return result; // skip RelaxedPrecision check
     } else {
+#ifdef SK_DEBUG
         ABORT("invalid operandType: %s", operandType.description().c_str());
+#endif
     }
     if (getActualType(resultType) == operandType && !resultType.highPrecision()) {
         this->writeInstruction(SpvOpDecorate, result, SpvDecorationRelaxedPrecision,
@@ -2388,7 +2398,9 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
         } else if (is_signed(fContext, p.fType)) {
             this->writeInstruction(SpvOpSNegate, typeId, result, expr, out);
         } else {
+#ifdef SK_DEBUG
             ABORT("unsupported prefix expression %s", p.description().c_str());
+#endif
         }
         this->writePrecisionModifier(p.fType, result);
         return result;
@@ -2428,7 +2440,10 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
             return result;
         }
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported prefix expression: %s", p.description().c_str());
+#endif
+            return -1;
     }
 }
 
@@ -2450,7 +2465,10 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
             return result;
         }
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported postfix expression %s", p.description().c_str());
+#endif
+            return -1;
     }
 }
 
@@ -2868,7 +2886,10 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
             this->writeInstruction(SpvOpKill, out);
             break;
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported statement: %s", s.description().c_str());
+#endif
+            break;
     }
 }
 

@@ -27,9 +27,11 @@ struct Field : public Symbol {
     , fOwner(owner)
     , fFieldIndex(fieldIndex) {}
 
+#ifdef SK_DEBUG
     virtual String description() const override {
         return fOwner.description() + "." + fOwner.fType.fields()[fFieldIndex].fName;
     }
+#endif
 
     const Variable& fOwner;
     const int fFieldIndex;

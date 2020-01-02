@@ -50,9 +50,9 @@ struct Constructor : public Expression {
         return nullptr;
     }
 
-    bool hasSideEffects() const override {
+    bool hasProperty(Property property) const override {
         for (const auto& arg : fArguments) {
-            if (arg->hasSideEffects()) {
+            if (arg->hasProperty(property)) {
                 return true;
             }
         }
@@ -67,6 +67,7 @@ struct Constructor : public Expression {
         return std::unique_ptr<Expression>(new Constructor(fOffset, fType, std::move(cloned)));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         String result = fType.description() + "(";
         String separator;
@@ -78,6 +79,7 @@ struct Constructor : public Expression {
         result += ")";
         return result;
     }
+#endif
 
     bool isConstant() const override {
         for (size_t i = 0; i < fArguments.size(); i++) {
@@ -156,7 +158,10 @@ struct Constructor : public Expression {
                 current += arg->fType.columns();
             }
         }
+#ifdef SK_DEBUG
         ABORT("failed to find vector component %d in %s\n", index, description().c_str());
+#endif
+        return -1;
     }
 
     SKSL_FLOAT getFVecComponent(int n) const override {

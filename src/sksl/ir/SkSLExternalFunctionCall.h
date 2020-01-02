@@ -24,8 +24,16 @@ struct ExternalFunctionCall : public Expression {
     , fFunction(function)
     , fArguments(std::move(arguments)) {}
 
-    bool hasSideEffects() const override {
-        return true;
+    bool hasProperty(Property property) const override {
+        if (property == Property::kSideEffects) {
+            return true;
+        }
+        for (const auto& arg : fArguments) {
+            if (arg->hasProperty(property)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     std::unique_ptr<Expression> clone() const override {
@@ -39,6 +47,7 @@ struct ExternalFunctionCall : public Expression {
                                                                     std::move(cloned)));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         String result = String(fFunction->fName) + "(";
         String separator;
@@ -50,6 +59,7 @@ struct ExternalFunctionCall : public Expression {
         result += ")";
         return result;
     }
+#endif
 
     ExternalValue* fFunction;
     std::vector<std::unique_ptr<Expression>> fArguments;

@@ -30,6 +30,7 @@ struct IfStatement : public Statement {
                 fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         String result;
         if (fIsStatic) {
@@ -41,6 +42,7 @@ struct IfStatement : public Statement {
         }
         return result;
     }
+#endif
 
     bool fIsStatic;
     std::unique_ptr<Expression> fTest;

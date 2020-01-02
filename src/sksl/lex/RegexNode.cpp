@@ -82,6 +82,7 @@ std::vector<int> RegexNode::createStates(NFA* nfa, const std::vector<int>& accep
     return result;
 }
 
+#ifdef SK_DEBUG
 std::string RegexNode::description() const {
     switch (fKind) {
         case kChar_Kind:
@@ -115,3 +116,4 @@ std::string RegexNode::description() const {
             return "<" + std::to_string(fKind) + ">";
     }
 }
+#endif

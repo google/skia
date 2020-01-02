@@ -37,6 +37,7 @@ struct SwitchStatement : public Statement {
                                                               std::move(cloned), fSymbols));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         String result;
         if (fIsStatic) {
@@ -49,6 +50,7 @@ struct SwitchStatement : public Statement {
         result += "}";
         return result;
     }
+#endif
 
     bool fIsStatic;
     std::unique_ptr<Expression> fValue;

@@ -392,13 +392,15 @@ private:
         Defined(const Type& type)
         : INHERITED(-1, kDefined_Kind, type) {}
 
-        bool hasSideEffects() const override {
+        bool hasProperty(Property property) const override {
             return false;
         }
 
+#ifdef SK_DEBUG
         String description() const override {
             return "<defined>";
         }
+#endif
 
         std::unique_ptr<Expression> clone() const override {
             return std::unique_ptr<Expression>(new Defined(fType));

@@ -58,8 +58,8 @@ struct IndexExpression : public Expression {
         SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
     }
 
-    bool hasSideEffects() const override {
-        return fBase->hasSideEffects() || fIndex->hasSideEffects();
+    bool hasProperty(Property property) const override {
+        return fBase->hasProperty(property) || fIndex->hasProperty(property);
     }
 
     std::unique_ptr<Expression> clone() const override {
@@ -67,9 +67,11 @@ struct IndexExpression : public Expression {
                                                                &fType));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         return fBase->description() + "[" + fIndex->description() + "]";
     }
+#endif
 
     std::unique_ptr<Expression> fBase;
     std::unique_ptr<Expression> fIndex;

@@ -235,7 +235,10 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             this->writeIndexExpression((IndexExpression&) expr);
             break;
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported expression: %s", expr.description().c_str());
+#endif
+            break;
     }
 }
 
@@ -1099,7 +1102,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                               Compiler::IsAssignment(b.fOperator) &&
                               Expression::kFieldAccess_Kind == b.fLeft->fKind &&
                               is_sk_position((FieldAccess&) *b.fLeft) &&
-                              !strstr(b.fRight->description().c_str(), "sk_RTAdjust") &&
+                              !b.fRight->containsRTAdjust() &&
                               !fProgram.fSettings.fCaps->canUseFragCoord();
     if (positionWorkaround) {
         this->write("sk_FragCoord_Workaround = (");
@@ -1500,7 +1503,10 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
             this->write(";");
             break;
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported statement: %s", s.description().c_str());
+#endif
+            break;
     }
 }
 
@@ -1707,8 +1713,10 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::kEnum_Kind:
             break;
         default:
-            printf("%s\n", e.description().c_str());
-            ABORT("unsupported program element");
+#ifdef SK_DEBUG
+            printf("unsupported program element %s\n", e.description().c_str());
+#endif
+            SkASSERT(false);
     }
 }
 

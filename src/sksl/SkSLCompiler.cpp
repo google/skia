@@ -526,7 +526,8 @@ static bool is_dead(const Expression& lvalue) {
             return is_dead(*((FieldAccess&) lvalue).fBase);
         case Expression::kIndex_Kind: {
             const IndexExpression& idx = (IndexExpression&) lvalue;
-            return is_dead(*idx.fBase) && !idx.fIndex->hasSideEffects();
+            return is_dead(*idx.fBase) &&
+                   !idx.fIndex->hasProperty(Expression::Property::kSideEffects);
         }
         case Expression::kTernary_Kind: {
             const TernaryExpression& t = (TernaryExpression&) lvalue;
@@ -535,7 +536,10 @@ static bool is_dead(const Expression& lvalue) {
         case Expression::kExternalValue_Kind:
             return false;
         default:
+#ifdef SK_DEBUG
             ABORT("invalid lvalue: %s\n", lvalue.description().c_str());
+#endif
+            return false;
     }
 }
 

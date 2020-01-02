@@ -158,7 +158,10 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writeIndexExpression((IndexExpression&) expr);
             break;
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported expression: %s", expr.description().c_str());
+#endif
+            break;
     }
 }
 
@@ -1177,7 +1180,10 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
             this->write(";");
             break;
         default:
+#ifdef SK_DEBUG
             ABORT("unsupported statement: %s", s.description().c_str());
+#endif
+            break;
     }
 }
 
@@ -1498,8 +1504,10 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeLine(";");
             break;
         default:
-            printf("%s\n", e.description().c_str());
-            ABORT("unsupported program element");
+#ifdef SK_DEBUG
+            ABORT("unsupported program element: %s\n", e.description().c_str());
+#endif
+            break;
     }
 }
 

@@ -115,8 +115,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                             SET_TYPES(Variable::Type::kFloat4x4, kHalf4x4_GrSLType);
                         } else {
                             RETURN_FAILURE("Invalid input/uniform type: '%s'",
-                                           type->description().c_str());
-
+                                           type->displayName().c_str());
                         }
 
 #undef SET_TYPES

@@ -270,7 +270,7 @@ DEF_TEST(SkSLBinaryTypeMismatch, r) {
 DEF_TEST(SkSLCallNonFunction, r) {
     test_failure(r,
                  "void main() { float x = 3; x(); }",
-                 "error: 1: 'x' is not a function\n1 error\n");
+                 "error: 1: not a function\n1 error\n");
 }
 
 DEF_TEST(SkSLInvalidUnary, r) {
@@ -302,7 +302,7 @@ DEF_TEST(SkSLInvalidUnary, r) {
 DEF_TEST(SkSLInvalidAssignment, r) {
     test_failure(r,
                  "void main() { 1 = 2; }",
-                 "error: 1: cannot assign to '1'\n1 error\n");
+                 "error: 1: cannot assign to this expression\n1 error\n");
     test_failure(r,
                  "uniform int x; void main() { x = 0; }",
                  "error: 1: cannot modify immutable variable 'x'\n1 error\n");
