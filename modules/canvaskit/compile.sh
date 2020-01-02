@@ -25,7 +25,7 @@ EMCC=`which emcc`
 EMCXX=`which em++`
 EMAR=`which emar`
 
-RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
+RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
 if [[ $@ == *debug* ]]; then
@@ -36,7 +36,7 @@ if [[ $@ == *debug* ]]; then
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
-  RELEASE_CONF="-O3 --source-map-base /node_modules/canvaskit/bin/ --profiling -g4 -DSK_RELEASE \
+  RELEASE_CONF="-Oz --llvm-lto 1 -g3 -DSK_RELEASE --profiling-funcs --closure 0 \
                 --pre-js $BASE_DIR/release.js -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
 else
@@ -44,6 +44,9 @@ else
 fi
 
 mkdir -p $BUILD_DIR
+# sometimes the .a files keep old symbols around - cleaning them out makes sure
+# we get a fresh build.
+rm -f $BUILD_DIR/*.a
 
 GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
@@ -72,9 +75,8 @@ fi
 
 MANAGED_SKOTTIE_BINDINGS="\
   -DSK_INCLUDE_MANAGED_SKOTTIE=1 \
-  modules/skottie/utils/SkottieUtils.cpp \
-  modules/skresources/src/SkResources.cpp"
-if [[ $@ == *no_managed_skottie* ]]; then
+  modules/skottie/utils/SkottieUtils.cpp"
+if [[ $@ == *no_managed_skottie* || $@ == *no_skottie* ]]; then
   echo "Omitting managed Skottie"
   MANAGED_SKOTTIE_BINDINGS="-DSK_INCLUDE_MANAGED_SKOTTIE=0"
 fi
@@ -90,6 +92,10 @@ if [[ $@ == *no_particles* ]]; then
   PARTICLES_JS=""
   PARTICLES_BINDINGS=""
   PARTICLES_LIB=""
+fi
+
+if [[ $@ != *no_particles* || $@ != *no_skottie* ]] ; then
+  PARTICLES_BINDINGS+=" modules/skresources/src/SkResources.cpp"
 fi
 
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
@@ -116,7 +122,7 @@ if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
   BUILTIN_FONT=""
   FONT_CFLAGS="-DSK_NO_FONTS"
-  GN_FONT="skia_enable_fontmgr_empty=true"
+  GN_FONT="skia_enable_fontmgr_empty=true skia_enable_fontmgr_custom_empty=false"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
   BUILTIN_FONT=""
@@ -134,7 +140,7 @@ GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true sk
 SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
 SHAPER_TARGETS="libharfbuzz.a libicu.a"
-if [[ $@ == *primitive_shaper* ]]; then
+if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"
   GN_SHAPER="skia_use_icu=false skia_use_harfbuzz=false"
   SHAPER_LIB=""
@@ -146,8 +152,8 @@ PARAGRAPH_LIB="$BUILD_DIR/libskparagraph.a"
 PARAGRAPH_BINDINGS="-DSK_INCLUDE_PARAGRAPH=1 \
   $BASE_DIR/paragraph_bindings.cpp"
 
-if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]]; then
-  echo "Omitting paragraph (must also have non-primitive shaper)"
+if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
+  echo "Omitting paragraph (must have fonts and non-primitive shaper)"
   PARAGRAPH_JS=""
   PARAGRAPH_LIB=""
   PARAGRAPH_BINDINGS=""
@@ -264,6 +270,7 @@ ${EMCXX} \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="CanvasKitInit" \
     -s FORCE_FILESYSTEM=0 \
+    -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
