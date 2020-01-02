@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - `CanvasKit.SaveLayerInitWithPrevious` and `CanvasKit.SaveLayerF16ColorType` constants.
+ - Some compilation configurations, for example, those with no fonts or just one of particles/skottie.
+
+### Changed
+ - Small tweaks to compilation settings to reduce code size and linkage time.
 
 ### Removed
 - `SkShader.Empty`
