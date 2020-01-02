@@ -10,7 +10,7 @@
 
 #include "tools/viewer/Slide.h"
 
-#include "src/core/SkRuntimeEffect.h"
+#include "include/effects/SkRuntimeEffect.h"
 
 class SkSLSlide : public Slide {
 public:

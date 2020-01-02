@@ -28,7 +28,13 @@ struct PipelineStageArgs;
 struct Program;
 }
 
-class SkRuntimeEffect : public SkRefCnt {
+/*
+ * SkRuntimeEffect supports creating custom SkShader and SkColorFilter objects using Skia's SkSL
+ * shading language.
+ * *
+ * This API is experimental and subject to change.
+ */
+class SK_API SkRuntimeEffect : public SkRefCnt {
 public:
     struct Variable {
         enum class Qualifier {

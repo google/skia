@@ -6,10 +6,10 @@
  */
 
 #include "include/core/SkData.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffect.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkRTShader.h"
 
