@@ -23,6 +23,30 @@
       "revId": "a82ca93a3ca3c44f7835a4195d1cbaf672fafc91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "441c919c_570d59e1",
+        "filename": "tools/UrlDataManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-01-03T15:31:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "caed8530_e87dbf45",
+      "range": {
+        "startLine": 49,
+        "startChar": 64,
+        "endLine": 49,
+        "endChar": 78
+      },
+      "revId": "a82ca93a3ca3c44f7835a4195d1cbaf672fafc91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
