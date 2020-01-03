@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab638914_cde56fc6",
+        "filename": "src/core/SkM4.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T22:10:54Z",
+      "side": 1,
+      "message": "FWIW, I think if we were writing this directly in SSE this would be,\n\nSkM4\u0026 SkM4::setConcat(const SkM4\u0026 a, const SkM4\u0026 b) {\n    __m128 c0 \u003d _mm_loadu_ps(a.fMat +  0),\n           c1 \u003d _mm_loadu_ps(a.fMat +  4),\n           c2 \u003d _mm_loadu_ps(a.fMat +  8),\n           c3 \u003d _mm_loadu_ps(a.fMat + 12);\n\n    auto compute \u003d [\u0026](__m128 r) {\n        return _mm_add_ps(_mm_mul_ps(c0, _mm_shuffle_ps(r,r, 0x00)),\n               _mm_add_ps(_mm_mul_ps(c1, _mm_shuffle_ps(r,r, 0x55)),\n               _mm_add_ps(_mm_mul_ps(c2, _mm_shuffle_ps(r,r, 0xaa)),\n                          _mm_mul_ps(c3, _mm_shuffle_ps(r,r, 0xff)))));\n    };\n\n    __m128 m0 \u003d compute(_mm_loadu_ps(b.fMat +  0)),\n           m1 \u003d compute(_mm_loadu_ps(b.fMat +  4)),\n           m2 \u003d compute(_mm_loadu_ps(b.fMat +  8)),\n           m3 \u003d compute(_mm_loadu_ps(b.fMat + 12));\n\n    _mm_storeu_ps(fMat +  0, m0);\n    _mm_storeu_ps(fMat +  4, m1);\n    _mm_storeu_ps(fMat +  8, m2);\n    _mm_storeu_ps(fMat + 12, m3);\n    return *this;\n}\n\nDisassembling that gives me exactly what I would have expected.\nRunning m4_set_concat in nanobench looks unchanged.\n\nWith both approaches, it might be possible to reduce the latency by shortening the dependency tree in compute() be rearranging the math to something like (c0*r0 + c1*r1) + (c2*r2 + c3*r3).  That\u0027ll be hard/impossible to see in a benchmark though.",
+      "revId": "5f26e40a44059a75860ce8ef324c047a415e1766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
