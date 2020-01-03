@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3877ec34_3b549e99",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T21:58:46Z",
+      "side": 1,
+      "message": "Does it make sense for the loop to be\n\n    for (; fCurrGlyph \u003c (int)fSubRun-\u003efGlyphs.size(); fCurrGlyph++) {\n        ...\n    }\n\n?  I think I follow the logic that updated this, but it\u0027s confusing track glyphIdx and fCurrGlyph as they march along in parallel.\n\nAs a further thought, is it possible that this would be clearer if fCurrGlyph were the GrGlyph* itself (today called \"glyph\"), not the index into fGlyphs?  fGlyphs is just an array of some sort right?",
+      "range": {
+        "startLine": 947,
+        "startChar": 21,
+        "endLine": 947,
+        "endChar": 36
+      },
+      "revId": "1948b5b950dc338609cc63f5559a61dd9a5b4247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
