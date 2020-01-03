@@ -1682,39 +1682,39 @@
         "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
       "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Upload-Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
       ]
     },
-    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Perf-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "tasks": [
-        "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All"
+        "Perf-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All"
       ]
     },
-    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Perf-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Perf-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
     "Perf-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -3019,89 +3019,89 @@
         "Upload-Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
       "tasks": [
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "tasks": [
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC": {
       "tasks": [
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
     "Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -41536,7 +41536,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -41618,7 +41618,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -41653,7 +41653,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -41735,7 +41735,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -41770,7 +41770,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -41852,7 +41852,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -41887,7 +41887,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -41969,7 +41969,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -42004,7 +42004,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -42086,7 +42086,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -42121,7 +42121,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Perf-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -42203,7 +42203,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -42238,7 +42238,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Perf-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -42320,7 +42320,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -70711,7 +70711,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -70793,7 +70793,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -70828,7 +70828,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -70910,7 +70910,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -70945,7 +70945,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71027,7 +71027,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71062,7 +71062,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -71144,7 +71144,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71179,7 +71179,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
       "caches": [
         {
           "name": "vpython",
@@ -71261,7 +71261,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71296,7 +71296,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -71378,7 +71378,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71413,7 +71413,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -71495,7 +71495,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71530,7 +71530,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71612,7 +71612,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71647,7 +71647,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -71729,7 +71729,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71764,7 +71764,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
       "caches": [
         {
           "name": "vpython",
@@ -71846,7 +71846,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71881,7 +71881,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -71963,7 +71963,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71998,7 +71998,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -72080,7 +72080,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -72115,7 +72115,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72197,7 +72197,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -72232,7 +72232,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72314,7 +72314,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -72349,7 +72349,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72431,7 +72431,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -72466,7 +72466,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC": {
       "caches": [
         {
           "name": "vpython",
@@ -72548,7 +72548,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All-MSRTC\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -72583,7 +72583,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72665,7 +72665,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -85793,7 +85793,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -85865,13 +85865,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -107618,7 +107618,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -107690,13 +107690,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -107723,7 +107723,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -107795,13 +107795,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -107828,7 +107828,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -107900,13 +107900,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -107933,7 +107933,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -108005,13 +108005,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108038,7 +108038,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA": {
       "caches": [
         {
           "name": "vpython",
@@ -108110,13 +108110,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108143,7 +108143,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -108215,13 +108215,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108248,7 +108248,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -108320,13 +108320,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108353,7 +108353,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -108425,13 +108425,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108458,7 +108458,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA": {
       "caches": [
         {
           "name": "vpython",
@@ -108530,13 +108530,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FDAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108563,7 +108563,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -108635,13 +108635,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108668,7 +108668,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -108740,13 +108740,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108773,7 +108773,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -108845,13 +108845,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108878,7 +108878,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -108950,13 +108950,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -108983,7 +108983,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -109055,13 +109055,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
