@@ -934,3 +934,54 @@ DEF_TEST(Matrix44, reporter) {
     test_preserves_2d_axis_alignment(reporter);
     test_toint(reporter);
 }
+
+#include "include/private/SkM4.h"
+
+static bool eq(const SkMatrix44& a, const SkM4& b, float tol) {
+    float fa[16], fb[16];
+    a.asRowMajorf(fa);
+    b.get16(fb);
+    for (int i = 0; i < 16; ++i) {
+        if (!SkScalarNearlyEqual(fa[i], fb[i], tol)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool eq(const SkM4& a, const SkM4& b, float tol) {
+    float fa[16], fb[16];
+    a.get16(fa);
+    b.get16(fb);
+    for (int i = 0; i < 16; ++i) {
+        if (!SkScalarNearlyEqual(fa[i], fb[i], tol)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+DEF_TEST(M4, reporter) {
+    SkM4 m, im;
+    SkMatrix44 m44, im44;
+
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+    REPORTER_ASSERT(reporter, SkM4() == m);
+
+    m.setTranslate(3, 4, 0);
+    m44.setTranslate(3, 4, 0);
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+
+    float f[] = { 1, 0, 0, 2, 3, 1, 2, 5, 0, 5, 3, 0, 0, 1, 0, 2 };
+    m.set16(f);
+    m44.setRowMajorf(f);
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+
+    REPORTER_ASSERT(reporter, m.invert(&im));
+    REPORTER_ASSERT(reporter, m44.invert(&im44));
+    REPORTER_ASSERT(reporter, eq(im44, im, 0));
+
+    m = m * im;
+    REPORTER_ASSERT(reporter, eq(SkM4(), m, 0.0000005f));
+    REPORTER_ASSERT(reporter, SkM4() != m);
+}
