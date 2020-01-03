@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a74ef83_5fd3c36e",
+        "filename": "include/private/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T18:22:56Z",
+      "side": 1,
+      "message": "So this is row-major right?\n\nEach float passed in as an argument ends up in memory in that order?\n\nAnd the arguments are named as is m_{col}{row}?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "4583afc69458830e4bf4b77e391edebac66b5fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c74e1502_d35a9473",
+        "filename": "include/private/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T18:22:56Z",
+      "side": 1,
+      "message": "It\u0027s important that you make this constexpr.  Otherwise it\u0027ll need to be defined somewhere and will take up memory.",
+      "range": {
+        "startLine": 72,
+        "startChar": 12,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "4583afc69458830e4bf4b77e391edebac66b5fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9622db75_6a1fdcec",
+        "filename": "include/private/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T18:22:56Z",
+      "side": 1,
+      "message": "This is column-major, right?  If it were following the layout established in M4(float,float...16x), isn\u0027t this backwards?  We want fMat[row][col]?",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 5
+      },
+      "revId": "4583afc69458830e4bf4b77e391edebac66b5fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
