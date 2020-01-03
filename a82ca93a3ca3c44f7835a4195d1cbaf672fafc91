@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "caed8530_e87dbf45",
+        "filename": "tools/UrlDataManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-03T14:50:22Z",
+      "side": 1,
+      "message": "\u003e \"initializaiton\" is a possible misspelling of \"initialization\".\n\nPlease fix.",
+      "parentUuid": "58a2f215_dc64092b",
+      "range": {
+        "startLine": 49,
+        "startChar": 64,
+        "endLine": 49,
+        "endChar": 78
+      },
+      "revId": "a82ca93a3ca3c44f7835a4195d1cbaf672fafc91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
