@@ -8,7 +8,7 @@
 #ifndef GrMemoryPool_DEFINED
 #define GrMemoryPool_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 #include "include/core/SkRefCnt.h"
 
@@ -120,8 +120,8 @@ private:
 
     friend class GrOpMemoryPool;
 
-    static constexpr size_t kHeaderSize  = GrSizeAlignUp(sizeof(BlockHeader), kAlignment);
-    static constexpr size_t kPerAllocPad = GrSizeAlignUp(sizeof(AllocHeader), kAlignment);
+    static constexpr size_t kHeaderSize  = GrAlignTo(sizeof(BlockHeader), kAlignment);
+    static constexpr size_t kPerAllocPad = GrAlignTo(sizeof(AllocHeader), kAlignment);
 };
 
 class GrOp;

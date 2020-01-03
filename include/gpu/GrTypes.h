@@ -127,54 +127,6 @@ template<typename TFlags> inline TFlags& operator&=(TFlags& a, GrTFlagsMask<TFla
     friend X& operator |=(X&, X); \
     friend constexpr bool operator &(X, X)
 
-////////////////////////////////////////////////////////////////////////////////
-
-// compile time versions of min/max
-#define GR_CT_MAX(a, b) (((b) < (a)) ? (a) : (b))
-#define GR_CT_MIN(a, b) (((b) < (a)) ? (b) : (a))
-
-/**
- *  divide, rounding up
- */
-static inline constexpr int32_t GrIDivRoundUp(int x, int y) {
-    SkASSERT(y > 0);
-    return (x + (y-1)) / y;
-}
-static inline constexpr uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
-    return (x + (y-1)) / y;
-}
-static inline constexpr size_t GrSizeDivRoundUp(size_t x, size_t y) { return (x + (y - 1)) / y; }
-
-/**
- *  align up
- */
-static inline constexpr uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
-    return GrUIDivRoundUp(x, alignment) * alignment;
-}
-static inline constexpr size_t GrSizeAlignUp(size_t x, size_t alignment) {
-    return GrSizeDivRoundUp(x, alignment) * alignment;
-}
-
-/**
- * amount of pad needed to align up
- */
-static inline constexpr uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
-    return (alignment - x % alignment) % alignment;
-}
-static inline constexpr size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
-    return (alignment - x % alignment) % alignment;
-}
-
-/**
- *  align down
- */
-static inline constexpr uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
-    return (x / alignment) * alignment;
-}
-static inline constexpr size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
-    return (x / alignment) * alignment;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
