@@ -114,6 +114,13 @@ if [[ $@ == *no_pathops* ]] ; then
   PATHOPS_JS=""
 fi
 
+WASM_RT_SHADER="-DSK_INCLUDE_RUNTIME_EFFECT"
+RT_SHADER_JS="--pre-js $BASE_DIR/rt_shader.js"
+if [[ $@ == *no_rt_shader* ]] ; then
+  WASM_RT_SHADER=""
+  RT_SHADER_JS=""
+fi
+
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/util.js \
 --pre-js $BASE_DIR/htmlcanvas/color.js \
@@ -262,6 +269,7 @@ ${EMCXX} \
     -DSK_DISABLE_AAA \
     $WASM_GPU \
     $WASM_PATHOPS \
+    $WASM_RT_SHADER \
     $FONT_CFLAGS \
     -std=c++14 \
     --bind \
@@ -274,6 +282,7 @@ ${EMCXX} \
     $PATHOPS_JS \
     $FONT_JS \
     $SKP_JS \
+    $RT_SHADER_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
     --post-js $BASE_DIR/ready.js \
