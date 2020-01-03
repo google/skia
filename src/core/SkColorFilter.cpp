@@ -13,7 +13,6 @@
 #include "include/private/SkNx.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
@@ -401,11 +400,9 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 
 class SkRuntimeColorFilter : public SkColorFilter {
 public:
-    SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs,
-                         void (*cpuFunction)(float[4], const void*))
+    SkRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs)
         : fEffect(std::move(effect))
-        , fInputs(std::move(inputs))
-        , fCpuFunction(cpuFunction) {}
+        , fInputs(std::move(inputs)) {}
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext* context,
@@ -417,41 +414,24 @@ public:
 #endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
-        if (fCpuFunction) {
-            struct CpuFuncCtx : public SkRasterPipeline_CallbackCtx {
-                SkRuntimeColorFilterFn cpuFn;
-                const void* inputs;
-            };
-            auto ctx = rec.fAlloc->make<CpuFuncCtx>();
-            ctx->inputs = fInputs->data();
-            ctx->cpuFn = fCpuFunction;
-            ctx->fn = [](SkRasterPipeline_CallbackCtx* arg, int active_pixels) {
-                auto ctx = (CpuFuncCtx*)arg;
-                for (int i = 0; i < active_pixels; i++) {
-                    ctx->cpuFn(ctx->rgba + i * 4, ctx->inputs);
-                }
-            };
-            rec.fPipeline->append(SkRasterPipeline::callback, ctx);
-        } else {
-            auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
-            // don't need to set ctx->paintColor
-            ctx->inputs = fInputs->data();
-            ctx->ninputs = fInputs->size() / 4;
-            ctx->shaderConvention = false;
+        auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
+        // don't need to set ctx->paintColor
+        ctx->inputs = fInputs->data();
+        ctx->ninputs = fInputs->size() / 4;
+        ctx->shaderConvention = false;
 
-            SkAutoMutexExclusive ama(fByteCodeMutex);
-            if (!fByteCode) {
-                auto [byteCode, errorText] = fEffect->toByteCode();
-                if (!byteCode) {
-                    SkDebugf("%s\n", errorText.c_str());
-                    return false;
-                }
-                fByteCode = std::move(byteCode);
+        SkAutoMutexExclusive ama(fByteCodeMutex);
+        if (!fByteCode) {
+            auto [byteCode, errorText] = fEffect->toByteCode();
+            if (!byteCode) {
+                SkDebugf("%s\n", errorText.c_str());
+                return false;
             }
-            ctx->byteCode = fByteCode.get();
-            ctx->fn = ctx->byteCode->getFunction("main");
-            rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
+            fByteCode = std::move(byteCode);
         }
+        ctx->byteCode = fByteCode.get();
+        ctx->fn = ctx->byteCode->getFunction("main");
+        rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
     }
 
@@ -472,7 +452,6 @@ private:
 
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkData> fInputs;
-    SkRuntimeColorFilterFn fCpuFunction;
 
     mutable SkMutex fByteCodeMutex;
     mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
@@ -493,39 +472,12 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
 
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
-    return sk_sp<SkFlattenable>(new SkRuntimeColorFilter(std::move(effect), std::move(inputs),
-                                                         nullptr));
+    return sk_sp<SkFlattenable>(new SkRuntimeColorFilter(std::move(effect), std::move(inputs)));
 }
 
-SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(SkString sksl,
-                                                         SkRuntimeColorFilterFn cpuFunc)
-    : fEffect(std::get<0>(SkRuntimeEffect::Make(std::move(sksl))))
-    , fCpuFunc(cpuFunc) {}
-
-SkRuntimeColorFilterFactory::~SkRuntimeColorFilterFactory() = default;
-
-SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(const SkRuntimeColorFilterFactory&) =
-        default;
-
-SkRuntimeColorFilterFactory::SkRuntimeColorFilterFactory(SkRuntimeColorFilterFactory&&) = default;
-
-SkRuntimeColorFilterFactory& SkRuntimeColorFilterFactory::operator=(
-        const SkRuntimeColorFilterFactory&) = default;
-
-SkRuntimeColorFilterFactory& SkRuntimeColorFilterFactory::operator=(SkRuntimeColorFilterFactory&&) =
-        default;
-
-sk_sp<SkColorFilter> SkRuntimeColorFilterFactory::make(sk_sp<SkData> inputs) {
-    return sk_sp<SkColorFilter>(new SkRuntimeColorFilter(fEffect, std::move(inputs), fCpuFunc));
-}
-
-bool SkRuntimeColorFilterFactory::testCompile() const {
-    return fEffect != nullptr;
-}
-
+// Private helper method so SkRuntimeEffect can access SkRuntimeColorFilter
 sk_sp<SkColorFilter> SkMakeRuntimeColorFilter(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs) {
-    return sk_sp<SkColorFilter>(
-            new SkRuntimeColorFilter(std::move(effect), std::move(inputs), nullptr));
+    return sk_sp<SkColorFilter>(new SkRuntimeColorFilter(std::move(effect), std::move(inputs)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
