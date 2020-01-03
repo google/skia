@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - A "Core" build that removes Fonts, the Skottie animation player, the Particles demo,
+   and PathOps is available in `bin/core/`. It is about half the size of the "CoreWithFonts"
+   build.
+ - Experimental Runtime shader available for custom builds.
+
 ### Fixed
  - `CanvasKit.SaveLayerInitWithPrevious` and `CanvasKit.SaveLayerF16ColorType` constants.
  - Some compilation configurations, for example, those with no fonts or just one of particles/skottie.
@@ -14,7 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Small tweaks to compilation settings to reduce code size and linkage time.
 
 ### Removed
-- `SkShader.Empty`
+ - `SkShader.Empty`
+
+### Breaking
+ - In an effort to reduce code size for most clients, npm now contains two CanvasKit builds.
+   In `bin/` there is the "CoreWithFonts" build that contains most functionality from 0.10.0.
+   However, we no longer ship the Skottie animation player, nor the Particles demo. Further,
+   PathOps are removed from this build `MakePathFromOp`, `SkPath.op` and `SkPath.simplify`.
+   Clients who need any of those features are encouraged to create a custom build using
+   `compile.sh`.
 
 ## [0.10.0] - 2019-12-09
 
