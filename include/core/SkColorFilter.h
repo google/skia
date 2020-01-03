@@ -19,6 +19,8 @@ class GrRecordingContext;
 class SkBitmap;
 class SkColorMatrix;
 class SkColorSpace;
+class SkData;
+class SkRuntimeEffect;
 struct SkStageRec;
 
 namespace skvm {
@@ -174,6 +176,8 @@ public:
     static sk_sp<SkColorFilter> LinearToSRGBGamma();
     static sk_sp<SkColorFilter> SRGBToLinearGamma();
     static sk_sp<SkColorFilter> Lerp(float t, sk_sp<SkColorFilter> dst, sk_sp<SkColorFilter> src);
+
+    static sk_sp<SkColorFilter> FromEffect(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> inputs);
 
 private:
     SkColorFilters() = delete;

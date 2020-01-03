@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/core/SkColorFilterPriv.h"
 #include "src/shaders/SkRTShader.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -256,7 +256,5 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
 }
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> inputs) {
-    return inputs->size() >= this->inputSize()
-        ? SkMakeRuntimeColorFilter(sk_ref_sp(this), std::move(inputs))
-        : nullptr;
+    return SkColorFilters::FromEffect(sk_ref_sp(this), std::move(inputs));
 }
