@@ -16,6 +16,24 @@
       "revId": "5f26e40a44059a75860ce8ef324c047a415e1766",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "523dfe00_da4ce5ff",
+        "filename": "src/core/SkM4.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T22:14:24Z",
+      "side": 1,
+      "message": "Come to think of it, those mysterious shuffle constants may be more clear as,\n\n  0b00\u002700\u002700\u002700\n  0b01\u002701\u002701\u002701\n  0b10\u002710\u002710\u002710\n  0b11\u002711\u002711\u002711\n\nor even as\n\n  const int splat \u003d 0b01\u002701\u002701\u002701\n  splat*0\n  splat*1\n  splat*2\n  splat*3\n\n:)",
+      "parentUuid": "ab638914_cde56fc6",
+      "revId": "5f26e40a44059a75860ce8ef324c047a415e1766",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
