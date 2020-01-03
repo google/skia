@@ -66,12 +66,14 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
 
 #ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
+    // single merged layer
+    "VK_LAYER_KHRONOS_validation",
     // elements of VK_LAYER_LUNARG_standard_validation
-    "VK_LAYER_GOOGLE_threading",
-    "VK_LAYER_LUNARG_parameter_validation",
-    "VK_LAYER_LUNARG_object_tracker",
-    "VK_LAYER_LUNARG_core_validation",
-    "VK_LAYER_GOOGLE_unique_objects",
+    //"VK_LAYER_GOOGLE_threading",
+    //"VK_LAYER_LUNARG_parameter_validation",
+    //"VK_LAYER_LUNARG_object_tracker",
+    //"VK_LAYER_LUNARG_core_validation",
+    //"VK_LAYER_GOOGLE_unique_objects",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
     //"VK_LAYER_LUNARG_vktrace",
@@ -121,6 +123,12 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
     const char*                 pMessage,
     void*                       pUserData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        if (strstr(pMessage,
+                   "vkCmdCopyBufferToImage(): pRegion[4] bufferRowLength (2) must be a multiple of "
+                   "the compressed image's texel width (4)")) {
+            // skia:9745
+            return VK_FALSE;
+        }
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
         print_backtrace();
         SkDEBUGFAIL("Vulkan debug layer error");
