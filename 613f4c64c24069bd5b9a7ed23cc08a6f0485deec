@@ -263,6 +263,30 @@
     },
     {
       "key": {
+        "uuid": "6ceee356_240f214a",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-03T14:38:02Z",
+      "side": 1,
+      "message": "Another benefit here is we don\u0027t have to maintain consistency between setX() and SkM4::MakeX(), we can just have the factories for creating a new one.",
+      "parentUuid": "2586c9ad_3c198b79",
+      "range": {
+        "startLine": 114,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 9
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "63b2959d_cbe1c0f0",
         "filename": "include/core/SkM4.h",
         "patchSetId": 5
@@ -297,6 +321,30 @@
       "writtenOn": "2020-01-03T01:29:48Z",
       "side": 1,
       "message": "For concat, since it\u0027s a two-matrix operation, you can really just change the argument order to get the pre- and post- as you like.\n\nSo I\u0027d try even going as far as removing all these methods entirely, either leaning on operator*, the SkM4(const SkM4\u0026, const SkM4\u0026) constructor, SkM4::Concat(), or a concat() method that returns a new SkM4 (with the matrices written in the same order they\u0027d be in math):\n\n    SkM4 concat(const SkM4\u0026 other) const { return SkM4{*this, other}; }\n\nWith that concat() method, \n\n     a.preConcat(b) --\u003e a \u003d a.concat(b)\n    a.postConcat(b) --\u003e a \u003d b.concat(a).",
+      "range": {
+        "startLine": 134,
+        "startChar": 1,
+        "endLine": 140,
+        "endChar": 5
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f9bea47_a20b2bf5",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-03T14:38:02Z",
+      "side": 1,
+      "message": "+1 to this, either as a concat method, or operator*",
+      "parentUuid": "2d783718_ca4dc79c",
       "range": {
         "startLine": 134,
         "startChar": 1,
