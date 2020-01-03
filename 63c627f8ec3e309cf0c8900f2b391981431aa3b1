@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4040513_9d60d25a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 907,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T20:53:49Z",
+      "side": 1,
+      "message": "This is the sort of place I think an \u0027auto\u0027 helps.  :)",
+      "revId": "63c627f8ec3e309cf0c8900f2b391981431aa3b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
