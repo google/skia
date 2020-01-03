@@ -479,16 +479,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     };
 
     auto append_misc = [&] {
-        SkColorSpace* cs = info.colorSpace();
-        SkAlphaType   at = info.alphaType();
-
-        // Color for A8 images comes from the paint.  TODO: all alpha images?  none?
-        if (info.colorType() == kAlpha_8_SkColorType) {
-            p->append_set_rgb(alloc, rec.fPaint.getColor4f());
-            cs = sk_srgb_singleton();
-            at = kUnpremul_SkAlphaType;
-        }
-
         // This is an inessential optimization... it's logically safe to set this to false.
         // But if...
         //      - we know the image is definitely normalized, and
@@ -496,6 +486,19 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
         //      - sRGB curves are involved,
         // then we can use slightly faster math that doesn't work well outside [0,1].
         bool src_is_normalized = SkColorTypeIsNormalized(info.colorType());
+
+        SkColorSpace* cs = info.colorSpace();
+        SkAlphaType   at = info.alphaType();
+
+        // Color for A8 images comes from the paint.  TODO: all alpha images?  none?
+        if (info.colorType() == kAlpha_8_SkColorType) {
+            SkColor4f rgb = rec.fPaint.getColor4f();
+            p->append_set_rgb(alloc, rgb);
+
+            src_is_normalized = rgb.fitsInBytes();
+            cs = sk_srgb_singleton();
+            at = kUnpremul_SkAlphaType;
+        }
 
         // Bicubic filtering naturally produces out of range values on both sides of [0,1].
         if (quality == kHigh_SkFilterQuality) {
