@@ -908,10 +908,9 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
 
-    for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->fGlyphs.size(); glyphIdx++) {
-        GrGlyph* glyph = nullptr;
+    for (; fCurrGlyph < (int)fSubRun->fGlyphs.size(); fCurrGlyph++) {
         if (fActions.regenTextureCoordinates) {
-            glyph = fSubRun->fGlyphs[glyphIdx];
+            GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fFullAtlasManager->hasGlyph(glyph)) {
@@ -923,7 +922,10 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                     return false;
                 }
                 else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    fBrokenRun = glyphIdx > 0;
+                    // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
+                    // otherwise at least one glyph made it into the atlas, and this run needs
+                    // special handling because of the atlas flush in the middle of it.
+                    fBrokenRun = fCurrGlyph > 0;
                     result->fFinished = false;
                     return true;
                 }
@@ -934,12 +936,11 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         }
 
         if (fActions.regenTextureCoordinates) {
-            fSubRun->updateTexCoord(glyphIdx);
+            fSubRun->updateTexCoord(fCurrGlyph);
         }
 
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         ++result->fGlyphsRegenerated;
-        ++fCurrGlyph;
     }
 
     if (fActions.regenTextureCoordinates) {
