@@ -193,9 +193,9 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
                 canvas2DFastPath ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
 
-        auto tempCtx = direct->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox, dstInfo.width(), dstInfo.height(), colorType, std::move(cs),
-                1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
+        auto tempCtx = GrRenderTargetContext::Make(
+                direct, colorType, std::move(cs), SkBackingFit::kApprox, dstInfo.dimensions(),
+                1, GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!tempCtx) {
             return false;
         }
@@ -550,9 +550,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         auto xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(), srcAlphaType, cs.get(),
                                              kPremul_SkAlphaType);
         // We'll fall back to kRGBA_8888 if half float not supported.
-        auto linearRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
-                SkBackingFit::kExact, srcW, srcH, GrColorType::kRGBA_F16, cs, 1, GrMipMapped::kNo,
-                kTopLeft_GrSurfaceOrigin);
+        auto linearRTC = GrRenderTargetContext::MakeWithFallback(
+                fContext, GrColorType::kRGBA_F16, cs, SkBackingFit::kExact, {srcW, srcH}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!linearRTC) {
             return nullptr;
         }
@@ -601,9 +601,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
                                             input->colorInfo().alphaType(), cs.get(),
                                             info.alphaType());
         }
-        tempB = fContext->priv().makeDeferredRenderTargetContextWithFallback(
-                SkBackingFit::kExact, nextW, nextH, colorType, std::move(cs), 1, GrMipMapped::kNo,
-                kTopLeft_GrSurfaceOrigin);
+        tempB = GrRenderTargetContext::MakeWithFallback(
+                fContext, colorType, std::move(cs), SkBackingFit::kExact, {nextW, nextH}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!tempB) {
             return nullptr;
         }
