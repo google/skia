@@ -198,8 +198,6 @@
       "1.1",
       "--nogpu",
       "--config",
-      "8888",
-      "nonrendering",
       "f16",
       "srgb",
       "esrgb",

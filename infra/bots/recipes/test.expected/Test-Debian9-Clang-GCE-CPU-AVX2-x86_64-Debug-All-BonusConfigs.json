@@ -284,7 +284,6 @@
       "--randomProcessorTest",
       "--nogpu",
       "--config",
-      "8888",
       "pdf",
       "g8",
       "565",
