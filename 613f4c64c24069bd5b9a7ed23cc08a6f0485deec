@@ -1,0 +1,273 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a7fadd5_552ffb4e",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "I feel like most of this is fine, but since we\u0027ve got a tabula rasa, we might want to try a few new things.  My first thought is, might be neat to provide a constructor like this?\n\n    constexpr SkM4(const float (\u0026x)[4],\n                   const float (\u0026y)[4],\n                   const float (\u0026z)[4],\n                   const float (\u0026w)[4])\n        : fMat{{x[0],x[1],x[2],x[3]},\n               {y[0],y[1],y[2],y[3]},\n               {z[0],z[1],z[2],z[3]},\n               {w[0],w[1],w[2],w[3]}} {}\n\nThat\u0027d let you write, e.g.\n\n    SkM4 foo \u003d {{4,3,2,1},\n                {1,2,3,4},\n                {4,0,0,7},\n                {0,0,0,0}};\n\nand that probably removes the need for the other \"here\u0027s 16 things\" constructors and setters?",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd983cfd_13012171",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "I think having these copiers default and inline is actually subtly very powerful.  It might mean we don\u0027t really need almost any setters, instead mostly just defining methods that return new matrices?  A lot of what I\u0027m about to write is going to be conditioned on copying these being cheap, perhaps noops.\n\nGetting boring things like setters out of the API might help make more interesting methods stand out, like the various performance specializations of concat like preTranslate()...postScale().",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 47
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2dd48a8_93228988",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "Let\u0027s make these explicit, at least this last one that loses information?",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b3b7687_a2fc7f06",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "Might want to see if you can get away without this, or at least without it returning a const\u0026?   E.g.\n\n   static SkM4 I() { return SkM4{}; }\n\nI don\u0027t think I\u0027ve seen any place where we want to compare against I by reference... we usually just use this to get a value.  Leaning more on SkM4{} will save some static bytes.",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05b56c65_0ea6acd1",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "*this \u003d SkM4::I(); ?\n\nMore really, maybe drop the method?  a \u003d SkM4::I() seems just as clear as a.setIdentity().",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c29ec2e_15415201",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "(These do nothing.  All methods defined inline are already inline.)",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 10
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cebcee32_635ba34f",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "Since these are just asserts, might be clearer to write (0 \u003c\u003d row \u0026\u0026 row \u003c\u003d 3)?",
+      "range": {
+        "startLine": 78,
+        "startChar": 17,
+        "endLine": 78,
+        "endChar": 35
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "365b4a01_5b84f2cc",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "Might make sense to defensively incorporate \"row-major\" into these names?",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 5
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2586c9ad_3c198b79",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "Missing \u0026, here and on some of the others?\n\nThis is sort of thing I think might be clearer without setters, replacing \n    \n     m.setTranslate(x,y,z)\n\nwith\n\n     m \u003d SkM4::Translate(x,y,z);",
+      "range": {
+        "startLine": 114,
+        "startChar": 4,
+        "endLine": 114,
+        "endChar": 9
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63b2959d_cbe1c0f0",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "I always find the pre- and post- versions of these methods confusing, but basically never would be confused if they were just always the pre- versions\n\n    // faster SkM4{*this, SkM4::Translate(x,y,z)};\n    SkM4 translate(float x, float y, float z) const;\n\n    // faster SkM4{*this, SkM4::Scale(x,y,z)};\n    SkM4 scale(float x, float y, float z) const;\n\nmight want to take a tally through to see if the post- versions really are super valuable?",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 50
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d783718_ca4dc79c",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "For concat, since it\u0027s a two-matrix operation, you can really just change the argument order to get the pre- and post- as you like.\n\nSo I\u0027d try even going as far as removing all these methods entirely, either leaning on operator*, the SkM4(const SkM4\u0026, const SkM4\u0026) constructor, SkM4::Concat(), or a concat() method that returns a new SkM4 (with the matrices written in the same order they\u0027d be in math):\n\n    SkM4 concat(const SkM4\u0026 other) const { return SkM4{*this, other}; }\n\nWith that concat() method, \n\n     a.preConcat(b) --\u003e a \u003d a.concat(b)\n    a.postConcat(b) --\u003e a \u003d b.concat(a).",
+      "range": {
+        "startLine": 134,
+        "startChar": 1,
+        "endLine": 140,
+        "endChar": 5
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca7d5acc_c1669e85",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "I think we may as well bite the bullet early here and make sure that,\n   1) this-\u003einvert(this) is legal;\n   2) if we can\u0027t invert, we don\u0027t change inverse.",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d16383ec_b67de891",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T01:29:48Z",
+      "side": 1,
+      "message": "Might be time to stop mentioning SkScalar and SkMScalar entirely, and just write both of\n\n    void map(const float  src[4], float  dst[4]) const;\n    void map(const double src[4], double dst[4]) const;\n\nlike you\u0027ve done for map2()?  Whichever\u0027s not used will just be stripped by the linker.\n\nMight also make sense to do here what you\u0027ve done for map2() and have it take a count, perhaps defaulting to 1?  Worth looking for situations where we go out of our way do do something weird to not have to loop over calls to map() in SkMatrix or SkMatrix44... if we find them, might as well pull the loop inside the new map().",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 5
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
