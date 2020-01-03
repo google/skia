@@ -226,7 +226,10 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
             default: ABORT("unsupported row count (%d)", rows);
         }
     }
+#ifdef SK_DEBUG
     ABORT("unsupported scalar_to_compound type %s", this->description().c_str());
+#endif
+    return *context.fVoid_Type;
 }
 
 } // namespace

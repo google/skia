@@ -93,7 +93,10 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 4: return *context.fBool4_Type;
         }
     }
+#ifdef SK_DEBUG
     ABORT("cannot swizzle %s\n", value.description().c_str());
+#endif
+    return value.fType;
 }
 
 /**
@@ -129,14 +132,15 @@ struct Swizzle : public Expression {
         return nullptr;
     }
 
-    bool hasSideEffects() const override {
-        return fBase->hasSideEffects();
+    bool hasProperty(Property property) const override {
+        return fBase->hasProperty(property);
     }
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new Swizzle(fType, fBase->clone(), fComponents));
     }
 
+#ifdef SK_DEBUG
     String description() const override {
         String result = fBase->description() + ".";
         for (int x : fComponents) {
@@ -144,6 +148,7 @@ struct Swizzle : public Expression {
         }
         return result;
     }
+#endif
 
     std::unique_ptr<Expression> fBase;
     std::vector<int> fComponents;

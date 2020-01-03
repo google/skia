@@ -30,17 +30,23 @@ struct FunctionDeclaration : public Symbol {
     , fParameters(std::move(parameters))
     , fReturnType(returnType) {}
 
-    String description() const override {
-        String result = fReturnType.description() + " " + fName + "(";
+    String declaration() const {
+        String result = fReturnType.displayName() + " " + fName + "(";
         String separator;
         for (auto p : fParameters) {
             result += separator;
             separator = ", ";
-            result += p->description();
+            result += p->fName;
         }
         result += ")";
         return result;
     }
+
+#ifdef SK_DEBUG
+    String description() const override {
+        return this->declaration();
+    }
+#endif
 
     bool matches(const FunctionDeclaration& f) const {
         if (fName != f.fName) {
