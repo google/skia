@@ -321,7 +321,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     size_t bufferSize = fullBufferRowBytes * kTextureHeight;
     // Arbitrary starting offset for the partial read.
-    size_t partialReadOffset = GrSizeAlignUp(11, offsetAlignment);
+    size_t partialReadOffset = GrAlignTo(11, offsetAlignment);
     bufferSize = SkTMax(bufferSize, partialReadOffset + partialBufferRowBytes * kPartialHeight);
 
     sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(

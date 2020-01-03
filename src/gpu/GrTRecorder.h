@@ -108,7 +108,7 @@ GrTRecorder<TBase>::emplaceWithData(size_t extraDataSize, Args... args) {
     static constexpr size_t kTAlign = alignof(TItem);
     static constexpr size_t kHeaderAlign = alignof(Header);
     static constexpr size_t kAllocAlign = kTAlign > kHeaderAlign ? kTAlign : kHeaderAlign;
-    static constexpr size_t kTItemOffset = GrSizeAlignUp(sizeof(Header), kAllocAlign);
+    static constexpr size_t kTItemOffset = GrAlignTo(sizeof(Header), kAllocAlign);
     // We're assuming if we back up from kItemOffset by sizeof(Header) we will still be aligned.
     static_assert(sizeof(Header) % alignof(Header) == 0);
     const size_t totalSize = kTItemOffset + sizeof(TItem) + extraDataSize;

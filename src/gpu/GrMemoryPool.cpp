@@ -20,7 +20,7 @@
 
 std::unique_ptr<GrMemoryPool> GrMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
     preallocSize = std::max(preallocSize, kMinAllocationSize);
-    static constexpr size_t kPoolSize = GrSizeAlignUp(sizeof(GrMemoryPool), kAlignment);
+    static constexpr size_t kPoolSize = GrAlignTo(sizeof(GrMemoryPool), kAlignment);
     size_t size = kPoolSize + preallocSize;
     void* mem = operator new(size);
     void* preallocStart = static_cast<char*>(mem) + kPoolSize;
@@ -68,7 +68,7 @@ GrMemoryPool::~GrMemoryPool() {
 void* GrMemoryPool::allocate(size_t size) {
     VALIDATE;
     size += kPerAllocPad;
-    size = GrSizeAlignUp(size, kAlignment);
+    size = GrAlignTo(size, kAlignment);
     if (fTail->fFreeSize < size) {
         size_t blockSize = size + kHeaderSize;
         blockSize = std::max(blockSize, fMinAllocSize);
@@ -220,17 +220,15 @@ void GrMemoryPool::validate() {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-static constexpr size_t kOpPoolSize =
-        GrSizeAlignUp(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
+static constexpr size_t kOpPoolSize = GrAlignTo(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
 
 GrOpMemoryPool::~GrOpMemoryPool() { this->pool()->~GrMemoryPool(); }
 
 std::unique_ptr<GrOpMemoryPool> GrOpMemoryPool::Make(size_t preallocSize, size_t minAllocSize) {
     preallocSize = std::max(preallocSize, GrMemoryPool::kMinAllocationSize);
     static constexpr size_t kOpPoolSize =
-            GrSizeAlignUp(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
-    static constexpr size_t kPoolSize =
-            GrSizeAlignUp(sizeof(GrMemoryPool), GrMemoryPool::kAlignment);
+            GrAlignTo(sizeof(GrOpMemoryPool), GrMemoryPool::kAlignment);
+    static constexpr size_t kPoolSize = GrAlignTo(sizeof(GrMemoryPool), GrMemoryPool::kAlignment);
     size_t size = kOpPoolSize + kPoolSize + preallocSize;
     void* mem = operator new(size);
     void* memPoolPtr = static_cast<char*>(mem) + kOpPoolSize;
