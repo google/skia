@@ -76,6 +76,24 @@
     },
     {
       "key": {
+        "uuid": "76d8ce63_881d340c",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-03T14:02:21Z",
+      "side": 1,
+      "message": "It seems like readability is the main reason for having any sort of symbol for identity. If that\u0027s right, why is it a function? I think the old SkMatrix::I() was a function just because we had no and then later limited constexpr functionality. Why not:\n  static constexpr SkM4 kI \u003d SkM4();\n?",
+      "parentUuid": "6b3b7687_a2fc7f06",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "05b56c65_0ea6acd1",
         "filename": "include/core/SkM4.h",
         "patchSetId": 5
@@ -87,6 +105,24 @@
       "writtenOn": "2020-01-03T01:29:48Z",
       "side": 1,
       "message": "*this \u003d SkM4::I(); ?\n\nMore really, maybe drop the method?  a \u003d SkM4::I() seems just as clear as a.setIdentity().",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54720aa5_b2e2c7d8",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-03T14:02:21Z",
+      "side": 1,
+      "message": "I vote for dropping it. Assignment is more obvious than setting (a theme of many of mtklein\u0027s comments that I tend to agree with).",
+      "parentUuid": "05b56c65_0ea6acd1",
       "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -127,6 +163,30 @@
       "writtenOn": "2020-01-03T01:29:48Z",
       "side": 1,
       "message": "Since these are just asserts, might be clearer to write (0 \u003c\u003d row \u0026\u0026 row \u003c\u003d 3)?",
+      "range": {
+        "startLine": 78,
+        "startChar": 17,
+        "endLine": 78,
+        "endChar": 35
+      },
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f8a4c11_229dbc77",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-03T14:02:21Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "cebcee32_635ba34f",
       "range": {
         "startLine": 78,
         "startChar": 17,
