@@ -22,6 +22,30 @@
       "revId": "1948b5b950dc338609cc63f5559a61dd9a5b4247",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "764e553a_7619afd1",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-03T22:11:16Z",
+      "side": 1,
+      "message": "I\u0027ll try the fCurrGlyph first in a separate CL.",
+      "parentUuid": "3877ec34_3b549e99",
+      "range": {
+        "startLine": 947,
+        "startChar": 21,
+        "endLine": 947,
+        "endChar": 36
+      },
+      "revId": "1948b5b950dc338609cc63f5559a61dd9a5b4247",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
