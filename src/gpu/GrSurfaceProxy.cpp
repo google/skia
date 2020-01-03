@@ -19,6 +19,7 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrSurfacePriv.h"
 #include "src/gpu/GrTexturePriv.h"
@@ -329,10 +330,10 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         }
     }
     if (src->asTextureProxy()) {
-        auto dstContext = context->priv().makeDeferredRenderTargetContext(
-                fit, width, height, colorType, nullptr, 1, mipMapped, src->origin(), nullptr,
-                budgeted);
-
+        auto dstContext = GrRenderTargetContext::Make(context, colorType, nullptr, fit,
+                                                      {width, height}, format, 1,
+                                                      mipMapped, src->isProtected(), origin,
+                                                      budgeted, nullptr);
         if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();
         }
