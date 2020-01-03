@@ -22,6 +22,30 @@
       "revId": "dfde190ab0ed36789348cb40973a177770e7b635",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e41b57bb_3115bcad",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T19:27:31Z",
+      "side": 0,
+      "message": "Done.  (These were a little tricky to eyeball.)",
+      "parentUuid": "8c5ae0a0_55129dce",
+      "range": {
+        "startLine": 327,
+        "startChar": 1,
+        "endLine": 327,
+        "endChar": 80
+      },
+      "revId": "dfde190ab0ed36789348cb40973a177770e7b635",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
