@@ -294,3 +294,108 @@ DEF_BENCH( return new InvertTranslateMatrix44Bench(); )
 DEF_BENCH( return new SetConcatMatrix44Bench(true); )
 DEF_BENCH( return new SetConcatMatrix44Bench(false); )
 DEF_BENCH( return new GetTypeMatrix44Bench(); )
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "include/private/SkM4.h"
+
+class M4Bench : public Benchmark {
+    SkString    fName;
+public:
+    M4Bench(const char name[]) {
+        fName.printf("m4_%s", name);
+
+        SkRandom rand;
+        float value[32];
+        for (auto& v : value) {
+            v = rand.nextF();
+        }
+        fM1.set16(value + 0);
+        fM2.set16(value + 16);
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    virtual void performTest() = 0;
+
+protected:
+    SkM4 fM0, fM1, fM2;
+
+    virtual int mulLoopCount() const { return 1; }
+
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        for (int i = 0; i < loops; i++) {
+            this->performTest();
+        }
+    }
+
+private:
+    typedef Benchmark INHERITED;
+};
+
+class M4NEQ : public M4Bench {
+public:
+    M4NEQ() : INHERITED("neq") {}
+protected:
+    void performTest() override {
+        for (int i = 0; i < 10000; ++i) {
+            fEQ = (fM2 == fM1); // should always be false
+        }
+    }
+private:
+    bool fEQ;
+    typedef M4Bench INHERITED;
+};
+
+class M4EQ : public M4Bench {
+public:
+    M4EQ() : INHERITED("eq") {}
+protected:
+    void performTest() override {
+        fM2 = fM1;
+        for (int i = 0; i < 10000; ++i) {
+            fEQ = (fM2 == fM1); // should always be true
+        }
+    }
+private:
+    bool fEQ;
+    typedef M4Bench INHERITED;
+};
+
+class M4Concat : public M4Bench {
+public:
+    M4Concat() : INHERITED("op_concat") {}
+protected:
+    void performTest() override {
+        for (int i = 0; i < 10000; ++i) {
+        //    fM0 = fM1 * fM2;
+            fM0 = SkM4(fM1, fM2);
+        }
+    }
+private:
+    typedef M4Bench INHERITED;
+};
+
+class M4SetConcat : public M4Bench {
+public:
+    M4SetConcat() : INHERITED("set_concat") {}
+protected:
+    void performTest() override {
+        for (int i = 0; i < 10000; ++i) {
+            fM0.setConcat(fM1, fM2);
+        }
+    }
+private:
+    typedef M4Bench INHERITED;
+};
+
+DEF_BENCH( return new M4EQ(); )
+DEF_BENCH( return new M4NEQ(); )
+DEF_BENCH( return new M4Concat(); )
+DEF_BENCH( return new M4SetConcat(); )
