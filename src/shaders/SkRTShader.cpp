@@ -138,25 +138,3 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
     return fp;
 }
 #endif
-
-SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
-    : fEffect(std::get<0>(SkRuntimeEffect::Make(std::move(sksl))))
-    , fIsOpaque(isOpaque) {}
-
-SkRuntimeShaderFactory::SkRuntimeShaderFactory(const SkRuntimeShaderFactory&) = default;
-SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkRuntimeShaderFactory&&) = default;
-
-SkRuntimeShaderFactory::~SkRuntimeShaderFactory() = default;
-
-SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(const SkRuntimeShaderFactory&) = default;
-SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(SkRuntimeShaderFactory&&) = default;
-
-sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-                                             sk_sp<SkShader>* children, size_t childCount) {
-    return fEffect
-        && inputs->size() >= fEffect->inputSize()
-        && childCount >= fEffect->childCount()
-        ? sk_sp<SkShader>(new SkRTShader(fEffect, std::move(inputs), localMatrix,
-                                         children, childCount, fIsOpaque))
-        : nullptr;
-}
