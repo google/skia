@@ -94,6 +94,24 @@
     },
     {
       "key": {
+        "uuid": "0e74400b_51144edd",
+        "filename": "include/core/SkM4.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-03T14:08:04Z",
+      "side": 1,
+      "message": "Oh, yeah, I like a constexpr I matrix.",
+      "parentUuid": "76d8ce63_881d340c",
+      "revId": "613f4c64c24069bd5b9a7ed23cc08a6f0485deec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "05b56c65_0ea6acd1",
         "filename": "include/core/SkM4.h",
         "patchSetId": 5
