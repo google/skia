@@ -13,9 +13,9 @@ WORKDIR /opt/emsdk
 
 RUN ./emsdk update-tags
 
-RUN ./emsdk install sdk-1.38.47-64bit
+RUN ./emsdk install sdk-1.39.4-64bit
 
-RUN ./emsdk activate sdk-1.38.47-64bit
+RUN ./emsdk activate sdk-1.39.4-64bit
 
 RUN /bin/bash -c "source ./emsdk_env.sh"
 

@@ -263,7 +263,7 @@ ${EMCXX} \
     $WASM_GPU \
     $WASM_PATHOPS \
     $FONT_CFLAGS \
-    -std=c++14 \
+    -std=c++17 \
     --bind \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \
