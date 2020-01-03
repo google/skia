@@ -289,7 +289,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                 if (!code || !data) {
                     return;
                 }
-                for (int i = 0; i < code->getUniformCount(); ++i) {
+                /*for (int i = 0; i < code->getUniformCount(); ++i) {
                     const auto& uni = code->getUniform(i);
                     float* vals = data + uni.fSlot;
 
@@ -336,7 +336,8 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                         ImGui::DragScalarN(uni.fName.c_str(), dataType, vals, uni.fRows, 1.0f);
                         ImGui::PopID();
                     }
-                }
+                }*/
+                abort();
             };
             uniformsGui(effect->effectCode(), effect->effectUniforms());
             uniformsGui(effect->particleCode(), effect->particleUniforms());
