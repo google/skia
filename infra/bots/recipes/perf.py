@@ -59,8 +59,8 @@ def nanobench_flags(api, bot):
     args.append('--nogpu')
     configs.extend(['8888', 'nonrendering'])
 
-    if 'BonusConfigs' in bot or ('SAN' in bot and 'GCE' in bot):
-      configs += [
+    if 'BonusConfigs' in bot:
+      configs = [
           'f16',
           'srgb',
           'esrgb',
