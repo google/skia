@@ -9,9 +9,12 @@
 #define SkUrlDataManager_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkString.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkTDynamicHash.h"
+
+#include <unordered_map>
 
 /*
  * A simple class which allows clients to add opaque data types, and returns a url where this data
@@ -44,6 +47,27 @@ public:
     }
     void reset();
 
+    // Methods used to identify images differently in wasm debugger for mskp animations.
+    // serving is uncessary, as a collection of images with identifiers is already present, we
+    // just want to use it when serializing commands.
+
+    /*
+     * Construct an index from a list of images
+     * (expected to be the list that was loaded from the mskp file)
+     * Use only once.
+     */
+    void indexImages(const std::vector<sk_sp<SkImage>>&);
+
+    /*
+     * Reports whether this UDM has an initialized image index (effevitely whether we're in wasm)
+     */
+    bool hasImageIndex() { return imageMap.size() > 0; }
+
+    /*
+     * Return the file id (index of the image in the originally provided list) of an SkImage
+     */
+    int lookupImage(const SkImage*);
+
 private:
     struct LookupTrait {
         // We use the data as a hash, this is not really optimal but is fine until proven otherwise
@@ -71,6 +95,7 @@ private:
     SkTDynamicHash<UrlData, SkData, LookupTrait> fCache;
     SkTDynamicHash<UrlData, SkString, ReverseLookupTrait> fUrlLookup;
     uint32_t fDataId;
+    std::unordered_map<const SkImage*, int> imageMap;
 };
 
 #endif

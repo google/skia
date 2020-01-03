@@ -44,18 +44,14 @@ struct SimpleImageInfo {
   int height;
   SkColorType colorType;
   SkAlphaType alphaType;
-  // Shown in the textual description of the image, and used as a common identifier between
-  // the resources tab and the command list.
-  // TODO(nifong) make the command list use the resource tab's ids instead of UrlDataManager
-  uintptr_t imageAddress;
 };
 
 SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
   return SkImageInfo::Make(sii.width, sii.height, sii.colorType, sii.alphaType);
 }
 
-SimpleImageInfo toSimpleImageInfo(const SkImageInfo& ii, const SkImage* addr) {
-  return (SimpleImageInfo){ii.width(), ii.height(), ii.colorType(), ii.alphaType(), (uintptr_t)addr};
+SimpleImageInfo toSimpleImageInfo(const SkImageInfo& ii) {
+  return (SimpleImageInfo){ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
 }
 
 class SkpDebugPlayer {
@@ -242,7 +238,7 @@ class SkpDebugPlayer {
 
     // Get the image info of one of the resource images.
     SimpleImageInfo getImageInfo(int index) {
-      return toSimpleImageInfo(fImages[index]->imageInfo(), fImages[index].get());
+      return toSimpleImageInfo(fImages[index]->imageInfo());
     }
 
     // return a list of layer draw events that happened at the beginning of this frame.
@@ -323,6 +319,8 @@ class SkpDebugPlayer {
           i++;
         }
         fImages = deserialContext->fImages;
+
+        udm.indexImages(fImages);
       }
 
       // constrains the draw command index to the frame's command list length.
@@ -349,11 +347,8 @@ class SkpDebugPlayer {
 
       // The URLDataManager here is a cache that accepts encoded data (pngs) and puts
       // numbers on them. We have our own collection of images (fImages) that was populated by the
-      // SkSharingDeserialContext when mskp files are loaded. It would be nice to have the mapping
-      // indices between these two caches so the urls displayed in command info match the list
-      // in the resource tab, and to make cross linking possible. One way to do this would be to
-      // look up all of fImages in udm but the exact encoding of the PNG differs and we wouldn't
-      // find anything. TODO(nifong): Unify these two numbering schemes in CollatingCanvas.
+      // SkSharingDeserialContext when mskp files are loaded which it can use for IDing images
+      // without having to serialize them.
       UrlDataManager udm;
 
       // A structure holding the picture information needed to draw any layers used in an mskp file
@@ -481,8 +476,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .field("width",     &SimpleImageInfo::width)
     .field("height",    &SimpleImageInfo::height)
     .field("colorType", &SimpleImageInfo::colorType)
-    .field("alphaType", &SimpleImageInfo::alphaType)
-    .field("imageAddress", &SimpleImageInfo::imageAddress);
+    .field("alphaType", &SimpleImageInfo::alphaType);
   constant("TRANSPARENT", (JSColor) SK_ColorTRANSPARENT);
   function("_getRasterDirectSurface", optional_override([](const SimpleImageInfo ii,
                                                            uintptr_t /* uint8_t*  */ pPtr,
