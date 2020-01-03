@@ -157,11 +157,13 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu) {
         SkASSERT(!this->isWrapped());
         SkASSERT(fSrcStageMask && fDstStageMask);
 
+#if 0
         VkDependencyFlags dependencyFlags = fBarriersByRegion ? VK_DEPENDENCY_BY_REGION_BIT : 0;
         GR_VK_CALL(gpu->vkInterface(), CmdPipelineBarrier(
                 fCmdBuffer, fSrcStageMask, fDstStageMask, dependencyFlags, 0, nullptr,
                 fBufferBarriers.count(), fBufferBarriers.begin(),
                 fImageBarriers.count(), fImageBarriers.begin()));
+#endif
         fBufferBarriers.reset();
         fImageBarriers.reset();
         fBarriersByRegion = false;
