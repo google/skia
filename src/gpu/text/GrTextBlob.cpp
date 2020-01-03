@@ -908,24 +908,18 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
 
+    auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     for (int glyphIdx = fCurrGlyph; glyphIdx < (int)fSubRun->fGlyphs.size(); glyphIdx++) {
-        GrGlyph* glyph = nullptr;
         if (fActions.regenTextureCoordinates) {
-            glyph = fSubRun->fGlyphs[glyphIdx];
+            GrGlyph* glyph = fSubRun->fGlyphs[glyphIdx];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fFullAtlasManager->hasGlyph(glyph)) {
-                GrDrawOpAtlas::ErrorCode code = grStrike->addGlyphToAtlas(
+                code = grStrike->addGlyphToAtlas(
                         fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
                         fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
-                if (GrDrawOpAtlas::ErrorCode::kError == code) {
-                    // Something horrible has happened - drop the op
-                    return false;
-                }
-                else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    fBrokenRun = glyphIdx > 0;
-                    result->fFinished = false;
-                    return true;
+                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                    break;
                 }
             }
             auto tokenTracker = fUploadTarget->tokenTracker();
@@ -940,6 +934,16 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
         ++result->fGlyphsRegenerated;
         ++fCurrGlyph;
+    }
+
+    if (GrDrawOpAtlas::ErrorCode::kError == code) {
+        // Something horrible has happened - drop the op
+        return false;
+    }
+    else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
+        fBrokenRun = fCurrGlyph > 0;
+        result->fFinished = false;
+        return true;
     }
 
     if (fActions.regenTextureCoordinates) {
