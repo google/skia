@@ -7,7 +7,6 @@
   "pool": "Skia",
   "project": "skia",
   "no_upload": [
-    "ASAN",
     "AbandonGpuContext",
     "Coverage",
     "MSAN",
