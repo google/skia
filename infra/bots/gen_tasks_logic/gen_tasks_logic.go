@@ -42,7 +42,7 @@ const (
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = "Debian-9.8"
 	DEFAULT_OS_MAC       = "Mac-10.14.6"
-	DEFAULT_OS_WIN       = "Windows-Server-14393"
+	DEFAULT_OS_WIN       = "Windows-Server-17763"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -604,7 +604,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-18363",
-			"Win2016":    DEFAULT_OS_WIN,
+			"Win2019":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
 			"iOS":        "iOS-11.4.1",
@@ -619,10 +619,6 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 		if os == "Mac10.14" && parts["model"] == "VMware7.1" {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.14.6"
-		}
-		if d["os"] == DEFAULT_OS_WIN {
-			// Upgrades result in a new image but not a new OS version.
-			d["image"] = "windows-server-2016-dc-v20190108"
 		}
 		if parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
