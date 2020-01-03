@@ -90,8 +90,9 @@ static void run_test(GrContext* context, const char* testName, skiatest::Reporte
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    auto rtc = context->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, kImageWidth, kImageHeight, GrColorType::kRGBA_8888, nullptr);
+    auto rtc = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+            {kImageWidth, kImageHeight});
     if (!rtc) {
         ERRORF(reporter, "could not create render target context.");
         return;

@@ -567,18 +567,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
     if (radius.fWidth > 0) {
-        auto dstRTContext = context->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox,
-                rect.width(),
-                rect.height(),
-                colorType,
-                colorSpace,
-                1,
-                GrMipMapped::kNo,
-                kBottomLeft_GrSurfaceOrigin,
-                nullptr,
-                SkBudgeted::kYes,
-                srcTexture->isProtected());
+        auto dstRTContext = GrRenderTargetContext::Make(
+                context, colorType, colorSpace, SkBackingFit::kApprox, rect.size(), 1,
+                GrMipMapped::kNo, srcTexture->isProtected(), kBottomLeft_GrSurfaceOrigin);
         if (!dstRTContext) {
             return nullptr;
         }
@@ -596,18 +587,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        auto dstRTContext = context->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox,
-                rect.width(),
-                rect.height(),
-                colorType,
-                colorSpace,
-                1,
-                GrMipMapped::kNo,
-                kBottomLeft_GrSurfaceOrigin,
-                nullptr,
-                SkBudgeted::kYes,
-                srcTexture->isProtected());
+        auto dstRTContext = GrRenderTargetContext::Make(
+                context, colorType, colorSpace, SkBackingFit::kApprox, rect.size(), 1,
+                GrMipMapped::kNo, srcTexture->isProtected(), kBottomLeft_GrSurfaceOrigin);
         if (!dstRTContext) {
             return nullptr;
         }

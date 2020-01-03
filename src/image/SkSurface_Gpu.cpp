@@ -357,17 +357,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
 
     GrColorType grColorType = SkColorTypeToGrColorType(c.colorType());
 
-    auto rtc = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
-                                                               c.width(),
-                                                               c.height(),
-                                                               grColorType,
-                                                               c.refColorSpace(),
-                                                               c.sampleCount(),
-                                                               GrMipMapped(c.isMipMapped()),
-                                                               c.origin(),
-                                                               &c.surfaceProps(),
-                                                               budgeted,
-                                                               c.isProtected());
+    auto rtc = GrRenderTargetContext::Make(
+            context, grColorType, c.refColorSpace(), SkBackingFit::kExact,
+            {c.width(), c.height()}, c.sampleCount(), GrMipMapped(c.isMipMapped()), c.isProtected(),
+            c.origin(), budgeted, &c.surfaceProps());
     if (!rtc) {
         return nullptr;
     }
