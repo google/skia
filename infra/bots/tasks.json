@@ -1387,14 +1387,14 @@
         "Upload-Perf-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Upload-Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "tasks": [
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
       ]
     },
     "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
@@ -2839,74 +2839,74 @@
         "Upload-Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
       "tasks": [
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
       "tasks": [
-        "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
+        "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "tasks": [
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
-        "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
+        "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ]
     },
     "Test-Win7-Clang-Golo-CPU-AVX-x86-Debug-All": {
@@ -10540,7 +10540,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10616,7 +10616,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10692,7 +10692,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10768,7 +10768,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10843,7 +10843,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10919,7 +10919,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -10995,7 +10995,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11071,7 +11071,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11147,7 +11147,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11223,7 +11223,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11304,7 +11304,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11380,7 +11380,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11456,7 +11456,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11532,7 +11532,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11608,7 +11608,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11684,7 +11684,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11760,7 +11760,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11836,7 +11836,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11912,7 +11912,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -11983,7 +11983,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12054,7 +12054,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12125,7 +12125,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12196,7 +12196,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12267,7 +12267,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12338,7 +12338,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12409,7 +12409,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12480,7 +12480,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12551,7 +12551,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12622,7 +12622,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12693,7 +12693,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12764,7 +12764,7 @@
         "gpu:none",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-highcpu-64",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -14320,7 +14320,7 @@
         "cpu:x86-64-Haswell_GCE",
         "gpu:none",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23383,7 +23383,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -23432,7 +23432,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "perf",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -23443,7 +23443,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -23467,7 +23467,7 @@
         "perf"
       ]
     },
-    "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -23516,7 +23516,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "perf",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -23527,7 +23527,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45184,7 +45184,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -45233,7 +45233,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45244,7 +45244,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45268,7 +45268,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -45317,7 +45317,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45328,7 +45328,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45352,7 +45352,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -45401,7 +45401,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45412,7 +45412,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45436,7 +45436,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -45485,7 +45485,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45496,7 +45496,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45520,7 +45520,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -45569,7 +45569,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45580,7 +45580,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45604,7 +45604,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -45653,7 +45653,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45664,7 +45664,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45688,7 +45688,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -45737,7 +45737,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45748,7 +45748,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45772,7 +45772,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -45821,7 +45821,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45832,7 +45832,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45856,7 +45856,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -45905,7 +45905,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -45916,7 +45916,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45940,7 +45940,7 @@
         "test"
       ]
     },
-    "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN": {
       "caches": [
         {
           "name": "vpython",
@@ -45989,7 +45989,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -46000,7 +46000,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46024,7 +46024,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -46073,7 +46073,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -46084,7 +46084,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46108,7 +46108,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -46157,7 +46157,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -46168,7 +46168,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46192,7 +46192,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -46241,7 +46241,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -46252,7 +46252,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46276,7 +46276,7 @@
         "test"
       ]
     },
-    "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -46325,7 +46325,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -46336,7 +46336,7 @@
         "cpu:x86-64-Haswell_GCE",
         "image:windows-server-2016-dc-v20190108",
         "machine_type:n1-standard-16",
-        "os:Windows-Server-14393",
+        "os:Windows-Server-17763",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55985,7 +55985,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -56024,12 +56024,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_nano_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Perf-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -72713,7 +72713,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72752,12 +72752,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Debug-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -72784,7 +72784,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72823,12 +72823,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86-Release-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -72855,7 +72855,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72894,12 +72894,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -72926,7 +72926,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -72965,12 +72965,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -72997,7 +72997,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -73036,12 +73036,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73068,7 +73068,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -73107,12 +73107,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73139,7 +73139,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA": {
       "caches": [
         {
           "name": "vpython",
@@ -73178,12 +73178,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FAAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73210,7 +73210,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
+    "Upload-Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA": {
       "caches": [
         {
           "name": "vpython",
@@ -73249,12 +73249,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
+        "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All-FSAA"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73281,7 +73281,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -73320,12 +73320,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73352,7 +73352,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -73391,12 +73391,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86-Release-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73423,7 +73423,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -73462,12 +73462,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -73494,7 +73494,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
+    "Upload-Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -73533,12 +73533,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_dm_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
+        "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
