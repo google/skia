@@ -32,6 +32,20 @@ using GrStdSteadyClock = std::chrono::steady_clock;
 #endif
 
 /**
+ *  divide, rounding up
+ */
+
+static inline constexpr size_t GrSizeDivRoundUp(size_t x, size_t y) { return (x + (y - 1)) / y; }
+
+/**
+ *  align up to a power of 2
+ */
+static inline constexpr size_t GrAlignTo(size_t x, size_t alignment) {
+    SkASSERT(alignment && SkIsPow2(alignment));
+    return (x + alignment - 1) & ~(alignment - 1);
+}
+
+/**
  * Pixel configurations. This type conflates texture formats, CPU pixel formats, and
  * premultipliedness. We are moving away from it towards SkColorType and backend API (GL, Vulkan)
  * texture formats in the public API. Right now this mostly refers to texture formats as we're

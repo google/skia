@@ -239,7 +239,7 @@ id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t si
     *offset = modHead;
     // We're not sure what the usage of the next allocation will be --
     // to be safe we'll use 16 byte alignment.
-    fHead = GrSizeAlignUp(head + size, 16);
+    fHead = GrAlignTo(head + size, 16);
     return fBuffer;
 }
 
@@ -262,7 +262,7 @@ void GrMtlResourceProvider::BufferSuballocator::addCompletionHandler(
 id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offset) {
 #ifdef SK_BUILD_FOR_MAC
     // Mac requires 4-byte alignment for didModifyRange:
-    size = GrSizeAlignUp(size, 4);
+    size = SkAlign4(size);
 #endif
     id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
     if (buffer) {

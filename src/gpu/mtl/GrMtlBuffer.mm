@@ -44,7 +44,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
 #ifdef SK_BUILD_FOR_MAC
         // Mac requires 4-byte alignment for copies so we need
         // to ensure we have space for the extra data
-        size = GrSizeAlignUp(size, 4);
+        size = SkAlign4(size);
 #endif
         fMtlBuffer = size == 0 ? nil :
                 [gpu->device() newBufferWithLength: size
@@ -82,7 +82,7 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
     }
     SkASSERT(fMappedBuffer);
     if (!fIsDynamic) {
-        SkASSERT(GrSizeAlignUp(srcInBytes, 4) == fMappedBuffer.length);
+        SkASSERT(SkAlign4(srcInBytes) == fMappedBuffer.length);
     }
     memcpy(fMapPtr, src, srcInBytes);
     this->internalUnmap(srcInBytes);
@@ -136,7 +136,7 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
         }
 #ifdef SK_BUILD_FOR_MAC
         // Mac requires 4-byte alignment for copies so we pad this out
-        sizeInBytes = GrSizeAlignUp(sizeInBytes, 4);
+        sizeInBytes = SkAlign4(sizeInBytes);
 #endif
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
@@ -160,7 +160,7 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
     }
 #ifdef SK_BUILD_FOR_MAC
     // In both cases the size needs to be 4-byte aligned on Mac
-    sizeInBytes = GrSizeAlignUp(sizeInBytes, 4);
+    sizeInBytes = SkAlign4(sizeInBytes);
 #endif
     if (fIsDynamic) {
 #ifdef SK_BUILD_FOR_MAC
