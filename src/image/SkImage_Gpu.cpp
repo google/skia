@@ -81,9 +81,9 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(GrRecordingContext* con
                                                targetCS.get(), this->alphaType());
     SkASSERT(xform || targetCT != this->colorType());
 
-    auto renderTargetContext = context->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kExact, this->width(), this->height(), SkColorTypeToGrColorType(targetCT),
-            nullptr);
+    auto renderTargetContext = GrRenderTargetContext::MakeWithFallback(
+            context, SkColorTypeToGrColorType(targetCT), nullptr, SkBackingFit::kExact,
+            this->dimensions());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -272,13 +272,9 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrContext* ctx,
                                                  SkISize imageSize,
                                                  GrSurfaceOrigin imageOrigin,
                                                  sk_sp<SkColorSpace> imageColorSpace) {
-    const int width = imageSize.width();
-    const int height = imageSize.height();
-
-    // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto renderTargetContext = ctx->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, width, height, GrColorType::kRGBA_8888,
-            std::move(imageColorSpace), 1, GrMipMapped::kNo, imageOrigin);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            ctx, GrColorType::kRGBA_8888, std::move(imageColorSpace), SkBackingFit::kExact,
+            imageSize, 1, GrMipMapped::kNo, GrProtected::kNo, imageOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }

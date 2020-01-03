@@ -64,9 +64,9 @@ public:
     CCPRPathDrawer(sk_sp<GrContext> ctx, skiatest::Reporter* reporter, DoStroke doStroke)
             : fCtx(ctx)
             , fCCPR(fCtx->priv().drawingManager()->getCoverageCountingPathRenderer())
-            , fRTC(fCtx->priv().makeDeferredRenderTargetContext(
-                      SkBackingFit::kExact, kCanvasSize, kCanvasSize, GrColorType::kRGBA_8888,
-                      nullptr))
+            , fRTC(GrRenderTargetContext::Make(
+                      fCtx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
+                      {kCanvasSize, kCanvasSize}))
             , fDoStroke(DoStroke::kYes == doStroke) {
         if (!fCCPR) {
             ERRORF(reporter, "ccpr not enabled in GrContext for ccpr tests");
