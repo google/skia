@@ -24,6 +24,8 @@
 #include "src/gpu/text/GrTextContext.h"
 #include "src/gpu/text/GrTextTarget.h"
 
+#include <limits>
+
 class GrAtlasManager;
 class GrAtlasTextOp;
 struct GrDistanceFieldAdjustTable;
@@ -314,13 +316,13 @@ public:
         /**
          * Pointer where the caller finds the first regenerated vertex.
          */
-        const char* fFirstVertex;
+        const char* fFirstVertex = nullptr;
     };
 
-    bool regenerate(Result*);
+    bool regenerate(Result*, int maxGlyphs = std::numeric_limits<int>::max());
 
 private:
-    bool doRegen(Result* result);
+    bool doRegen(Result* result, int maxGlyphs);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;

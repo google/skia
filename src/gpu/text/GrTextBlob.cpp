@@ -872,7 +872,8 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     fSubRun->translateVerticesIfNeeded(drawMatrix, drawOrigin);
 }
 
-bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
+bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result,
+                                            int maxGlyphs) {
     SkASSERT(!fActions.regenStrike || fActions.regenTextureCoordinates);
     if (fActions.regenTextureCoordinates) {
         fSubRun->resetBulkUseToken();
@@ -907,8 +908,12 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     auto vertexStride = fSubRun->vertexStride();
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
-
-    for (; fCurrGlyph < (int)fSubRun->fGlyphs.size(); fCurrGlyph++) {
+    int glyphLimit = (int)fSubRun->fGlyphs.size();
+    if (glyphLimit > fCurrGlyph + maxGlyphs) {
+        glyphLimit = fCurrGlyph + maxGlyphs;
+        result->fFinished = false;
+    }
+    for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
         if (fActions.regenTextureCoordinates) {
             GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
@@ -956,7 +961,8 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     return true;
 }
 
-bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result) {
+bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result,
+                                               int maxGlyphs) {
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
@@ -964,25 +970,29 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
 
     if (fActions.regenStrike
        |fActions.regenTextureCoordinates) {
-            return this->doRegen(result);
+        return this->doRegen(result, maxGlyphs);
     } else {
         auto vertexStride = fSubRun->vertexStride();
-        result->fFinished = true;
-        result->fGlyphsRegenerated = fSubRun->fGlyphs.size() - fCurrGlyph;
+        int glyphsLeft = fSubRun->fGlyphs.size() - fCurrGlyph;
+        if (glyphsLeft <= maxGlyphs) {
+            result->fFinished = true;
+            result->fGlyphsRegenerated = glyphsLeft;
+        } else {
+            result->fFinished = false;
+            result->fGlyphsRegenerated = maxGlyphs;
+        }
         result->fFirstVertex = fSubRun->fVertexData.data() +
                 fCurrGlyph * kVerticesPerGlyph * vertexStride;
-        fCurrGlyph = fSubRun->fGlyphs.size();
+        fCurrGlyph += result->fGlyphsRegenerated;
 
-        // set use tokens for all of the glyphs in our subrun.  This is only valid if we
-        // have a valid atlas generation
-        fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                           fUploadTarget->tokenTracker()->nextDrawToken(),
-                                           fSubRun->maskFormat());
+        if (result->fFinished) {
+            // set use tokens for all of the glyphs in our subrun.  This is only valid if we
+            // have a valid atlas generation
+            fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                               fUploadTarget->tokenTracker()->nextDrawToken(),
+                                               fSubRun->maskFormat());
+        }
         return true;
     }
     SK_ABORT("Should not get here");
 }
-
-
-
-

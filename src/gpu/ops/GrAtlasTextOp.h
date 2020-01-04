@@ -106,8 +106,9 @@ private:
         sk_sp<const GrBuffer> fIndexBuffer;
         GrGeometryProcessor*  fGeometryProcessor;
         GrPipeline::FixedDynamicState* fFixedDynamicState;
-        int fGlyphsToFlush;
-        int fVertexOffset;
+        int fGlyphsToFlush = 0;
+        int fVertexOffset = 0;
+        int fNumDraws = 0;
     };
 
     void onPrepareDraws(Target*) override;
