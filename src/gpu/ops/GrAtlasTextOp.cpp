@@ -326,12 +326,14 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             samplerState, maskFormat, localMatrix, vmPerspective);
     }
 
-    flushInfo.fGlyphsToFlush = 0;
     size_t vertexStride = flushInfo.fGeometryProcessor->vertexStride();
 
-    int glyphCount = this->numGlyphs();
-
-    void* vertices = target->makeVertexSpace(vertexStride, glyphCount * kVerticesPerGlyph,
+    // Ensure we don't request an insanely large contiguous vertex allocation.
+    static const size_t kMaxVertexBytes = GrBufferAllocPool::kDefaultBufferSize;
+    int maxGlyphsInBuffer = kMaxVertexBytes / (vertexStride * kVerticesPerGlyph);
+    int totalGlyphCount = this->numGlyphs();
+    int bufferGlyphCount = std::min(totalGlyphCount, maxGlyphsInBuffer);
+    void* vertices = target->makeVertexSpace(vertexStride, bufferGlyphCount * kVerticesPerGlyph,
                                              &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
     flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
     if (!vertices || !flushInfo.fVertexBuffer) {
@@ -349,46 +351,65 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 resourceProvider, args.fSubRunPtr, args.fDrawMatrix, args.fDrawOrigin,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
                 atlasManager);
-        bool done = false;
-        while (!done) {
+        // This loop issues draws until regenerator says we're done with this geo. Regenerator
+        // breaks things up if inline uploads are necessary.
+        while (true) {
             GrTextBlob::VertexRegenerator::Result result;
-            if (!regenerator.regenerate(&result)) {
+            // Copy regenerated vertices from the blob to our vertex buffer. If we overflow our
+            // vertex buffer we'll issue a draw and then get more vertex buffer space.
+            do {
+                if (!bufferGlyphCount) {
+                    this->flush(target, &flushInfo);
+                    bufferGlyphCount = std::min(totalGlyphCount, maxGlyphsInBuffer);
+                    vertices = target->makeVertexSpace(
+                            vertexStride, bufferGlyphCount * kVerticesPerGlyph,
+                            &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
+                    currVertex = reinterpret_cast<char*>(vertices);
+                }
+                if (!regenerator.regenerate(&result, bufferGlyphCount)) {
+                    return;
+                }
+                int glyphCount = std::min(result.fGlyphsRegenerated, bufferGlyphCount);
+                int vertexCount = glyphCount * kVerticesPerGlyph;
+                size_t vertexBytes = vertexCount * vertexStride;
+                if (args.fClipRect.isEmpty()) {
+                    memcpy(currVertex, result.fFirstVertex, vertexBytes);
+                } else {
+                    SkASSERT(!vmPerspective);
+                    clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
+                               glyphCount);
+                }
+                if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
+                    // We always do the distance field view matrix transformation after copying
+                    // rather than during blob vertex generation time in the blob as handling
+                    // successive arbitrary transformations would be complicated and accumulate
+                    // error.
+                    if (args.fDrawMatrix.hasPerspective()) {
+                        auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
+                        SkMatrixPriv::MapHomogeneousPointsWithStride(args.fDrawMatrix, pos,
+                                                                     vertexStride, pos,
+                                                                     vertexStride, vertexCount);
+                    } else {
+                        auto* pos = reinterpret_cast<SkPoint*>(currVertex);
+                        SkMatrixPriv::MapPointsWithStride(args.fDrawMatrix, pos, vertexStride,
+                                                          vertexCount);
+                    }
+                }
+                flushInfo.fGlyphsToFlush += glyphCount;
+                currVertex += vertexBytes;
+                result.fFirstVertex += vertexBytes;
+                result.fGlyphsRegenerated -= glyphCount;
+                bufferGlyphCount -= glyphCount;
+                totalGlyphCount -= glyphCount;
+            } while (result.fGlyphsRegenerated);
+            if (result.fFinished) {
                 break;
             }
-            done = result.fFinished;
-
-            // Copy regenerated vertices from the blob to our vertex buffer.
-            size_t vertexBytes = result.fGlyphsRegenerated * kVerticesPerGlyph * vertexStride;
-            if (args.fClipRect.isEmpty()) {
-                memcpy(currVertex, result.fFirstVertex, vertexBytes);
-            } else {
-                SkASSERT(!vmPerspective);
-                clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
-                           result.fGlyphsRegenerated);
-            }
-            if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
-                // We always do the distance field view matrix transformation after copying rather
-                // than during blob vertex generation time in the blob as handling successive
-                // arbitrary transformations would be complicated and accumulate error.
-                if (args.fDrawMatrix.hasPerspective()) {
-                    auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
-                    SkMatrixPriv::MapHomogeneousPointsWithStride(
-                            args.fDrawMatrix, pos, vertexStride, pos, vertexStride,
-                            result.fGlyphsRegenerated * kVerticesPerGlyph);
-                } else {
-                    auto* pos = reinterpret_cast<SkPoint*>(currVertex);
-                    SkMatrixPriv::MapPointsWithStride(
-                            args.fDrawMatrix, pos, vertexStride,
-                            result.fGlyphsRegenerated * kVerticesPerGlyph);
-                }
-            }
-            flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;
-            if (!result.fFinished) {
-                this->flush(target, &flushInfo);
-            }
-            currVertex += vertexBytes;
+            this->flush(target, &flushInfo);
         }
     }
+    SkASSERT(!bufferGlyphCount);
+    SkASSERT(!totalGlyphCount);
     this->flush(target, &flushInfo);
 }
 
@@ -425,6 +446,10 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
             target->sampledProxyArray()->push_back(views[i].proxy());
+            // These will get unreffed when the previously recorded draws destruct.
+            for (int d = 0; d < flushInfo->fNumDraws; ++d) {
+                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i]->ref();
+            }
         }
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
@@ -450,6 +475,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                        nullptr, GrPrimitiveType::kTriangles);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
+    ++flushInfo->fNumDraws;
 }
 
 GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -491,14 +517,6 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
         if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
             return CombineResult::kCannotCombine;
         }
-    }
-
-    // Keep the batch vertex buffer size below 32K so we don't have to create a special one
-    // We use the largest possible vertex size for this
-    static const int kVertexSize = sizeof(SkPoint) + sizeof(SkColor) + 2 * sizeof(uint16_t);
-    static const int kMaxGlyphs = 32768 / (kVerticesPerGlyph * kVertexSize);
-    if (this->fNumGlyphs + that->fNumGlyphs > kMaxGlyphs) {
-        return CombineResult::kCannotCombine;
     }
 
     fNumGlyphs += that->numGlyphs();
