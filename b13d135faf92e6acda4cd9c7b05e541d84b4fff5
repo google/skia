@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c422d50_d2cee792",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-04T13:55:44Z",
+      "side": 1,
+      "message": "I really hate this. I spent most of a day trying to make FDS store sk_sp\u0027s of proxies and not have each draws ref/unref the proxies. But we really lean on the POD nature of FDS and that it stores pointers to arrays of bare pointers that can live anywhere in a few tricky places. I want to take another pass at it with a different approach, but this does fix an already existing bug that we just have been (un)lucky to not hit in our testing.",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 452,
+        "endChar": 13
+      },
+      "revId": "b13d135faf92e6acda4cd9c7b05e541d84b4fff5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
