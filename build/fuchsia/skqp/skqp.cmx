@@ -12,6 +12,7 @@
             "system-temp"
         ],
         "services": [
+            "fuchsia.logger.LogSink",
             "fuchsia.sysmem.Allocator",
             "fuchsia.tracing.provider.Registry",
             "fuchsia.vulkan.loader.Loader"
