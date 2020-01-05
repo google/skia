@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "22b860e7_87397ffb",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-05T16:43:10Z",
+      "side": 1,
+      "message": "I do think the existing microbench was useful.\n\nIt\u0027s shown us that the `m \u003d op(a,b)` variants of these sorts of functions will all come with an extra (unavoidable, it looks like) temporary copy over `m.setOp(a,b)` versions, and that that extra copy costs around 1ns.  It also helped us measure that 1ns is a relative cost of about 20% for concat, about 5ns otherwise, and we can deduce that for cheaper concat specializations, that relative cost grows, and for more expensive operations it shrinks.  The absolute cost won\u0027t change of course, and it\u0027s worth noting that a cost of 1ns is not usually something we even worry about per-pixel.  We\u0027d have to do a million matrix operations per second to get that extra cost up into the worrying 1ms range, and at that point an extra 20% isn\u0027t the problem, since it puts the real work up in the more-worrying 5ms range... we\u0027d be looking at why we were spending so much time on matrices in the first place, not trying to trim the call overhead.\n\nI absolutely don\u0027t mind keeping setFoo() methods, but I don\u0027t think I\u0027ll be convinced that they\u0027re important.  I do think that the preFoo()/postFoo() methods are hard to reason about and would prefer those spelled out in a longer way that keeps the order of matrices visually obvious.  I think it\u0027s the postFoo() ones that are really confusing, and that the preFoo() methods are written in the order you\u0027d write the matrices, but my point is really, it\u0027s been years and years and I still am not sure and have to look them up every time.  I don\u0027t write any code that\u0027s not just `SkMatrix m \u003d SkMatrix::Concat(a,b)` because it\u0027s the only method I\u0027m sure I won\u0027t get backwards.\n\n\nI am generally suspicious of tiny benchmarks because I think they lead us to overfit our code and our concern to the machine we happen time on, the compilation settings we happen to use, and the unintentional details of how a microbenchmark is written.  E.g. given these two hypothetical benches, what sort of timing difference do you think you\u0027ll see?\n\n\n    auto bench \u003d [](fn) {\n       start timer\n       a bunch of times,\n           fn()\n       stop timer\n    };\n\n    Matrix a \u003d ...,\n           b \u003d ..., \n           c \u003d ...;\n    bench([\u0026]{ a.setConcat(b,c); });   // 1\n    bench([\u0026]{ a.setConcat(a,b); });   // 2\n\nIt\u0027s the same setConcat() function, so must be the same speed, right?  Nah, obviously I wouldn\u0027t ask if that were the answer.\n\nSo, probably 1 is slower because it deals with three matrices right?  While 2 only needs to handle two matrices, and touches less memory?\n\nNo, 2 is slower because when looped over it carries data dependencies across loop iterations; each loop needs the new a\u0027 to feed into the next setConcat().  Bench 1 has no data dependency between loop iterations and an out-of-order CPU will run several iterations of the loop at the same time.",
+      "parentUuid": "3946fe37_a5a08bf8",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb41a6af_1b1a0b4a",
         "filename": "include/private/SkM44.h",
         "patchSetId": 9
@@ -60,6 +84,30 @@
       "writtenOn": "2020-01-05T02:43:05Z",
       "side": 1,
       "message": "Same question here, are we still seeing:\nSkM44 a, b;\na.setConcat(a, b)\n\nas faster than a \u003d a * b?",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 113,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8480b271_1f1a82ef",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-05T16:43:10Z",
+      "side": 1,
+      "message": "The reason we see that extra copy becomes a little clearer if you look at how these are desugared into C-like calls, given that an SkM4 is too large to return by value in registers:\n\n    setConcat(const SkM4\u0026, const SkM4\u0026) ~~\u003e setConcatC(SkM4*, const SkM4*, const SkM4*)\n\n    a.setConcat(a,b)  ~~\u003e   setConcatC(\u0026a, \u0026a, \u0026b)\n    a \u003d a * b         ~~\u003e   SkM4 tmp; setConcatC(\u0026tmp, \u0026a, \u0026b); a \u003d tmp;\n\nFor the compiler to skip the tmp matrix and turn the second line into the first, it would have to be able to prove that it is safe to alias the first and second arguments of setConcatC().  setConcatC() is out line, so there\u0027s no way it can reason about it, and I\u0027ve found no way to mark it with a hint, even on a compiler-by-compiler basis.\n\nThe a.setConcat(a,b) version has the advantage of the compiler not needing to reason at all... it just does exactly what we tell it to do, and any aliasing is on us.  If setConcat() is safe for aliasing, everything will be fine, and if not, we\u0027ll have a bug, but a bug that\u0027s our fault as programmers and not the fault of the compiler.\n\nAmusingly, we could write SkM4::operator*\u003d to be exactly as efficient as setConcat() for this sort of two-matrix math, but that won\u0027t help the general a \u003d b * c case.\n\nNow speaking of a \u003d b * c, while benchmarking we\u0027ve seen the same extra temporary copy happen when measuring a.setConcat(b,c) vs. a \u003d b * c, even where the compiler definitely could see that there\u0027s no aliasing between any of the matrices.  It certainly seems like it could take advantage of this... unclear to me whether it doesn\u0027t see it, doesn\u0027t have the ability to exploit that, doesn\u0027t care to, or I\u0027m missing something.\n\n(In case you were wondering, whether or not setConcat() returns *this or void makes no difference to any of this.  It\u0027s ~1 extra instruction that won\u0027t be on the function\u0027s critical retirement path.)",
+      "parentUuid": "fb41a6af_1b1a0b4a",
       "range": {
         "startLine": 109,
         "startChar": 4,
