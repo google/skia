@@ -22,6 +22,144 @@
       "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f1388cf_a8b07df9",
+        "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T03:07:17Z",
+      "side": 1,
+      "message": "Does this mean that the current implementation cannot handle paths with conics? Or does a different stage convert the conics into some other representation?",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 50
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f551726_1ec93fa4",
+        "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T03:07:17Z",
+      "side": 1,
+      "message": "I am not sold on the term \"wedge\"; these are synonymous with the patches that the are processed by the tessellation shader, right? If so, could we just call them GrAnchoredCurvePatchGen?",
+      "range": {
+        "startLine": 18,
+        "startChar": 32,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce5c5673_d1817302",
+        "filename": "src/gpu/tessellate/GrCoverShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T03:07:17Z",
+      "side": 1,
+      "message": "Since you\u0027re splitting the view matrix up into a 2x2 and a vec2, could you just haave a viewM22 and a viewT uniform, and do the split when you set the uniform values on the CPU?",
+      "range": {
+        "startLine": 32,
+        "startChar": 16,
+        "endLine": 33,
+        "endChar": 44
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11c10bb4_db19bcf7",
+        "filename": "src/gpu/tessellate/GrCoverShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T03:07:17Z",
+      "side": 1,
+      "message": "Since this is constructing the device and local position from the uniforms and vertex ID, it presumably uses a fixed set of vertex data for every call. Can that be documented somewhere? Or can this file also provide the functions to create that geometry?",
+      "range": {
+        "startLine": 35,
+        "startChar": 16,
+        "endLine": 37,
+        "endChar": 63
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "957f4522_e18463cd",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T03:07:17Z",
+      "side": 1,
+      "message": "I believe this answers an earlier question of mine..",
+      "range": {
+        "startLine": 33,
+        "startChar": 20,
+        "endLine": 33,
+        "endChar": 34
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6156f9aa_83135e51",
+        "filename": "src/gpu/tessellate/GrTessellateWedgeShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T03:07:17Z",
+      "side": 1,
+      "message": "This was part of an earlier CL that just adds the backdoor for OpenGL-only tessellation shaders in the program builder, right?",
+      "range": {
+        "startLine": 24,
+        "startChar": 14,
+        "endLine": 24,
+        "endChar": 43
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
