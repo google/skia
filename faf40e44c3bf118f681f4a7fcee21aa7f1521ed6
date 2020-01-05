@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86f8bc6a_7af00a1a",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T02:43:05Z",
+      "side": 1,
+      "message": "These are still benchmarking noticeably faster than a \u003d I() or a \u003d Trans(x,y,z)?",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb41a6af_1b1a0b4a",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T02:43:05Z",
+      "side": 1,
+      "message": "Same question here, are we still seeing:\nSkM44 a, b;\na.setConcat(a, b)\n\nas faster than a \u003d a * b?",
+      "range": {
+        "startLine": 109,
+        "startChar": 4,
+        "endLine": 113,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d469afa2_5f16f782",
+        "filename": "src/core/SkM44.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-05T02:43:05Z",
+      "side": 1,
+      "message": "all(eq)?",
+      "range": {
+        "startLine": 30,
+        "startChar": 11,
+        "endLine": 30,
+        "endChar": 48
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
