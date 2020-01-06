@@ -199,6 +199,22 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     SkUNREACHABLE;
 }
 
+SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimensions) {
+    switch (type) {
+        case SkImage::CompressionType::kNone:
+            return baseDimensions;
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kETC1:
+            int numBlocksWidth = num_ETC1_blocks_w(baseDimensions.width());
+            int numBlocksHeight = num_ETC1_blocks_w(baseDimensions.height());
+
+            // Each BC1_RGB8_UNORM and ETC1 block has 16 pixels
+            return { 4 * numBlocksWidth, 4 * numBlocksHeight };
+    }
+    SkUNREACHABLE;
+}
+
+
 // Fill in 'dest' with ETC1 blocks derived from 'colorf'
 static void fillin_ETC1_with_color(SkISize dimensions, const SkColor4f& colorf, char* dest) {
     SkColor color = colorf.toSkColor();

@@ -1750,8 +1750,9 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
             VkBufferImageCopy& region = regions.push_back();
             memset(&region, 0, sizeof(VkBufferImageCopy));
             region.bufferOffset = individualMipOffsets[i];
-            region.bufferRowLength = levelDimensions.width();
-            region.bufferImageHeight = levelDimensions.height();
+            SkISize revisedDimensions = GrCompressedDimensions(compression, levelDimensions);
+            region.bufferRowLength = revisedDimensions.width();
+            region.bufferImageHeight = revisedDimensions.height();
             region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, SkToU32(i), 0, 1};
             region.imageOffset = {0, 0, 0};
             region.imageExtent = {SkToU32(levelDimensions.width()),
