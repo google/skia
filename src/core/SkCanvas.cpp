@@ -58,6 +58,31 @@
 static_assert(std::max(3,4) == 4);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#include "include/private/SkM44.h"
+
+class SkCanvasMatrix {
+    SkM44 fM;
+public:
+    operator SkMatrix() const { return fM; }
+    SkCanvasMatrix& operator=(const SkMatrix& other) { fM = other; return *this; }
+
+    bool isScaleTranslate() const { return fM.asM33().isScaleTranslate(); }
+    bool rectStaysRect() const { return fM.asM33().rectStaysRect(); }
+
+    float getScaleX() const { return fM.atColMajor(0); }
+    float getScaleY() const { return fM.atColMajor(5); }
+    float getTranslateX() const { return fM.atColMajor(12); }
+    float getTranslateY() const { return fM.atColMajor(13); }
+
+    void reset() { fM.setIdentity(); }
+    void preTranslate(SkScalar x, SkScalar y) { fM.setConcat(fM, SkM44::Translate(x, y)); }
+    void preConcat(const SkMatrix& m) { fM.setConcat(fM, SkM44(m)); }
+    bool invert(SkMatrix* inv) const { return fM.asM33().invert(inv); }
+
+    bool mapRect(SkRect* dst, const SkRect& src) { return fM.asM33().mapRect(dst, src); }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
  *  Return true if the drawing this rect would hit every pixels in the canvas.
@@ -235,7 +260,7 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkCanvasMatrix fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
@@ -1583,8 +1608,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1761,7 +1785,7 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
