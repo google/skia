@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f055d1f_858c35a1",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-06T19:52:59Z",
+      "side": 1,
+      "message": "Another option is maybe to replace this line with `return true;` and let the return true cases fall through?  That\u0027ll still warn you if the enum grows.",
+      "revId": "0863ee298b76b15f8b04b091493d6e0849c3771e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
