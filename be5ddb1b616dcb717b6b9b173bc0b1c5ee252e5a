@@ -70,6 +70,30 @@
       "revId": "be5ddb1b616dcb717b6b9b173bc0b1c5ee252e5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "214098a6_38e4824b",
+        "filename": "tools/ToolUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T17:19:44Z",
+      "side": 1,
+      "message": "Ok, I finally actually read the code and agree this change is good 😊",
+      "parentUuid": "9a73c5b2_68b9c5ea",
+      "range": {
+        "startLine": 396,
+        "startChar": 12,
+        "endLine": 396,
+        "endChar": 23
+      },
+      "revId": "be5ddb1b616dcb717b6b9b173bc0b1c5ee252e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
