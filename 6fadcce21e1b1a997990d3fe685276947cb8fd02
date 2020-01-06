@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a788b16b_71b36870",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-06T19:23:55Z",
+      "side": 1,
+      "message": "Maybe just default:  // no error?",
+      "range": {
+        "startLine": 956,
+        "startChar": 8,
+        "endLine": 956,
+        "endChar": 50
+      },
+      "revId": "6fadcce21e1b1a997990d3fe685276947cb8fd02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
