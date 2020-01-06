@@ -339,6 +339,28 @@ public:
     }
 };
 
+static void tweak_quality_and_inv_matrix(SkFilterQuality* quality, SkMatrix* matrix) {
+    // When the matrix is just an integer translate, bilerp == nearest neighbor.
+    if (*quality == kLow_SkFilterQuality &&
+            matrix->getType() <= SkMatrix::kTranslate_Mask &&
+            matrix->getTranslateX() == (int)matrix->getTranslateX() &&
+            matrix->getTranslateY() == (int)matrix->getTranslateY()) {
+        *quality = kNone_SkFilterQuality;
+    }
+
+    // See skia:4649 and the GM image_scale_aligned.
+    if (*quality == kNone_SkFilterQuality) {
+        if (matrix->getScaleX() >= 0) {
+            matrix->setTranslateX(nextafterf(matrix->getTranslateX(),
+                                             floorf(matrix->getTranslateX())));
+        }
+        if (matrix->getScaleY() >= 0) {
+            matrix->setTranslateY(nextafterf(matrix->getTranslateY(),
+                                             floorf(matrix->getTranslateY())));
+        }
+    }
+}
+
 bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater) const {
     if (updater && rec.fPaint.getFilterQuality() == kMedium_SkFilterQuality) {
         // TODO: medium: recall RequestBitmap and update width/height accordingly
@@ -370,25 +392,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, SkImageStageUpdater* updater
     if (updater) {
         updater->append_matrix_stage(p);
     } else {
-        // When the matrix is just an integer translate, bilerp == nearest neighbor.
-        if (quality == kLow_SkFilterQuality &&
-            matrix.getType() <= SkMatrix::kTranslate_Mask &&
-            matrix.getTranslateX() == (int)matrix.getTranslateX() &&
-            matrix.getTranslateY() == (int)matrix.getTranslateY()) {
-            quality = kNone_SkFilterQuality;
-        }
-
-        // See skia:4649 and the GM image_scale_aligned.
-        if (quality == kNone_SkFilterQuality) {
-            if (matrix.getScaleX() >= 0) {
-                matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
-                                                floorf(matrix.getTranslateX())));
-            }
-            if (matrix.getScaleY() >= 0) {
-                matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
-                                                floorf(matrix.getTranslateY())));
-            }
-        }
+        tweak_quality_and_inv_matrix(&quality, &matrix);
         p->append_matrix(alloc, matrix);
     }
 
@@ -650,6 +654,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         return false;
     }
 
+    // TODO: need to extend lifetime of this once we start supporting kMedium_SkFilterQuality.
     SkBitmapController::State state{as_IB(fImage.get()), inv, quality};
     const SkPixmap& pm = state.pixmap();
     if (!pm.addr()) {
@@ -657,7 +662,52 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     }
     inv     = state.invMatrix();
     quality = state.quality();
+    tweak_quality_and_inv_matrix(&quality, &inv);
 
-    return false;
+    // TODO: and need to extend lifetime of this too once supporting steps.flags.mask() != 0.
+    SkColorSpaceXformSteps steps{pm.colorSpace(), pm.alphaType(),
+                                 dstCS, kPremul_SkAlphaType};
+
+    if (steps.flags.mask() != 0)                  { return false; }
+    if (pm.colorType() != kRGBA_8888_SkColorType) { return false; }
+    if (quality != kNone_SkFilterQuality)         { return false; }
+    if (fTileModeX != SkTileMode::kClamp)         { return false; }
+    if (fTileModeY != SkTileMode::kClamp)         { return false; }
+
+    // Apply matrix to convert dst coords to sample coords, skipping perspective divide if possible.
+    auto dot = [&,x,y](int row) {
+        return p->mad(x, p->uniformF(uniforms->pushF(inv[3*row+0])),
+               p->mad(y, p->uniformF(uniforms->pushF(inv[3*row+1])),
+                         p->uniformF(uniforms->pushF(inv[3*row+2]))));
+    };
+    x = dot(0);
+    y = dot(1);
+    if (inv.hasPerspective()) {
+        x = p->div(x, dot(2));
+        y = p->div(y, dot(2));
+    }
+
+    // Clamp sample coordinates to [0,width), [0,height).
+    auto minus_1_ulp = [](float v) {
+        int bits;
+        memcpy(&bits, &v, 4);
+        bits--;
+        memcpy(&v, &bits, 4);
+        return v;
+    };
+    x = p->max(p->splat(0.0f), p->min(x, p->uniformF(uniforms->pushF(minus_1_ulp(pm. width())))));
+    y = p->max(p->splat(0.0f), p->min(y, p->uniformF(uniforms->pushF(minus_1_ulp(pm.height())))));
+
+    // Load pixels from pm.addr()[(int)y*stride + (int)x].
+    skvm::I32 index = p->add(p->trunc(x),
+                      p->mul(p->trunc(y), p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
+    skvm::I32 rgba = p->gather32(uniforms->pushPtr(pm.addr()), index);
+
+    skvm::Color c = p->unpack_8888(rgba);
+    *r = c.r;
+    *g = c.g;
+    *b = c.b;
+    *a = c.a;
+    return true;
 }
 
