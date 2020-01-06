@@ -13,6 +13,8 @@ skia_skottie_public = [
 ]
 
 skia_skottie_sources = [
+  "$_src/Camera.cpp",
+  "$_src/Camera.h",
   "$_src/Composition.cpp",
   "$_src/Composition.h",
   "$_src/Layer.cpp",
@@ -27,7 +29,8 @@ skia_skottie_sources = [
   "$_src/SkottieProperty.cpp",
   "$_src/SkottieValue.cpp",
   "$_src/SkottieValue.h",
-
+  "$_src/Transform.cpp",
+  "$_src/Transform.h",
   "$_src/effects/DropShadowEffect.cpp",
   "$_src/effects/Effects.cpp",
   "$_src/effects/Effects.h",
@@ -47,14 +50,12 @@ skia_skottie_sources = [
   "$_src/effects/TransformEffect.cpp",
   "$_src/effects/TritoneEffect.cpp",
   "$_src/effects/VenetianBlindsEffect.cpp",
-
   "$_src/layers/ImageLayer.cpp",
   "$_src/layers/NullLayer.cpp",
   "$_src/layers/PrecompLayer.cpp",
   "$_src/layers/ShapeLayer.cpp",
   "$_src/layers/SolidLayer.cpp",
   "$_src/layers/TextLayer.cpp",
-
   "$_src/text/RangeSelector.cpp",
   "$_src/text/RangeSelector.h",
   "$_src/text/SkottieShaper.cpp",

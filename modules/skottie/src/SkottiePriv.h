@@ -36,13 +36,11 @@ class Transform;
 } // namespace sksg
 
 namespace skottie {
-
-class TransformAdapter2D;
-class TransformAdapter3D;
-
 namespace internal {
 
 class TextAdapter;
+class TransformAdapter2D;
+class TransformAdapter3D;
 
 using AnimatorScope = sksg::AnimatorList;
 

@@ -7,8 +7,8 @@
 
 #include "modules/skottie/src/Layer.h"
 
+#include "modules/skottie/src/Camera.h"
 #include "modules/skottie/src/Composition.h"
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/effects/Effects.h"
 #include "modules/skottie/src/effects/MotionBlurEffect.h"

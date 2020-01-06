@@ -7,8 +7,8 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/Transform.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
