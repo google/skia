@@ -118,13 +118,13 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::onFilterImage(const Context& ct
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> foreground(this->filterInput(1, ctx, &foregroundOffset));
 
-    SkIRect foregroundBounds = SkIRect::EmptyIRect();
+    SkIRect foregroundBounds = SkIRect::MakeEmpty();
     if (foreground) {
         foregroundBounds = SkIRect::MakeXYWH(foregroundOffset.x(), foregroundOffset.y(),
                                              foreground->width(), foreground->height());
     }
 
-    SkIRect srcBounds = SkIRect::EmptyIRect();
+    SkIRect srcBounds = SkIRect::MakeEmpty();
     if (background) {
         srcBounds = SkIRect::MakeXYWH(backgroundOffset.x(), backgroundOffset.y(),
                                       background->width(), background->height());

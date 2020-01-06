@@ -8,6 +8,9 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+  * Removed SkIRect::EmptyIRect(). Use SkIRect::MakeEmpty() instead.
+    https://review.skia.org/262382/
+
 Moved SkRuntimeEffect to public API. This is the new (experimental) interface to custom SkSL
 shaders and color filters.
 
