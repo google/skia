@@ -913,6 +913,18 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         glyphLimit = fCurrGlyph + maxGlyphs;
         result->fFinished = false;
     }
+
+    // brokenRun indicates if the atlas became full at any glyph other than the first glyph of
+    // the SubRun.
+    //
+    // Notes:
+    // This controls the setting of the fAtlasGeneration on the SubRun. This state is used through
+    // multiple calls of VertexRegenerator::regenerate() to indicate if the texture coordinates
+    // need to be updated. fBrokenRun being true indicates that the the SubRun->fAtlasGeneration
+    // must be set to invalid to indicate that the texture coordinates need to be regenerated.
+    // Otherwise, the atlas could not take the first glyph of the SubRun, the code flushes the
+    // atlas, and the subRun uses the next generation of the atlas.
+    bool brokenRun = fCurrGlyph > 0;
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
         if (fActions.regenTextureCoordinates) {
@@ -946,18 +958,17 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             return false;
         }
         case GrDrawOpAtlas::ErrorCode::kTryAgain: {
-            // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
-            // otherwise at least one glyph made it into the atlas, and this run needs
-            // special handling because of the atlas flush in the middle of it.
-            fBrokenRun = fCurrGlyph > 0;
             result->fFinished = false;
             return true;
         }
         case GrDrawOpAtlas::ErrorCode::kSucceeded: {
             if (fActions.regenTextureCoordinates) {
+                // if brokenRun, then the previous call to doRegen exited with kTryAgain. This
+                // means that only a portion of the glyphs made it into the atlas, and more must
+                // be processed.
                 fSubRun->fAtlasGeneration =
-                        fBrokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                                   : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
+                        brokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                                  : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
             } else {
                 // For the non-texCoords case we need to ensure that we update the associated
                 // use tokens
