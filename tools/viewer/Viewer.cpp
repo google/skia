@@ -129,6 +129,7 @@ static DEFINE_int_2(threads, j, -1,
 
 static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
+static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
@@ -1314,11 +1315,13 @@ void Viewer::drawSlide(SkSurface* surface) {
     // ... in fake perspective or zooming (so we have a snapped copy of the results)
     // ... in any raster mode, because the window surface is actually GL
     // ... in any color managed mode, because we always make the window surface with no color space
+    // ... or if the user explicitly requested offscreen rendering
     sk_sp<SkSurface> offscreenSurface = nullptr;
     if (kPerspective_Fake == fPerspectiveMode ||
         fShowZoomWindow ||
         Window::kRaster_BackendType == fBackendType ||
-        colorSpace != nullptr) {
+        colorSpace != nullptr ||
+        FLAGS_offscreen) {
 
         offscreenSurface = make_surface(fWindow->width(), fWindow->height());
         slideSurface = offscreenSurface.get();
