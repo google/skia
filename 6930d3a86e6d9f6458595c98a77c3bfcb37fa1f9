@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8865e111_da57e7ad",
+        "filename": "site/dev/testing/swarmingbots.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-01-06T22:54:46Z",
+      "side": 1,
+      "message": "I always login to GCE win bots using chrome-bot with password from Valentine, are these other ways better?",
+      "range": {
+        "startLine": 37,
+        "startChar": 12,
+        "endLine": 37,
+        "endChar": 44
+      },
+      "revId": "6930d3a86e6d9f6458595c98a77c3bfcb37fa1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
