@@ -248,7 +248,7 @@ static bool get_shape_and_clip_bounds(GrRenderTargetContext* renderTargetContext
                                devClipBounds);
 
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
-        *unclippedDevShapeBounds = SkIRect::EmptyIRect();
+        *unclippedDevShapeBounds = SkIRect::MakeEmpty();
         return false;
     }
 

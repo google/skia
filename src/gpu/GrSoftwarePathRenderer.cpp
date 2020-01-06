@@ -78,12 +78,12 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* render
                                devClipBounds);
 
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
-        *unclippedDevShapeBounds = SkIRect::EmptyIRect();
-        *clippedDevShapeBounds = SkIRect::EmptyIRect();
+        *unclippedDevShapeBounds = SkIRect::MakeEmpty();
+        *clippedDevShapeBounds = SkIRect::MakeEmpty();
         return false;
     }
     if (!clippedDevShapeBounds->intersect(*devClipBounds, *unclippedDevShapeBounds)) {
-        *clippedDevShapeBounds = SkIRect::EmptyIRect();
+        *clippedDevShapeBounds = SkIRect::MakeEmpty();
         return false;
     }
     return true;

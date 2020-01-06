@@ -284,7 +284,6 @@
 #include "../../docs/examples/IPoint_subtractfrom_operator.cpp"
 #include "../../docs/examples/IPoint_x.cpp"
 #include "../../docs/examples/IPoint_y.cpp"
-#include "../../docs/examples/IRect_EmptyIRect.cpp"
 #include "../../docs/examples/IRect_Intersects.cpp"
 #include "../../docs/examples/IRect_MakeEmpty.cpp"
 #include "../../docs/examples/IRect_MakeLTRB.cpp"
