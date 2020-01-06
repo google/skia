@@ -22,6 +22,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCanvasMatrix.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
@@ -235,7 +236,7 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkCanvasMatrix fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
@@ -1583,8 +1584,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1761,7 +1761,7 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 

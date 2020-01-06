@@ -2505,7 +2505,7 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_getTotalMatrix
         example: https://fiddle.skia.org/c/@Clip
     */
-    const SkMatrix& getTotalMatrix() const;
+    SkMatrix getTotalMatrix() const;
 
     ///////////////////////////////////////////////////////////////////////////
 

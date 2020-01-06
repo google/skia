@@ -17,6 +17,7 @@
 
 class SkBitmap;
 struct SkDrawShadowRec;
+class SkCanvasMatrix;
 class SkGlyphRun;
 class SkGlyphRunList;
 class SkImageFilterCache;
@@ -99,7 +100,7 @@ public:
     virtual void* getRasterHandle() const { return nullptr; }
 
     void save() { this->onSave(); }
-    void restore(const SkMatrix& ctm) {
+    void restore(const SkCanvasMatrix& ctm) {
         this->onRestore();
         this->setGlobalCTM(ctm);
     }
@@ -130,7 +131,7 @@ public:
     void setLocalToDevice(const SkMatrix& localToDevice) {
         fLocalToDevice = localToDevice;
     }
-    void setGlobalCTM(const SkMatrix& ctm);
+    void setGlobalCTM(const SkCanvasMatrix& ctm);
     virtual void validateDevBounds(const SkIRect&) {}
 
     virtual bool android_utils_clipWithStencil() { return false; }
