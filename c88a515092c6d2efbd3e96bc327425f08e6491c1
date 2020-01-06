@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1371950b_e55e5e12",
+        "filename": "samplecode/SampleTessellatedWedge.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "Done. See https://skia-review.googlesource.com/c/skia/+/262348",
+      "parentUuid": "6dd16f3a_28c9904c",
+      "range": {
+        "startLine": 180,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 23
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6f1388cf_a8b07df9",
         "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e87ddaae_cc55418a",
+        "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "No conics yet. Eventually we want to switch to rational cubics.",
+      "parentUuid": "6f1388cf_a8b07df9",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 50
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f551726_1ec93fa4",
         "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.h",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2020-01-05T03:07:17Z",
       "side": 1,
       "message": "I am not sold on the term \"wedge\"; these are synonymous with the patches that the are processed by the tessellation shader, right? If so, could we just call them GrAnchoredCurvePatchGen?",
+      "range": {
+        "startLine": 18,
+        "startChar": 32,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "614a09f2_d0880f8e",
+        "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "I actually quite liked the term \"wedge\". I like how it describes the geometry that grows outward from the center point of the path. What issue do you take with it?",
+      "parentUuid": "1f551726_1ec93fa4",
       "range": {
         "startLine": 18,
         "startChar": 32,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "96b94498_d0b8e67b",
+        "filename": "src/gpu/tessellate/GrCoverShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "Switched back to using the matrix directly. For the initial CL I\u0027d like to keep it as simple as possible.",
+      "parentUuid": "ce5c5673_d1817302",
+      "range": {
+        "startLine": 32,
+        "startChar": 16,
+        "endLine": 33,
+        "endChar": 44
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "11c10bb4_db19bcf7",
         "filename": "src/gpu/tessellate/GrCoverShader.cpp",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2020-01-05T03:07:17Z",
       "side": 1,
       "message": "Since this is constructing the device and local position from the uniforms and vertex ID, it presumably uses a fixed set of vertex data for every call. Can that be documented somewhere? Or can this file also provide the functions to create that geometry?",
+      "range": {
+        "startLine": 35,
+        "startChar": 16,
+        "endLine": 37,
+        "endChar": 63
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f8b5f2b_21f057fd",
+        "filename": "src/gpu/tessellate/GrCoverShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "There is no vertex data. We just draw a 4-vertex triangle strip with no vertex attributes. (Added a comment.)",
+      "parentUuid": "11c10bb4_db19bcf7",
       "range": {
         "startLine": 35,
         "startChar": 16,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "c4727443_69d79cec",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "Yep!",
+      "parentUuid": "957f4522_e18463cd",
+      "range": {
+        "startLine": 33,
+        "startChar": 20,
+        "endLine": 33,
+        "endChar": 34
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6156f9aa_83135e51",
         "filename": "src/gpu/tessellate/GrTessellateWedgeShader.h",
         "patchSetId": 2
@@ -151,6 +295,30 @@
       "writtenOn": "2020-01-05T03:07:17Z",
       "side": 1,
       "message": "This was part of an earlier CL that just adds the backdoor for OpenGL-only tessellation shaders in the program builder, right?",
+      "range": {
+        "startLine": 24,
+        "startChar": 14,
+        "endLine": 24,
+        "endChar": 43
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55e9f5f8_e3aea607",
+        "filename": "src/gpu/tessellate/GrTessellateWedgeShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:41:31Z",
+      "side": 1,
+      "message": "Yes, but \"setWillUseTessellationShaders\" is probably going to stay even after we implement SkSL support and remove the GLSL back door.",
+      "parentUuid": "6156f9aa_83135e51",
       "range": {
         "startLine": 24,
         "startChar": 14,
