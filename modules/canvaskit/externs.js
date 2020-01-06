@@ -124,7 +124,7 @@ var CanvasKit = {
 		_getRectsForRange: function() {},
 	},
 
-	_SkRuntimeEffect: {
+	SkRuntimeEffect: {
 		// public API (from C++ bindings)
 		Make: function() {},
 
@@ -802,7 +802,7 @@ CanvasKit.SkColorBuilder.prototype.delete = function() {};
 CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
-CanvasKit._SkRuntimeEffect.prototype.makeShader = function() {};
+CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};
