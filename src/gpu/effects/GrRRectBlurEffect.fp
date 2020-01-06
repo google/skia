@@ -81,7 +81,7 @@ uniform half blurRadius;
                                                    SkIPoint::Make(0, 0),
                                                    nullptr,
                                                    SkIRect::MakeSize(dimensions),
-                                                   SkIRect::EmptyIRect(),
+                                                   SkIRect::MakeEmpty(),
                                                    xformedSigma,
                                                    xformedSigma,
                                                    GrTextureDomain::kIgnore_Mode,
