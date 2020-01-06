@@ -1004,10 +1004,6 @@ int32_t x() const;
 SkIPoint
 int32_t y() const;
 
-[IRect_EmptyIRect]
-SkIRect
-static const SkIRect& EmptyIRect();
-
 [IRect_Intersects]
 SkIRect
 static bool Intersects(const SkIRect& a, const SkIRect& b);
