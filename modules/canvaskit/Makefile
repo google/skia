@@ -39,12 +39,19 @@ profile:
 	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./canvaskit/bin
 	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin
 
-profile_cpu:
-	./compile.sh profiling cpu_only
+npm:
+	rm -rf ./canvaskit/bin
 	mkdir -p ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.js       ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm     ./canvaskit/bin
-	cp ../../out/canvaskit_wasm_profile/canvaskit.wasm.map ./canvaskit/bin
+	# These features are turned off to keep code size smaller for the
+	# general use case.
+	./compile.sh release no_skottie no_particles no_pathops no_rt_shader
+	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin
+	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin
+
+	mkdir -p ./canvaskit/bin/core
+	./compile.sh release no_skottie no_particles no_pathops no_rt_shader no_font
+	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin/core
+	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin/core
 
 local-example:
 	rm -rf node_modules/canvaskit

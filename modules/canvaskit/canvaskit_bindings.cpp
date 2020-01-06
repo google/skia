@@ -1367,8 +1367,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkShaders::Lerp(t, dst, src, &m);
         }));
 
-    class_<SkRuntimeEffect>("_SkRuntimeEffect")
-        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<_SkRuntimeEffect>")
+#ifdef SK_INCLUDE_RUNTIME_EFFECT
+    class_<SkRuntimeEffect>("SkRuntimeEffect")
+        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<SkRuntimeEffect>")
         .class_function("Make", optional_override([](std::string sksl)->sk_sp<SkRuntimeEffect> {
             SkString s(sksl.c_str(), sksl.length());
             auto [effect, errorText] = SkRuntimeEffect::Make(s);
@@ -1390,6 +1391,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto m = toSkMatrix(sm);
             return self.makeShader(inputs, nullptr, 0, &m, isOpaque);
         }));
+#endif
 
     class_<SkSurface>("SkSurface")
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
