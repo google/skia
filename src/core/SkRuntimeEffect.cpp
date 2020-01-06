@@ -217,7 +217,11 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
     auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                                  SkSL::String(fSkSL.c_str(), fSkSL.size()),
                                                  settings);
-    SkASSERT(baseProgram);
+    if (!baseProgram) {
+        SkDebugf("%s\n", fCompiler->errorText().c_str());
+        SkASSERT(false);
+        return false;
+    }
 
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     for (const auto& v : fInAndUniformVars) {
