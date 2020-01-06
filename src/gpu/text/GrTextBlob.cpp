@@ -922,10 +922,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                     return false;
                 }
                 else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
-                    // otherwise at least one glyph made it into the atlas, and this run needs
-                    // special handling because of the atlas flush in the middle of it.
-                    fBrokenRun = fCurrGlyph > 0;
                     result->fFinished = false;
                     return true;
                 }
@@ -944,9 +940,12 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     }
 
     if (fActions.regenTextureCoordinates) {
+        // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
+        // otherwise at least one glyph made it into the atlas, and this run needs
+        // special handling because of the atlas flush in the middle of it.
         fSubRun->fAtlasGeneration =
-                fBrokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                           : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
+                fCurrGlyph > 0 ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                               : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     } else {
         // For the non-texCoords case we need to ensure that we update the associated use tokens
         fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
