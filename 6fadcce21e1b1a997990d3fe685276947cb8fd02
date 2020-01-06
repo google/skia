@@ -22,6 +22,30 @@
       "revId": "6fadcce21e1b1a997990d3fe685276947cb8fd02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e62f092_df516d2c",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-06T19:39:06Z",
+      "side": 1,
+      "message": "I feel a little safer if this breaks if a new enum is added. My aim is to make the Result class go away all together. I think it can be replaced by tuple\u003cprocessedGlyph, remainingGlyphs\u003e.",
+      "parentUuid": "a788b16b_71b36870",
+      "range": {
+        "startLine": 956,
+        "startChar": 8,
+        "endLine": 956,
+        "endChar": 50
+      },
+      "revId": "6fadcce21e1b1a997990d3fe685276947cb8fd02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
