@@ -120,6 +120,32 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
 #undef SET_TYPES
 
+                        switch (v.fType) {
+                            case Variable::Type::kBool:
+                            case Variable::Type::kInt:
+                                if (v.fQualifier == Variable::Qualifier::kUniform) {
+                                    RETURN_FAILURE("'uniform' variables may not have '%s' type",
+                                                   type->displayName().c_str());
+                                }
+                                break;
+
+                            case Variable::Type::kFloat:
+                                // Floats can be 'in' or 'uniform'
+                                break;
+
+                            case Variable::Type::kFloat2:
+                            case Variable::Type::kFloat3:
+                            case Variable::Type::kFloat4:
+                            case Variable::Type::kFloat2x2:
+                            case Variable::Type::kFloat3x3:
+                            case Variable::Type::kFloat4x4:
+                                if (v.fQualifier == Variable::Qualifier::kIn) {
+                                    RETURN_FAILURE("'in' variables may not have '%s' type",
+                                                   type->displayName().c_str());
+                                }
+                                break;
+                        }
+
                         if (v.fType != Variable::Type::kBool) {
                             offset = SkAlign4(offset);
                         }
