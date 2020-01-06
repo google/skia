@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "4826f8b6_5c0a8680",
+        "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-06T17:23:43Z",
+      "side": 1,
+      "message": "FWIW I\u0027m pro-wedge. Wedge doesn\u0027t really conflict with existing adjacent jargon AFAIK and it seems useful to have a short word to refer to these things. Sometimes we get to make up our own lingo in our own domain.",
+      "parentUuid": "e261ba63_e7c8d6dc",
+      "range": {
+        "startLine": 18,
+        "startChar": 32,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ce5c5673_d1817302",
         "filename": "src/gpu/tessellate/GrCoverShader.cpp",
         "patchSetId": 2
