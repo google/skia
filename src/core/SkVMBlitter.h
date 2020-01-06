@@ -12,8 +12,6 @@
 #include "src/core/SkVM.h"
 
 namespace skvm {
-    struct Color { skvm::F32 r,g,b,a; };
-
     bool BlendModeSupported(SkBlendMode);
     Color BlendModeProgram(Builder*, SkBlendMode, Color src, Color dst);
 }

@@ -650,6 +650,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         return false;
     }
 
+    // TODO: need to extend lifetime of this once we start supporting kMedium_SkFilterQuality.
     SkBitmapController::State state{as_IB(fImage.get()), inv, quality};
     const SkPixmap& pm = state.pixmap();
     if (!pm.addr()) {
@@ -658,6 +659,49 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     inv     = state.invMatrix();
     quality = state.quality();
 
-    return false;
+    // TODO: and need to extend lifetime of this too once supporting steps.flags.mask() != 0.
+    SkColorSpaceXformSteps steps{pm.colorSpace(), pm.alphaType(),
+                                 dstCS, kPremul_SkAlphaType};
+
+    if (steps.flags.mask() != 0)                  { return false; }
+    if (pm.colorType() != kRGBA_8888_SkColorType) { return false; }
+    if (quality != kNone_SkFilterQuality)         { return false; }
+    if (fTileModeX != SkTileMode::kClamp)         { return false; }
+    if (fTileModeY != SkTileMode::kClamp)         { return false; }
+
+    // Apply matrix to convert dst coords to sample coords, skipping perspective divide if possible.
+    auto dot = [&,x,y](int row) {
+        return p->mad(x, p->uniformF(uniforms->pushF(inv[3*row+0])),
+               p->mad(y, p->uniformF(uniforms->pushF(inv[3*row+1])),
+                         p->uniformF(uniforms->pushF(inv[3*row+2]))));
+    };
+    x = dot(0);
+    y = dot(1);
+    if (inv.hasPerspective()) {
+        x = p->div(x, dot(2));
+        y = p->div(y, dot(2));
+    }
+
+    // Clamp sample coordinates to [0,width), [0,height).
+    skvm::F32 limitX = p->uniformF(uniforms->pushF(pm. width())),
+              limitY = p->uniformF(uniforms->pushF(pm.height()));
+    auto minus_1_ulp = [&](skvm::F32 v) {
+        return p->bit_cast(p->sub(p->bit_cast(v), p->splat(1)));
+    };
+    x = p->max(p->splat(0.0f), p->min(x, minus_1_ulp(limitX)));
+    y = p->max(p->splat(0.0f), p->min(y, minus_1_ulp(limitY)));
+
+    // Load pixels from pm.addr()[y*stride + x].
+    skvm::I32 index = p->add(p->trunc(x),
+                      p->mul(p->trunc(y), p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
+    skvm::I32 rgba = p->gather32(uniforms->pushPtr(pm.addr()), index);
+
+    skvm::Color c = p->unpack_8888(rgba);
+    *r = c.r;
+    *g = c.g;
+    *b = c.b;
+    *a = c.a;
+
+    return true;
 }
 
