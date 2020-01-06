@@ -76,40 +76,6 @@ public:
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
 
-    // These match the definitions in SkSurface & GrSurface.h, for whence they came
-    typedef void* ReleaseContext;
-    typedef void (*ReleaseProc)(ReleaseContext);
-
-    std::unique_ptr<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
-            const GrBackendTexture& tex,
-            GrSurfaceOrigin origin,
-            int sampleCnt,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* = nullptr,
-            ReleaseProc = nullptr,
-            ReleaseContext = nullptr);
-
-    std::unique_ptr<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
-            const GrBackendRenderTarget&,
-            GrSurfaceOrigin origin,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* = nullptr,
-            ReleaseProc = nullptr,
-            ReleaseContext = nullptr);
-
-    std::unique_ptr<GrRenderTargetContext> makeBackendTextureAsRenderTargetRenderTargetContext(
-            const GrBackendTexture& tex,
-            GrSurfaceOrigin origin,
-            int sampleCnt,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* = nullptr);
-
-    std::unique_ptr<GrRenderTargetContext> makeVulkanSecondaryCBRenderTargetContext(
-            const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
-
     /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
      * if necessary. The GrSurfaceProxy array is treated as a hint. If it is supplied the context
