@@ -139,6 +139,23 @@ private:
 
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         GrRecordingContext* context, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
+        sk_sp<GrRenderTargetProxy> proxy, GrSurfaceOrigin origin,
+        const SkSurfaceProps* surfaceProps, bool managedOps) {
+    if (!proxy) {
+        return nullptr;
+    }
+
+    const GrBackendFormat& format = proxy->backendFormat();
+    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
+    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format, colorType);
+
+    return std::make_unique<GrRenderTargetContext>(context, std::move(proxy), colorType, origin,
+                                                   readSwizzle, outSwizzle, std::move(colorSpace),
+                                                   surfaceProps, managedOps);
+}
+
+std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
+        GrRecordingContext* context, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit, const SkISize& dimensions, const GrBackendFormat& format, int sampleCnt,
         GrMipMapped mipMapped, GrProtected isProtected, GrSurfaceOrigin origin, SkBudgeted budgeted,
         const SkSurfaceProps* surfaceProps) {
@@ -151,9 +168,6 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     desc.fHeight = dimensions.height();
     desc.fConfig = config;
 
-    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format, colorType);
-
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
             format, desc, GrRenderable::kYes, sampleCnt, origin, mipMapped, fit, budgeted,
             isProtected);
@@ -163,9 +177,8 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     GrRenderTargetProxy* rtp = proxy->asRenderTargetProxy();
     SkASSERT(rtp);
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(context, sk_ref_sp(rtp), colorType, origin,
-                                                       readSwizzle, outSwizzle,
-                                                       std::move(colorSpace), surfaceProps, true);
+    auto rtc = GrRenderTargetContext::Make(context, colorType, std::move(colorSpace),
+                                           sk_ref_sp(rtp), origin, surfaceProps, true);
     if (!rtc) {
         return nullptr;
     }
@@ -222,6 +235,75 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
         colorType = color_type_fallback(colorType);
     } while (!rtc && colorType != GrColorType::kUnknown);
     return rtc;
+}
+
+std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTexture(
+        GrRecordingContext* context, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
+        const GrBackendTexture& tex, int sampleCnt, GrSurfaceOrigin origin,
+        const SkSurfaceProps* surfaceProps, ReleaseProc releaseProc, ReleaseContext releaseCtx) {
+    SkASSERT(sampleCnt > 0);
+    sk_sp<GrTextureProxy> proxy(context->priv().proxyProvider()->wrapRenderableBackendTexture(
+            tex, origin, sampleCnt, colorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+            releaseProc, releaseCtx));
+    if (!proxy) {
+        return nullptr;
+    }
+    GrRenderTargetProxy* rtp = proxy->asRenderTargetProxy();
+    SkASSERT(rtp);
+
+    return GrRenderTargetContext::Make(context, colorType, std::move(colorSpace), sk_ref_sp(rtp),
+                                       origin, surfaceProps);
+}
+
+std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTextureAsRenderTarget(
+        GrRecordingContext* context, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
+        const GrBackendTexture& tex, int sampleCnt, GrSurfaceOrigin origin,
+        const SkSurfaceProps* surfaceProps) {
+    SkASSERT(sampleCnt > 0);
+    sk_sp<GrSurfaceProxy> proxy(context->priv().proxyProvider()->wrapBackendTextureAsRenderTarget(
+            tex, colorType, origin, sampleCnt));
+    if (!proxy) {
+        return nullptr;
+    }
+    GrRenderTargetProxy* rtp = proxy->asRenderTargetProxy();
+    SkASSERT(rtp);
+
+    return GrRenderTargetContext::Make(context, colorType, std::move(colorSpace), sk_ref_sp(rtp),
+                                       origin, surfaceProps);
+}
+
+std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendRenderTarget(
+        GrRecordingContext* context, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
+        const GrBackendRenderTarget& rt, GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps,
+        ReleaseProc releaseProc, ReleaseContext releaseCtx) {
+    sk_sp<GrSurfaceProxy> proxy(context->priv().proxyProvider()->wrapBackendRenderTarget(
+            rt, colorType, origin, releaseProc, releaseCtx));
+    if (!proxy) {
+        return nullptr;
+    }
+    GrRenderTargetProxy* rtp = proxy->asRenderTargetProxy();
+    SkASSERT(rtp);
+
+    return GrRenderTargetContext::Make(context, colorType, std::move(colorSpace), sk_ref_sp(rtp),
+                                       origin, surfaceProps);
+}
+
+std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromVulkanSecondaryCB(
+            GrRecordingContext* context, const SkImageInfo& imageInfo,
+            const GrVkDrawableInfo& vkInfo, const SkSurfaceProps* props) {
+    sk_sp<GrSurfaceProxy> proxy(
+            context->priv().proxyProvider()->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
+                                                                                 vkInfo));
+    if (!proxy) {
+        return nullptr;
+    }
+    GrRenderTargetProxy* rtp = proxy->asRenderTargetProxy();
+    SkASSERT(rtp);
+
+    SkASSERT(rtp->origin() == kTopLeft_GrSurfaceOrigin);
+    return GrRenderTargetContext::Make(context, SkColorTypeToGrColorType(imageInfo.colorType()),
+                                       imageInfo.refColorSpace(), sk_ref_sp(rtp),
+                                       kTopLeft_GrSurfaceOrigin, props);
 }
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress

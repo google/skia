@@ -25,8 +25,17 @@ std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTarg
         return nullptr;
     }
 
-    auto renderTargetContext = fDrawingMgr->makeRenderTargetContext(
-            std::move(proxy), colorType, std::move(colorSpace), props, false);
+    auto context = fDrawingMgr->getContext();
+
+    if (!proxy->asRenderTargetProxy()) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(proxy->asRenderTargetProxy()));
+
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, colorType, std::move(colorSpace), std::move(renderTargetProxy),
+            proxy->origin(), props, false);
 
     if (!renderTargetContext) {
         return nullptr;
