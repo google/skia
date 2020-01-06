@@ -63,6 +63,24 @@
       "revId": "6fadcce21e1b1a997990d3fe685276947cb8fd02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9efb9aff_92f6144c",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-06T19:51:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be897205_d0b56986",
+      "revId": "6fadcce21e1b1a997990d3fe685276947cb8fd02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
