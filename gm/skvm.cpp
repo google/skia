@@ -21,42 +21,30 @@
 // Just a tiny example that the (x,y) coordinate parameters are vaguely working.
 // In this case we'll fade the red channel over its span vertically using `y`,
 // and green horizontally using `x`.
-//
-// TODO: this doesn't really need to wrap another shader.
 struct Fade : public SkShaderBase {
-    explicit Fade(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 
-    sk_sp<SkShader> fShader;
-
-    bool isOpaque() const override { return fShader->isOpaque(); }
+    bool isOpaque() const override { return true; }
 
     bool onProgram(skvm::Builder* p,
-                   const SkMatrix& ctm, const SkMatrix* localM,
-                   SkFilterQuality quality, SkColorSpace* dstCS,
-                   skvm::Uniforms* uniforms,
+                   const SkMatrix&, const SkMatrix*,
+                   SkFilterQuality, SkColorSpace*,
+                   skvm::Uniforms*,
                    skvm::F32 x, skvm::F32 y,
                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-        if (as_SB(fShader)->program(p,
-                                    ctm, localM,
-                                    quality, dstCS,
-                                    uniforms,
-                                    x,y, r,g,b,a)) {
-            // In this GM `y` will range over 0-50 and `x` over 50-100.
-            *r = p->mul(y, p->splat(1/ 50.0f));
-            *g = p->mul(x, p->splat(1/100.0f));
-            return true;
-        }
-        return false;
+        // In this GM `y` will range over 0-50 and `x` over 50-100.
+        *r = p->mul(y, p->splat(1/ 50.0f));
+        *g = p->mul(x, p->splat(1/100.0f));
+        *b = p->splat(0.0f);
+        *a = p->splat(1.0f);
+        return true;
     }
 
     // Flattening is not really necessary, just nice to make serialize-8888 etc. not crash.
-    void flatten(SkWriteBuffer& b) const override {
-        b.writeFlattenable(fShader.get());
-    }
+    void flatten(SkWriteBuffer&) const override {}
     SK_FLATTENABLE_HOOKS(Fade)
 };
 sk_sp<SkFlattenable> Fade::CreateProc(SkReadBuffer& b) {
-    return sk_make_sp<Fade>(b.readShader());
+    return sk_make_sp<Fade>();
 }
 static struct RegisterFade {
     RegisterFade() { SkFlattenable::Register("Fade", Fade::CreateProc); }
@@ -129,7 +117,7 @@ DEF_SIMPLE_GM(SkVMBlitter, canvas, 100, 150) {
         r4 = pack r4 r3 16
         store32 arg(1) r4
     */
-    p.setShader(sk_make_sp<Fade>(SkShaders::Color(SK_ColorYELLOW)));
+    p.setShader(sk_make_sp<Fade>());
     canvas->drawRect({50,0, 100,50}, p);
 
     // Draw with color filter, w/ and w/o alpha modulation.
