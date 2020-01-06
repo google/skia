@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "e261ba63_e7c8d6dc",
+        "filename": "src/gpu/tessellate/GrCenterWedgePatchGen.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-06T17:01:26Z",
+      "side": 1,
+      "message": "While I agree that it does represent the shape the geometry ends up taking, it\u0027s not a very common geometric description in my experience, nor is it connected to the nomenclature that tessellation shaders use. These are not strong objections, so if no one else is opposed to \"wedge\", I\u0027m fine with keeping it.",
+      "parentUuid": "614a09f2_d0880f8e",
+      "range": {
+        "startLine": 18,
+        "startChar": 32,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "c88a515092c6d2efbd3e96bc327425f08e6491c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ce5c5673_d1817302",
         "filename": "src/gpu/tessellate/GrCoverShader.cpp",
         "patchSetId": 2
