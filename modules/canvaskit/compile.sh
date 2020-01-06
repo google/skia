@@ -29,6 +29,14 @@ RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/relea
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
 SKP_JS=""
+
+# Tracing will be disabled in release/profiling unless this flag is seen. Tracing will
+# be on debug builds always.
+if [[ $@ != *force_tracing* ]] ; then
+  RELEASE_CONF+=" -DSK_DISABLE_TRACING"
+  EXTRA_CFLAGS+="\"-DSK_DISABLE_TRACING\","
+fi
+
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
@@ -38,8 +46,7 @@ if [[ $@ == *debug* ]]; then
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
-  RELEASE_CONF="-Oz --llvm-lto 1 -g3 -DSK_RELEASE --profiling-funcs --closure 0 \
-                --pre-js $BASE_DIR/release.js -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
+  RELEASE_CONF+=" --profiling-funcs --closure 0"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
