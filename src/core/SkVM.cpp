@@ -156,9 +156,9 @@ namespace skvm {
                 case Op::load16: write(o, V{id}, "= load16", Arg{immy}); break;
                 case Op::load32: write(o, V{id}, "= load32", Arg{immy}); break;
 
-                case Op::gather8:  write(o, V{id}, "= gather8" , Arg{immy}, V{x}); break;
-                case Op::gather16: write(o, V{id}, "= gather16", Arg{immy}, V{x}); break;
-                case Op::gather32: write(o, V{id}, "= gather32", Arg{immy}, V{x}); break;
+                case Op::gather8:  write(o, V{id}, "= gather8" , Arg{immy}, Hex{immz}, V{x}); break;
+                case Op::gather16: write(o, V{id}, "= gather16", Arg{immy}, Hex{immz}, V{x}); break;
+                case Op::gather32: write(o, V{id}, "= gather32", Arg{immy}, Hex{immz}, V{x}); break;
 
                 case Op::uniform8:  write(o, V{id}, "= uniform8" , Arg{immy}, Hex{immz}); break;
                 case Op::uniform16: write(o, V{id}, "= uniform16", Arg{immy}, Hex{immz}); break;
@@ -269,9 +269,9 @@ namespace skvm {
                 case Op::load16: write(o, R{d}, "= load16", Arg{immy}); break;
                 case Op::load32: write(o, R{d}, "= load32", Arg{immy}); break;
 
-                case Op::gather8:  write(o, R{d}, "= gather8" , Arg{immy}, R{x}); break;
-                case Op::gather16: write(o, R{d}, "= gather16", Arg{immy}, R{x}); break;
-                case Op::gather32: write(o, R{d}, "= gather32", Arg{immy}, R{x}); break;
+                case Op::gather8:  write(o, R{d}, "= gather8" , Arg{immy}, Hex{immz}, R{x}); break;
+                case Op::gather16: write(o, R{d}, "= gather16", Arg{immy}, Hex{immz}, R{x}); break;
+                case Op::gather32: write(o, R{d}, "= gather32", Arg{immy}, Hex{immz}, R{x}); break;
 
                 case Op::uniform8:  write(o, R{d}, "= uniform8" , Arg{immy}, Hex{immz}); break;
                 case Op::uniform16: write(o, R{d}, "= uniform16", Arg{immy}, Hex{immz}); break;
@@ -534,14 +534,14 @@ namespace skvm {
     I32 Builder::load16(Arg ptr) { return {this->push(Op::load16, NA,NA,NA, ptr.ix) }; }
     I32 Builder::load32(Arg ptr) { return {this->push(Op::load32, NA,NA,NA, ptr.ix) }; }
 
-    I32 Builder::gather8 (Arg ptr, I32 offset) {
-        return {this->push(Op::gather8 , offset.id,NA,NA, ptr.ix)};
+    I32 Builder::gather8 (Arg ptr, int offset, I32 index) {
+        return {this->push(Op::gather8 , index.id,NA,NA, ptr.ix,offset)};
     }
-    I32 Builder::gather16(Arg ptr, I32 offset) {
-        return {this->push(Op::gather16, offset.id,NA,NA, ptr.ix)};
+    I32 Builder::gather16(Arg ptr, int offset, I32 index) {
+        return {this->push(Op::gather16, index.id,NA,NA, ptr.ix,offset)};
     }
-    I32 Builder::gather32(Arg ptr, I32 offset) {
-        return {this->push(Op::gather32, offset.id,NA,NA, ptr.ix)};
+    I32 Builder::gather32(Arg ptr, int offset, I32 index) {
+        return {this->push(Op::gather32, index.id,NA,NA, ptr.ix,offset)};
     }
 
     I32 Builder::uniform8(Arg ptr, int offset) {
@@ -763,6 +763,33 @@ namespace skvm {
         if (this->allImm(x.id,&X)) { return this->splat((int)lrintf(X)); }
         return {this->push(Op::round, x.id)};
     }
+
+    F32 Builder::unorm(int bits, I32 x) {
+        float limit = (1<<bits)-1.0f;
+        return mul(to_f32(x), splat(1/limit));
+    }
+    I32 Builder::unorm(int bits, F32 x) {
+        float limit = (1<<bits)-1.0f;
+        return round(mul(x, splat(limit)));
+    }
+
+    Color Builder::unpack_8888(I32 rgba) {
+        return {
+            unorm(8, extract(rgba,  0, splat(0xff))),
+            unorm(8, extract(rgba,  8, splat(0xff))),
+            unorm(8, extract(rgba, 16, splat(0xff))),
+            unorm(8, extract(rgba, 24, splat(0xff))),
+        };
+    }
+    Color Builder::unpack_565(I32 bgr) {
+        return {
+            unorm(5, extract(bgr, 11, splat(0b011'111))),
+            unorm(6, extract(bgr,  5, splat(0b111'111))),
+            unorm(5, extract(bgr,  0, splat(0b011'111))),
+            splat(1.0f),
+        };
+    }
+
 
     // ~~~~ Program::eval() and co. ~~~~ //
 
@@ -1541,30 +1568,42 @@ namespace skvm {
                     STRIDE_K(Op::load16): r(d).i32= skvx::cast<int>(U16::Load(arg(immy))); break;
                     STRIDE_K(Op::load32): r(d).i32=                 I32::Load(arg(immy)) ; break;
 
+                    // The pointer we base our gather on is loaded indirectly from a uniform:
+                    //     - arg(immy) is the uniform holding our gather base pointer somewhere;
+                    //     - (const uint8_t*)arg(immy) + immz points to the gather base pointer;
+                    //     - *(const T**)foo loads the gather base and casts it to the right type.
+                    // After all that we have an ordinary (uniform) pointer `ptr` to load from,
+                    // and we then gather from it using the varying indices in r(x).
                     STRIDE_1(Op::gather8):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = (i==0) ? ((const uint8_t* )arg(immy))[ r(x).i32[i] ] : 0;
+                            auto ptr = *(const uint8_t**)((const uint8_t*)arg(immy) + immz);
+                            r(d).i32[i] = (i==0) ? ptr[ r(x).i32[i] ] : 0;
                         } break;
                     STRIDE_1(Op::gather16):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = (i==0) ? ((const uint16_t*)arg(immy))[ r(x).i32[i] ] : 0;
+                            auto ptr = *(const uint16_t**)((const uint8_t*)arg(immy) + immz);
+                            r(d).i32[i] = (i==0) ? ptr[ r(x).i32[i] ] : 0;
                         } break;
                     STRIDE_1(Op::gather32):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = (i==0) ? ((const int*     )arg(immy))[ r(x).i32[i] ] : 0;
+                            auto ptr = *(const int**)((const uint8_t*)arg(immy) + immz);
+                            r(d).i32[i] = (i==0) ? ptr[ r(x).i32[i] ] : 0;
                         } break;
 
                     STRIDE_K(Op::gather8):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = ((const uint8_t* )arg(immy))[ r(x).i32[i] ];
+                            auto ptr = *(const uint8_t**)((const uint8_t*)arg(immy) + immz);
+                            r(d).i32[i] = ptr[ r(x).i32[i] ];
                         } break;
                     STRIDE_K(Op::gather16):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = ((const uint16_t*)arg(immy))[ r(x).i32[i] ];
+                            auto ptr = *(const uint16_t**)((const uint8_t*)arg(immy) + immz);
+                            r(d).i32[i] = ptr[ r(x).i32[i] ];
                         } break;
                     STRIDE_K(Op::gather32):
                         for (int i = 0; i < K; i++) {
-                            r(d).i32[i] = ((const int*     )arg(immy))[ r(x).i32[i] ];
+                            auto ptr = *(const int**)((const uint8_t*)arg(immy) + immz);
+                            r(d).i32[i] = ptr[ r(x).i32[i] ];
                         } break;
 
                 #undef STRIDE_1

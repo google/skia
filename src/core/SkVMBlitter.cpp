@@ -112,34 +112,6 @@ namespace {
 
     struct Builder : public skvm::Builder {
 
-        skvm::F32 unorm(int bits, skvm::I32 x) {
-            float limit = (1<<bits)-1.0f;
-            return mul(to_f32(x), splat(1/limit));
-        }
-        skvm::I32 unorm(int bits, skvm::F32 x) {
-            float limit = (1<<bits)-1.0f;
-            return round(mul(x, splat(limit)));
-        }
-
-
-        skvm::Color unpack_8888(skvm::I32 rgba) {
-            return {
-                unorm(8, extract(rgba,  0, splat(0xff))),
-                unorm(8, extract(rgba,  8, splat(0xff))),
-                unorm(8, extract(rgba, 16, splat(0xff))),
-                unorm(8, extract(rgba, 24, splat(0xff))),
-            };
-        }
-
-        skvm::Color unpack_565(skvm::I32 bgr) {
-            return {
-                unorm(5, extract(bgr, 11, splat(0b011'111))),
-                unorm(6, extract(bgr,  5, splat(0b111'111))),
-                unorm(5, extract(bgr,  0, splat(0b011'111))),
-                splat(1.0f),
-            };
-        }
-
         // If Builder can't build this program, CacheKey() sets *ok to false.
         static Key CacheKey(const Params& params, skvm::Uniforms* uniforms, bool* ok) {
             SkASSERT(params.shader);
@@ -152,6 +124,8 @@ namespace {
                                              p.index())),
                           y = p.to_f32(p.uniform32(uniforms->ptr,
                                                    offsetof(BlitterUniforms, y)));
+                x = p.add(x, p.splat(0.5f));
+                y = p.add(y, p.splat(0.5f));
                 skvm::F32 r,g,b,a;
                 if (shader->program(&p,
                                     params.ctm, /*localM=*/nullptr,
@@ -205,6 +179,8 @@ namespace {
                                      index())),
                       y = to_f32(uniform32(uniforms->ptr,
                                            offsetof(BlitterUniforms, y)));
+            x = add(x, splat(0.5f));
+            y = add(y, splat(0.5f));
             SkAssertResult(as_SB(params.shader)->program(this,
                                                          params.ctm, /*localM=*/nullptr,
                                                          params.quality, params.colorSpace.get(),
@@ -253,7 +229,7 @@ namespace {
                     case Coverage::Full: return false;
 
                     case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              unorm(8, uniform8(uniform()));
+                                              unorm(8, uniform8(uniform(), 0));
                                               return true;
 
                     case Coverage::Mask3D:

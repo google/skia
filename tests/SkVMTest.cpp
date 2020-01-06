@@ -313,16 +313,16 @@ DEF_TEST(SkVM_LoopCounts, r) {
 DEF_TEST(SkVM_gathers, r) {
     skvm::Builder b;
     {
-        skvm::Arg img   = b.uniform(),
-                  buf32 = b.varying<int>(),
-                  buf16 = b.varying<uint16_t>(),
-                  buf8  = b.varying<uint8_t>();
+        skvm::Arg uniforms = b.uniform(),
+                  buf32    = b.varying<int>(),
+                  buf16    = b.varying<uint16_t>(),
+                  buf8     = b.varying<uint8_t>();
 
         skvm::I32 x = b.load32(buf32);
 
-        b.store32(buf32, b.gather32(img, b.bit_and(x, b.splat( 7))));
-        b.store16(buf16, b.gather16(img, b.bit_and(x, b.splat(15))));
-        b.store8 (buf8 , b.gather8 (img, b.bit_and(x, b.splat(31))));
+        b.store32(buf32, b.gather32(uniforms,0, b.bit_and(x, b.splat( 7))));
+        b.store16(buf16, b.gather16(uniforms,0, b.bit_and(x, b.splat(15))));
+        b.store8 (buf8 , b.gather8 (uniforms,0, b.bit_and(x, b.splat(31))));
     }
 
     test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
@@ -337,7 +337,11 @@ DEF_TEST(SkVM_gathers, r) {
             buf32[i] = i;
         }
 
-        program.eval(N, img, buf32, buf16, buf8);
+        struct Uniforms {
+            const int* img;
+        } uniforms{img};
+
+        program.eval(N, &uniforms, buf32, buf16, buf8);
         int i = 0;
         REPORTER_ASSERT(r, buf32[i] == 12 && buf16[i] == 12 && buf8[i] == 12); i++;
         REPORTER_ASSERT(r, buf32[i] == 34 && buf16[i] ==  0 && buf8[i] ==  0); i++;
@@ -647,20 +651,21 @@ DEF_TEST(SkVM_NewOps, r) {
     skvm::Builder b;
     {
         skvm::Arg buf      = b.varying<int16_t>(),
-                  img      = b.uniform(),
                   uniforms = b.uniform();
 
         skvm::I32 x = b.load16(buf);
 
-        x = b.add(x, b.uniform32(uniforms, 0));
-        x = b.mul(x, b.uniform8 (uniforms, 4));
-        x = b.sub(x, b.uniform16(uniforms, 6));
+        const size_t kPtr = sizeof(const int*);
 
-        skvm::I32 limit = b.uniform32(uniforms, 8);
+        x = b.add(x, b.uniform32(uniforms, kPtr+0));
+        x = b.mul(x, b.uniform8 (uniforms, kPtr+4));
+        x = b.sub(x, b.uniform16(uniforms, kPtr+6));
+
+        skvm::I32 limit = b.uniform32(uniforms, kPtr+8);
         x = b.select(b.lt(x, b.splat(0)), b.splat(0), x);
         x = b.select(b.gt(x, limit     ), limit     , x);
 
-        x = b.gather8(img, x);
+        x = b.gather8(uniforms,0, x);
 
         b.store16(buf, x);
     }
@@ -686,13 +691,14 @@ DEF_TEST(SkVM_NewOps, r) {
         }
 
         struct {
+            const uint8_t* img;
             int      add   = 5;
             uint8_t  mul   = 3;
             uint16_t sub   = 18;
             int      limit = M-1;
-        } uniforms;
+        } uniforms{img};
 
-        program.eval(N, buf, img, &uniforms);
+        program.eval(N, buf, &uniforms);
 
         for (int i = 0; i < N; i++) {
             // Our first math calculates x = (i+5)*3 - 18 a.k.a 3*(i-1).

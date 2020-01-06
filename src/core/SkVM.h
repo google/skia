@@ -303,6 +303,8 @@ namespace skvm {
     struct I32 { Val id; };
     struct F32 { Val id; };
 
+    struct Color { skvm::F32 r,g,b,a; };
+
     class Program;
 
     class Builder {
@@ -352,25 +354,29 @@ namespace skvm {
         I32 load16(Arg ptr);
         I32 load32(Arg ptr);
 
-        // Gather u8,u16,i32 with varying element-count offset.
-        I32 gather8 (Arg ptr, I32 offset);
-        I32 gather16(Arg ptr, I32 offset);
-        I32 gather32(Arg ptr, I32 offset);
+        // Load u8,u16,i32 uniform with byte-count offset.
+        I32 uniform8 (Arg ptr, int offset);
+        I32 uniform16(Arg ptr, int offset);
+        I32 uniform32(Arg ptr, int offset);
+        F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
-        // Load u8,u16,i32 uniform with optional byte-count offset.
-        I32 uniform8 (Arg ptr, int offset=0);
-        I32 uniform16(Arg ptr, int offset=0);
-        I32 uniform32(Arg ptr, int offset=0);
-        F32 uniformF (Arg ptr, int offset=0) { return this->bit_cast(this->uniform32(ptr,offset)); }
+        // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
+        I32 gather8 (Arg ptr, int offset, I32 index);
+        I32 gather16(Arg ptr, int offset, I32 index);
+        I32 gather32(Arg ptr, int offset, I32 index);
 
+        // Convenience methods for working with skvm::Uniforms.
         struct Uniform {
             Arg ptr;
             int offset;
         };
-        I32 uniform8 (Uniform u) { return this->uniform8 (u.ptr, u.offset); }
-        I32 uniform16(Uniform u) { return this->uniform16(u.ptr, u.offset); }
-        I32 uniform32(Uniform u) { return this->uniform32(u.ptr, u.offset); }
-        F32 uniformF (Uniform u) { return this->uniformF (u.ptr, u.offset); }
+        I32 uniform8 (Uniform u)            { return this->uniform8 (u.ptr, u.offset); }
+        I32 uniform16(Uniform u)            { return this->uniform16(u.ptr, u.offset); }
+        I32 uniform32(Uniform u)            { return this->uniform32(u.ptr, u.offset); }
+        F32 uniformF (Uniform u)            { return this->uniformF (u.ptr, u.offset); }
+        I32 gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }
+        I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
+        I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
 
         // Load an immediate constant.
         I32 splat(int      n);
@@ -470,6 +476,13 @@ namespace skvm {
         I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
+        // Common idioms used in several places, worth centralizing for consistency.
+        F32 unorm(int bits, I32);   // E.g. unorm(8, x) -> x * (1/255.0f)
+        I32 unorm(int bits, F32);   // E.g. unorm(8, f) -> round(x * 255)
+
+        Color unpack_8888(I32 rgba);
+        Color unpack_565 (I32 bgr );  // bottom 16 bits
+
         void dump(SkWStream* = nullptr) const;
 
         uint32_t hash() const;
@@ -516,6 +529,14 @@ namespace skvm {
 
         Builder::Uniform push (int   val) { return this->push (&val, 1); }
         Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
+
+        Builder::Uniform pushPtr(const void* ptr) {
+            union {
+                const void* ptr;
+                int   ints[sizeof(const void*) / sizeof(int)];
+            } pun = {ptr};
+            return this->push(pun.ints, SK_ARRAY_COUNT(pun.ints));
+        }
     };
 
     // Maps Builder::Instructions to regions of JIT'd code, for debugging in VTune.
