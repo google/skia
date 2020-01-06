@@ -31,4 +31,14 @@ DEF_TEST(SkRuntimeEffectInvalidInputs, r) {
 
     // 'in' variables can't be arrays
     test("in int Input[2];", "array");
+
+    // Type specific restrictions:
+
+    // 'bool', 'int' can't be 'uniform'
+    test("uniform bool Input;", "'uniform'");
+    test("uniform int Input;", "'uniform'");
+
+    // vector and matrix types can't be 'in'
+    test("in float2 Input;", "'in'");
+    test("in half3x3 Input;", "'in'");
 }
