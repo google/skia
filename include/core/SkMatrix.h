@@ -501,7 +501,19 @@ public:
     */
     SkMatrix& setAll(SkScalar scaleX, SkScalar skewX,  SkScalar transX,
                      SkScalar skewY,  SkScalar scaleY, SkScalar transY,
-                     SkScalar persp0, SkScalar persp1, SkScalar persp2);
+                     SkScalar persp0, SkScalar persp1, SkScalar persp2) {
+        fMat[kMScaleX] = scaleX;
+        fMat[kMSkewX]  = skewX;
+        fMat[kMTransX] = transX;
+        fMat[kMSkewY]  = skewY;
+        fMat[kMScaleY] = scaleY;
+        fMat[kMTransY] = transY;
+        fMat[kMPersp0] = persp0;
+        fMat[kMPersp1] = persp1;
+        fMat[kMPersp2] = persp2;
+        this->setTypeMask(kUnknown_Mask);
+        return *this;
+    }
 
     /** Copies nine scalar values contained by SkMatrix into buffer, in member value
         ascending order: kMScaleX, kMSkewX, kMTransX, kMSkewY, kMScaleY, kMTransY,
