@@ -82,7 +82,6 @@ public:
                         SkBlendMode::kModulate,
                         args.fTexSamplers[0],
                         "clamp(textureCoords, textureDomain.xy, textureDomain.zw)",
-                        kFloat2_GrSLType,
                         &fColorSpaceXformHelper);
                 args.fFragBuilder->codeAppend(";");
                 args.fFragBuilder->codeAppendf("%s = half4(1);", args.fOutputCoverage);

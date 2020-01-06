@@ -77,8 +77,7 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
             }
 
             fragBuilder->codeAppendf("half4 %s = ", dstColor);
-            fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord",
-                                             kHalf2_GrSLType);
+            fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord");
             fragBuilder->codeAppend(";");
         } else {
             needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
