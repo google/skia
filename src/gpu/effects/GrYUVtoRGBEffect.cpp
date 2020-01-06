@@ -63,8 +63,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         } else if (domain) {
             planeDomain = *domain;
         }
-        planeFPs[i] = GrSimpleTextureEffect::Make(proxies[i], kUnknown_SkAlphaType, *planeMatrix,
-                                                  planeFilter);
+        planeFPs[i] =
+                GrTextureEffect::Make(proxies[i], kUnknown_SkAlphaType, *planeMatrix, planeFilter);
         if (domain) {
             SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
             if (planeFilter != GrSamplerState::Filter::kNearest) {
