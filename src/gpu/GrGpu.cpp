@@ -378,7 +378,11 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
         return nullptr;
     }
 
-    return this->onWrapBackendRenderTarget(backendRT, colorType);
+    sk_sp<GrRenderTarget> rt = this->onWrapBackendRenderTarget(backendRT, colorType);
+    if (backendRT.isFramebufferOnly()) {
+        rt->setFramebufferOnly();
+    }
+    return rt;
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
@@ -446,6 +450,9 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(this->caps()->isFormatTexturable(surface->backendFormat()));
+    if (surface->framebufferOnly() {
+        return false;
+    }
 
     auto subRect = SkIRect::MakeXYWH(left, top, width, height);
     auto bounds  = SkIRect::MakeWH(surface->width(), surface->height());
@@ -485,7 +492,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
     SkASSERT(this->caps()->isFormatTexturableAndUploadable(surfaceColorType,
                                                            surface->backendFormat()));
 
-    if (surface->readOnly()) {
+    if (surface->readOnly() || surface->framebufferOnly()) {
         return false;
     }
 
