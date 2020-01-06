@@ -666,7 +666,7 @@ public:
                     args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);
                     args.fFragBuilder->appendTextureLookupAndBlend(
                             args.fOutputColor, SkBlendMode::kModulate, args.fTexSamplers[0],
-                            "texCoord", kFloat2_GrSLType, &fTextureColorSpaceXformHelper);
+                            "texCoord", &fTextureColorSpaceXformHelper);
                     args.fFragBuilder->codeAppend(";");
                     if (gp.fSaturate == Saturate::kYes) {
                         args.fFragBuilder->codeAppendf("%s = saturate(%s);",

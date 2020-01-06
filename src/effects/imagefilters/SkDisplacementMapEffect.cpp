@@ -584,8 +584,7 @@ void GrGLDisplacementMapEffect::emitCode(EmitArgs& args) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     fragBuilder->codeAppendf("\t\thalf4 %s = ", dColor);
     fragBuilder->appendTextureLookup(args.fTexSamplers[0],
-                                     args.fTransformedCoords[0].fVaryingPoint.c_str(),
-                                     args.fTransformedCoords[0].fVaryingPoint.getType());
+                                     args.fTransformedCoords[0].fVaryingPoint.c_str());
     fragBuilder->codeAppend(";\n");
 
     // Unpremultiply the displacement

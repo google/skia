@@ -69,8 +69,7 @@ static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
 
 void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               SamplerHandle samplerHandle,
-                                              const char* coordName,
-                                              GrSLType varyingType) const {
+                                              const char* coordName) const {
     const char* sampler = fProgramBuilder->samplerVariable(samplerHandle);
     out->appendf("sample(%s, %s)", sampler, coordName);
     append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
@@ -78,10 +77,9 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
 
 void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
                                               const char* coordName,
-                                              GrSLType varyingType,
                                               GrGLSLColorSpaceXformHelper* colorXformHelper) {
     SkString lookup;
-    this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
+    this->appendTextureLookup(&lookup, samplerHandle, coordName);
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
 }
 
@@ -90,14 +88,13 @@ void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
         SkBlendMode mode,
         SamplerHandle samplerHandle,
         const char* coordName,
-        GrSLType varyingType,
         GrGLSLColorSpaceXformHelper* colorXformHelper) {
     if (!dst) {
         dst = "half4(1)";
     }
     SkString lookup;
     this->codeAppendf("%s(", GrGLSLBlend::BlendFuncName(mode));
-    this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
+    this->appendTextureLookup(&lookup, samplerHandle, coordName);
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
     this->codeAppendf(", %s)", dst);
 }

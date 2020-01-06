@@ -231,8 +231,7 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Look up coverage in the atlas.
     f->codeAppendf("half coverage = ");
-    f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str(),
-                           kFloat2_GrSLType);
+    f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str());
     f->codeAppendf(".a;");
 
     if (isCoverageCount) {
