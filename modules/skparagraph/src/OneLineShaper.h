@@ -74,11 +74,12 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
+        auto index = fUnresolvedBlocks.size() + fResolvedBlocks.size();
         fCurrentRun = std::make_shared<Run>(fParagraph,
                                            info,
                                            fCurrentText.start,
                                            fHeight,
-                                           fParagraph->fRuns.count(),
+                                           index,
                                            fAdvance.fX);
         return fCurrentRun->newRunBuffer();
     }
