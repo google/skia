@@ -28,11 +28,13 @@ EMAR=`which emar`
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
+SKP_JS=""
 if [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
   RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
                 --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
+  SKP_JS="--pre-js $BASE_DIR/skp.js"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
@@ -41,6 +43,13 @@ elif [[ $@ == *profiling* ]]; then
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
+fi
+
+# This should only be set by clients who are trying to serialize an
+# skp to include in a bug report and for whatever reason, it is not
+# showing up in a debug build.
+if [[ $@ == *force_serialize_skp* ]] ; then
+  RELEASE_CONF+=" -DSK_FORCE_SERIALIZE_SKP"
 fi
 
 mkdir -p $BUILD_DIR
@@ -98,6 +107,13 @@ if [[ $@ != *no_particles* || $@ != *no_skottie* ]] ; then
   PARTICLES_BINDINGS+=" modules/skresources/src/SkResources.cpp"
 fi
 
+WASM_PATHOPS="-DSK_INCLUDE_PATHOPS"
+PATHOPS_JS="--pre-js $BASE_DIR/pathops.js"
+if [[ $@ == *no_pathops* ]] ; then
+  WASM_PATHOPS=""
+  PATHOPS_JS=""
+fi
+
 HTML_CANVAS_API="--pre-js $BASE_DIR/htmlcanvas/preamble.js \
 --pre-js $BASE_DIR/htmlcanvas/util.js \
 --pre-js $BASE_DIR/htmlcanvas/color.js \
@@ -118,10 +134,12 @@ fi
 GN_FONT="skia_enable_fontmgr_empty=false skia_enable_fontmgr_custom_empty=false"
 FONT_CFLAGS=""
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
+FONT_JS="--pre-js $BASE_DIR/font.js"
 if [[ $@ == *no_font* ]]; then
   echo "Omitting the built-in font(s), font manager and all code dealing with fonts"
   BUILTIN_FONT=""
   FONT_CFLAGS="-DSK_NO_FONTS"
+  FONT_JS=""
   GN_FONT="skia_enable_fontmgr_empty=true skia_enable_fontmgr_custom_empty=false"
 elif [[ $@ == *no_embedded_font* ]]; then
   echo "Omitting the built-in font(s)"
@@ -243,6 +261,7 @@ ${EMCXX} \
     -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \
+    $WASM_PATHOPS \
     $FONT_CFLAGS \
     -std=c++14 \
     --bind \
@@ -252,6 +271,9 @@ ${EMCXX} \
     $PARAGRAPH_JS \
     $SKOTTIE_JS \
     $PARTICLES_JS \
+    $PATHOPS_JS \
+    $FONT_JS \
+    $SKP_JS \
     $HTML_CANVAS_API \
     --pre-js $BASE_DIR/postamble.js \
     --post-js $BASE_DIR/ready.js \
