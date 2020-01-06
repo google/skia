@@ -279,7 +279,7 @@ namespace skvm {
                  sra_i32, sra_i16x2,
         mul_f32_imm,
 
-         trunc, round,  to_f32,
+        floor, trunc, round, to_f32,
 
          eq_f32,  eq_i32,  eq_i16x2,
         neq_f32, neq_i32, neq_i16x2,
@@ -399,9 +399,15 @@ namespace skvm {
         I32 gt (F32 x, F32 y);
         I32 gte(F32 x, F32 y);
 
+        F32 floor(F32);
         I32 trunc(F32 x);
         I32 round(F32 x);
         I32 bit_cast(F32 x) { return {x.id}; }
+
+        F32 abs(F32 x) {
+            return bit_cast(bit_and(bit_cast(x),
+                                    splat(0x7fffffff)));
+        }
 
         // int math, comparisons, etc.
         I32 add(I32 x, I32 y);

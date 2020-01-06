@@ -667,26 +667,66 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     SkColorSpaceXformSteps steps{pm.colorSpace(), pm.alphaType(),
                                  dstCS, kPremul_SkAlphaType};
 
-    if (steps.flags.mask() != 0)                  { return false; }
-    if (pm.colorType() != kRGBA_8888_SkColorType) { return false; }
-    if (quality != kNone_SkFilterQuality)         { return false; }
-    if (fTileModeX != SkTileMode::kClamp)         { return false; }
-    if (fTileModeY != SkTileMode::kClamp)         { return false; }
+    if (steps.flags.mask() != 0)          { return false; }
+    if (quality != kNone_SkFilterQuality) { return false; }
 
-    // Apply matrix to convert dst coords to sample coords, skipping perspective divide if possible.
-    auto dot = [&,x,y](int row) {
-        return p->mad(x, p->uniformF(uniforms->pushF(inv[3*row+0])),
-               p->mad(y, p->uniformF(uniforms->pushF(inv[3*row+1])),
-                         p->uniformF(uniforms->pushF(inv[3*row+2]))));
-    };
-    x = dot(0);
-    y = dot(1);
-    if (inv.hasPerspective()) {
-        x = p->div(x, dot(2));
-        y = p->div(y, dot(2));
+    // Apply matrix to convert dst coords to sample coords.
+    inv.normalizePerspective();
+    if (inv.isIdentity()) {
+        // That was easy.
+    } else if (inv.isTranslate()) {
+        x = p->add(x, p->uniformF(uniforms->pushF(inv[2])));
+        y = p->add(y, p->uniformF(uniforms->pushF(inv[5])));
+    } else if (inv.isScaleTranslate()) {
+        x = p->mad(x, p->uniformF(uniforms->pushF(inv[0])), p->uniformF(uniforms->pushF(inv[2])));
+        y = p->mad(y, p->uniformF(uniforms->pushF(inv[4])), p->uniformF(uniforms->pushF(inv[5])));
+    } else {  // Affine or perspective.
+        auto dot = [&,x,y](int row) {
+            return p->mad(x, p->uniformF(uniforms->pushF(inv[3*row+0])),
+                   p->mad(y, p->uniformF(uniforms->pushF(inv[3*row+1])),
+                             p->uniformF(uniforms->pushF(inv[3*row+2]))));
+        };
+        x = dot(0);
+        y = dot(1);
+        if (inv.hasPerspective()) {
+            x = p->div(x, dot(2));
+            y = p->div(y, dot(2));
+        }
     }
 
-    // Clamp sample coordinates to [0,width), [0,height).
+    // Apply tile mode.
+    // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
+    auto repeat = [&](skvm::F32 v, float scale) {
+        skvm::F32 S = p->uniformF(uniforms->pushF(     scale)),
+                  I = p->uniformF(uniforms->pushF(1.0f/scale));
+        // v - floor(v/scale)*scale
+        return p->sub(v, p->mul(p->floor(p->mul(v,I)), S));
+    };
+    auto mirror = [&](skvm::F32 v, float scale) {
+        skvm::F32 S  = p->uniformF(uniforms->pushF(     scale)),
+                  I2 = p->uniformF(uniforms->pushF(0.5f/scale));
+        // abs( (v-scale) - (2*scale)*floor((v-scale)*(0.5f/scale)) - scale )
+        //      {---A---}   {------------------B------------------}
+        skvm::F32 A = p->sub(v,S),
+                  B = p->mul(p->add(S,S), p->floor(p->mul(A,I2)));
+        return p->abs(p->sub(p->sub(A,B), S));
+    };
+    // TODO: decal
+    switch (fTileModeX) {
+        default: return false;
+        case SkTileMode::kClamp:                             break;
+        case SkTileMode::kRepeat: x = repeat(x, pm.width()); break;
+        case SkTileMode::kMirror: x = mirror(x, pm.width()); break;
+    }
+    switch (fTileModeY) {
+        default: return false;
+        case SkTileMode::kClamp:                              break;
+        case SkTileMode::kRepeat: y = repeat(y, pm.height()); break;
+        case SkTileMode::kMirror: y = mirror(y, pm.height()); break;
+    }
+
+    // Clamp sample coordinates to [0,width), [0,height),
+    // both for memory safety and to handle the clamps still needed by kClamp, kRepeat, and kMirror.
     auto minus_1_ulp = [](float v) {
         int bits;
         memcpy(&bits, &v, 4);
@@ -697,12 +737,23 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     x = p->max(p->splat(0.0f), p->min(x, p->uniformF(uniforms->pushF(minus_1_ulp(pm. width())))));
     y = p->max(p->splat(0.0f), p->min(y, p->uniformF(uniforms->pushF(minus_1_ulp(pm.height())))));
 
-    // Load pixels from pm.addr()[(int)y*stride + (int)x].
+    // Load pixels from pm.addr()[(int)x + (int)y*stride].
+    skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
     skvm::I32 index = p->add(p->trunc(x),
                       p->mul(p->trunc(y), p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
-    skvm::I32 rgba = p->gather32(uniforms->pushPtr(pm.addr()), index);
 
-    skvm::Color c = p->unpack_8888(rgba);
+    skvm::Color c;
+    switch (pm.colorType()) {
+        default: return false;
+
+        case kRGB_565_SkColorType: c = p->unpack_565(p->gather16(img, index)); break;
+
+        case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index)); break;
+        case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
+                                     std::swap(c.r, c.b);
+                                     break;
+    }
+
     *r = c.r;
     *g = c.g;
     *b = c.b;
