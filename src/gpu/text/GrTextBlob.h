@@ -334,19 +334,9 @@ private:
         bool regenTextureCoordinates:1;
         bool regenStrike:1;
     } fActions = {false, false};
-    int fCurrGlyph = 0;
 
-    // fBrokenRun indicates if the atlas became full at any glyph other than the first glyph of
-    // the SubRun.
-    //
-    // Notes:
-    // This controls the setting of the fAtlasGeneration on the SubRun. This state is used through
-    // multiple calls of VertexRegenerator::regenerate() to indicate if the texture coordinates
-    // need to be updated. fBrokenRun being true indicates that the the SubRun->fAtlasGeneration
-    // must be set to invalid to indicate that the texture coordinates need to be regenerated.
-    // Otherwise, the atlas could not take the first glyph of the SubRun, the code flushes the
-    // atlas, and the subRun uses the next generation of the atlas.
-    bool fBrokenRun = false;
+    // fCurrGlyph indicates the next glyph to be placed in the atlas.
+    int fCurrGlyph = 0;
 };
 
 #endif  // GrTextBlob_DEFINED
