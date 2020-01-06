@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "127d62f1_0c15e700",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-06T19:32:16Z",
+      "side": 1,
+      "message": "Since it\u0027s used far from where it\u0027s set, maybe `const bool brokenRun \u003d fCurrGlyph \u003e 0;`?\n\nThink we can simplify these comments now that the state is deduced rather than maintained?  E.g.\n\n// If we reach here with fCurrGlyph \u003e 0, some earlier call to regenerate() exhausted the atlas\n// before it could place all its glyphs and returned kTryAgain.  We\u0027ll use this it below to \n// invalidate texture coordinates, forcing them to be regenerated, minding the atlas flush between.\n\n?",
+      "revId": "7b5b09101ad1913dbeaa6300cbed341cd127baba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
