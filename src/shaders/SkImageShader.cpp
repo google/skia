@@ -650,6 +650,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         return false;
     }
 
+    // TODO: need to extend lifetime of this.
     SkBitmapController::State state{as_IB(fImage.get()), inv, quality};
     const SkPixmap& pm = state.pixmap();
     if (!pm.addr()) {
@@ -658,6 +659,45 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     inv     = state.invMatrix();
     quality = state.quality();
 
-    return false;
+    // TODO: and need to extend lifetime of this too.
+    SkColorSpaceXformSteps steps{pm.colorSpace(), pm.alphaType(),
+                                 dstCS, kPremul_SkAlphaType};
+
+    if (steps.flags.mask() != 0)                  { return false; }
+    if (pm.colorType() != kRGBA_8888_SkColorType) { return false; }
+    if (quality != kNone_SkFilterQuality)         { return false; }
+    if (fTileModeX != SkTileMode::kClamp)         { return false; }
+    if (fTileModeY != SkTileMode::kClamp)         { return false; }
+
+    // Apply matrix, skipping perspective divide if possible.
+    auto dot = [&,x,y](int row) {
+        return p->mad(x, p->uniformF(uniforms->pushF(inv[3*row+0])),
+               p->mad(y, p->uniformF(uniforms->pushF(inv[3*row+1])),
+                         p->uniformF(uniforms->pushF(inv[3*row+2]))));
+    };
+    x = dot(0);
+    y = dot(1);
+    if (inv.hasPerspective()) {
+        x = p->div(x, dot(2));
+        y = p->div(y, dot(2));
+    }
+
+    // Clamp coordinates.
+    skvm::F32 limitX = p->sub(p->uniformF(uniforms->pushF(pm. width())), p->splat(1.0f)),
+              limitY = p->sub(p->uniformF(uniforms->pushF(pm.height())), p->splat(1.0f));
+    x = p->max(p->splat(0.0f), p->min(x, limitX));
+    y = p->max(p->splat(0.0f), p->min(y, limitY));
+
+    // Load pixels.
+    skvm::I32 index = p->add(p->trunc(x),
+                      p->mul(p->trunc(y), p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
+
+    skvm::Color c = p->unpack_8888(p->gather32(uniforms->pushPtr(pm.addr()), index));
+    *r = c.r;
+    *g = c.g;
+    *b = c.b;
+    *a = c.a;
+
+    return true;
 }
 
