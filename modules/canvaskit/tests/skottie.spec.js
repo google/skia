@@ -15,17 +15,17 @@ describe('Skottie behavior', function() {
     });
 
     it('can draw one with an animated gif', function(done) {
-        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
-            console.warn('Skipping test because not compiled with skottie');
-            done();
-            return;
-        }
         const imgPromise = fetch('/assets/flightAnim.gif')
             .then((response) => response.arrayBuffer());
         const jsonPromise = fetch('/assets/animated_gif.json')
             .then((response) => response.text());
 
         Promise.all([imgPromise, jsonPromise, LoadCanvasKit]).then((values) => {
+            if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+                console.warn('Skipping test because not compiled with skottie');
+                done();
+                return;
+            }
             catchException(done, () => {
                 const imgBuffer = values[0];
                 expect(imgBuffer).toBeTruthy();
