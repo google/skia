@@ -21,6 +21,11 @@ size_t GrCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
 // Returns a value that can be used to set rowBytes for a transfer function.
 size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
 
+// Return the pixel dimensions of a compressed texture. The topmost levels
+// of a compressed mipmapped texture (i.e., 1x1 or 2x2) still occupy a full
+// block and thus objectively take up more pixels (e.g., 4x4 pixels for ETC1).
+SkISize GrCompressedDimensions(SkImage::CompressionType, SkISize baseDimensions);
+
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
 // of data when all rowBytes are tight.
 // Note there may still be padding between the mipLevels to meet alignment requirements.

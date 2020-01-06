@@ -180,7 +180,7 @@ void GrDawnOpsRenderPass::onDraw(const GrProgramInfo& programInfo,
 void GrDawnOpsRenderPass::sendInstancedMeshToGpu(const GrMesh& mesh, int vertexCount,
                                                  int baseVertex, int instanceCount,
                                                  int baseInstance) {
-    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(mesh.vertexBuffer()())->get();
+    wgpu::Buffer vb = static_cast<const GrDawnBuffer*>(mesh.vertexBuffer())->get();
     fPassEncoder.SetVertexBuffer(0, vb);
     fPassEncoder.Draw(vertexCount, 1, baseVertex, baseInstance);
     fGpu->stats()->incNumDraws();
