@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
  - `SkShader.Empty`
+ - Support for Type 1 Fonts. These are ancient and removing them saves about 135k
+   of code size.
 
 ### Breaking
  - In an effort to reduce code size for most clients, npm now contains two CanvasKit builds.
