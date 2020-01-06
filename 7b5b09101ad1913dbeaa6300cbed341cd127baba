@@ -34,6 +34,24 @@
       "revId": "7b5b09101ad1913dbeaa6300cbed341cd127baba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e1a95c4_0397d74f",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-06T19:46:24Z",
+      "side": 1,
+      "message": "Guess I can\u0027t object to how the comment is worded now, can I?  :D",
+      "parentUuid": "5222b254_5be2c82b",
+      "revId": "7b5b09101ad1913dbeaa6300cbed341cd127baba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
