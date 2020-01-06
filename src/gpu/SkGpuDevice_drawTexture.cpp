@@ -21,8 +21,8 @@
 #include "src/gpu/GrTextureMaker.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/image/SkImage_Base.h"
 

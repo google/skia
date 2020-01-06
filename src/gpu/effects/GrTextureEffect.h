@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSimpleTextureEffect_DEFINED
-#define GrSimpleTextureEffect_DEFINED
+#ifndef GrTextureEffect_DEFINED
+#define GrTextureEffect_DEFINED
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
 
-class GrSimpleTextureEffect : public GrFragmentProcessor {
+class GrTextureEffect : public GrFragmentProcessor {
 public:
     /** Uses kClamp wrap mode in both dimensions. */
     static std::unique_ptr<GrFragmentProcessor> Make(
@@ -36,10 +36,9 @@ private:
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
 
-    GrSimpleTextureEffect(const GrSimpleTextureEffect& src);
+    GrTextureEffect(const GrTextureEffect& src);
 
-    inline GrSimpleTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&,
-                                 GrSamplerState);
+    inline GrTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&, GrSamplerState);
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
