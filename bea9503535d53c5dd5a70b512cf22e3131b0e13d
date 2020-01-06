@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac8a9699_aa1f089e",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-06T17:26:52Z",
+      "side": 1,
+      "message": "Doesn\u0027t the normal path through the loop leave fCurrGlyph \u003d\u003d fSubRun-\u003efGlyphs.size(), presumably \u003e0?",
+      "revId": "bea9503535d53c5dd5a70b512cf22e3131b0e13d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
