@@ -15,6 +15,7 @@
 #include "src/core/SkPointPriv.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
+#include "tools/ToolUtils.h"
 
 #if 0
 void SkStrokeSegment::dump() const {
@@ -123,78 +124,6 @@ static SkScalar get_path_weight(int index, const SkPath& path) {
     }
     SkASSERT(0);
     return 0;
-}
-
-static void set_path_pt(int index, const SkPoint& pt, SkPath* path) {
-    SkPath result;
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    SkPath::RawIter iter(*path);
-    int startIndex = 0;
-    int endIndex = 0;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                endIndex += 1;
-                break;
-            case SkPath::kLine_Verb:
-                endIndex += 1;
-                break;
-            case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
-                endIndex += 2;
-                break;
-            case SkPath::kCubic_Verb:
-                endIndex += 3;
-                break;
-            case SkPath::kClose_Verb:
-                break;
-            case SkPath::kDone_Verb:
-                break;
-            default:
-                SkASSERT(0);
-        }
-        if (startIndex <= index && index < endIndex) {
-            pts[index - startIndex] = pt;
-            index = -1;
-        }
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                result.moveTo(pts[0]);
-                break;
-            case SkPath::kLine_Verb:
-                result.lineTo(pts[1]);
-                startIndex += 1;
-                break;
-            case SkPath::kQuad_Verb:
-                result.quadTo(pts[1], pts[2]);
-                startIndex += 2;
-                break;
-            case SkPath::kConic_Verb:
-                result.conicTo(pts[1], pts[2], iter.conicWeight());
-                startIndex += 2;
-                break;
-            case SkPath::kCubic_Verb:
-                result.cubicTo(pts[1], pts[2], pts[3]);
-                startIndex += 3;
-                break;
-            case SkPath::kClose_Verb:
-                result.close();
-                startIndex += 1;
-                break;
-            case SkPath::kDone_Verb:
-                break;
-            default:
-                SkASSERT(0);
-        }
-    }
-#if 0
-    SkDebugf("\n\noriginal\n");
-    path->dump();
-    SkDebugf("\nedited\n");
-    result.dump();
-#endif
-    *path = result;
 }
 
 static void add_path_segment(int index, SkPath* path) {
@@ -1656,7 +1585,7 @@ public:
                 SkPoint pt = fPath.getPoint((int) myClick->fControl);
                 pt.offset(SkIntToScalar(click->fCurr.fX - click->fPrev.fX),
                         SkIntToScalar(click->fCurr.fY - click->fPrev.fY));
-                set_path_pt(fActivePt, pt, &fPath);
+                ToolUtils::set_path_pt(fActivePt, pt, &fPath);
                 validatePath();
                 return true;
                 }
