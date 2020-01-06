@@ -24,11 +24,17 @@
 #include "src/gpu/ops/GrSmallPathRenderer.h"
 #include "src/gpu/ops/GrStencilAndCoverPathRenderer.h"
 #include "src/gpu/ops/GrTessellatingPathRenderer.h"
+#include "src/gpu/tessellate/GrGpuTessellationPathRenderer.h"
 
 GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
         fChain.push_back(sk_make_sp<GrDashLinePathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kGpuTessellation) {
+        if (caps.shaderCaps()->tessellationSupport()) {
+            fChain.push_back(sk_make_sp<GrGpuTessellationPathRenderer>());
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
