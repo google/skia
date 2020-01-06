@@ -22,6 +22,30 @@
       "revId": "be5ddb1b616dcb717b6b9b173bc0b1c5ee252e5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "982df13c_aa971d25",
+        "filename": "tools/ToolUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-06T16:53:19Z",
+      "side": 1,
+      "message": "I don\u0027t really know. I just thought it would be less change to do a pure refactor and move the method as-is, rather than trying to modify the code while at it ¯\\_(ツ)_/¯ The code already worked well enough for SampleAAGeometry and the new tessellation sample.",
+      "parentUuid": "8a31ecbd_4eec85cc",
+      "range": {
+        "startLine": 396,
+        "startChar": 12,
+        "endLine": 396,
+        "endChar": 23
+      },
+      "revId": "be5ddb1b616dcb717b6b9b173bc0b1c5ee252e5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
