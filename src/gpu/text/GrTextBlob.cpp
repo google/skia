@@ -913,26 +913,18 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         glyphLimit = fCurrGlyph + maxGlyphs;
         result->fFinished = false;
     }
+    auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
         if (fActions.regenTextureCoordinates) {
             GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
             if (!fFullAtlasManager->hasGlyph(glyph)) {
-                GrDrawOpAtlas::ErrorCode code = grStrike->addGlyphToAtlas(
+                code = grStrike->addGlyphToAtlas(
                         fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
                         fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
-                if (GrDrawOpAtlas::ErrorCode::kError == code) {
-                    // Something horrible has happened - drop the op
-                    return false;
-                }
-                else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
-                    // otherwise at least one glyph made it into the atlas, and this run needs
-                    // special handling because of the atlas flush in the middle of it.
-                    fBrokenRun = fCurrGlyph > 0;
-                    result->fFinished = false;
-                    return true;
+                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                    break;
                 }
             }
             auto tokenTracker = fUploadTarget->tokenTracker();
@@ -948,17 +940,37 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         ++result->fGlyphsRegenerated;
     }
 
-    if (fActions.regenTextureCoordinates) {
-        fSubRun->fAtlasGeneration =
-                fBrokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                           : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
-    } else {
-        // For the non-texCoords case we need to ensure that we update the associated use tokens
-        fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                           fUploadTarget->tokenTracker()->nextDrawToken(),
-                                           fSubRun->maskFormat());
+    switch (code) {
+        case GrDrawOpAtlas::ErrorCode::kError: {
+            // Something horrible has happened - drop the op
+            return false;
+        }
+        case GrDrawOpAtlas::ErrorCode::kTryAgain: {
+            // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
+            // otherwise at least one glyph made it into the atlas, and this run needs
+            // special handling because of the atlas flush in the middle of it.
+            fBrokenRun = fCurrGlyph > 0;
+            result->fFinished = false;
+            return true;
+        }
+        case GrDrawOpAtlas::ErrorCode::kSucceeded: {
+            if (fActions.regenTextureCoordinates) {
+                fSubRun->fAtlasGeneration =
+                        fBrokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                                   : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
+            } else {
+                // For the non-texCoords case we need to ensure that we update the associated
+                // use tokens
+                fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                                   fUploadTarget->tokenTracker()->nextDrawToken(),
+                                                   fSubRun->maskFormat());
+            }
+            return true;
+        }
     }
-    return true;
+
+    // Make some compilers happy because that can't figure out that the switch above is complete.
+    SkUNREACHABLE;
 }
 
 bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result,
