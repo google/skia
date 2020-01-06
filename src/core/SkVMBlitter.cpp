@@ -15,6 +15,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkVMBlitter.h"
+#include "src/shaders/SkColorFilterShader.h"
 
 namespace {
 
@@ -187,7 +188,6 @@ namespace {
         }
 
         Builder(const Params& params, skvm::Uniforms* uniforms) {
-        #define TODO SkUNREACHABLE
             // First two arguments are always uniforms and the destination buffer.
             uniforms->ptr     = uniform();
             skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.colorType));
@@ -291,7 +291,7 @@ namespace {
             // Load up the destination color.
             SkDEBUGCODE(dst_loaded = true;)
             switch (params.colorType) {
-                default: TODO;
+                default: SkUNREACHABLE;
                 case kRGB_565_SkColorType:   dst = unpack_565 (load16(dst_ptr)); break;
                 case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr)); break;
                 case kBGRA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr));
@@ -306,7 +306,7 @@ namespace {
             if (force_opaque) { dst.a = splat(1.0f); }
 
             // We'd need to premul dst after loading and unpremul before storing.
-            if (params.alphaType == kUnpremul_SkAlphaType) { TODO; }
+            if (params.alphaType == kUnpremul_SkAlphaType) { SkUNREACHABLE; }
 
             src = skvm::BlendModeProgram(this, params.blendMode, src, dst);
 
@@ -348,44 +348,22 @@ namespace {
                                                 unorm(8, src.a), 8), 16));
                      break;
             }
-        #undef TODO
         }
     };
 
-    // Scale the output of another shader by alpha.
-    // TODO: this would make more sense as a color filter
-    struct AlphaShader : public SkShaderBase {
-        AlphaShader(sk_sp<SkShader> shader, float alpha)
-            : fShader(std::move(shader))
-            , fAlpha(alpha) {}
-
-        sk_sp<SkShader> fShader;
-        float           fAlpha;
-
-        bool onProgram(skvm::Builder* p,
-                       const SkMatrix& ctm, const SkMatrix* localM,
-                       SkFilterQuality quality, SkColorSpace* dstCS,
-                       skvm::Uniforms* uniforms,
-                       skvm::F32 x, skvm::F32 y,
-                       skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-            if (as_SB(fShader)->program(p,
-                                        ctm, localM,
-                                        quality, dstCS,
-                                        uniforms,
-                                        x,y, r,g,b,a)) {
-                skvm::F32 A = p->uniformF(uniforms->pushF(fAlpha));
-                *r = p->mul(*r, A);
-                *g = p->mul(*g, A);
-                *b = p->mul(*b, A);
-                *a = p->mul(*a, A);
-                return true;
-            }
-            return false;
+    struct NoopColorFilter : public SkColorFilter {
+        bool onProgram(skvm::Builder*,
+                       SkColorSpace*,
+                       skvm::Uniforms*,
+                       skvm::F32*, skvm::F32*, skvm::F32*, skvm::F32*) const override {
+            return true;
         }
+
+        bool onAppendStages(const SkStageRec&, bool) const override { return true; }
 
         // Only created here, should never be flattened / unflattened.
         Factory getFactory() const override { return nullptr; }
-        const char* getTypeName() const override { return "AlphaShader"; }
+        const char* getTypeName() const override { return "NoopColorFilter"; }
     };
 
     static Params effective_params(const SkPixmap& device,
@@ -400,7 +378,9 @@ namespace {
         if (!shader) {
             shader = SkShaders::Color(paint.getColor4f(), nullptr);
         } else if (paint.getAlphaf() < 1.0f) {
-            shader = sk_make_sp<AlphaShader>(std::move(shader), paint.getAlphaf());
+            shader = sk_make_sp<SkColorFilterShader>(std::move(shader),
+                                                     paint.getAlphaf(),
+                                                     sk_make_sp<NoopColorFilter>());
         }
 
         // The most common blend mode is SrcOver, and it can be strength-reduced
@@ -465,7 +445,7 @@ namespace {
         }
 
     private:
-        SkPixmap       fDevice;  // TODO: can this be const&?
+        SkPixmap       fDevice;
         skvm::Uniforms fUniforms;
         const Params   fParams;
         const Key      fKey;
@@ -543,7 +523,6 @@ namespace {
 
         void blitMask(const SkMask& mask, const SkIRect& clip) override {
             if (mask.fFormat == SkMask::kBW_Format) {
-                // TODO: native BW masks?
                 return SkBlitter::blitMask(mask, clip);
             }
 
