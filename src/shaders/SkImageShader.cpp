@@ -711,37 +711,37 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                   B = p->mul(p->add(S,S), p->floor(p->mul(A,I2)));
         return p->abs(p->sub(p->sub(A,B), S));
     };
-    // TODO: decal
     switch (fTileModeX) {
-        default: return false;
-        case SkTileMode::kClamp:                             break;
+        case SkTileMode::kDecal:  /* handled after gather */ break;
+        case SkTileMode::kClamp:  /*    we always clamp   */ break;
         case SkTileMode::kRepeat: x = repeat(x, pm.width()); break;
         case SkTileMode::kMirror: x = mirror(x, pm.width()); break;
     }
     switch (fTileModeY) {
-        default: return false;
-        case SkTileMode::kClamp:                              break;
+        case SkTileMode::kDecal:  /* handled after gather */  break;
+        case SkTileMode::kClamp:  /*    we always clamp   */  break;
         case SkTileMode::kRepeat: y = repeat(y, pm.height()); break;
         case SkTileMode::kMirror: y = mirror(y, pm.height()); break;
     }
 
     // Clamp sample coordinates to [0,width), [0,height),
     // both for memory safety and to handle the clamps still needed by kClamp, kRepeat, and kMirror.
-    auto minus_1_ulp = [](float v) {
+    auto clamp = [&](skvm::F32 v, float limit) {
+        // Subtract one ulp to make an exclusive limit inclusive.
         int bits;
-        memcpy(&bits, &v, 4);
+        memcpy(&bits, &limit, 4);
         bits--;
-        memcpy(&v, &bits, 4);
-        return v;
+        memcpy(&limit, &bits, 4);
+        return p->max(p->splat(0.0f), p->min(v, p->uniformF(uniforms->pushF(limit))));
     };
-    x = p->max(p->splat(0.0f), p->min(x, p->uniformF(uniforms->pushF(minus_1_ulp(pm. width())))));
-    y = p->max(p->splat(0.0f), p->min(y, p->uniformF(uniforms->pushF(minus_1_ulp(pm.height())))));
+    skvm::F32 clamped_x = clamp(x, pm. width()),
+              clamped_y = clamp(y, pm.height());
 
     // Load pixels from pm.addr()[(int)x + (int)y*stride].
     skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
-    skvm::I32 index = p->add(p->trunc(x),
-                      p->mul(p->trunc(y), p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
-
+    skvm::I32 index = p->add(p->trunc(clamped_x),
+                      p->mul(p->trunc(clamped_y),
+                             p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
     skvm::Color c;
     switch (pm.colorType()) {
         default: return false;
@@ -752,6 +752,17 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
                                      std::swap(c.r, c.b);
                                      break;
+    }
+
+    // Mask away any pixels that we tried to sample outside the bounds in kDecal.
+    if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
+        skvm::I32 mask = p->splat(~0);
+        if (fTileModeX == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(x, clamped_x)); }
+        if (fTileModeY == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(y, clamped_y)); }
+        c.r = p->bit_cast(p->bit_and(mask, p->bit_cast(c.r)));
+        c.g = p->bit_cast(p->bit_and(mask, p->bit_cast(c.g)));
+        c.b = p->bit_cast(p->bit_and(mask, p->bit_cast(c.b)));
+        c.a = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a)));
     }
 
     *r = c.r;
