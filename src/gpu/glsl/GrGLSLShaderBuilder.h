@@ -28,20 +28,15 @@ public:
 
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
 
-    /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
-        Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
+    /** Appends a 2D texture sample with projection if necessary. The vec length and swizzle
         order of the result depends on the GrProcessor::TextureSampler associated with the
         SamplerHandle.
         */
-    void appendTextureLookup(SkString* out,
-                             SamplerHandle,
-                             const char* coordName,
-                             GrSLType coordType = kHalf2_GrSLType) const;
+    void appendTextureLookup(SkString* out, SamplerHandle, const char* coordName) const;
 
     /** Version of above that appends the result to the shader code instead.*/
     void appendTextureLookup(SamplerHandle,
                              const char* coordName,
-                             GrSLType coordType = kHalf2_GrSLType,
                              GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
     /** Does the work of appendTextureLookup and blends the result by dst, treating the texture
@@ -51,7 +46,6 @@ public:
                                      SkBlendMode,
                                      SamplerHandle,
                                      const char* coordName,
-                                     GrSLType coordType = kHalf2_GrSLType,
                                      GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
     /** Adds a helper function to facilitate color gamut transformation, and produces code that
