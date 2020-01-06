@@ -382,8 +382,6 @@ func (b *builder) kitchenTask(name, recipe, isolate, serviceAccount string, dime
 	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_KITCHEN...)
 	if strings.Contains(name, "Win") && !strings.Contains(name, "LenovoYogaC630") {
 		cipd = append(cipd, CIPD_PKG_CPYTHON)
-	} else if strings.Contains(name, "P30") {
-		cipd = append(cipd, CIPD_PKG_CPYTHON)
 	}
 	properties := map[string]string{
 		"buildername":   name,
