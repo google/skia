@@ -30,7 +30,7 @@ struct A {
 #endif
     static std::unique_ptr<GrMemoryPool> gBenchPool;
 };
-std::unique_ptr<GrMemoryPool> A::gBenchPool = GrMemoryPool::Make(10 * (1 << 10), 10 * (1 << 10));
+std::unique_ptr<GrMemoryPool> A::gBenchPool = GrMemoryPool::Make(10 * (1 << 10)); //, 10 * (1 << 10));
 
 /**
  * This benchmark creates and deletes objects in stack order
@@ -96,7 +96,7 @@ struct B {
 #endif
     static std::unique_ptr<GrMemoryPool> gBenchPool;
 };
-std::unique_ptr<GrMemoryPool> B::gBenchPool = GrMemoryPool::Make(10 * (1 << 10), 10 * (1 << 10));
+std::unique_ptr<GrMemoryPool> B::gBenchPool = GrMemoryPool::Make(10 * (1 << 10)); //, 10 * (1 << 10));
 
 /**
  * This benchmark creates objects and deletes them in random order
@@ -145,7 +145,7 @@ struct C {
 #endif
     static std::unique_ptr<GrMemoryPool> gBenchPool;
 };
-std::unique_ptr<GrMemoryPool> C::gBenchPool = GrMemoryPool::Make(10 * (1 << 10), 10 * (1 << 10));
+std::unique_ptr<GrMemoryPool> C::gBenchPool = GrMemoryPool::Make(10 * (1 << 10)); //, 10 * (1 << 10));
 
 /**
  * This benchmark creates objects and deletes them in queue order

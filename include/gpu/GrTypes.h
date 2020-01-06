@@ -154,6 +154,9 @@ static inline constexpr uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
 static inline constexpr size_t GrSizeAlignUp(size_t x, size_t alignment) {
     return GrSizeDivRoundUp(x, alignment) * alignment;
 }
+static inline constexpr uint32_t GrPow2AlignUp(uint32_t x, uint32_t mask) {
+    return (x + mask) & ~mask;
+}
 
 /**
  * amount of pad needed to align up
@@ -164,7 +167,9 @@ static inline constexpr uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) 
 static inline constexpr size_t GrSizeAlignUpPad(size_t x, size_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
-
+static inline constexpr uint32_t GrPow2AlignUpPad(uint32_t x, uint32_t mask) {
+    return (~(x + 1)) & mask;
+}
 /**
  *  align down
  */
