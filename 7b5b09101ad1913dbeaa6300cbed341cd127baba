@@ -52,6 +52,24 @@
       "revId": "7b5b09101ad1913dbeaa6300cbed341cd127baba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c24cfdce_e5896c6d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-06T19:48:38Z",
+      "side": 1,
+      "message": "You could, I would be happy to make this less opaque. Going around on comments is perfectly fine.",
+      "parentUuid": "0e1a95c4_0397d74f",
+      "revId": "7b5b09101ad1913dbeaa6300cbed341cd127baba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
