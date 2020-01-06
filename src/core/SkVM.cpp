@@ -219,6 +219,7 @@ namespace skvm {
                 case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
                 case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
 
+                case Op::floor:  write(o, V{id}, "= floor",  V{x}); break;
                 case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
                 case Op::trunc:  write(o, V{id}, "= trunc",  V{x}); break;
                 case Op::round:  write(o, V{id}, "= round",  V{x}); break;
@@ -334,6 +335,7 @@ namespace skvm {
                 case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{immy}, R{z}); break;
                 case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y}, Shift{immz}); break;
 
+                case Op::floor:  write(o, R{d}, "= floor",  R{x}); break;
                 case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
                 case Op::trunc:  write(o, R{d}, "= trunc",  R{x}); break;
                 case Op::round:  write(o, R{d}, "= round",  R{x}); break;
@@ -748,6 +750,11 @@ namespace skvm {
         return {this->push(Op::bytes, x.id,NA,NA, control)};
     }
 
+    F32 Builder::floor(F32 x) {
+        float X;
+        if (this->allImm(x.id,&X)) { return this->splat(floorf(X)); }
+        return {this->push(Op::floor, x.id)};
+    }
     F32 Builder::to_f32(I32 x) {
         int X;
         if (this->allImm(x.id,&X)) { return this->splat((float)X); }
@@ -1702,6 +1709,7 @@ namespace skvm {
                                  | table[(immy >> 12) & 0xf] << 24;
                     } break;
 
+                    CASE(Op::floor):  r(d).f32 = skvx::floor(r(x).f32); break;
                     CASE(Op::to_f32): r(d).f32 = skvx::cast<float>(r(x).i32); break;
                     CASE(Op::trunc):  r(d).i32 = skvx::cast<int>  (r(x).f32); break;
                     CASE(Op::round):  r(d).i32 = skvx::cast<int>  (r(x).f32 + 0.5f); break;
