@@ -14,6 +14,12 @@ cd skia
 
 # Build task drivers from the infra repo.
 export GOBIN="${1}"
+git init
+git remote add origin https://skia.googlesource.com/skia.git
+git add go.mod
+git add go.sum
+git add infra/bots/build_task_drivers.sh
+git commit -a -m "dummy commit to make go modules work"
 go install -v go.skia.org/infra/infra/bots/task_drivers/build_push_docker_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_skia_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/push_apps_from_skia_wasm_images
