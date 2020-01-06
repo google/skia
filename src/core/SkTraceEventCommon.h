@@ -59,7 +59,19 @@
 
 #define TRACE_EMPTY do {} while (0)
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_DISABLE_TRACING
+
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
+#define TRACE_EVENT0(cg, n) TRACE_EMPTY
+#define TRACE_EVENT1(cg, n, a1n, a1v) TRACE_EMPTY
+#define TRACE_EVENT2(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v) TRACE_EMPTY
+#define TRACE_COUNTER1(cg, n, value) TRACE_EMPTY
+#define TRACE_COUNTER2(cg, n, v1n, v1v, v2n, v2v) TRACE_EMPTY
+
+#elif defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
 #include <cutils/trace.h>
 #include <stdarg.h>
@@ -153,7 +165,7 @@ private:
 #define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)             \
   do { *ret = false; } while (0)
 
-#else // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+#else // !SK_BUILD_FOR_ANDROID_FRAMEWORK && !SK_DISABLE_TRACING
 
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
 
