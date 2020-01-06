@@ -792,6 +792,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkGradientShader::MakeLinear(points, colors, positions, count,
                                             mode, flags, &localMatrix);
     }), allow_raw_pointers());
+    function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ pPtr,
+                                                    int plen)->sk_sp<SkPicture> {
+          uint8_t* d = reinterpret_cast<uint8_t*>(pPtr);
+          sk_sp<SkData> data = SkData::MakeFromMalloc(d, plen);
+
+          return SkPicture::MakeFromData(data.get(), nullptr);
+    }), allow_raw_pointers());
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
