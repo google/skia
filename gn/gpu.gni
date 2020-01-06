@@ -420,6 +420,17 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/generated/GrTiledGradientEffect.cpp",
   "$_src/gpu/gradients/generated/GrTiledGradientEffect.h",
 
+  "$_src/gpu/tessellate/GrCenterWedgePatchGen.cpp",
+  "$_src/gpu/tessellate/GrCenterWedgePatchGen.h",
+  "$_src/gpu/tessellate/GrCoverShader.cpp",
+  "$_src/gpu/tessellate/GrCoverShader.h",
+  "$_src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+  "$_src/gpu/tessellate/GrGpuTessellationPathRenderer.h",
+  "$_src/gpu/tessellate/GrTessellatePathOp.cpp",
+  "$_src/gpu/tessellate/GrTessellatePathOp.h",
+  "$_src/gpu/tessellate/GrTessellateWedgeShader.cpp",
+  "$_src/gpu/tessellate/GrTessellateWedgeShader.h",
+
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",
   "$_src/gpu/text/GrAtlasManager.h",
