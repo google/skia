@@ -210,7 +210,7 @@
       "LIBGL_DRIVERS_PATH": "[START_DIR]/mesa_intel_driver_linux",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/linux_vulkan_sdk/bin",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json",
-      "VK_LAYER_PATH": "[START_DIR]/linux_vulkan_sdk/etc/explicit_layer.d",
+      "VK_LAYER_PATH": "[START_DIR]/linux_vulkan_sdk/etc/vulkan/explicit_layer.d",
       "VULKAN_SDK": "[START_DIR]/linux_vulkan_sdk"
     },
     "name": "symbolized dm"
