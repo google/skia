@@ -1508,6 +1508,7 @@ int main(int argc, char** argv) {
         // A non-zero return code does not make it to Swarming
         // An abort does.
 #ifdef SK_BUILD_FOR_IOS
+        fflush(stdout);
         SK_ABORT("There were failures!");
 #endif
         return 1;
