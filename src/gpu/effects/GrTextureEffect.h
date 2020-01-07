@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSimpleTextureEffect_DEFINED
-#define GrSimpleTextureEffect_DEFINED
+#ifndef GrTextureEffect_DEFINED
+#define GrTextureEffect_DEFINED
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"

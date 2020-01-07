@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 #include "include/gpu/GrTexture.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
@@ -62,7 +62,7 @@ static inline bool uses_border(const GrSamplerState s) {
 
 GrTextureEffect::GrTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alphaType,
                                  const SkMatrix& matrix, GrSamplerState sampler)
-        : GrFragmentProcessor(kGrSimpleTextureEffect_ClassID,
+        : GrFragmentProcessor(kGrTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, uses_border(sampler)))
         , fCoordTransform(matrix, texture.get())
         , fSampler(std::move(texture), sampler) {
@@ -71,7 +71,7 @@ GrTextureEffect::GrTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alph
 }
 
 GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
-        : INHERITED(kGrSimpleTextureEffect_ClassID, src.optimizationFlags())
+        : INHERITED(kGrTextureEffect_ClassID, src.optimizationFlags())
         , fCoordTransform(src.fCoordTransform)
         , fSampler(src.fSampler) {
     this->setTextureSamplerCnt(1);
