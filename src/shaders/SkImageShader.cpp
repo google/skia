@@ -645,7 +645,7 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
 bool SkImageShader::onProgram(skvm::Builder* p,
                               const SkMatrix& ctm, const SkMatrix* localM,
                               SkFilterQuality quality, SkColorSpace* dstCS,
-                              skvm::Uniforms* uniforms,
+                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
                               skvm::F32 x, skvm::F32 y,
                               skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     SkMatrix inv;
@@ -653,14 +653,15 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         return false;
     }
 
-    // TODO: need to extend lifetime of this once we start supporting kMedium_SkFilterQuality.
-    SkBitmapController::State state{as_IB(fImage.get()), inv, quality};
-    const SkPixmap& pm = state.pixmap();
-    if (!pm.addr()) {
+    // We use RequestBitmap() to make sure our SkBitmapController::State lives in the alloc.
+    // This lets the SkVMBlitter hang on to this state and keep our image alive.
+    auto state = SkBitmapController::RequestBitmap(as_IB(fImage.get()), inv, quality, alloc);
+    if (!state) {
         return false;
     }
-    inv     = state.invMatrix();
-    quality = state.quality();
+    const SkPixmap& pm = state->pixmap();
+    inv     = state->invMatrix();
+    quality = state->quality();
     tweak_quality_and_inv_matrix(&quality, &inv);
 
     if (quality != kNone_SkFilterQuality) { return false; }
