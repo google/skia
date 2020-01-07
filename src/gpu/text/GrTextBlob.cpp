@@ -908,11 +908,9 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
     auto vertexStride = fSubRun->vertexStride();
     char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
     result->fFirstVertex = currVertex;
-    int glyphLimit = (int)fSubRun->fGlyphs.size();
-    if (glyphLimit > fCurrGlyph + maxGlyphs) {
-        glyphLimit = fCurrGlyph + maxGlyphs;
-        result->fFinished = false;
-    }
+
+    int glyphLimit = std::min((int)fSubRun->fGlyphs.size(), fCurrGlyph + maxGlyphs);
+    result->fFinished = glyphLimit == (int)fSubRun->fGlyphs.size();
 
     // If we reach here with fCurrGlyph > 0, some earlier call to regenerate() exhausted the atlas
     // before it could place all its glyphs and returned kTryAgain.  We'll use brokenRun below to
