@@ -9,6 +9,8 @@
 from recipe_engine import recipe_api
 
 from . import android
+from . import android_skqp
+from . import fuchsia_skqp
 from . import canvaskit
 from . import chromebook
 from . import chromecast
@@ -17,15 +19,17 @@ from . import default
 from . import docker
 from . import flutter
 from . import pathkit
-from . import skqp
 
 
 class BuildApi(recipe_api.RecipeApi):
   def __init__(self, buildername, *args, **kwargs):
     b = buildername
-    if 'SKQP' in b and not 'Test' in b:
-      self.compile_fn = skqp.compile_fn
-      self.copy_fn = skqp.copy_build_products
+    if 'Android_SKQP' in b and not 'Test' in b:
+      self.compile_fn = android_skqp.compile_fn
+      self.copy_fn = android_skqp.copy_build_products
+    elif 'Fuchsia_SKQP' in b and not 'Test' in b:
+      self.compile_fn = fuchsia_skqp.compile_fn
+      self.copy_fn = fuchsia_skqp.copy_build_products
     elif 'Android' in b and not 'Flutter' in b:
       self.compile_fn = android.compile_fn
       self.copy_fn = android.copy_build_products
