@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "c98f7fe3_1e5b79f3",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-07T13:58:12Z",
+      "side": 1,
+      "message": "Would that require defining binary operator* for all combinations of SkM44, Translate, Scale, Rotate, ...?",
+      "parentUuid": "242eda90_ee7993b4",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb41a6af_1b1a0b4a",
         "filename": "include/private/SkM44.h",
         "patchSetId": 9
