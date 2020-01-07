@@ -814,9 +814,8 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         }
     }
 
-    // Filtering can produce out of range values on both sides of [0,1],
-    // bicubic naturally mathematically so, bilerp only very, very slightly due to float rounding.
-    if (quality > kNone_SkFilterQuality) {
+    // Bicubic filtering naturally produces out of range values on both sides of [0,1].
+    if (quality == kHigh_SkFilterQuality) {
         *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
 
         skvm::F32 limit = (pm.alphaType() == kUnpremul_SkAlphaType || fClampAsIfUnpremul)
