@@ -904,24 +904,19 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
         }
     }
 
-    GrTextStrike* grStrike = fSubRun->strike();
-    auto vertexStride = fSubRun->vertexStride();
-    char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
-    result->fFirstVertex = currVertex;
-    int glyphLimit = (int)fSubRun->fGlyphs.size();
-    if (glyphLimit > fCurrGlyph + maxGlyphs) {
-        glyphLimit = fCurrGlyph + maxGlyphs;
-        result->fFinished = false;
-    }
+    int glyphLimit = std::min((int)fSubRun->fGlyphs.size(), fCurrGlyph + maxGlyphs);
 
     // If we reach here with fCurrGlyph > 0, some earlier call to regenerate() exhausted the atlas
     // before it could place all its glyphs and returned kTryAgain.  We'll use brokenRun below to
     // invalidate texture coordinates, forcing them to be regenerated, minding the atlas
     // flush between.
     const bool brokenRun = fCurrGlyph > 0;
+
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
-    for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
-        if (fActions.regenTextureCoordinates) {
+    int startingGlyph = fCurrGlyph;
+    if (fActions.regenTextureCoordinates) {
+        GrTextStrike* grStrike = fSubRun->strike();
+        for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
             GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
             SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
@@ -934,17 +929,17 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
                 }
             }
             auto tokenTracker = fUploadTarget->tokenTracker();
-            fFullAtlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                            tokenTracker->nextDrawToken());
-        }
-
-        if (fActions.regenTextureCoordinates) {
+            fFullAtlasManager->addGlyphToBulkAndSetUseToken(
+                    fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
             fSubRun->updateTexCoord(fCurrGlyph);
         }
-
-        currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
-        ++result->fGlyphsRegenerated;
+    } else {
+        fCurrGlyph = glyphLimit;
     }
+
+    result->fFinished = fCurrGlyph == (int)fSubRun->fGlyphs.size();
+    result->fGlyphsRegenerated += fCurrGlyph - startingGlyph;
+    result->fFirstVertex = fSubRun->quadStart(startingGlyph);
 
     switch (code) {
         case GrDrawOpAtlas::ErrorCode::kError: {
@@ -952,7 +947,6 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             return false;
         }
         case GrDrawOpAtlas::ErrorCode::kTryAgain: {
-            result->fFinished = false;
             return true;
         }
         case GrDrawOpAtlas::ErrorCode::kSucceeded: {
