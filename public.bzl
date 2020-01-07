@@ -802,3 +802,8 @@ SKOTTIE_IOS_LIB_SRCS = [
 SKOTTIE_IOS_LIB_HDRS = [
     "tools/skottie_ios_app/SkottieUIView.h",
 ]
+
+SKOTTIE_IOS_LIB_SDK_FRAMEWORKS = [
+    "Foundation",
+    "UIKit",
+]
