@@ -322,7 +322,8 @@ public:
     bool regenerate(Result*, int maxGlyphs = std::numeric_limits<int>::max());
 
 private:
-    bool updateTextureCoordinatesMaybeStrike(Result* result, int maxGlyphs);
+    // Return {success, index of first glyph not in atlas}
+    std::tuple<bool, int> updateTextureCoordinatesMaybeStrike(int begin, int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
