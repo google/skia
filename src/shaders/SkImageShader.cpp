@@ -665,9 +665,7 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     quality = state->quality();
     tweak_quality_and_inv_matrix(&quality, &inv);
 
-    if (quality != kNone_SkFilterQuality) { return false; }
-
-    // Apply matrix to convert dst coords to sample coords.
+    // Apply matrix to convert dst coords to sample center coords.
     inv.normalizePerspective();
     if (inv.isIdentity()) {
         // That was easy.
@@ -691,84 +689,143 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         }
     }
 
-    // Apply tile mode.
-    // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
-    auto repeat = [&](skvm::F32 v, float scale) {
-        skvm::F32 S = p->uniformF(uniforms->pushF(     scale)),
-                  I = p->uniformF(uniforms->pushF(1.0f/scale));
-        // v - floor(v/scale)*scale
-        return p->sub(v, p->mul(p->floor(p->mul(v,I)), S));
-    };
-    auto mirror = [&](skvm::F32 v, float scale) {
-        skvm::F32 S  = p->uniformF(uniforms->pushF(     scale)),
-                  I2 = p->uniformF(uniforms->pushF(0.5f/scale));
-        // abs( (v-scale) - (2*scale)*floor((v-scale)*(0.5f/scale)) - scale )
-        //      {---A---}   {------------------B------------------}
-        skvm::F32 A = p->sub(v,S),
-                  B = p->mul(p->add(S,S), p->floor(p->mul(A,I2)));
-        return p->abs(p->sub(p->sub(A,B), S));
-    };
-    switch (fTileModeX) {
-        case SkTileMode::kDecal:  /* handled after gather */ break;
-        case SkTileMode::kClamp:  /*    we always clamp   */ break;
-        case SkTileMode::kRepeat: x = repeat(x, pm.width()); break;
-        case SkTileMode::kMirror: x = mirror(x, pm.width()); break;
-    }
-    switch (fTileModeY) {
-        case SkTileMode::kDecal:  /* handled after gather */  break;
-        case SkTileMode::kClamp:  /*    we always clamp   */  break;
-        case SkTileMode::kRepeat: y = repeat(y, pm.height()); break;
-        case SkTileMode::kMirror: y = mirror(y, pm.height()); break;
-    }
-
-    // Clamp sample coordinates to [0,width), [0,height),
-    // both for memory safety and to handle the clamps still needed by kClamp, kRepeat, and kMirror.
-    auto clamp = [&](skvm::F32 v, float limit) {
-        // Subtract one ulp to make an exclusive limit inclusive.
-        int bits;
-        memcpy(&bits, &limit, 4);
-        bits--;
-        memcpy(&limit, &bits, 4);
-        return p->max(p->splat(0.0f), p->min(v, p->uniformF(uniforms->pushF(limit))));
-    };
-    skvm::F32 clamped_x = clamp(x, pm. width()),
-              clamped_y = clamp(y, pm.height());
-
-    // Load pixels from pm.addr()[(int)x + (int)y*stride].
-    skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
-    skvm::I32 index = p->add(p->trunc(clamped_x),
-                      p->mul(p->trunc(clamped_y),
-                             p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
-    skvm::Color c;
+    // Bail out if sample() can't yet handle our image's color type.
     switch (pm.colorType()) {
         default: return false;
-
-        case kRGB_565_SkColorType: c = p->unpack_565(p->gather16(img, index)); break;
-
-        case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index)); break;
-        case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
-                                     std::swap(c.r, c.b);
-                                     break;
+        case   kRGB_565_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType: break;
     }
 
-    // Mask away any pixels that we tried to sample outside the bounds in kDecal.
-    if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
-        skvm::I32 mask = p->splat(~0);
-        if (fTileModeX == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(x, clamped_x)); }
-        if (fTileModeY == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(y, clamped_y)); }
-        c.r = p->bit_cast(p->bit_and(mask, p->bit_cast(c.r)));
-        c.g = p->bit_cast(p->bit_and(mask, p->bit_cast(c.g)));
-        c.b = p->bit_cast(p->bit_and(mask, p->bit_cast(c.b)));
-        c.a = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a)));
+    auto sample = [&](skvm::F32 sx, skvm::F32 sy) -> skvm::Color {
+        // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
+        auto repeat = [&](skvm::F32 v, float scale) {
+            skvm::F32 S = p->uniformF(uniforms->pushF(     scale)),
+                      I = p->uniformF(uniforms->pushF(1.0f/scale));
+            // v - floor(v/scale)*scale
+            return p->sub(v, p->mul(p->floor(p->mul(v,I)), S));
+        };
+        auto mirror = [&](skvm::F32 v, float scale) {
+            skvm::F32 S  = p->uniformF(uniforms->pushF(     scale)),
+                      I2 = p->uniformF(uniforms->pushF(0.5f/scale));
+            // abs( (v-scale) - (2*scale)*floor((v-scale)*(0.5f/scale)) - scale )
+            //      {---A---}   {------------------B------------------}
+            skvm::F32 A = p->sub(v,S),
+                      B = p->mul(p->add(S,S), p->floor(p->mul(A,I2)));
+            return p->abs(p->sub(p->sub(A,B), S));
+        };
+        switch (fTileModeX) {
+            case SkTileMode::kDecal:  /* handled after gather */ break;
+            case SkTileMode::kClamp:  /*    we always clamp   */ break;
+            case SkTileMode::kRepeat: sx = repeat(sx, pm.width()); break;
+            case SkTileMode::kMirror: sx = mirror(sx, pm.width()); break;
+        }
+        switch (fTileModeY) {
+            case SkTileMode::kDecal:  /* handled after gather */  break;
+            case SkTileMode::kClamp:  /*    we always clamp   */  break;
+            case SkTileMode::kRepeat: sy = repeat(sy, pm.height()); break;
+            case SkTileMode::kMirror: sy = mirror(sy, pm.height()); break;
+        }
+
+        // Always clamp sample coordinates to [0,width), [0,height), both for memory
+        // safety and to handle the clamps still needed by kClamp, kRepeat, and kMirror.
+        auto clamp = [&](skvm::F32 v, float limit) {
+            // Subtract an ulp so the upper clamp limit excludes limit itself.
+            int bits;
+            memcpy(&bits, &limit, 4);
+            return p->clamp(v, p->splat(0.0f), p->uniformF(uniforms->push(bits-1)));
+        };
+        skvm::F32 clamped_x = clamp(sx, pm. width()),
+                  clamped_y = clamp(sy, pm.height());
+
+        // Load pixels from pm.addr()[(int)sx + (int)sy*stride].
+        skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
+        skvm::I32 index = p->add(p->trunc(clamped_x),
+                          p->mul(p->trunc(clamped_y),
+                                 p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
+        skvm::Color c;
+        switch (pm.colorType()) {
+            default: SkUNREACHABLE;
+            case   kRGB_565_SkColorType: c = p->unpack_565 (p->gather16(img, index)); break;
+            case kRGBA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index)); break;
+            case kBGRA_8888_SkColorType: c = p->unpack_8888(p->gather32(img, index));
+                                         std::swap(c.r, c.b);
+                                         break;
+        }
+
+        // Mask away any pixels that we tried to sample outside the bounds in kDecal.
+        if (fTileModeX == SkTileMode::kDecal || fTileModeY == SkTileMode::kDecal) {
+            skvm::I32 mask = p->splat(~0);
+            if (fTileModeX == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(sx, clamped_x)); }
+            if (fTileModeY == SkTileMode::kDecal) { mask = p->bit_and(mask, p->eq(sy, clamped_y)); }
+            c.r = p->bit_cast(p->bit_and(mask, p->bit_cast(c.r)));
+            c.g = p->bit_cast(p->bit_and(mask, p->bit_cast(c.g)));
+            c.b = p->bit_cast(p->bit_and(mask, p->bit_cast(c.b)));
+            c.a = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a)));
+        }
+
+        return c;
+    };
+
+    if (quality == kNone_SkFilterQuality) {
+        skvm::Color c = sample(x,y);
+        *r = c.r;
+        *g = c.g;
+        *b = c.b;
+        *a = c.a;
+    } else {
+        // All bilinear and bicubic samples have the same fractional offset (fx,fy) from the center.
+        // They're either the 4 corners of a logical 1x1 pixel or the 16 corners of a 3x3 grid
+        // surrounding (x,y) at (0.5,0.5) off-center.
+        skvm::F32 fx = p->fract(p->add(x, p->splat(0.5f))),
+                  fy = p->fract(p->add(y, p->splat(0.5f)));
+
+        // We'll need 2 or 4 weights in each direction for 4 or 16 samples.
+        skvm::F32 wx[4], wy[4];
+        int D;
+
+        if (quality == kLow_SkFilterQuality) {
+            wx[0] = p->sub(p->splat(1.0f), fx);
+            wy[0] = p->sub(p->splat(1.0f), fy);
+            wx[1] = fx;
+            wy[1] = fy;
+            D = 2;
+        } else {
+            // TODO: bicubic weights
+            D = 4;
+            return false;
+        }
+
+        *r = *g = *b = *a = p->splat(0.0f);
+
+        const skvm::F32 start = p->splat(-0.5f*(D-1));  // -0.5 for bilerp, -1.5 for bicubic
+        skvm::F32 sy = p->add(y, start);
+        for (int j = 0; j < D; j++, sy = p->add(sy, p->splat(1.0f))) {
+            skvm::F32 sx = p->add(x, start);
+            for (int i = 0; i < D; i++, sx = p->add(sx, p->splat(1.0f))) {
+                skvm::Color c = sample(sx,sy);
+                skvm::F32 w = p->mul(wx[i], wy[j]);
+
+                *r = p->mad(c.r,w, *r);
+                *g = p->mad(c.g,w, *g);
+                *b = p->mad(c.b,w, *b);
+                *a = p->mad(c.a,w, *a);
+            }
+        }
     }
 
-    // This point corresponds roughly to when we're done with individual
-    // samples and resolve our final color.  The distinction is moot while
-    // we only support kNone quality, which is one sample.
-    *r = c.r;
-    *g = c.g;
-    *b = c.b;
-    *a = c.a;
+    // Bicubic filtering naturally produces out of range values on both sides of [0,1].
+    // TODO: should be no need to clamp bilerp!
+    if (quality > kNone_SkFilterQuality) {
+        skvm::F32 limit = *a;
+        if (pm.alphaType() == kUnpremul_SkAlphaType || fClampAsIfUnpremul) {
+            limit = p->splat(1.0f);
+        }
+        *r = p->clamp(*r, p->splat(0.0f), limit);
+        *g = p->clamp(*g, p->splat(0.0f), limit);
+        *b = p->clamp(*b, p->splat(0.0f), limit);
+        *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
+    }
 
     // Follow SkColorSpaceXformSteps to match shader output convention (dstCS, premul).
     // TODO: may need to extend lifetime once doing actual transforms?  maybe all in uniforms.
