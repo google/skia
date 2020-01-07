@@ -489,6 +489,9 @@ namespace skvm {
         Color unpack_8888(I32 rgba);
         Color unpack_565 (I32 bgr );  // bottom 16 bits
 
+        void   premul(F32* r, F32* g, F32* b, F32 a);
+        void unpremul(F32* r, F32* g, F32* b, F32 a);
+
         void dump(SkWStream* = nullptr) const;
 
         uint32_t hash() const;

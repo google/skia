@@ -797,6 +797,22 @@ namespace skvm {
         };
     }
 
+    void Builder::unpremul(F32* r, F32* g, F32* b, F32 a) {
+        skvm::F32 invA = div(splat(1.0f), a),
+                  inf  = bit_cast(splat(0x7f800000));
+        // If a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
+        invA = bit_cast(bit_and(lt(invA, inf),
+                                bit_cast(invA)));
+        *r = mul(*r, invA);
+        *g = mul(*g, invA);
+        *b = mul(*b, invA);
+    }
+
+    void Builder::premul(F32* r, F32* g, F32* b, F32 a) {
+        *r = mul(*r, a);
+        *g = mul(*g, a);
+        *b = mul(*b, a);
+    }
 
     // ~~~~ Program::eval() and co. ~~~~ //
 
