@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
 
 class SkWStream;
@@ -304,8 +305,6 @@ namespace skvm {
     struct F32 { Val id; };
 
     struct Color { skvm::F32 r,g,b,a; };
-
-    class Program;
 
     class Builder {
     public:
