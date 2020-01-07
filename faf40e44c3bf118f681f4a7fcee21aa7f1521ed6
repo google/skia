@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "242eda90_ee7993b4",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-07T13:52:42Z",
+      "side": 1,
+      "message": "\u003e I absolutely don\u0027t mind keeping setFoo() methods, but I don\u0027t think I\u0027ll be convinced that they\u0027re important.  I do think that the preFoo()/postFoo() methods are hard to reason about and would prefer those spelled out in a longer way that keeps the order of matrices visually obvious.  I think it\u0027s the postFoo() ones that are really confusing, and that the preFoo() methods are written in the order you\u0027d write the matrices, but my point is really, it\u0027s been years and years and I still am not sure and have to look them up every time.  I don\u0027t write any code that\u0027s not just `SkMatrix m \u003d SkMatrix::Concat(a,b)` because it\u0027s the only method I\u0027m sure I won\u0027t get backwards.\n\nOne idea to remove pre/post confusion: drop pre/post operations and introduce equivalent SkM44 *subtypes*; then rely solely on concat/multiplication with obvious operand order.  E.g.\n\n  m.preScale(10, 10) \u003d\u003e m *\u003d SkM44::Scale(10, 10)\n\nwhere SkM44::Scale is an actual type, not just a ctor.",
+      "parentUuid": "22b860e7_87397ffb",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb41a6af_1b1a0b4a",
         "filename": "include/private/SkM44.h",
         "patchSetId": 9
