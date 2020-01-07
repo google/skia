@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c69e28ad_449acf31",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-07T16:23:34Z",
+      "side": 1,
+      "message": "dstRect.size()?",
+      "range": {
+        "startLine": 288,
+        "startChar": 16,
+        "endLine": 288,
+        "endChar": 49
+      },
+      "revId": "59b304b44d9278c2e890f0928712debd4591b017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea75adb_b87c3fb1",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-07T16:23:34Z",
+      "side": 1,
+      "message": "Just personal pref, so feel free to ignore, but this would be much more readable to me formatted as one param per line. (and others below).",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 41
+      },
+      "revId": "59b304b44d9278c2e890f0928712debd4591b017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8574f58f_4c3efa5d",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-07T16:23:34Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 74,
+        "startChar": 83,
+        "endLine": 74,
+        "endChar": 96
+      },
+      "revId": "59b304b44d9278c2e890f0928712debd4591b017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
