@@ -16,7 +16,8 @@
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> srcProxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider *proxyProvider,
+                                                     sk_sp<GrSurfaceProxy> srcProxy,
                                                      const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -26,11 +27,12 @@ public:
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrMatrixConvolutionEffect(std::move(srcProxy), srcBounds, kernelSize, kernel,
+                new GrMatrixConvolutionEffect(proxyProvider, std::move(srcProxy), srcBounds, kernelSize, kernel,
                                               gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> srcProxy,
+    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(GrProxyProvider *proxyProvider,
+                                                             sk_sp<GrTextureProxy> srcProxy,
                                                              const SkIRect& srcBounds,
                                                              const SkISize& kernelSize,
                                                              SkScalar gain,
@@ -44,11 +46,11 @@ public:
     const SkIRect& bounds() const { return fBounds; }
     const SkISize& kernelSize() const { return fKernelSize; }
     const float* kernelOffset() const { return fKernelOffset; }
-    const float* kernel() const { return fKernel; }
+    const std::vector<float> &kernel() const { return fKernel; }
     float gain() const { return fGain; }
     float bias() const { return fBias; }
     bool convolveAlpha() const { return fConvolveAlpha; }
-    const GrTextureDomain& domain() const { return fDomain; }
+    const GrTextureDomain& sourceDomain() const { return fSourceDomain; }
 
     const char* name() const override { return "MatrixConvolution"; }
 
@@ -57,7 +59,8 @@ public:
 private:
     // srcProxy is the texture that is going to be convolved
     // srcBounds is the subset of 'srcProxy' that will be used (e.g., for clamp mode)
-    GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcProxy,
+    GrMatrixConvolutionEffect(GrProxyProvider *proxyProvider,
+                              sk_sp<GrSurfaceProxy> srcProxy,
                               const SkIRect& srcBounds,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,
@@ -75,18 +78,19 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    const TextureSampler& onTextureSampler(int i) const override { return fTextureSampler; }
+    const TextureSampler& onTextureSampler(int i) const override { return IthTextureSampler(i, fSourceSampler, fKernelSampler); }
 
-    GrCoordTransform fCoordTransform;
-    GrTextureDomain  fDomain;
-    TextureSampler   fTextureSampler;
-    SkIRect          fBounds;
-    SkISize          fKernelSize;
-    float            fKernel[MAX_KERNEL_SIZE];
-    float            fGain;
-    float            fBias;
-    float            fKernelOffset[2];
-    bool             fConvolveAlpha;
+    GrCoordTransform   fCoordTransform;
+    GrTextureDomain    fSourceDomain;
+    TextureSampler     fSourceSampler;
+    std::vector<float> fKernel;
+    TextureSampler     fKernelSampler; // only used for large kernels
+    SkIRect            fBounds;
+    SkISize            fKernelSize;
+    float              fGain;
+    float              fBias;
+    float              fKernelOffset[2];
+    bool               fConvolveAlpha;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
