@@ -409,6 +409,10 @@ namespace skvm {
                                     splat(0x7fffffff)));
         }
 
+        F32 fract(F32 x) {
+            return sub(x, floor(x));
+        }
+
         // int math, comparisons, etc.
         I32 add(I32 x, I32 y);
         I32 sub(I32 x, I32 y);
