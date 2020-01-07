@@ -70,6 +70,7 @@ private:
     Iter fEnd;
 };
 
+
 template <typename C, typename Iter = decltype(std::begin(std::declval<C>()))>
 inline constexpr SkEnumerate<Iter> SkMakeEnumerate(C& c) {
     return SkEnumerate<Iter>{std::begin(c), std::end(c)};
@@ -82,5 +83,76 @@ inline constexpr SkEnumerate<Iter, C> SkMakeEnumerate(C&& c) {
 template <class T, std::size_t N, typename Iter = decltype(std::begin(std::declval<T(&)[N]>()))>
 inline constexpr SkEnumerate<Iter> SkMakeEnumerate(T (&a)[N]) {
     return SkEnumerate<Iter>{std::begin(a), std::end(a)};
+}
+
+template <typename Indexable, typename C = skstd::monostate>
+class SkEnumerate2 {
+    using Captured = decltype(std::declval<Indexable>()[0]);
+    template <typename> struct is_tuple : std::false_type {};
+    template <typename... T> struct is_tuple<std::tuple<T...>> : std::true_type {};
+    static constexpr auto MakeResult(size_t i, Captured&& v) {
+        if constexpr (is_tuple<Captured>::value) {
+            return std::tuple_cat(std::tuple<size_t>{i}, std::forward<Captured>(v));
+        } else {
+            return std::tuple_cat(std::tuple<size_t>{i},
+                                  std::make_tuple(std::forward<Captured>(v)));
+        }
+    }
+    using Result = decltype(MakeResult(0, std::declval<Captured>()));
+
+    class Iterator {
+    public:
+        using value_type = Result;
+        using difference_type = ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type;
+        using iterator_category = std::input_iterator_tag;
+        constexpr Iterator(ptrdiff_t index, Iter it) : fIndex{index}, fIt{it} { }
+        constexpr Iterator(const Iterator&) = default;
+        constexpr Iterator operator++() { ++fIndex; ++fIt; return *this; }
+        constexpr Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
+        constexpr bool operator==(const Iterator& rhs) const { return fIt == rhs.fIt; }
+        constexpr bool operator!=(const Iterator& rhs) const { return fIt != rhs.fIt; }
+        constexpr reference operator*() { return MakeResult(fIndex, *fIt); }
+
+    private:
+        ptrdiff_t fIndex;
+       const Indexable& fIndexable;
+    };
+
+public:
+    constexpr SkEnumerate2(Indexable indexable, size_t size)
+            : fIndexable{indexable}
+            , fSize{size} { }
+    explicit constexpr SkEnumerate2(C&& c)
+            : fCollection{std::move(c)}
+            , fIndexable{fCollection}
+            , fSize{std::size(fCollection)} { }
+    constexpr SkEnumerate2(const SkEnumerate2& that) = default;
+    constexpr SkEnumerate2& operator=(const SkEnumerate2& that) {
+        new (this) SkEnumerate2{fIndexable, fSize};
+        return *this;
+    }
+    constexpr Iterator begin() const { &fIndexable[0]; }
+    constexpr Iterator end() const { &fIndexable[si] }
+
+private:
+    C fCollection;
+    const Indexable& fIndexable;
+    const size_t fSize;
+};
+
+template <typename C, typename Iter = decltype(std::begin(std::declval<C>()))>
+inline constexpr SkEnumerate2<Iter> SkMakeEnumerate2(C& c) {
+    return SkEnumerate2<Iter>{std::begin(c), std::end(c)};
+}
+template <typename C, typename Iter = decltype(std::begin(std::declval<C>()))>
+inline constexpr SkEnumerate2<Iter, C> SkMakeEnumerate2(C&& c) {
+    return SkEnumerate2<Iter, C>{std::forward<C>(c)};
+}
+
+template <class T, std::size_t N, typename Iter = decltype(std::begin(std::declval<T(&)[N]>()))>
+inline constexpr SkEnumerate2<Iter> SkMakeEnumerate2(T (&a)[N]) {
+    return SkEnumerate2<Iter>{std::begin(a), std::end(a)};
 }
 #endif  // SkIota_DEFINED

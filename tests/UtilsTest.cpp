@@ -260,6 +260,44 @@ DEF_TEST(SkEnumerate, reporter) {
     }
 }
 
+DEF_TEST(SkEnumerate2, reporter) {
+
+    int A[] = {1, 2, 3, 4};
+    auto enumeration = SkMakeEnumerate2(A);
+
+    size_t check = 0;
+    for (auto [i, v] : enumeration) {
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+
+        check++;
+    }
+
+    check = 0;
+    for (auto [i, v] : SkMakeEnumerate2(A)) {
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+
+        check++;
+    }
+
+    check = 0;
+    std::vector<int> vec = {1, 2, 3, 4};
+    for (auto [i, v] : SkMakeEnumerate2(vec)) {
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+        check++;
+    }
+    REPORTER_ASSERT(reporter, check == 4);
+
+    check = 0;
+    for (auto [i, v] : SkMakeEnumerate(SkMakeSpan(vec))) {
+        REPORTER_ASSERT(reporter, i == check);
+        REPORTER_ASSERT(reporter, v == (int)check+1);
+        check++;
+    }
+}
+
 DEF_TEST(SkZip, reporter) {
     uint16_t A[] = {1, 2, 3, 4};
     const float B[] = {10.f, 20.f, 30.f, 40.f};
