@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "dd5cb3b6_44d53f89",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-07T14:01:30Z",
+      "side": 1,
+      "message": "Just the combinations we care enough to optimize (which could be just the current set to start).  All subtypes should be convertible to SkM44, so if no specialization is provided we\u0027d take a slower path.",
+      "parentUuid": "c98f7fe3_1e5b79f3",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 5
+      },
+      "revId": "faf40e44c3bf118f681f4a7fcee21aa7f1521ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb41a6af_1b1a0b4a",
         "filename": "include/private/SkM44.h",
         "patchSetId": 9
