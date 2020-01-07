@@ -872,36 +872,34 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     fSubRun->translateVerticesIfNeeded(drawMatrix, drawOrigin);
 }
 
-bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result,
-                                            int maxGlyphs) {
-    SkASSERT(!fActions.regenStrike || fActions.regenTextureCoordinates);
-    if (fActions.regenTextureCoordinates) {
-        fSubRun->resetBulkUseToken();
+bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
+        Result* result, int maxGlyphs) {
+    SkASSERT(fActions.regenTextureCoordinates);
+    fSubRun->resetBulkUseToken();
 
-        const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
+    const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
-        if (!fMetricsAndImages.isValid()
+    if (!fMetricsAndImages.isValid()
             || fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
-            fMetricsAndImages.init(strikeSpec);
+        fMetricsAndImages.init(strikeSpec);
+    }
+
+    if (fActions.regenStrike) {
+        // Take the glyphs from the old strike, and translate them a new strike.
+        sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
+
+        // Start this batch at the start of the subRun plus any glyphs that were previously
+        // processed.
+        SkSpan<GrGlyph*> glyphs = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - fCurrGlyph);
+
+        // Convert old glyphs to newStrike.
+        for (auto& glyph : glyphs) {
+            SkPackedGlyphID id = glyph->fPackedID;
+            glyph = newStrike->getGlyph(id, fMetricsAndImages.get());
+            SkASSERT(id == glyph->fPackedID);
         }
 
-        if (fActions.regenStrike) {
-            // Take the glyphs from the old strike, and translate them a new strike.
-            sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
-
-            // Start this batch at the start of the subRun plus any glyphs that were previously
-            // processed.
-            SkSpan<GrGlyph*> glyphs = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - fCurrGlyph);
-
-            // Convert old glyphs to newStrike.
-            for (auto& glyph : glyphs) {
-                SkPackedGlyphID id = glyph->fPackedID;
-                glyph = newStrike->getGlyph(id, fMetricsAndImages.get());
-                SkASSERT(id == glyph->fPackedID);
-            }
-
-            fSubRun->setStrike(newStrike);
-        }
+        fSubRun->setStrike(newStrike);
     }
 
     int glyphLimit = std::min((int)fSubRun->fGlyphs.size(), fCurrGlyph + maxGlyphs);
@@ -914,27 +912,23 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
 
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     int startingGlyph = fCurrGlyph;
-    if (fActions.regenTextureCoordinates) {
-        GrTextStrike* grStrike = fSubRun->strike();
-        for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
-            GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
-            SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
+    GrTextStrike* grStrike = fSubRun->strike();
+    for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
+        GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
+        SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
-            if (!fFullAtlasManager->hasGlyph(glyph)) {
-                code = grStrike->addGlyphToAtlas(
-                        fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
-                        fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
-                if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
-                    break;
-                }
+        if (!fFullAtlasManager->hasGlyph(glyph)) {
+            code = grStrike->addGlyphToAtlas(
+                    fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
+                    fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
+            if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                break;
             }
-            auto tokenTracker = fUploadTarget->tokenTracker();
-            fFullAtlasManager->addGlyphToBulkAndSetUseToken(
-                    fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
-            fSubRun->updateTexCoord(fCurrGlyph);
         }
-    } else {
-        fCurrGlyph = glyphLimit;
+        auto tokenTracker = fUploadTarget->tokenTracker();
+        fFullAtlasManager->addGlyphToBulkAndSetUseToken(
+                fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
+        fSubRun->updateTexCoord(fCurrGlyph);
     }
 
     result->fFinished = fCurrGlyph == (int)fSubRun->fGlyphs.size();
@@ -950,20 +944,12 @@ bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Resul
             return true;
         }
         case GrDrawOpAtlas::ErrorCode::kSucceeded: {
-            if (fActions.regenTextureCoordinates) {
-                // if brokenRun, then the previous call to doRegen exited with kTryAgain. This
-                // means that only a portion of the glyphs made it into the atlas, and more must
-                // be processed.
-                fSubRun->fAtlasGeneration =
-                        brokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                                  : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
-            } else {
-                // For the non-texCoords case we need to ensure that we update the associated
-                // use tokens
-                fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                                   fUploadTarget->tokenTracker()->nextDrawToken(),
-                                                   fSubRun->maskFormat());
-            }
+            // if brokenRun, then the previous call to updateTextureCoordinatesMaybeStrike
+            // exited with kTryAgain. This means that only a portion of the glyphs made it into
+            // the atlas, and more must be processed.
+            fSubRun->fAtlasGeneration =
+                    brokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                              : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
             return true;
         }
     }
@@ -979,9 +965,9 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
     // this each time.
     fActions.regenTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
 
-    if (fActions.regenStrike
-       |fActions.regenTextureCoordinates) {
-        return this->doRegen(result, maxGlyphs);
+    if (fActions.regenStrike) { SkASSERT(fActions.regenTextureCoordinates); }
+    if (fActions.regenStrike || fActions.regenTextureCoordinates) {
+        return this->updateTextureCoordinatesMaybeStrike(result, maxGlyphs);
     } else {
         auto vertexStride = fSubRun->vertexStride();
         int glyphsLeft = fSubRun->fGlyphs.size() - fCurrGlyph;
