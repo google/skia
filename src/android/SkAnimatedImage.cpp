@@ -329,11 +329,16 @@ int SkAnimatedImage::decodeNextFrame() {
 }
 
 void SkAnimatedImage::onDraw(SkCanvas* canvas) {
+    SkPaint p;
+    this->draw(canvas, 0, 0, p);
+}
+
+void SkAnimatedImage::draw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPaint& paint) {
     auto image = SkMakeImageFromRasterBitmap(fDisplayFrame.fBitmap,
                                              kNever_SkCopyPixelsMode);
 
     if (fSimple) {
-        canvas->drawImage(image, 0, 0);
+        canvas->drawImage(image, x, y, &paint);
         return;
     }
 
@@ -344,9 +349,9 @@ void SkAnimatedImage::onDraw(SkCanvas* canvas) {
     {
         SkAutoCanvasRestore acr(canvas, fPostProcess != nullptr);
         canvas->concat(fMatrix);
-        SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
-        canvas->drawImage(image, 0, 0, &paint);
+        SkPaint postPaint(paint);
+        postPaint.setFilterQuality(kLow_SkFilterQuality);
+        canvas->drawImage(image, x, y, &postPaint);
     }
     if (fPostProcess) {
         canvas->drawPicture(fPostProcess);

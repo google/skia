@@ -911,7 +911,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
                                                              SkScalar x, SkScalar y)->void {
-            self.drawDrawable(aImg.get(), x, y);
+            SkPaint p;
+            aImg->draw(&self, x, y, p);
+        }), allow_raw_pointers())
+        .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
+                                                             SkScalar x, SkScalar y, SkPaint p)->void {
+            aImg->draw(&self, x, y, p);
         }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("drawImageNine", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,

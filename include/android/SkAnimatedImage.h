@@ -120,6 +120,12 @@ public:
      */
     SkISize dimensions() const { return fScaledSize; }
 
+    /**
+     * Draws the current frame of the animated image to the canvas at the given
+     * location with the given paint.
+     */
+    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint& paint);
+
 protected:
     SkRect onGetBounds() override;
     void onDraw(SkCanvas*) override;
