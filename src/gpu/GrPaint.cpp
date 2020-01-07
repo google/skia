@@ -9,7 +9,7 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)
