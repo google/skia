@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "697d3fdd_66fdea87",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-07T21:35:50Z",
+      "side": 1,
+      "message": "This is equivalent to (regenStrike \u003d\u003d\u003e regenTextureCoordinates) right?  If so it\u0027s not passing my tired-and-distracted test of code skimming.  Seems just as pithy and perhaps more clear as\n\n   if (regenStrike) { SkASSERT(regenTextureCoordinates); }\n\n?  That also probably obviates the need for the second assert,\n\n    if (regenStrike) { SkASSERT(regentTextureCoordinates); }\n    if (regenStrike || regenTextureCoordinates) {\n        SkASSERT(regenTextureCoordinates);  // \u003c-- kind of redundant now\n        update()\n    }\n\nThough I do think that SkASSERT(regenTextureCoordinates) would be nice _inside_ updateTextureCoordinatesMaybeStrike().",
+      "revId": "bf5841c0e9aae4381717b159732b3e79f5bc2e15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "feefc1af_369ec39a",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 968,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-07T21:35:50Z",
+      "side": 1,
+      "message": "Pretty weird to be a | and not a ||, huh?",
+      "range": {
+        "startLine": 968,
+        "startChar": 29,
+        "endLine": 968,
+        "endChar": 30
+      },
+      "revId": "bf5841c0e9aae4381717b159732b3e79f5bc2e15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
