@@ -37,6 +37,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-arm-Release-Chromecast',
   'Build-Debian9-Clang-arm-Release-Flutter_Android',
   'Build-Debian9-Clang-arm64-Release-Android_Wuffs',
+  'Build-Debian9-Clang-arm64-Release-Fuchsia_SKQP',
   'Build-Debian9-Clang-x86-devrel-Android_SKQP',
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-Coverage',
