@@ -204,9 +204,6 @@ namespace {
             // So we clamp the shader to gamut here before blending and coverage.
             if (params.alphaType == kPremul_SkAlphaType
                     && SkColorTypeIsNormalized(params.colorType)) {
-                assert_true(gte(src.a, splat(0.0f)), src.a);
-                assert_true(lte(src.a, splat(1.0f)), src.a);
-
                 src.r = clamp(src.r, splat(0.0f), src.a);
                 src.g = clamp(src.g, splat(0.0f), src.a);
                 src.b = clamp(src.b, splat(0.0f), src.a);
@@ -301,9 +298,7 @@ namespace {
                 src.r = clamp(src.r, splat(0.0f), splat(1.0f));
                 src.g = clamp(src.g, splat(0.0f), splat(1.0f));
                 src.b = clamp(src.b, splat(0.0f), splat(1.0f));
-
-                assert_true(gte(src.a, splat(0.0f)), src.a);
-                assert_true(lte(src.a, splat(1.0f)), src.a);
+                src.a = clamp(src.a, splat(0.0f), splat(1.0f));
             }
             if (force_opaque) {
                 src.a = splat(1.0f);
