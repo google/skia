@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27f4443f_c2cbe667",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2020-01-07T21:01:12Z",
+      "side": 1,
+      "message": "Could you factor out common code for CanvasKit.MakeImageFromEncoded tests?",
+      "revId": "d2654009bd21437478211a416ef6fdc8497139bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
