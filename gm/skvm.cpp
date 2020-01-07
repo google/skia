@@ -28,7 +28,7 @@ struct Fade : public SkShaderBase {
     bool onProgram(skvm::Builder* p,
                    const SkMatrix&, const SkMatrix*,
                    SkFilterQuality, SkColorSpace*,
-                   skvm::Uniforms*,
+                   skvm::Uniforms*, SkArenaAlloc*,
                    skvm::F32 x, skvm::F32 y,
                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
         // In this GM `y` will range over 0-50 and `x` over 50-100.

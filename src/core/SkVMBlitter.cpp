@@ -127,10 +127,12 @@ namespace {
                 x = p.add(x, p.splat(0.5f));
                 y = p.add(y, p.splat(0.5f));
                 skvm::F32 r,g,b,a;
+
+                SkSTArenaAlloc<2*sizeof(void*)> tmp;
                 if (shader->program(&p,
                                     params.ctm, /*localM=*/nullptr,
                                     params.quality, params.colorSpace.get(),
-                                    uniforms,
+                                    uniforms,&tmp,
                                     x,y, &r,&g,&b,&a)) {
                     shaderHash = p.hash();
                 } else {
@@ -159,7 +161,7 @@ namespace {
             };
         }
 
-        Builder(const Params& params, skvm::Uniforms* uniforms) {
+        Builder(const Params& params, skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
             // First two arguments are always uniforms and the destination buffer.
             uniforms->ptr     = uniform();
             skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.colorType));
@@ -182,7 +184,7 @@ namespace {
             SkAssertResult(as_SB(params.shader)->program(this,
                                                          params.ctm, /*localM=*/nullptr,
                                                          params.quality, params.colorSpace.get(),
-                                                         uniforms,
+                                                         uniforms, alloc,
                                                          x,y, &src.r, &src.g, &src.b, &src.a));
             // We don't know if the src color is normalized (logical [0,1], premul [0,a]) or not.
             bool src_is_normalized = false;
@@ -425,7 +427,8 @@ namespace {
 
     private:
         SkPixmap       fDevice;
-        skvm::Uniforms fUniforms;
+        skvm::Uniforms fUniforms;                // Most data is copied directly into fUniforms,
+        SkArenaAlloc   fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
         const Params   fParams;
         const Key      fKey;
         skvm::Program  fBlitH,
@@ -454,7 +457,7 @@ namespace {
             // fUniforms should reuse the exact same memory, so this is very cheap.
             SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
             fUniforms.buf.resize(kBlitterUniformsCount);
-            Builder builder{fParams.withCoverage(coverage), &fUniforms};
+            Builder builder{fParams.withCoverage(coverage), &fUniforms, &fAlloc};
             SkASSERT(fUniforms.buf.size() == prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
