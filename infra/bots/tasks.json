@@ -2396,6 +2396,11 @@
         "Upload-Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal"
       ]
     },
+    "Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+      "tasks": [
+        "Upload-Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts"
+      ]
+    },
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "tasks": [
         "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN"
@@ -38505,6 +38510,89 @@
         "test"
       ]
     },
+    "Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:40"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:220"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Mac-Clang-x86_64-Debug"
+      ],
+      "dimensions": [
+        "cpu:x86-64-E5-2697_v2",
+        "os:Mac-10.15.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "caches": [
         {
@@ -67434,6 +67522,78 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.8",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "max_attempts": 2,
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:af7d2ebd14e9bdad51ff1afacbf37f49815ad27b"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.15.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "upload_dm_results",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
