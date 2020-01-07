@@ -62,7 +62,7 @@ struct SkottieRunner {
 extern "C" JNIEXPORT jlong
 JNICALL
 Java_org_skia_skottie_SkottieRunner_nCreateProxy(JNIEnv *env, jclass clazz) {
-    sk_sp<const GrGLInterface> glInterface(GrGLCreateNativeInterface());
+    sk_sp<const GrGLInterface> glInterface = GrGLMakeNativeInterface();
     if (!glInterface.get()) {
         return 0;
     }
