@@ -474,6 +474,7 @@
   "Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-NativeFonts",
   "Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All",
   "Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal",
+  "Test-Mac10.15-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts",
   "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
   "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1",
   "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan",
