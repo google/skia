@@ -258,6 +258,30 @@ DEF_TEST(SkEnumerate, reporter) {
         REPORTER_ASSERT(reporter, v == (int)check+1);
         check++;
     }
+
+    {
+        auto e = SkMakeEnumerate(SkMakeSpan(vec)).first(2);
+        for (auto[i, v] : e) {
+            REPORTER_ASSERT(reporter, v == (int) i + 1);
+        }
+        REPORTER_ASSERT(reporter, e.size() == 2);
+    }
+
+    {
+        auto e = SkMakeEnumerate(SkMakeSpan(vec)).last(2);
+        for (auto[i, v] : e) {
+            REPORTER_ASSERT(reporter, v == (int) i + 1);
+        }
+        REPORTER_ASSERT(reporter, e.size() == 2);
+    }
+
+    {
+        auto e = SkMakeEnumerate(SkMakeSpan(vec)).subspan(1, 2);
+        for (auto[i, v] : e) {
+            REPORTER_ASSERT(reporter, v == (int) i + 1);
+        }
+        REPORTER_ASSERT(reporter, e.size() == 2);
+    }
 }
 
 DEF_TEST(SkZip, reporter) {
