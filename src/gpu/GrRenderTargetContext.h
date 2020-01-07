@@ -58,6 +58,10 @@ class SkVertices;
 class GrRenderTargetContext : public GrSurfaceContext {
 public:
     static std::unique_ptr<GrRenderTargetContext> Make(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
+            GrSurfaceOrigin, const SkSurfaceProps*, bool managedOps = true);
+
+    static std::unique_ptr<GrRenderTargetContext> Make(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
             const SkISize& dimensions, const GrBackendFormat&, int sampleCnt, GrMipMapped,
             GrProtected, GrSurfaceOrigin, SkBudgeted, const SkSurfaceProps*);
@@ -79,7 +83,30 @@ public:
             GrProtected = GrProtected::kNo, GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
             SkBudgeted = SkBudgeted::kYes, const SkSurfaceProps* = nullptr);
 
-    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
+    // These match the definitions in SkSurface & GrSurface.h, for whence they came
+    typedef void* ReleaseContext;
+    typedef void (*ReleaseProc)(ReleaseContext);
+
+    // Creates a GrRenderTargetContext that wraps the passed in GrBackendTexture.
+    static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTexture(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
+            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*, ReleaseProc releaseProc,
+            ReleaseContext releaseCtx);
+
+    static std::unique_ptr<GrRenderTargetContext> MakeFromBackendTextureAsRenderTarget(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
+            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps*);
+
+    static std::unique_ptr<GrRenderTargetContext> MakeFromBackendRenderTarget(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendRenderTarget&,
+            GrSurfaceOrigin, const SkSurfaceProps*, ReleaseProc releaseProc,
+            ReleaseContext releaseCtx);
+
+    static std::unique_ptr<GrRenderTargetContext> MakeFromVulkanSecondaryCB(
+            GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
+            const SkSurfaceProps*);
+
+    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrSurfaceProxy>, GrColorType,
                           GrSurfaceOrigin, GrSwizzle readSwizzle, GrSwizzle outSwizzle,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
 
