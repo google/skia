@@ -204,12 +204,12 @@ namespace {
             // So we clamp the shader to gamut here before blending and coverage.
             if (params.alphaType == kPremul_SkAlphaType
                     && SkColorTypeIsNormalized(params.colorType)) {
-                src.r = min(max(splat(0.0f), src.r), src.a);
-                src.g = min(max(splat(0.0f), src.g), src.a);
-                src.b = min(max(splat(0.0f), src.b), src.a);
+                assert_true(gte(src.a, splat(0.0f)), src.a);
+                assert_true(lte(src.a, splat(1.0f)), src.a);
 
-                assert_true(gte(src.a, splat(0.0f)));
-                assert_true(lte(src.a, splat(1.0f)));
+                src.r = clamp(src.r, splat(0.0f), src.a);
+                src.g = clamp(src.g, splat(0.0f), src.a);
+                src.b = clamp(src.b, splat(0.0f), src.a);
 
                 // Knowing that we're normalizing here and that blending and coverage
                 // won't affect that when the destination is normalized, we can avoid
@@ -298,12 +298,12 @@ namespace {
 
             // Clamp to fit destination color format if needed.
             if (!src_is_normalized && SkColorTypeIsNormalized(params.colorType)) {
-                src.r = min(max(splat(0.0f), src.r), splat(1.0f));
-                src.g = min(max(splat(0.0f), src.g), splat(1.0f));
-                src.b = min(max(splat(0.0f), src.b), splat(1.0f));
+                src.r = clamp(src.r, splat(0.0f), splat(1.0f));
+                src.g = clamp(src.g, splat(0.0f), splat(1.0f));
+                src.b = clamp(src.b, splat(0.0f), splat(1.0f));
 
-                assert_true(gte(src.a, splat(0.0f)));
-                assert_true(lte(src.a, splat(1.0f)));
+                assert_true(gte(src.a, splat(0.0f)), src.a);
+                assert_true(lte(src.a, splat(1.0f)), src.a);
             }
             if (force_opaque) {
                 src.a = splat(1.0f);
