@@ -14,6 +14,7 @@
 #include "src/core/SkColorFilter_Matrix.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 static uint16_t ComputeFlags(const float matrix[20]) {

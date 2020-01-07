@@ -15,6 +15,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkColorShader.h"
@@ -221,6 +222,15 @@ bool SkShaderBase::program(skvm::Builder* p,
         }
         return true;
     }
+    return false;
+}
+
+bool SkShaderBase::onProgram(skvm::Builder*,
+                             const SkMatrix& ctm, const SkMatrix* localM,
+                             SkFilterQuality quality, SkColorSpace* dstCS,
+                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                             skvm::F32 x, skvm::F32 y,
+                             skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     return false;
 }
 
