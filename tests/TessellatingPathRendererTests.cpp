@@ -733,9 +733,9 @@ static void test_path(GrContext* ctx,
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
-    auto rtc = ctx->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, 800, 800, GrColorType::kRGBA_8888, nullptr, 1, GrMipMapped::kNo,
-            kTopLeft_GrSurfaceOrigin);
+    auto rtc = GrRenderTargetContext::Make(
+            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800}, 1,
+            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return;
     }

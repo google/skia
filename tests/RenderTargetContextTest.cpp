@@ -17,8 +17,8 @@
 static const int kSize = 64;
 
 static std::unique_ptr<GrRenderTargetContext> get_rtc(GrContext* ctx) {
-    return ctx->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, kSize, kSize,
-                                                       GrColorType::kRGBA_8888, nullptr);
+    return GrRenderTargetContext::Make(
+            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kSize, kSize});
 }
 
 static void check_instantiation_status(skiatest::Reporter* reporter,
