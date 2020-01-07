@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    and PathOps is available in `bin/core/`. It is about half the size of the "CoreWithFonts"
    build.
  - Experimental Runtime shader available for custom builds.
+ - WebP support.
 
 ### Fixed
  - `CanvasKit.SaveLayerInitWithPrevious` and `CanvasKit.SaveLayerF16ColorType` constants.
