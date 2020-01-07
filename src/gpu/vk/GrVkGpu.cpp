@@ -1146,7 +1146,9 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
     if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
-    SkASSERT(GrVkFormatColorTypePairIsValid(imageInfo.fFormat, colorType));
+    SkASSERTF(GrVkFormatColorTypePairIsValid(imageInfo.fFormat, colorType),
+              "Vulkan format/colorType mismatch - format %d colorType %d\n",
+              imageInfo.fFormat, colorType);
 
     if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
         return nullptr;

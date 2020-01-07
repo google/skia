@@ -4210,7 +4210,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
             break;
     }
 
-    SkDebugf("Unknown pixel config 0x%x\n", format);
+    SkDebugf("GL format/colorType mismatch - glFormat: %d colorType: %d standard: %d\n",
+             format, ct, standard);
     return kUnknown_GrPixelConfig;
 }
 
