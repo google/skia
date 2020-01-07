@@ -791,9 +791,31 @@ bool SkImageShader::onProgram(skvm::Builder* p,
             wy[1] = fy;
             D = 2;
         } else {
-            // TODO: bicubic weights
+            // See GrCubicEffect for details of these weights.
+            auto near = [&](skvm::F32 t) {
+                // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
+                return p->mad(t,
+                       p->mad(t,
+                       p->mad(t, p->splat(-21/18.0f),
+                                 p->splat( 27/18.0f)),
+                                 p->splat(  9/18.0f)),
+                                 p->splat(  1/18.0f));
+            };
+            auto far = [&](skvm::F32 t) {
+                // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
+                return p->mul(p->mul(t,t), p->mad(t, p->splat( 7/18.0f),
+                                                     p->splat(-6/18.0f)));
+            };
+            wx[0] = far (p->sub(p->splat(1.0f), fx));
+            wx[1] = near(p->sub(p->splat(1.0f), fx));
+            wx[2] = near(                       fx );
+            wx[3] = far (                       fx );
+
+            wy[0] = far (p->sub(p->splat(1.0f), fy));
+            wy[1] = near(p->sub(p->splat(1.0f), fy));
+            wy[2] = near(                       fy );
+            wy[3] = far (                       fy );
             D = 4;
-            return false;
         }
 
         *r = *g = *b = *a = p->splat(0.0f);
