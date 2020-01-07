@@ -177,7 +177,7 @@ sk_sp<SkShader> SkImageShader::Make(sk_sp<SkImage> image,
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 static GrSamplerState::WrapMode tile_mode_to_wrap_mode(const SkTileMode tileMode) {
     switch (tileMode) {
@@ -249,8 +249,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                       kDir, srcAlphaType);
     } else {
         auto dimensions = proxy->dimensions();
-        inner = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse,
-                                            samplerState);
+        inner = GrTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse, samplerState);
         if (domainX != GrTextureDomain::kIgnore_Mode || domainY != GrTextureDomain::kIgnore_Mode) {
             SkRect domain = GrTextureDomain::MakeTexelDomain(SkIRect::MakeSize(dimensions),
                                                              domainX, domainY);

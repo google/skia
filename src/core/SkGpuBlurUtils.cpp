@@ -320,8 +320,8 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
         }
 
         GrPaint paint;
-        auto fp = GrSimpleTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
-                                              GrSamplerState::Filter::kBilerp);
+        auto fp = GrTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
+                                        GrSamplerState::Filter::kBilerp);
         if (GrTextureDomain::kIgnore_Mode != mode && i == 1) {
             // GrDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
             GrTextureDomain::Mode modeForScaling = (GrTextureDomain::kRepeat_Mode == mode ||
@@ -402,8 +402,8 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
     GrPaint paint;
     SkRect domain = GrTextureDomain::MakeTexelDomain(localSrcBounds, GrTextureDomain::kClamp_Mode,
                                                      GrTextureDomain::kClamp_Mode);
-    auto fp = GrSimpleTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
-                                          GrSamplerState::Filter::kBilerp);
+    auto fp = GrTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
+                                    GrSamplerState::Filter::kBilerp);
     fp = GrDomainEffect::Make(std::move(fp), domain, GrTextureDomain::kClamp_Mode, true);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
