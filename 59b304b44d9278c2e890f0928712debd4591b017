@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f122aa58_8dec2a66",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-07T20:16:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c69e28ad_449acf31",
+      "range": {
+        "startLine": 288,
+        "startChar": 16,
+        "endLine": 288,
+        "endChar": 49
+      },
+      "revId": "59b304b44d9278c2e890f0928712debd4591b017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eea75adb_b87c3fb1",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "46b9f0cf_e69cef97",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-07T20:16:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eea75adb_b87c3fb1",
+      "range": {
+        "startLine": 141,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 41
+      },
+      "revId": "59b304b44d9278c2e890f0928712debd4591b017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8574f58f_4c3efa5d",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 7
@@ -68,6 +116,30 @@
       "revId": "59b304b44d9278c2e890f0928712debd4591b017",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e70129b_26dbdb0f",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-07T20:16:42Z",
+      "side": 1,
+      "message": "Fixed to BGRA",
+      "parentUuid": "8574f58f_4c3efa5d",
+      "range": {
+        "startLine": 74,
+        "startChar": 83,
+        "endLine": 74,
+        "endChar": 96
+      },
+      "revId": "59b304b44d9278c2e890f0928712debd4591b017",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
