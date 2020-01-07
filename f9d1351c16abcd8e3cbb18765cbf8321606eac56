@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba83e7d5_dac07018",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-07T22:02:20Z",
+      "side": 1,
+      "message": "maybe slap an \u0027s\u0027 on this bad boy now that it\u0027s bulk?",
+      "range": {
+        "startLine": 301,
+        "startChar": 25,
+        "endLine": 301,
+        "endChar": 39
+      },
+      "revId": "f9d1351c16abcd8e3cbb18765cbf8321606eac56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
