@@ -14,24 +14,24 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
-std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
-                                                                 SkAlphaType alphaType,
-                                                                 const SkMatrix& matrix,
-                                                                 GrSamplerState::Filter filter) {
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
+                                                           SkAlphaType alphaType,
+                                                           const SkMatrix& matrix,
+                                                           GrSamplerState::Filter filter) {
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), alphaType, matrix,
-                                      GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
+            new GrTextureEffect(std::move(proxy), alphaType, matrix,
+                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
-                                                                 SkAlphaType alphaType,
-                                                                 const SkMatrix& matrix,
-                                                                 GrSamplerState sampler) {
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
+                                                           SkAlphaType alphaType,
+                                                           const SkMatrix& matrix,
+                                                           GrSamplerState sampler) {
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrSimpleTextureEffect(std::move(proxy), alphaType, matrix, sampler));
+            new GrTextureEffect(std::move(proxy), alphaType, matrix, sampler));
 }
 
-GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
+GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
@@ -51,18 +51,17 @@ GrGLSLFragmentProcessor* GrSimpleTextureEffect::onCreateGLSLInstance() const {
     return new Impl;
 }
 
-void GrSimpleTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&,
-                                                  GrProcessorKeyBuilder*) const {}
+void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const {}
 
-bool GrSimpleTextureEffect::onIsEqual(const GrFragmentProcessor&) const { return true; }
+bool GrTextureEffect::onIsEqual(const GrFragmentProcessor&) const { return true; }
 
 static inline bool uses_border(const GrSamplerState s) {
     return s.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder ||
            s.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
 }
 
-GrSimpleTextureEffect::GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alphaType,
-                                             const SkMatrix& matrix, GrSamplerState sampler)
+GrTextureEffect::GrTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alphaType,
+                                 const SkMatrix& matrix, GrSamplerState sampler)
         : GrFragmentProcessor(kGrSimpleTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, uses_border(sampler)))
         , fCoordTransform(matrix, texture.get())
@@ -71,7 +70,7 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAl
     this->addCoordTransform(&fCoordTransform);
 }
 
-GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
+GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
         : INHERITED(kGrSimpleTextureEffect_ClassID, src.optimizationFlags())
         , fCoordTransform(src.fCoordTransform)
         , fSampler(src.fSampler) {
@@ -79,18 +78,17 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
     this->addCoordTransform(&fCoordTransform);
 }
 
-std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(*this));
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::clone() const {
+    return std::unique_ptr<GrFragmentProcessor>(new GrTextureEffect(*this));
 }
 
-const GrFragmentProcessor::TextureSampler& GrSimpleTextureEffect::onTextureSampler(int) const {
+const GrFragmentProcessor::TextureSampler& GrTextureEffect::onTextureSampler(int) const {
     return fSampler;
 }
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);
 #if GR_TEST_UTILS
-std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
-        GrProcessorTestData* testData) {
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTestData* testData) {
     auto [proxy, ct, at] = testData->randomProxy();
     GrSamplerState::WrapMode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
@@ -106,6 +104,6 @@ std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::TestCreate(
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    return GrSimpleTextureEffect::Make(std::move(proxy), at, matrix, params);
+    return GrTextureEffect::Make(std::move(proxy), at, matrix, params);
 }
 #endif
