@@ -663,11 +663,6 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     quality = state.quality();
     tweak_quality_and_inv_matrix(&quality, &inv);
 
-    // TODO: and need to extend lifetime of this too once supporting steps.flags.mask() != 0.
-    SkColorSpaceXformSteps steps{pm.colorSpace(), pm.alphaType(),
-                                 dstCS, kPremul_SkAlphaType};
-
-    if (steps.flags.mask() != 0)          { return false; }
     if (quality != kNone_SkFilterQuality) { return false; }
 
     // Apply matrix to convert dst coords to sample coords.
@@ -765,10 +760,25 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         c.a = p->bit_cast(p->bit_and(mask, p->bit_cast(c.a)));
     }
 
+    // This point corresponds roughly to when we're done with individual
+    // samples and resolve our final color.  The distinction is moot while
+    // we only support kNone quality, which is one sample.
     *r = c.r;
     *g = c.g;
     *b = c.b;
     *a = c.a;
+
+    // Follow SkColorSpaceXformSteps to match shader output convention (dstCS, premul).
+    // TODO: may need to extend lifetime once doing actual transforms?  maybe all in uniforms.
+    auto flags = SkColorSpaceXformSteps{pm.colorSpace(), pm.alphaType(),
+                                        dstCS, kPremul_SkAlphaType}.flags;
+
+    // TODO: once this all works, move it to SkColorSpaceXformSteps
+    if (flags.unpremul)        { p->unpremul(r,g,b,*a); }
+    if (flags.linearize)       { return false; }
+    if (flags.gamut_transform) { return false; }
+    if (flags.encode)          { return false; }
+    if (flags.premul)          { p->premul(r,g,b,*a); }
     return true;
 }
 

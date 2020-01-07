@@ -145,8 +145,6 @@ namespace {
                 case kBGRA_8888_SkColorType: break;
             }
 
-            if (params.alphaType == kUnpremul_SkAlphaType) { *ok = false; }
-
             if (!skvm::BlendModeSupported(params.blendMode)) {
                 *ok = false;
             }
@@ -279,10 +277,11 @@ namespace {
             // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
             // optional, and sometimes helps cut a small amount of work in these programs.
             const bool force_opaque = true && params.alphaType == kOpaque_SkAlphaType;
-            if (force_opaque) { dst.a = splat(1.0f); }
-
-            // We'd need to premul dst after loading and unpremul before storing.
-            if (params.alphaType == kUnpremul_SkAlphaType) { SkUNREACHABLE; }
+            if (force_opaque) {
+                dst.a = splat(1.0f);
+            } else if (params.alphaType == kUnpremul_SkAlphaType) {
+                premul(&dst.r, &dst.g, &dst.b, dst.a);
+            }
 
             src = skvm::BlendModeProgram(this, params.blendMode, src, dst);
 
@@ -304,7 +303,11 @@ namespace {
                 assert_true(gte(src.a, splat(0.0f)));
                 assert_true(lte(src.a, splat(1.0f)));
             }
-            if (force_opaque) { src.a = splat(1.0f); }
+            if (force_opaque) {
+                src.a = splat(1.0f);
+            } else if (params.alphaType == kUnpremul_SkAlphaType) {
+                unpremul(&src.r, &src.g, &src.b, src.a);
+            }
 
             // Store back to the destination.
             switch (params.colorType) {
