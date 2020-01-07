@@ -82,7 +82,7 @@ public:
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
-    void updateTexCoord(size_t index);
+    void updateTexCoords(int begin, int end);
 
     // df properties
     void setUseLCDText(bool useLCDText);
@@ -298,54 +298,57 @@ void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
     }
 }
 
-void GrTextBlob::SubRun::updateTexCoord(size_t index) {
-    GrGlyph* glyph = this->fGlyphs[index];
-    SkASSERT(glyph != nullptr);
-
-    int width = glyph->fBounds.width();
-    int height = glyph->fBounds.height();
-    uint16_t u0, v0, u1, v1;
-    if (this->drawAsDistanceFields()) {
-        u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
-        v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
-        u1 = u0 + width - 2 * SK_DistanceFieldInset;
-        v1 = v0 + height - 2 * SK_DistanceFieldInset;
-    } else {
-        u0 = glyph->fAtlasLocation.fX;
-        v0 = glyph->fAtlasLocation.fY;
-        u1 = u0 + width;
-        v1 = v0 + height;
-    }
-
-    // We pack the 2bit page index in the low bit of the u and v texture coords
-    uint32_t pageIndex = glyph->pageIndex();
-    SkASSERT(pageIndex < 4);
-    uint16_t uBit = (pageIndex >> 1u) & 0x1u;
-    uint16_t vBit = pageIndex & 0x1u;
-    u0 <<= 1u;
-    u0 |= uBit;
-    v0 <<= 1u;
-    v0 |= vBit;
-    u1 <<= 1u;
-    u1 |= uBit;
-    v1 <<= 1u;
-    v1 |= vBit;
-
-    char* vertex = this->quadStart(index);
-    size_t vertexStride = this->vertexStride();
-    size_t texCoordOffset = this->texCoordOffset();
+void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
+    const size_t vertexStride = this->vertexStride();
+    const size_t texCoordOffset = this->texCoordOffset();
+    char* vertex = this->quadStart(begin);
     uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-    textureCoords[0] = u0;
-    textureCoords[1] = v0;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u0;
-    textureCoords[1] = v1;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u1;
-    textureCoords[1] = v0;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u1;
-    textureCoords[1] = v1;
+    for (int i = begin; i < end; i++) {
+        GrGlyph* glyph = this->fGlyphs[i];
+        SkASSERT(glyph != nullptr);
+
+        int width = glyph->fBounds.width();
+        int height = glyph->fBounds.height();
+        uint16_t u0, v0, u1, v1;
+        if (this->drawAsDistanceFields()) {
+            u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
+            v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
+            u1 = u0 + width - 2 * SK_DistanceFieldInset;
+            v1 = v0 + height - 2 * SK_DistanceFieldInset;
+        } else {
+            u0 = glyph->fAtlasLocation.fX;
+            v0 = glyph->fAtlasLocation.fY;
+            u1 = u0 + width;
+            v1 = v0 + height;
+        }
+
+        // We pack the 2bit page index in the low bit of the u and v texture coords
+        uint32_t pageIndex = glyph->pageIndex();
+        SkASSERT(pageIndex < 4);
+        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
+        uint16_t vBit = pageIndex & 0x1u;
+        u0 <<= 1u;
+        u0 |= uBit;
+        v0 <<= 1u;
+        v0 |= vBit;
+        u1 <<= 1u;
+        u1 |= uBit;
+        v1 <<= 1u;
+        v1 |= vBit;
+
+        textureCoords[0] = u0;
+        textureCoords[1] = v0;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+        textureCoords[0] = u0;
+        textureCoords[1] = v1;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+        textureCoords[0] = u1;
+        textureCoords[1] = v0;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+        textureCoords[0] = u1;
+        textureCoords[1] = v1;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    }
 }
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
@@ -910,9 +913,11 @@ bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
     // flush between.
     const bool brokenRun = fCurrGlyph > 0;
 
+    // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     int startingGlyph = fCurrGlyph;
     GrTextStrike* grStrike = fSubRun->strike();
+    auto tokenTracker = fUploadTarget->tokenTracker();
     for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
         GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
         SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
@@ -925,11 +930,12 @@ bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
                 break;
             }
         }
-        auto tokenTracker = fUploadTarget->tokenTracker();
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
                 fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
-        fSubRun->updateTexCoord(fCurrGlyph);
     }
+
+    // Update the quads with the new atlas coordinates.
+    fSubRun->updateTexCoords(startingGlyph, fCurrGlyph);
 
     result->fFinished = fCurrGlyph == (int)fSubRun->fGlyphs.size();
     result->fGlyphsRegenerated += fCurrGlyph - startingGlyph;
