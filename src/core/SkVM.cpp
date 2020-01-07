@@ -144,7 +144,7 @@ namespace skvm {
                       inst.used_in_loop ? "↑ " :
                                           "↟ ");
             switch (op) {
-                case Op::assert_true:  write(o, "assert_true" , V{x}); break;
+                case Op::assert_true: write(o, "assert_true", V{x}, V{y}); break;
 
                 case Op::store8:  write(o, "store8" , Arg{immy}, V{x}); break;
                 case Op::store16: write(o, "store16", Arg{immy}, V{x}); break;
@@ -248,6 +248,8 @@ namespace skvm {
         o->writeText(" instructions:\n");
         for (int i = 0; i < (int)fInstructions.size(); i++) {
             if (i == fLoop) { write(o, "loop:\n"); }
+            o->writeDecAsText(i);
+            o->writeText("\t");
             if (i >= fLoop) { write(o, "    "); }
             const Program::Instruction& inst = fInstructions[i];
             Op   op = inst.op;
@@ -258,7 +260,7 @@ namespace skvm {
             int immy = inst.immy,
                 immz = inst.immz;
             switch (op) {
-                case Op::assert_true:  write(o, "assert_true" , R{x}); break;
+                case Op::assert_true: write(o, "assert_true", R{x}, R{y}); break;
 
                 case Op::store8:  write(o, "store8" , Arg{immy}, R{x}); break;
                 case Op::store16: write(o, "store16", Arg{immy}, R{x}); break;
@@ -518,11 +520,11 @@ namespace skvm {
         return {ix};
     }
 
-    void Builder::assert_true(I32 val) {
+    void Builder::assert_true(I32 cond, I32 debug) {
     #ifdef SK_DEBUG
         int imm;
-        if (this->allImm(val.id,&imm)) { SkASSERT(imm); return; }
-        (void)this->push(Op::assert_true, val.id,NA,NA);
+        if (this->allImm(cond.id,&imm)) { SkASSERT(imm); return; }
+        (void)this->push(Op::assert_true, cond.id,debug.id,NA);
     #endif
     }
 
@@ -1635,7 +1637,18 @@ namespace skvm {
                     // Ops that don't interact with memory should never care about the stride.
                 #define CASE(op) case 2*(int)op: /*fallthrough*/ case 2*(int)op+1
 
-                    CASE(Op::assert_true): SkASSERT(all(r(x).i32)); break;
+                    CASE(Op::assert_true):
+                    #ifdef SK_DEBUG
+                        if (!all(r(x).i32)) {
+                            this->dump();
+                            SkDebugf("inst %d, register %d\n", i, y);
+                            for (int i = 0; i < K; i++) {
+                                SkDebugf("\t%2d: %08x (%g)\n", i, r(y).i32[i], r(y).f32[i]);
+                            }
+                        }
+                        SkASSERT(all(r(x).i32));
+                    #endif
+                    break;
 
                     CASE(Op::index): static_assert(K == 16, "");
                                      r(d).i32 = n - I32{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
