@@ -191,6 +191,33 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can decode and draw a still webp', function(done) {
+        const imgPromise = fetch('/assets/color_wheel.webp')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const webpData = values[0];
+            expect(webpData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeImageFromEncoded(webpData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface');
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                let paint = new CanvasKit.SkPaint();
+                canvas.drawImage(img, 0, 0, paint);
+
+                paint.delete();
+                img.delete();
+
+                reportSurface(surface, 'drawImage_webp', done);
+            })();
+        });
+    });
+
     it('can create an image "from scratch" by specifying pixels/colorInfo manually', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const surface = CanvasKit.MakeCanvasSurface('test');

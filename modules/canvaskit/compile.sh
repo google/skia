@@ -233,12 +233,13 @@ echo "Compiling bitcode"
   skia_use_libheif=false \
   skia_use_libjpeg_turbo=true \
   skia_use_libpng=true \
-  skia_use_libwebp=false \
+  skia_use_libwebp=true \
   skia_use_lua=false \
   skia_use_piex=false \
-  skia_use_system_libpng=false \
   skia_use_system_freetype2=false \
   skia_use_system_libjpeg_turbo=false \
+  skia_use_system_libpng=false \
+  skia_use_system_libwebp=false \
   skia_use_system_zlib=false\
   skia_use_vulkan=false \
   skia_use_wuffs=true \
