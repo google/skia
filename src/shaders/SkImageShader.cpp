@@ -815,19 +815,17 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         }
     }
 
-    // Bicubic filtering naturally produces out of range values on both sides of [0,1].
-    // TODO: should be no need to clamp bilerp!
+    // Filtering can produce out of range values on both sides of [0,1],
+    // bicubic naturally mathematically so, bilerp only very, very slightly due to float rounding.
     if (quality > kNone_SkFilterQuality) {
-        skvm::F32 limit = *a;
-        if (pm.alphaType() == kUnpremul_SkAlphaType || fClampAsIfUnpremul) {
-            limit = p->splat(1.0f);
-        }
+        *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
+
+        skvm::F32 limit = (pm.alphaType() == kUnpremul_SkAlphaType || fClampAsIfUnpremul)
+                        ? p->splat(1.0f)
+                        : *a;
         *r = p->clamp(*r, p->splat(0.0f), limit);
         *g = p->clamp(*g, p->splat(0.0f), limit);
         *b = p->clamp(*b, p->splat(0.0f), limit);
-        //p->assert_true(p->eq(*a, p->clamp(*a, p->splat(0.0f), p->splat(1.0f))),
-        //              *a);
-        *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
     }
 
     // Follow SkColorSpaceXformSteps to match shader output convention (dstCS, premul).
