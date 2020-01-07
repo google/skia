@@ -825,6 +825,8 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         *r = p->clamp(*r, p->splat(0.0f), limit);
         *g = p->clamp(*g, p->splat(0.0f), limit);
         *b = p->clamp(*b, p->splat(0.0f), limit);
+        //p->assert_true(p->eq(*a, p->clamp(*a, p->splat(0.0f), p->splat(1.0f))),
+        //              *a);
         *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
     }
 
