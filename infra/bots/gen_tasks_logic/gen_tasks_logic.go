@@ -545,7 +545,8 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 	d := map[string]string{
 		"pool": b.cfg.Pool,
 	}
-	if strings.Contains(parts["extra_config"], "Docker") && (parts["role"] == "Build" || (parts["cpu_or_gpu"] == "CPU" && parts["model"] == "GCE")) {
+	if strings.Contains(parts["extra_config"], "Fuchsia_SKQP") ||
+		(strings.Contains(parts["extra_config"], "Docker") && (parts["role"] == "Build" || (parts["cpu_or_gpu"] == "CPU" && parts["model"] == "GCE"))) {
 		return b.dockerGceDimensions()
 	}
 	if os, ok := parts["os"]; ok {

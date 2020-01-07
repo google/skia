@@ -30,6 +30,7 @@
   "Build-Debian9-Clang-arm64-Release-Android_ASAN_Vulkan",
   "Build-Debian9-Clang-arm64-Release-Android_Vulkan",
   "Build-Debian9-Clang-arm64-Release-Android_Wuffs",
+  "Build-Debian9-Clang-arm64-Release-Fuchsia_SKQP",
   "Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework",
   "Build-Debian9-Clang-host-sdk-Android_Framework",
   "Build-Debian9-Clang-x64-Debug-Android",

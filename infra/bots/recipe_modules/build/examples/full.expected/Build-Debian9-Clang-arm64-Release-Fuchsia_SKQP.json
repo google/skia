@@ -1,0 +1,22 @@
+[
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import time\n\nfor i in range(30):\n  print(\"sleeping and hacking\")\n  time.sleep(60)\n\n"
+    ],
+    "name": "sleep for debugging",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import time@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for i in range(30):@@@",
+      "@@@STEP_LOG_LINE@python.inline@  print(\"sleeping and hacking\")@@@",
+      "@@@STEP_LOG_LINE@python.inline@  time.sleep(60)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result"
+  }
+]
