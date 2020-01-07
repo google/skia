@@ -83,6 +83,7 @@ samples_sources = [
   "$_samplecode/SampleStrokeRect.cpp",
   "$_samplecode/SampleSubpixelTranslate.cpp",
   "$_samplecode/SampleSVGFile.cpp",
+  "$_samplecode/SampleTessellatedWedge.cpp",
   "$_samplecode/SampleTextBox.cpp",
   "$_samplecode/SampleTextEffects.cpp",
   "$_samplecode/SampleTextureDomain.cpp",

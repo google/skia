@@ -25,6 +25,7 @@
 #include "src/gpu/geometry/GrRect.h"
 
 class GrAppliedClip;
+class GrAppliedHardClip;
 class GrOp;
 class GrRenderTargetContext;
 
@@ -117,6 +118,7 @@ public:
                InputFlags = InputFlags::kNone,
                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
+    GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor>, const GrAppliedHardClip&);
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
     GrPipeline(const GrPipeline&) = delete;
@@ -253,7 +255,7 @@ private:
     FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
-    int fNumColorProcessors;
+    int fNumColorProcessors = 0;
 
     GrSwizzle fOutputSwizzle;
 };
