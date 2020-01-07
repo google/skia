@@ -875,8 +875,8 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     fSubRun->translateVerticesIfNeeded(drawMatrix, drawOrigin);
 }
 
-bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
-        Result* result, int maxGlyphs) {
+std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
+        const int begin, const int end) {
     SkASSERT(fActions.regenTextureCoordinates);
     fSubRun->resetBulkUseToken();
 
@@ -893,7 +893,7 @@ bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
 
         // Start this batch at the start of the subRun plus any glyphs that were previously
         // processed.
-        SkSpan<GrGlyph*> glyphs = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - fCurrGlyph);
+        SkSpan<GrGlyph*> glyphs = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - begin);
 
         // Convert old glyphs to newStrike.
         for (auto& glyph : glyphs) {
@@ -905,21 +905,13 @@ bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
         fSubRun->setStrike(newStrike);
     }
 
-    int glyphLimit = std::min((int)fSubRun->fGlyphs.size(), fCurrGlyph + maxGlyphs);
-
-    // If we reach here with fCurrGlyph > 0, some earlier call to regenerate() exhausted the atlas
-    // before it could place all its glyphs and returned kTryAgain.  We'll use brokenRun below to
-    // invalidate texture coordinates, forcing them to be regenerated, minding the atlas
-    // flush between.
-    const bool brokenRun = fCurrGlyph > 0;
-
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
-    int startingGlyph = fCurrGlyph;
     GrTextStrike* grStrike = fSubRun->strike();
     auto tokenTracker = fUploadTarget->tokenTracker();
-    for (; fCurrGlyph < glyphLimit; fCurrGlyph++) {
-        GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
+    int i = begin;
+    for (; i < end; i++) {
+        GrGlyph* glyph = fSubRun->fGlyphs[i];
         SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
         if (!fFullAtlasManager->hasGlyph(glyph)) {
@@ -933,35 +925,21 @@ bool GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
                 fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
     }
+    int firstNotInAtlas = i;
 
     // Update the quads with the new atlas coordinates.
-    fSubRun->updateTexCoords(startingGlyph, fCurrGlyph);
+    fSubRun->updateTexCoords(begin, firstNotInAtlas);
 
-    result->fFinished = fCurrGlyph == (int)fSubRun->fGlyphs.size();
-    result->fGlyphsRegenerated += fCurrGlyph - startingGlyph;
-    result->fFirstVertex = fSubRun->quadStart(startingGlyph);
-
-    switch (code) {
-        case GrDrawOpAtlas::ErrorCode::kError: {
-            // Something horrible has happened - drop the op
-            return false;
-        }
-        case GrDrawOpAtlas::ErrorCode::kTryAgain: {
-            return true;
-        }
-        case GrDrawOpAtlas::ErrorCode::kSucceeded: {
-            // if brokenRun, then the previous call to updateTextureCoordinatesMaybeStrike
-            // exited with kTryAgain. This means that only a portion of the glyphs made it into
-            // the atlas, and more must be processed.
-            fSubRun->fAtlasGeneration =
-                    brokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                              : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
-            return true;
-        }
+    if (code == GrDrawOpAtlas::ErrorCode::kSucceeded) {
+        // If we reach here with begin > 0, some earlier call to regenerate() exhausted the atlas
+        // before it could place all its glyphs and returned kTryAgain. Invalidate texture
+        // coordinates, forcing them to be regenerated, minding the atlas flush between.
+        fSubRun->fAtlasGeneration =
+                begin > 0 ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                          : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     }
 
-    // Make some compilers happy because that can't figure out that the switch above is complete.
-    SkUNREACHABLE;
+    return {code != GrDrawOpAtlas::ErrorCode::kError, firstNotInAtlas};
 }
 
 bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result,
@@ -973,7 +951,16 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
 
     if (fActions.regenStrike) { SkASSERT(fActions.regenTextureCoordinates); }
     if (fActions.regenStrike || fActions.regenTextureCoordinates) {
-        return this->updateTextureCoordinatesMaybeStrike(result, maxGlyphs);
+        const int begin = fCurrGlyph;
+        const int end = std::min((int)fSubRun->fGlyphs.size(), begin + maxGlyphs);
+        auto [isOk, firstGlyphNotInAtlas] = this->updateTextureCoordinatesMaybeStrike(begin, end);
+        fCurrGlyph = firstGlyphNotInAtlas;
+        if (isOk) {
+            result->fFinished = fCurrGlyph == (int) fSubRun->fGlyphs.size();
+            result->fGlyphsRegenerated += fCurrGlyph - begin;
+            result->fFirstVertex = fSubRun->quadStart(begin);
+        }
+        return isOk;
     } else {
         auto vertexStride = fSubRun->vertexStride();
         int glyphsLeft = fSubRun->fGlyphs.size() - fCurrGlyph;
