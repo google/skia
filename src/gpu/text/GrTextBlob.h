@@ -322,7 +322,7 @@ public:
     bool regenerate(Result*, int maxGlyphs = std::numeric_limits<int>::max());
 
 private:
-    bool updateTextureCoordinatesMaybeStrike(Result* result, int maxGlyphs);
+    std::tuple<bool, int> updateTextureCoordinatesMaybeStrike(int begin, int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
