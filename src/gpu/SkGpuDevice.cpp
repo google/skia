@@ -955,7 +955,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
             fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir, srcAlphaType);
         } else {
-            fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState);
+            fp = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix,
+                                             samplerState);
             fp = GrDomainEffect::Make(std::move(fp), domain, GrTextureDomain::kClamp_Mode,
                                       samplerState.filter());
         }
@@ -965,7 +966,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
         fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, srcAlphaType);
     } else {
-        fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState);
+        fp = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState);
     }
 
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),
@@ -1036,7 +1037,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     tmpUnfiltered.setImageFilter(nullptr);
 
-    auto fp = GrTextureEffect::Make(std::move(proxy), special->alphaType(), SkMatrix::I());
+    auto fp = GrSimpleTextureEffect::Make(std::move(proxy), special->alphaType(), SkMatrix::I());
     fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
                                        fRenderTargetContext->colorInfo().colorSpace());
     if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
@@ -1074,8 +1075,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         std::unique_ptr<GrFragmentProcessor> cfp;
         if (clipProxy && ctm.invert(&inverseClipMatrix)) {
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
-            cfp = GrTextureEffect::Make(std::move(clipProxy), clipImage->alphaType(),
-                                        inverseClipMatrix, sampler);
+            cfp = GrSimpleTextureEffect::Make(std::move(clipProxy), clipImage->alphaType(),
+                                              inverseClipMatrix, sampler);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
