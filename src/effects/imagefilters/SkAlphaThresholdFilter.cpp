@@ -23,7 +23,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.h"
 #endif
 
@@ -166,7 +166,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
             return nullptr;
         }
 
-        auto textureFP = GrTextureEffect::Make(
+        auto textureFP = GrSimpleTextureEffect::Make(
                 std::move(inputProxy), input->alphaType(),
                 SkMatrix::MakeTrans(input->subset().x(), input->subset().y()));
         textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),

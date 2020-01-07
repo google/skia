@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrTextureProducer.h"
-
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkRectPriv.h"
@@ -15,11 +13,12 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/effects/GrTextureEffect.h"
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,
@@ -59,8 +58,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
 
     GrPaint paint;
 
-    auto fp = GrTextureEffect::Make(std::move(inputProxy), kUnknown_SkAlphaType, SkMatrix::I(),
-                                    copyParams.fFilter);
+    auto fp = GrSimpleTextureEffect::Make(std::move(inputProxy), kUnknown_SkAlphaType,
+                                          SkMatrix::I(), copyParams.fFilter);
     if (needsDomain) {
         const SkRect domain = localRect.makeInset(0.5f, 0.5f);
         // This would cause us to read values from outside the subset. Surely, the caller knows
@@ -206,8 +205,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                                                     ? GrSamplerState::WrapMode::kClampToBorder
                                                     : GrSamplerState::WrapMode::kClamp;
         GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
-        auto fp =
-                GrTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix, samplerState);
+        auto fp = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix,
+                                              samplerState);
         if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
             GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
                                                                : GrTextureDomain::kClamp_Mode;

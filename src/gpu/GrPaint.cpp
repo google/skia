@@ -9,7 +9,7 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)
@@ -38,7 +38,7 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
 void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, SkAlphaType alphaType,
                                        const SkMatrix& matrix, const GrSamplerState& samplerState) {
     this->addColorFragmentProcessor(
-            GrTextureEffect::Make(std::move(proxy), alphaType, matrix, samplerState));
+            GrSimpleTextureEffect::Make(std::move(proxy), alphaType, matrix, samplerState));
 }
 
 bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {

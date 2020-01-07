@@ -19,7 +19,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "tests/TestUtils.h"
@@ -451,7 +451,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrTextureEffect::Make(atlasProxy, atlasAlphaType, SkMatrix::I());
+        auto fp = GrSimpleTextureEffect::Make(atlasProxy, atlasAlphaType, SkMatrix::I());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -569,7 +569,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
-        auto fp = GrTextureEffect::Make(std::move(proxies[i]), kPremul_SkAlphaType, t);
+        auto fp = GrSimpleTextureEffect::Make(std::move(proxies[i]), kPremul_SkAlphaType, t);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
 
