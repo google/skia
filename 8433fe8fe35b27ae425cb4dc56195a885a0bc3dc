@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4e7b816_e4e9ed1d",
+        "filename": "include/gpu/dawn/GrDawnTypes.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-07T19:35:36Z",
+      "side": 1,
+      "message": "I don\u0027t think saying transferPixelsfrom or copySurface is that helpful here. Public clients do not know what those are or the effects of not having them. Instead lets write out that this also blocks any dst copies for certain blend modes to be supported and copies needed for image filters, or backdrop filters for save layer.",
+      "range": {
+        "startLine": 51,
+        "startChar": 39,
+        "endLine": 51,
+        "endChar": 41
+      },
+      "revId": "8433fe8fe35b27ae425cb4dc56195a885a0bc3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9625b20_6f195763",
+        "filename": "include/gpu/dawn/GrDawnTypes.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-07T19:35:36Z",
+      "side": 1,
+      "message": "remove extra newline here",
+      "revId": "8433fe8fe35b27ae425cb4dc56195a885a0bc3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
