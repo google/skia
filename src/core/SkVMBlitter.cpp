@@ -199,8 +199,13 @@ namespace {
             // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
             // working with normalized premul colors is not prepared to handle r,g,b > a.
             // So we clamp the shader to gamut here before blending and coverage.
+            //
+            // In addition, GL clamps all its color channels to limits of the format just
+            // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
+            // [0,1] too, just in case someone gave us a crazy alpha.
             if (params.alphaType == kPremul_SkAlphaType
                     && SkColorTypeIsNormalized(params.colorType)) {
+                src.a = clamp(src.a, splat(0.0f), splat(1.0f));
                 src.r = clamp(src.r, splat(0.0f), src.a);
                 src.g = clamp(src.g, splat(0.0f), src.a);
                 src.b = clamp(src.b, splat(0.0f), src.a);
