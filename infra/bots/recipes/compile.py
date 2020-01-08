@@ -64,6 +64,7 @@ def RunSteps(api):
       'skia', 'out', api.vars.builder_name, api.vars.configuration)
   if 'Flutter' in api.vars.builder_name:
     out_dir = checkout_root.join('src', 'out', 'android_release')
+  api.file.ensure_directory('makedirs out', out_dir)
 
   try:
     api.build(checkout_root=checkout_root, out_dir=out_dir)
