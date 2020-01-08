@@ -8,6 +8,8 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+  * Added SkAnimatedImage::getCurrentFrame()
+
   * Removed SkIRect::EmptyIRect(). Use SkIRect::MakeEmpty() instead.
     https://review.skia.org/262382/
 

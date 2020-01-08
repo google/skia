@@ -271,6 +271,53 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can use various image filters on animated images', function(done) {
+        const imgPromise = fetch('/assets/flightAnim.gif')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const gifData = values[0];
+            expect(gifData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeAnimatedImageFromEncoded(gifData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface');
+                if (!surface) {
+                    done();
+                    return;
+                }
+                img.decodeNextFrame();
+                img.decodeNextFrame();
+                const canvas = surface.getCanvas();
+                canvas.clear(CanvasKit.WHITE);
+                const paint = new CanvasKit.SkPaint();
+                paint.setAntiAlias(true);
+                paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
+                const redCF =  CanvasKit.SkColorFilter.MakeBlend(
+                        CanvasKit.Color(255, 0, 0, 0.1), CanvasKit.BlendMode.SrcOver);
+                const redIF = CanvasKit.SkImageFilter.MakeColorFilter(redCF, null);
+                const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+                const combined = CanvasKit.SkImageFilter.MakeCompose(redIF, blurIF);
+                paint.setImageFilter(combined);
+
+                const frame = img.getCurrentFrame();
+                canvas.drawImage(frame, 100, 50, paint);
+
+                surface.flush();
+
+                paint.delete();
+                redIF.delete();
+                redCF.delete();
+                blurIF.delete();
+                combined.delete();
+                frame.delete();
+                img.delete();
+
+                reportSurface(surface, 'animated_filters', done);
+            })();
+        });
+    });
+
     it('can use DecodeCache APIs', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const initialLimit = CanvasKit.getDecodeCacheLimitBytes();
