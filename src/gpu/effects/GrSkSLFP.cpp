@@ -85,7 +85,7 @@ public:
 
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp = args.fFp.cast<GrSkSLFP>();
-        for (const auto& v : fp.fEffect->fInAndUniformVars) {
+        for (const auto& v : fp.fEffect->inputs()) {
             if (v.fQualifier == SkRuntimeEffect::Variable::Qualifier::kUniform) {
                 auto handle = args.fUniformHandler->addUniformArray(kFragment_GrShaderFlag,
                                                                     v.fGPUType,
@@ -123,7 +123,7 @@ public:
         size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
         char* inputs = (char*) outer.fInputs.get();
-        for (const auto& v : outer.fEffect->fInAndUniformVars) {
+        for (const auto& v : outer.fEffect->inputs()) {
             if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kUniform) {
                 continue;
             }
@@ -226,7 +226,7 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     b->add32(fEffect->index());
     char* inputs = (char*) fInputs.get();
-    for (const auto& v : fEffect->fInAndUniformVars) {
+    for (const auto& v : fEffect->inputs()) {
         if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kIn) {
             continue;
         }
