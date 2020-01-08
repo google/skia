@@ -94,6 +94,30 @@
       "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81311b5d_e1e1fea4",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-01-08T22:27:21Z",
+      "side": 1,
+      "message": "decodeNextFrame() can always just unref its cache reference before it makes the new frame.",
+      "parentUuid": "b28a6fc1_dda76b50",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 17
+      },
+      "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
