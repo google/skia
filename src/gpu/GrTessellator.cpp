@@ -2284,10 +2284,13 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 }
 
 int get_contour_count(const SkPath& path, SkScalar tolerance) {
-    int contourCnt;
-    int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt, tolerance);
-    if (maxPts <= 0) {
-        return 0;
+    int contourCnt = 1;
+    SkPathPriv::Verbs verbs(path);
+    auto iter = verbs.begin();
+    while (++iter != verbs.end()) {  // Skip the first verb.
+        if (SkPath::kMove_Verb == *iter) {
+            ++contourCnt;
+        }
     }
     return contourCnt;
 }
