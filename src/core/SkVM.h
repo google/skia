@@ -394,6 +394,10 @@ namespace skvm {
         F32 max(F32 x, F32 y);
         F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
 
+        F32 lerp(F32 lo, F32 hi, F32 t) {
+            return mad(sub(hi,lo), t, lo);
+        }
+
         F32 clamp(F32 x, F32 lo, F32 hi) {
             return max(lo, min(x, hi));
         }
@@ -501,6 +505,8 @@ namespace skvm {
 
         void   premul(F32* r, F32* g, F32* b, F32 a);
         void unpremul(F32* r, F32* g, F32* b, F32 a);
+
+        Color lerp(Color lo, Color hi, F32 t);
 
         void dump(SkWStream* = nullptr) const;
 
