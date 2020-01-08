@@ -105,7 +105,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
-                                auto dstContext = GrSurfaceContext::Make(context, std::move(dst),
+                                GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                                        dst->backendFormat(), grColorType);
+                                GrSurfaceProxyView view(std::move(dst), dOrigin, swizzle);
+                                auto dstContext = GrSurfaceContext::Make(context, std::move(view),
                                                                          grColorType,
                                                                          ii.alphaType(), nullptr);
 
