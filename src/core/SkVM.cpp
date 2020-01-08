@@ -791,6 +791,12 @@ namespace skvm {
         return {this->push(Op::select, x.id, y.id, z.id)};
     }
 
+    I32 Builder::extract(I32 x, int bits, I32 z) {
+        int Z;
+        if (this->allImm(z.id,&Z) && (~0u>>bits) == (unsigned)Z) { return this->shr(x, bits); }
+        return this->bit_and(z, this->shr(x, bits));
+    }
+
     I32 Builder::pack(I32 x, I32 y, int bits) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|(Y<<bits)); }
