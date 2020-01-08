@@ -7,7 +7,6 @@
 
 #include "include/core/SkMatrix44.h"
 #include "include/core/SkPoint3.h"
-#include "include/private/SkM44.h"
 #include "tests/Test.h"
 
 static bool nearly_equal_double(double a, double b) {
@@ -934,64 +933,4 @@ DEF_TEST(Matrix44, reporter) {
     test_has_perspective(reporter);
     test_preserves_2d_axis_alignment(reporter);
     test_toint(reporter);
-}
-
-static bool eq(const SkMatrix44& a, const SkM44& b, float tol) {
-    float fa[16], fb[16];
-    a.asColMajorf(fa);
-    b.getColMajor(fb);
-    for (int i = 0; i < 16; ++i) {
-        if (!SkScalarNearlyEqual(fa[i], fb[i], tol)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-static bool eq(const SkM44& a, const SkM44& b, float tol) {
-    float fa[16], fb[16];
-    a.getColMajor(fa);
-    b.getColMajor(fb);
-    for (int i = 0; i < 16; ++i) {
-        if (!SkScalarNearlyEqual(fa[i], fb[i], tol)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-DEF_TEST(M44, reporter) {
-    SkM44 m, im;
-    SkMatrix44 m44, im44;
-
-    REPORTER_ASSERT(reporter, eq(m44, m, 0));
-    REPORTER_ASSERT(reporter, SkM44() == m);
-    REPORTER_ASSERT(reporter, m.invert(&im));
-    REPORTER_ASSERT(reporter, SkM44() == im);
-
-    m.setTranslate(3, 4, 2);
-    m44.setTranslate(3, 4, 2);
-    REPORTER_ASSERT(reporter, eq(m44, m, 0));
-    REPORTER_ASSERT(reporter, SkM44(1, 0, 0, 3,
-                                    0, 1, 0, 4,
-                                    0, 0, 1, 2,
-                                    0, 0, 0, 1) == m);
-
-    const float f[] = { 1, 0, 0, 2, 3, 1, 2, 5, 0, 5, 3, 0, 0, 1, 0, 2 };
-    m.setColMajor(f);
-    m44.setColMajorf(f);
-    REPORTER_ASSERT(reporter, eq(m44, m, 0));
-
-    m.setRowMajor(f);
-    m44.setRowMajorf(f);
-    REPORTER_ASSERT(reporter, eq(m44, m, 0));
-
-    REPORTER_ASSERT(reporter, m.invert(&im));
-    REPORTER_ASSERT(reporter, m44.invert(&im44));
-    REPORTER_ASSERT(reporter, eq(im44, im, 0));
-
-    m = m * im;
-    // m should be identity now, but our calc is not perfect...
-    REPORTER_ASSERT(reporter, eq(SkM44(), m, 0.0000005f));
-    REPORTER_ASSERT(reporter, SkM44() != m);
 }

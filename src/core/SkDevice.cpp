@@ -15,7 +15,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkCanvasMatrix.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
@@ -47,7 +46,7 @@ void SkBaseDevice::setOrigin(const SkMatrix& globalCTM, int x, int y) {
     fLocalToDevice.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
 }
 
-void SkBaseDevice::setGlobalCTM(const SkCanvasMatrix& ctm) {
+void SkBaseDevice::setGlobalCTM(const SkMatrix& ctm) {
     fLocalToDevice = ctm;
     fLocalToDevice.normalizePerspective();
     if (fOrigin.fX | fOrigin.fY) {
