@@ -72,23 +72,27 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     }
 }
 
-void TextWrapper::moveForward() {
-    do {
-        if (!fWords.empty()) {
-            fEndLine.extend(fWords);
-        } else if (!fClusters.empty()) {
-            fEndLine.extend(fClusters);
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else if (!fClip.empty() || (fTooLongWord && fTooLongCluster)) {
-            // Flutter: forget the clipped cluster but keep the metrics
-            fEndLine.metrics().add(fClip.metrics());
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else {
-            break;
+void TextWrapper::moveForward(bool& lastLine) {
+
+    if (!fWords.empty()) {
+        fEndLine.extend(fWords);
+        if (!lastLine) {
+            // We still have fClusters in case we need to end the line with ellipsis
+            return;
         }
-    } while (fTooLongWord || fTooLongCluster);
+    }
+
+    // If we got here we are clipping the line so the line has to be the last one
+    //lastLine = true;
+
+    if (!fClusters.empty()) {
+        fEndLine.extend(fClusters);
+    }
+
+    if (!fClip.empty() || (fTooLongWord && fTooLongCluster)) {
+        // Flutter: forget the clipped cluster but keep the metrics
+        fEndLine.metrics().add(fClip.metrics());
+    }
 }
 
 // Special case for start/end cluster since they can be clipped
@@ -186,9 +190,10 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
         reset();
 
+        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
         fEndLine.metrics().clean();
         lookAhead(maxWidth, end);
-        moveForward();
+        moveForward(exceededLines);
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
@@ -203,8 +208,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             fEndLine.endCluster() < end - 1 &&
             SkScalarIsFinite(maxWidth) &&
             !ellipsisStr.isEmpty();
-
-        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
 
         // TODO: perform ellipsis work here
 
@@ -233,12 +236,26 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
 
+        bool endLineWithEllipsis = needEllipsis && exceededLines && !fHardLineBreak;
+        if (endLineWithEllipsis) {
+            // We end line with the whole word or with the cluster + ellipsis
+            if (!fClusters.empty()) {
+                // There were some clusters that didn't form the word
+                // We add spaces before and then these clusters
+                startLine = fClusters.endCluster() + 1;
+                fEndLine.setWidth(fEndLine.withWithGhostSpaces());
+                fEndLine.extend(fClusters);
+                widthWithSpaces = fEndLine.width();
+            }
+        }
+
         // TODO: keep start/end/break info for text and runs but in a better way that below
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
         TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, startLine->textRange().start);
         if (startLine == end) {
             textWithSpaces.end = parent->text().size();
         }
+
         ClusterRange clusters(fEndLine.startCluster() - start, fEndLine.endCluster() - start + 1);
         ClusterRange clustersWithGhosts(fEndLine.startCluster() - start, startLine - start);
         addLine(text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces,
@@ -247,7 +264,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 SkVector::Make(0, fHeight),
                 SkVector::Make(fEndLine.width(), fEndLine.metrics().height()),
                 fEndLine.metrics(),
-                needEllipsis && exceededLines && !fHardLineBreak);
+                endLineWithEllipsis);
 
         parent->lines().back().setMaxRunMetrics(maxRunMetrics);
 

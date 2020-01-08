@@ -74,6 +74,7 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
+        // We need a unique index to compare different runs BEFORE we add it to the paragraph
         auto index = fUnresolvedBlocks.size() + fResolvedBlocks.size();
         fCurrentRun = std::make_shared<Run>(fParagraph,
                                            info,

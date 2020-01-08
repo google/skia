@@ -1674,22 +1674,19 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text =
-                "NoSuchMethodError: The method 'run' was called on null.\n"
-                "Receiver: null\n"
-                "Tried calling: run(definition: Instance of 'ReportDefinition', includeReportColumns: true)\n"
-                "See also: https://flutter.dev/docs/testing/errors";
+        const char* text =  "World domination is such an ugly phrase - I prefer to call it world optimisation";
         ParagraphStyle paragraph_style;
-        //paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(2);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(20);
+        text_style.setFontSize(40);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(296);
+        paragraph->layout(this->width());
         paragraph->paint(canvas, 0, 0);
     }
 

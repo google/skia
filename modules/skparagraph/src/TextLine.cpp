@@ -540,6 +540,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
 
     iterateThroughClustersInGlyphsOrder(
         true, false, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
+            /*
             if (cluster->isWhitespaces()) {
                 width -= cluster->width();
                 noWhitespace = false;
@@ -548,7 +549,7 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
                 width -= cluster->width();
                 return true;
             }
-
+            */
             return !attachEllipsis(cluster);
         });
 

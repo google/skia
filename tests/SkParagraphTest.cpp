@@ -3406,11 +3406,11 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->runs().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles().size() == 1);
     REPORTER_ASSERT(reporter, impl->styles()[0].fStyle.equals(text_style));
-    REPORTER_ASSERT(reporter, impl->lines().size() == 4);
+    REPORTER_ASSERT(reporter, impl->lines().size() == 5);
 
-    REPORTER_ASSERT(reporter, impl->lines()[0].width() > TestCanvasWidth / 2 - 20);
     REPORTER_ASSERT(reporter, impl->lines()[1].width() > TestCanvasWidth / 2 - 20);
     REPORTER_ASSERT(reporter, impl->lines()[2].width() > TestCanvasWidth / 2 - 20);
+    REPORTER_ASSERT(reporter, impl->lines()[3].width() > TestCanvasWidth / 2 - 20);
 }
 
 // Checked: DIFF?
@@ -4195,19 +4195,23 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
         auto boxes = paragraph->getRectsForRange(14, 16, rect_height_max_style, rect_width_style);
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 184, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 100, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 240, EPSILON100));
+        if (boxes.size() >= 1) {
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 184, EPSILON100));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 100, EPSILON100));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 240, EPSILON100));
+        }
     }
     {
         auto boxes = paragraph->getRectsForRange(20, 25, rect_height_max_style, rect_width_style);
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 50, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 264, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 300, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 320, EPSILON100));
+        if (boxes.size() >= 1) {
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 50, EPSILON100));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 264, EPSILON100));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 300, EPSILON100));
+            REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 320, EPSILON100));
+        }
     }
 }
 
@@ -5194,7 +5198,7 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
 
     relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
     relayout(3, false, 50, 30,  90, 950, SK_ColorBLUE);
-    relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  90, 950, SK_ColorGREEN);
+    relayout(std::numeric_limits<size_t>::max(), false, 50, 240,  90, 950, SK_ColorGREEN);
 
     relayout(1, true, 50, 10, 950, 950, SK_ColorYELLOW);
     relayout(3, true, 50, 30,  90, 950, SK_ColorMAGENTA);
@@ -5202,5 +5206,5 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
 
     relayout(1, false, 50, 10, 950, 950, SK_ColorRED);
     relayout(3, false, 50, 30,  90, 950, SK_ColorBLUE);
-    relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  90, 950, SK_ColorGREEN);
+    relayout(std::numeric_limits<size_t>::max(), false, 50, 240,  90, 950, SK_ColorGREEN);
 }

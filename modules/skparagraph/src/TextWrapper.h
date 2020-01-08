@@ -44,8 +44,10 @@ class TextWrapper {
             }
         }
 
-        inline SkScalar width() const { return fWidth; }
+        SkScalar width() const { return fWidth; }
+        void setWidth(SkScalar width) { fWidth = width; }
         SkScalar withWithGhostSpaces() const { return fWidthWithGhostSpaces; }
+        void setWithWithGhostSpaces(SkScalar width) { fWidthWithGhostSpaces = width; }
         inline Cluster* startCluster() const { return fStart.cluster(); }
         inline Cluster* endCluster() const { return fEnd.cluster(); }
         inline Cluster* breakCluster() const { return fBreak.cluster(); }
@@ -171,6 +173,7 @@ private:
     TextStretch fClusters;
     TextStretch fClip;
     TextStretch fEndLine;
+    TextStretch fEndEllipsis;
     size_t fLineNumber;
     bool fTooLongWord;
     bool fTooLongCluster;
@@ -191,7 +194,7 @@ private:
     }
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
-    void moveForward();
+    void moveForward(bool& lastLine);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
