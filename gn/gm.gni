@@ -337,6 +337,7 @@ gm_sources = [
   "$_gm/strokedlines.cpp",
   "$_gm/strokefill.cpp",
   "$_gm/strokerect.cpp",
+  "$_gm/strokerect_anisotropic.cpp",
   "$_gm/strokerects.cpp",
   "$_gm/strokes.cpp",
   "$_gm/stroketext.cpp",
