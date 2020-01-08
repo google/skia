@@ -773,58 +773,67 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         *g = c.g;
         *b = c.b;
         *a = c.a;
+    } else if (quality == kLow_SkFilterQuality) {
+        // Our four sample points are the corners of a logical 1x1 pixel
+        // box surrounding (x,y) at (0.5,0.5) off-center.
+        skvm::F32 left   = p->sub(x, p->splat(0.5f)),
+                  top    = p->sub(y, p->splat(0.5f)),
+                  right  = p->add(x, p->splat(0.5f)),
+                  bottom = p->add(y, p->splat(0.5f));
+
+        // The fractional parts of right and bottom are our lerp factors in x and y respectively.
+        skvm::F32 fx = p->fract(right ),
+                  fy = p->fract(bottom);
+
+        skvm::Color c = p->lerp(p->lerp(sample(left,top   ), sample(right,top   ), fx),
+                                p->lerp(sample(left,bottom), sample(right,bottom), fx), fy);
+        *r = c.r;
+        *g = c.g;
+        *b = c.b;
+        *a = c.a;
     } else {
-        // All bilinear and bicubic samples have the same fractional offset (fx,fy) from the center.
-        // They're either the 4 corners of a logical 1x1 pixel or the 16 corners of a 3x3 grid
-        // surrounding (x,y) at (0.5,0.5) off-center.
+        SkASSERT(quality == kHigh_SkFilterQuality);
+
+        // All bicubic samples have the same fractional offset (fx,fy) from the center.
+        // They're either the 16 corners of a 3x3 grid/ surrounding (x,y) at (0.5,0.5) off-center.
         skvm::F32 fx = p->fract(p->add(x, p->splat(0.5f))),
                   fy = p->fract(p->add(y, p->splat(0.5f)));
 
-        // We'll need 2 or 4 weights in each direction for 4 or 16 samples.
-        skvm::F32 wx[4], wy[4];
-        int D;
-
-        if (quality == kLow_SkFilterQuality) {
-            wx[0] = p->sub(p->splat(1.0f), fx);
-            wy[0] = p->sub(p->splat(1.0f), fy);
-            wx[1] = fx;
-            wy[1] = fy;
-            D = 2;
-        } else {
-            // See GrCubicEffect for details of these weights.
-            auto near = [&](skvm::F32 t) {
-                // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
-                return p->mad(t,
-                       p->mad(t,
-                       p->mad(t, p->splat(-21/18.0f),
-                                 p->splat( 27/18.0f)),
-                                 p->splat(  9/18.0f)),
-                                 p->splat(  1/18.0f));
-            };
-            auto far = [&](skvm::F32 t) {
-                // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
-                return p->mul(p->mul(t,t), p->mad(t, p->splat( 7/18.0f),
-                                                     p->splat(-6/18.0f)));
-            };
-            wx[0] = far (p->sub(p->splat(1.0f), fx));
-            wx[1] = near(p->sub(p->splat(1.0f), fx));
-            wx[2] = near(                       fx );
-            wx[3] = far (                       fx );
-
-            wy[0] = far (p->sub(p->splat(1.0f), fy));
-            wy[1] = near(p->sub(p->splat(1.0f), fy));
-            wy[2] = near(                       fy );
-            wy[3] = far (                       fy );
-            D = 4;
-        }
+        // See GrCubicEffect for details of these weights.
+        // TODO: these maybe don't seem right looking at gm/bicubic and GrBicubicEffect.
+        auto near = [&](skvm::F32 t) {
+            // 1/18 + 9/18t + 27/18t^2 - 21/18t^3 == t ( t ( -21/18t + 27/18) + 9/18) + 1/18
+            return p->mad(t,
+                   p->mad(t,
+                   p->mad(t, p->splat(-21/18.0f),
+                             p->splat( 27/18.0f)),
+                             p->splat(  9/18.0f)),
+                             p->splat(  1/18.0f));
+        };
+        auto far = [&](skvm::F32 t) {
+            // 0/18 + 0/18*t - 6/18t^2 + 7/18t^3 == t^2 (7/18t - 6/18)
+            return p->mul(p->mul(t,t), p->mad(t, p->splat( 7/18.0f),
+                                                 p->splat(-6/18.0f)));
+        };
+        const skvm::F32 wx[] =  {
+            far (p->sub(p->splat(1.0f), fx)),
+            near(p->sub(p->splat(1.0f), fx)),
+            near(                       fx ),
+            far (                       fx ),
+        };
+        const skvm::F32 wy[] = {
+            far (p->sub(p->splat(1.0f), fy)),
+            near(p->sub(p->splat(1.0f), fy)),
+            near(                       fy ),
+            far (                       fy ),
+        };
 
         *r = *g = *b = *a = p->splat(0.0f);
 
-        const skvm::F32 start = p->splat(-0.5f*(D-1));  // -0.5 for bilerp, -1.5 for bicubic
-        skvm::F32 sy = p->add(y, start);
-        for (int j = 0; j < D; j++, sy = p->add(sy, p->splat(1.0f))) {
-            skvm::F32 sx = p->add(x, start);
-            for (int i = 0; i < D; i++, sx = p->add(sx, p->splat(1.0f))) {
+        skvm::F32 sy = p->add(y, p->splat(-1.5f));
+        for (int j = 0; j < 4; j++, sy = p->add(sy, p->splat(1.0f))) {
+            skvm::F32 sx = p->add(x, p->splat(-1.5f));
+            for (int i = 0; i < 4; i++, sx = p->add(sx, p->splat(1.0f))) {
                 skvm::Color c = sample(sx,sy);
                 skvm::F32 w = p->mul(wx[i], wy[j]);
 
@@ -834,10 +843,8 @@ bool SkImageShader::onProgram(skvm::Builder* p,
                 *a = p->mad(c.a,w, *a);
             }
         }
-    }
 
-    // Bicubic filtering naturally produces out of range values on both sides of [0,1].
-    if (quality == kHigh_SkFilterQuality) {
+        // Bicubic filtering naturally produces out of range values on both sides of [0,1].
         *a = p->clamp(*a, p->splat(0.0f), p->splat(1.0f));
 
         skvm::F32 limit = (pm.alphaType() == kUnpremul_SkAlphaType || fClampAsIfUnpremul)

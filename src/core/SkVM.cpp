@@ -816,6 +816,15 @@ namespace skvm {
         *b = mul(*b, a);
     }
 
+    Color Builder::lerp(Color lo, Color hi, F32 t) {
+        return {
+            lerp(lo.r, hi.r, t),
+            lerp(lo.g, hi.g, t),
+            lerp(lo.b, hi.b, t),
+            lerp(lo.a, hi.a, t),
+        };
+    }
+
     // ~~~~ Program::eval() and co. ~~~~ //
 
     // Handy references for x86-64 instruction encoding:
