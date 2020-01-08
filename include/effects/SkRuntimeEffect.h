@@ -86,8 +86,25 @@ public:
 
     const SkString& source() const { return fSkSL; }
     int index() const { return fIndex; }
+
+    template <typename T>
+    class ConstIterable {
+    public:
+        ConstIterable(const std::vector<T>& vec) : fVec(vec) {}
+
+        using const_iterator = typename std::vector<T>::const_iterator;
+
+        const_iterator begin() const { return fVec.begin(); }
+        const_iterator end() const { return fVec.end(); }
+        size_t count() const { return fVec.size(); }
+
+    private:
+        const std::vector<T>& fVec;
+    };
+
     size_t inputSize() const;
-    size_t childCount() const { return fChildren.size(); }
+    ConstIterable<Variable> inputs() const { return ConstIterable<Variable>(fInAndUniformVars); }
+    ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
 
 #if SK_SUPPORT_GPU
     // This re-compiles the program from scratch, using the supplied shader caps.
@@ -114,10 +131,6 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
-
-    friend class GrGLSLSkSLFP;
-    friend class GrSkSLFP;
-    friend class SkSLSlide;
 };
 
 #endif
