@@ -22,6 +22,30 @@
       "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eccf344_0e345637",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-08T18:07:51Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean. We don\u0027t copy the bytes, so this should be practically free, right?",
+      "parentUuid": "5ae061ce_269d6852",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 17
+      },
+      "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
