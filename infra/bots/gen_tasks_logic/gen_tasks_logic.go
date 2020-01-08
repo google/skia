@@ -819,13 +819,6 @@ func (b *builder) buildTaskDrivers() string {
 		CipdPackages: append(specs.CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
 		Command: []string{
 			"/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
-			// The following arguments are not used by the script but are specified
-			// because they prevent de-duplication.
-			specs.PLACEHOLDER_REPO,
-			specs.PLACEHOLDER_REVISION,
-			specs.PLACEHOLDER_ISSUE,
-			specs.PLACEHOLDER_PATCHSET,
-			specs.PLACEHOLDER_CODEREVIEW_SERVER,
 		},
 		Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
 		EnvPrefixes: map[string][]string{
