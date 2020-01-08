@@ -363,9 +363,18 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
 
-        auto renderTargetContext = GrRenderTargetContext::Make(
-                context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
-                bounds.size(), 1, GrMipMapped::kNo, isProtected, kBottomLeft_GrSurfaceOrigin);
+        auto renderTargetContext =
+                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
+                                                                bounds.width(),
+                                                                bounds.height(),
+                                                                ctx.grColorType(),
+                                                                ctx.refColorSpace(),
+                                                                1,
+                                                                GrMipMapped::kNo,
+                                                                kBottomLeft_GrSurfaceOrigin,
+                                                                nullptr,
+                                                                SkBudgeted::kYes,
+                                                                isProtected);
         if (!renderTargetContext) {
             return nullptr;
         }

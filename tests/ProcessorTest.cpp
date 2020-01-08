@@ -159,8 +159,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-            auto renderTargetContext = GrRenderTargetContext::Make(
-                    context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
+            auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kApprox, 1, 1, GrColorType::kRGBA_8888, nullptr);
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
                         format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
@@ -482,9 +482,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
-    auto rtc = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderSize, kRenderSize});
+    auto rtc = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, kRenderSize, kRenderSize, GrColorType::kRGBA_8888, nullptr);
 
     GrProcessorTestData::ProxyInfo proxies[2];
     if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {
@@ -717,9 +716,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 1024;
-    auto rtc = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderSize, kRenderSize});
+    auto rtc = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, kRenderSize, kRenderSize, GrColorType::kRGBA_8888, nullptr);
 
     GrProcessorTestData::ProxyInfo proxies[2];
     if (!init_test_textures(resourceProvider, proxyProvider, &random, proxies)) {

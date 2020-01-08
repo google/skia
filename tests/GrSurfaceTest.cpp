@@ -323,10 +323,9 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                     {
                         std::unique_ptr<GrSurfaceContext> surfCtx;
                         if (renderable == GrRenderable::kYes) {
-                            surfCtx = GrRenderTargetContext::Make(
-                                    context, combo.fColorType, nullptr, fit,
-                                    {desc.fWidth, desc.fHeight}, 1, GrMipMapped::kNo,
-                                    GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+                            surfCtx = context->priv().makeDeferredRenderTargetContext(
+                                    fit, desc.fWidth, desc.fHeight, combo.fColorType, nullptr,
+                                    1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr);
                         } else {
                             surfCtx = GrSurfaceContext::Make(
                                     context, {desc.fWidth, desc.fHeight}, combo.fFormat,
