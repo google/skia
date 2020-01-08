@@ -1478,6 +1478,10 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
         callback(context, nullptr);
         return;
     }
+    if (this->asRenderTargetProxy()->framebufferOnly()) {
+        callback(context, nullptr);
+        return;
+    }
     auto dstCT = SkColorTypeToGrColorType(info.colorType());
     if (dstCT == GrColorType::kUnknown) {
         callback(context, nullptr);
@@ -1720,6 +1724,10 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
         return;
     }
     if (this->asRenderTargetProxy()->wrapsVkSecondaryCB()) {
+        callback(context, nullptr);
+        return;
+    }
+    if (this->asRenderTargetProxy()->framebufferOnly()) {
         callback(context, nullptr);
         return;
     }

@@ -147,6 +147,10 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
 
     GrSurfaceProxy* srcProxy = this->asSurfaceProxy();
 
+    if (srcProxy->framebufferOnly()) {
+        return false;
+    }
+
     // MDB TODO: delay this instantiation until later in the method
     if (!srcProxy->instantiate(direct->priv().resourceProvider())) {
         return false;
@@ -304,6 +308,11 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
     }
 
     GrSurfaceProxy* dstProxy = this->asSurfaceProxy();
+
+    if (dstProxy->framebufferOnly()) {
+        return false;
+    }
+
     if (!dstProxy->instantiate(direct->priv().resourceProvider())) {
         return false;
     }
@@ -474,6 +483,10 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
              caps->makeConfigSpecific(this->asSurfaceProxy()->config(),
                                       this->asSurfaceProxy()->backendFormat()));
 
+    if (this->asSurfaceProxy()->framebufferOnly()) {
+        return false;
+    }
+
     if (!caps->canCopySurface(this->asSurfaceProxy(), src, srcRect, dstPoint)) {
         return false;
     }
@@ -495,6 +508,10 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
     }
     auto rtProxy = this->asRenderTargetProxy();
     if (rtProxy && rtProxy->wrapsVkSecondaryCB()) {
+        return nullptr;
+    }
+
+    if (this->asSurfaceProxy()->framebufferOnly()) {
         return nullptr;
     }
 
