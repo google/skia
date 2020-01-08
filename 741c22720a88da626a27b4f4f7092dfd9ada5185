@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "847dfa96_918df04e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-08T14:57:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "27d4d7f3_1ec67341",
+      "range": {
+        "startLine": 14,
+        "startChar": 19,
+        "endLine": 14,
+        "endChar": 69
+      },
+      "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a59dbdea_1cd8b911",
         "filename": "src/android/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -92,6 +116,30 @@
       "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcb3337a_a055fb4f",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-08T14:57:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c7606c9_b55e89bb",
+      "range": {
+        "startLine": 363,
+        "startChar": 39,
+        "endLine": 363,
+        "endChar": 66
+      },
+      "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
