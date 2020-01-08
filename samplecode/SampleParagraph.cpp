@@ -1674,22 +1674,48 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text =
-                "NoSuchMethodError: The method 'run' was called on null.\n"
-                "Receiver: null\n"
-                "Tried calling: run(definition: Instance of 'ReportDefinition', includeReportColumns: true)\n"
-                "See also: https://flutter.dev/docs/testing/errors";
+        const char* text =  "Manage your google account";
         ParagraphStyle paragraph_style;
-        //paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(1);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(20);
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(296);
+        paragraph->layout(this->width());
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView21 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph21"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
+
+        const char* text =  "Pp PPp PPPp PPPPp PPPPpp PPPPppp PPPPppppp ";
+        ParagraphStyle paragraph_style;
+        //paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(3);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontSize(14);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(100);
         paragraph->paint(canvas, 0, 0);
     }
 
@@ -1717,3 +1743,4 @@ DEF_SAMPLE(return new ParagraphView17();)
 DEF_SAMPLE(return new ParagraphView18();)
 DEF_SAMPLE(return new ParagraphView19();)
 DEF_SAMPLE(return new ParagraphView20();)
+DEF_SAMPLE(return new ParagraphView21();)
