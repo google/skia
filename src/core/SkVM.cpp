@@ -217,11 +217,14 @@ namespace skvm {
                 case Op::bit_or   : write(o, V{id}, "= bit_or"   , V{x}, V{y}      ); break;
                 case Op::bit_xor  : write(o, V{id}, "= bit_xor"  , V{x}, V{y}      ); break;
                 case Op::bit_clear: write(o, V{id}, "= bit_clear", V{x}, V{y}      ); break;
-                case Op::select   : write(o, V{id}, "= select"   , V{x}, V{y}, V{z}); break;
 
-                case Op::bytes:   write(o, V{id}, "= bytes",   V{x}, Hex{immy}); break;
-                case Op::extract: write(o, V{id}, "= extract", V{x}, Shift{immy}, V{z}); break;
-                case Op::pack:    write(o, V{id}, "= pack",    V{x}, V{y}, Shift{immz}); break;
+                case Op::bit_and_imm: write(o, V{id}, "= bit_and"  , V{x}, Hex{immy}); break;
+                case Op::bit_or_imm : write(o, V{id}, "= bit_or"   , V{x}, Hex{immy}); break;
+                case Op::bit_xor_imm: write(o, V{id}, "= bit_xor"  , V{x}, Hex{immy}); break;
+
+                case Op::select:  write(o, V{id}, "= select", V{x}, V{y}, V{z}); break;
+                case Op::bytes:   write(o, V{id}, "= bytes",  V{x}, Hex{immy}); break;
+                case Op::pack:    write(o, V{id}, "= pack",   V{x}, V{y}, Shift{immz}); break;
 
                 case Op::floor:  write(o, V{id}, "= floor",  V{x}); break;
                 case Op::to_f32: write(o, V{id}, "= to_f32", V{x}); break;
@@ -339,11 +342,14 @@ namespace skvm {
                 case Op::bit_or   : write(o, R{d}, "= bit_or"   , R{x}, R{y}      ); break;
                 case Op::bit_xor  : write(o, R{d}, "= bit_xor"  , R{x}, R{y}      ); break;
                 case Op::bit_clear: write(o, R{d}, "= bit_clear", R{x}, R{y}      ); break;
-                case Op::select   : write(o, R{d}, "= select"   , R{x}, R{y}, R{z}); break;
 
-                case Op::bytes:   write(o, R{d}, "= bytes", R{x}, Hex{immy}); break;
-                case Op::extract: write(o, R{d}, "= extract", R{x}, Shift{immy}, R{z}); break;
-                case Op::pack:    write(o, R{d}, "= pack",    R{x}, R{y}, Shift{immz}); break;
+                case Op::bit_and_imm: write(o, R{d}, "= bit_and"  , R{x}, Hex{immy}); break;
+                case Op::bit_or_imm : write(o, R{d}, "= bit_or"   , R{x}, Hex{immy}); break;
+                case Op::bit_xor_imm: write(o, R{d}, "= bit_xor"  , R{x}, Hex{immy}); break;
+
+                case Op::select:  write(o, R{d}, "= select", R{x}, R{y}, R{z}); break;
+                case Op::bytes:   write(o, R{d}, "= bytes",  R{x}, Hex{immy}); break;
+                case Op::pack:    write(o, R{d}, "= pack",   R{x}, R{y}, Shift{immz}); break;
 
                 case Op::floor:  write(o, R{d}, "= floor",  R{x}); break;
                 case Op::to_f32: write(o, R{d}, "= to_f32", R{x}); break;
@@ -672,16 +678,19 @@ namespace skvm {
     I32 Builder::mul_16x2(I32 x, I32 y) { return {this->push(Op::mul_i16x2, x.id, y.id)}; }
 
     I32 Builder::shl(I32 x, int bits) {
+        if (bits == 0) { return x; }
         int X;
         if (this->allImm(x.id,&X)) { return this->splat(X << bits); }
         return {this->push(Op::shl_i32, x.id,NA,NA, bits)};
     }
     I32 Builder::shr(I32 x, int bits) {
+        if (bits == 0) { return x; }
         int X;
         if (this->allImm(x.id,&X)) { return this->splat(unsigned(X) >> bits); }
         return {this->push(Op::shr_i32, x.id,NA,NA, bits)};
     }
     I32 Builder::sra(I32 x, int bits) {
+        if (bits == 0) { return x; }
         int X;
         if (this->allImm(x.id,&X)) { return this->splat(X >> bits); }
         return {this->push(Op::sra_i32, x.id,NA,NA, bits)};
@@ -739,34 +748,47 @@ namespace skvm {
     I32 Builder::bit_and(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&Y); }
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_and_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::bit_and_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::bit_and, x.id, y.id)};
     }
     I32 Builder::bit_or(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|Y); }
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_or_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::bit_or_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::bit_or, x.id, y.id)};
     }
     I32 Builder::bit_xor(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X^Y); }
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_xor_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::bit_xor_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::bit_xor, x.id, y.id)};
     }
     I32 Builder::bit_clear(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&~Y); }
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return this->bit_and(x, this->splat(~imm)); }
+    #endif
         return {this->push(Op::bit_clear, x.id, y.id)};
     }
+
     I32 Builder::select(I32 x, I32 y, I32 z) {
         int X,Y,Z;
         if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X?Y:Z); }
         return {this->push(Op::select, x.id, y.id, z.id)};
-    }
-
-
-    I32 Builder::extract(I32 x, int bits, I32 z) {
-        int X,Z;
-        if (this->allImm(x.id,&X, z.id,&Z)) { return this->splat( (unsigned(X)>>bits)&Z ); }
-        return {this->push(Op::extract, x.id,NA,z.id, bits,0)};
     }
 
     I32 Builder::pack(I32 x, I32 y, int bits) {
@@ -1773,11 +1795,13 @@ namespace skvm {
                     CASE(Op::bit_xor  ): r(d).i32 = r(x).i32 ^  r(y).i32; break;
                     CASE(Op::bit_clear): r(d).i32 = r(x).i32 & ~r(y).i32; break;
 
+                    CASE(Op::bit_and_imm): r(d).i32 = r(x).i32 & immy; break;
+                    CASE(Op::bit_or_imm ): r(d).i32 = r(x).i32 | immy; break;
+                    CASE(Op::bit_xor_imm): r(d).i32 = r(x).i32 ^ immy; break;
+
                     CASE(Op::select): r(d).i32 = skvx::if_then_else(r(x).i32, r(y).i32, r(z).i32);
                                       break;
 
-
-                    CASE(Op::extract): r(d).u32 = (r(x).u32 >> immy) & r(z).u32; break;
                     CASE(Op::pack):    r(d).u32 = r(x).u32 | (r(y).u32 << immz); break;
 
                     CASE(Op::bytes): {
@@ -2294,11 +2318,6 @@ namespace skvm {
                 case Op:: gt_f32: a->vcmpltps (dst(), r[y], r[x]); break;
                 case Op::gte_f32: a->vcmpleps (dst(), r[y], r[x]); break;
 
-                case Op::extract: if (immy == 0) { a->vpand (dst(),  r[x], r[z]); }
-                                  else           { a->vpsrld(tmp(),  r[x], immy);
-                                                   a->vpand (dst(), tmp(), r[z]); }
-                                  break;
-
                 case Op::pack: a->vpslld(tmp(),  r[y], immz);
                                a->vpor  (dst(), tmp(), r[x]);
                                break;
@@ -2398,11 +2417,6 @@ namespace skvm {
 
                 case Op::eq_i32: a->cmeq4s(dst(), r[x], r[y]); break;
                 case Op::gt_i32: a->cmgt4s(dst(), r[x], r[y]); break;
-
-                case Op::extract: if (immy) { a->ushr4s(tmp(),  r[x], immy);
-                                              a->and16b(dst(), tmp(), r[z]); }
-                                  else      { a->and16b(dst(),  r[x], r[z]); }
-                                              break;
 
                 case Op::pack:
                     if (avail & (1<<r[x])) { set_dst(r[x]); a->sli4s ( r[x],  r[y],  immz); }

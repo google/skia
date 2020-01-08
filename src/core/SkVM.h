@@ -296,9 +296,12 @@ namespace skvm {
         bit_or,
         bit_xor,
         bit_clear,
-        select,
 
-        bytes, extract, pack,
+        bit_and_imm,
+        bit_or_imm,
+        bit_xor_imm,
+
+        select, bytes, pack,
     };
 
     using Val = int;
@@ -498,7 +501,7 @@ namespace skvm {
         //    - bytes(x, 0x0404) transforms an RGBA pixel into an A0A0 bit pattern.
         I32 bytes  (I32 x, int control);
 
-        I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
+        I32 extract(I32 x, int bits, I32 z) { return bit_and(z, shr(x, bits)); }
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
 
         // Common idioms used in several places, worth centralizing for consistency.

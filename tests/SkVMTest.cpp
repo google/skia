@@ -188,7 +188,7 @@ DEF_TEST(SkVM, r) {
         uint32_t src[9];
         uint32_t dst[SK_ARRAY_COUNT(src)];
 
-        test_jit_and_interpreter(r, std::move(program), [&](const skvm::Program& program) {
+        test_interpreter_only(r, std::move(program), [&](const skvm::Program& program) {
             for (int i = 0; i < (int)SK_ARRAY_COUNT(src); i++) {
                 src[i] = 0xbb007733;
                 dst[i] = 0xffaaccee;
@@ -220,7 +220,7 @@ DEF_TEST(SkVM, r) {
     test_8888(SrcoverBuilder_I32{}.done("srcover_i32"));
     test_8888(SrcoverBuilder_I32_SWAR{}.done("srcover_i32_SWAR"));
 
-    test_jit_and_interpreter(r, SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
+    test_interpreter_only(r, SrcoverBuilder_F32{Fmt::RGBA_8888, Fmt::G8}.done(),
                              [&](const skvm::Program& program) {
         uint32_t src[9];
         uint8_t  dst[SK_ARRAY_COUNT(src)];
@@ -387,7 +387,7 @@ DEF_TEST(SkVM_bitops, r) {
         b.store32(ptr, x);
     }
 
-    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         int x = 0x42;
         program.eval(1, &x);
         REPORTER_ASSERT(r, x == 0x7fff'ffff);
@@ -472,7 +472,7 @@ DEF_TEST(SkVM_cmp_f32, r) {
         b.store32(b.varying<int>(), m);
     }
 
-    test_jit_and_interpreter(r, b.done(), [&](const skvm::Program& program) {
+    test_interpreter_only(r, b.done(), [&](const skvm::Program& program) {
         float in[] = { 0,1,2,3,4,5,6,7,8,9 };
         int out[SK_ARRAY_COUNT(in)];
 
