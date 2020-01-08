@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45aea430_c44d38ea",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T20:40:39Z",
+      "side": 1,
+      "message": "Long enough and enough other indices floating around that it might be nice to make these\n\n   const int begin, const int end\n\n?",
+      "range": {
+        "startLine": 879,
+        "startChar": 8,
+        "endLine": 879,
+        "endChar": 27
+      },
+      "revId": "efc60d4ad696cccd043353aa689f0ba04fd7ba80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8996c564_26ec07d7",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T20:40:39Z",
+      "side": 1,
+      "message": "Maybe something like\n\nint i \u003d begin;\nfor (; i \u003c end; i++) {\n    ...\n}\nint firstNotInAtlas \u003d i;\n\n?  We sort of don\u0027t care about the firstNotInAtlas-ness until after the loop.",
+      "range": {
+        "startLine": 912,
+        "startChar": 8,
+        "endLine": 912,
+        "endChar": 32
+      },
+      "revId": "efc60d4ad696cccd043353aa689f0ba04fd7ba80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04a625d0_80073cdd",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T20:40:39Z",
+      "side": 1,
+      "message": "Can this not be code !\u003d kError?",
+      "range": {
+        "startLine": 941,
+        "startChar": 12,
+        "endLine": 941,
+        "endChar": 55
+      },
+      "revId": "efc60d4ad696cccd043353aa689f0ba04fd7ba80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4083a7a8_9772a296",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T20:40:39Z",
+      "side": 1,
+      "message": "Maybe clearer replacing fCurrGlyph with begin until fCurrGlyph changes on 957?",
+      "range": {
+        "startLine": 954,
+        "startChar": 5,
+        "endLine": 956,
+        "endChar": 75
+      },
+      "revId": "efc60d4ad696cccd043353aa689f0ba04fd7ba80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "151094cf_ee431b33",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T20:40:39Z",
+      "side": 1,
+      "message": "Worth noting something like // returns success and ... ?",
+      "revId": "efc60d4ad696cccd043353aa689f0ba04fd7ba80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
