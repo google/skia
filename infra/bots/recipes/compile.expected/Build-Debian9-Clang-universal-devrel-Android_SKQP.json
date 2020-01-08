@@ -118,6 +118,21 @@
       "ensure-directory",
       "--mode",
       "0777",
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-universal-devrel-Android_SKQP/devrel"
+    ],
+    "infra_step": true,
+    "name": "makedirs out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
       "[START_DIR]/cache/docker/skqp"
     ],
     "infra_step": true,

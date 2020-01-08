@@ -115,6 +115,21 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/cache/work/skia/out/Build-Win-Clang-x86-Debug/Debug"
+    ],
+    "infra_step": true,
+    "name": "makedirs out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "[START_DIR]/cache/work/skia/infra/bots/assets/clang_win/VERSION",
       "/path/to/tmp/"
