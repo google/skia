@@ -258,8 +258,32 @@ void sk_canvas_draw_image_nine(sk_canvas_t* ccanvas, const sk_image_t* image, co
     AsCanvas(ccanvas)->drawImageNine(AsImage(image), *AsIRect(center), *AsRect(dst), AsPaint(paint));
 }
 
-void sk_canvas_draw_vertices(sk_canvas_t* ccanvas, sk_vertices_t* vertices, sk_blendmode_t mode, const sk_paint_t* paint) {
+void sk_canvas_draw_vertices(sk_canvas_t* ccanvas, const sk_vertices_t* vertices, sk_blendmode_t mode, const sk_paint_t* paint) {
     AsCanvas(ccanvas)->drawVertices(AsVertices(vertices), (SkBlendMode)mode, *AsPaint(paint));
+}
+
+void sk_canvas_draw_arc(sk_canvas_t* ccanvas, const sk_rect_t* oval, float startAngle, float sweepAngle, bool useCenter, const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawArc(*AsRect(oval), startAngle, sweepAngle, useCenter, *AsPaint(paint));
+}
+
+void sk_canvas_draw_drrect(sk_canvas_t* ccanvas, const sk_rrect_t* outer, const sk_rrect_t* inner, const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawDRRect(*AsRRect(outer), *AsRRect(inner), *AsPaint(paint));
+}
+
+void sk_canvas_draw_atlas(sk_canvas_t* ccanvas, const sk_image_t* atlas, const sk_rsxform_t* xform, const sk_rect_t* tex, const sk_color_t* colors, int count, sk_blendmode_t mode, const sk_rect_t* cullRect, const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawAtlas(AsImage(atlas), AsRSXform(xform), AsRect(tex), colors, count, (SkBlendMode)mode, AsRect(cullRect), AsPaint(paint));
+}
+
+void sk_canvas_draw_patch(sk_canvas_t* ccanvas, const sk_point_t* cubics, const sk_color_t* colors, const sk_point_t* texCoords, sk_blendmode_t mode, const sk_paint_t* paint) {
+    AsCanvas(ccanvas)->drawPatch(AsPoint(cubics), colors, AsPoint(texCoords), (SkBlendMode)mode, *AsPaint(paint));
+}
+
+bool sk_canvas_is_clip_empty(sk_canvas_t* ccanvas) {
+    return AsCanvas(ccanvas)->isClipEmpty();
+}
+
+bool sk_canvas_is_clip_rect(sk_canvas_t* ccanvas) {
+    return AsCanvas(ccanvas)->isClipRect();
 }
 
 sk_nodraw_canvas_t* sk_nodraw_canvas_new(int width, int height) {

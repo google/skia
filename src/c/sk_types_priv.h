@@ -120,6 +120,7 @@ DEF_STRUCT_MAP(SkMask, sk_mask_t, Mask)
 DEF_STRUCT_MAP(SkPoint, sk_point_t, Point)
 DEF_STRUCT_MAP(SkPoint3, sk_point3_t, Point3)
 DEF_STRUCT_MAP(SkRect, sk_rect_t, Rect)
+DEF_STRUCT_MAP(SkRSXform, sk_rsxform_t, RSXform)
 DEF_STRUCT_MAP(SkSize, sk_size_t, Size)
 
 DEF_STRUCT_MAP(GrGLTextureInfo, gr_gl_textureinfo_t, GrGLTextureInfo)
