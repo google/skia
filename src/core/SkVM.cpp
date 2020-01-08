@@ -1060,24 +1060,24 @@ namespace skvm {
         this->byte(mod_rm(Mod::Direct, dst&7, y&7));
     }
 
-    void Assembler::vpaddd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
-    void Assembler::vpsubd (Ymm dst, Ymm x, Ymm y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
-    void Assembler::vpmulld(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x40, dst,x,y); }
+    void Assembler::vpaddd (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,  0x0f,0xfe, dst,x,y); }
+    void Assembler::vpsubd (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
+    void Assembler::vpmulld(Ymm dst, Ymm x, Ymm        y) { this->op(0x66,0x380f,0x40, dst,x,y); }
 
     void Assembler::vpsubw (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
     void Assembler::vpmullw(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
 
-    void Assembler::vpand (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
-    void Assembler::vpor  (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
-    void Assembler::vpxor (Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xef, dst,x,y); }
-    void Assembler::vpandn(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
+    void Assembler::vpand (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
+    void Assembler::vpor  (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
+    void Assembler::vpxor (Ymm dst, Ymm x, YmmOrLabel y) { this->op(0x66,0x0f,0xef, dst,x,y); }
+    void Assembler::vpandn(Ymm dst, Ymm x, Ymm        y) { this->op(0x66,0x0f,0xdf, dst,x,y); }
 
-    void Assembler::vaddps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x58, dst,x,y); }
-    void Assembler::vsubps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5c, dst,x,y); }
-    void Assembler::vmulps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x59, dst,x,y); }
-    void Assembler::vdivps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5e, dst,x,y); }
-    void Assembler::vminps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5d, dst,x,y); }
-    void Assembler::vmaxps(Ymm dst, Ymm x, Ymm y) { this->op(0,0x0f,0x5f, dst,x,y); }
+    void Assembler::vaddps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x58, dst,x,y); }
+    void Assembler::vsubps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5c, dst,x,y); }
+    void Assembler::vmulps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x59, dst,x,y); }
+    void Assembler::vdivps(Ymm dst, Ymm x, Ymm        y) { this->op(0,0x0f,0x5e, dst,x,y); }
+    void Assembler::vminps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5d, dst,x,y); }
+    void Assembler::vmaxps(Ymm dst, Ymm x, YmmOrLabel y) { this->op(0,0x0f,0x5f, dst,x,y); }
 
     void Assembler::vfmadd132ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0x98, dst,x,y); }
     void Assembler::vfmadd213ps(Ymm dst, Ymm x, Ymm y) { this->op(0x66,0x380f,0xa8, dst,x,y); }
@@ -1168,11 +1168,12 @@ namespace skvm {
         this->word(this->disp32(l));
     }
 
-    void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
-    void Assembler::vpaddd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfe, dst,x,l); }
-    void Assembler::vpsubd (Ymm dst, Ymm x, Label* l) { this->op(0x66,  0x0f,0xfa, dst,x,l); }
-    void Assembler::vmulps (Ymm dst, Ymm x, Label* l) { this->op(   0,  0x0f,0x59, dst,x,l); }
+    void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOrLabel y) {
+        y.label ? this->op(prefix,map,opcode,dst,x, y.label)
+                : this->op(prefix,map,opcode,dst,x, y.ymm  );
+    }
 
+    void Assembler::vpshufb(Ymm dst, Ymm x, Label* l) { this->op(0x66,0x380f,0x00, dst,x,l); }
     void Assembler::vptest(Ymm dst, Label* l) { this->op(0x66, 0x380f, 0x17, dst, (Ymm)0, l); }
 
     void Assembler::vbroadcastss(Ymm dst, Label* l) { this->op(0x66,0x380f,0x18, dst, (Ymm)0, l); }
@@ -2296,7 +2297,11 @@ namespace skvm {
                                                                  a->vfmadd132ps(dst(),r[z], r[y]); }
                                                                  break;
 
+                case Op::add_f32_imm: a->vaddps(dst(), r[x], &constants[immy].label); break;
+                case Op::sub_f32_imm: a->vsubps(dst(), r[x], &constants[immy].label); break;
                 case Op::mul_f32_imm: a->vmulps(dst(), r[x], &constants[immy].label); break;
+                case Op::min_f32_imm: a->vminps(dst(), r[x], &constants[immy].label); break;
+                case Op::max_f32_imm: a->vmaxps(dst(), r[x], &constants[immy].label); break;
 
                 case Op::add_i32: a->vpaddd (dst(), r[x], r[y]); break;
                 case Op::sub_i32: a->vpsubd (dst(), r[x], r[y]); break;
@@ -2311,6 +2316,10 @@ namespace skvm {
                 case Op::bit_xor  : a->vpxor (dst(), r[x], r[y]); break;
                 case Op::bit_clear: a->vpandn(dst(), r[y], r[x]); break;  // N.B. Y then X.
                 case Op::select   : a->vpblendvb(dst(), r[z], r[y], r[x]); break;
+
+                case Op::bit_and_imm: a->vpand (dst(), r[x], &constants[immy].label); break;
+                case Op::bit_or_imm : a->vpor  (dst(), r[x], &constants[immy].label); break;
+                case Op::bit_xor_imm: a->vpxor (dst(), r[x], &constants[immy].label); break;
 
                 case Op::shl_i32: a->vpslld(dst(), r[x], immy); break;
                 case Op::shr_i32: a->vpsrld(dst(), r[x], immy); break;
