@@ -152,6 +152,9 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
         auto proxyProvider = ctx->priv().proxyProvider();
         yuvTextureProxies[i] =
                 proxyProvider->createTextureProxy(yuvImage, 1, SkBudgeted::kYes, fit);
+        if (!yuvTextureProxies[i]) {
+            return nullptr;
+        }
 
         SkASSERT(yuvTextureProxies[i]->dimensions() == yuvSizeInfo.fSizes[i]);
     }
