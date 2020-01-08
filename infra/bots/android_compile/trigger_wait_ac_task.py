@@ -139,9 +139,17 @@ def trigger_and_wait(options):
 
     for retry in range(GS_RETRIES):
       try:
+        # Try combinging the 2 errors!!!
         output = subprocess.check_output(['gsutil', 'cat', gs_file])
-      except subprocess.CalledProcessError:
-        raise AndroidCompileException('The %s file no longer exists.' % gs_file)
+      except subprocess.CalledProcessError, e:
+        print 'Got error trying to "gsutil cat %s": %s' % (gs_file, e)
+        if retry == (GS_RETRIES-1):
+          print '%d retries did not help' % GS_RETRIES
+          raise AndroidCompileException('The %s file no longer exists.' % gs_file)
+        waittime = GS_RETRY_WAIT_BASE * math.pow(2, retry)
+        print 'Retry in %d seconds.' % waittime
+        time.sleep(waittime)
+        continue
       try:
         ret = json.loads(output)
         break
