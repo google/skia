@@ -72,23 +72,25 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     }
 }
 
-void TextWrapper::moveForward() {
-    do {
-        if (!fWords.empty()) {
-            fEndLine.extend(fWords);
-        } else if (!fClusters.empty()) {
-            fEndLine.extend(fClusters);
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else if (!fClip.empty() || (fTooLongWord && fTooLongCluster)) {
-            // Flutter: forget the clipped cluster but keep the metrics
-            fEndLine.metrics().add(fClip.metrics());
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else {
-            break;
+void TextWrapper::moveForward(bool lastLine) {
+
+    if (!fWords.empty()) {
+        fEndLine.extend(fWords);
+        if (!fTooLongWord && !lastLine) {
+            return;
         }
-    } while (fTooLongWord || fTooLongCluster);
+    }
+    if (!fClusters.empty()) {
+        fEndLine.extend(fClusters);
+        if (!fTooLongCluster && !lastLine) {
+            return;
+        }
+    }
+
+    if (!fClip.empty()) {
+        // Flutter: forget the clipped cluster but keep the metrics
+        fEndLine.metrics().add(fClip.metrics());
+    }
 }
 
 // Special case for start/end cluster since they can be clipped
@@ -185,10 +187,11 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     while (fEndLine.endCluster() != end) {
 
         reset();
+        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
 
         fEndLine.metrics().clean();
         lookAhead(maxWidth, end);
-        moveForward();
+        moveForward(exceededLines);
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
@@ -203,8 +206,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             fEndLine.endCluster() < end - 1 &&
             SkScalarIsFinite(maxWidth) &&
             !ellipsisStr.isEmpty();
-
-        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
 
         // TODO: perform ellipsis work here
 

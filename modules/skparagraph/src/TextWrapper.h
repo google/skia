@@ -191,7 +191,7 @@ private:
     }
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
-    void moveForward();
+    void moveForward(bool lastLine);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();

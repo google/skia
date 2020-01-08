@@ -516,7 +516,6 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     // Go through the clusters in the reverse logical order
     // taking off cluster by cluster until the ellipsis fits
     SkScalar width = fAdvance.fX;
-    bool noWhitespace = false;
 
     auto attachEllipsis = [&](const Cluster* cluster){
         // Shape the ellipsis
@@ -528,7 +527,6 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
         if (width + run->advance().fX > maxWidth) {
             width -= cluster->width();
             // Continue if it's not
-            noWhitespace = true;
             return false;
         }
 
@@ -540,15 +538,6 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
 
     iterateThroughClustersInGlyphsOrder(
         true, false, [&](const Cluster* cluster, ClusterIndex index, bool leftToRight, bool ghost) {
-            if (cluster->isWhitespaces()) {
-                width -= cluster->width();
-                noWhitespace = false;
-                return true;
-            } else if (noWhitespace) {
-                width -= cluster->width();
-                return true;
-            }
-
             return !attachEllipsis(cluster);
         });
 
