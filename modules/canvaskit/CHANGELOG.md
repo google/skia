@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    build.
  - Experimental Runtime shader available for custom builds.
  - WebP support.
+ - `SkAnimatedImage.getCurrentFrame` which returns an SkImage.
 
 ### Fixed
  - `CanvasKit.SaveLayerInitWithPrevious` and `CanvasKit.SaveLayerF16ColorType` constants.

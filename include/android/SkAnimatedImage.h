@@ -15,6 +15,7 @@
 #include "include/core/SkRect.h"
 
 class SkAndroidCodec;
+class SkImage;
 class SkPicture;
 
 /**
@@ -81,6 +82,13 @@ public:
      *  kFinished.
      */
     int decodeNextFrame();
+
+    /**
+     *  Returns the current frame as an SkImage. The SkImage will not change
+     *  after it has been returned.
+     *  If there is no current frame, nullptr will be returned.
+     */
+    sk_sp<SkImage> getCurrentFrame();
 
     /**
      *  How long to display the current frame.
