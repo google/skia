@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ae061ce_269d6852",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-01-08T17:59:17Z",
+      "side": 1,
+      "message": "should we consider a local cache of the last image returned, in case this is called more than once before the animation has moved forward.",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 17
+      },
+      "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
