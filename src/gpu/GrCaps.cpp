@@ -48,6 +48,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fTransferBufferSupport = false;
     fWritePixelsRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;
+    fShouldCollapseSrcOverToSrcWhenAble = false;
     fDriverBlacklistCCPR = false;
     fDriverBlacklistMSAACCPR = false;
 
