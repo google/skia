@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "27d4d7f3_1ec67341",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-01-08T14:44:20Z",
+      "side": 1,
+      "message": "I think drawAnimatedImage will no longer add much functionality, but it would be (slightly) simpler for a client that wants to draw it immediately:\n\n    animatedImage-\u003edraw(canvas, 0, 0, paint);\n\nvs\n\n    auto image \u003d animatedImage-\u003egetCurrentFrame();\n    canvas-\u003edrawImage(image, 0, 0, \u0026paint);\n\nThe former should only save a copy versus the latter if you don\u0027t discard |image| (or |canvas| is a type of SkCanvas that holds a reference to the SkPixelRef) before calling animatedImage-\u003edecodeNextFrame().",
+      "range": {
+        "startLine": 14,
+        "startChar": 19,
+        "endLine": 14,
+        "endChar": 69
+      },
+      "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a59dbdea_1cd8b911",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-01-08T14:44:20Z",
+      "side": 1,
+      "message": "As described down below, in my response to your comment, this method is where we do a lazy copy of the pixels, so that\u0027s why you can safely use kNever_SkCopyPixelsMode.",
+      "range": {
+        "startLine": 113,
+        "startChar": 5,
+        "endLine": 113,
+        "endChar": 33
+      },
+      "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb500fb1_78fa21f6",
         "filename": "src/android/SkAnimatedImage.cpp",
         "patchSetId": 1
@@ -13,6 +59,30 @@
       "writtenOn": "2020-01-08T14:06:01Z",
       "side": 1,
       "message": "I wasn\u0027t sure what the best approach here was (always copy, never copy), so I went for a compromise. WDYT?",
+      "range": {
+        "startLine": 363,
+        "startChar": 39,
+        "endLine": 363,
+        "endChar": 66
+      },
+      "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c7606c9_b55e89bb",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-01-08T14:44:20Z",
+      "side": 1,
+      "message": "The bitmap is always going to be mutable, because we reuse it for the next frame, so this is essentially \"always copy\".\n\nThat said, SkAnimatedImage tries to be smart about this - it only reuses the pixel ref if it is unique. Otherwise it lazily does a copy. So I think you want to use kNever_SkCopyPixelsMode, perhaps with a comment that says something like:\n\n    // This SkBitmap may be reused later to decode the following frame. But Frame::init\n    // lazily copies the pixel ref if it has any other references. So it is safe to not\n    // do a deep copy here.\n\n(We already use kNever_SkCopyPixelsMode in onDraw. It does not have an analogous comment, but the same idea applies.)",
+      "parentUuid": "fb500fb1_78fa21f6",
       "range": {
         "startLine": 363,
         "startChar": 39,
