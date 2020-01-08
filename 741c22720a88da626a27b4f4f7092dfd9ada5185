@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb500fb1_78fa21f6",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-08T14:06:01Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure what the best approach here was (always copy, never copy), so I went for a compromise. WDYT?",
+      "range": {
+        "startLine": 363,
+        "startChar": 39,
+        "endLine": 363,
+        "endChar": 66
+      },
+      "revId": "741c22720a88da626a27b4f4f7092dfd9ada5185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
