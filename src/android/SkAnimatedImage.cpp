@@ -357,3 +357,8 @@ void SkAnimatedImage::onDraw(SkCanvas* canvas) {
 void SkAnimatedImage::setRepetitionCount(int newCount) {
     fRepetitionCount = newCount;
 }
+
+sk_sp<SkImage> SkAnimatedImage::getCurrentFrame() {
+    return SkMakeImageFromRasterBitmap(fDisplayFrame.fBitmap,
+                                       kIfMutable_SkCopyPixelsMode);
+}

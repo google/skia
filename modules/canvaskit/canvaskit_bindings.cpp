@@ -869,6 +869,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkAnimatedImage>("SkAnimatedImage")
         .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<SkAnimatedImage>")
         .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame)
+        .function("getCurrentFrame", &SkAnimatedImage::getCurrentFrame)
         .function("getFrameCount", &SkAnimatedImage::getFrameCount)
         .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
         .function("height",  optional_override([](SkAnimatedImage& self)->int32_t {
