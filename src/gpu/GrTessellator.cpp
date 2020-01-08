@@ -2284,12 +2284,33 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 }
 
 int get_contour_count(const SkPath& path, SkScalar tolerance) {
-    int contourCnt;
-    int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt, tolerance);
-    if (maxPts <= 0) {
-        return 0;
+    int numContours = 0;
+    bool currContourHasGeometry = false;
+    for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                if (currContourHasGeometry) {
+                    ++numContours;
+                }
+                currContourHasGeometry = false;
+                continue;
+            case SkPath::kLine_Verb:
+            case SkPath::kQuad_Verb:
+            case SkPath::kCubic_Verb:
+            case SkPath::kConic_Verb:
+                currContourHasGeometry = true;
+                continue;
+            case SkPath::kClose_Verb:
+                // kClose_Verb neither adds geometry, nor starts a new contour.
+                continue;
+            case SkPath::kDone_Verb:
+                SK_ABORT("kDone_Verb not expected in SkPathPriv iterator.");
+        }
     }
-    return contourCnt;
+    if (currContourHasGeometry) {
+        ++numContours;
+    }
+    return numContours;
 }
 
 int64_t count_points(Poly* polys, SkPathFillType fillType) {
