@@ -258,7 +258,7 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gBevelIndexBufferKey);
 
 static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* devInside,
                              bool* isDegenerate, const SkMatrix& viewMatrix, const SkRect& rect,
-                             SkScalar strokeWidth, bool miterStroke) {
+                             SkScalar strokeWidth, bool miterStroke, SkVector* devStrokeSizeOut) {
     SkRect devRect;
     viewMatrix.mapRect(&devRect, rect);
 
@@ -271,10 +271,16 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
         devStrokeSize.set(SK_Scalar1, SK_Scalar1);
     }
 
+    devStrokeSizeOut->fX = devStrokeSize.fX;
+    devStrokeSizeOut->fY = devStrokeSize.fY;
+
     const SkScalar dx = devStrokeSize.fX;
     const SkScalar dy = devStrokeSize.fY;
     const SkScalar rx = SkScalarHalf(dx);
     const SkScalar ry = SkScalarHalf(dy);
+
+//    if (rx < 0.5f) { rx = 0.0f; }
+//    if (ry < 0.5f) { ry = 0.0f; }
 
     *devOutside = devRect;
     *devOutsideAssist = devRect;
@@ -378,7 +384,8 @@ public:
         fMiterStroke = isMiter;
         RectInfo& info = fRects.push_back();
         compute_aa_rects(&info.fDevOutside, &info.fDevOutsideAssist, &info.fDevInside,
-                         &info.fDegenerate, viewMatrix, rect, stroke.getWidth(), isMiter);
+                         &info.fDegenerate, viewMatrix, rect, stroke.getWidth(), isMiter,
+                         &info.fDevStrokeSize);
         info.fColor = color;
         if (isMiter) {
             this->setBounds(info.fDevOutside, HasAABloat::kYes, IsHairline::kNo);
@@ -454,7 +461,8 @@ private:
                                       const SkRect& devInside,
                                       bool miterStroke,
                                       bool degenerate,
-                                      bool tweakAlphaForCoverage) const;
+                                      bool tweakAlphaForCoverage,
+                                      const SkVector& vec) const;
 
     // TODO support AA rotated stroke rects by copying around view matrices
     struct RectInfo {
@@ -462,6 +470,7 @@ private:
         SkRect fDevOutside;
         SkRect fDevOutsideAssist;
         SkRect fDevInside;
+        SkVector fDevStrokeSize;
         bool fDegenerate;
     };
 
@@ -518,7 +527,8 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
                                            info.fDevInside,
                                            fMiterStroke,
                                            info.fDegenerate,
-                                           fHelper.compatibleWithCoverageAsAlpha());
+                                           fHelper.compatibleWithCoverageAsAlpha(),
+                                           info.fDevStrokeSize);
     }
     helper.recordDraw(target, gp);
 }
@@ -651,13 +661,16 @@ GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, GrRecordingCont
     return CombineResult::kMerged;
 }
 
-static void setup_scale(int* scale, SkScalar inset) {
+static float setup_scale(const SkScalar inset) {
+    int scale;
     if (inset < SK_ScalarHalf) {
-        *scale = SkScalarFloorToInt(512.0f * inset / (inset + SK_ScalarHalf));
-        SkASSERT(*scale >= 0 && *scale <= 255);
+        scale = SkScalarFloorToInt(512.0f * inset / (inset + SK_ScalarHalf));
+        SkASSERT(scale >= 0 && scale <= 255);
     } else {
-        *scale = 0xff;
+        scale = 0xff;
     }
+
+    return GrNormalizeByteToFloat(scale);
 }
 
 void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
@@ -668,33 +681,40 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                                                   const SkRect& devInside,
                                                   bool miterStroke,
                                                   bool degenerate,
-                                                  bool tweakAlphaForCoverage) const {
+                                                  bool tweakAlphaForCoverage,
+                                                  const SkVector& devStrokeSize) const {
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.
 
+#if 0
     // TODO: this only really works if the X & Y margins are the same all around
     // the rect (or if they are all >= 1.0).
-    SkScalar inset;
+    SkScalar insets1[4]; // in LTRB order
     if (!degenerate) {
-        inset = SkMinScalar(SK_Scalar1, devOutside.fRight - devInside.fRight);
-        inset = SkMinScalar(inset, devInside.fLeft - devOutside.fLeft);
-        inset = SkMinScalar(inset, devInside.fTop - devOutside.fTop);
         if (miterStroke) {
-            inset = SK_ScalarHalf * SkMinScalar(inset, devOutside.fBottom - devInside.fBottom);
+            insets1[0] = SK_ScalarHalf * (devInside.fLeft - devOutside.fLeft);
+            insets1[1] = SK_ScalarHalf * (devInside.fTop - devOutside.fTop);
+            insets1[2] = SK_ScalarHalf * (devOutside.fRight - devInside.fRight);
+            insets1[3] = SK_ScalarHalf * (devOutside.fBottom - devInside.fBottom);
         } else {
-            inset = SK_ScalarHalf *
-                    SkMinScalar(inset, devOutsideAssist.fBottom - devInside.fBottom);
+            insets1[0] = SK_ScalarHalf * (devOutsideAssist.fLeft - devInside.fLeft);
+            insets1[1] = SK_ScalarHalf * (devOutsideAssist.fTop - devInside.fTop);
+            insets1[2] = SK_ScalarHalf * (devOutsideAssist.fRight - devInside.fRight);
+            insets1[3] = SK_ScalarHalf * (devOutsideAssist.fBottom - devInside.fBottom);
         }
-        SkASSERT(inset >= 0);
+        SkASSERT(insets1[0] >= 0 && insets1[1] >= 0 && insets1[2] >= 0 && insets1[3] >= 0);
     } else {
-        // TODO use real devRect here
-        inset = SkMinScalar(devOutside.width(), SK_Scalar1);
-        inset = SK_ScalarHalf *
-                SkMinScalar(inset, SkTMax(devOutside.height(), devOutsideAssist.height()));
+        // TODO: use real devRect here
+        insets1[0] = SkMinScalar(devOutside.width(), SK_Scalar1);
+        insets1[0] = SK_ScalarHalf *
+                SkMinScalar(insets1[0], SkTMax(devOutside.height(), devOutsideAssist.height()));
     }
+#endif
 
     auto inset_fan = [](const SkRect& r, SkScalar dx, SkScalar dy) {
-        return GrVertexWriter::TriFanFromRect(r.makeInset(dx, dy));
+        SkRect foo = r.makeInset(dx, dy);
+        SkDebugf("%.2f %.2f LTRB: %.2f %.2f %.2f %.2f\n", dx, dy, foo.fLeft, foo.fTop, foo.fRight, foo.fBottom);
+        return GrVertexWriter::TriFanFromRect(foo);
     };
 
     auto maybe_coverage = [tweakAlphaForCoverage](float coverage) {
@@ -703,45 +723,50 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
     GrVertexColor outerColor(tweakAlphaForCoverage ? SK_PMColor4fTRANSPARENT : color, wideColor);
 
+    const float kOuter = 2.0f;
+    const float kInner = 2.0f;
     // Outermost rect
-    vertices.writeQuad(inset_fan(devOutside, -SK_ScalarHalf, -SK_ScalarHalf),
+    vertices.writeQuad(inset_fan(devOutside, -kOuter, -kOuter),
                        outerColor,
                        maybe_coverage(0.0f));
 
     if (!miterStroke) {
         // Second outermost
-        vertices.writeQuad(inset_fan(devOutsideAssist, -SK_ScalarHalf, -SK_ScalarHalf),
+        vertices.writeQuad(inset_fan(devOutsideAssist, -kOuter, -kOuter),
                            outerColor,
                            maybe_coverage(0.0f));
     }
 
     // scale is the coverage for the the inner two rects.
-    int scale;
-    setup_scale(&scale, inset);
+    float innerCoverage = setup_scale(SkTMax(devStrokeSize.fX, devStrokeSize.fY));
 
-    float innerCoverage = GrNormalizeByteToFloat(scale);
+//    float fooX = vec.fX < 1.0f ? 0.0f : 0.5f;
+//    float fooY = vec.fY < 1.0f ? 0.0f : 0.5f;
+    float fooX = 0.5f;
+    float fooY = 0.5f;
+
     SkPMColor4f scaledColor = color * innerCoverage;
     GrVertexColor innerColor(tweakAlphaForCoverage ? scaledColor : color, wideColor);
 
     // Inner rect
-    vertices.writeQuad(inset_fan(devOutside, inset, inset),
+    vertices.writeQuad(inset_fan(devOutside, fooX, fooY), //fooX, fooY),
                        innerColor,
                        maybe_coverage(innerCoverage));
 
     if (!miterStroke) {
         // Second inner
-        vertices.writeQuad(inset_fan(devOutsideAssist, inset, inset),
+        vertices.writeQuad(inset_fan(devOutsideAssist, fooX, fooY),
                            innerColor,
                            maybe_coverage(innerCoverage));
     }
 
     if (!degenerate) {
-        vertices.writeQuad(inset_fan(devInside, -inset, -inset),
+        vertices.writeQuad(inset_fan(devInside, -fooX, -fooY),
                            innerColor,
                            maybe_coverage(innerCoverage));
 
         // The innermost rect has 0 coverage...
-        vertices.writeQuad(inset_fan(devInside, SK_ScalarHalf, SK_ScalarHalf),
+        vertices.writeQuad(inset_fan(devInside, kInner, kInner),
                            outerColor,
                            maybe_coverage(0.0f));
     } else {
