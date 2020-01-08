@@ -877,6 +877,7 @@ public:
 
 #ifndef SK_SUPPORT_LEGACY_CANVAS_MATRIX_33
     void concat(const SkMatrix44&);
+    void concat44(const SkScalar[]); // column-major
 #endif
 
     /** Replaces SkMatrix with matrix.
