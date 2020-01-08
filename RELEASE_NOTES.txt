@@ -8,6 +8,10 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+  * Add support to create an SkSurface from an MTKView, with delayed acquisition of
+    the MTLDrawable.
+    Entry point: SkSurface::MakeFromMTKView
+
   * Removed SkIRect::EmptyIRect(). Use SkIRect::MakeEmpty() instead.
     https://review.skia.org/262382/
 
