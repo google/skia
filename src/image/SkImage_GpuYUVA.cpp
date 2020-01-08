@@ -142,9 +142,9 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, this->width(), this->height(), GrColorType::kRGBA_8888,
-            this->refColorSpace(), 1, GrMipMapped::kNo, fOrigin);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
+            this->dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo, fOrigin);
     if (!renderTargetContext) {
         return;
     }
