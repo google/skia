@@ -175,7 +175,11 @@ namespace skvm {
                 case Op::max_f32: write(o, V{id}, "= max_f32", V{x}, V{y}      ); break;
                 case Op::mad_f32: write(o, V{id}, "= mad_f32", V{x}, V{y}, V{z}); break;
 
+                case Op::add_f32_imm: write(o, V{id}, "= add_f32", V{x}, Splat{immy}); break;
+                case Op::sub_f32_imm: write(o, V{id}, "= sub_f32", V{x}, Splat{immy}); break;
                 case Op::mul_f32_imm: write(o, V{id}, "= mul_f32", V{x}, Splat{immy}); break;
+                case Op::min_f32_imm: write(o, V{id}, "= min_f32", V{x}, Splat{immy}); break;
+                case Op::max_f32_imm: write(o, V{id}, "= max_f32", V{x}, Splat{immy}); break;
 
                 case Op:: eq_f32: write(o, V{id}, "= eq_f32", V{x}, V{y}); break;
                 case Op::neq_f32: write(o, V{id}, "= neq_f32", V{x}, V{y}); break;
@@ -291,7 +295,11 @@ namespace skvm {
                 case Op::max_f32: write(o, R{d}, "= max_f32", R{x}, R{y}      ); break;
                 case Op::mad_f32: write(o, R{d}, "= mad_f32", R{x}, R{y}, R{z}); break;
 
+                case Op::add_f32_imm: write(o, R{d}, "= add_f32", R{x}, Splat{immy}); break;
+                case Op::sub_f32_imm: write(o, R{d}, "= sub_f32", R{x}, Splat{immy}); break;
                 case Op::mul_f32_imm: write(o, R{d}, "= mul_f32", R{x}, Splat{immy}); break;
+                case Op::min_f32_imm: write(o, R{d}, "= min_f32", R{x}, Splat{immy}); break;
+                case Op::max_f32_imm: write(o, R{d}, "= max_f32", R{x}, Splat{immy}); break;
 
                 case Op:: eq_f32: write(o, R{d}, "= eq_f32", R{x}, R{y}); break;
                 case Op::neq_f32: write(o, R{d}, "= neq_f32", R{x}, R{y}); break;
@@ -586,6 +594,11 @@ namespace skvm {
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X+Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x+0 == x
         if (this->isImm(x.id, 0.0f)) { return y; }   // 0+y == y
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::add_f32_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::add_f32_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::add_f32, x.id, y.id)};
     }
 
@@ -593,6 +606,10 @@ namespace skvm {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X-Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::sub_f32_imm, x.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::sub_f32, x.id, y.id)};
     }
 
@@ -628,11 +645,21 @@ namespace skvm {
     F32 Builder::min(F32 x, F32 y) {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::min(X,Y)); }
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::min_f32_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::min_f32_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::min_f32, x.id, y.id)};
     }
     F32 Builder::max(F32 x, F32 y) {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::max(X,Y)); }
+    #if defined(SK_CPU_X86)
+        int imm;
+        if (this->allImm(y.id, &imm)) { return {this->push(Op::max_f32_imm, x.id,NA,NA, imm)}; }
+        if (this->allImm(x.id, &imm)) { return {this->push(Op::max_f32_imm, y.id,NA,NA, imm)}; }
+    #endif
         return {this->push(Op::max_f32, x.id, y.id)};
     }
 
@@ -1682,10 +1709,30 @@ namespace skvm {
                     CASE(Op::min_f32): r(d).f32 = min(r(x).f32, r(y).f32); break;
                     CASE(Op::max_f32): r(d).f32 = max(r(x).f32, r(y).f32); break;
 
+                    CASE(Op::add_f32_imm): {
+                        Slot tmp;
+                        tmp.i32 = immy;
+                        r(d).f32 = r(x).f32 + tmp.f32;
+                    } break;
+                    CASE(Op::sub_f32_imm): {
+                        Slot tmp;
+                        tmp.i32 = immy;
+                        r(d).f32 = r(x).f32 - tmp.f32;
+                    } break;
                     CASE(Op::mul_f32_imm): {
                         Slot tmp;
                         tmp.i32 = immy;
                         r(d).f32 = r(x).f32 * tmp.f32;
+                    } break;
+                    CASE(Op::min_f32_imm): {
+                        Slot tmp;
+                        tmp.i32 = immy;
+                        r(d).f32 = min(r(x).f32, tmp.f32);
+                    } break;
+                    CASE(Op::max_f32_imm): {
+                        Slot tmp;
+                        tmp.i32 = immy;
+                        r(d).f32 = max(r(x).f32, tmp.f32);
                     } break;
 
                     CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
