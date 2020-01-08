@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b9a8a0b_3bff06b6",
+        "filename": "gm/bicubic.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-08T16:09:59Z",
+      "side": 1,
+      "message": "I think just \u0027i\u0027 (sorry, I continued to tweak this after I posted the fiddle)",
+      "range": {
+        "startLine": 25,
+        "startChar": 18,
+        "endLine": 25,
+        "endChar": 25
+      },
+      "revId": "1571010863bbb223ca048c05042f4a7f7f6f98a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
