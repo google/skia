@@ -70,6 +70,30 @@
       "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b28a6fc1_dda76b50",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-01-08T21:20:55Z",
+      "side": 1,
+      "message": "In this case, caching has a downside, too - it will mean that the next call to decodeNextFrame may end up doing a copy, because the SkPixelRef is no longer unique (owned by both the Frame\u0027s SkBitmap and by the cached image).\n\nI think it makes more sense in this case to leave caching up to the client.",
+      "parentUuid": "ffe80e0e_347f66fa",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 17
+      },
+      "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
