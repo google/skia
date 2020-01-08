@@ -875,6 +875,10 @@ public:
     */
     void concat(const SkMatrix& matrix);
 
+#ifndef SK_SUPPORT_LEGACY_CANVAS_MATRIX_33
+    void concat(const SkMatrix44&);
+#endif
+
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
 
@@ -2505,7 +2509,7 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_getTotalMatrix
         example: https://fiddle.skia.org/c/@Clip
     */
-    const SkMatrix& getTotalMatrix() const;
+    SkMatrix getTotalMatrix() const;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -2563,6 +2567,8 @@ protected:
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
+    // just pass an array for now, until we decide on the "public" form for the matrix
+    virtual void didConcat44(const SkScalar[]) {}
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using

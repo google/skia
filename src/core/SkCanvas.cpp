@@ -22,6 +22,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCanvasMatrix.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
@@ -235,7 +236,7 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkCanvasMatrix fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
@@ -1428,7 +1429,9 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         fMCRec->fMatrix.preTranslate(dx,dy);
 
         // Translate shouldn't affect the is-scale-translateness of the matrix.
-        SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
+        // However, if either is non-finite, we might still complicate the matrix type,
+        // so we still have to compute this.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
         FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
@@ -1473,6 +1476,25 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 
     this->didConcat(matrix);
 }
+
+#ifndef SK_SUPPORT_LEGACY_CANVAS_MATRIX_33
+// inefficient, just wanted something so we can test with for now
+void SkCanvas::concat(const SkMatrix44& matrix) {
+    this->checkForDeferredSave();
+
+    SkScalar m[16];
+    matrix.asColMajorf(m);
+    SkM44 m44;
+    m44.setColMajor(m);
+    fMCRec->fMatrix.preConcat(m44);
+
+    fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+    this->didConcat44(m);
+}
+#endif
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fMCRec->fMatrix = matrix;
@@ -1583,8 +1605,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1761,7 +1782,7 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
