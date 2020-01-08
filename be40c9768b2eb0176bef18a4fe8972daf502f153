@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c57a861_deccaea9",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 953,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T23:06:05Z",
+      "side": 1,
+      "message": "Didn\u0027t mention this before because it seemed trivial, but `ok` means the same thing as `isOk` if you like.",
+      "range": {
+        "startLine": 953,
+        "startChar": 9,
+        "endLine": 953,
+        "endChar": 13
+      },
+      "revId": "be40c9768b2eb0176bef18a4fe8972daf502f153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94d8616d_add350c8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-08T23:06:05Z",
+      "side": 1,
+      "message": "I think I\u0027m struggling with the comment here or something?\n\n        // All glyphs have been inserted into the atlas if fCurrGlyph is at the end.\n        if (end \u003d\u003d (int)fSubRun-\u003efGlyphs.size()) {\n           ...\n        }\n        fCurrGlyph \u003d end;\n\n... would  it still be correct to do it as\n\n        fCurrGlyph \u003d end;\n        if (fCurrGlyph \u003d\u003d (int)fSubRun-\u003efGlyphs.size()) {\n           ...\n        }\n\n?   If so, I think that would make the comment make more sense to me.\n\n\nMight even make more sense to swap the order into \n\n   // If fCurrGlyph is at the end, all glyphs have been inserted into the atlas.\n\nto kind of line up with how the code reads \n\n   if (fCurrGlyph is at the end) { \n       do something only when all glyphs have been inserted into the atlas\n   }",
+      "range": {
+        "startLine": 961,
+        "startChar": 8,
+        "endLine": 962,
+        "endChar": 50
+      },
+      "revId": "be40c9768b2eb0176bef18a4fe8972daf502f153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
