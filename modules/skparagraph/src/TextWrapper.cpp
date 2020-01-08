@@ -73,22 +73,24 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
 }
 
 void TextWrapper::moveForward() {
-    do {
-        if (!fWords.empty()) {
-            fEndLine.extend(fWords);
-        } else if (!fClusters.empty()) {
-            fEndLine.extend(fClusters);
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else if (!fClip.empty() || (fTooLongWord && fTooLongCluster)) {
-            // Flutter: forget the clipped cluster but keep the metrics
-            fEndLine.metrics().add(fClip.metrics());
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else {
-            break;
+
+    if (!fWords.empty()) {
+        fEndLine.extend(fWords);
+        if (!fTooLongWord) {
+            return;
         }
-    } while (fTooLongWord || fTooLongCluster);
+    }
+    if (!fClusters.empty()) {
+        fEndLine.extend(fClusters);
+        if (fTooLongCluster) {
+            return;
+        }
+    }
+
+    if (!fClip.empty()) {
+        // Flutter: forget the clipped cluster but keep the metrics
+        fEndLine.metrics().add(fClip.metrics());
+    }
 }
 
 // Special case for start/end cluster since they can be clipped
