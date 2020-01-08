@@ -573,6 +573,10 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
             }
         }
     }
+
+    if (kARM_VkVendor == properties.vendorID) {
+        fShouldCollapseSrcOverToSrcWhenAble = true;
+    }
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,

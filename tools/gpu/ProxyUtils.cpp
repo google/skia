@@ -87,7 +87,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
     SkPMColor4f analysisColor = { 0, 0, 0, 1 }; // opaque black
 
     SkDEBUGCODE(auto analysis =) processors.finalize(analysisColor,
-                                                     GrProcessorAnalysisCoverage::kNone,
+                                                     GrProcessorAnalysisCoverage::kSingleChannel,
                                                      &appliedClip, stencil, false,
                                                      *caps, GrClampType::kAuto, &analysisColor);
     SkASSERT(!analysis.requiresDstTexture());

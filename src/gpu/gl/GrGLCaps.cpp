@@ -703,6 +703,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     //     fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
     // }
 
+    if (kARM_GrGLVendor == ctxInfo.vendor()) {
+        fShouldCollapseSrcOverToSrcWhenAble = true;
+    }
+
     FormatWorkarounds formatWorkarounds;
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {

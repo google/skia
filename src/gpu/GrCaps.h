@@ -122,6 +122,13 @@ public:
         return SkToBool(fAdvBlendEqBlacklist & (1 << equation));
     }
 
+    // On some GPUs it is a performance win to disable blending instead of doing src-over with a src
+    // alpha equal to 1. To disable blending we collapse src-over to src and the backends will
+    // handle the disabling of blending.
+    bool shouldCollapseSrcOverToSrcWhenAble() const {
+        return fShouldCollapseSrcOverToSrcWhenAble;
+    }
+
     /**
      * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
      * textures allows partial mappings or full mappings.
@@ -515,6 +522,7 @@ protected:
     bool fTransferFromSurfaceToBufferSupport         : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
     bool fReadPixelsRowBytesSupport                  : 1;
+    bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
 
     // Driver workaround
     bool fDriverBlacklistCCPR                        : 1;
