@@ -102,6 +102,11 @@ class TextWrapper {
             fBreak = fEnd;
         }
 
+        void restoreBreak() {
+            fWidth = fWidthWithGhostSpaces;
+            fEnd = fBreak;
+        }
+
         void trim() {
 
             if (fEnd.cluster() != nullptr &&
@@ -191,7 +196,7 @@ private:
     }
 
     void lookAhead(SkScalar maxWidth, Cluster* endOfClusters);
-    void moveForward();
+    void moveForward(bool hasEllipsis);
     void trimEndSpaces(TextAlign align);
     std::tuple<Cluster*, size_t, SkScalar> trimStartSpaces(Cluster* endOfClusters);
     SkScalar getClustersTrimmedWidth();
