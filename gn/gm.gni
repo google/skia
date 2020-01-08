@@ -31,6 +31,7 @@ gm_sources = [
   "$_gm/badpaint.cpp",
   "$_gm/beziereffects.cpp",
   "$_gm/beziers.cpp",
+  "$_gm/bicubic.cpp",
   "$_gm/bigblurs.cpp",
   "$_gm/bigmatrix.cpp",
   "$_gm/bigrect.cpp",
