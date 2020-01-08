@@ -57,6 +57,28 @@ class SkVertices;
  */
 class GrRenderTargetContext : public GrSurfaceContext {
 public:
+    static std::unique_ptr<GrRenderTargetContext> Make(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
+            const SkISize& dimensions, const GrBackendFormat&, int sampleCnt, GrMipMapped,
+            GrProtected, GrSurfaceOrigin, SkBudgeted, const SkSurfaceProps*);
+
+    // Same as above but will use the default GrBackendFormat for the given GrColorType
+    static std::unique_ptr<GrRenderTargetContext> Make(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
+            const SkISize& dimensions, int sampleCnt = 1, GrMipMapped = GrMipMapped::kNo,
+            GrProtected = GrProtected::kNo, GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes, const SkSurfaceProps* = nullptr);
+
+    // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
+    // fails. The fallback GrColorType will have at least the number of channels and precision per
+    // channel as the passed in GrColorType. It may also swizzle the changes (e.g., BGRA -> RGBA).
+    // SRGB-ness will be preserved.
+    static std::unique_ptr<GrRenderTargetContext> MakeWithFallback(
+            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
+            const SkISize& dimensions, int sampleCnt = 1, GrMipMapped = GrMipMapped::kNo,
+            GrProtected = GrProtected::kNo, GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes, const SkSurfaceProps* = nullptr);
+
     GrRenderTargetContext(GrRecordingContext*, sk_sp<GrRenderTargetProxy>, GrColorType,
                           GrSurfaceOrigin, GrSwizzle readSwizzle, GrSwizzle outSwizzle,
                           sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);

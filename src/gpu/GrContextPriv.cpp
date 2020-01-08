@@ -40,33 +40,6 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
-        SkBackingFit fit,
-        int width,
-        int height,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        int sampleCnt,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
-        SkBudgeted budgeted,
-        GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContext(fit, width, height, colorType,
-                                                     std::move(colorSpace), sampleCnt, mipMapped,
-                                                     origin, surfaceProps, budgeted, isProtected);
-}
-
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit fit, int width, int height, GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace, int sampleCnt, GrMipMapped mipMapped,
-        GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps, SkBudgeted budgeted,
-        GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContextWithFallback(
-            fit, width, height, colorType, std::move(colorSpace), sampleCnt, mipMapped, origin,
-            surfaceProps, budgeted, isProtected);
-}
-
 std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
         const GrBackendTexture& tex,
         GrSurfaceOrigin origin,

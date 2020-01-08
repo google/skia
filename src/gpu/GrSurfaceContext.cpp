@@ -32,6 +32,13 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
                                                          GrColorType colorType,
                                                          SkAlphaType alphaType,
                                                          sk_sp<SkColorSpace> colorSpace) {
+    // It is probably not necessary to check if the context is abandoned here since uses of the
+    // GrSurfaceContext which need the context will mostly likely fail later on without an issue.
+    // However having this hear adds some reassurance in case there is a path doesn't handle an
+    // abandoned context correctly. It also lets us early out of some extra work.
+    if (context->priv().abandoned()) {
+        return nullptr;
+    }
     SkASSERT(proxy && proxy->asTextureProxy());
 
     // TODO: These should be passed in directly or as GrSurfaceProxyView
@@ -56,10 +63,18 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
 }
 
 std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(
-        GrRecordingContext* context, const SkISize& dimensions, const GrBackendFormat& format,
-        GrRenderable renderable, int renderTargetSampleCnt, GrMipMapped mipMapped,
-        GrProtected isProtected, GrSurfaceOrigin origin, GrColorType colorType,
-        SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace, SkBackingFit fit,
+        GrRecordingContext* context,
+        const SkISize& dimensions,
+        const GrBackendFormat& format,
+        GrRenderable renderable,
+        int renderTargetSampleCnt,
+        GrMipMapped mipMapped,
+        GrProtected isProtected,
+        GrSurfaceOrigin origin,
+        GrColorType colorType,
+        SkAlphaType alphaType,
+        sk_sp<SkColorSpace> colorSpace,
+        SkBackingFit fit,
         SkBudgeted budgeted) {
     auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
     if (config == kUnknown_GrPixelConfig) {
@@ -97,7 +112,9 @@ GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
         , fSurfaceProxy(std::move(proxy))
         , fOrigin(origin)
         , fColorInfo(colorType, alphaType, std::move(colorSpace))
-        , fReadSwizzle(readSwizzle) {}
+        , fReadSwizzle(readSwizzle) {
+    SkASSERT(!context->priv().abandoned());
+}
 
 const GrCaps* GrSurfaceContext::caps() const { return fContext->priv().caps(); }
 
@@ -193,9 +210,9 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
                 canvas2DFastPath ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
 
-        auto tempCtx = direct->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox, dstInfo.width(), dstInfo.height(), colorType, std::move(cs),
-                1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes);
+        auto tempCtx = GrRenderTargetContext::Make(
+                direct, colorType, std::move(cs), SkBackingFit::kApprox, dstInfo.dimensions(),
+                1, GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!tempCtx) {
             return false;
         }
@@ -550,9 +567,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         auto xform = GrColorSpaceXform::Make(this->colorInfo().colorSpace(), srcAlphaType, cs.get(),
                                              kPremul_SkAlphaType);
         // We'll fall back to kRGBA_8888 if half float not supported.
-        auto linearRTC = fContext->priv().makeDeferredRenderTargetContextWithFallback(
-                SkBackingFit::kExact, srcW, srcH, GrColorType::kRGBA_F16, cs, 1, GrMipMapped::kNo,
-                kTopLeft_GrSurfaceOrigin);
+        auto linearRTC = GrRenderTargetContext::MakeWithFallback(
+                fContext, GrColorType::kRGBA_F16, cs, SkBackingFit::kExact, {srcW, srcH}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!linearRTC) {
             return nullptr;
         }
@@ -601,9 +618,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
                                             input->colorInfo().alphaType(), cs.get(),
                                             info.alphaType());
         }
-        tempB = fContext->priv().makeDeferredRenderTargetContextWithFallback(
-                SkBackingFit::kExact, nextW, nextH, colorType, std::move(cs), 1, GrMipMapped::kNo,
-                kTopLeft_GrSurfaceOrigin);
+        tempB = GrRenderTargetContext::MakeWithFallback(
+                fContext, colorType, std::move(cs), SkBackingFit::kExact, {nextW, nextH}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
         if (!tempB) {
             return nullptr;
         }
