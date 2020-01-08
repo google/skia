@@ -224,9 +224,7 @@ int SkWebpCodec::onGetRepetitionCount() {
         return kRepetitionCountInfinite;
     }
 
-#ifndef SK_LEGACY_WEBP_LOOP_COUNT
     loopCount--;
-#endif
     return loopCount;
 }
 
