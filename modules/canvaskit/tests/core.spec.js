@@ -66,14 +66,15 @@ describe('Core canvas behavior', function() {
         }));
     });
 
-    it('can decode and draw a png', function(done) {
-        const imgPromise = fetch('/assets/mandrill_512.png')
+    // This helper is used for all the MakeImageFromEncoded tests.
+    function decodeAndDrawSingleFrameImage(imgName, goldName, done) {
+        const imgPromise = fetch(imgName)
             .then((response) => response.arrayBuffer());
         Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
-            const pngData = values[0];
-            expect(pngData).toBeTruthy();
+            const imgData = values[0];
+            expect(imgData).toBeTruthy();
             catchException(done, () => {
-                let img = CanvasKit.MakeImageFromEncoded(pngData);
+                let img = CanvasKit.MakeImageFromEncoded(imgData);
                 expect(img).toBeTruthy();
                 const surface = CanvasKit.MakeCanvasSurface('test');
                 expect(surface).toBeTruthy('Could not make surface');
@@ -88,63 +89,25 @@ describe('Core canvas behavior', function() {
                 paint.delete();
                 img.delete();
 
-                reportSurface(surface, 'drawImage_png', done);
+                reportSurface(surface, goldName, done);
             })();
         });
+    }
+
+    it('can decode and draw a png', function(done) {
+        decodeAndDrawSingleFrameImage('/assets/mandrill_512.png', 'drawImage_png', done);
     });
 
     it('can decode and draw a jpg', function(done) {
-        const imgPromise = fetch('/assets/mandrill_h1v1.jpg')
-            .then((response) => response.arrayBuffer());
-        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
-            const jpgData = values[0];
-            expect(jpgData).toBeTruthy();
-            catchException(done, () => {
-                let img = CanvasKit.MakeImageFromEncoded(jpgData);
-                expect(img).toBeTruthy();
-                const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface');
-                if (!surface) {
-                    done();
-                    return;
-                }
-                const canvas = surface.getCanvas();
-                let paint = new CanvasKit.SkPaint();
-                canvas.drawImage(img, 0, 0, paint);
-
-                paint.delete();
-                img.delete();
-
-                reportSurface(surface, 'drawImage_jpg', done);
-            })();
-        });
+        decodeAndDrawSingleFrameImage('/assets/mandrill_h1v1.jpg', 'drawImage_jpg', done);
     });
 
     it('can decode and draw a (still) gif', function(done) {
-        const imgPromise = fetch('/assets/flightAnim.gif')
-            .then((response) => response.arrayBuffer());
-        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
-            const gifData = values[0];
-            expect(gifData).toBeTruthy();
-            catchException(done, () => {
-                let img = CanvasKit.MakeImageFromEncoded(gifData);
-                expect(img).toBeTruthy();
-                const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface');
-                if (!surface) {
-                    done();
-                    return;
-                }
-                const canvas = surface.getCanvas();
-                let paint = new CanvasKit.SkPaint();
-                canvas.drawImage(img, 0, 0, paint);
+        decodeAndDrawSingleFrameImage('/assets/flightAnim.gif', 'drawImage_gif', done);
+    });
 
-                paint.delete();
-                img.delete();
-
-                reportSurface(surface, 'drawImage_gif', done);
-            })();
-        });
+    it('can decode and draw a still webp', function(done) {
+        decodeAndDrawSingleFrameImage('/assets/color_wheel.webp', 'drawImage_webp', done);
     });
 
     it('can decode and draw an animated gif', function(done) {
