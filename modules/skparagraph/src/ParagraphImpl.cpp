@@ -399,11 +399,17 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 SkVector advance,
                 InternalLineMetrics metrics,
                 bool addEllipsis) {
-                // Add the line
                 // TODO: Take in account clipped edges
                 auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
+                    if (line.ellipsis() != nullptr) {
+                        // Make sure the paragraph boundaries include its ellipsis
+                        auto size = line.ellipsis()->advance();
+                        auto offset = line.ellipsis()->offset();
+                        SkRect boundaries = SkRect::MakeXYWH(offset.fX, offset.fY, size.fX, size.fY);
+                        fOrigin.joinPossiblyEmptyRect(boundaries);
+                    }
                 }
 
                 fLongestLine = SkTMax(fLongestLine, advance.fX);
