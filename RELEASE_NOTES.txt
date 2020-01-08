@@ -8,6 +8,8 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+  * Added SkAnimatedImage::getCurrentFrame()
+
   * Add support to create an SkSurface from an MTKView, with delayed acquisition of
     the MTLDrawable.
     Entry point: SkSurface::MakeFromMTKView
