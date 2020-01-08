@@ -30,8 +30,8 @@
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrContext* context,
                                    sk_sp<GrTextureProxy> rectProxy, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {
-    auto rtContext = GrRenderTargetContext::Make(
-            context, colorType, nullptr, SkBackingFit::kExact, rectProxy->dimensions());
+    auto rtContext = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, rectProxy->width(), rectProxy->height(), colorType, nullptr);
     for (auto filter : {GrSamplerState::Filter::kNearest,
                         GrSamplerState::Filter::kBilerp,
                         GrSamplerState::Filter::kMipMap}) {

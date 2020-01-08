@@ -13,8 +13,8 @@
 #include "tests/Test.h"
 
 static std::unique_ptr<GrRenderTargetContext> new_RTC(GrContext* context) {
-    return GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128});
+    return context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, 128, 128,
+                                                           GrColorType::kRGBA_8888, nullptr);
 }
 
 sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {

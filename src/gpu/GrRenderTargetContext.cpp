@@ -137,115 +137,6 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
-        GrRecordingContext* context,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        SkBackingFit fit,
-        const SkISize& dimensions,
-        const GrBackendFormat& format,
-        int sampleCnt,
-        GrMipMapped mipMapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        const SkSurfaceProps* surfaceProps) {
-    auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
-    GrSurfaceDesc desc;
-    desc.fWidth = dimensions.width();
-    desc.fHeight = dimensions.height();
-    desc.fConfig = config;
-
-    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-    GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format, colorType);
-
-    sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, GrRenderable::kYes, sampleCnt, origin, mipMapped, fit, budgeted,
-            isProtected);
-    if (!proxy) {
-        return nullptr;
-    }
-    GrRenderTargetProxy* rtp = proxy->asRenderTargetProxy();
-    SkASSERT(rtp);
-
-    auto rtc = std::make_unique<GrRenderTargetContext>(context, sk_ref_sp(rtp), colorType, origin,
-                                                       readSwizzle, outSwizzle,
-                                                       std::move(colorSpace), surfaceProps, true);
-    if (!rtc) {
-        return nullptr;
-    }
-    rtc->discard();
-    return rtc;
-}
-
-std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
-        GrRecordingContext* context,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        SkBackingFit fit,
-        const SkISize& dimensions,
-        int sampleCnt,
-        GrMipMapped mipMapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        const SkSurfaceProps* surfaceProps) {
-    auto format = context->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
-    if (!format.isValid()) {
-        return nullptr;
-    }
-
-    return GrRenderTargetContext::Make(context, colorType, std::move(colorSpace), fit, dimensions,
-                                       format, sampleCnt, mipMapped, isProtected, origin, budgeted,
-                                       surfaceProps);
-}
-
-static inline GrColorType color_type_fallback(GrColorType ct) {
-    switch (ct) {
-        // kRGBA_8888 is our default fallback for many color types that may not have renderable
-        // backend formats.
-        case GrColorType::kAlpha_8:
-        case GrColorType::kBGR_565:
-        case GrColorType::kABGR_4444:
-        case GrColorType::kBGRA_8888:
-        case GrColorType::kRGBA_1010102:
-        case GrColorType::kRGBA_F16:
-        case GrColorType::kRGBA_F16_Clamped:
-            return GrColorType::kRGBA_8888;
-        case GrColorType::kAlpha_F16:
-            return GrColorType::kRGBA_F16;
-        case GrColorType::kGray_8:
-            return GrColorType::kRGB_888x;
-        default:
-            return GrColorType::kUnknown;
-    }
-}
-
-std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
-        GrRecordingContext* context,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        SkBackingFit fit,
-        const SkISize& dimensions,
-        int sampleCnt,
-        GrMipMapped mipMapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        const SkSurfaceProps* surfaceProps) {
-    std::unique_ptr<GrRenderTargetContext> rtc;
-    do {
-        rtc = GrRenderTargetContext::Make(context, colorType, colorSpace, fit, dimensions,
-                                          sampleCnt, mipMapped, isProtected, origin, budgeted,
-                                          surfaceProps);
-        colorType = color_type_fallback(colorType);
-    } while (!rtc && colorType != GrColorType::kUnknown);
-    return rtc;
-}
-
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
 // GrOpsTask to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
@@ -1655,9 +1546,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                 }
                 srcRectToDraw = SkRect::MakeWH(srcRect.width(), srcRect.height());
             }
-            tempRTC = GrRenderTargetContext::Make(
-                    direct, this->colorInfo().colorType(), info.refColorSpace(),
-                    SkBackingFit::kApprox, srcRect.size(), 1, GrMipMapped::kNo, GrProtected::kNo,
+            tempRTC = direct->priv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kApprox, srcRect.width(), srcRect.height(),
+                    this->colorInfo().colorType(), info.refColorSpace(), 1, GrMipMapped::kNo,
                     kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
                 callback(context, nullptr);
@@ -1866,9 +1757,10 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
                 return;
             }
             SkRect srcRectToDraw = SkRect::Make(srcRect);
-            tempRTC = GrRenderTargetContext::Make(
-                    direct, this->colorInfo().colorType(), dstColorSpace, SkBackingFit::kApprox,
-                    dstSize, 1, GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            tempRTC = direct->priv().makeDeferredRenderTargetContext(
+                    SkBackingFit::kApprox, dstSize.width(), dstSize.height(),
+                    this->colorInfo().colorType(), dstColorSpace, 1, GrMipMapped::kNo,
+                    kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
                 callback(context, nullptr);
                 return;
@@ -1889,17 +1781,17 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
         return;
     }
 
-    auto yRTC = GrRenderTargetContext::MakeWithFallback(
-            direct, GrColorType::kAlpha_8, dstColorSpace, SkBackingFit::kApprox, dstSize, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+    auto yRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, dstSize.width(), dstSize.height(), GrColorType::kAlpha_8,
+            dstColorSpace, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     int halfW = dstSize.width()/2;
     int halfH = dstSize.height()/2;
-    auto uRTC = GrRenderTargetContext::MakeWithFallback(
-            direct, GrColorType::kAlpha_8, dstColorSpace, SkBackingFit::kApprox, {halfW, halfH}, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-    auto vRTC = GrRenderTargetContext::MakeWithFallback(
-            direct, GrColorType::kAlpha_8, dstColorSpace, SkBackingFit::kApprox, {halfW, halfH}, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+    auto uRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, halfW, halfH, GrColorType::kAlpha_8, dstColorSpace, 1,
+            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    auto vRTC = direct->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kApprox, halfW, halfH, GrColorType::kAlpha_8, dstColorSpace, 1,
+            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
     if (!yRTC || !uRTC || !vRTC) {
         callback(context, nullptr);
         return;

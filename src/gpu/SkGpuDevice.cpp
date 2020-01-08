@@ -148,10 +148,10 @@ std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
 
     // This method is used to create SkGpuDevice's for SkSurface_Gpus. In this case
     // they need to be exact.
-    return GrRenderTargetContext::Make(
-            context, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
-            SkBackingFit::kExact, origInfo.dimensions(), sampleCount, mipMapped, GrProtected::kNo,
-            origin, budgeted, surfaceProps);
+    return context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kExact, origInfo.width(), origInfo.height(),
+            SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(), sampleCount,
+            mipMapped, origin, surfaceProps, budgeted);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
@@ -1627,12 +1627,18 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
 
     SkASSERT(cinfo.fInfo.colorType() != kRGBA_1010102_SkColorType);
 
-    auto rtc = GrRenderTargetContext::MakeWithFallback(
-            fContext.get(), SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
-            fRenderTargetContext->colorInfo().refColorSpace(), fit, cinfo.fInfo.dimensions(),
-            fRenderTargetContext->numSamples(), GrMipMapped::kNo,
-            fRenderTargetContext->asSurfaceProxy()->isProtected(), kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted::kYes, &props);
+    auto rtc = fContext->priv().makeDeferredRenderTargetContextWithFallback(
+            fit,
+            cinfo.fInfo.width(),
+            cinfo.fInfo.height(),
+            SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
+            fRenderTargetContext->colorInfo().refColorSpace(),
+            fRenderTargetContext->numSamples(),
+            GrMipMapped::kNo,
+            kBottomLeft_GrSurfaceOrigin,
+            &props,
+            SkBudgeted::kYes,
+            fRenderTargetContext->asSurfaceProxy()->isProtected());
     if (!rtc) {
         return nullptr;
     }

@@ -50,9 +50,9 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
         }
     }
 
-    auto copyRTC = GrRenderTargetContext::MakeWithFallback(
-            context, colorType, nullptr, SkBackingFit::kExact, copyParams.fDimensions, 1,
-            mipMapped, inputProxy->isProtected(), inputProxy->origin());
+    auto copyRTC = context->priv().makeDeferredRenderTargetContextWithFallback(
+            SkBackingFit::kExact, dstRect.width(), dstRect.height(), colorType, nullptr, 1,
+            mipMapped, inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }

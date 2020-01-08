@@ -488,10 +488,18 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
     sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
     SkASSERT(inputProxy);
 
-    auto renderTargetContext = GrRenderTargetContext::Make(
-            context, ctx.grColorType(), ctx.refColorSpace(), SkBackingFit::kApprox,
-            offsetBounds.size(), 1, GrMipMapped::kNo, inputProxy->isProtected(),
-            kBottomLeft_GrSurfaceOrigin);
+    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
+            SkBackingFit::kApprox,
+            offsetBounds.width(),
+            offsetBounds.height(),
+            ctx.grColorType(),
+            ctx.refColorSpace(),
+            1,
+            GrMipMapped::kNo,
+            kBottomLeft_GrSurfaceOrigin,
+            nullptr,
+            SkBudgeted::kYes,
+            inputProxy->isProtected());
     if (!renderTargetContext) {
         return nullptr;
     }

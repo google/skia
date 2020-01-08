@@ -155,10 +155,14 @@ static std::unique_ptr<GrRenderTargetContext> random_render_target_context(GrCon
     // Above could be 0 if msaa isn't supported.
     sampleCnt = SkTMax(1, sampleCnt);
 
-    return GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight}, sampleCnt, GrMipMapped::kNo,
-            GrProtected::kNo, origin);
+    return context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
+                                                           kRenderTargetWidth,
+                                                           kRenderTargetHeight,
+                                                           GrColorType::kRGBA_8888,
+                                                           nullptr,
+                                                           sampleCnt,
+                                                           GrMipMapped::kNo,
+                                                           origin);
 }
 
 #if GR_TEST_UTILS
@@ -320,9 +324,12 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
                           GrPrepareForExternalIORequests());
 
     // Validate that GrFPs work correctly without an input.
-    auto renderTargetContext = GrRenderTargetContext::Make(
-            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
-            {kRenderTargetWidth, kRenderTargetHeight});
+    auto renderTargetContext =
+            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
+                                                            kRenderTargetWidth,
+                                                            kRenderTargetHeight,
+                                                            GrColorType::kRGBA_8888,
+                                                            nullptr);
     if (!renderTargetContext) {
         SkDebugf("Could not allocate a renderTargetContext");
         return false;

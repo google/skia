@@ -107,9 +107,19 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
                                                                    int finalH,
                                                                    sk_sp<SkColorSpace> finalCS,
                                                                    SkBackingFit dstFit) {
-    auto renderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(finalCS), dstFit, {finalW, finalH}, 1,
-            GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
+
+    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
+            dstFit,
+            finalW,
+            finalH,
+            srcColorType,
+            std::move(finalCS),
+            1,
+            GrMipMapped::kNo,
+            srcProxy->origin(),
+            nullptr,
+            SkBudgeted::kYes,
+            srcProxy->isProtected());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -157,9 +167,18 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
                                                                 SkBackingFit fit) {
     SkASSERT(srcRect.width() <= finalW && srcRect.height() <= finalH);
 
-    auto dstRenderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(finalCS), fit, srcRect.size(), 1,
-            GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
+    auto dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
+            fit,
+            srcRect.width(),
+            srcRect.height(),
+            srcColorType,
+            std::move(finalCS),
+            1,
+            GrMipMapped::kNo,
+            srcProxy->origin(),
+            nullptr,
+            SkBudgeted::kYes,
+            srcProxy->isProtected());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -283,10 +302,19 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
-        dstRenderTargetContext = GrRenderTargetContext::Make(
-                context, srcColorType, finalCS, SkBackingFit::kApprox,
-                {dstRect.fRight, dstRect.fBottom}, 1, GrMipMapped::kNo, srcProxy->isProtected(),
-                srcProxy->origin());
+        // We know this will not be the final draw so we are free to make it an approx match.
+        dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
+                SkBackingFit::kApprox,
+                dstRect.fRight,
+                dstRect.fBottom,
+                srcColorType,
+                finalCS,
+                1,
+                GrMipMapped::kNo,
+                srcProxy->origin(),
+                nullptr,
+                SkBudgeted::kYes,
+                srcProxy->isProtected());
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -364,9 +392,9 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
 
     srcRenderTargetContext = nullptr; // no longer needed
 
-    auto dstRenderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(finalCS), fit, {finalW, finalH}, 1,
-            GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
+    auto dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
+            fit, finalW, finalH, srcColorType, std::move(finalCS), 1, GrMipMapped::kNo,
+            srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
