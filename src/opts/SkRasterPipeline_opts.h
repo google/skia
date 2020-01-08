@@ -1613,7 +1613,7 @@ STAGE(clamp_a, Ctx::None) {
 }
 
 STAGE(clamp_gamut, Ctx::None) {
-    // If you're using this stage, a should already be in [0,1].
+    a = min(max(a, 0), 1.0f);
     r = min(max(r, 0), a);
     g = min(max(g, 0), a);
     b = min(max(b, 0), a);
