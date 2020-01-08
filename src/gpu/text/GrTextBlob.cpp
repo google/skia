@@ -948,41 +948,30 @@ bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Re
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
     fActions.regenTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
-
     if (fActions.regenStrike) { SkASSERT(fActions.regenTextureCoordinates); }
-    if (fActions.regenStrike || fActions.regenTextureCoordinates) {
-        const int begin = fCurrGlyph;
-        const int end = std::min((int)fSubRun->fGlyphs.size(), begin + maxGlyphs);
-        auto [isOk, firstGlyphNotInAtlas] = this->updateTextureCoordinatesMaybeStrike(begin, end);
-        fCurrGlyph = firstGlyphNotInAtlas;
-        if (isOk) {
-            result->fFinished = fCurrGlyph == (int) fSubRun->fGlyphs.size();
-            result->fGlyphsRegenerated += fCurrGlyph - begin;
-            result->fFirstVertex = fSubRun->quadStart(begin);
-        }
-        return isOk;
-    } else {
-        auto vertexStride = fSubRun->vertexStride();
-        int glyphsLeft = fSubRun->fGlyphs.size() - fCurrGlyph;
-        if (glyphsLeft <= maxGlyphs) {
-            result->fFinished = true;
-            result->fGlyphsRegenerated = glyphsLeft;
-        } else {
-            result->fFinished = false;
-            result->fGlyphsRegenerated = maxGlyphs;
-        }
-        result->fFirstVertex = fSubRun->fVertexData.data() +
-                fCurrGlyph * kVerticesPerGlyph * vertexStride;
-        fCurrGlyph += result->fGlyphsRegenerated;
 
-        if (result->fFinished) {
-            // set use tokens for all of the glyphs in our subrun.  This is only valid if we
+    bool ok = true;
+    const int begin = fCurrGlyph;
+    const int end = std::min((int)fSubRun->fGlyphs.size(), begin + maxGlyphs);
+    if (fActions.regenStrike || fActions.regenTextureCoordinates) {
+        int firstGlyphNotInAtlas;
+        std::tie(ok, firstGlyphNotInAtlas) = this->updateTextureCoordinatesMaybeStrike(begin, end);
+        fCurrGlyph = firstGlyphNotInAtlas;
+    } else {
+        fCurrGlyph = end;
+        // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.
+        if (fCurrGlyph == (int)fSubRun->fGlyphs.size()) {
+            // Set use tokens for all of the glyphs in our SubRun.  This is only valid if we
             // have a valid atlas generation
             fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
                                                fUploadTarget->tokenTracker()->nextDrawToken(),
                                                fSubRun->maskFormat());
         }
-        return true;
     }
-    SK_ABORT("Should not get here");
+    if (ok) {
+        result->fFinished = fCurrGlyph == (int)fSubRun->fGlyphs.size();
+        result->fGlyphsRegenerated += fCurrGlyph - begin;
+        result->fFirstVertex = fSubRun->quadStart(begin);
+    }
+    return ok;
 }
