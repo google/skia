@@ -86,6 +86,21 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS/Release"
+    ],
+    "infra_step": true,
+    "name": "makedirs out"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "[START_DIR]/skia/infra/bots/assets/clang_linux/VERSION",
       "/path/to/tmp/"
