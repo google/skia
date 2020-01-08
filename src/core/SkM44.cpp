@@ -46,7 +46,7 @@ SkM44& SkM44::setRowMajor(const SkScalar v[]) {
     return *this;
 }
 
-SkM44& SkM44::setConcat(const SkM44& a, const SkM44& b) {
+SkM44& SkM44::setConcat(const SkM44& a, const SkScalar b[16]) {
     sk4f c0 = sk4f::Load(a.fMat +  0);
     sk4f c1 = sk4f::Load(a.fMat +  4);
     sk4f c2 = sk4f::Load(a.fMat +  8);
@@ -56,10 +56,10 @@ SkM44& SkM44::setConcat(const SkM44& a, const SkM44& b) {
         return skvx::mad(c0, r[0], skvx::mad(c1, r[1], skvx::mad(c2, r[2], c3 * r[3])));
     };
 
-    sk4f m0 = compute(sk4f::Load(b.fMat +  0));
-    sk4f m1 = compute(sk4f::Load(b.fMat +  4));
-    sk4f m2 = compute(sk4f::Load(b.fMat +  8));
-    sk4f m3 = compute(sk4f::Load(b.fMat + 12));
+    sk4f m0 = compute(sk4f::Load(b +  0));
+    sk4f m1 = compute(sk4f::Load(b +  4));
+    sk4f m2 = compute(sk4f::Load(b +  8));
+    sk4f m3 = compute(sk4f::Load(b + 12));
 
     m0.store(fMat +  0);
     m1.store(fMat +  4);

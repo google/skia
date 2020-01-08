@@ -55,7 +55,7 @@ public:
 
     bool mapRect(SkRect* dst, const SkRect& src) { return fM.asM33().mapRect(dst, src); }
 
-    void preConcat(const SkM44& m) { fM.setConcat(fM, m); }
+    void preConcat44(const SkScalar m[]) { fM.setConcat(fM, m); }
 #endif
 };
 

@@ -475,6 +475,7 @@ private:
     inline const SkMScalar* values() const { return &fMat[0][0]; }
 
     friend class SkColorSpace;
+    friend class SkCanvas;
 };
 
 #endif

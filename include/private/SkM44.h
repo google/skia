@@ -111,7 +111,11 @@ public:
                                  0, 0, 0, 1);
     }
 
-    SkM44& setConcat(const SkM44& a, const SkM44& b);
+    SkM44& setConcat(const SkM44& a, const SkScalar colMajor[16]);
+
+    SkM44& setConcat(const SkM44& a, const SkM44& b) {
+        return this->setConcat(a, b.fMat);
+    }
 
     friend SkM44 operator*(const SkM44& a, const SkM44& b) {
         return SkM44(a, b);

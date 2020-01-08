@@ -1478,21 +1478,20 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 }
 
 #ifndef SK_SUPPORT_LEGACY_CANVAS_MATRIX_33
-// inefficient, just wanted something so we can test with for now
-void SkCanvas::concat(const SkMatrix44& matrix) {
+void SkCanvas::concat44(const SkScalar m[16]) {
     this->checkForDeferredSave();
 
-    SkScalar m[16];
-    matrix.asColMajorf(m);
-    SkM44 m44;
-    m44.setColMajor(m);
-    fMCRec->fMatrix.preConcat(m44);
+    fMCRec->fMatrix.preConcat44(m);
 
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
     this->didConcat44(m);
+}
+
+void SkCanvas::concat(const SkMatrix44& m) {
+    this->concat44(m.values());
 }
 #endif
 
