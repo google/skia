@@ -46,6 +46,30 @@
       "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffe80e0e_347f66fa",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-08T18:27:22Z",
+      "side": 1,
+      "message": "As discussed offline, making sure two identical SkImages have the same id aids in not having to upload them multiple times to the GPU and might be worth addressing in a followup CL.",
+      "parentUuid": "0eccf344_0e345637",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 17
+      },
+      "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
