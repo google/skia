@@ -195,6 +195,9 @@ namespace {
                 src.b = min(mad(src.b, M, A), src.a);
             }
 
+            // If we can determine this we can skip a fair bit of clamping!
+            bool src_in_gamut = false;
+
             // Normalized premul formats can surprisingly represent some out-of-gamut
             // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
             // working with normalized premul colors is not prepared to handle r,g,b > a.
@@ -203,12 +206,14 @@ namespace {
             // In addition, GL clamps all its color channels to limits of the format just
             // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
             // [0,1] too, just in case someone gave us a crazy alpha.
-            if (params.alphaType == kPremul_SkAlphaType
+            if (!src_in_gamut
+                    && params.alphaType == kPremul_SkAlphaType
                     && SkColorTypeIsNormalized(params.colorType)) {
                 src.a = clamp(src.a, splat(0.0f), splat(1.0f));
                 src.r = clamp(src.r, splat(0.0f), src.a);
                 src.g = clamp(src.g, splat(0.0f), src.a);
                 src.b = clamp(src.b, splat(0.0f), src.a);
+                src_in_gamut = true;
             }
 
             // There are several orderings here of when we load dst and coverage
@@ -291,7 +296,14 @@ namespace {
             }
 
             // Clamp to fit destination color format if needed.
-            if (SkColorTypeIsNormalized(params.colorType)) {
+            if (src_in_gamut) {
+                // An in-gamut src blended with an in-gamut dst should stay in gamut.
+                // Being in-gamut implies all channels are in [0,1], so no need to clamp.
+                assert_true(eq(src.a, clamp(src.a, splat(0.0f), splat(1.0f))));
+                assert_true(eq(src.r, clamp(src.r, splat(0.0f), src.a)));
+                assert_true(eq(src.g, clamp(src.g, splat(0.0f), src.a)));
+                assert_true(eq(src.b, clamp(src.b, splat(0.0f), src.a)));
+            } else if (SkColorTypeIsNormalized(params.colorType)) {
                 src.r = clamp(src.r, splat(0.0f), splat(1.0f));
                 src.g = clamp(src.g, splat(0.0f), splat(1.0f));
                 src.b = clamp(src.b, splat(0.0f), splat(1.0f));
