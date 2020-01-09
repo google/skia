@@ -32,7 +32,6 @@ class GrPath;
 class GrRenderTargetContext;
 class GrResourceCache;
 class GrResourceProvider;
-class GrSamplerState;
 class GrSurfaceProxy;
 class GrSwizzle;
 class GrTextContext;

@@ -1774,7 +1774,7 @@ int GrVkCaps::getFragmentUniformSet() const {
 }
 
 void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
-                                  const GrSamplerState& samplerState,
+                                  GrSamplerState samplerState,
                                   const GrBackendFormat& format) const {
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!ycbcrInfo) {

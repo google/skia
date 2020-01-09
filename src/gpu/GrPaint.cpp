@@ -36,7 +36,7 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
 }
 
 void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, SkAlphaType alphaType,
-                                       const SkMatrix& matrix, const GrSamplerState& samplerState) {
+                                       const SkMatrix& matrix, GrSamplerState samplerState) {
     this->addColorFragmentProcessor(
             GrTextureEffect::Make(std::move(proxy), alphaType, matrix, samplerState));
 }

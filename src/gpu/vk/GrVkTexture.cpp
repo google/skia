@@ -272,19 +272,17 @@ void GrVkTexture::removeFinishIdleProcs() {
     fIdleProcs = procsToKeep;
 }
 
-const GrVkDescriptorSet* GrVkTexture::cachedSingleDescSet(const GrSamplerState& state) {
+const GrVkDescriptorSet* GrVkTexture::cachedSingleDescSet(GrSamplerState state) {
     if (std::unique_ptr<DescriptorCacheEntry>* e = fDescSetCache.find(state)) {
         return (*e)->fDescriptorSet;
     }
     return nullptr;
 }
 
-void GrVkTexture::addDescriptorSetToCache(const GrVkDescriptorSet* descSet,
-                                          const GrSamplerState& state) {
+void GrVkTexture::addDescriptorSetToCache(const GrVkDescriptorSet* descSet, GrSamplerState state) {
     SkASSERT(!fDescSetCache.find(state));
     descSet->ref();
     fDescSetCache.insert(state,
                          std::unique_ptr<DescriptorCacheEntry>(
                                  new DescriptorCacheEntry(descSet, this->getVkGpu())));
 }
-

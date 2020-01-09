@@ -27,11 +27,14 @@ public:
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
                                      const GrShaderCaps& caps,
-                                     const SkPMColor4f& color, bool wideColor,
+                                     const SkPMColor4f& color,
+                                     bool wideColor,
                                      const GrSurfaceProxyView* views,
                                      int numActiveViews,
-                                     const GrSamplerState& p, GrMaskFormat format,
-                                     const SkMatrix& localMatrix, bool usesW) {
+                                     GrSamplerState p,
+                                     GrMaskFormat format,
+                                     const SkMatrix& localMatrix,
+                                     bool usesW) {
         return arena->make<GrBitmapTextGeoProc>(caps, color, wideColor, views, numActiveViews,
                                                 p, format, localMatrix, usesW);
     }
@@ -50,7 +53,7 @@ public:
     bool usesW() const { return fUsesW; }
     const SkISize& atlasDimensions() const { return fAtlasDimensions; }
 
-    void addNewViews(const GrSurfaceProxyView*, int numActiveViews, const GrSamplerState&);
+    void addNewViews(const GrSurfaceProxyView*, int numActiveViews, GrSamplerState);
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
@@ -60,9 +63,8 @@ private:
     friend class ::SkArenaAlloc; // for access to ctor
 
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,
-                        const GrSurfaceProxyView* views, int numViews,
-                        const GrSamplerState& params, GrMaskFormat format,
-                        const SkMatrix& localMatrix, bool usesW);
+                        const GrSurfaceProxyView* views, int numViews, GrSamplerState params,
+                        GrMaskFormat format, const SkMatrix& localMatrix, bool usesW);
 
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 

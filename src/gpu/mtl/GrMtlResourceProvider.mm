@@ -58,7 +58,7 @@ GrMtlDepthStencil* GrMtlResourceProvider::findOrCreateCompatibleDepthStencilStat
     return depthStencilState;
 }
 
-GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(const GrSamplerState& params) {
+GrMtlSampler* GrMtlResourceProvider::findOrCreateCompatibleSampler(GrSamplerState params) {
     GrMtlSampler* sampler;
     sampler = fSamplers.find(GrMtlSampler::GenerateKey(params));
     if (!sampler) {

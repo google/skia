@@ -178,7 +178,7 @@ static_assert((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
  */
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
                                                     const SkBitmap&,
-                                                    const GrSamplerState&,
+                                                    GrSamplerState,
                                                     SkScalar scaleAdjust[2]);
 
 /**

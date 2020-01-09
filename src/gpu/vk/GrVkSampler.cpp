@@ -25,7 +25,7 @@ static inline VkSamplerAddressMode wrap_mode_to_vk_sampler_address(
     SK_ABORT("Unknown wrap mode.");
 }
 
-GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, const GrSamplerState& samplerState,
+GrVkSampler* GrVkSampler::Create(GrVkGpu* gpu, GrSamplerState samplerState,
                                  const GrVkYcbcrConversionInfo& ycbcrInfo) {
     static VkFilter vkMinFilterModes[] = {
         VK_FILTER_NEAREST,
@@ -120,9 +120,8 @@ void GrVkSampler::freeGPUData(GrVkGpu* gpu) const {
     }
 }
 
-GrVkSampler::Key GrVkSampler::GenerateKey(const GrSamplerState& samplerState,
+GrVkSampler::Key GrVkSampler::GenerateKey(GrSamplerState samplerState,
                                           const GrVkYcbcrConversionInfo& ycbcrInfo) {
     return { GrSamplerState::GenerateKey(samplerState),
              GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo) };
 }
-

@@ -700,7 +700,7 @@ bool SkGpuDevice::shouldTileImageID(uint32_t imageID,
                                     const SkIRect& imageRect,
                                     const SkMatrix& viewMatrix,
                                     const SkMatrix& srcToDstRect,
-                                    const GrSamplerState& params,
+                                    GrSamplerState params,
                                     const SkRect* srcRectPtr,
                                     int maxTileSize,
                                     int* tileSize,
@@ -822,7 +822,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkMatrix& dstMatrix,
                                   const SkRect& srcRect,
                                   const SkIRect& clippedSrcIRect,
-                                  const GrSamplerState& params,
+                                  GrSamplerState params,
                                   const SkPaint& origPaint,
                                   SkCanvas::SrcRectConstraint constraint,
                                   int tileSize,
@@ -906,7 +906,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
                                  const SkMatrix& viewMatrix,
                                  const SkRect& dstRect,
                                  const SkRect& srcRect,
-                                 const GrSamplerState& samplerState,
+                                 GrSamplerState samplerState,
                                  const SkPaint& paint,
                                  SkCanvas::SrcRectConstraint constraint,
                                  bool bicubic,
@@ -1063,10 +1063,11 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         // of the clip image should behave as if it were a decal (i.e. zero coverage). However, to
         // limit pixels touched and hardware checks, we draw the clip image geometry to get the
         // decal effect.
-        GrSamplerState sampler = paint.getFilterQuality() > kNone_SkFilterQuality ?
-                GrSamplerState::ClampBilerp() : GrSamplerState::ClampNearest();
-        sk_sp<GrTextureProxy> clipProxy = as_IB(clipImage)->asTextureProxyRef(this->context(),
-                                                                              sampler, nullptr);
+        auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
+                              ? GrSamplerState::Filter::kBilerp
+                              : GrSamplerState::Filter::kNearest;
+        sk_sp<GrTextureProxy> clipProxy =
+                as_IB(clipImage)->asTextureProxyRef(this->context(), filter, nullptr);
         // Fold clip matrix into ctm
         ctm.preConcat(clipMatrix);
         SkMatrix inverseClipMatrix;
@@ -1075,7 +1076,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         if (clipProxy && ctm.invert(&inverseClipMatrix)) {
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
             cfp = GrTextureEffect::Make(std::move(clipProxy), clipImage->alphaType(),
-                                        inverseClipMatrix, sampler);
+                                        inverseClipMatrix, filter);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }

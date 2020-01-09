@@ -319,11 +319,11 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                                                               *target->caps().shaderCaps(),
                                                               views, numActiveViews);
     } else {
-        GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
-                                                           : GrSamplerState::ClampNearest();
-        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
-            *target->caps().shaderCaps(), this->color(), false, views, numActiveViews,
-            samplerState, maskFormat, localMatrix, vmPerspective);
+        auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kBilerp
+                                           : GrSamplerState::Filter::kNearest;
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+                target->allocator(), *target->caps().shaderCaps(), this->color(), false, views,
+                numActiveViews, filter, maskFormat, localMatrix, vmPerspective);
     }
 
     size_t vertexStride = flushInfo.fGeometryProcessor->vertexStride();
@@ -454,16 +454,15 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewViews(
-                    views, numActiveViews, GrSamplerState::ClampBilerp());
+                        views, numActiveViews, GrSamplerState::Filter::kBilerp);
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewViews(
-                    views, numActiveViews, GrSamplerState::ClampBilerp());
+                        views, numActiveViews, GrSamplerState::Filter::kBilerp);
             }
         } else {
-            GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
-                                                               : GrSamplerState::ClampNearest();
-            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews,
-                                                                      samplerState);
+            auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kBilerp
+                                               : GrSamplerState::Filter::kNearest;
+            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews, filter);
         }
     }
     int maxGlyphsPerDraw = static_cast<int>(flushInfo->fIndexBuffer->size() / sizeof(uint16_t) / 6);
@@ -578,7 +577,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
         return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                   GrSamplerState::ClampBilerp(), widthAdjust,
+                                                   GrSamplerState::Filter::kBilerp, widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -590,11 +589,11 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                              fUseGammaCorrectDistanceTable);
         }
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                  GrSamplerState::ClampBilerp(),
-                                                  correction, fDFGPFlags, localMatrix);
+                                                  GrSamplerState::Filter::kBilerp, correction,
+                                                  fDFGPFlags, localMatrix);
 #else
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                  GrSamplerState::ClampBilerp(),
+                                                  GrSamplerState::Filter::kBilerp,
                                                   fDFGPFlags, localMatrix);
 #endif
     }

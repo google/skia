@@ -198,7 +198,7 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
 }
 
 GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(
-        const GrSamplerState& params, const GrVkYcbcrConversionInfo& ycbcrInfo) {
+        GrSamplerState params, const GrVkYcbcrConversionInfo& ycbcrInfo) {
     GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, ycbcrInfo));
     if (!sampler) {
         sampler = GrVkSampler::Create(fGpu, params, ycbcrInfo);

@@ -211,7 +211,7 @@ private:
 GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& caps,
                                                            const GrSurfaceProxyView* views,
                                                            int numViews,
-                                                           const GrSamplerState& params,
+                                                           GrSamplerState params,
 #ifdef SK_GAMMA_APPLY_TO_A8
                                                            float distanceAdjust,
 #endif
@@ -251,7 +251,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
 
 void GrDistanceFieldA8TextGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                                int numViews,
-                                               const GrSamplerState& params) {
+                                               GrSamplerState params) {
     SkASSERT(numViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
     numViews = SkTMin(numViews, kMaxTextures);
@@ -515,7 +515,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
                                                        bool wideColor,
                                                        const GrSurfaceProxyView* views,
                                                        int numViews,
-                                                       const GrSamplerState& params,
+                                                       GrSamplerState params,
                                                        uint32_t flags)
         : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
         , fMatrix(matrix)
@@ -544,7 +544,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
 
 void GrDistanceFieldPathGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                              int numViews,
-                                             const GrSamplerState& params) {
+                                             GrSamplerState params) {
     SkASSERT(numViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
     numViews = SkTMin(numViews, kMaxTextures);
@@ -831,7 +831,7 @@ private:
 GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps& caps,
                                                              const GrSurfaceProxyView* views,
                                                              int numViews,
-                                                             const GrSamplerState& params,
+                                                             GrSamplerState params,
                                                              DistanceAdjust distanceAdjust,
                                                              uint32_t flags,
                                                              const SkMatrix& localMatrix)
@@ -867,7 +867,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
 
 void GrDistanceFieldLCDTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                                 int numViews,
-                                                const GrSamplerState& params) {
+                                                GrSamplerState params) {
     SkASSERT(numViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
     numViews = SkTMin(numViews, kMaxTextures);

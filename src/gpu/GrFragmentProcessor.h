@@ -475,13 +475,11 @@ public:
     /**
      * This copy constructor is used by GrFragmentProcessor::clone() implementations.
      */
-    explicit TextureSampler(const TextureSampler& that)
-            : fView(that.fView)
-            , fSamplerState(that.fSamplerState) {}
+    explicit TextureSampler(const TextureSampler&) = default;
 
-    TextureSampler(GrSurfaceProxyView, const GrSamplerState& = GrSamplerState::ClampNearest());
+    TextureSampler(GrSurfaceProxyView, GrSamplerState = {});
     // TODO: Remove this ctor once all uses have been updated to pass in a GrSurfaceProxyView
-    TextureSampler(sk_sp<GrSurfaceProxy>, const GrSamplerState& = GrSamplerState::ClampNearest());
+    TextureSampler(sk_sp<GrSurfaceProxy>, GrSamplerState = {});
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 
@@ -500,12 +498,12 @@ public:
     }
 
     const GrSurfaceProxyView& view() const { return fView; }
-    const GrSamplerState& samplerState() const { return fSamplerState; }
+    GrSamplerState samplerState() const { return fSamplerState; }
 
     bool isInitialized() const { return SkToBool(this->proxy()); }
 
 #if GR_TEST_UTILS
-    void set(GrSurfaceProxyView, const GrSamplerState&);
+    void set(GrSurfaceProxyView, GrSamplerState);
 #endif
 private:
     GrSurfaceProxy* proxy() const { return fView.proxy(); }

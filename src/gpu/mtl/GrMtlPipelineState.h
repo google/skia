@@ -111,7 +111,7 @@ private:
         GrMtlSampler*  fSampler;
         id<MTLTexture> fTexture;
 
-        SamplerBindings(const GrSamplerState& state, GrTexture* texture, GrMtlGpu*);
+        SamplerBindings(GrSamplerState state, GrTexture* texture, GrMtlGpu*);
     };
 
     GrMtlGpu* fGpu;

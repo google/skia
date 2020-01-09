@@ -2040,7 +2040,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::copy_n(baseM + 5, 5, uM + 15);
     GrPaint uPaint;
     uPaint.addColorTextureProcessor(srcProxy, this->colorInfo().alphaType(), texMatrix,
-                                    GrSamplerState::ClampBilerp());
+                                    GrSamplerState::Filter::kBilerp);
     auto uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
     uPaint.addColorFragmentProcessor(std::move(uFP));
     uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -2059,7 +2059,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::copy_n(baseM + 10, 5, vM + 15);
     GrPaint vPaint;
     vPaint.addColorTextureProcessor(srcProxy, this->colorInfo().alphaType(), texMatrix,
-                                    GrSamplerState::ClampBilerp());
+                                    GrSamplerState::Filter::kBilerp);
     auto vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
     vPaint.addColorFragmentProcessor(std::move(vFP));
     vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);

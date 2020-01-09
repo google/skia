@@ -9,7 +9,7 @@
 in uniform sampler2D gradient;
 
 @samplerParams(gradient) {
-    GrSamplerState::ClampBilerp()
+    GrSamplerState::Filter::kBilerp
 }
 
 void main() {

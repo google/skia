@@ -84,8 +84,7 @@ void GrProgramInfo::checkAllInstantiated() const {
 }
 
 void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
-
-    auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
+    auto assertResolved = [](GrTexture* tex, GrSamplerState sampler) {
         SkASSERT(tex);
 
         // Ensure mipmaps were all resolved ahead of time by the DAG.

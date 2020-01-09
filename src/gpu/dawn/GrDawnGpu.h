@@ -96,7 +96,7 @@ public:
 
     sk_sp<GrDawnProgram> getOrCreateRenderPipeline(GrRenderTarget*, const GrProgramInfo&);
 
-    wgpu::Sampler getOrCreateSampler(const GrSamplerState& samplerState);
+    wgpu::Sampler getOrCreateSampler(GrSamplerState samplerState);
 
     GrDawnRingBuffer::Slice allocateUniformRingBufferSlice(int size);
     GrDawnStagingBuffer* getStagingBuffer(size_t size);
@@ -183,7 +183,7 @@ private:
     };
 
     struct SamplerHash {
-        size_t operator()(const GrSamplerState& samplerState) const {
+        size_t operator()(GrSamplerState samplerState) const {
             return SkOpts::hash_fn(&samplerState, sizeof(samplerState), 0);
         }
     };

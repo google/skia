@@ -43,7 +43,7 @@ public:
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*,
-                                            const GrSamplerState&,
+                                            GrSamplerState,
                                             SkScalar scaleAdjust[2]) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                   SkYUVColorSpace*, const void* planes[4]) override;

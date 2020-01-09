@@ -77,7 +77,7 @@ public:
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
                                             SkScalar scaleAdjust[2]) const override;
 #endif
 
@@ -167,7 +167,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
 
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrRecordingContext* context,
-                                                        const GrSamplerState& params,
+                                                        GrSamplerState params,
                                                         SkScalar scaleAdjust[2]) const {
     if (!context) {
         return nullptr;
@@ -205,7 +205,7 @@ bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedProxy = GrRefCachedBitmapTextureProxy(ctx, fBitmap, GrSamplerState::ClampNearest(),
+        fPinnedProxy = GrRefCachedBitmapTextureProxy(ctx, fBitmap, GrSamplerState::Filter::kNearest,
                                                      nullptr);
         if (!fPinnedProxy) {
             return false;

@@ -277,7 +277,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 }
 
 GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(const GrSurfaceProxy* texture,
-                                                                      const GrSamplerState& state,
+                                                                      GrSamplerState state,
                                                                       const GrSwizzle& swizzle,
                                                                       const char* name) {
     ++fNumFragmentSamplers;

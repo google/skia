@@ -60,7 +60,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 }
 
 GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(const GrSurfaceProxy* texture,
-                                                                   const GrSamplerState&,
+                                                                   GrSamplerState,
                                                                    const GrSwizzle& swizzle,
                                                                    const char* name,
                                                                    const GrShaderCaps* shaderCaps) {
