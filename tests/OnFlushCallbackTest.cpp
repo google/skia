@@ -449,7 +449,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrTextureEffect::Make(atlasProxy, atlasAlphaType);
+        auto fp = GrTextureEffect::Make(atlasProxy, atlasAlphaType, SkMatrix::I());
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
