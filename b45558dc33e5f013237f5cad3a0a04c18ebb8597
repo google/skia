@@ -22,6 +22,30 @@
       "revId": "b45558dc33e5f013237f5cad3a0a04c18ebb8597",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e32e8c11_b0cbf680",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-09T17:23:06Z",
+      "side": 0,
+      "message": "There are four things that need to be set by the end of this code fFirstVertex, fFinished, fGylphsRegenerated, and fCurrGlyph.\n\nWorking with fFirstVertex set on line 974. The expression is just the body of quadStart().\nbecomes \n result-\u003efFirstVertex \u003d fSubRun-\u003equadStart(fCurrGlyph)\nbecomes: from line 954 of new code begin \u003d\u003d fCurGlyph\n result-\u003efFirstVertex \u003d fSubRun-\u003equadStart(begin)\n\nThe invariant of fFirstVertex is that it points to the first quad the working range.\n\nWorking backwards from 976 with fCurrGlyph\n fCurrGlyph +\u003d result-\u003efGlyphsRegenerated\nbecomes\n fCurrGlyph +\u003d glyphsLeft \u003c\u003d maxGlyphs ? glyphsLeft : maxGlyphs\nbecomes\n fCurrGlyph +\u003d min(glyphsLeft, maxGlyphs)\nbecomes\n fCurrGlyph +\u003d min(fSubRun-\u003efGlyphs.size() - fCurrGlyph, maxGlyphs) \nbecomes: notice the change from +\u003d to \u003d and the addition of fCurrGlyph to both sides\n fCurrGlyph \u003d min(fSubRun-\u003efGlyphs.size(), fCurrGlyph + maxGlyphs)\nbecomes: notice that fCurrGlyph \u003d\u003d begin at the start of execution of 976\n fCurrGlyph \u003d min(fSubRun-\u003efGlyphs.size(), begin + maxGlyphs)\nbecomes: as needed by line 969 of the new code. \nfCurrGlyph \u003d end \n\nThe invariant of fCurrGlyph is that it always points to the first glyph not in the atlas.\n\nWorking with fGlyphsRegenerated combining lines 969 and 972 into tri-op\n  fGlyphRegenerated \u003d glyphsLeft \u003c\u003d maxGlyphs ? glyphsLeft : maxGlyphs\nbecomes\n  fGlyphRegenerated \u003d min(glyphsLeft, maxGlyphs)\nbecomes\n  fGlyphRegenerated \u003d min(fSubRun-\u003efGlyphs.size() - fCurrGlyph, maxGlyphs)\nbecomes: fCurrGlyph \u003d\u003d begin\n  fGlyphRegenerated \u003d min(fSubRun-\u003efGlyphs.size() - begin, maxGlyphs)\nbecomes: distributing out begin\n  fGlyphRegenerated \u003d min(fSubRun-\u003efGlyphs.size(), maxGlyphs + begin) - begin\nbecomes\n  fGlyphRegenerated \u003d end - begin\nbecomes: fCurrGlyph \u003d\u003d end by line 969 of the new code\n  fGlyphRegenerated \u003d fCurrGlyph - begin\n\nThe invariant of fGlyphRegenerated is the number of glyphs processed either to the end or until we hit maxGlyphs.\n\nWorking backwards from:\nfFinished \u003d fCurrGlyph \u003d\u003d (int)fSubRun-\u003efGlyphs.size();\n\nNotice that if glyphsLeft \u003c\u003d maxGlyphs then fCurrGlyph \u003d\u003d fSubRun-\u003efGlyphs.size() and fFinished is true. Otherwise, fCurrGlyph \u003d\u003d begin + maxGlyphs \u003c fSubRun-\u003efGlyphs.size() and fFinished is false. fCurrGlyph being fSubRun-\u003efGlyphs.size() or begin + maxGlyphs is by the proof of fCurrGlyph.",
+      "parentUuid": "c124c4fe_dde2fa22",
+      "range": {
+        "startLine": 965,
+        "startChar": 6,
+        "endLine": 976,
+        "endChar": 49
+      },
+      "revId": "b45558dc33e5f013237f5cad3a0a04c18ebb8597",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
