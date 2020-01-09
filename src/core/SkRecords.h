@@ -23,6 +23,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
+#include "include/private/SkM44.h"
 #include "src/core/SkDrawShadowInfo.h"
 
 namespace SkRecords {
@@ -46,7 +47,9 @@ namespace SkRecords {
     M(SaveBehind)                                                   \
     M(SetMatrix)                                                    \
     M(Translate)                                                    \
+    M(Scale)                                                        \
     M(Concat)                                                       \
+    M(Concat44)                                                     \
     M(ClipPath)                                                     \
     M(ClipRRect)                                                    \
     M(ClipRect)                                                     \
@@ -153,6 +156,13 @@ struct TypedMatrix : public SkMatrix {
     TypedMatrix(const SkMatrix& matrix);
 };
 
+struct Matrix44 : public SkM44 {
+    Matrix44() {}
+    Matrix44(const SkScalar m[16]) {
+        this->setColMajor(m);
+    }
+};
+
 enum Tags {
     kDraw_Tag      = 1,   // May draw something (usually named DrawFoo).
     kHasImage_Tag  = 2,   // Contains an SkImage or SkBitmap.
@@ -191,10 +201,16 @@ RECORD(SetMatrix, 0,
         TypedMatrix matrix);
 RECORD(Concat, 0,
         TypedMatrix matrix);
+RECORD(Concat44, 0,
+       Matrix44 matrix);
 
 RECORD(Translate, 0,
         SkScalar dx;
         SkScalar dy);
+
+RECORD(Scale, 0,
+       SkScalar sx;
+       SkScalar sy);
 
 struct ClipOpAndAA {
     ClipOpAndAA() {}
