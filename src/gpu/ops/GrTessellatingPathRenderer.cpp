@@ -293,8 +293,9 @@ private:
         bool isLinear;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(vertexStride, rp, canMapVB);
-        int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator, false,
-                                                   &isLinear);
+        int count = GrTessellator::PathToTriangles(this->getPath(), tol,
+                                                   GrTessellator::Flags::kNone, clipBounds,
+                                                   &allocator, &isLinear);
         if (count == 0) {
             return;
         }
@@ -320,8 +321,8 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
         DynamicVertexAllocator allocator(vertexStride, target);
-        int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
-                                                   &isLinear);
+        int count = GrTessellator::PathToTriangles(path, tol, GrTessellator::Flags::kCoverageAA,
+                                                   clipBounds, &allocator, &isLinear);
         if (count == 0) {
             return;
         }
