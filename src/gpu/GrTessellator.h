@@ -11,6 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/ops/GrMeshDrawOp.h"
 
 class SkPath;
 struct SkRect;
@@ -34,6 +35,32 @@ private:
     size_t fStride;
 };
 
+class DynamicVertexAllocator : public VertexAllocator {
+public:
+    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
+            : VertexAllocator(stride)
+            , fTarget(target) {}
+    void* lock(int lockCount) override {
+        SkASSERT(!fLockCount);
+        SkASSERT(lockCount);
+        fLockCount = lockCount;
+        return fTarget->makeVertexSpace(this->stride(), fLockCount, &fVertexBuffer, &fFirstVertex);
+    }
+    void unlock(int actualCount) override {
+        SkASSERT(fLockCount);
+        fTarget->putBackVertices(fLockCount - actualCount, this->stride());
+        fLockCount = 0;
+    }
+    sk_sp<const GrBuffer> detachVertexBuffer() const { return std::move(fVertexBuffer); }
+    int firstVertex() const { return fFirstVertex; }
+
+private:
+    GrMeshDrawOp::Target* const fTarget;
+    int fLockCount = 0;
+    sk_sp<const GrBuffer> fVertexBuffer;
+    int fFirstVertex;
+};
+
 struct WindingVertex {
     SkPoint fPos;
     int fWinding;
@@ -55,7 +82,13 @@ enum class Flags {
     // If this flag is not provied, then all triangles will wind clockwise.
     //
     // NOTE: wind direction matching does not apply to kCoverageAA ramps.
-    kPreserveWindingDirection = 1 << 1
+    kPreserveWindingDirection = 1 << 1,
+
+    // Ensures that no vertices get added or removed after the path has been linearized. If
+    // the linearized path has self intersections that require new vertices, then PathToVertices
+    // returns 0. Collinear points are not culled.
+    // NOTE: this flag is not compatible with kCoverageAA.
+    kPreserveExactEdges = 1 << 2
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(Flags);

@@ -1326,6 +1326,7 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
 
 void sanitize_contours(VertexList* contours, int contourCnt, Flags flags) {
     bool approximate = (Flags::kCoverageAA & flags);
+    bool cullCollinearVertices = !(Flags::kPreserveExactEdges & flags);
     for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
         SkASSERT(contour->fHead);
         Vertex* prev = contour->fTail;
@@ -1344,7 +1345,8 @@ void sanitize_contours(VertexList* contours, int contourCnt, Flags flags) {
             } else if (!v->fPoint.isFinite()) {
                 TESS_LOG("vertex %g,%g non-finite; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
-            } else if (Line(prev->fPoint, nextWrap->fPoint).dist(v->fPoint) == 0.0) {
+            } else if (cullCollinearVertices &&
+                       Line(prev->fPoint, nextWrap->fPoint).dist(v->fPoint) == 0.0) {
                 TESS_LOG("vertex %g,%g collinear; removing\n", v->fPoint.fX, v->fPoint.fY);
                 contour->remove(v);
             } else {
@@ -1547,10 +1549,10 @@ bool connected(Vertex* v) {
     return v->fFirstEdgeAbove || v->fFirstEdgeBelow;
 }
 
-bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
+bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc, bool abortIfSelfIntersection) {
     TESS_LOG("simplifying complex polygons\n");
     EdgeList activeEdges;
-    bool found = false;
+    bool hasSelfIntersection = false;
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
         if (!connected(v)) {
             continue;
@@ -1568,12 +1570,13 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             if (v->fFirstEdgeBelow) {
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
                     if (check_for_intersection(leftEnclosingEdge, edge, &activeEdges, &v, mesh, c,
+                                               alloc) ||
+                        check_for_intersection(edge, rightEnclosingEdge, &activeEdges, &v, mesh, c,
                                                alloc)) {
-                        restartChecks = true;
-                        break;
-                    }
-                    if (check_for_intersection(edge, rightEnclosingEdge, &activeEdges, &v, mesh, c,
-                                               alloc)) {
+                        if (abortIfSelfIntersection) {
+                            return true;
+                        }
+                        hasSelfIntersection = true;
                         restartChecks = true;
                         break;
                     }
@@ -1581,11 +1584,14 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
             } else {
                 if (check_for_intersection(leftEnclosingEdge, rightEnclosingEdge,
                                            &activeEdges, &v, mesh, c, alloc)) {
+                    if (abortIfSelfIntersection) {
+                        return true;
+                    }
+                    hasSelfIntersection = true;
                     restartChecks = true;
                 }
 
             }
-            found = found || restartChecks;
         } while (restartChecks);
 #ifdef SK_DEBUG
         validate_edge_list(&activeEdges, c);
@@ -1600,12 +1606,13 @@ bool simplify(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
         }
     }
     SkASSERT(!activeEdges.fHead && !activeEdges.fTail);
-    return found;
+    return hasSelfIntersection;
 }
 
 // Stage 5: Tessellate the simplified mesh into monotone polygons.
 
-Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
+Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc,
+                 int maxWindMagnitude = std::numeric_limits<int>::max()) {
     TESS_LOG("\ntessellating simple polygons\n");
     EdgeList activeEdges;
     Poly* polys = nullptr;
@@ -1698,6 +1705,9 @@ Poly* tessellate(const VertexList& vertices, SkArenaAlloc& alloc) {
                 int winding = leftEdge->fLeftPoly ? leftEdge->fLeftPoly->fWinding : 0;
                 winding += leftEdge->fWinding;
                 if (winding != 0) {
+                    if (abs(winding) > maxWindMagnitude) {
+                        return nullptr;
+                    }
                     Poly* poly = new_poly(&polys, v, winding, alloc);
                     leftEdge->fRightPoly = rightEdge->fLeftPoly = poly;
                 }
@@ -2227,24 +2237,30 @@ void sort_mesh(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
 Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fillType,
                         const SkRect& pathBounds, Flags flags, VertexList* outerMesh,
                         SkArenaAlloc& alloc) {
+    bool abortIfSelfIntersection = (Flags::kPreserveExactEdges & flags);
     Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
                                                           : Comparator::Direction::kVertical);
     VertexList mesh;
     contours_to_mesh(contours, contourCnt, flags, &mesh, c, alloc);
     sort_mesh(&mesh, c, alloc);
     merge_coincident_vertices(&mesh, c, alloc);
-    simplify(&mesh, c, alloc);
+    bool hasSelfIntersection = simplify(&mesh, c, alloc, abortIfSelfIntersection);
+    if (hasSelfIntersection && abortIfSelfIntersection) {
+        SkASSERT(!(Flags::kCoverageAA & flags));
+        return nullptr;
+    }
     TESS_LOG("\nsimplified mesh:\n");
     dump_mesh(mesh);
     if (Flags::kCoverageAA & flags) {
+        SkASSERT(!(Flags::kPreserveExactEdges & flags));
         VertexList innerMesh;
         extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
         sort_mesh(&innerMesh, c, alloc);
         sort_mesh(outerMesh, c, alloc);
         merge_coincident_vertices(&innerMesh, c, alloc);
         bool was_complex = merge_coincident_vertices(outerMesh, c, alloc);
-        was_complex = simplify(&innerMesh, c, alloc) || was_complex;
-        was_complex = simplify(outerMesh, c, alloc) || was_complex;
+        was_complex = simplify(&innerMesh, c, alloc, false) || was_complex;
+        was_complex = simplify(outerMesh, c, alloc, false) || was_complex;
         TESS_LOG("\ninner mesh before:\n");
         dump_mesh(innerMesh);
         TESS_LOG("\nouter mesh before:\n");
@@ -2264,7 +2280,7 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fil
             connect_partners(&innerMesh, c, alloc);
             sorted_merge(&innerMesh, outerMesh, &aaMesh, c);
             merge_coincident_vertices(&aaMesh, c, alloc);
-            simplify(&aaMesh, c, alloc);
+            simplify(&aaMesh, c, alloc, false);
             TESS_LOG("combined and simplified mesh:\n");
             dump_mesh(aaMesh);
             outerMesh->fHead = outerMesh->fTail = nullptr;
@@ -2274,7 +2290,11 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fil
             return tessellate(innerMesh, alloc);
         }
     } else {
-        return tessellate(mesh, alloc);
+        int maxWindMagnitude = std::numeric_limits<int>::max();
+        if (abortIfSelfIntersection && !SkPathFillType_IsEvenOdd(fillType)) {
+            maxWindMagnitude = 1;
+        }
+        return tessellate(mesh, alloc, maxWindMagnitude);
     }
 }
 
@@ -2387,6 +2407,9 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, Flags flags, const S
     VertexList outerMesh;
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, flags, isLinear,
                                 &outerMesh);
+    if (!polys) {
+        return 0;  // path_to_polys can abort if the Flags are not satisfiable for the path.
+    }
     bool antialias = (Flags::kCoverageAA & flags);
     SkPathFillType fillType = antialias ? SkPathFillType::kWinding : path.getFillType();
     int64_t count64 = count_points(polys, fillType);
@@ -2427,6 +2450,9 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, Flags flags, const Sk
     bool isLinear;
     Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, flags, &isLinear,
                                 nullptr);
+    if (!polys) {
+        return 0;  // path_to_polys can abort if the Flags are not satisfiable for the path.
+    }
     SkPathFillType fillType = path.getFillType();
     int64_t count64 = count_points(polys, fillType);
     if (0 == count64 || count64 > SK_MaxS32) {

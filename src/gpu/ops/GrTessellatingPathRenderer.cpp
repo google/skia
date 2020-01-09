@@ -108,33 +108,6 @@ private:
     void* fVertices;
 };
 
-class DynamicVertexAllocator : public GrTessellator::VertexAllocator {
-public:
-    DynamicVertexAllocator(size_t stride, GrMeshDrawOp::Target* target)
-            : VertexAllocator(stride)
-            , fTarget(target)
-            , fVertexBuffer(nullptr)
-            , fVertices(nullptr) {}
-    void* lock(int vertexCount) override {
-        fVertexCount = vertexCount;
-        fVertices = fTarget->makeVertexSpace(stride(), vertexCount, &fVertexBuffer, &fFirstVertex);
-        return fVertices;
-    }
-    void unlock(int actualCount) override {
-        fTarget->putBackVertices(fVertexCount - actualCount, stride());
-        fVertices = nullptr;
-    }
-    sk_sp<const GrBuffer> detachVertexBuffer() const { return std::move(fVertexBuffer); }
-    int firstVertex() const { return fFirstVertex; }
-
-private:
-    GrMeshDrawOp::Target* fTarget;
-    sk_sp<const GrBuffer> fVertexBuffer;
-    int fVertexCount;
-    int fFirstVertex;
-    void* fVertices;
-};
-
 }  // namespace
 
 GrTessellatingPathRenderer::GrTessellatingPathRenderer()
@@ -319,7 +292,7 @@ private:
         path.transform(fViewMatrix);
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         bool isLinear;
-        DynamicVertexAllocator allocator(vertexStride, target);
+        GrTessellator::DynamicVertexAllocator allocator(vertexStride, target);
         int count = GrTessellator::PathToTriangles(path, tol, GrTessellator::Flags::kCoverageAA,
                                                    clipBounds, &allocator, &isLinear);
         if (count == 0) {
