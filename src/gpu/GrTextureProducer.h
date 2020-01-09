@@ -82,8 +82,7 @@ public:
      * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
      * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
      */
-    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
-                                                   SkScalar scaleAdjust[2]);
+    sk_sp<GrTextureProxy> refTextureProxyForParams(GrSamplerState, SkScalar scaleAdjust[2]);
 
     sk_sp<GrTextureProxy> refTextureProxyForParams(
             const GrSamplerState::Filter* filterOrNullForBicubic, SkScalar scaleAdjust[2]);
@@ -182,7 +181,7 @@ protected:
     GrRecordingContext* context() const { return fContext; }
 
 private:
-    virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+    virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(GrSamplerState,
                                                              bool willBeMipped,
                                                              SkScalar scaleAdjust[2]) = 0;
 

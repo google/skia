@@ -622,7 +622,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     return program;
 }
 
-wgpu::Sampler GrDawnGpu::getOrCreateSampler(const GrSamplerState& samplerState) {
+wgpu::Sampler GrDawnGpu::getOrCreateSampler(GrSamplerState samplerState) {
     auto i = fSamplers.find(samplerState);
     if (i != fSamplers.end()) {
         return i->second;

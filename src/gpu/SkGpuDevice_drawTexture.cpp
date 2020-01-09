@@ -241,7 +241,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
     if (attemptDrawTexture && can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = producer->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
+        auto proxy = producer->refTextureProxyForParams(GrSamplerState::Filter::kNearest, nullptr);
         if (!proxy) {
             return;
         }
@@ -529,7 +529,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             uint32_t uniqueID;
             proxy = image->refPinnedTextureProxy(this->context(), &uniqueID);
             if (!proxy) {
-                proxy = image->asTextureProxyRef(this->context(), GrSamplerState::ClampBilerp(),
+                proxy = image->asTextureProxyRef(this->context(), GrSamplerState::Filter::kBilerp,
                                                  nullptr);
             }
         }

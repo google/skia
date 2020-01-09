@@ -27,7 +27,7 @@ public:
 private:
     GrTextureGradientColorizer(sk_sp<GrSurfaceProxy> gradient)
             : INHERITED(kGrTextureGradientColorizer_ClassID, kNone_OptimizationFlags)
-            , gradient(std::move(gradient), GrSamplerState::ClampBilerp()) {
+            , gradient(std::move(gradient), GrSamplerState::Filter::kBilerp) {
         this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
