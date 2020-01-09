@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a03200e9_a027bf9c",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-09T19:13:57Z",
+      "side": 1,
+      "message": "I think you\u0027ll have to also set the InternalSurfaceFlags for the proxy in SkSurface::MakeFromCAMetalLayer and SkSurface::MakeFromMTKView.",
+      "range": {
+        "startLine": 719,
+        "startChar": 43,
+        "endLine": 719,
+        "endChar": 90
+      },
+      "revId": "f1e65ac16bacb3dda88d57b85469dfc18eeaccd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
