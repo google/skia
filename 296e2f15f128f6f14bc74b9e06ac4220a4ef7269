@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3720a2e9_2fa97b5b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-09T15:19:30Z",
+      "side": 1,
+      "message": "Add dox for new flag ?",
+      "revId": "296e2f15f128f6f14bc74b9e06ac4220a4ef7269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
