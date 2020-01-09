@@ -195,8 +195,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         // Visualize coverage count in main canvas.
         GrPaint paint;
         paint.addColorFragmentProcessor(GrTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()),
-                                                              ccbuff->colorInfo().alphaType(),
-                                                              SkMatrix::I()));
+                                                              ccbuff->colorInfo().alphaType()));
         paint.addColorFragmentProcessor(
                 std::make_unique<VisualizeCoverageCountFP>());
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
