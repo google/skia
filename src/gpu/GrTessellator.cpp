@@ -2284,9 +2284,34 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 }
 
 int get_contour_count(const SkPath& path, SkScalar tolerance) {
-    int contourCnt;
-    int maxPts = GrPathUtils::worstCasePointCount(path, &contourCnt, tolerance);
-    if (maxPts <= 0) {
+    // We could theoretically be more aggressive about not counting empty contours, but we need to
+    // actually match the exact number of contour linked lists the tessellator will create later on.
+    int contourCnt = 1;
+    bool hasPoints = false;
+
+    SkPath::Iter iter(path, false);
+    SkPath::Verb verb;
+    SkPoint pts[4];
+    bool first = true;
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                if (!first) {
+                    ++contourCnt;
+                }
+                // fallthru.
+            case SkPath::kLine_Verb:
+            case SkPath::kConic_Verb:
+            case SkPath::kQuad_Verb:
+            case SkPath::kCubic_Verb:
+                hasPoints = true;
+                // fallthru to break.
+            default:
+                break;
+        }
+        first = false;
+    }
+    if (!hasPoints) {
         return 0;
     }
     return contourCnt;
