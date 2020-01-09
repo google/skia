@@ -166,10 +166,14 @@ namespace GrQuadPerEdgeAA {
 
     GrGeometryProcessor* MakeProcessor(SkArenaAlloc*, const VertexSpec&);
 
-    GrGeometryProcessor* MakeTexturedProcessor(
-            SkArenaAlloc*, const VertexSpec&, const GrShaderCaps&, const GrBackendFormat&,
-            const GrSamplerState&, const GrSwizzle&,
-            sk_sp<GrColorSpaceXform> textureColorSpaceXform, Saturate);
+    GrGeometryProcessor* MakeTexturedProcessor(SkArenaAlloc*,
+                                               const VertexSpec&,
+                                               const GrShaderCaps&,
+                                               const GrBackendFormat&,
+                                               GrSamplerState,
+                                               const GrSwizzle&,
+                                               sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                               Saturate);
 
     // This method will return the correct index buffer for the specified indexBufferOption.
     // It will, correctly, return nullptr if the indexBufferOption is kTriStrips.

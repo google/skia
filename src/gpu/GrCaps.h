@@ -14,6 +14,7 @@
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBlend.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
@@ -25,7 +26,6 @@ class GrProcessorKeyBuilder;
 class GrProgramDesc;
 class GrProgramInfo;
 class GrRenderTargetProxy;
-class GrSamplerState;
 class GrSurface;
 class SkJSONWriter;
 
@@ -455,7 +455,7 @@ public:
      * with immutable samplers.
      */
     virtual void addExtraSamplerKey(GrProcessorKeyBuilder*,
-                                    const GrSamplerState&,
+                                    GrSamplerState,
                                     const GrBackendFormat&) const {}
 
     virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
