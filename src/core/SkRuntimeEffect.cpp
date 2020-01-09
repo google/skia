@@ -206,23 +206,17 @@ size_t SkRuntimeEffect::inputSize() const {
         : fInAndUniformVars.back().fOffset + fInAndUniformVars.back().sizeInBytes();
 }
 
-#if SK_SUPPORT_GPU
-bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
-                                      SkSL::PipelineStageArgs* outArgs) {
-    // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
-    // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
-    SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
-
-    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                                 settings);
-    if (!baseProgram) {
-        SkDebugf("%s\n", fCompiler->errorText().c_str());
-        SkASSERT(false);
-        return false;
+size_t SkRuntimeEffect::uniformOffset() const {
+    for (const auto& v : fInAndUniformVars) {
+        if (v.fQualifier == Variable::Qualifier::kUniform) {
+            return v.fOffset;
+        }
     }
+    return 0;
+}
 
+SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
+                                                              const void* inputs) {
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     for (const auto& v : fInAndUniformVars) {
         if (v.fQualifier != Variable::Qualifier::kIn) {
@@ -249,15 +243,37 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
             }
             default:
                 SkDEBUGFAIL("Unsupported input variable type");
-                return false;
+                return SpecializeResult{nullptr, SkString("Unsupported input variable type")};
         }
     }
 
-    auto specialized = fCompiler->specialize(*baseProgram, inputMap);
+    auto specialized = fCompiler->specialize(baseProgram, inputMap);
     bool optimized = fCompiler->optimize(*specialized);
     if (!optimized) {
+        return SpecializeResult{nullptr, SkString(fCompiler->errorText().c_str())};
+    }
+    return SpecializeResult{std::move(specialized), SkString()};
+}
+
+#if SK_SUPPORT_GPU
+bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
+                                      SkSL::PipelineStageArgs* outArgs) {
+    // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
+    // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
+    SkSL::Program::Settings settings;
+    settings.fCaps = shaderCaps;
+
+    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
+                                                 settings);
+    if (!baseProgram) {
         SkDebugf("%s\n", fCompiler->errorText().c_str());
         SkASSERT(false);
+        return false;
+    }
+
+    auto specialized = std::get<0>(this->specialize(*baseProgram, inputs));
+    if (!specialized) {
         return false;
     }
 
@@ -271,9 +287,13 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 }
 #endif
 
-SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() {
-    auto byteCode = fCompiler->toByteCode(*fBaseProgram);
-    return std::make_tuple(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
+SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) {
+    auto [specialized, errorText] = this->specialize(*fBaseProgram, inputs);
+    if (!specialized) {
+        return ByteCodeResult{nullptr, errorText};
+    }
+    auto byteCode = fCompiler->toByteCode(*specialized);
+    return ByteCodeResult(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
 }
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,

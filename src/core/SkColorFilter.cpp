@@ -422,7 +422,7 @@ public:
 
         SkAutoMutexExclusive ama(fByteCodeMutex);
         if (!fByteCode) {
-            auto [byteCode, errorText] = fEffect->toByteCode();
+            auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
             if (!byteCode) {
                 SkDebugf("%s\n", errorText.c_str());
                 return false;
