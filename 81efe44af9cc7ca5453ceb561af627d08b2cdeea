@@ -16,6 +16,24 @@
       "revId": "81efe44af9cc7ca5453ceb561af627d08b2cdeea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19009d6e_fc7953e2",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-09T17:00:13Z",
+      "side": 1,
+      "message": "I think the answer is whatever the exact same amount is that GrPathUtils::worstCasePointCount would return. The purpose of this method is to count ahead of time the exact number of linked lists the tessellator will create for contours (see the above comment).\n\nI originally experimented with being more aggressive about what we count as a contour, but always crashed somewhere unless I matched worstCasePointCount.",
+      "parentUuid": "deb47fb3_3c243933",
+      "revId": "81efe44af9cc7ca5453ceb561af627d08b2cdeea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
