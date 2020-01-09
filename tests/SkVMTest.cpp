@@ -603,6 +603,28 @@ DEF_TEST(SkVM_madder, r) {
     });
 }
 
+DEF_TEST(SkVM_floor, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg arg = b.varying<float>();
+        b.store32(arg, b.bit_cast(b.floor(b.bit_cast(b.load32(arg)))));
+    }
+
+#if defined(SK_CPU_X86)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
+        float buf[]  = { -2.0f, -1.5f, -1.0f, 0.0f, 1.0f, 1.5f, 2.0f };
+        float want[] = { -2.0f, -2.0f, -1.0f, 0.0f, 1.0f, 1.0f, 2.0f };
+        program.eval(SK_ARRAY_COUNT(buf), buf);
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(buf); i++) {
+            REPORTER_ASSERT(r, buf[i] == want[i]);
+        }
+    });
+}
+
 DEF_TEST(SkVM_hoist, r) {
     // This program uses enough constants that it will fail to JIT if we hoist them.
     // The JIT will try again without hoisting, and that'll just need 2 registers.
@@ -875,6 +897,18 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vpermq(A::ymm1, A::ymm2, 5);
     },{
         0xc4,0xe3,0xfd, 0x00,0xca, 0x05,
+    });
+
+    test_asm(r, [&](A& a) {
+        a.vroundps(A::ymm1, A::ymm2, A::NEAREST);
+        a.vroundps(A::ymm1, A::ymm2, A::FLOOR);
+        a.vroundps(A::ymm1, A::ymm2, A::CEIL);
+        a.vroundps(A::ymm1, A::ymm2, A::TRUNC);
+    },{
+        0xc4,0xe3,0x7d,0x08,0xca,0x00,
+        0xc4,0xe3,0x7d,0x08,0xca,0x01,
+        0xc4,0xe3,0x7d,0x08,0xca,0x02,
+        0xc4,0xe3,0x7d,0x08,0xca,0x03,
     });
 
     test_asm(r, [&](A& a) {

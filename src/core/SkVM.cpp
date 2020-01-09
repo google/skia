@@ -1145,6 +1145,11 @@ namespace skvm {
         this->byte(imm);
     }
 
+    void Assembler::vroundps(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x3a0f,0x08, dst,x);
+        this->byte(imm);
+    }
+
     void Assembler::vmovdqa(Ymm dst, Ymm src) { this->op(0x66,0x0f,0x6f, dst,src); }
 
     void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(0,   0x0f,0x5b, dst,x); }
@@ -2354,6 +2359,7 @@ namespace skvm {
                                a->vpor  (dst(), tmp(), r[x]);
                                break;
 
+                case Op::floor : a->vroundps  (dst(), r[x], Assembler::FLOOR); break;
                 case Op::to_f32: a->vcvtdq2ps (dst(), r[x]); break;
                 case Op::trunc : a->vcvttps2dq(dst(), r[x]); break;
                 case Op::round : a->vcvtps2dq (dst(), r[x]); break;
