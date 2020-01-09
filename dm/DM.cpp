@@ -39,6 +39,8 @@
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
 
+#include <chrono>
+#include <thread>
 #include <vector>
 
 #include <stdlib.h>
@@ -1508,6 +1510,7 @@ int main(int argc, char** argv) {
         // A non-zero return code does not make it to Swarming
         // An abort does.
 #ifdef SK_BUILD_FOR_IOS
+        fflush(stdout);
         SK_ABORT("There were failures!");
 #endif
         return 1;
@@ -1516,5 +1519,9 @@ int main(int argc, char** argv) {
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
 
+    for (int i = 60; i > 0; i--) {
+        info("%d\n", i);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     return 0;
 }
