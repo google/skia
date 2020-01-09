@@ -157,7 +157,10 @@ public:
     }
 
     SkM44& preTranslate(SkScalar x, SkScalar y);
+    SkM44& preScale(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
+
+    const SkScalar* peek_colMajor() const { return fMat; }
 
 private:
     /* Stored in column-major.
