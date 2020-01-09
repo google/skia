@@ -1423,6 +1423,16 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
 
 /////////////////////////////////////////////////////////////////////////////
 
+void SkCanvas::setProjection(const SkMatrix44& p) {
+    fProjection = p;
+}
+
+void SkCanvas::setCamera(const SkMatrix44& c) {
+    fCamera = c;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
     if (dx || dy) {
         this->checkForDeferredSave();

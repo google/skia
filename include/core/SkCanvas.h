@@ -26,6 +26,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
+#include "include/private/SkM44.h"
 #include "include/private/SkMacros.h"
 
 #include <cstring>
@@ -785,6 +786,17 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_restoreToCount
     */
     void restoreToCount(int saveCount);
+
+    /*
+     *  Matrices are concatenated as:
+     *
+     *  projection * camera * model
+     *
+     *  where the model is the CTM manipulated by save/restore/etc.
+     *
+     */
+    void setProjection(const SkMatrix44&);
+    void setCamera(const SkMatrix44&);
 
     /** Translates SkMatrix by dx along the x-axis and dy along the y-axis.
 
@@ -2838,6 +2850,8 @@ private:
     bool androidFramework_isClipAA() const;
 
     virtual SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const { return nullptr; }
+
+    SkM44 fProjection, fCamera;
 
     /**
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows

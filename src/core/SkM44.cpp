@@ -6,10 +6,18 @@
  */
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 #include "include/private/SkM44.h"
 #include "include/private/SkVx.h"
 
 typedef skvx::Vec<4, float> sk4f;
+
+SkM44& SkM44::operator=(const SkMatrix44& m) {
+    SkScalar array[16];
+    m.asColMajorf(array);
+    this->setColMajor(array);
+    return *this;
+}
 
 bool SkM44::operator==(const SkM44& other) const {
     if (this == &other) {

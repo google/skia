@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 
 class SkMatrix;
+class SkMatrix44;
 
 class SkM44 {
 public:
@@ -55,6 +56,8 @@ public:
                      0, 0, z, 0,
                      0, 0, 0, 1);
     }
+
+    SkM44& operator=(const SkMatrix44&);
 
     bool operator==(const SkM44& other) const;
     bool operator!=(const SkM44& other) const {
