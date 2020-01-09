@@ -12,6 +12,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 
 using namespace sk_app;
 
@@ -61,11 +62,6 @@ void HelloWorld::onPaint(SkSurface* surface) {
     canvas->clear(SK_ColorWHITE);
 
     SkPaint paint;
-    paint.setColor(SK_ColorRED);
-
-    // Draw a rectangle with red paint
-    SkRect rect = SkRect::MakeXYWH(10, 10, 128, 128);
-    canvas->drawRect(rect, paint);
 
     // Set up a linear gradient and draw a circle
     {
@@ -73,6 +69,17 @@ void HelloWorld::onPaint(SkSurface* surface) {
         SkColor linearColors[] = { SK_ColorGREEN, SK_ColorBLACK };
         paint.setShader(SkGradientShader::MakeLinear(linearPoints, linearColors, nullptr, 2,
                                                      SkTileMode::kMirror));
+
+        std::vector<SkScalar> bigFilter{
+            1,0,0,0,0,0,
+            0,1,0,0,0,0,
+            0,0,1,0,0,0,
+            0,0,0,1,0,0,
+            0,0,0,0,1,0,
+            0,0,0,0,0,1
+        };
+        paint.setImageFilter(SkImageFilters::MatrixConvolution({6,6}, bigFilter.data(), 1 / 6.0, 0.0, {3,3}, SkTileMode::kClamp, false, nullptr, nullptr));
+
         paint.setAntiAlias(true);
 
         canvas->drawCircle(200, 200, 64, paint);
@@ -80,26 +87,6 @@ void HelloWorld::onPaint(SkSurface* surface) {
         // Detach shader
         paint.setShader(nullptr);
     }
-
-    // Draw a message with a nice black paint
-    SkFont font;
-    font.setSubpixel(true);
-    font.setSize(20);
-    paint.setColor(SK_ColorBLACK);
-
-    canvas->save();
-    static const char message[] = "Hello World";
-
-    // Translate and rotate
-    canvas->translate(300, 300);
-    fRotationAngle += 0.2f;
-    if (fRotationAngle > 360) {
-        fRotationAngle -= 360;
-    }
-    canvas->rotate(fRotationAngle);
-
-    // Draw the text
-    canvas->drawSimpleText(message, strlen(message), SkTextEncoding::kUTF8, 0, 0, font, paint);
 
     canvas->restore();
 }
