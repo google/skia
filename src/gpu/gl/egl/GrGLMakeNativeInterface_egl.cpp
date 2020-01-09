@@ -133,5 +133,3 @@ static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     return GrGLMakeAssembledInterface(nullptr, egl_get_gl_proc);
 }
-
-const GrGLInterface* GrGLCreateNativeInterface() { return GrGLMakeNativeInterface().release(); }
