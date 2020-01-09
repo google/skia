@@ -266,52 +266,49 @@ namespace skvm {
         size_t   fSize;
     };
 
+    // Order matters a little: Ops <=store32 are treated as having side effects.
+    #define SKVM_OPS(M)                       \
+        M(assert_true)                        \
+        M(store8)   M(store16)   M(store32)   \
+        M(index)                              \
+        M(load8)    M(load16)    M(load32)    \
+        M(gather8)  M(gather16)  M(gather32)  \
+        M(uniform8) M(uniform16) M(uniform32) \
+        M(splat)                              \
+        M(add_f32) M(add_i32) M(add_i16x2)    \
+        M(sub_f32) M(sub_i32) M(sub_i16x2)    \
+        M(mul_f32) M(mul_i32) M(mul_i16x2)    \
+        M(div_f32)                            \
+        M(min_f32)                            \
+        M(max_f32)                            \
+        M(mad_f32)                            \
+                   M(shl_i32) M(shl_i16x2)    \
+                   M(shr_i32) M(shr_i16x2)    \
+                   M(sra_i32) M(sra_i16x2)    \
+        M(add_f32_imm)                        \
+        M(sub_f32_imm)                        \
+        M(mul_f32_imm)                        \
+        M(min_f32_imm)                        \
+        M(max_f32_imm)                        \
+        M(floor) M(trunc) M(round) M(to_f32)  \
+        M( eq_f32) M( eq_i32) M( eq_i16x2)    \
+        M(neq_f32) M(neq_i32) M(neq_i16x2)    \
+        M( gt_f32) M( gt_i32) M( gt_i16x2)    \
+        M(gte_f32) M(gte_i32) M(gte_i16x2)    \
+        M(bit_and)                            \
+        M(bit_or)                             \
+        M(bit_xor)                            \
+        M(bit_clear)                          \
+        M(bit_and_imm)                        \
+        M(bit_or_imm)                         \
+        M(bit_xor_imm)                        \
+        M(select) M(bytes) M(pack)            \
+    // End of SKVM_OPS
+
     enum class Op : uint8_t {
-          assert_true,
-          store8,   store16,   store32,
-    // ↑ side effects / no side effects ↓
-           index,
-           load8,    load16,    load32,
-         gather8,  gather16,  gather32,
-    // ↑ always varying / uniforms, constants, Just Math ↓
-
-        uniform8, uniform16, uniform32,
-        splat,
-
-        add_f32, add_i32, add_i16x2,
-        sub_f32, sub_i32, sub_i16x2,
-        mul_f32, mul_i32, mul_i16x2,
-        div_f32,
-        min_f32,
-        max_f32,
-        mad_f32,
-                 shl_i32, shl_i16x2,
-                 shr_i32, shr_i16x2,
-                 sra_i32, sra_i16x2,
-
-        add_f32_imm,
-        sub_f32_imm,
-        mul_f32_imm,
-        min_f32_imm,
-        max_f32_imm,
-
-        floor, trunc, round, to_f32,
-
-         eq_f32,  eq_i32,  eq_i16x2,
-        neq_f32, neq_i32, neq_i16x2,
-         gt_f32,  gt_i32,  gt_i16x2,
-        gte_f32, gte_i32, gte_i16x2,
-
-        bit_and,
-        bit_or,
-        bit_xor,
-        bit_clear,
-
-        bit_and_imm,
-        bit_or_imm,
-        bit_xor_imm,
-
-        select, bytes, pack,
+    #define M(op) op,
+        SKVM_OPS(M)
+    #undef M
     };
 
     using Val = int;
