@@ -72,6 +72,10 @@ static inline bool is_uniform(const SkSL::Variable& var) {
     return var.fModifiers.fFlags & Modifiers::kUniform_Flag;
 }
 
+static inline bool is_in(const SkSL::Variable& var) {
+    return var.fModifiers.fFlags & Modifiers::kIn_Flag;
+}
+
 void ByteCodeGenerator::gatherUniforms(const Type& type, const String& name) {
     if (type.kind() == Type::kOther_Kind) {
         return;
@@ -106,14 +110,9 @@ bool ByteCodeGenerator::generateCode() {
                 VarDeclarations& decl = (VarDeclarations&) e;
                 for (const auto& v : decl.fVars) {
                     const Variable* declVar = ((VarDeclaration&) *v).fVar;
-                    if (declVar->fModifiers.fLayout.fBuiltin >= 0) {
+                    if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
                         continue;
                     }
-                    // if you trip this assert, it means the program has raw 'in' variables. You
-                    // should either specialize the program (Compiler::specialize) to bake in the
-                    // final values of the 'in' variables, or not use 'in' variables (maybe you
-                    // meant to use 'uniform' instead?).
-                    SkASSERT(!(declVar->fModifiers.fFlags & Modifiers::kIn_Flag));
                     if (is_uniform(*declVar)) {
                         this->gatherUniforms(declVar->fType, declVar->fName);
                     } else {
@@ -429,6 +428,14 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             return Location::MakeInvalid();
         }
         case Variable::kGlobal_Storage: {
+            if (is_in(var)) {
+                // If you trip this assert, it means the program is using raw 'in' variables. You
+                // should either specialize the program (Compiler::specialize) to bake in the final
+                // values of the 'in' variables, or not use 'in' variables (maybe you meant to use
+                // 'uniform' instead?).
+                SkASSERT(false);
+                return Location::MakeInvalid();
+            }
             int offset = 0;
             bool isUniform = is_uniform(var);
             for (const auto& e : fProgram) {
@@ -436,7 +443,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
                     VarDeclarations& decl = (VarDeclarations&) e;
                     for (const auto& v : decl.fVars) {
                         const Variable* declVar = ((VarDeclaration&) *v).fVar;
-                        if (declVar->fModifiers.fLayout.fBuiltin >= 0) {
+                        if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
                             continue;
                         }
                         if (isUniform != is_uniform(*declVar)) {
