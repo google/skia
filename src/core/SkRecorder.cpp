@@ -370,12 +370,20 @@ void SkRecorder::didRestore() {
     this->append<SkRecords::Restore>(this->getTotalMatrix());
 }
 
+void SkRecorder::didConcat44(const SkScalar m[16]) {
+    this->append<SkRecords::Concat44>(m);
+}
+
 void SkRecorder::didConcat(const SkMatrix& matrix) {
     this->append<SkRecords::Concat>(matrix);
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     this->append<SkRecords::SetMatrix>(matrix);
+}
+
+void SkRecorder::didScale(SkScalar sx, SkScalar sy) {
+    this->append<SkRecords::Scale>(sx, sy);
 }
 
 void SkRecorder::didTranslate(SkScalar dx, SkScalar dy) {

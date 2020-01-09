@@ -2554,13 +2554,24 @@ protected:
     virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
     virtual void didRestore() {}
-    virtual void didConcat(const SkMatrix& ) {}
-    virtual void didSetMatrix(const SkMatrix& ) {}
+
+    // These are called when the canvas' matrix is modified. They are passed the new value(s)
+    // that are being pre-concat with the CTM. Even though everything could be expressed with
+    // just didConcat44(), we have 3 other specializations: translate, scale, concat (3x3),
+    // to save the SkCanvas from having to construct the 4x4 matrix each time.
+    //
+    virtual void didConcat44(const SkScalar[16]) {}   // column major
+    virtual void didConcat(const SkMatrix&) {}
+    virtual void didSetMatrix(const SkMatrix&) {}
+#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
-    // just pass an array for now, until we decide on the "public" form for the matrix
-    virtual void didConcat44(const SkScalar[]) {}
+#else
+    virtual void didTranslate(SkScalar, SkScalar) {}
+#endif
+    // is only called if SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS is not set
+    virtual void didScale(SkScalar, SkScalar) {}
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
