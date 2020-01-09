@@ -104,8 +104,8 @@ def _trigger_task(options):
   """Triggers a task on the compile server by creating a file in storage."""
   task = _create_task_dict(options)
   # Check to see if file already exists in Google Storage.
-  if not _does_task_exist_in_storage(task):
-    _write_to_storage(task)
+  # if not _does_task_exist_in_storage(task):
+  #   _write_to_storage(task)
   return task
 
 
@@ -139,15 +139,18 @@ def trigger_and_wait(options):
 
     for retry in range(GS_RETRIES):
       try:
-        output = subprocess.check_output(['gsutil', 'cat', gs_file])
-      except subprocess.CalledProcessError:
-        raise AndroidCompileException('The %s file no longer exists.' % gs_file)
-      try:
-        ret = json.loads(output)
+        if retry % 2 == 0:
+          output = subprocess.check_output(['gsutil', 'cat', gs_file])
+        else:
+          output = 'blah'
+          ret = json.loads(output)
         break
-      except ValueError, e:
-        print 'Received output that could not be converted to json: %s' % output
-        print e
+      except (ValueError, subprocess.CalledProcessError) as e:
+        if e.__class__ == ValueError:
+          print ('Received output "%s" that could not be converted to '
+                 'json: %s' % (output, e))
+        elif e.__class__ == subprocess.CalledProcessError:
+          print e
         if retry == (GS_RETRIES-1):
           print '%d retries did not help' % GS_RETRIES
           raise
