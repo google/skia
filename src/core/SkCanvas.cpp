@@ -1477,7 +1477,6 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-#ifndef SK_SUPPORT_LEGACY_CANVAS_MATRIX_33
 void SkCanvas::concat44(const SkScalar m[16]) {
     this->checkForDeferredSave();
 
@@ -1493,7 +1492,6 @@ void SkCanvas::concat44(const SkScalar m[16]) {
 void SkCanvas::concat(const SkMatrix44& m) {
     this->concat44(m.values());
 }
-#endif
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fMCRec->fMatrix = matrix;
