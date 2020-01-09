@@ -105,7 +105,10 @@ namespace skvm {
         using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
         DstEqXOpImm vpslld, vpsrld, vpsrad,
                     vpsrlw,
-                    vpermq;
+                    vpermq,
+                    vroundps;
+
+        enum { NEAREST, FLOOR, CEIL, TRUNC };  // vroundps immediates
 
         using DstEqOpX = void(Ymm dst, Ymm x);
         DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq, vcvtps2dq;
