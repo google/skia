@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a6e92f1_98881349",
+        "filename": "tools/skottie_ios_app/GrContextHolder.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-09T18:19:11Z",
+      "side": 1,
+      "message": "Why not use sk_sp\u003cGrContext\u003e?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 69
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "833a620e_5ca3f9b4",
+        "filename": "tools/skottie_ios_app/SkottieUIView.mm",
+        "patchSetId": 29
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-09T18:19:11Z",
+      "side": 1,
+      "message": "That\u0027s pretty cool.",
+      "range": {
+        "startLine": 9,
+        "startChar": 3,
+        "endLine": 9,
+        "endChar": 12
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "106ae67d_73559e6b",
+        "filename": "tools/skottie_ios_app/main.mm",
+        "patchSetId": 29
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-09T18:19:11Z",
+      "side": 1,
+      "message": "Given that the internals of this is almost completely different between Metal and GL, it might be clearer to have two separate files and switch the implementation in the GN file rather than here. Just a suggestion.\n\nDo you have future plans to be able to switch between GL and Metal during runtime?",
+      "range": {
+        "startLine": 38,
+        "startChar": 16,
+        "endLine": 38,
+        "endChar": 27
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92fa75b4_9a35272e",
+        "filename": "tools/skottie_ios_app/main.mm",
+        "patchSetId": 29
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-09T18:19:11Z",
+      "side": 1,
+      "message": "Is this needed? I wouldn\u0027t expect anything else to include this file.",
+      "range": {
+        "startLine": 207,
+        "startChar": 1,
+        "endLine": 208,
+        "endChar": 13
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
