@@ -1019,13 +1019,6 @@ public:
         this->clipPath(path, SkClipOp::kIntersect, doAntiAlias);
     }
 
-    /** Experimental. For testing only.
-        Set to simplify clip stack using PathOps.
-    */
-    void setAllowSimplifyClip(bool allow) {
-        fAllowSimplifyClip = allow;
-    }
-
     /** Replaces clip with the intersection or difference of clip and SkRegion deviceRgn.
         Resulting clip is aliased; pixels are fully contained by the clip.
         deviceRgn is unaffected by SkMatrix.
@@ -2846,8 +2839,7 @@ private:
     bool   fIsScaleTranslate;
     SkRect fDeviceClipBounds;
 
-    bool fAllowSoftClip;
-    bool fAllowSimplifyClip;
+//    bool fAllowSimplifyClip;
 
     class AutoValidateClip {
     public:

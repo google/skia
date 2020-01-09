@@ -267,7 +267,6 @@ gm_sources = [
   "$_gm/pathmaskcache.cpp",
   "$_gm/pathmeasure.cpp",
   "$_gm/pathopsinverse.cpp",
-  "$_gm/pathopsskpclip.cpp",
   "$_gm/pathreverse.cpp",
   "$_gm/pdf_never_embed.cpp",
   "$_gm/perlinnoise.cpp",
