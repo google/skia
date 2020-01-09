@@ -1,5 +1,7 @@
 STRINGIFY(
 
+sk_has_side_effects void print(float f);
+
 $genType cos($genType y);
 $genHType cos($genHType y);
 float dot($genType x, $genType y);
