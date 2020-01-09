@@ -3332,12 +3332,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferBufferType = kNone_TransferBufferType;
     }
 
-    // TODO: re-enable for ANGLE
-    if (kANGLE_GrGLDriver == ctxInfo.driver()) {
-        fTransferBufferSupport = false;
-        fTransferBufferType = kNone_TransferBufferType;
-    }
-
     // Using MIPs on this GPU seems to be a source of trouble.
     if (kPowerVR54x_GrGLRenderer == ctxInfo.renderer()) {
         fMipMapSupport = false;
