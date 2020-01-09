@@ -39,6 +39,10 @@ struct WindingVertex {
     int fWinding;
 };
 
+// Using this tolerance value guarantees that we emit only one straight line per curve, from start
+// to end point (rather than linearizing a curve apporximation).
+static constexpr float kFlattenCurvesTolerance = std::numeric_limits<float>::infinity();
+
 // Triangulates a path to an array of vertices. Each triangle is represented as a set of three
 // WindingVertex entries, each of which contains the position and winding count (which is the same
 // for all three vertices of a triangle). The 'verts' out parameter is set to point to the resultant

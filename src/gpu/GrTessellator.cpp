@@ -804,6 +804,7 @@ void generate_cubic_points(const SkPoint& p0,
 
 void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                       VertexList* contours, SkArenaAlloc& alloc, bool *isLinear) {
+    bool flatten = (GrTessellator::kFlattenCurvesTolerance == tolerance);
     SkScalar toleranceSqd = tolerance * tolerance;
 
     SkPoint pts[4];
@@ -823,11 +824,15 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kConic_Verb: {
-                SkScalar weight = iter.conicWeight();
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
-                for (int i = 0; i < converter.countQuads(); ++i) {
-                    append_quadratic_to_contour(quadPts, toleranceSqd, contour, alloc);
-                    quadPts += 2;
+                if (flatten) {
+                    append_point_to_contour(pts[2], contour, alloc);
+                } else {
+                    SkScalar weight = iter.conicWeight();
+                    const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
+                    for (int i = 0; i < converter.countQuads(); ++i) {
+                        append_quadratic_to_contour(quadPts, toleranceSqd, contour, alloc);
+                        quadPts += 2;
+                    }
                 }
                 *isLinear = false;
                 break;
@@ -843,14 +848,22 @@ void path_to_contours(const SkPath& path, SkScalar tolerance, const SkRect& clip
                 break;
             }
             case SkPath::kQuad_Verb: {
-                append_quadratic_to_contour(pts, toleranceSqd, contour, alloc);
+                if (flatten) {
+                    append_point_to_contour(pts[2], contour, alloc);
+                } else {
+                    append_quadratic_to_contour(pts, toleranceSqd, contour, alloc);
+                }
                 *isLinear = false;
                 break;
             }
             case SkPath::kCubic_Verb: {
-                int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
-                generate_cubic_points(pts[0], pts[1], pts[2], pts[3], toleranceSqd, contour,
-                                      pointsLeft, alloc);
+                if (flatten) {
+                    append_point_to_contour(pts[3], contour, alloc);
+                } else {
+                    int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
+                    generate_cubic_points(pts[0], pts[1], pts[2], pts[3], toleranceSqd, contour,
+                                          pointsLeft, alloc);
+                }
                 *isLinear = false;
                 break;
             }
