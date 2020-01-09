@@ -190,7 +190,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
 }
 
 sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* context,
-                                                         const GrSamplerState& params,
+                                                         GrSamplerState params,
                                                          SkScalar scaleAdjust[2]) const {
     if (!context || !fContext->priv().matches(context)) {
         SkASSERT(0);

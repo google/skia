@@ -224,7 +224,7 @@ void GrTextureDomain::GLDomain::sample(GrGLSLShaderBuilder* builder,
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         const GrSurfaceProxyView& view,
-                                        const GrSamplerState& state) {
+                                        GrSamplerState state) {
     // We want a hard transition from texture content to trans-black in nearest mode.
     bool filterDecal = state.filter() != GrSamplerState::Filter::kNearest;
     this->setData(pdman, textureDomain, view.proxy(), view.origin(), filterDecal);
@@ -514,7 +514,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
         sk_sp<GrSurfaceProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset)
         : INHERITED(kGrDeviceSpaceTextureDecalFragmentProcessor_ClassID,
                     kCompatibleWithCoverageAsAlpha_OptimizationFlag)
-        , fTextureSampler(proxy, GrSamplerState::ClampNearest())
+        , fTextureSampler(proxy, GrSamplerState::Filter::kNearest)
         , fTextureDomain(proxy.get(),
                          GrTextureDomain::MakeTexelDomain(subset, GrTextureDomain::kDecal_Mode),
                          GrTextureDomain::kDecal_Mode, GrTextureDomain::kDecal_Mode) {

@@ -353,9 +353,10 @@ private:
             } else {
                 matrix = &SkMatrix::I();
             }
-            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(target->allocator(),
-                    *target->caps().shaderCaps(), *matrix, fWideColor, fAtlas->getViews(),
-                    fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
+            flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
+                    target->allocator(), *target->caps().shaderCaps(), *matrix, fWideColor,
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::Filter::kBilerp,
+                    flags);
         } else {
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
@@ -364,10 +365,10 @@ private:
                 }
             }
 
-            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
-                    *target->caps().shaderCaps(), this->color(), fWideColor, fAtlas->getViews(),
-                    fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
-                    invert, false);
+            flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+                    target->allocator(), *target->caps().shaderCaps(), this->color(), fWideColor,
+                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::Filter::kNearest,
+                    kA8_GrMaskFormat, invert, false);
         }
 
         // allocate vertices
@@ -784,10 +785,12 @@ private:
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
                 reinterpret_cast<GrDistanceFieldPathGeoProc*>(gp)->addNewViews(
-                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::ClampBilerp());
+                        fAtlas->getViews(), fAtlas->numActivePages(),
+                        GrSamplerState::Filter::kBilerp);
             } else {
                 reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(
-                    fAtlas->getViews(), fAtlas->numActivePages(), GrSamplerState::ClampNearest());
+                        fAtlas->getViews(), fAtlas->numActivePages(),
+                        GrSamplerState::Filter::kNearest);
             }
         }
 

@@ -71,10 +71,9 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     return copy;
 }
 
-sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
-        const GrSamplerState& params,
-        bool willBeMipped,
-        SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(GrSamplerState params,
+                                                                    bool willBeMipped,
+                                                                    SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
