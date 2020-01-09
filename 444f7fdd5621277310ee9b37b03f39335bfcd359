@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f1fc009_f64cb734",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-09T21:26:51Z",
+      "side": 1,
+      "message": "Capitalize this ?",
+      "range": {
+        "startLine": 515,
+        "startChar": 10,
+        "endLine": 515,
+        "endChar": 11
+      },
+      "revId": "444f7fdd5621277310ee9b37b03f39335bfcd359",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a19cd0e_da83f799",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-09T21:26:51Z",
+      "side": 1,
+      "message": "Shouldn\u0027t these both be true ?",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 48
+      },
+      "revId": "444f7fdd5621277310ee9b37b03f39335bfcd359",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
