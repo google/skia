@@ -630,12 +630,18 @@ private:
         SkASSERT(pageIndex < 4);
         uint16_t uBit = (pageIndex >> 1) & 0x1;
         uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1 | vBit,
-                                      (atlasLocation.fX+SK_DistanceFieldPad+
-                                       devPathBounds.width()) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad+
-                                       devPathBounds.height()) << 1 | vBit);
+        shapeData->fTextureCoords.set(atlasLocation.fX+SK_DistanceFieldPad,
+                                      atlasLocation.fY+SK_DistanceFieldPad,
+                                      atlasLocation.fX+SK_DistanceFieldPad+devPathBounds.width(),
+                                      atlasLocation.fY+SK_DistanceFieldPad+devPathBounds.height());
+        if (uBit) {
+            shapeData->fTextureCoords.fLeft = -shapeData->fTextureCoords.fLeft;
+            shapeData->fTextureCoords.fRight = -shapeData->fTextureCoords.fRight;
+        }
+        if (vBit) {
+            shapeData->fTextureCoords.fTop = -shapeData->fTextureCoords.fTop;
+            shapeData->fTextureCoords.fBottom = -shapeData->fTextureCoords.fBottom;
+        }
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
