@@ -304,6 +304,9 @@ def dm_flags(api, bot):
     if 'Chromecast' in bot:
       configs = ['gles']
 
+    if 'iPhone11' in bot:
+      configs = ['gles']
+
     # Test coverage counting path renderer.
     if 'CCPR' in bot:
       configs = [c for c in configs if c == 'gl' or c == 'gles']
@@ -1056,6 +1059,7 @@ TEST_BUILDERS = [
   'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
+  'Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
   'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
 ]

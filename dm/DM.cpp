@@ -39,6 +39,8 @@
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
 
+#include <chrono>
+#include <thread>
 #include <vector>
 
 #include <stdlib.h>
@@ -187,11 +189,13 @@ static void info(const char* fmt, Args&&... args) {
     vlog(fmt, args...);
     if (!FLAGS_quiet) {
         printf(fmt, args...);
+        fflush(stdout);
     }
 }
 static void info(const char* fmt) {
     if (!FLAGS_quiet) {
         printf("%s", fmt);  // Clang warns printf(fmt) is insecure.
+        fflush(stdout);
     }
 }
 
@@ -1484,19 +1488,25 @@ int main(int argc, char** argv) {
         parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
     }
 
+    info("******** before serial loop\n");
     // With the parallel work running, run serial tasks and tests here on main thread.
     for (auto task : serial) { Task::Run(task); }
+    info("******** before serial tests loop\n");
     for (auto test : gSerialTests) { run_test(test, grCtxOptions); }
 
+    info("******** before parallel wait\n");
     // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
     parallel.wait();
+    info("******** before thread safe wait\n");
     gDefinitelyThreadSafeWork.wait();
 
     // At this point we're back in single-threaded land.
+    info("******** before assert no pending\n");
 
     // We'd better have run everything.
     SkASSERT(gPending == 0);
     // Make sure we've flushed all our results to disk.
+    info("******** before dump_json\n");
     dump_json();
 
     if (gFailures.count() > 0) {
@@ -1508,6 +1518,7 @@ int main(int argc, char** argv) {
         // A non-zero return code does not make it to Swarming
         // An abort does.
 #ifdef SK_BUILD_FOR_IOS
+        fflush(stdout);
         SK_ABORT("There were failures!");
 #endif
         return 1;
@@ -1516,5 +1527,9 @@ int main(int argc, char** argv) {
     SkGraphics::PurgeAllCaches();
     info("Finished!\n");
 
+    for (int i = 60; i > 0; i--) {
+        info("%d\n", i);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     return 0;
 }
