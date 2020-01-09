@@ -494,7 +494,6 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
-    fAllowSimplifyClip = false;
     fSaveCount = 1;
 
     fMCRec = (MCRec*)fMCStack.push_back();
