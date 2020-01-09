@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "54165db7_db8a7916",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-09T16:48:58Z",
+      "side": 1,
+      "message": "Could we do this outside GrTessellator? I know it\u0027ll be a tad more memory to create a new SkPath, but it seems like some complexity that doesn\u0027t belong here.",
+      "revId": "1c8a2711c8d6f8e65ca5f0b142f4b3a8a8c5a3e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42c63c90_3bcad693",
         "filename": "src/gpu/GrTessellator.h",
         "patchSetId": 1
