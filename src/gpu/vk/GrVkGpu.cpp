@@ -1086,6 +1086,7 @@ bool GrVkGpu::updateBuffer(GrVkBuffer* buffer, const void* src,
 
 static bool check_image_info(const GrVkCaps& caps,
                              const GrVkImageInfo& info,
+                             GrColorType colorType,
                              bool needsAllocation) {
     if (VK_NULL_HANDLE == info.fImage) {
         return false;
@@ -1108,6 +1109,10 @@ static bool check_image_info(const GrVkCaps& caps,
         }
     }
 
+    SkASSERTF(colorType == GrColorType::kUnknown ||
+              GrVkFormatColorTypePairIsValid(info.fFormat, colorType),
+              "Vulkan format/colorType mismatch - format %d colorType %d\n",
+              info.fFormat, colorType);
     return true;
 }
 
@@ -1143,12 +1148,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo,
+                          colorType, kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
-    SkASSERTF(GrVkFormatColorTypePairIsValid(imageInfo.fFormat, colorType),
-              "Vulkan format/colorType mismatch - format %d colorType %d\n",
-              imageInfo.fFormat, colorType);
 
     if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
         return nullptr;
@@ -1181,7 +1184,8 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo,
+                          GrColorType::kUnknown, kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
 
@@ -1217,10 +1221,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    if (!check_image_info(this->vkCaps(), imageInfo, kAdopt_GrWrapOwnership == ownership)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, colorType,
+                          kAdopt_GrWrapOwnership == ownership)) {
         return nullptr;
     }
-    SkASSERT(GrVkFormatColorTypePairIsValid(imageInfo.fFormat, colorType));
 
     if (!check_tex_image_info(this->vkCaps(), imageInfo)) {
         return nullptr;
@@ -1270,10 +1274,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
                                                                     colorType);
     SkASSERT(kUnknown_GrPixelConfig != config);
 
-    if (!check_image_info(this->vkCaps(), info, false)) {
+    if (!check_image_info(this->vkCaps(), info, colorType, false)) {
         return nullptr;
     }
-    SkASSERT(GrVkFormatColorTypePairIsValid(info.fFormat, colorType));
 
     if (!check_rt_image_info(this->vkCaps(), info, backendRT.sampleCnt())) {
         return nullptr;
@@ -1310,10 +1313,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!tex.getVkImageInfo(&imageInfo)) {
         return nullptr;
     }
-    if (!check_image_info(this->vkCaps(), imageInfo, false)) {
+    if (!check_image_info(this->vkCaps(), imageInfo, grColorType, false)) {
         return nullptr;
     }
-    SkASSERT(GrVkFormatColorTypePairIsValid(imageInfo.fFormat, grColorType));
 
     if (!check_rt_image_info(this->vkCaps(), imageInfo, sampleCnt)) {
         return nullptr;
