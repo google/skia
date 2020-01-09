@@ -118,6 +118,30 @@
       "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "970e4783_a5a4dafa",
+        "filename": "src/android/SkAnimatedImage.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-01-09T13:43:23Z",
+      "side": 1,
+      "message": "sgtm, I was just about to say the same thing.",
+      "parentUuid": "81311b5d_e1e1fea4",
+      "range": {
+        "startLine": 367,
+        "startChar": 16,
+        "endLine": 367,
+        "endChar": 17
+      },
+      "revId": "4244206c629debe0611dbdf49e1dc0a6d24c2715",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
