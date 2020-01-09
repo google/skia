@@ -95,6 +95,8 @@
 
 namespace {
 
+using GrTessellator::Flags;
+
 const int kArenaChunkSize = 16 * 1024;
 const float kCosMiterAngle = 0.97f; // Corresponds to an angle of ~14 degrees.
 
@@ -224,6 +226,14 @@ void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, bool emitCoverage, void*
     data = emit_vertex(v2, emitCoverage, data);
 #endif
     return data;
+}
+
+void* emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2, bool emitCoverage, bool reverseWinding,
+                    void* data) {
+    if (reverseWinding) {
+        return emit_triangle(v2, v1, v0, emitCoverage, data);
+    }
+    return emit_triangle(v0, v1, v2, emitCoverage, data);
 }
 
 struct VertexList {
@@ -604,7 +614,7 @@ struct Poly {
             }
         }
 
-        void* emit(bool emitCoverage, void* data) {
+        void* emit(bool emitCoverage, int windingDirection, void* data) {
             Edge* e = fFirstEdge;
             VertexList vertices;
             vertices.append(e->fTop);
@@ -627,14 +637,20 @@ struct Poly {
                 Vertex* curr = v;
                 Vertex* next = v->fNext;
                 if (count == 3) {
-                    return emit_triangle(prev, curr, next, emitCoverage, data);
+                    // The final triangle will be clockwise. Keep the clockwise vertices unless
+                    // windingDirection < 0.
+                    bool reverseWinding = (windingDirection < 0);
+                    return emit_triangle(prev, curr, next, emitCoverage, reverseWinding, data);
                 }
                 double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
                 double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
                 double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
                 double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
-                if (ax * by - ay * bx >= 0.0) {
-                    data = emit_triangle(prev, curr, next, emitCoverage, data);
+                bool clockwise = (ax * by - ay * bx >= 0.0);
+                if (clockwise) {
+                    // Keep the clockwise vertices unless windingDirection < 0.
+                    bool reverseWinding = (windingDirection < 0);
+                    data = emit_triangle(prev, curr, next, emitCoverage, reverseWinding, data);
                     v->fPrev->fNext = v->fNext;
                     v->fNext->fPrev = v->fPrev;
                     count--;
@@ -691,13 +707,15 @@ struct Poly {
         }
         return poly;
     }
-    void* emit(bool emitCoverage, void *data) {
+    void* emit(Flags flags, void *data) {
         if (fCount < 3) {
             return data;
         }
+        bool emitCoverage = (Flags::kCoverageAA & flags);
+        int windingDirection = (Flags::kPreserveWindingDirection & flags) ? fWinding : 0;
         TESS_LOG("emit() %d, size %d\n", fID, fCount);
         for (MonotonePoly* m = fHead; m != nullptr; m = m->fNext) {
-            data = m->emit(emitCoverage, data);
+            data = m->emit(emitCoverage, windingDirection, data);
         }
         return data;
     }
@@ -1319,7 +1337,8 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
     return intersect_edge_pair(left, right, activeEdges, current, c, alloc);
 }
 
-void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
+void sanitize_contours(VertexList* contours, int contourCnt, Flags flags) {
+    bool approximate = (Flags::kCoverageAA & flags);
     for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
         SkASSERT(contour->fHead);
         Vertex* prev = contour->fTail;
@@ -2183,7 +2202,7 @@ void extract_boundaries(const VertexList& inMesh, VertexList* innerVertices,
 
 // This is a driver function that calls stages 2-5 in turn.
 
-void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
+void contours_to_mesh(VertexList* contours, int contourCnt, Flags flags,
                       VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
 #if LOGGING_ENABLED
     for (int i = 0; i < contourCnt; ++i) {
@@ -2195,7 +2214,7 @@ void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
         }
     }
 #endif
-    sanitize_contours(contours, contourCnt, antialias);
+    sanitize_contours(contours, contourCnt, flags);
     build_edges(contours, contourCnt, mesh, c, alloc);
 }
 
@@ -2219,18 +2238,18 @@ void sort_mesh(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
 }
 
 Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fillType,
-                        const SkRect& pathBounds, bool antialias, VertexList* outerMesh,
+                        const SkRect& pathBounds, Flags flags, VertexList* outerMesh,
                         SkArenaAlloc& alloc) {
     Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
                                                           : Comparator::Direction::kVertical);
     VertexList mesh;
-    contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
+    contours_to_mesh(contours, contourCnt, flags, &mesh, c, alloc);
     sort_mesh(&mesh, c, alloc);
     merge_coincident_vertices(&mesh, c, alloc);
     simplify(&mesh, c, alloc);
     TESS_LOG("\nsimplified mesh:\n");
     dump_mesh(mesh);
-    if (antialias) {
+    if (Flags::kCoverageAA & flags) {
         VertexList innerMesh;
         extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
         sort_mesh(&innerMesh, c, alloc);
@@ -2273,17 +2292,17 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fil
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* polys_to_triangles(Poly* polys, SkPathFillType fillType, bool emitCoverage, void* data) {
+void* polys_to_triangles(Poly* polys, SkPathFillType fillType, Flags flags, void* data) {
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
-            data = poly->emit(emitCoverage, data);
+            data = poly->emit(flags, data);
         }
     }
     return data;
 }
 
 Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    int contourCnt, SkArenaAlloc& alloc, bool antialias, bool* isLinear,
+                    int contourCnt, SkArenaAlloc& alloc, Flags flags, bool* isLinear,
                     VertexList* outerMesh) {
     SkPathFillType fillType = path.getFillType();
     if (SkPathFillType_IsInverse(fillType)) {
@@ -2293,7 +2312,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 
     path_to_contours(path, tolerance, clipBounds, contours.get(), alloc, isLinear);
     return contours_to_polys(contours.get(), contourCnt, path.getFillType(), path.getBounds(),
-                             antialias, outerMesh, alloc);
+                             flags, outerMesh, alloc);
 }
 
 int get_contour_count(const SkPath& path, SkScalar tolerance) {
@@ -2370,8 +2389,8 @@ namespace GrTessellator {
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
-int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator* vertexAllocator, bool antialias, bool* isLinear) {
+int PathToTriangles(const SkPath& path, SkScalar tolerance, Flags flags, const SkRect& clipBounds,
+                    VertexAllocator* vertexAllocator, bool* isLinear) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *isLinear = true;
@@ -2379,8 +2398,9 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
     SkArenaAlloc alloc(kArenaChunkSize);
     VertexList outerMesh;
-    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
-                                isLinear, &outerMesh);
+    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, flags, isLinear,
+                                &outerMesh);
+    bool antialias = (Flags::kCoverageAA & flags);
     SkPathFillType fillType = antialias ? SkPathFillType::kWinding : path.getFillType();
     int64_t count64 = count_points(polys, fillType);
     if (antialias) {
@@ -2398,7 +2418,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
 
     TESS_LOG("emitting %d verts\n", count);
-    void* end = polys_to_triangles(polys, fillType, antialias, verts);
+    void* end = polys_to_triangles(polys, fillType, flags, verts);
     end = outer_mesh_to_triangles(outerMesh, true, end);
 
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
@@ -2408,8 +2428,9 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     return actualCount;
 }
 
-int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
+int PathToVertices(const SkPath& path, SkScalar tolerance, Flags flags, const SkRect& clipBounds,
                    GrTessellator::WindingVertex** verts) {
+    SkASSERT(!(Flags::kCoverageAA & flags));
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *verts = nullptr;
@@ -2417,7 +2438,7 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     }
     SkArenaAlloc alloc(kArenaChunkSize);
     bool isLinear;
-    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear,
+    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, flags, &isLinear,
                                 nullptr);
     SkPathFillType fillType = path.getFillType();
     int64_t count64 = count_points(polys, fillType);
@@ -2434,7 +2455,7 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
             SkPoint* start = pointsEnd;
-            pointsEnd = static_cast<SkPoint*>(poly->emit(false, pointsEnd));
+            pointsEnd = static_cast<SkPoint*>(poly->emit(flags, pointsEnd));
             while (start != pointsEnd) {
                 vertsEnd->fPos = *start;
                 vertsEnd->fWinding = poly->fWinding;
