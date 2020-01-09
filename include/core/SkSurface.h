@@ -383,7 +383,8 @@ public:
                                             int sampleCnt,
                                             SkColorType colorType,
                                             sk_sp<SkColorSpace> colorSpace,
-                                            const SkSurfaceProps* surfaceProps);
+                                            const SkSurfaceProps* surfaceProps)
+                                            API_AVAILABLE(macos(10.11), ios(9.0));
 #endif
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for
