@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a86fd7e9_37cfb17f",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5445
+      },
+      "writtenOn": "2020-01-09T18:26:42Z",
+      "side": 1,
+      "message": "This seems to have broken Flutter engine build https://ci.chromium.org/p/flutter/builders/prod/Mac%20iOS%20Engine/3580\n\n../../third_party/skia/src/image/SkSurface_GpuMtl.mm:125:5: error: \u0027MTKView\u0027 is only available on iOS 9.0 or newer [-Werror,-Wunguarded-availability]",
+      "revId": "e27670172b5b5d27767ef5717a08ee627fda3863",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
