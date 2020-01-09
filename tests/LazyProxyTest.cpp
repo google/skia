@@ -146,7 +146,7 @@ public:
                     GrSurfaceProxy::UseAllocator::kYes);
             GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);
             fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, swizzle),
-                        GrSamplerState::ClampNearest());
+                        GrSamplerState::Filter::kNearest);
             this->setTextureSamplerCnt(1);
         }
 

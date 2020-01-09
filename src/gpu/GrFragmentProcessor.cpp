@@ -413,9 +413,8 @@ GrFragmentProcessor::CIter::CIter(const GrPipeline& pipeline) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrFragmentProcessor::TextureSampler::TextureSampler(GrSurfaceProxyView view,
-                                                    const GrSamplerState& samplerState)
-        : fView(std::move(view))
-        , fSamplerState(samplerState) {
+                                                    GrSamplerState samplerState)
+        : fView(std::move(view)), fSamplerState(samplerState) {
     GrSurfaceProxy* proxy = this->proxy();
     fSamplerState.setFilterMode(
             SkTMin(samplerState.filter(),
@@ -423,7 +422,7 @@ GrFragmentProcessor::TextureSampler::TextureSampler(GrSurfaceProxyView view,
 }
 
 GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrSurfaceProxy> proxy,
-                                                    const GrSamplerState& samplerState) {
+                                                    GrSamplerState samplerState) {
     SkASSERT(proxy->asTextureProxy());
     GrSurfaceOrigin origin = proxy->origin();
     GrSwizzle swizzle = proxy->textureSwizzle();
@@ -438,7 +437,7 @@ GrFragmentProcessor::TextureSampler::TextureSampler(sk_sp<GrSurfaceProxy> proxy,
 
 #if GR_TEST_UTILS
 void GrFragmentProcessor::TextureSampler::set(GrSurfaceProxyView view,
-                                              const GrSamplerState& samplerState) {
+                                              GrSamplerState samplerState) {
     SkASSERT(view.proxy()->asTextureProxy());
     fView = std::move(view);
     fSamplerState = samplerState;

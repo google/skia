@@ -17,15 +17,6 @@
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
-                                                           GrSamplerState::Filter filter) {
-    return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix,
-                                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter)));
-}
-
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
-                                                           SkAlphaType alphaType,
-                                                           const SkMatrix& matrix,
                                                            GrSamplerState sampler) {
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(proxy), alphaType, matrix, sampler));

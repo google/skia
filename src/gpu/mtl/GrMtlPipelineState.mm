@@ -24,7 +24,7 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlPipelineState::SamplerBindings::SamplerBindings(const GrSamplerState& state,
+GrMtlPipelineState::SamplerBindings::SamplerBindings(GrSamplerState state,
                                                      GrTexture* texture,
                                                      GrMtlGpu* gpu)
         : fTexture(static_cast<GrMtlTexture*>(texture)->mtlTexture()) {
@@ -109,9 +109,8 @@ void GrMtlPipelineState::setTextures(const GrProgramInfo& programInfo,
     }
 
     if (GrTextureProxy* dstTextureProxy = programInfo.pipeline().dstProxyView().asTextureProxy()) {
-        fSamplerBindings.emplace_back(GrSamplerState::ClampNearest(),
-                                      dstTextureProxy->peekTexture(),
-                                      fGpu);
+        fSamplerBindings.emplace_back(
+                GrSamplerState::Filter::kNearest, dstTextureProxy->peekTexture(), fGpu);
     }
 
     SkASSERT(fNumSamplers == fSamplerBindings.count());

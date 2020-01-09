@@ -82,7 +82,7 @@ public:
      * to the src space position to compute texture coordinates.
      */
     void addColorTextureProcessor(sk_sp<GrTextureProxy>, SkAlphaType, const SkMatrix&,
-                                  const GrSamplerState& = GrSamplerState::ClampBilerp());
+                                  GrSamplerState = GrSamplerState::Filter::kBilerp);
 
     int numColorFragmentProcessors() const { return fColorFragmentProcessors.count(); }
     int numCoverageFragmentProcessors() const { return fCoverageFragmentProcessors.count(); }

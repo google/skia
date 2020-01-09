@@ -126,7 +126,7 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvide
          // normalized texture coords from frag coord distances.
          float invSixSigma = 1.f / sixSigma;
          return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(insetRect,
-                 std::move(integral), invSixSigma, isFast, GrSamplerState::ClampBilerp()));
+                 std::move(integral), invSixSigma, isFast, GrSamplerState::Filter::kBilerp));
      }
 }
 

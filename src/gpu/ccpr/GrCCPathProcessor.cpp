@@ -84,7 +84,7 @@ GrCCPathProcessor::GrCCPathProcessor(CoverageMode coverageMode, const GrTexture*
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fCoverageMode(coverageMode)
-        , fAtlasAccess(GrSamplerState::ClampNearest(), atlasTexture->backendFormat(), swizzle)
+        , fAtlasAccess(GrSamplerState::Filter::kNearest, atlasTexture->backendFormat(), swizzle)
         , fAtlasDimensions(atlasTexture->dimensions())
         , fAtlasOrigin(atlasOrigin) {
     // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?

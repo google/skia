@@ -13,7 +13,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
-sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
+sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(GrSamplerState params,
                                                                  bool willBeMipped,
                                                                  SkScalar scaleAdjust[2]) {
     if (this->width() > this->context()->priv().caps()->maxTextureSize() ||

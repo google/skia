@@ -33,7 +33,7 @@ public:
                                                                GrSurfaceOrigin);
 
     // Finds or creates a compatible MTLSamplerState based on the GrSamplerState.
-    GrMtlSampler* findOrCreateCompatibleSampler(const GrSamplerState&);
+    GrMtlSampler* findOrCreateCompatibleSampler(GrSamplerState);
 
     id<MTLBuffer> getDynamicBuffer(size_t size, size_t* offset);
     void addBufferCompletionHandler(GrMtlCommandBuffer* cmdBuffer);

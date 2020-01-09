@@ -15,18 +15,12 @@
 
 class GrTextureEffect : public GrFragmentProcessor {
 public:
-    /** Uses kClamp wrap mode in both dimensions. */
     static std::unique_ptr<GrFragmentProcessor> Make(
             sk_sp<GrSurfaceProxy>,
             SkAlphaType,
             const SkMatrix&,
-            GrSamplerState::Filter = GrSamplerState::Filter::kNearest);
+            GrSamplerState = {GrSamplerState::Filter::kNearest});
 
-    /** Allows full specification of the sampling parameters. */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
-                                                     SkAlphaType,
-                                                     const SkMatrix&,
-                                                     GrSamplerState);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
