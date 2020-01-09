@@ -177,8 +177,7 @@ void GrCCFiller::PathInfo::tessellateFan(
     GrTessellator::WindingVertex* vertices = nullptr;
     SkASSERT(!fan.isInverseFillType());
     fFanTessellationCount = GrTessellator::PathToVertices(
-            fan, std::numeric_limits<float>::infinity(), SkRect::Make(clippedDevIBounds),
-            &vertices);
+            fan, GrTessellator::kFlattenCurvesTolerance, SkRect::MakeEmpty(), &vertices);
     if (fFanTessellationCount <= 0) {
         SkASSERT(0 == fFanTessellationCount);
         SkASSERT(nullptr == vertices);
