@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "deb47fb3_3c243933",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-09T16:52:57Z",
+      "side": 1,
+      "message": "If the path was nothing but MoveTos, should it be considered to have points?\n\nAlso, how many contours should MoveTo/MoveTo/MoveTo/LineTo have?",
+      "revId": "81efe44af9cc7ca5453ceb561af627d08b2cdeea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
