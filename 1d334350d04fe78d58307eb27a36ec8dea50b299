@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fea0c8af_d0d8174c",
+        "filename": "src/gpu/GrPaint.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-09T21:50:12Z",
+      "side": 0,
+      "message": "I think this could cause the blink layout test failures? Everything in addColorTextureProcessor with default filter was bilerp, and now (unless you added a bilerp arg at the call site) will use the default grsamplerstate that is kNearest.\n\nWhich is annoying since a number of call sites previously explicitly passed in bilerp, while others did not, which makes me think the original default should have been kNearest, and we ought to go through with the rebaseline instead of going back to the old behavior.",
+      "range": {
+        "startLine": 85,
+        "startChar": 34,
+        "endLine": 85,
+        "endChar": 82
+      },
+      "revId": "1d334350d04fe78d58307eb27a36ec8dea50b299",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
