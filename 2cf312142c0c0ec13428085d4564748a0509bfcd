@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2448f32_018020dd",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-10T22:39:59Z",
+      "side": 1,
+      "message": "Is this bad? I\u0027m thinking maybe fArguments[1] can be a side-effecting expression that I shouldn\u0027t be inserting twice?",
+      "range": {
+        "startLine": 358,
+        "startChar": 16,
+        "endLine": 358,
+        "endChar": 78
+      },
+      "revId": "2cf312142c0c0ec13428085d4564748a0509bfcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
