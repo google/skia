@@ -102,7 +102,13 @@ public:
         const std::vector<T>& fVec;
     };
 
+    // Combined size of all 'in' and 'uniform' variables. When calling makeColorFilter or
+    // makeShader, provide an SkData of this size, containing values for all of those variables.
     size_t inputSize() const;
+
+    // Combined size of just the 'uniform' variables.
+    size_t uniformSize() const { return fUniformSize; }
+
     ConstIterable<Variable> inputs() const { return ConstIterable<Variable>(fInAndUniformVars); }
     ConstIterable<SkString> children() const { return ConstIterable<SkString>(fChildren); }
 
@@ -117,12 +123,16 @@ public:
     // If successful, ByteCode != nullptr, otherwise, ErrorText contains the reason for failure.
     using ByteCodeResult = std::tuple<std::unique_ptr<SkSL::ByteCode>, SkString>;
 
-    ByteCodeResult toByteCode();
+    ByteCodeResult toByteCode(const void* inputs);
 
 private:
     SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
                     std::unique_ptr<SkSL::Program> baseProgram,
-                    std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children);
+                    std::vector<Variable>&& inAndUniformVars, std::vector<SkString>&& children,
+                    size_t uniformSize);
+
+    using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
+    SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs);
 
     int fIndex;
     SkString fSkSL;
@@ -131,6 +141,8 @@ private:
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::vector<Variable> fInAndUniformVars;
     std::vector<SkString> fChildren;
+
+    size_t fUniformSize;
 };
 
 #endif
