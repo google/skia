@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "944c8fb4_b34431aa",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T16:34:01Z",
+      "side": 1,
+      "message": "From a code-size standpoint (particularly for CanvasKit), we should probably use the same vector width (8) here as we do elsewhere.",
+      "revId": "e1da39c3491850a258f67072ea029b70fe9c0104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "864df2f6_7c46a0ac",
+        "filename": "modules/particles/include/SkParticleEffect.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T16:34:01Z",
+      "side": 1,
+      "message": "In this case, I agree that the effect programs *should* be run with a scalar interpreter, though I\u0027ll be curious to ask Kevin how much code size this creates. (Obviously the \u003c1\u003e version is going to be smaller than any that have a larger width, but there\u0027s likely to be a big baseline cost).",
+      "range": {
+        "startLine": 134,
+        "startChar": 4,
+        "endLine": 134,
+        "endChar": 14
+      },
+      "revId": "e1da39c3491850a258f67072ea029b70fe9c0104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6d421bf_7e3f6d42",
+        "filename": "src/shaders/SkRTShader.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T16:34:01Z",
+      "side": 1,
+      "message": "This declaration no longer needed?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 19
+      },
+      "revId": "e1da39c3491850a258f67072ea029b70fe9c0104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
