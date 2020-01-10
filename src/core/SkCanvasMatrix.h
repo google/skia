@@ -25,7 +25,7 @@ public:
     // the legacy check was just for the 3x3 portion, so we only check those
     bool isScaleTranslate() const {
         return fM.atColMajor(1) == 0 && fM.atColMajor(3) == 0 &&
-               fM.atColMajor(4) == 0 && fM.atColMajor(7) == 0 && fM.atColMajor(15) == 1;
+               fM.atColMajor(4) == 0 && fM.atColMajor(7) == 0;
     }
     bool rectStaysRect() const { return fM.asM33().rectStaysRect(); }
 
