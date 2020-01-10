@@ -2557,10 +2557,13 @@ protected:
     virtual void didConcat(const SkMatrix& ) {}
     virtual void didSetMatrix(const SkMatrix& ) {}
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
+        // TODO: update all subclasses to override this, so we can remove default impl.
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
     // just pass an array for now, until we decide on the "public" form for the matrix
     virtual void didConcat44(const SkScalar[]) {}
+    // This is not called by SkCanvas yet. Waiting for subclasses to override it first.
+    virtual void didScale(SkScalar, SkScalar) {}
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
