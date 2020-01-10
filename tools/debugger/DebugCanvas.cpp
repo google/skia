@@ -64,8 +64,10 @@ DebugCanvas::DebugCanvas(int width, int height)
         , fOverdrawViz(false)
         , fClipVizColor(SK_ColorTRANSPARENT)
         , fDrawGpuOpBounds(false)
+        , fShowAndroidClip(false)
         , fnextDrawPictureLayerId(-1)
-        , fnextDrawImageRectLayerId(-1) {
+        , fnextDrawImageRectLayerId(-1)
+        , fAndroidClip(SkRect::MakeEmpty()) {
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
     // operations. This can lead to problems in the debugger which expects all
     // the operations in the captured skp to appear in the debug canvas. To
