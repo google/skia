@@ -239,17 +239,16 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
                 resourceProvider, fGeoData[i].fSubRunPtr,
                 fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin,
                 fGeoData[i].fColor.toBytes_RGBA(), &context, glyphCache, atlasManager);
-        bool done = false;
-        while (!done) {
-            GrTextBlob::VertexRegenerator::Result result;
-            if (!regenerator.regenerate(&result)) {
-                break;
-            }
-            done = result.fFinished;
+        auto subRun = fGeoData[i].fSubRunPtr;
+        int glyphsToDraw = subRun->fGlyphs.size();
+        for (int glyphsDrawn = 0; glyphsDrawn < glyphsToDraw;) {
+            auto [ok, glyphsRegenerated] = regenerator.regenerate(glyphsDrawn, glyphsToDraw);
+            if (!ok) { break; }
 
-            context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated,
-                               fGeoData[i].fDrawMatrix, target->handle());
-            if (!result.fFinished) {
+            context.recordDraw(subRun->quadStart(glyphsDrawn), glyphsRegenerated,
+                    fGeoData[i].fDrawMatrix, target->handle());
+            glyphsDrawn += glyphsRegenerated;
+            if (glyphsDrawn == glyphsToDraw) {
                 // Make space in the atlas so we can continue generating vertices.
                 context.flush();
             }
