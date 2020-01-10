@@ -32,6 +32,7 @@ namespace {
     // Constants used in Annotations by Android for keeping track of layers
     static constexpr char kOffscreenLayerDraw[] = "OffscreenLayerDraw";
     static constexpr char kSurfaceID[] = "SurfaceID";
+    static constexpr char kAndroidClip[] = "AndroidDeviceClipRestriction";
 } // namespace
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
@@ -63,8 +64,10 @@ DebugCanvas::DebugCanvas(int width, int height)
         , fOverdrawViz(false)
         , fClipVizColor(SK_ColorTRANSPARENT)
         , fDrawGpuOpBounds(false)
+        , fShowAndroidClip(false)
         , fnextDrawPictureLayerId(-1)
-        , fnextDrawImageRectLayerId(-1) {
+        , fnextDrawImageRectLayerId(-1)
+        , fAndroidClip(SkRect::MakeEmpty()) {
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
     // operations. This can lead to problems in the debugger which expects all
     // the operations in the captured skp to appear in the debug canvas. To
@@ -115,6 +118,10 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     DebugPaintFilterCanvas filterCanvas(originalCanvas);
     SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
 
+    if (!fAndroidClip.isEmpty()) {
+        finalCanvas->clipRect(fAndroidClip);
+    }
+
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
     if (fDrawGpuOpBounds || m != -1) {
@@ -141,10 +148,6 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     if (SkColorGetA(fClipVizColor) != 0) {
         finalCanvas->save();
-#define LARGE_COORD 1000000000
-        finalCanvas->clipRect(
-                SkRect::MakeLTRB(-LARGE_COORD, -LARGE_COORD, LARGE_COORD, LARGE_COORD),
-                kReverseDifference_SkClipOp);
         SkPaint clipPaint;
         clipPaint.setColor(fClipVizColor);
         finalCanvas->drawPaint(clipPaint);
@@ -154,6 +157,13 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     fMatrix = finalCanvas->getTotalMatrix();
     fClip   = finalCanvas->getDeviceClipBounds();
     finalCanvas->restoreToCount(saveCount);
+
+    if (fShowAndroidClip) {
+        // Draw visualization of android device clip restriction
+        SkPaint androidClipPaint;
+        androidClipPaint.setARGB(80, 255, 100, 0);
+        finalCanvas->drawRect(fAndroidClip, androidClipPaint);
+    }
 
     // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
@@ -347,6 +357,12 @@ void DebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData*
             fnextDrawImageRectLayerId = std::stoi(tokens[1].c_str());
             return; // don't record it
         }
+    }
+    if (strcmp(kAndroidClip, key) == 0) {
+        // Store this frame's android device clip restriction for visualization later.
+        // This annotation stands in place of the androidFramework_setDeviceClipRestriction
+        // which is unrecordable.
+        fAndroidClip = rect;
     }
     this->addDrawCommand(new DrawAnnotationCommand(rect, key, sk_ref_sp(value)));
 }
