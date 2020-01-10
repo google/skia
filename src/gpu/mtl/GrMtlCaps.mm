@@ -296,6 +296,10 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fHalfFloatVertexAttributeSupport = true;
 
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
+    SkDebugf("%s\n", [[device name] UTF8String]);
+    fflush(stderr);
+    fflush(stdout);
+    SK_ABORT("I'm going down.");
 }
 
 static bool format_is_srgb(MTLPixelFormat format) {
