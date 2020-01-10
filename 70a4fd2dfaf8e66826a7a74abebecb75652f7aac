@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cf779a7_3e7ba210",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 734,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T21:00:20Z",
+      "side": 0,
+      "message": "Curious why these tests went away. Seems like all of these are things we still disallow (for good reason).",
+      "range": {
+        "startLine": 724,
+        "startChar": 0,
+        "endLine": 734,
+        "endChar": 1
+      },
+      "revId": "70a4fd2dfaf8e66826a7a74abebecb75652f7aac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
