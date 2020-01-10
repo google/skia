@@ -24,8 +24,6 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
         auto width = fWords.width() + fClusters.width() + cluster->width();
         auto roundedWidth = littleRound(width);
         if (cluster->isHardBreak()) {
-        } else if (maxWidth == 0.0f) {
-            // Do nothing
         } else if (roundedWidth > maxWidth) {
             if (cluster->isWhitespaces()) {
                 // It's the end of the word
