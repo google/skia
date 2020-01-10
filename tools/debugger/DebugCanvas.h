@@ -59,8 +59,6 @@ public:
      */
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
 
-    void setAndroidClipViz(bool enable) {this->fShowAndroidClip = enable; }
-
     void setDrawGpuOpBounds(bool drawGpuOpBounds) { fDrawGpuOpBounds = drawGpuOpBounds; }
 
     bool getDrawGpuOpBounds() const { return fDrawGpuOpBounds; }
@@ -227,7 +225,6 @@ private:
     bool    fOverdrawViz;
     SkColor fClipVizColor;
     bool    fDrawGpuOpBounds;
-    bool    fShowAndroidClip;
 
     // When not negative, indicates the render node id of the layer represented by the next
     // drawPicture call.
@@ -239,7 +236,6 @@ private:
     // May be set when DebugCanvas is used in playing back an animation.
     // Only used for passing to fLayerManager to identify itself.
     int fFrame = -1;
-    SkRect fAndroidClip = SkRect::MakeEmpty();
 
     /**
         Adds the command to the class' vector of commands.
