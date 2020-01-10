@@ -32,13 +32,18 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
     SkASSERT(!compiler->errorCount());
 
-    size_t offset = 0;
+    size_t offset = 0, uniformSize = 0;
     std::vector<Variable> inAndUniformVars;
     std::vector<SkString> children;
     const SkSL::Context& ctx(compiler->context());
 
-    // Gather the inputs in two passes, to de-interleave them in our input layout
-    for (auto flag : { SkSL::Modifiers::kIn_Flag, SkSL::Modifiers::kUniform_Flag }) {
+    // Gather the inputs in two passes, to de-interleave them in our input layout.
+    // We put the uniforms *first*, so that the CPU backend can alias the combined input block as
+    // the uniform block when calling the interpreter.
+    for (auto flag : { SkSL::Modifiers::kUniform_Flag, SkSL::Modifiers::kIn_Flag }) {
+        if (flag == SkSL::Modifiers::kIn_Flag) {
+            uniformSize = offset;
+        }
         for (const auto& e : *program) {
             if (e.fKind == SkSL::ProgramElement::kVar_Kind) {
                 SkSL::VarDeclarations& v = (SkSL::VarDeclarations&) e;
@@ -164,7 +169,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(compiler),
                                                       std::move(program),
                                                       std::move(inAndUniformVars),
-                                                      std::move(children)));
+                                                      std::move(children),
+                                                      uniformSize));
     return std::make_pair(std::move(effect), SkString());
 }
 
@@ -190,14 +196,18 @@ size_t SkRuntimeEffect::Variable::sizeInBytes() const {
 SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> compiler,
                                  std::unique_ptr<SkSL::Program> baseProgram,
                                  std::vector<Variable>&& inAndUniformVars,
-                                 std::vector<SkString>&& children)
+                                 std::vector<SkString>&& children,
+                                 size_t uniformSize)
         : fIndex(new_sksl_index())
         , fSkSL(std::move(sksl))
         , fCompiler(std::move(compiler))
         , fBaseProgram(std::move(baseProgram))
         , fInAndUniformVars(std::move(inAndUniformVars))
-        , fChildren(std::move(children)) {
+        , fChildren(std::move(children))
+        , fUniformSize(uniformSize) {
     SkASSERT(fCompiler && fBaseProgram);
+    SkASSERT(SkIsAlign4(fUniformSize));
+    SkASSERT(fUniformSize <= this->inputSize());
 }
 
 size_t SkRuntimeEffect::inputSize() const {
@@ -206,23 +216,8 @@ size_t SkRuntimeEffect::inputSize() const {
         : fInAndUniformVars.back().fOffset + fInAndUniformVars.back().sizeInBytes();
 }
 
-#if SK_SUPPORT_GPU
-bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
-                                      SkSL::PipelineStageArgs* outArgs) {
-    // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
-    // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
-    SkSL::Program::Settings settings;
-    settings.fCaps = shaderCaps;
-
-    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
-                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                                 settings);
-    if (!baseProgram) {
-        SkDebugf("%s\n", fCompiler->errorText().c_str());
-        SkASSERT(false);
-        return false;
-    }
-
+SkRuntimeEffect::SpecializeResult SkRuntimeEffect::specialize(SkSL::Program& baseProgram,
+                                                              const void* inputs) {
     std::unordered_map<SkSL::String, SkSL::Program::Settings::Value> inputMap;
     for (const auto& v : fInAndUniformVars) {
         if (v.fQualifier != Variable::Qualifier::kIn) {
@@ -249,15 +244,37 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
             }
             default:
                 SkDEBUGFAIL("Unsupported input variable type");
-                return false;
+                return SpecializeResult{nullptr, SkString("Unsupported input variable type")};
         }
     }
 
-    auto specialized = fCompiler->specialize(*baseProgram, inputMap);
+    auto specialized = fCompiler->specialize(baseProgram, inputMap);
     bool optimized = fCompiler->optimize(*specialized);
     if (!optimized) {
+        return SpecializeResult{nullptr, SkString(fCompiler->errorText().c_str())};
+    }
+    return SpecializeResult{std::move(specialized), SkString()};
+}
+
+#if SK_SUPPORT_GPU
+bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* shaderCaps,
+                                      SkSL::PipelineStageArgs* outArgs) {
+    // This function is used by the GPU backend, and can't reuse our previously built fBaseProgram.
+    // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
+    SkSL::Program::Settings settings;
+    settings.fCaps = shaderCaps;
+
+    auto baseProgram = fCompiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
+                                                 SkSL::String(fSkSL.c_str(), fSkSL.size()),
+                                                 settings);
+    if (!baseProgram) {
         SkDebugf("%s\n", fCompiler->errorText().c_str());
         SkASSERT(false);
+        return false;
+    }
+
+    auto specialized = std::get<0>(this->specialize(*baseProgram, inputs));
+    if (!specialized) {
         return false;
     }
 
@@ -271,9 +288,13 @@ bool SkRuntimeEffect::toPipelineStage(const void* inputs, const GrShaderCaps* sh
 }
 #endif
 
-SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() {
-    auto byteCode = fCompiler->toByteCode(*fBaseProgram);
-    return std::make_tuple(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
+SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode(const void* inputs) {
+    auto [specialized, errorText] = this->specialize(*fBaseProgram, inputs);
+    if (!specialized) {
+        return ByteCodeResult{nullptr, errorText};
+    }
+    auto byteCode = fCompiler->toByteCode(*specialized);
+    return ByteCodeResult(std::move(byteCode), SkString(fCompiler->errorText().c_str()));
 }
 
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> inputs,
