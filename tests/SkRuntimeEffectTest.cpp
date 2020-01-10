@@ -142,14 +142,24 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
     TestEffect xy(r, "", "color = half4(half(x - 0.5), half(y - 0.5), 0, 1);");
     xy.test(r, surface, 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
+    using float4 = std::array<float, 4>;
+
     // NOTE: For now, we always emit valid premul colors, until CPU and GPU agree on clamping
     TestEffect uniformColor(r, "uniform float4 gColor;", "color = half4(gColor);");
 
-    uniformColor["gColor"] = std::array<float, 4>{ 0.0f, 0.25f, 0.75f, 1.0f };
+    uniformColor["gColor"] = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
     uniformColor.test(r, surface, 0xFFBF4000);
 
-    uniformColor["gColor"] = std::array<float, 4>{ 0.75f, 0.25f, 0.0f, 1.0f };
+    uniformColor["gColor"] = float4{ 0.75f, 0.25f, 0.0f, 1.0f };
     uniformColor.test(r, surface, 0xFF0040BF);
+
+    TestEffect pickColor(r, "in int flag; uniform half4 gColors[2];", "color = gColors[flag];");
+    pickColor["gColors"] =
+            std::array<float4, 2>{float4{1.0f, 0.0f, 0.0f, 1.0f}, float4{0.0f, 1.0f, 0.0f, 1.0f}};
+    pickColor["flag"] = 0;
+    pickColor.test(r, surface, 0xFF0000FF);
+    pickColor["flag"] = 1;
+    pickColor.test(r, surface, 0xFF00FF00);
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {
