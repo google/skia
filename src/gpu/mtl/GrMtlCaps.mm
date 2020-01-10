@@ -268,7 +268,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fReuseScratchTextures = true; // Assuming this okay
 
-    fTransferBufferSupport = true;
+    fTransferFromBufferToTextureSupport = true;
+    fTransferFromSurfaceToBufferSupport = true;
 
     fTextureBarrierSupport = false; // Need to figure out if we can do this
 

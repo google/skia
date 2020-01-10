@@ -694,7 +694,7 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
         return {};
     }
 
-    if (!this->caps()->transferBufferSupport() ||
+    if (!this->caps()->transferFromSurfaceToBufferSupport() ||
         !supportedRead.fOffsetAlignmentForTransferBuffer) {
         return {};
     }
