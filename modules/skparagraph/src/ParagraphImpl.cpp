@@ -206,15 +206,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fParagraphStyle.getMaxLines() == 1 || (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
     }
-
-    // TODO: This rounding is done to match Flutter tests. Must be removed..
-    if (floorWidth == 0.0f) {
-        fWidth = 0;
-        if (fParagraphStyle.unlimited_lines() && !fParagraphStyle.ellipsized()) {
-            fMinIntrinsicWidth = fHeight;
-            fHeight = fMaxIntrinsicWidth;
-        }
-    }
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
