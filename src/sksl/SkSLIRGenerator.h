@@ -159,7 +159,7 @@ private:
     std::shared_ptr<SymbolTable> fSymbolTable;
     // Symbols which have definitions in the include files. The bool tells us whether this
     // intrinsic has been included already.
-    std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
+    std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
     // holds extra temp variable declarations needed for the current function
     std::vector<std::unique_ptr<Statement>> fExtraVars;
     int fLoopLevel;
