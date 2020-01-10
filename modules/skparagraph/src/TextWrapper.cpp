@@ -24,20 +24,12 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
         auto width = fWords.width() + fClusters.width() + cluster->width();
         auto roundedWidth = littleRound(width);
         if (cluster->isHardBreak()) {
-        } else if (maxWidth == 0.0f) {
-            // Do nothing
         } else if (roundedWidth > maxWidth) {
             if (cluster->isWhitespaces()) {
                 // It's the end of the word
                 fClusters.extend(cluster);
                 fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
-                break;
-            }
-            if (cluster->width() > maxWidth) {
-                fClusters.extend(cluster);
-                fTooLongCluster = true;
-                fTooLongWord = true;
                 break;
             }
 
@@ -52,6 +44,12 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             if (nextWordLength > maxWidth) {
                 // If the word is too long we can break it right now and hope it's enough
                 fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, nextWordLength);
+                fTooLongWord = true;
+            }
+
+            if (cluster->width() > maxWidth) {
+                fClusters.extend(cluster);
+                fTooLongCluster = true;
                 fTooLongWord = true;
             }
             break;
