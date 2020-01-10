@@ -353,8 +353,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 atlasManager);
         // This loop issues draws until regenerator says we're done with this geo. Regenerator
         // breaks things up if inline uploads are necessary.
-        while (true) {
-            GrTextBlob::VertexRegenerator::Result result;
+        GrTextBlob::VertexRegenerator::Result result;
+        while (!result.fFinished) {
             // Copy regenerated vertices from the blob to our vertex buffer. If we overflow our
             // vertex buffer we'll issue a draw and then get more vertex buffer space.
             do {
@@ -402,12 +402,11 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 bufferGlyphCount -= glyphCount;
                 totalGlyphCount -= glyphCount;
             } while (result.fGlyphsRegenerated);
-            if (result.fFinished) {
-                break;
+            if (!result.fFinished) {
+                this->flush(target, &flushInfo);
             }
-            this->flush(target, &flushInfo);
-        }
-    }
+        }  // for all vertices
+    }  // for all geometries
     SkASSERT(!bufferGlyphCount);
     SkASSERT(!totalGlyphCount);
     this->flush(target, &flushInfo);
