@@ -29,6 +29,7 @@ def upload_dm_results(buildername):
     'MSAN',
     'TSAN',
     'Valgrind',
+    'iPhone11',
   ]
   for s in skip_upload_bots:
     if s in buildername:
