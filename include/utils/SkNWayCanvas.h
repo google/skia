@@ -30,9 +30,7 @@ protected:
     bool onDoSaveBehind(const SkRect*) override;
     void willRestore() override;
 
-    void didConcat44(const SkScalar[16]) override;
     void didConcat(const SkMatrix&) override;
-    void didTranslate(SkScalar x, SkScalar y) override;
     void didSetMatrix(const SkMatrix&) override;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
