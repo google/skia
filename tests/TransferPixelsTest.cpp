@@ -417,8 +417,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
-    if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest, reporter, ctxInfo) {
+    if (!ctxInfo.grContext()->priv().caps()->transferFromBufferToTextureSupport()) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
@@ -448,8 +448,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
 }
 
 // TODO(bsalomon): Metal
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
-    if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest, reporter, ctxInfo) {
+    if (!ctxInfo.grContext()->priv().caps()->transferFromSurfaceToBufferSupport()) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
