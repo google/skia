@@ -22,6 +22,30 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63a6093e_18b711ef",
+        "filename": "src/sksl/SkSLByteCode.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-10T18:48:34Z",
+      "side": 1,
+      "message": "Oops, holdovers from an earlier revision. Deleted.",
+      "parentUuid": "bad2fa1a_f5c418f3",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 335,
+        "endChar": 51
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
