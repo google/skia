@@ -305,7 +305,7 @@ public:
          * Was regenerate() able to draw all the glyphs from the sub run? If not flush all glyph
          * draws and call regenerate() again.
          */
-        bool fFinished = true;
+        bool fFinished = false;
 
         /**
          * How many glyphs were regenerated. Will be equal to the sub run's glyph count if
