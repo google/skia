@@ -150,8 +150,11 @@ size_t GrTextBlob::SubRun::texCoordOffset() const {
 }
 
 char* GrTextBlob::SubRun::quadStart(size_t index) const {
-    return SkTAddOffset<char>(
-            fVertexData.data(), index * kVerticesPerGlyph * this->vertexStride());
+    return SkTAddOffset<char>(fVertexData.data(), this->quadOffset(index));
+}
+
+size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
+    return index * kVerticesPerGlyph * this->vertexStride();
 }
 
 const SkRect& GrTextBlob::SubRun::vertexBounds() const { return fVertexBounds; }
@@ -843,10 +846,10 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
                 fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
     }
-    int firstNotInAtlas = i;
+    int glyphsPlacedInAtlas = i - begin;
 
     // Update the quads with the new atlas coordinates.
-    fSubRun->updateTexCoords(begin, firstNotInAtlas);
+    fSubRun->updateTexCoords(begin, begin + glyphsPlacedInAtlas);
 
     if (code == GrDrawOpAtlas::ErrorCode::kSucceeded) {
         // If we reach here with begin > 0, some earlier call to regenerate() exhausted the atlas
@@ -857,39 +860,27 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
                           : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     }
 
-    return {code != GrDrawOpAtlas::ErrorCode::kError, firstNotInAtlas};
+    return {code != GrDrawOpAtlas::ErrorCode::kError, glyphsPlacedInAtlas};
 }
 
-bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result,
-                                               int maxGlyphs) {
+std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int end) {
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
     fActions.regenTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
     if (fActions.regenStrike) { SkASSERT(fActions.regenTextureCoordinates); }
 
-    bool ok = true;
-    const int begin = fCurrGlyph;
-    const int end = std::min((int)fSubRun->fGlyphs.size(), begin + maxGlyphs);
     if (fActions.regenStrike || fActions.regenTextureCoordinates) {
-        int firstGlyphNotInAtlas;
-        std::tie(ok, firstGlyphNotInAtlas) = this->updateTextureCoordinatesMaybeStrike(begin, end);
-        fCurrGlyph = firstGlyphNotInAtlas;
+        return this->updateTextureCoordinatesMaybeStrike(begin, end);
     } else {
-        fCurrGlyph = end;
         // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.
-        if (fCurrGlyph == (int)fSubRun->fGlyphs.size()) {
+        if (end == (int)fSubRun->fGlyphs.size()) {
             // Set use tokens for all of the glyphs in our SubRun.  This is only valid if we
             // have a valid atlas generation
             fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
                                                fUploadTarget->tokenTracker()->nextDrawToken(),
                                                fSubRun->maskFormat());
         }
+        return {true, end - begin};
     }
-    if (ok) {
-        result->fFinished = fCurrGlyph == (int)fSubRun->fGlyphs.size();
-        result->fGlyphsRegenerated += fCurrGlyph - begin;
-        result->fFirstVertex = fSubRun->quadStart(begin);
-    }
-    return ok;
 }
