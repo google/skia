@@ -630,12 +630,18 @@ private:
         SkASSERT(pageIndex < 4);
         uint16_t uBit = (pageIndex >> 1) & 0x1;
         uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1 | vBit,
-                                      (atlasLocation.fX+SK_DistanceFieldPad+
-                                       devPathBounds.width()) << 1 | uBit,
-                                      (atlasLocation.fY+SK_DistanceFieldPad+
-                                       devPathBounds.height()) << 1 | vBit);
+        shapeData->fTextureCoords.set(atlasLocation.fX+SK_DistanceFieldPad,
+                                      atlasLocation.fY+SK_DistanceFieldPad,
+                                      atlasLocation.fX+SK_DistanceFieldPad+devPathBounds.width(),
+                                      atlasLocation.fY+SK_DistanceFieldPad+devPathBounds.height());
+        if (uBit) {
+            shapeData->fTextureCoords.fLeft -= 2048;
+            shapeData->fTextureCoords.fRight -= 2048;
+        }
+        if (vBit) {
+            shapeData->fTextureCoords.fTop -= 2048;
+            shapeData->fTextureCoords.fBottom -= 2048;
+        }
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -728,9 +734,16 @@ private:
         SkASSERT(pageIndex < 4);
         uint16_t uBit = (pageIndex >> 1) & 0x1;
         uint16_t vBit = pageIndex & 0x1;
-        shapeData->fTextureCoords.set(atlasLocation.fX << 1 | uBit, atlasLocation.fY << 1 | vBit,
-                                      (atlasLocation.fX+width) << 1 | uBit,
-                                      (atlasLocation.fY+height) << 1 | vBit);
+        shapeData->fTextureCoords.set(atlasLocation.fX, atlasLocation.fY,
+                                      atlasLocation.fX+width, atlasLocation.fY+height);
+        if (uBit) {
+            shapeData->fTextureCoords.fLeft -= 2048;
+            shapeData->fTextureCoords.fRight -= 2048;
+        }
+        if (vBit) {
+            shapeData->fTextureCoords.fTop -= 2048;
+            shapeData->fTextureCoords.fBottom -= 2048;
+        }
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
