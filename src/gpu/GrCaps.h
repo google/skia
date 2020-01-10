@@ -290,8 +290,8 @@ public:
      */
     bool readPixelsRowBytesSupport() const { return fReadPixelsRowBytesSupport; }
 
-    /** Are transfer buffers (to textures and from surfaces) supported? */
-    bool transferBufferSupport() const { return fTransferBufferSupport; }
+    bool transferFromSurfaceToBufferSupport() const { return fTransferFromSurfaceToBufferSupport; }
+    bool transferFromBufferToTextureSupport() const { return fTransferFromBufferToTextureSupport; }
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -511,7 +511,8 @@ protected:
     bool fAvoidLargeIndexBufferDraws                 : 1;
     bool fPerformStencilClearsAsDraws                : 1;
     bool fAllowCoverageCounting                      : 1;
-    bool fTransferBufferSupport                      : 1;
+    bool fTransferFromBufferToTextureSupport         : 1;
+    bool fTransferFromSurfaceToBufferSupport         : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
     bool fReadPixelsRowBytesSupport                  : 1;
 
