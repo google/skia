@@ -124,6 +124,14 @@ void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->INHERITED::didSetMatrix(matrix);
 }
 
+void SkNWayCanvas::didScale(SkScalar x, SkScalar y) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->scale(x, y);
+    }
+    this->INHERITED::didScale(x, y);
+}
+
 void SkNWayCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
