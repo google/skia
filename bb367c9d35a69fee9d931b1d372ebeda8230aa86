@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "804fc818_2858c575",
+        "filename": "tools/skottie_ios_app/GrContextHolder.h",
+        "patchSetId": 29
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2020-01-10T16:07:34Z",
+      "side": 1,
+      "message": "I was compartmentalizing.  Now I no longer use this here.",
+      "parentUuid": "2a6e92f1_98881349",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 69
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "833a620e_5ca3f9b4",
         "filename": "tools/skottie_ios_app/SkottieUIView.mm",
         "patchSetId": 29
@@ -45,6 +69,30 @@
       "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cd11d69_ae6830e8",
+        "filename": "tools/skottie_ios_app/SkottieUIView.mm",
+        "patchSetId": 29
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2020-01-10T16:07:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "833a620e_5ca3f9b4",
+      "range": {
+        "startLine": 9,
+        "startChar": 3,
+        "endLine": 9,
+        "endChar": 12
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "834e9cd6_d0926b24",
+        "filename": "tools/skottie_ios_app/main.mm",
+        "patchSetId": 29
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2020-01-10T16:07:34Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "106ae67d_73559e6b",
+      "range": {
+        "startLine": 38,
+        "startChar": 16,
+        "endLine": 38,
+        "endChar": 27
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92fa75b4_9a35272e",
         "filename": "tools/skottie_ios_app/main.mm",
         "patchSetId": 29
@@ -82,6 +154,30 @@
       "writtenOn": "2020-01-09T18:19:11Z",
       "side": 1,
       "message": "Is this needed? I wouldn\u0027t expect anything else to include this file.",
+      "range": {
+        "startLine": 207,
+        "startChar": 1,
+        "endLine": 208,
+        "endChar": 13
+      },
+      "revId": "bb367c9d35a69fee9d931b1d372ebeda8230aa86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afee3a03_4aed40f0",
+        "filename": "tools/skottie_ios_app/main.mm",
+        "patchSetId": 29
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2020-01-10T16:07:34Z",
+      "side": 1,
+      "message": "Good habit.  But this has been refactored out.",
+      "parentUuid": "92fa75b4_9a35272e",
       "range": {
         "startLine": 207,
         "startChar": 1,
