@@ -38,21 +38,22 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
         return false;
     }
 
-    auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
-    ctx->paintColor = rec.fPaint.getColor4f();
-    ctx->inputs = fInputs->data();
-    ctx->ninputs = fInputs->size() / 4;
-    ctx->shaderConvention = true;
-
     SkAutoMutexExclusive ama(fByteCodeMutex);
     if (!fByteCode) {
-        auto [byteCode, errorText] = fEffect->toByteCode();
+        auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
         if (!byteCode) {
             SkDebugf("%s\n", errorText.c_str());
             return false;
         }
         fByteCode = std::move(byteCode);
     }
+
+    auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
+    ctx->paintColor = rec.fPaint.getColor4f();
+    ctx->inputs = SkTAddOffset<void>(fInputs->data(), fEffect->uniformOffset());
+    ctx->ninputs = fInputs->size() / 4;
+    ctx->shaderConvention = true;
+
     ctx->byteCode = fByteCode.get();
     ctx->fn = ctx->byteCode->getFunction("main");
 
