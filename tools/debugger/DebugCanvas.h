@@ -129,11 +129,9 @@ protected:
     bool              onDoSaveBehind(const SkRect*) override;
     void              willRestore() override;
 
-    void didConcat44(const SkScalar[16]) override;
     void didConcat(const SkMatrix&) override;
+
     void didSetMatrix(const SkMatrix&) override;
-    void didScale(SkScalar, SkScalar) override;
-    void didTranslate(SkScalar, SkScalar) override;
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
