@@ -26,16 +26,20 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
     class Impl : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
-            const char* coords;
+            auto* fb = args.fFragBuilder;
+            SkString coords;
             if (args.fFp.coordTransformsApplyToLocalCoords()) {
-                coords = args.fTransformedCoords[0].fVaryingPoint.c_str();
+                if (args.fShaderCaps->avoidProjectiveTexturing()) {
+                    coords = fb->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+                } else {
+                    coords = args.fTransformedCoords[0].fVaryingPoint.getName();
+                }
             } else {
                 coords = "_coords";
             }
-            auto* fb = args.fFragBuilder;
             fb->codeAppendf("%s = ", args.fOutputColor);
             fb->appendTextureLookupAndBlend(args.fInputColor, SkBlendMode::kModulate,
-                                            args.fTexSamplers[0], coords);
+                                            args.fTexSamplers[0], coords.c_str());
             fb->codeAppendf(";");
         }
     };
