@@ -110,6 +110,15 @@ void SkLuaCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
+void SkLuaCanvas::didConcat44(const SkScalar m[16]) {
+    // TODO
+}
+void SkLuaCanvas::didScale(SkScalar x, SkScalar y) {
+    this->didConcat(SkMatrix::MakeScale(x, y));
+}
+void SkLuaCanvas::didTranslate(SkScalar x, SkScalar y) {
+    this->didConcat(SkMatrix::MakeTrans(x, y));
+}
 void SkLuaCanvas::didConcat(const SkMatrix& matrix) {
     switch (matrix.getType()) {
         case SkMatrix::kTranslate_Mask: {

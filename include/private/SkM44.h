@@ -159,6 +159,9 @@ public:
     SkM44& preTranslate(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
 
+    const SkScalar* asColMajor() const { return fMat; }
+          SkScalar* asColMajor()       { return fMat; }
+
 private:
     /* Stored in column-major.
      *  Indices

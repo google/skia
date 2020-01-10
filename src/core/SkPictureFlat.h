@@ -104,8 +104,9 @@ enum DrawType {
     DRAW_EDGEAA_QUAD,
 
     DRAW_BEHIND_PAINT,
+    CONCAT44,
 
-    LAST_DRAWTYPE_ENUM = DRAW_BEHIND_PAINT,
+    LAST_DRAWTYPE_ENUM = CONCAT44,
 };
 
 enum DrawVertexFlags {

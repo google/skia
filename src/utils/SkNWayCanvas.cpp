@@ -106,6 +106,13 @@ void SkNWayCanvas::didConcat(const SkMatrix& matrix) {
     }
 }
 
+void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->setMatrix(matrix);
+    }
+}
+
 void SkNWayCanvas::didTranslate(SkScalar x, SkScalar y) {
     Iter iter(fList);
     while (iter.next()) {
@@ -113,10 +120,10 @@ void SkNWayCanvas::didTranslate(SkScalar x, SkScalar y) {
     }
 }
 
-void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
+void SkNWayCanvas::didScale(SkScalar x, SkScalar y) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->setMatrix(matrix);
+        iter->scale(x, y);
     }
 }
 
