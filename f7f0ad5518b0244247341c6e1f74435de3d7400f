@@ -16,6 +16,98 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03c505b2_1a429b27",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 889,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:55:36Z",
+      "side": 1,
+      "message": "I may need to go dig into ByteCodeGenerator (which is next on my list), but I\u0027m confused how this works. I get that the locals and parameters use the stack that grows down from the end of the memory block, but what about registers that are in use in the calling function? Does each function use a disjoint block of registers? Or can the callee end up trashing the caller\u0027s register values?",
+      "range": {
+        "startLine": 889,
+        "startChar": 22,
+        "endLine": 889,
+        "endChar": 27
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8ea8d11_bc35c213",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:55:36Z",
+      "side": 1,
+      "message": "This is commented in the header as // functionIndex, target, [param1, ...]\n\nJust update that comment, I guess?",
+      "range": {
+        "startLine": 891,
+        "startChar": 0,
+        "endLine": 892,
+        "endChar": 83
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "201aa2b6_62c078a2",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:55:36Z",
+      "side": 1,
+      "message": "These were fine with a limit of 4 in the old interpreter. Any reason to bump them up so much?",
+      "range": {
+        "startLine": 913,
+        "startChar": 0,
+        "endLine": 916,
+        "endChar": 48
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef08f762_8348cb37",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:55:36Z",
+      "side": 1,
+      "message": "The comments on kReturn vs. kReturnValue indicate that kReturnValue is only used for single-slot returns. So this is always 1 here? Or is that comment wrong, and kReturnValue is used for any number of values, where kReturn is used for void return?",
+      "range": {
+        "startLine": 1215,
+        "startChar": 44,
+        "endLine": 1215,
+        "endChar": 63
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
