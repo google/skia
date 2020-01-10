@@ -92,12 +92,25 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
+void SkNWayCanvas::didConcat44(const SkScalar m[16]) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->concat44(m);
+    }
+}
+
 void SkNWayCanvas::didConcat(const SkMatrix& matrix) {
     Iter iter(fList);
     while (iter.next()) {
         iter->concat(matrix);
     }
-    this->INHERITED::didConcat(matrix);
+}
+
+void SkNWayCanvas::didTranslate(SkScalar x, SkScalar y) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->translate(x, y);
+    }
 }
 
 void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
@@ -105,7 +118,6 @@ void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
     while (iter.next()) {
         iter->setMatrix(matrix);
     }
-    this->INHERITED::didSetMatrix(matrix);
 }
 
 void SkNWayCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {

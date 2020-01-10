@@ -547,7 +547,7 @@ class HalfPlaneView3 : public SampleCameraView {
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkMatrix mx = this->get44({0, 0, 400, 400});
+        SkMatrix44 mx = this->get44({0, 0, 400, 400});
 
         SkPaint paint;
         paint.setColor({0.75, 0.75, 0.75, 1});
@@ -612,12 +612,10 @@ class HalfPlaneCoons : public SampleCameraView {
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkMatrix mx = this->get44({0, 0, 300, 300});
-
         SkPaint paint;
 
         canvas->save();
-        canvas->concat(mx);
+        canvas->concat(this->get44({0, 0, 300, 300}));
 
         const SkPoint* tex = nullptr;
         const SkColor* col = nullptr;
