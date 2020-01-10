@@ -312,6 +312,19 @@ void DebugCanvas::onClipRegion(const SkRegion& region, SkClipOp op) {
     this->addDrawCommand(new ClipRegionCommand(region, op));
 }
 
+void DebugCanvas::didConcat44(const SkScalar m[16]) {
+    // TODO
+    this->INHERITED::didConcat44(m);
+}
+
+void DebugCanvas::didScale(SkScalar x, SkScalar y) {
+    this->didConcat(SkMatrix::MakeScale(x, y));
+}
+
+void DebugCanvas::didTranslate(SkScalar x, SkScalar y) {
+    this->didConcat(SkMatrix::MakeTrans(x, y));
+}
+
 void DebugCanvas::didConcat(const SkMatrix& matrix) {
     this->addDrawCommand(new ConcatCommand(matrix));
     this->INHERITED::didConcat(matrix);

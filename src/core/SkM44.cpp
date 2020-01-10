@@ -92,8 +92,16 @@ SkM44& SkM44::preTranslate(SkScalar x, SkScalar y) {
     sk4f c1 = sk4f::Load(fMat +  4);
     sk4f c3 = sk4f::Load(fMat + 12);
 
-    // only need to update the last column
     skvx::mad(c0, x, skvx::mad(c1, y, c3)).store(fMat + 12);
+    return *this;
+}
+
+SkM44& SkM44::preScale(SkScalar x, SkScalar y) {
+    sk4f c0 = sk4f::Load(fMat +  0);
+    sk4f c1 = sk4f::Load(fMat +  4);
+
+    (c0 * x).store(fMat + 0);
+    (c1 * y).store(fMat + 4);
     return *this;
 }
 
