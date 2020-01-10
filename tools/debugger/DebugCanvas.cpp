@@ -64,6 +64,7 @@ DebugCanvas::DebugCanvas(int width, int height)
         , fOverdrawViz(false)
         , fClipVizColor(SK_ColorTRANSPARENT)
         , fDrawGpuOpBounds(false)
+        , fShowAndroidClip(false)
         , fnextDrawPictureLayerId(-1)
         , fnextDrawImageRectLayerId(-1) {
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
