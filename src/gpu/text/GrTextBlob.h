@@ -300,26 +300,7 @@ public:
                       const SkMatrix& drawMatrix, SkPoint drawOrigin, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
-    struct Result {
-        /**
-         * Was regenerate() able to draw all the glyphs from the sub run? If not flush all glyph
-         * draws and call regenerate() again.
-         */
-        bool fFinished = false;
-
-        /**
-         * How many glyphs were regenerated. Will be equal to the sub run's glyph count if
-         * fType is kFinished.
-         */
-        int fGlyphsRegenerated = 0;
-
-        /**
-         * Pointer where the caller finds the first regenerated vertex.
-         */
-        const char* fFirstVertex = nullptr;
-    };
-
-    bool regenerate(Result*, int maxGlyphs = std::numeric_limits<int>::max());
+    std::tuple<bool, int> regenerate(int begin, int end);
 
 private:
     // Return {success, index of first glyph not in atlas}
@@ -335,9 +316,6 @@ private:
         bool regenTextureCoordinates:1;
         bool regenStrike:1;
     } fActions = {false, false};
-
-    // fCurrGlyph indicates the next glyph to be placed in the atlas.
-    int fCurrGlyph = 0;
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
@@ -370,6 +348,7 @@ public:
     size_t colorOffset() const;
     size_t texCoordOffset() const;
     char* quadStart(size_t index) const;
+    size_t quadOffset(size_t index) const;
 
     const SkRect& vertexBounds() const;
     void joinGlyphBounds(const SkRect& glyphBounds);
