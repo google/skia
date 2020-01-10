@@ -63,18 +63,31 @@ enum GrPixelConfig {
     kRGBA_4444_GrPixelConfig,
     kRGBA_8888_GrPixelConfig,
     kRGB_888_GrPixelConfig,
+    kSRGB_888_GrPixelConfig, // double check this entry
     kRGB_888X_GrPixelConfig,
+    kSRGB_888X_GrPixelConfig,
     kRG_88_GrPixelConfig,
     kBGRA_8888_GrPixelConfig,
-    kSRGBA_8888_GrPixelConfig,
+    kSRGBA_8888_GrPixelConfig1,
     kRGBA_1010102_GrPixelConfig,
     kAlpha_half_GrPixelConfig,
     kAlpha_half_as_Lum_GrPixelConfig,
     kAlpha_half_as_Red_GrPixelConfig,
     kRGBA_half_GrPixelConfig,
     kRGBA_half_Clamped_GrPixelConfig,
-    kRGB_ETC1_GrPixelConfig,
-    kRGB_BC1_GrPixelConfig,
+    //--
+    kRGB_ETC1_GrPixelConfig_dont_use,
+    //--
+    kETC2_RGB8_UNORM_GrPixelConfig = kRGB_ETC1_GrPixelConfig_dont_use,
+    kETC2_RGB8_SRGB_GrPixelConfig,
+    kETC2_RGBA8_UNORM_GrPixelConfig,
+    kETC2_RGBA8_SRGB_GrPixelConfig,
+    //--
+    kBC1_RGB8_UNORM_GrPixelConfig,
+    kBC1_RGB8_SRGB_GrPixelConfig,
+    kBC1_RGBA8_UNORM_GrPixelConfig,
+    kBC1_RGBA8_SRGB_GrPixelConfig,
+    //--
     kAlpha_16_GrPixelConfig,
     kRG_1616_GrPixelConfig,
     kRGBA_16161616_GrPixelConfig,
@@ -827,6 +840,30 @@ GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 size_t GrCompressedFormatDataSize(SkImage::CompressionType, SkISize dimensions,
                                   GrMipMapped = GrMipMapped::kNo);
 
+#if 0
+static inline size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
+                                                SkISize dimensions) {
+    switch (compressionType) {
+        case SkImage::CompressionType::kNone:
+            return 0;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+            SkASSERT((dimensions.width() & 3) == 0);
+            SkASSERT((dimensions.height() & 3) == 0);
+            return (dimensions.width() >> 2) * (dimensions.height() >> 2) * 8;
+
+        case SkImage::CompressionType::kETC2_RGB8_SRGB:
+        case SkImage::CompressionType::kETC2_RGBA8_UNORM:
+        case SkImage::CompressionType::kETC2_RGBA8_SRGB:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_SRGB:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+        case SkImage::CompressionType::kBC1_RGBA8_SRGB:
+            return 0;
+    }
+    SkUNREACHABLE;
+}
+#endif
+
 /**
  * Like SkColorType this describes a layout of pixel data in CPU memory. It specifies the channels,
  * their type, and width. This exists so that the GPU backend can have private types that have no
@@ -842,8 +879,9 @@ enum class GrColorType {
     kBGR_565,
     kABGR_4444,  // This name differs from SkColorType. kARGB_4444_SkColorType is misnamed.
     kRGBA_8888,
-    kRGBA_8888_SRGB,
+    kRGBA_8888_SRGB_1,
     kRGB_888x,
+    kRGB_888x_SRGB,
     kRG_88,
     kBGRA_8888,
     kRGBA_1010102,
@@ -886,8 +924,10 @@ static constexpr SkColorType GrColorTypeToSkColorType(GrColorType ct) {
         case GrColorType::kABGR_4444:        return kARGB_4444_SkColorType;
         case GrColorType::kRGBA_8888:        return kRGBA_8888_SkColorType;
         // Once we add kRGBA_8888_SRGB_SkColorType we should return that here.
-        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_8888_SkColorType;
+        case GrColorType::kRGBA_8888_SRGB_1:   return kRGBA_8888_SkColorType;
         case GrColorType::kRGB_888x:         return kRGB_888x_SkColorType;
+        // Once we add kRGB_888x_SRGB_SkColorType we should return that here.
+        case GrColorType::kRGB_888x_SRGB:    return kRGB_888x_SkColorType;
         case GrColorType::kRG_88:            return kR8G8_unorm_SkColorType;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_SkColorType;
         case GrColorType::kRGBA_1010102:     return kRGBA_1010102_SkColorType;
@@ -950,8 +990,9 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kBGR_565:          return kRGB_SkColorTypeComponentFlags;
         case GrColorType::kABGR_4444:        return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGBA_8888:        return kRGBA_SkColorTypeComponentFlags;
-        case GrColorType::kRGBA_8888_SRGB:   return kRGBA_SkColorTypeComponentFlags;
+        case GrColorType::kRGBA_8888_SRGB_1: return kRGBA_SkColorTypeComponentFlags;
         case GrColorType::kRGB_888x:         return kRGB_SkColorTypeComponentFlags;
+        case GrColorType::kRGB_888x_SRGB:    return kRGB_SkColorTypeComponentFlags;
         case GrColorType::kRG_88:            return kRed_SkColorTypeComponentFlag |
                                                     kGreen_SkColorTypeComponentFlag;
         case GrColorType::kBGRA_8888:        return kRGBA_SkColorTypeComponentFlags;
@@ -976,6 +1017,28 @@ static constexpr uint32_t GrColorTypeComponentFlags(GrColorType ct) {
         case GrColorType::kR_F16:            return kRed_SkColorTypeComponentFlag;
         case GrColorType::kGray_F16:         return kGray_SkColorTypeComponentFlag;
     }
+    SkUNREACHABLE;
+}
+
+/**
+ * Utility function for GrPixelConfig
+ */
+static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::CompressionType c) {
+
+    switch (c) {
+        case SkImage::CompressionType::kNone:             return kUnknown_GrPixelConfig;
+
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:  return kETC2_RGB8_UNORM_GrPixelConfig;
+        case SkImage::CompressionType::kETC2_RGB8_SRGB:   return kETC2_RGB8_SRGB_GrPixelConfig;
+        case SkImage::CompressionType::kETC2_RGBA8_UNORM: return kETC2_RGBA8_UNORM_GrPixelConfig;
+        case SkImage::CompressionType::kETC2_RGBA8_SRGB:  return kETC2_RGBA8_SRGB_GrPixelConfig;
+
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:   return kBC1_RGB8_UNORM_GrPixelConfig;
+        case SkImage::CompressionType::kBC1_RGB8_SRGB:    return kBC1_RGB8_SRGB_GrPixelConfig;
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:  return kBC1_RGBA8_UNORM_GrPixelConfig;
+        case SkImage::CompressionType::kBC1_RGBA8_SRGB:   return kBC1_RGBA8_SRGB_GrPixelConfig;
+    }
+
     SkUNREACHABLE;
 }
 
@@ -1080,10 +1143,12 @@ static constexpr GrColorTypeDesc GrGetColorTypeDesc(GrColorType ct) {
             return GrColorTypeDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
         case GrColorType::kRGBA_8888:
             return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
-        case GrColorType::kRGBA_8888_SRGB:
+        case GrColorType::kRGBA_8888_SRGB_1:
             return GrColorTypeDesc::MakeRGBA(8, GrColorTypeEncoding::kSRGBUnorm);
         case GrColorType::kRGB_888x:
             return GrColorTypeDesc::MakeRGB(8, GrColorTypeEncoding::kUnorm);
+        case GrColorType::kRGB_888x_SRGB:
+            return GrColorTypeDesc::MakeRGB(8, GrColorTypeEncoding::kSRGBUnorm);
         case GrColorType::kRG_88:
             return GrColorTypeDesc::MakeRG(8, GrColorTypeEncoding::kUnorm);
         case GrColorType::kBGRA_8888:
@@ -1163,8 +1228,9 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kBGR_565:          return 2;
         case GrColorType::kABGR_4444:        return 2;
         case GrColorType::kRGBA_8888:        return 4;
-        case GrColorType::kRGBA_8888_SRGB:   return 4;
+        case GrColorType::kRGBA_8888_SRGB_1: return 4;
         case GrColorType::kRGB_888x:         return 4;
+        case GrColorType::kRGB_888x_SRGB:    return 4;
         case GrColorType::kRG_88:            return 2;
         case GrColorType::kBGRA_8888:        return 4;
         case GrColorType::kRGBA_1010102:     return 4;
@@ -1207,12 +1273,14 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
             return GrColorType::kRGB_888x;
         case kRGB_888X_GrPixelConfig:
             return GrColorType::kRGB_888x;
+        case kSRGB_888X_GrPixelConfig:
+            return GrColorType::kRGB_888x_SRGB;
         case kRG_88_GrPixelConfig:
             return GrColorType::kRG_88;
         case kBGRA_8888_GrPixelConfig:
             return GrColorType::kBGRA_8888;
-        case kSRGBA_8888_GrPixelConfig:
-            return GrColorType::kRGBA_8888_SRGB;
+        case kSRGBA_8888_GrPixelConfig1:
+            return GrColorType::kRGBA_8888_SRGB_1;
         case kRGBA_1010102_GrPixelConfig:
             return GrColorType::kRGBA_1010102;
         case kAlpha_half_GrPixelConfig:
@@ -1221,11 +1289,19 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
             return GrColorType::kRGBA_F16;
         case kRGBA_half_Clamped_GrPixelConfig:
             return GrColorType::kRGBA_F16_Clamped;
-        case kRGB_ETC1_GrPixelConfig:
-        case kRGB_BC1_GrPixelConfig:
-            // We may need a roughly equivalent color type for a compressed texture. This should be
-            // the logical format for decompressing the data into.
-            return GrColorType::kRGB_888x;
+        //---
+        // We may need a roughly equivalent color type for a compressed texture. This should be
+        // the logical format for decompressing the data into.
+        case kETC2_RGB8_UNORM_GrPixelConfig:  return GrColorType::kRGB_888x;
+        case kETC2_RGB8_SRGB_GrPixelConfig:   return GrColorType::kRGB_888x_SRGB;
+        case kETC2_RGBA8_UNORM_GrPixelConfig: return GrColorType::kRGBA_8888;
+        case kETC2_RGBA8_SRGB_GrPixelConfig:  return GrColorType::kRGBA_8888_SRGB_1;
+        //--
+        case kBC1_RGB8_UNORM_GrPixelConfig:   return GrColorType::kRGB_888x;
+        case kBC1_RGB8_SRGB_GrPixelConfig:    return GrColorType::kRGB_888x_SRGB;
+        case kBC1_RGBA8_UNORM_GrPixelConfig:  return GrColorType::kRGBA_8888;
+        case kBC1_RGBA8_SRGB_GrPixelConfig:   return GrColorType::kRGBA_8888_SRGB_1;
+        //---
         case kAlpha_8_as_Alpha_GrPixelConfig:
             return GrColorType::kAlpha_8;
         case kAlpha_8_as_Red_GrPixelConfig:
@@ -1257,8 +1333,9 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
         case GrColorType::kBGR_565:          return kRGB_565_GrPixelConfig;
         case GrColorType::kABGR_4444:        return kRGBA_4444_GrPixelConfig;
         case GrColorType::kRGBA_8888:        return kRGBA_8888_GrPixelConfig;
-        case GrColorType::kRGBA_8888_SRGB:   return kSRGBA_8888_GrPixelConfig;
-        case GrColorType::kRGB_888x:         return kRGB_888_GrPixelConfig;
+        case GrColorType::kRGBA_8888_SRGB_1: return kSRGBA_8888_GrPixelConfig1;
+        case GrColorType::kRGB_888x:         return kRGB_888X_GrPixelConfig;
+        case GrColorType::kRGB_888x_SRGB:    return kSRGB_888X_GrPixelConfig;
         case GrColorType::kRG_88:            return kRG_88_GrPixelConfig;
         case GrColorType::kBGRA_8888:        return kBGRA_8888_GrPixelConfig;
         case GrColorType::kRGBA_1010102:     return kRGBA_1010102_GrPixelConfig;
@@ -1273,22 +1350,12 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
         case GrColorType::kRG_1616:          return kRG_1616_GrPixelConfig;
         case GrColorType::kRGBA_16161616:    return kRGBA_16161616_GrPixelConfig;
         case GrColorType::kRG_F16:           return kRG_half_GrPixelConfig;
-        case GrColorType::kRGB_888:          return kUnknown_GrPixelConfig;
+        case GrColorType::kRGB_888:          return kRGB_888_GrPixelConfig;
         case GrColorType::kR_8:              return kUnknown_GrPixelConfig;
         case GrColorType::kR_16:             return kUnknown_GrPixelConfig;
         case GrColorType::kR_F16:            return kUnknown_GrPixelConfig;
         case GrColorType::kGray_F16:         return kUnknown_GrPixelConfig;
     }
-    SkUNREACHABLE;
-}
-
-static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::CompressionType compression) {
-    switch (compression) {
-        case SkImage::CompressionType::kNone:           return kUnknown_GrPixelConfig;
-        case SkImage::CompressionType::kETC1:           return kRGB_ETC1_GrPixelConfig;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: return kRGB_BC1_GrPixelConfig;
-    }
-
     SkUNREACHABLE;
 }
 
@@ -1331,8 +1398,9 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kBGR_565:          return "kRGB_565";
         case GrColorType::kABGR_4444:        return "kABGR_4444";
         case GrColorType::kRGBA_8888:        return "kRGBA_8888";
-        case GrColorType::kRGBA_8888_SRGB:   return "kRGBA_8888_SRGB";
+        case GrColorType::kRGBA_8888_SRGB_1: return "kRGBA_8888_SRGB";
         case GrColorType::kRGB_888x:         return "kRGB_888x";
+        case GrColorType::kRGB_888x_SRGB:    return "kRGB_888x_SRGB";
         case GrColorType::kRG_88:            return "kRG_88";
         case GrColorType::kBGRA_8888:        return "kBGRA_8888";
         case GrColorType::kRGBA_1010102:     return "kRGBA_1010102";
@@ -1357,12 +1425,21 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
     SkUNREACHABLE;
 }
 
-static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
-    switch (compression) {
-        case SkImage::CompressionType::kNone:           return "kNone";
-        case SkImage::CompressionType::kETC1:           return "kETC1";
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: return "kBC1_RGB8_UNORM";
+static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType c) {
+    switch (c) {
+        case SkImage::CompressionType::kNone:             return "kNone";
+
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:  return "kETC2_RGB8_UNORM";
+        case SkImage::CompressionType::kETC2_RGB8_SRGB:   return "kETC2_RGB8_SRGB";
+        case SkImage::CompressionType::kETC2_RGBA8_UNORM: return "kETC2_RGBA8_UNORM";
+        case SkImage::CompressionType::kETC2_RGBA8_SRGB:  return "kETC2_RGBA8_SRGB";
+
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:   return "kBC1_RGB8_UNORM";
+        case SkImage::CompressionType::kBC1_RGB8_SRGB:    return "kBC1_RGB8_SRGB";
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:  return "kBC1_RGBA8_UNORM";
+        case SkImage::CompressionType::kBC1_RGBA8_SRGB:   return "kBC1_RGBA8_SRGB";
     }
+
     SkUNREACHABLE;
 }
 #endif

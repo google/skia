@@ -366,6 +366,29 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
+                                                           const GrBackendFormat& backendFormat,
+                                                           GrMipMapped mipMapped,
+                                                           GrProtected isProtected) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    if (!this->asDirectContext()) {
+        return GrBackendTexture();
+    }
+
+    if (this->abandoned()) {
+        return GrBackendTexture();
+    }
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
+    }
+
+    return fGpu->createBackendTexture({width, height}, backendFormat, GrRenderable::kNo, nullptr,
+                                      numMipLevels, isProtected);
+}
+
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                                  const GrBackendFormat& backendFormat,
                                                  GrMipMapped mipMapped,

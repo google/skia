@@ -69,8 +69,7 @@ protected:
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
         sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, fETC1Data,
                                                            kTexWidth, kTexHeight,
-                                                           SkImage::CompressionType::kETC1);
-
+                                                           SkImage::CompressionType::kETC2_RGB8_UNORM);
         canvas->drawImage(image, 0, 0);
     }
 

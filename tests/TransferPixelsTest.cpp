@@ -427,7 +427,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
                      GrColorType::kBGR_565,
                      GrColorType::kABGR_4444,
                      GrColorType::kRGBA_8888,
-                     GrColorType::kRGBA_8888_SRGB,
+                     GrColorType::kRGBA_8888_SRGB_1,
                      //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,
@@ -459,7 +459,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
                      GrColorType::kBGR_565,
                      GrColorType::kABGR_4444,
                      GrColorType::kRGBA_8888,
-                     GrColorType::kRGBA_8888_SRGB,
+                     GrColorType::kRGBA_8888_SRGB_1,
                      //  GrColorType::kRGB_888x, Broken in GL until we have kRGB_888
                      GrColorType::kRG_88,
                      GrColorType::kBGRA_8888,

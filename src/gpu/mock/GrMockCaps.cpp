@@ -29,10 +29,18 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kRGBA_8888,      GrBackendFormat::MakeMock(GrColorType::kRGBA_8888,
                                                                   SkImage::CompressionType::kNone)},
-        { GrColorType::kRGBA_8888_SRGB, GrBackendFormat::MakeMock(GrColorType::kRGBA_8888_SRGB,
+#if 0
+        { GrColorType::kRGBA_8888_SRGB_1, GrBackendFormat::MakeMock(GrColorType::kRGBA_8888_SRGB,
                                                                   SkImage::CompressionType::kNone)},
+#endif
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kRGB_888x,
                                                                   SkImage::CompressionType::kNone)},
+        { GrColorType::kRGB_888x_SRGB,  GrBackendFormat::MakeMock(GrColorType::kRGB_888x_SRGB,
+                                                                  SkImage::CompressionType::kNone)},
+
+        // In this case kETC1 determines the color type (RGB_888x)
+        { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
+                                                                  SkImage::CompressionType::kETC2_RGB8_UNORM)},
         { GrColorType::kRG_88,          GrBackendFormat::MakeMock(GrColorType::kRG_88,
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kBGRA_8888,      GrBackendFormat::MakeMock(GrColorType::kBGRA_8888,
@@ -57,9 +65,9 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
                                                                   SkImage::CompressionType::kNone)},
         // For these two compressed image formats the color type will effectively be RGB_888x
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                                  SkImage::CompressionType::kETC1)},
+                                                                  SkImage::CompressionType::kETC2_RGB8_UNORM)},
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                        SkImage::CompressionType::kBC1_RGB8_UNORM)},
+                                                                  SkImage::CompressionType::kBC1_RGB8_UNORM)},
 
     };
 
