@@ -1701,21 +1701,17 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text =  "2,000 calories";
+        const char* text =  "Referral Code";
         ParagraphStyle paragraph_style;
-        paragraph_style.setEllipsis(u"\u2026");
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
         ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Google Sans")});
         text_style.setFontSize(24);
-        text_style.setHeightOverride(true);
-        text_style.setHeight(1.0f);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(155);
+        paragraph->layout(0);
         paragraph->paint(canvas, 0, 0);
     }
 
