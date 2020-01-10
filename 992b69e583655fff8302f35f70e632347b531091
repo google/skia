@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c78c35f4_37788a78",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T15:29:42Z",
+      "side": 1,
+      "message": "These diffs look more severe than they are. I just extracted the specialization part of toPipelineStage into a separate function, so it can be used by both toPipelineStage and toByteCode.",
+      "revId": "992b69e583655fff8302f35f70e632347b531091",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
