@@ -449,7 +449,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         auto& run = fParagraph->fRuns.emplace_back(this->fParagraph,
                                        runInfo,
                                        0,
-                                       1.0f,
+                                       0.0f,
                                        fParagraph->fRuns.count(),
                                        advanceX);
 

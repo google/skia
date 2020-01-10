@@ -78,7 +78,7 @@ public:
     SkScalar ascent() const { return fFontMetrics.fAscent; }
     SkScalar correctAscent() const {
 
-        if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
+        if (fHeightMultiplier == 0) {
             return fFontMetrics.fAscent - fFontMetrics.fLeading / 2;
         }
         return fFontMetrics.fAscent * fHeightMultiplier * fFont.getSize() /
@@ -86,7 +86,7 @@ public:
     }
     SkScalar correctDescent() const {
 
-        if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
+        if (fHeightMultiplier == 0) {
             return fFontMetrics.fDescent + fFontMetrics.fLeading / 2;
         }
         return fFontMetrics.fDescent * fHeightMultiplier * fFont.getSize() /
@@ -94,7 +94,7 @@ public:
     }
     SkScalar correctLeading() const {
 
-        if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
+        if (fHeightMultiplier == 0) {
             return fFontMetrics.fAscent;
         }
         return fFontMetrics.fLeading * fHeightMultiplier * fFont.getSize() /
@@ -128,7 +128,7 @@ public:
     void shift(const Cluster* cluster, SkScalar offset);
 
     SkScalar calculateHeight() const {
-        if (fHeightMultiplier == 0 || fHeightMultiplier == 1) {
+        if (fHeightMultiplier == 0) {
             return fFontMetrics.fDescent - fFontMetrics.fAscent;
         }
         return fHeightMultiplier * fFont.getSize();
