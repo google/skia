@@ -1035,8 +1035,9 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                 if (!context) {
                     continue;
                 }
-                // This test is only meaningful for contexts that support transfer buffers.
-                if (!context->priv().caps()->transferBufferSupport()) {
+                // This test is only meaningful for contexts that support transfer buffers for
+                // reads.
+                if (!context->priv().caps()->transferFromSurfaceToBufferSupport()) {
                     continue;
                 }
                 auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 1, nullptr);
