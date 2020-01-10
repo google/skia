@@ -46,6 +46,322 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74a476ce_985e3ab2",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "20?",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc028d51_2efc4b19",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "This isn\u0027t a thing, right? Really this is just parameterized over the vector width?",
+      "range": {
+        "startLine": 118,
+        "startChar": 22,
+        "endLine": 118,
+        "endChar": 44
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "776f7d21_2d034ac1",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "Oof, this is a pretty big memory cost per instance.",
+      "range": {
+        "startLine": 138,
+        "startChar": 47,
+        "endLine": 138,
+        "endChar": 75
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df695667_700c8044",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "This doesn\u0027t connect to anything (and it can\u0027t really work if we always have returns point to internal storage in the Interpreter). Maybe just remove this argument entirely?",
+      "range": {
+        "startLine": 185,
+        "startChar": 73,
+        "endLine": 185,
+        "endChar": 91
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddf75cc7_492e2d1b",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "These appear unused. (And were they to stick around, getMemory is wrong?)",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 5
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b79ed93e_c4dcd871",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "I think this was true in the old interpreter, so not necessary to fix right now, but all the disassembly only works with threaded code turned off, right? (Because it assumes Instructions are enums, not void*, etc...). Ah, nevermind - I realize now that this version doesn\u0027t overwrite the storage, so the instructions remain intact, and index the labels array. Carry on.",
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d65da2d_964bf9f7",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "Looks like this is actually an int (per the header comment and the execution logic later).",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 51
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d7fe84b_d1894bad",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "This should be indexing fExternalValues, not fFunctions",
+      "range": {
+        "startLine": 347,
+        "startChar": 16,
+        "endLine": 347,
+        "endChar": 67
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "859f6d6c_fd973b3e",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "matrixToMatrix",
+      "range": {
+        "startLine": 413,
+        "startChar": 24,
+        "endLine": 413,
+        "endChar": 38
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fcf7f14_17675fab",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "nit: (src, index, count) -\u003e (target, count, index)",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 423,
+        "endChar": 50
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5de8b51b_dfa7e64f",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "Why do these three instructions have the memcpy? The functions appear to read only from src and then write to all channels of target.",
+      "range": {
+        "startLine": 955,
+        "startChar": 20,
+        "endLine": 955,
+        "endChar": 26
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14f53fa7_6b3d36ad",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "i",
+      "range": {
+        "startLine": 981,
+        "startChar": 97,
+        "endLine": 981,
+        "endChar": 98
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "470356eb_ad71f440",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "Needs to be outside the if(any) to avoid misaligning the IP?",
+      "range": {
+        "startLine": 1137,
+        "startChar": 24,
+        "endLine": 1137,
+        "endChar": 79
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e15bb4b_8bbfdb58",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-10T20:07:29Z",
+      "side": 1,
+      "message": "i",
+      "range": {
+        "startLine": 1142,
+        "startChar": 88,
+        "endLine": 1142,
+        "endChar": 89
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
