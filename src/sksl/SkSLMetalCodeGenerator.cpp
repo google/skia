@@ -354,7 +354,9 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write(", ");
             this->writeExpression(*c.fArguments[1], kSequence_Precedence);
             if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
-                this->write(".xy)"); // FIXME - add projection functionality
+                this->write(").xy / (");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(").z");
             } else {
                 SkASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
                 this->write(")");
