@@ -331,58 +331,75 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                 numActiveViews, filter, maskFormat, localMatrix, vmPerspective);
     }
 
-    size_t vertexStride = flushInfo.fGeometryProcessor->vertexStride();
+    int vertexStride = (int)flushInfo.fGeometryProcessor->vertexStride();
 
     // Ensure we don't request an insanely large contiguous vertex allocation.
-    static const size_t kMaxVertexBytes = GrBufferAllocPool::kDefaultBufferSize;
-    int maxGlyphsInBuffer = kMaxVertexBytes / (vertexStride * kVerticesPerGlyph);
-    int totalGlyphCount = this->numGlyphs();
-    int bufferGlyphCount = std::min(totalGlyphCount, maxGlyphsInBuffer);
-    void* vertices = target->makeVertexSpace(vertexStride, bufferGlyphCount * kVerticesPerGlyph,
-                                             &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
+    static const int kMaxVertexBytes = GrBufferAllocPool::kDefaultBufferSize;
+    const int quadSize = vertexStride * kVerticesPerGlyph;
+    const int maxQuadsPerBuffer = kMaxVertexBytes / quadSize;
+
+    // Where the quad buffer begins and ends relative to totalGlyphsRegened.
+    int quadBufferBegin = 0;
+    int quadBufferEnd = std::min(this->numGlyphs(), maxQuadsPerBuffer);
+
     flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
+    void* vertices = target->makeVertexSpace(
+            vertexStride,
+            kVerticesPerGlyph * (quadBufferEnd - quadBufferBegin),
+            &flushInfo.fVertexBuffer,
+            &flushInfo.fVertexOffset);
     if (!vertices || !flushInfo.fVertexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }
 
-    char* currVertex = reinterpret_cast<char*>(vertices);
-
-    // each of these is a SubRun
+    // totalGlyphsRegened is all the glyphs for the op [0, this->numGlyphs()). The subRun glyph and
+    // quad buffer indices are calculated from this.
+    int totalGlyphsRegened = 0;
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
+        auto subRun = args.fSubRunPtr;
+        SkASSERT((int)subRun->vertexStride() == vertexStride);
+
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, args.fSubRunPtr, args.fDrawMatrix, args.fDrawOrigin,
                 args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
                 atlasManager);
-        // This loop issues draws until regenerator says we're done with this geo. Regenerator
-        // breaks things up if inline uploads are necessary.
-        GrTextBlob::VertexRegenerator::Result result;
-        while (!result.fFinished) {
-            // Copy regenerated vertices from the blob to our vertex buffer. If we overflow our
-            // vertex buffer we'll issue a draw and then get more vertex buffer space.
-            do {
-                if (!bufferGlyphCount) {
-                    this->flush(target, &flushInfo);
-                    bufferGlyphCount = std::min(totalGlyphCount, maxGlyphsInBuffer);
-                    vertices = target->makeVertexSpace(
-                            vertexStride, bufferGlyphCount * kVerticesPerGlyph,
-                            &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
-                    currVertex = reinterpret_cast<char*>(vertices);
-                }
-                if (!regenerator.regenerate(&result, bufferGlyphCount)) {
-                    return;
-                }
-                int glyphCount = std::min(result.fGlyphsRegenerated, bufferGlyphCount);
-                int vertexCount = glyphCount * kVerticesPerGlyph;
-                size_t vertexBytes = vertexCount * vertexStride;
+
+        // Where the subRun begins and ends relative to totalGlyphsRegened.
+        int subRunBegin = totalGlyphsRegened;
+        int subRunEnd = subRunBegin + (int)subRun->fGlyphs.size();
+
+        // Draw all the glyphs in the subRun.
+        while (totalGlyphsRegened < subRunEnd) {
+            // drawBegin and drawEnd are indices for the subRun on the
+            // interval [0, subRun->fGlyphs.size()).
+            int drawBegin = totalGlyphsRegened - subRunBegin;
+            // drawEnd is either the end of the subRun or the end of the current quad buffer.
+            int drawEnd = std::min(subRunEnd, quadBufferEnd) - subRunBegin;
+            auto[ok, glyphsRegenerated] = regenerator.regenerate(drawBegin, drawEnd);
+
+            // There was a problem allocating the glyph in the atlas. Bail.
+            if(!ok) { return; }
+
+            // Update all the vertices for glyphsRegenerate glyphs.
+            if (glyphsRegenerated > 0) {
+                int quadBufferIndex = totalGlyphsRegened - quadBufferBegin;
+                int subRunIndex = totalGlyphsRegened - subRunBegin;
+                auto regeneratedQuadBuffer =
+                        SkTAddOffset<char>(vertices, subRun->quadOffset(quadBufferIndex));
                 if (args.fClipRect.isEmpty()) {
-                    memcpy(currVertex, result.fFirstVertex, vertexBytes);
+                    memcpy(regeneratedQuadBuffer,
+                           subRun->quadStart(subRunIndex),
+                           glyphsRegenerated * quadSize);
                 } else {
                     SkASSERT(!vmPerspective);
-                    clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
-                               glyphCount);
+                    clip_quads(args.fClipRect,
+                               regeneratedQuadBuffer,
+                               subRun->quadStart(subRunIndex),
+                               vertexStride,
+                               glyphsRegenerated);
                 }
                 if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
                     // We always do the distance field view matrix transformation after copying
@@ -390,30 +407,54 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                     // successive arbitrary transformations would be complicated and accumulate
                     // error.
                     if (args.fDrawMatrix.hasPerspective()) {
-                        auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
-                        SkMatrixPriv::MapHomogeneousPointsWithStride(args.fDrawMatrix, pos,
-                                                                     vertexStride, pos,
-                                                                     vertexStride, vertexCount);
+                        auto* pos = reinterpret_cast<SkPoint3*>(regeneratedQuadBuffer);
+                        SkMatrixPriv::MapHomogeneousPointsWithStride(
+                                args.fDrawMatrix, pos,
+                                vertexStride, pos,
+                                vertexStride,
+                                glyphsRegenerated * kVerticesPerGlyph);
                     } else {
-                        auto* pos = reinterpret_cast<SkPoint*>(currVertex);
+                        auto* pos = reinterpret_cast<SkPoint*>(regeneratedQuadBuffer);
                         SkMatrixPriv::MapPointsWithStride(args.fDrawMatrix, pos, vertexStride,
-                                                          vertexCount);
+                                                          glyphsRegenerated * kVerticesPerGlyph);
                     }
                 }
-                flushInfo.fGlyphsToFlush += glyphCount;
-                currVertex += vertexBytes;
-                result.fFirstVertex += vertexBytes;
-                result.fGlyphsRegenerated -= glyphCount;
-                bufferGlyphCount -= glyphCount;
-                totalGlyphCount -= glyphCount;
-            } while (result.fGlyphsRegenerated);
-            if (!result.fFinished) {
-                this->flush(target, &flushInfo);
             }
-        }  // for all vertices
+
+            totalGlyphsRegened += glyphsRegenerated;
+            flushInfo.fGlyphsToFlush += glyphsRegenerated;
+
+            // regenerate() has stopped part way through a SubRun. This means that either the atlas
+            // or the quad buffer is full or both. There is a case were the flow through
+            // the loop is strange. If we run out of quad buffer space at the same time the
+            // SubRun ends, then this is not triggered which is the right result for the last
+            // SubRun. But, if this is not the last SubRun, then advance to the next SubRun which
+            // will process no glyphs, and return to this point where the quad buffer will be
+            // expanded.
+            if (totalGlyphsRegened != subRunEnd) {
+                // Flush if not all glyphs drawn because either the quad buffer is full or the
+                // atlas is out of space.
+                this->flush(target, &flushInfo);
+                if (totalGlyphsRegened == quadBufferEnd) {
+                    // Quad buffer is full. Get more buffer.
+                    quadBufferBegin = totalGlyphsRegened;
+                    int quadBufferSize =
+                            std::min(maxQuadsPerBuffer, this->numGlyphs() - totalGlyphsRegened);
+                    quadBufferEnd = quadBufferBegin + quadBufferSize;
+
+                    vertices = target->makeVertexSpace(
+                            vertexStride,
+                            kVerticesPerGlyph * quadBufferSize,
+                            &flushInfo.fVertexBuffer,
+                            &flushInfo.fVertexOffset);
+                    if (!vertices || !flushInfo.fVertexBuffer) {
+                        SkDebugf("Could not allocate vertices\n");
+                        return;
+                    }
+                }
+            }
+        }
     }  // for all geometries
-    SkASSERT(!bufferGlyphCount);
-    SkASSERT(!totalGlyphCount);
     this->flush(target, &flushInfo);
 }
 
