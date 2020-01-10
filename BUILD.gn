@@ -2296,7 +2296,10 @@ if (skia_enable_tools) {
         "tools/fiddle/examples.h",
       ]
       if (is_win) {
-        cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
+        cflags = [
+          "/wd4756",  # Overflow in constant arithmetic
+          "/wd4305",  # truncation from 'double' to 'float'
+        ]
       }
       deps = [
         ":skia",
