@@ -10,6 +10,7 @@ samples_sources = [
   "$_samplecode/PerlinPatch.cpp",
   "$_samplecode/Sample.cpp",
   "$_samplecode/Sample.h",
+  "$_samplecode/Sample3D.cpp",
   "$_samplecode/Sample2PtRadial.cpp",
   "$_samplecode/SampleAAClip.cpp",
   "$_samplecode/SampleAAGeometry.cpp",
