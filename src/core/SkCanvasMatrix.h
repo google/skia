@@ -18,6 +18,7 @@ public:
 
     void reset() { fM.setIdentity(); }
     void preTranslate(SkScalar x, SkScalar y) { fM.preTranslate(x, y); }
+    void preScale(SkScalar x, SkScalar y) { fM.preScale(x, y); }
     void preConcat(const SkMatrix& m) { fM.preConcat(m); }
     void preConcat44(const SkScalar m[]) { fM.setConcat(fM, m); }
 
