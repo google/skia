@@ -300,6 +300,11 @@
 
     "functions": [
       "StartTiling", "EndTiling",
+    ],
+    // https://github.com/flutter/flutter/issues/47164
+    // https://github.com/flutter/flutter/issues/47804
+    "optional": [
+      "StartTiling", "EndTiling",
     ]
   },
 
