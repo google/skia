@@ -157,7 +157,6 @@ public:
     }
 
     SkM44& preTranslate(SkScalar x, SkScalar y);
-    SkM44& preScale(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
 
     const SkScalar* asColMajor() const { return fMat; }
