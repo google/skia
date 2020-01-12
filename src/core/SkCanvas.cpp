@@ -1439,9 +1439,24 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
+#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
     SkMatrix m;
     m.setScale(sx, sy);
     this->concat(m);
+#else
+    if (sx != 1 || sy != 1) {
+        this->checkForDeferredSave();
+        fMCRec->fMatrix.preScale(sx, sy);
+
+        // shouldn't need to do this (theoretically), as the state shouldn't have changed,
+        // but pre-scaling by a non-finite does change it, so we have to recompute.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+        this->didScale(sx, sy);
+    }
+#endif
 }
 
 void SkCanvas::rotate(SkScalar degrees) {
