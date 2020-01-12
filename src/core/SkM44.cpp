@@ -97,15 +97,6 @@ SkM44& SkM44::preTranslate(SkScalar x, SkScalar y) {
     return *this;
 }
 
-SkM44& SkM44::preScale(SkScalar x, SkScalar y) {
-    sk4f c0 = sk4f::Load(fMat +  0);
-    sk4f c1 = sk4f::Load(fMat +  4);
-
-    (c0 * x).store(fMat + 0);
-    (c1 * y).store(fMat + 4);
-    return *this;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** We always perform the calculation in doubles, to avoid prematurely losing
