@@ -231,17 +231,25 @@ public:
         return DecodeToTexture(ctx, data->data(), data->size(), subset);
     }
 
-    // Experimental
+    /*
+     * Experimental:
+     *   Skia                | GL_COMPRESSED_*     | MTLPixelFormat*     | VK_FORMAT_*_BLOCK
+     *  -------------------------------------------------------------------------------------
+     *   kETC2_RGB8_UNORM    | ETC1_RGB8           | ETC2_RGB8 (iOS-only)| ETC2_R8G8B8_UNORM
+     *                       | RGB8_ETC2           |                     |
+     *  -------------------------------------------------------------------------------------
+     *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                 | BC1_RGB_UNORM
+     */
     enum class CompressionType {
         kNone,
-        kETC1,
+        kETC2_RGB8_UNORM, // the same as ETC1
         kBC1_RGB8_UNORM,
         kLast = kBC1_RGB8_UNORM,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
 
-    static const CompressionType kETC1_CompressionType = CompressionType::kETC1;
+    static const CompressionType kETC1_CompressionType = CompressionType::kETC2_RGB8_UNORM;
 
     /** Creates a GPU-backed SkImage from compressed data.
 

@@ -667,7 +667,7 @@ SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
     switch (format) {
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            return SkImage::CompressionType::kETC1;
+            return SkImage::CompressionType::kETC2_RGB8_UNORM;
         case GrGLFormat::kCOMPRESSED_RGB8_BC1:
             return SkImage::CompressionType::kBC1_RGB8_UNORM;
 

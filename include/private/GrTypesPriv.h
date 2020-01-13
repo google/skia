@@ -1284,9 +1284,9 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
 
 static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::CompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:           return kUnknown_GrPixelConfig;
-        case SkImage::CompressionType::kETC1:           return kRGB_ETC1_GrPixelConfig;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: return kRGB_BC1_GrPixelConfig;
+        case SkImage::CompressionType::kNone:            return kUnknown_GrPixelConfig;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM: return kRGB_ETC1_GrPixelConfig;
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return kRGB_BC1_GrPixelConfig;
     }
 
     SkUNREACHABLE;
@@ -1359,9 +1359,9 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
 
 static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:           return "kNone";
-        case SkImage::CompressionType::kETC1:           return "kETC1";
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: return "kBC1_RGB8_UNORM";
+        case SkImage::CompressionType::kNone:            return "kNone";
+        case SkImage::CompressionType::kETC2_RGB8_UNORM: return "kETC2_RGB8_UNORM";
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
     }
     SkUNREACHABLE;
 }

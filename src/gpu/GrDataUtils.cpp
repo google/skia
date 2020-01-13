@@ -160,7 +160,7 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
     switch (type) {
         case SkImage::CompressionType::kNone:
             break;
-        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
         case SkImage::CompressionType::kBC1_RGB8_UNORM: {
             for (int i = 0; i < numMipLevels; ++i) {
                 int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
@@ -190,7 +190,7 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
         case SkImage::CompressionType::kNone:
             return 0;
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
-        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
             int numBlocksWidth = num_ETC1_blocks_w(width);
 
             static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
@@ -204,7 +204,7 @@ SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimens
         case SkImage::CompressionType::kNone:
             return baseDimensions;
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
-        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
             int numBlocksWidth = num_ETC1_blocks_w(baseDimensions.width());
             int numBlocksHeight = num_ETC1_blocks_w(baseDimensions.height());
 
@@ -294,7 +294,7 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
     for (int i = 0; i < numMipLevels; ++i) {
         size_t levelSize = GrCompressedDataSize(type, dimensions, nullptr, GrMipMapped::kNo);
 
-        if (SkImage::CompressionType::kETC1 == type) {
+        if (SkImage::CompressionType::kETC2_RGB8_UNORM == type) {
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
         } else {
             SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM);
