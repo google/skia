@@ -2503,6 +2503,8 @@ public:
     */
     SkMatrix getTotalMatrix() const;
 
+    void getColMajor44(SkScalar [16]) const;
+
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call

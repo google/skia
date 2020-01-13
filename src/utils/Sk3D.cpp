@@ -30,12 +30,12 @@ void Sk3LookAt(SkMatrix44* dst, const SkPoint3& eye, const SkPoint3& center, con
     s.normalize();
     u = cross(s, f);
 
-    dst->setIdentity();
-    set_col(dst, 0, s);
-    set_col(dst, 1, u);
-    set_col(dst, 2, -f);
-    set_col(dst, 3, eye);
-    dst->invert(dst);
+    SkMatrix44 tmp;
+    set_col(&tmp, 0, s);
+    set_col(&tmp, 1, u);
+    set_col(&tmp, 2, -f);
+    set_col(&tmp, 3, eye);
+    tmp.invert(dst);
 }
 
 bool Sk3Perspective(SkMatrix44* dst, float near, float far, float angle) {

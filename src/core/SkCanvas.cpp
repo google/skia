@@ -1782,6 +1782,10 @@ SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
+void SkCanvas::getColMajor44(SkScalar m[16]) const {
+    fMCRec->fMatrix.getColMajor(m);
+}
+
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
     SkBaseDevice* dev = this->getTopDevice();
     return dev ? dev->accessRenderTargetContext() : nullptr;
