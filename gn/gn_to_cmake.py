@@ -728,6 +728,7 @@ def main():
   project = None
   with open(json_path, 'r') as json_file:
     project = json.loads(json_file.read())
+  print(json.dumps(project))
 
   WriteProject(Project(project))
 
