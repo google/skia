@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "6edf971d_34cfde51",
+        "filename": "include/gpu/GrSurface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-13T14:40:11Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 92,
+        "startChar": 100,
+        "endLine": 92,
+        "endChar": 101
+      },
+      "revId": "f1e65ac16bacb3dda88d57b85469dfc18eeaccd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a03200e9_a027bf9c",
         "filename": "src/gpu/GrBackendSurface.cpp",
         "patchSetId": 4
@@ -18,6 +41,29 @@
         "startChar": 43,
         "endLine": 719,
         "endChar": 90
+      },
+      "revId": "f1e65ac16bacb3dda88d57b85469dfc18eeaccd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4b50317_d4859007",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-13T14:40:11Z",
+      "side": 1,
+      "message": "To match our general style throughout the rest of the code make this three lines similar to requiresManualMSAAResolve below",
+      "range": {
+        "startLine": 249,
+        "startChar": 26,
+        "endLine": 249,
+        "endChar": 94
       },
       "revId": "f1e65ac16bacb3dda88d57b85469dfc18eeaccd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
