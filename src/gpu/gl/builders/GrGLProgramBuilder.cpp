@@ -50,7 +50,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
-    ATRACE_ANDROID_FRAMEWORK("Shader Compile");
+    ATRACE_ANDROID_FRAMEWORK_ALWAYS("shader_compile");
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
@@ -254,6 +254,7 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
         this->computeCountsAndStrides(programID, primProc, false);
         usedProgramBinaries = true;
     } else if (cached) {
+        ATRACE_ANDROID_FRAMEWORK_ALWAYS("cache_hit");
         SkReader32 reader(fCached->data(), fCached->size());
         SkFourByteTag shaderType = reader.readU32();
 
@@ -303,6 +304,7 @@ GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompi
         }
     }
     if (!usedProgramBinaries) {
+        ATRACE_ANDROID_FRAMEWORK_ALWAYS("cache_miss");
         // Either a cache miss, or we got something other than binaries from the cache
 
         /*
