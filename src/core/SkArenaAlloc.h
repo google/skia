@@ -125,12 +125,52 @@ public:
         return array;
     }
 
-    // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
     void* makeBytesAlignedTo(size_t size, size_t align) {
-        AssertRelease(SkTFitsIn<uint32_t>(size));
-        auto objStart = this->allocObject(ToU32(size), ToU32(align));
-        fCursor = objStart + size;
+        size_t allocated;
+        return this->makeAtLeastBytesAlignedTo(size, size, align, &allocated);
+    }
+
+    //  This allocates between 'minSize' and 'maxSize' bytes. If the current block has at least
+    // 'minSize' bytes, it will allocate min(remaining, maxSize). If there is not enough room for
+    // 'minSize' a new block will be made and a 'maxSize' array will be returned. The size of the
+    // returned array is reported in 'allocated'.
+    void* makeAtLeastBytesAlignedTo(size_t minSize, size_t maxSize, size_t align,
+                                    size_t* allocated) {
+        AssertRelease(SkTFitsIn<uint32_t>(minSize) && SkTFitsIn<uint32_t>(maxSize));
+        // This is not quite alloc(minSize) + resize(maxSize) because if alloc(minSize) would
+        // require an allocation, this makes sure to request maxSize.
+        char* objStart = this->allocAtLeast(ToU32(minSize), ToU32(maxSize), ToU32(align),
+                                            allocated);
+        fCursor = objStart + *allocated;
         return objStart;
+    }
+
+    // Attempt resize the given allocation, where 'ptr' was previously returned by
+    // makeBytesAlignedTo (and 'currentSize' equals the original input size), or was returned by
+    // makeAtLeastBytesAlignedTo (and 'currentSize' equals what had been allocated).
+    //
+    // Returns true updating 'maxSize' to the allocations new size if it changed, or returns false
+    // if the arena could not resize the allocation. When true is returned, 'maxSize' will be a
+    // value between 'currentSize' and the original 'maxSize', depending on how much space remained
+    // in the allocation's block. When true is returned and 'maxSize' is less than 'currentSize',
+    // the allocation is resized to exactly the requested, lower max size and the excess bytes are
+    // reclaimed by the arena for subsequent allocations.
+    bool resize(void* ptr, size_t currentSize, size_t* maxSize);
+
+    // Return POD to the arena so that it might be able to be re-purposed by subsequent allocations.
+    // Returns true if recovered, false if the arena has already allocated beyond 'ptr'.
+    bool release(void* ptr, size_t size) {
+        // Releasing the POD is equivalent to resizing it to 0 bytes
+        size_t requested = 0;
+        return this->resize(ptr, size, &requested);
+    }
+
+    template <typename T>
+    bool release(T* ptr) {
+        // Object footers storing destructors prevents reclaiming non-trivially destructible T's
+        // even when they are the last allocation, so don't even allow callers to attempt it.
+        static_assert(std::is_trivially_destructible<T>::value);
+        return this->release(ptr, sizeof(T));
     }
 
     // Destroy all allocated objects, free any heap allocations.
@@ -157,16 +197,11 @@ private:
     void ensureSpace(uint32_t size, uint32_t alignment);
 
     char* allocObject(uint32_t size, uint32_t alignment) {
-        uintptr_t mask = alignment - 1;
-        uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
-        uintptr_t totalSize = size + alignedOffset;
-        AssertRelease(totalSize >= size);
-        if (totalSize > static_cast<uintptr_t>(fEnd - fCursor)) {
-            this->ensureSpace(size, alignment);
-            alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
-        }
-        return fCursor + alignedOffset;
+        size_t allocated;
+        return this->allocAtLeast(size, size, alignment, &allocated);
     }
+
+    char* allocAtLeast(uint32_t minSize, uint32_t maxSize, uint32_t alignment, size_t* allocated);
 
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
 

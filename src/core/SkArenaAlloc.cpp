@@ -42,6 +42,33 @@ void SkArenaAlloc::reset() {
     new (this) SkArenaAlloc{fFirstBlock, fFirstSize, fFirstHeapAllocationSize};
 }
 
+bool SkArenaAlloc::resize(void* ptr, size_t currentSize, size_t* maxSize) {
+    AssertRelease(SkTFitsIn<uint32_t>(currentSize) && SkTFitsIn<uint32_t>(*maxSize));
+
+    // For trivially destructible types, or raw allocations, fCursor was set to
+    // objStart + size, so if start + size still equals the cursor, then nothing else has
+    // been allocated since.
+    const char* expectedCursor = static_cast<const char*>(ptr) + ToU32(currentSize);
+    if (expectedCursor == fCursor) {
+        intptr_t remaining = static_cast<intptr_t>(fEnd - fCursor);
+        // This can be negative when shrinking the space reservation. However, since it
+        // starts from 'maxSize', which is a uint, 'growth' will never cause fCursor to
+        // move earlier than 'ptr'.
+        intptr_t growth = static_cast<intptr_t>(*maxSize) -
+                          static_cast<intptr_t>(currentSize);
+        if (growth > remaining) {
+            growth = remaining;
+        }
+        AssertRelease(fCursor + growth <= fEnd && fCursor + growth >= ptr);
+        fCursor += growth;
+        *maxSize = currentSize + growth;
+        return true;
+    } else {
+        // Not the last, so no room to grow
+        return false;
+    }
+}
+
 void SkArenaAlloc::installFooter(FooterAction* action, uint32_t padding) {
     assert(padding < 64);
     int64_t actionInt = (int64_t)(intptr_t)action;
@@ -135,6 +162,35 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     fDtorCursor = newBlock;
     fEnd = fCursor + allocationSize;
     this->installPtrFooter(NextBlock, previousDtor, 0);
+}
+
+char* SkArenaAlloc::allocAtLeast(uint32_t minSize, uint32_t maxSize, uint32_t alignment,
+                                 size_t* allocated) {
+    uintptr_t mask = alignment - 1;
+    uintptr_t alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+    // Start by trying to fit the max size in the current block
+    uintptr_t totalMaxSize = maxSize + alignedOffset;
+    AssertRelease(totalMaxSize >= maxSize);
+    uintptr_t remaining = static_cast<uintptr_t>(fEnd - fCursor);
+    if (totalMaxSize > remaining) {
+        // Max allocation won't fit, try to use remaining in the cursor if >= minSize
+        uintptr_t totalMinSize = minSize + alignedOffset;
+        if (totalMinSize > remaining) {
+            // Need a new block, request the max size
+            this->ensureSpace(maxSize, alignment);
+            alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
+            *allocated = maxSize;
+        } else {
+            // Fit into the rest of the block
+            *allocated = static_cast<size_t>(remaining - alignedOffset);
+        }
+    } else {
+        *allocated = maxSize;
+    }
+
+    AssertRelease(*allocated >= minSize && *allocated <= maxSize);
+    AssertRelease(fCursor + alignedOffset + *allocated <= fEnd);
+    return fCursor + alignedOffset;
 }
 
 char* SkArenaAlloc::allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment) {

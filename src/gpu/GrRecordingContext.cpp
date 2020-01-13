@@ -10,6 +10,7 @@
 #include "include/gpu/GrContext.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAuditTrail.h"
+#include "src/gpu/GrBlockAllocator.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -116,12 +117,16 @@ GrDrawingManager* GrRecordingContext::drawingManager() {
     return fDrawingManager.get();
 }
 
-GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool, SkArenaAlloc* recordTimeAllocator)
+GrRecordingContext::Arenas::Arenas(GrOpMemoryPool* opMemoryPool,
+                                   SkArenaAlloc* recordTimeAllocator,
+                                   GrBlockAllocator* quadAllocator)
         : fOpMemoryPool(opMemoryPool)
-        , fRecordTimeAllocator(recordTimeAllocator) {
+        , fRecordTimeAllocator(recordTimeAllocator)
+        , fQuadAllocator(quadAllocator) {
     // OwnedArenas should instantiate these before passing the bare pointer off to this struct.
     SkASSERT(opMemoryPool);
     SkASSERT(recordTimeAllocator);
+    SkASSERT(quadAllocator);
 }
 
 // Must be defined here so that std::unique_ptr can see the sizes of the various pools, otherwise
@@ -132,16 +137,19 @@ GrRecordingContext::OwnedArenas::~OwnedArenas() {}
 GrRecordingContext::OwnedArenas& GrRecordingContext::OwnedArenas::operator=(OwnedArenas&& a) {
     fOpMemoryPool = std::move(a.fOpMemoryPool);
     fRecordTimeAllocator = std::move(a.fRecordTimeAllocator);
+    fQuadAllocator = std::move(a.fQuadAllocator);
     return *this;
 }
 
 GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
+    using GrowthPolicy = GrBlockAllocator::GrowthPolicy;
+
     if (!fOpMemoryPool) {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
         // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
         // memory.
         // TODO: adapt starting size based on prior frame allocation usage
-        fOpMemoryPool = GrOpMemoryPool::Make(16384, GrBlockAllocator::GrowthPolicy::kLinear);
+        fOpMemoryPool = GrOpMemoryPool::Make(16384, GrowthPolicy::kLinear);
     }
 
     if (!fRecordTimeAllocator) {
@@ -149,7 +157,14 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
         fRecordTimeAllocator = std::make_unique<SkArenaAlloc>(sizeof(GrPipeline) * 100);
     }
 
-    return {fOpMemoryPool.get(), fRecordTimeAllocator.get()};
+    if (!fQuadAllocator) {
+        // The GrQuadBuffers internally manage mini-Fibonacci sequences for each 'buffer' sequence
+        // in the single block allocator. Use the Fibonacci growth policy to help stay in sync.
+        // TODO: empirically determine a better number for the first size (and adapt per-frame)
+        fQuadAllocator = GrBlockAllocator::Make(100 * sizeof(GrQuad), GrowthPolicy::kFibonacci);
+    }
+
+    return {fOpMemoryPool.get(), fRecordTimeAllocator.get(), fQuadAllocator.get()};
 }
 
 GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {

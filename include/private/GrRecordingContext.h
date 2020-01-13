@@ -13,6 +13,7 @@
 
 class GrAuditTrail;
 class GrBackendFormat;
+class GrBlockAllocator;
 class GrDrawingManager;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
@@ -46,7 +47,7 @@ public:
     // GrRecordingContext. Arenas does not maintain ownership of the pools it groups together.
     class Arenas {
     public:
-        Arenas(GrOpMemoryPool*, SkArenaAlloc*);
+        Arenas(GrOpMemoryPool*, SkArenaAlloc*, GrBlockAllocator*);
 
         // For storing GrOp-derived classes recorded by a GrRecordingContext
         GrOpMemoryPool* opMemoryPool() { return fOpMemoryPool; }
@@ -54,9 +55,13 @@ public:
         // For storing pipelines and other complex data as-needed by ops
         SkArenaAlloc* recordTimeAllocator() { return fRecordTimeAllocator; }
 
+        // For storing accumulated geometry across multiple ops
+        GrBlockAllocator* quadAllocator() { return fQuadAllocator; }
+
     private:
-        GrOpMemoryPool* fOpMemoryPool;
-        SkArenaAlloc*   fRecordTimeAllocator;
+        GrOpMemoryPool*   fOpMemoryPool;
+        SkArenaAlloc*     fRecordTimeAllocator;
+        GrBlockAllocator* fQuadAllocator;
     };
 
 protected:
@@ -74,8 +79,9 @@ protected:
         OwnedArenas& operator=(OwnedArenas&&);
 
     private:
-        std::unique_ptr<GrOpMemoryPool> fOpMemoryPool;
-        std::unique_ptr<SkArenaAlloc>   fRecordTimeAllocator;
+        std::unique_ptr<GrOpMemoryPool>   fOpMemoryPool;
+        std::unique_ptr<SkArenaAlloc>     fRecordTimeAllocator;
+        std::unique_ptr<GrBlockAllocator> fQuadAllocator;
     };
 
     GrRecordingContext(GrBackendApi, const GrContextOptions&, uint32_t contextID);
