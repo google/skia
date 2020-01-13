@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81ea55c7_a259e5ee",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-01-13T18:00:43Z",
+      "side": 1,
+      "message": "I don\u0027t know what this normally looks like, but it seems to me that if the given path is absolute, this should be the right thing to do.",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 75
+      },
+      "revId": "e888f88379e54ab25bf2da1645e41f7a02308193",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
