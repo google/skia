@@ -17,8 +17,8 @@
 // GrMemoryPool implementation
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-GrMemoryPool::GrMemoryPool(void* headBlock, int blockSize)
-        : GrBlockAllocator(headBlock, blockSize, GrowthPolicy::kFixed) {
+GrMemoryPool::GrMemoryPool(void* headBlock, int blockSize, GrowthPolicy policy)
+        : GrBlockAllocator(headBlock, blockSize, policy) {
     SkDEBUGCODE(fAllocationCount = 0;)
 }
 

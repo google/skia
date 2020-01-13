@@ -39,8 +39,11 @@ public:
      * allocated memory are used for internal bookkeeping. 'preallocSize' is clamped to the min and
      * max allocation sizes.
      */
-    static std::unique_ptr<GrMemoryPool> Make(size_t preallocSize) {
-        return GrBlockAllocator::Prealloc<GrMemoryPool>(std::max(preallocSize, kMinAllocationSize));
+    static std::unique_ptr<GrMemoryPool> Make(
+            size_t preallocSize,
+            GrBlockAllocator::GrowthPolicy policy = GrBlockAllocator::GrowthPolicy::kFixed) {
+        return GrBlockAllocator::Prealloc<GrMemoryPool>(std::max(preallocSize, kMinAllocationSize),
+                                                        policy);
     }
 
     ~GrMemoryPool();
@@ -97,7 +100,7 @@ private:
         int   fSize;   // total bytes for the allocation
     };
 
-    GrMemoryPool(void* headBlock, int blockSize);
+    GrMemoryPool(void* headBlock, int blockSize, GrowthPolicy policy);
 
     // GrMemoryPool uses the block allocator's per-block metadata to track the number of live allocs
     const int* liveCount() const { return BlockData(this->currentBlock()); }
@@ -119,9 +122,12 @@ class GrOp;
  */
 class GrOpMemoryPool : private GrMemoryPool {
 public:
-    static std::unique_ptr<GrOpMemoryPool> Make(size_t preallocSize) {
+    static std::unique_ptr<GrOpMemoryPool> Make(
+            size_t preallocSize,
+            GrBlockAllocator::GrowthPolicy policy = GrBlockAllocator::GrowthPolicy::kFixed) {
         return GrBlockAllocator::Prealloc<GrOpMemoryPool>(std::max(preallocSize,
-                                                                   kMinAllocationSize));
+                                                                   kMinAllocationSize),
+                                                          policy);
     }
 
     void operator delete(void* p) { ::operator delete(p); }
@@ -140,8 +146,8 @@ public:
 private:
     friend class GrBlockAllocator; // For private constructor
 
-    GrOpMemoryPool(void* headBlock, int blockSize)
-            : GrMemoryPool(headBlock, blockSize) {}
+    GrOpMemoryPool(void* headBlock, int blockSize, GrowthPolicy policy)
+            : GrMemoryPool(headBlock, blockSize, policy) {}
 };
 
 #endif
