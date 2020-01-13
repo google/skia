@@ -35,12 +35,6 @@ void GrPaint::setCoverageSetOpXPFactory(SkRegion::Op regionOp, bool invertCovera
     this->setXPFactory(GrCoverageSetOpXPFactory::Get(regionOp, invertCoverage));
 }
 
-void GrPaint::addColorTextureProcessor(sk_sp<GrTextureProxy> proxy, SkAlphaType alphaType,
-                                       const SkMatrix& matrix, GrSamplerState samplerState) {
-    this->addColorFragmentProcessor(
-            GrTextureEffect::Make(std::move(proxy), alphaType, matrix, samplerState));
-}
-
 bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
     // This used to do a more sophisticated analysis but now it just explicitly looks for common
     // cases.
