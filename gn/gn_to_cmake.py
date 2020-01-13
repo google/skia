@@ -162,8 +162,9 @@ class Project(object):
     self.targets = project_json['targets']
     build_settings = project_json['build_settings']
     self.root_path = build_settings['root_path']
-    self.build_path = posixpath.join(self.root_path,
-                                     build_settings['build_dir'][2:])
+    self.build_path = build_settings['build_dir']
+    if self.build_path.startswith('//') or not os.path.isabs(self.build_path):
+      self.build_path = posixpath.join(self.root_path, self.build_path[2:])
 
   def GetAbsolutePath(self, path):
     if path.startswith("//"):
