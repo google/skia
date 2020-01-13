@@ -22,6 +22,30 @@
       "revId": "e888f88379e54ab25bf2da1645e41f7a02308193",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d160ddc_e056eb07",
+        "filename": "gn/gn_to_cmake.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-13T18:34:38Z",
+      "side": 1,
+      "message": "I think what we want here is just\n\nself.build_path \u003d GetAbsolutePath(build_settings[\u0027build_dir\u0027])\n\nwhich is what we do for all other paths which may be relative to the root_path or may be absolute. I\u0027m not sure why GetAbsolutePath doesn\u0027t use posixpath.join (I think it should), nor why it uses double quotes instead of single quotes (which it should).",
+      "parentUuid": "81ea55c7_a259e5ee",
+      "range": {
+        "startLine": 166,
+        "startChar": 4,
+        "endLine": 167,
+        "endChar": 75
+      },
+      "revId": "e888f88379e54ab25bf2da1645e41f7a02308193",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
