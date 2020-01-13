@@ -21,6 +21,10 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTracing.h"
 
+#ifdef DUMP_ATLAS_DATA
+static bool gDumpAtlasData = false;
+#endif
+
 // When proxy allocation is deferred until flush time the proxies acting as atlases require
 // special handling. This is because the usage that can be determined from the ops themselves
 // isn't sufficient. Independent of the ops there will be ASAP and inline uploads to the
@@ -57,9 +61,30 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
     return atlas;
 }
 
-#ifdef DUMP_ATLAS_DATA
-static bool gDumpAtlasData = false;
-#endif
+std::pair<int16_t, int16_t> GrDrawOpAtlas::PackIndexInTexCoords(int16_t u, int16_t v,
+                                                                int texIndex) {
+    SkASSERT(texIndex >= 0 && texIndex < 4);
+    if (texIndex & 0x1) {
+        u -= kMaxTextureSize;
+    }
+    if (texIndex & 0x2) {
+        v -= kMaxTextureSize;
+    }
+    return std::make_pair(u, v);
+}
+
+std::tuple<int16_t, int16_t, int> GrDrawOpAtlas::UnpackIndexFromTexCoords(int16_t u, int16_t v) {
+    int texIndex = 0;
+    if (u < 0) {
+        v += kMaxTextureSize;
+        texIndex |= 0x1;
+    }
+    if (v < 0) {
+        v += kMaxTextureSize;
+        texIndex |= 0x2;
+    }
+    return std::make_tuple(u, v, texIndex);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,

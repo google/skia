@@ -67,10 +67,10 @@ public:
 
         // add varyings
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
-        GrGLSLVarying texIdx(texIdxType);
+        GrGLSLVarying texIdx(kFloat_GrSLType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
+        append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
+                                 dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
                                  &uv, &texIdx, &st);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
@@ -233,8 +233,7 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const GrShaderCaps& c
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType };
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = {"inTextureCoords", kShort2_GrVertexAttribType, kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numViews) {
@@ -344,11 +343,12 @@ public:
                                                                 &atlasDimensionsInvName);
 
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrSLType texIdxType = kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfPathEffect.inTextureCoords().name(),
-                                 atlasDimensionsInvName, &uv, &texIdx, &st);
+        append_index_uv_varyings(args, dfPathEffect.numTextureSamplers(),
+                                 dfPathEffect.inTextureCoords().name(), atlasDimensionsInvName,
+                                 &uv, &texIdx, &st);
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfPathEffect.inColor(), args.fOutputColor);
@@ -525,8 +525,7 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
 
     fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     fInColor = MakeColorAttribute("inColor", wideColor);
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = {"inTextureCoords", kShort2_GrVertexAttribType, kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numViews) {
@@ -649,10 +648,11 @@ public:
 
         // set up varyings
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrSLType texIdxType = kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
+        append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
+                                 dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
                                  &uv, &texIdx, &st);
 
         GrGLSLVarying delta(kFloat_GrSLType);
@@ -848,8 +848,7 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const GrShaderCaps&
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
     fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
-                        caps.integerSupport() ? kUShort2_GrSLType : kFloat2_GrSLType};
+    fInTextureCoords = {"inTextureCoords", kShort2_GrVertexAttribType, kFloat2_GrSLType};
     this->setVertexAttributes(&fInPosition, 3);
 
     if (numViews) {
