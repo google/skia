@@ -16,20 +16,30 @@ set -xe
 
 #BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/cmake)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-SKIA_DIR=`cd $BASE_DIR/../.. && pwd`
+SKIA_DIR=`cd ${BASE_DIR}/../.. && pwd`
 
-# Delete everything to do a clean build
-rm -rf $SKIA_DIR/out/CMAKE
-mkdir --mode=0777 -p $SKIA_DIR/out/CMAKE
+OUT="$(mktemp -d)/CMAKE"
 
+<<<<<<< HEAD   (3775a0 [skqp/release] [infra] Upgrade Win to 2019)
 cd $SKIA_DIR
 gn gen out/CMAKE --args='is_debug=false' --ide=json --json-ide-script=../../gn/gn_to_cmake.py
+=======
+cd ${SKIA_DIR}
+./bin/fetch-gn
+gn gen ${OUT} --args='is_debug=false' --ide=json --json-ide-script=$SKIA_DIR/gn/gn_to_cmake.py
+>>>>>>> CHANGE (edae1b [infra] Change CMake build to use a temporary directory)
 
+<<<<<<< HEAD   (3775a0 [skqp/release] [infra] Upgrade Win to 2019)
 cd $SKIA_DIR/out/CMAKE
+=======
+cd ${OUT}
+export CC=/usr/local/bin/clang
+export CXX=/usr/local/bin/clang++
+>>>>>>> CHANGE (edae1b [infra] Change CMake build to use a temporary directory)
 cmake -G"CodeBlocks - Unix Makefiles" .
 cmake --build . --parallel 8
 
 # Copy build products, ignoring the warning
 # for not copying directories.
-cp $SKIA_DIR/out/CMAKE/* /OUT || true
+cp ${OUT}/* /OUT || true
 chmod +rw /OUT/*
