@@ -36,6 +36,10 @@ public:
 #endif
 
     GrMemoryPool* pool() const {
+        // Raw GrMemoryPool benches suggest kFixed is one of the slower growth policies, but since
+        // this is a global pool, the small fixed blocks make the amount of reserved space
+        // predictable and unlikely to hold on to a very large block due to one remaining unreleased
+        // allocation.
         static GrMemoryPool* gPool = GrMemoryPool::Make(4096).release();
         return gPool;
     }
