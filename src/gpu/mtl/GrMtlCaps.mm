@@ -319,7 +319,7 @@ SkImage::CompressionType GrMtlCaps::compressionType(const GrBackendFormat& forma
     switch (GrBackendFormatAsMTLPixelFormat(format)) {
         case MTLPixelFormatETC2_RGB8:
             // ETC2 uses the same compression layout as ETC1
-            return SkImage::CompressionType::kETC1;
+            return SkImage::CompressionType::kETC2_RGB8_UNORM;
         default:
             return SkImage::CompressionType::kNone;
     }
@@ -1040,7 +1040,7 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
     switch (compressionType) {
         case SkImage::CompressionType::kNone:
             return {};
-        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
 #ifdef SK_BUILD_FOR_MAC
             return {};
 #else
