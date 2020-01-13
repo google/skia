@@ -2307,6 +2307,45 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), arg[immy]); }
                                  break;
 
+                case Op::gather32:
+                    if (scalar) {
+                        a->vpxor(dst(), dst(), dst());  // TODO
+                    } else {
+                        // We can't let any of dst(), index, or mask use the same register, so
+                        // we must allocate registers manually and very carefully.
+
+                        // Index comes in as argument x and has already been
+                        // maybe_recycle_register()'d, so we use avail_without_index for the others.
+                        A::Ymm index = r[x];
+                        uint32_t avail_without_index = avail & ~(1<<index);
+
+                        A::Ymm mask;
+                        if (int found = __builtin_ffs(avail_without_index)) {
+                            // mask is temporary, so it won't change our inter-instruction `avail`,
+                            // but we do update `avail_without_index` to prevent mask/dst overlap.
+                            mask = (A::Ymm)(found-1);
+                            avail_without_index ^= (1<<mask);
+                        } else {
+                            ok = false;
+                            break;
+                        }
+
+                        if (int found = __builtin_ffs(avail_without_index)) {
+                            // Thought we've picked the dst register in an unusual way,
+                            // once we set_dst() we can refer to it with dst() as normal.
+                            set_dst((A::Ymm)(found-1));
+                        } else {
+                            ok = false;
+                            break;
+                        }
+
+                        // Our gather base pointer is immz bytes off of uniform immy.
+                        a->movq(scratch, arg[immy], immz);
+                        a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
+                        a->vgatherdps(dst(), A::FOUR, index, scratch, mask);
+                    }
+                    break;
+
                 case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
                                    a->vmovd_direct((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), (A::Xmm)dst());
