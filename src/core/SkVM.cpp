@@ -934,13 +934,10 @@ namespace skvm {
         SkUNREACHABLE;
     }
 
-#if 0
     // SIB byte encodes a memory address, base + (index * scale).
-    enum class Scale { One, Two, Four, Eight };
-    static uint8_t sib(Scale scale, int index, int base) {
+    static uint8_t sib(Assembler::Scale scale, int index, int base) {
         return _233((int)scale, index, base);
     }
-#endif
 
     // The REX prefix is used to extend most old 32-bit instructions to 64-bit.
     static uint8_t rex(bool W,   // If set, operation is 64-bit, otherwise default, usually 32-bit.
@@ -1379,6 +1376,23 @@ namespace skvm {
         this->byte(opcode);
         this->byte(mod_rm(Mod::Indirect, src&7, ptr&7));
         this->byte(imm);
+    }
+
+    void Assembler::vgatherdps(Ymm dst, Scale scale, Ymm ix, GP64 base, Ymm mask) {
+        // Unlike most instructions, no aliasing is permitted here.
+        SkASSERT(dst != ix);
+        SkASSERT(dst != mask);
+        SkASSERT(mask != ix);
+
+        int prefix = 0x66,
+            map    = 0x380f,
+            opcode = 0x92;
+        VEX v = vex(0, dst>>3, ix>>3, base>>3,
+                    map, mask, /*ymm?*/1, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Indirect, dst&7, 0b100/*TODO: what do these 0b100 bits mean?*/));
+        this->byte(sib(scale, ix&7, base&7));
     }
 
     // https://static.docs.arm.com/ddi0596/a/DDI_0596_ARM_a64_instruction_set_architecture.pdf
