@@ -10,6 +10,7 @@
 
 #include "include/c/sk_canvas.h"
 #include "include/c/sk_data.h"
+#include "include/c/sk_general.h"
 #include "include/c/sk_image.h"
 #include "include/c/sk_paint.h"
 #include "include/c/sk_shader.h"

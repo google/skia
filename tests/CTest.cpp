@@ -108,13 +108,13 @@ static void test_c(skiatest::Reporter* reporter) {
 
 static void null_imageinfo_test(skiatest::Reporter* reporter) {
     auto cppinfo = SkImageInfo::Make(0, 0, (SkColorType)0, (SkAlphaType)0, nullptr);
-    auto cinfo = ToImageInfo(&cppinfo);
+    auto cinfo = ToImageInfo(cppinfo);
 
-    REPORTER_ASSERT(reporter, cinfo->width == 0);
-    REPORTER_ASSERT(reporter, cinfo->height == 0);
-    REPORTER_ASSERT(reporter, cinfo->colorType == (sk_colortype_t)0);
-    REPORTER_ASSERT(reporter, cinfo->alphaType == (sk_alphatype_t)0);
-    REPORTER_ASSERT(reporter, cinfo->colorspace == nullptr);
+    REPORTER_ASSERT(reporter, cinfo.width == 0);
+    REPORTER_ASSERT(reporter, cinfo.height == 0);
+    REPORTER_ASSERT(reporter, cinfo.colorType == (sk_colortype_t)0);
+    REPORTER_ASSERT(reporter, cinfo.alphaType == (sk_alphatype_t)0);
+    REPORTER_ASSERT(reporter, cinfo.colorspace == nullptr);
 }
 
 static void nonnull_imageinfo_test(skiatest::Reporter* reporter) {
@@ -122,14 +122,14 @@ static void nonnull_imageinfo_test(skiatest::Reporter* reporter) {
     sk_colorspace_t* csptr = ToColorSpace(cs.get());
 
     SkImageInfo cppinfo = SkImageInfo::Make(1, 2, (SkColorType)3, (SkAlphaType)4, cs);
-    sk_imageinfo_t* cinfo = ToImageInfo(&cppinfo);
+    sk_imageinfo_t cinfo = ToImageInfo(cppinfo);
 
-    REPORTER_ASSERT(reporter, cinfo->width == 1);
-    REPORTER_ASSERT(reporter, cinfo->height == 2);
-    REPORTER_ASSERT(reporter, cinfo->colorType == (sk_colortype_t)3);
-    REPORTER_ASSERT(reporter, cinfo->alphaType == (sk_alphatype_t)4);
-    REPORTER_ASSERT(reporter, cinfo->colorspace != nullptr);
-    REPORTER_ASSERT(reporter, cinfo->colorspace == ToColorSpace(cs.get()));
+    REPORTER_ASSERT(reporter, cinfo.width == 1);
+    REPORTER_ASSERT(reporter, cinfo.height == 2);
+    REPORTER_ASSERT(reporter, cinfo.colorType == (sk_colortype_t)3);
+    REPORTER_ASSERT(reporter, cinfo.alphaType == (sk_alphatype_t)4);
+    REPORTER_ASSERT(reporter, cinfo.colorspace != nullptr);
+    REPORTER_ASSERT(reporter, cinfo.colorspace == ToColorSpace(cs.get()));
 
     sk_imageinfo_t newcinfo = {
         csptr,
@@ -138,14 +138,14 @@ static void nonnull_imageinfo_test(skiatest::Reporter* reporter) {
         (sk_colortype_t)3,
         (sk_alphatype_t)4
     };
-    SkImageInfo* newcppinfo = AsImageInfo(&newcinfo);
+    SkImageInfo newcppinfo = AsImageInfo(&newcinfo);
 
-    REPORTER_ASSERT(reporter, newcppinfo->width() == 1);
-    REPORTER_ASSERT(reporter, newcppinfo->height() == 2);
-    REPORTER_ASSERT(reporter, newcppinfo->colorType() == (SkColorType)3);
-    REPORTER_ASSERT(reporter, newcppinfo->alphaType() == (SkAlphaType)4);
-    REPORTER_ASSERT(reporter, newcppinfo->colorSpace() != nullptr);
-    REPORTER_ASSERT(reporter, newcppinfo->colorSpace() == AsColorSpace(csptr));
+    REPORTER_ASSERT(reporter, newcppinfo.width() == 1);
+    REPORTER_ASSERT(reporter, newcppinfo.height() == 2);
+    REPORTER_ASSERT(reporter, newcppinfo.colorType() == (SkColorType)3);
+    REPORTER_ASSERT(reporter, newcppinfo.alphaType() == (SkAlphaType)4);
+    REPORTER_ASSERT(reporter, newcppinfo.colorSpace() != nullptr);
+    REPORTER_ASSERT(reporter, newcppinfo.colorSpace() == AsColorSpace(csptr));
 }
 
 DEF_TEST(C_API, reporter) {
