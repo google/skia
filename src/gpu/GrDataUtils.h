@@ -43,4 +43,11 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
 /** Clears the dst image to a constant color. */
 bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f color);
 
+/**
+ * BC1 Compress an image that consists of either opaque black or transparent black and one
+ * other color.
+ */
+void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels);
+
+
 #endif
