@@ -242,6 +242,138 @@
     },
     {
       "key": {
+        "uuid": "2940b486_9ebe0fc7",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T18:45:26Z",
+      "side": 1,
+      "message": "I *think* this is okay, because even explicitly sized arrays don\u0027t support construction from a single (replicated) value. Specifically, I was nervous about only incrementing v by 1 each time (rather than SlotCount of the component type). Maybe just assert that it\u0027s 1?",
+      "range": {
+        "startLine": 744,
+        "startChar": 0,
+        "endLine": 754,
+        "endChar": 5
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52fff00f_4cebd098",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 965,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T18:45:26Z",
+      "side": 1,
+      "message": "The logic for this loop has changed, and I think it\u0027s no longer correct:\n\nIt\u0027s always using lvalues.back(), so we\u0027re storing to the last out parameter repeatedly. The old code did that (and then called pop_back), but also iterated the parameters in reverse order. With the way that you\u0027re tracking nextArg here, I think you need something like:\n\n    int lValIndex \u003d 0;\n    for (int i \u003d 0; i \u003c argCount; ++i) {\n        const auto\u0026 param \u003d c.fFunction.fParameters[i];\n        if (param-\u003efModifiers.fFlags \u0026 Modifiers::kOut_Flag) {\n            lvalues[lValIndex++]-\u003estore(nextArg);\n        }\n        nextArg.fIndex +\u003d SlotCount(param-\u003efType);\n    }",
+      "range": {
+        "startLine": 959,
+        "startChar": 0,
+        "endLine": 965,
+        "endChar": 5
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56e8ab11_fc45cc93",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T18:45:26Z",
+      "side": 1,
+      "message": "We used to just assert that SlotCount was 1 here (and this code allocates more registers if it isn\u0027t, but still only adds the first slot). Probably change this back to assume that count \u003d\u003d 1, and add an assert?",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3407d89b_e79b25ed",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T18:45:26Z",
+      "side": 1,
+      "message": "kLoopNext used to be issued before kLoopMask here, and I think it\u0027s important. Consider the (pathological) loop:\n\ndo { continue; } while (false);\n\nWith kLoopMask happening first, all lanes get masked off, but then kLoopNext restores them all to active *after* the loop condition is evaluated. Putting kLoopNext first turns any continue\u0027d lanes back on before the condition is evaluated. (This is even more important if there are side-effects in the loop condition expression, although that\u0027s a pretty awkward construct).",
+      "range": {
+        "startLine": 1203,
+        "startChar": 0,
+        "endLine": 1205,
+        "endChar": 50
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9946bd05_380bf5c4",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T18:45:26Z",
+      "side": 1,
+      "message": "This unconditional extra return is a holdover from the previous generator, but it always made me uneasy. We should only be doing this if the function returns void, right? (Otherwise, reaching this point in the instruction stream implies a function with a control path that doesn\u0027t return a value).",
+      "range": {
+        "startLine": 1356,
+        "startChar": 0,
+        "endLine": 1356,
+        "endChar": 48
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eab5436_bca2bf2d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T18:45:26Z",
+      "side": 1,
+      "message": "Probably got lost in the rebase, but this needs: \"|| is_in(*declVar)\"",
+      "range": {
+        "startLine": 1386,
+        "startChar": 20,
+        "endLine": 1386,
+        "endChar": 61
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "58bbd2e5_2e0bbbcb",
         "filename": "src/sksl/SkSLByteCodeGenerator.h",
         "patchSetId": 35
