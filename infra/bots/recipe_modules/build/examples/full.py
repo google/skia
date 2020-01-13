@@ -71,16 +71,20 @@ TEST_BUILDERS = [
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86-Debug-Exceptions',
   'Build-Win-Clang-x86_64-Debug-ANGLE',
+  'Build-Win-Clang-x86_64-Debug-ANGLE_Goma',
+  'Build-Win-Clang-x86_64-Debug-GomaNoFallback',
   'Build-Win-Clang-x86_64-Debug-OpenCL',
   'Build-Win-Clang-x86_64-Release-Shared',
   'Build-Win-Clang-x86_64-Release-Vulkan',
-  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
+  'Build-Win-MSVC-x86_64-Debug-MSRTC',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
 ]
 
 # Default properties used for TEST_BUILDERS.
 defaultProps = lambda buildername: dict(
   buildername=buildername,
+  gs_bucket='skia-external-compile-tasks',
   repository='https://skia.googlesource.com/skia.git',
   revision='abc123',
   path_config='kitchen',
@@ -102,4 +106,13 @@ def GenTests(api):
       api.test('unknown-docker-image') +
       api.properties(**defaultProps('Build-Unix-GCC-x86_64-Release-Docker')) +
       api.expect_exception('Exception')
+  )
+
+  buildername = 'Build-Win-Clang-x86_64-Debug-GomaNoFallback'
+  yield (
+      api.test('goma-report') +
+      api.properties(**defaultProps(buildername)) +
+      api.step_data('ninja', retcode=1) +
+      api.step_data('get swarming task id',
+                    stdout=api.raw_io.output('123456'))
   )
