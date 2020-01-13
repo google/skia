@@ -66,6 +66,8 @@ namespace skvm {
         void add(GP64, int imm);
         void sub(GP64, int imm);
 
+        void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
+
         struct Label {
             int                                      offset = 0;
             enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
