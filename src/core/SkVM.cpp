@@ -1066,6 +1066,13 @@ namespace skvm {
     void Assembler::sub(GP64 dst, int imm) { this->op(0,0b101, dst,imm); }
     void Assembler::cmp(GP64 reg, int imm) { this->op(0,0b111, reg,imm); }
 
+    void Assembler::movq(GP64 dst, GP64 src, int off) {
+        this->byte(rex(1,dst>>3,0,src>>3));
+        this->byte(0x8b);
+        this->byte(mod_rm(mod(off), dst&7, src&7));
+        this->bytes(&off, imm_bytes(mod(off)));
+    }
+
     void Assembler::op(int prefix, int map, int opcode, Ymm dst, Ymm x, Ymm y, bool W/*=false*/) {
         VEX v = vex(W, dst>>3, 0, y>>3,
                     map, x, 1/*ymm, not xmm*/, prefix);
