@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fcd4543_513f5f25",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1115,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-13T14:19:58Z",
+      "side": 1,
+      "message": "So I\u0027m not sure what exactly chrome was doing, but the only time it is valid for the format to be VK_FORMAT_UNDEFINED is if info.fYcbcrConversionInfo.fExternalFormat !\u003d 0 (i.e. we are using an external format). So where the new assert is I don\u0027t think it should be allowed to hit the GrColorType::kUnknown case.",
+      "range": {
+        "startLine": 1112,
+        "startChar": 4,
+        "endLine": 1115,
+        "endChar": 39
+      },
+      "revId": "0cca8a252537861bb8a2ca1ef4d236a7d96bf6ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
