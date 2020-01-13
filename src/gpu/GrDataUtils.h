@@ -43,4 +43,7 @@ bool GrConvertPixels(const GrImageInfo& dstInfo,       void* dst, size_t dstRB,
 /** Clears the dst image to a constant color. */
 bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f color);
 
+void GrBWCompress(const SkPixmap& pixmap, SkImage::CompressionType type, char* dstPixels);
+
+
 #endif

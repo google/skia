@@ -134,15 +134,18 @@ struct BC1Block {
     uint32_t fIndices;
 };
 
-// Create a BC1 compressed block that is filled with 'col'
-static void create_BC1_block(SkColor col, BC1Block* block) {
+static uint16_t foo(SkColor col) {
     int r5 = SkMulDiv255Round(31, SkColorGetR(col));
     int g6 = SkMulDiv255Round(63, SkColorGetG(col));
     int b5 = SkMulDiv255Round(31, SkColorGetB(col));
 
-    uint16_t c565 = (r5 << 11) | (g6 << 5) | b5;
-    block->fColor0 = c565;
-    block->fColor1 = c565;
+    return (r5 << 11) | (g6 << 5) | b5;
+}
+
+// Create a BC1 compressed block that is filled with 'col'
+static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
+    block->fColor0 = foo(col0);
+    block->fColor1 = foo(col1);
     // This sets all 16 pixels to just use 'fColor0'
     block->fIndices = 0;
 }
@@ -235,13 +238,45 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     SkColor color = colorf.toSkColor();
 
     BC1Block block;
-    create_BC1_block(color, &block);
+    create_BC1_block(color, color, &block);
 
     int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
     for (int i = 0; i < numBlocks; ++i) {
         memcpy(dest, &block, sizeof(BC1Block));
         dest += sizeof(BC1Block);
+    }
+}
+
+// Fill in 'dest' with BC1 blocks derived from the black and white texture 'pixmap'
+static void BC1_bw_compress(const SkPixmap& pixmap, BC1Block* dest) {
+    BC1Block block;
+
+    // black -> fColor0, white -> fColor1
+    create_BC1_block(SK_ColorBLACK, SK_ColorWHITE, &block);
+
+    int numXBlocks = num_ETC1_blocks_w(pixmap.width());
+    int numYBlocks = num_ETC1_blocks_w(pixmap.height());
+
+    int shift = 0;
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+            int offsetX = 4 * x, offsetY = 4 * y;
+            block.fIndices = 0;
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    uint16_t tmp = *pixmap.addr16(offsetX + j, offsetY + i);
+                    SkDebugf("%d ", tmp);
+                    if (tmp == 0xFFFF) {
+                        block.fIndices |= 1 << shift;
+                    }
+                    shift += 2;
+                }
+                SkDebugf("\n");
+            }
+
+            dest[y*numXBlocks + x] = block;
+        }
     }
 }
 
@@ -303,6 +338,15 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
 
         offset += levelSize;
         dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+    }
+}
+
+void GrBWCompress(const SkPixmap& pixmap, SkImage::CompressionType type, char* dstPixels) {
+    if (SkImage::CompressionType::kETC1 == type) {
+        //ETC1_bw_compress(pixmap, dstPixels);
+    } else {
+        SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM);
+        BC1_bw_compress(pixmap, (BC1Block *) dstPixels);
     }
 }
 

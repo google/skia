@@ -16,76 +16,188 @@
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "src/core/SkMipMap.h"
+#include "src/gpu/GrDataUtils.h"
 #include "third_party/etc1/etc1.h"
 
 class GrContext;
 class GrRenderTargetContext;
 
-// Basic test of Ganesh's ETC1 support
-class ETC1GM : public skiagm::GpuGM {
+static SkPath make_star(SkISize dimensions) {
+    constexpr float kInnerFrac = 0.25f;
+    constexpr float kMidFrac   = 0.375f;
+    constexpr int kNum = 6;
+    constexpr float kHalfAngle = SK_ScalarPI / kNum;
+
+    SkPath tmp;
+    float angle = 0.0f;
+
+    tmp.moveTo({ kMidFrac * dimensions.width(), 0.0f });
+
+#if 0
+    for (int i = 0; i < kNum; ++i, angle += kHalf) {
+        SkScalar s = SkScalarSin(angle);
+        SkScalar c = SkScalarCos(angle);
+
+        tmp.conicTo()
+    }
+#endif
+
+    tmp.lineTo({ 0.0f, -kMidFrac * dimensions.height() });
+    tmp.lineTo({ -kMidFrac * dimensions.width(), 0.0f });
+    tmp.lineTo({ 0.0f, kMidFrac * dimensions.height() });
+    tmp.lineTo({ kMidFrac * dimensions.width(), 0.0f });
+    tmp.close();
+    return tmp;
+}
+
+SkPixmap render_level(SkISize dimensions, SkColor color, bool opaque) {
+    SkPath path = make_star(dimensions);
+
+    SkImageInfo ii = SkImageInfo::Make(dimensions.width(), dimensions.height(),
+                                       kRGB_565_SkColorType, kOpaque_SkAlphaType);
+    SkBitmap bm;
+    bm.allocPixels(ii);
+
+    bm.eraseColor(opaque ? SK_ColorBLACK : SK_ColorTRANSPARENT);
+
+    SkCanvas c(bm);
+
+    SkPaint paint;
+    paint.setColor(color);
+    paint.setAntiAlias(false);
+
+    c.translate(dimensions.width() / 2.0f, dimensions.height() / 2.0f);
+    c.drawPath(path, paint);
+
+    return bm.pixmap();
+}
+
+#if 0
+// This is the SkImage::CompressionType::kETC2_RGB8_UNORM use case.
+static sk_sp<SkData> make_opaque_2color_etc1_mipmapped_data(SkISize dimensions) {
+
+    int size = etc1_get_encoded_data_size(bm.width(), bm.height());
+    fETC1Data = SkData::MakeUninitialized(size);
+
+    unsigned char* pixels = (unsigned char*) fETC1Data->writable_data();
+
+    if (etc1_encode_image((unsigned char*) bm.getAddr16(0, 0),
+                          bm.width(), bm.height(), 2, bm.rowBytes(), pixels)) {
+        fETC1Data = nullptr;
+    }
+
+
+}
+#endif
+
+// This is the SkImage::CompressionType::kBC1_RGB8_UNORM use case.
+static sk_sp<SkData> make_opaque_2color_mipmapped_compressed_data(SkISize dimensions,
+                                                                  SkImage::CompressionType compression) {
+    constexpr SkImage::CompressionType kCompression = SkImage::CompressionType::kBC1_RGB8_UNORM;
+
+    size_t totalSize = GrCompressedDataSize(kCompression, dimensions, nullptr, GrMipMapped::kYes);
+
+    sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
+    char* pixels = (char*) tmp->writable_data();
+
+    int numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+
+    size_t offset = 0;
+
+    SkColor colors[] = {
+        SK_ColorRED,
+        SK_ColorGREEN,
+        SK_ColorBLUE,
+        SK_ColorCYAN,
+        SK_ColorMAGENTA,
+        SK_ColorYELLOW,
+        SK_ColorWHITE,
+    };
+
+    for (int i = 0; i < numMipLevels; ++i) {
+        size_t levelSize = GrCompressedDataSize(kCompression, dimensions, nullptr, GrMipMapped::kNo);
+
+        SkASSERT(i < 7);
+        SkPixmap pixmap = render_level(dimensions, colors[i], true);
+        GrBWCompress(pixmap, kCompression, &pixels[offset]);
+
+        offset += levelSize;
+        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+    }
+
+    return tmp;
+}
+
+// Basic test of Ganesh's ETC1 and BC1 support
+// The layout is:
+//               ETC2                BC1
+//         --------------------------------------
+//  RGB8  | kETC2_RGB8_UNORM  | kBC1_RGB8_UNORM  |
+//        |--------------------------------------|
+//  RGBA8 | kETC2_RGBA8_UNORM | kBC1_RGBA8_UNORM |
+//         --------------------------------------
+//
+class CompressedTexturesGM : public skiagm::GpuGM {
 public:
-    ETC1GM() {
+    CompressedTexturesGM() {
         this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
     SkString onShortName() override {
-        return SkString("etc1");
+        return SkString("compressed_textures");
     }
 
     SkISize onISize() override {
-        return SkISize::Make(kTexWidth + 2*kPad, kTexHeight + 2*kPad);
+        return SkISize::Make(2*kTexWidth + 3*kPad, 2*kTexHeight + 3*kPad);
     }
 
     void onOnceBeforeDraw() override {
-        SkBitmap bm;
-        SkImageInfo ii = SkImageInfo::Make(kTexWidth, kTexHeight, kRGB_565_SkColorType,
-                                           kOpaque_SkAlphaType);
-        bm.allocPixels(ii);
+        fOpaqueETC2Data = make_opaque_2color_mipmapped_compressed_data({ kTexWidth, kTexHeight },
+                                                                       SkImage::CompressionType::kETC1);
 
-        bm.erase(SK_ColorBLUE, SkIRect::MakeWH(kTexWidth, kTexHeight));
-
-        for (int y = 0; y < kTexHeight; y += 4) {
-            for (int x = 0; x < kTexWidth; x += 4) {
-                bm.erase((x+y) % 8 ? SK_ColorRED : SK_ColorGREEN, SkIRect::MakeXYWH(x, y, 4, 4));
-            }
-        }
-
-        int size = etc1_get_encoded_data_size(bm.width(), bm.height());
-        fETC1Data = SkData::MakeUninitialized(size);
-
-        unsigned char* pixels = (unsigned char*) fETC1Data->writable_data();
-
-        if (etc1_encode_image((unsigned char*) bm.getAddr16(0, 0),
-                              bm.width(), bm.height(), 2, bm.rowBytes(), pixels)) {
-            fETC1Data = nullptr;
-        }
+        fOpaqueBC1Data = make_opaque_2color_mipmapped_compressed_data({ kTexWidth, kTexHeight },
+                                                                      SkImage::CompressionType::kBC1_RGB8_UNORM);
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
-        sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, fETC1Data,
-                                                           kTexWidth, kTexHeight,
-                                                           SkImage::CompressionType::kETC1);
+        this->drawCell(context, canvas, fOpaqueETC2Data,
+                       SkImage::CompressionType::kETC1, kPad, kPad);
 
-        canvas->drawImage(image, 0, 0);
+        this->drawCell(context, canvas, fOpaqueBC1Data,
+                       SkImage::CompressionType::kBC1_RGB8_UNORM, 2*kPad + kTexWidth, kPad);
     }
 
 private:
+    void drawCell(GrContext* context, SkCanvas* canvas, sk_sp<SkData> data,
+                  SkImage::CompressionType compression, int x, int y) {
+
+        sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, data,
+                                                           kTexWidth, kTexHeight,
+                                                           compression);
+
+        canvas->drawImage(image, x, y);
+
+    }
+
     static const int kPad = 8;
     static const int kTexWidth = 16;
-    static const int kTexHeight = 20;
+    static const int kTexHeight = 16;
 
-    sk_sp<SkData> fETC1Data;
+    sk_sp<SkData> fOpaqueETC2Data;
+    sk_sp<SkData> fOpaqueBC1Data;
 
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ETC1GM;)
+DEF_GM(return new CompressedTexturesGM;)
 
 #endif
