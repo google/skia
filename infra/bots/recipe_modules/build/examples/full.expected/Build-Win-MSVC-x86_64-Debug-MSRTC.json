@@ -1,61 +1,29 @@
 [
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
-      "/path/to/tmp/"
-    ],
-    "infra_step": true,
-    "name": "Get clang_linux VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@VERSION@42@@@",
-      "@@@STEP_LOG_END@VERSION@@@"
-    ]
-  },
-  {
-    "cmd": [
       "python",
       "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+      "[START_DIR]\\cache\\work\\skia\\bin\\fetch-gn"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
     "name": "fetch-gn"
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "[START_DIR]/cache/work/skia/bin/fetch-clang-format"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "fetch-clang-format"
-  },
-  {
-    "cmd": [
-      "[START_DIR]/cache/work/skia/bin/gn",
+      "[START_DIR]\\cache\\work\\skia\\bin\\gn",
       "gen",
-      "[START_DIR]/cache/work/skia/out/Housekeeper-PerCommit-CheckGeneratedFiles/Release",
-      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DDUMMY_clang_linux_version=42\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\"] is_debug=false skia_compile_processors=true skia_generate_workarounds=true werror=true"
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-MSVC-x86_64-Debug-MSRTC\\Debug_x64",
+      "--args=target_cpu=\"x86_64\" werror=true win_sdk=\"../[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"../[START_DIR]\\win_toolchain/VC\""
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
   },
@@ -65,10 +33,10 @@
       "/c",
       "ver"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "cmd"
   },
@@ -78,10 +46,7 @@
       "-u",
       "\nimport os\nimport subprocess\n\nfor p in os.environ['PATH'].split(os.pathsep):\n  for e in os.environ['PATHEXT'].split(os.pathsep):\n    cmd = os.path.join(p, 'cmd' + e)\n    print cmd\n    try:\n      print subprocess.call([cmd, '/c', 'ver'])\n    except Exception as e:\n      print e\n"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>"
-    },
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "name": "check PATH",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@@@@",
@@ -103,12 +68,12 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Housekeeper-PerCommit-CheckGeneratedFiles/Release"
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-MSVC-x86_64-Debug-MSRTC\\Debug_x64"
     ],
-    "cwd": "[START_DIR]/cache/work/skia",
+    "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/cache/work/skia/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
   },
@@ -117,8 +82,8 @@
       "python",
       "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'hello-opencl', 'hello-opencl.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab', 'skqp-universal-debug.apk', 'whitelist_devices.json']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/cache/work/skia/out/Housekeeper-PerCommit-CheckGeneratedFiles/Release",
-      "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-MSVC-x86_64-Debug-MSRTC\\Debug_x64",
+      "[START_DIR]\\[SWARM_OUT_DIR]\\out\\Debug_x64"
     ],
     "infra_step": true,
     "name": "copy build products",
