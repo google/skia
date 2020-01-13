@@ -15,12 +15,10 @@
 
 class GrTextureEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(
-            sk_sp<GrSurfaceProxy>,
-            SkAlphaType,
-            const SkMatrix&,
-            GrSamplerState = {GrSamplerState::Filter::kNearest});
-
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy>,
+                                                     SkAlphaType,
+                                                     const SkMatrix& = SkMatrix::I(),
+                                                     GrSamplerState = {});
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
