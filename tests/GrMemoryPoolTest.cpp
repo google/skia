@@ -44,11 +44,17 @@ public:
 
     static A* Create(SkRandom* r);
 
-    static void SetAllocator(size_t preallocSize, size_t minAllocSize) {
-        gPool = GrMemoryPool::Make(preallocSize, minAllocSize);
+    static void SetAllocator(size_t preallocSize) {
+        gPool = GrMemoryPool::Make(preallocSize);
     }
 
     static void ResetAllocator() { gPool.reset(); }
+
+    static void ValidatePool() {
+#ifdef SK_DEBUG
+        gPool->validate();
+#endif
+    }
 
 private:
     static std::unique_ptr<GrMemoryPool> gPool;
@@ -170,15 +176,10 @@ struct Rec {
 };
 
 DEF_TEST(GrMemoryPool, reporter) {
-    // prealloc and min alloc sizes for the pool
-    static const size_t gSizes[][2] = {
-        {0, 0},
-        {10 * sizeof(A), 20 * sizeof(A)},
-        {100 * sizeof(A), 100 * sizeof(A)},
-        {500 * sizeof(A), 500 * sizeof(A)},
-        {10000 * sizeof(A), 0},
-        {1, 100 * sizeof(A)},
-    };
+    // prealloc sizes for the pool
+    static const size_t gSizes[] = { 0, 10 * sizeof(A), 100 * sizeof(A),
+                                     500 * sizeof(A), 10000 * sizeof(A) };
+
     // different percentages of creation vs deletion
     static const float gCreateFraction[] = {1.f, .95f, 0.75f, .5f};
     // number of create/destroys per test
@@ -189,7 +190,8 @@ DEF_TEST(GrMemoryPool, reporter) {
 
     SkRandom r;
     for (size_t s = 0; s < SK_ARRAY_COUNT(gSizes); ++s) {
-        A::SetAllocator(gSizes[s][0], gSizes[s][1]);
+        A::SetAllocator(gSizes[s]);
+        A::ValidatePool();
         for (size_t c = 0; c < SK_ARRAY_COUNT(gCreateFraction); ++c) {
             SkTDArray<Rec> instanceRecs;
             for (int i = 0; i < kNumIters; ++i) {
@@ -208,6 +210,7 @@ DEF_TEST(GrMemoryPool, reporter) {
                     instanceRecs.removeShuffle(d);
                 }
                 if (0 == i % kCheckPeriod) {
+                    A::ValidatePool();
                     for (int r = 0; r < instanceRecs.count(); ++r) {
                         Rec& rec = instanceRecs[r];
                         REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
@@ -255,13 +258,13 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
 
     // Effective prealloc space capacity is >= kMinAllocationSize.
     {
-        auto pool = GrMemoryPool::Make(0, 0);
+        auto pool = GrMemoryPool::Make(0);
         REPORTER_ASSERT(reporter, pool->preallocSize() == kSmallestMinAllocSize);
     }
 
     // Effective block size capacity >= kMinAllocationSize.
     {
-        auto pool = GrMemoryPool::Make(kSmallestMinAllocSize, kSmallestMinAllocSize / 2);
+        auto pool = GrMemoryPool::Make(kSmallestMinAllocSize);
         AutoPoolReleaser r(*pool);
 
         allocateMemory(*pool, r);
@@ -271,15 +274,16 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
     // Pool allocates exactly preallocSize on creation.
     {
         constexpr size_t kPreallocSize = kSmallestMinAllocSize * 5;
-        auto pool = GrMemoryPool::Make(kPreallocSize, 0);
+        auto pool = GrMemoryPool::Make(kPreallocSize);
         REPORTER_ASSERT(reporter, pool->preallocSize() == kPreallocSize);
     }
 
     // Pool allocates exactly minAllocSize when it expands.
     {
         constexpr size_t kMinAllocSize = kSmallestMinAllocSize * 7;
-        auto pool = GrMemoryPool::Make(0, kMinAllocSize);
+        auto pool = GrMemoryPool::Make(kMinAllocSize);
         AutoPoolReleaser r(*pool);
+        REPORTER_ASSERT(reporter, pool->size() == 0);
 
         allocateMemory(*pool, r);
         REPORTER_ASSERT(reporter, pool->size() == kMinAllocSize);
@@ -292,7 +296,7 @@ DEF_TEST(GrMemoryPoolAPI, reporter) {
     // to accommodate all internal structures.
     {
         constexpr size_t kMinAllocSize = kSmallestMinAllocSize * 2;
-        auto pool = GrMemoryPool::Make(kSmallestMinAllocSize, kMinAllocSize);
+        auto pool = GrMemoryPool::Make(kMinAllocSize);
         AutoPoolReleaser r(*pool);
 
         REPORTER_ASSERT(reporter, pool->size() == 0);
