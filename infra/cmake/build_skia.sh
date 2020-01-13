@@ -18,9 +18,13 @@ set -xe
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 SKIA_DIR=`cd $BASE_DIR/../.. && pwd`
 
+ls -alh $SKIA_DIR/out
+
 # Delete everything to do a clean build
 rm -rf $SKIA_DIR/out/CMAKE
 mkdir --mode=0777 -p $SKIA_DIR/out/CMAKE
+
+ls -alh $SKIA_DIR/out
 
 cd $SKIA_DIR
 ./bin/fetch-gn
