@@ -90,6 +90,13 @@ public:
         return fMat[index];
     }
 
+    bool isIdentity() const {
+        return *this == SkM44();
+    }
+    bool isFinite() const {
+        return SkScalarsAreFinite(fMat, 16);
+    }
+
     SkM44& setIdentity() {
         return this->setRowMajor(1, 0, 0, 0,
                                  0, 1, 0, 0,
@@ -157,6 +164,7 @@ public:
     }
 
     SkM44& preTranslate(SkScalar x, SkScalar y);
+    SkM44& preScale(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
 
     const SkScalar* asColMajor() const { return fMat; }
