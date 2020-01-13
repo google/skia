@@ -247,6 +247,8 @@ public:
 
         // don't bother initializing fNext
         inc_rec();
+        SkASSERT(fMatrix.fM.isFinite());
+        SkASSERT(fMatrix.fM.isIdentity());
     }
     MCRec(const MCRec& prev) : fRasterClip(prev.fRasterClip), fMatrix(prev.fMatrix) {
         fLayer = nullptr;
@@ -255,6 +257,7 @@ public:
 
         // don't bother initializing fNext
         inc_rec();
+        SkASSERT(fMatrix.fM.isFinite());
     }
     ~MCRec() {
         delete fLayer;
@@ -268,6 +271,8 @@ public:
         fMatrix.reset();
         fRasterClip.setRect(bounds);
         fLayer->reset(bounds);
+        SkASSERT(fMatrix.fM.isFinite());
+        SkASSERT(fMatrix.fM.isIdentity());
     }
 };
 
@@ -1423,6 +1428,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
 /////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
+    SkASSERT(fMCRec->fMatrix.fM.isFinite());
     if (dx || dy) {
         this->checkForDeferredSave();
         fMCRec->fMatrix.preTranslate(dx,dy);
@@ -1439,12 +1445,36 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
+SkASSERT(fMCRec->fMatrix.fM.isFinite());
+#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
     SkMatrix m;
     m.setScale(sx, sy);
     this->concat(m);
+#else
+    if (sx != 1 || sy != 1) {
+        this->checkForDeferredSave();
+
+        SkDebugf("before %d ", fIsScaleTranslate);
+        SkM44 m = fMCRec->fMatrix.fM;
+        m.dump();
+
+        fMCRec->fMatrix.preScale(sx, sy);
+
+        // shouldn't need to do this (theoretically), as the state shouldn't have changed,
+        // but pre-scaling by a non-finite does change it, so we have to recompute.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+        SkDebugf("scale fIsScaleTranslate %d, %g %g\n", fIsScaleTranslate, sx, sy);
+
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+        this->didScale(sx, sy);
+    }
+#endif
 }
 
 void SkCanvas::rotate(SkScalar degrees) {
+    SkASSERT(fMCRec->fMatrix.fM.isFinite());
+    SkASSERT(fMCRec->fMatrix.fM.isFinite());
     SkMatrix m;
     m.setRotate(degrees);
     this->concat(m);
@@ -1477,6 +1507,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 }
 
 void SkCanvas::concat44(const SkScalar m[16]) {
+    SkASSERT(fMCRec->fMatrix.fM.isFinite());
     this->checkForDeferredSave();
 
     fMCRec->fMatrix.preConcat44(m);
@@ -1719,6 +1750,10 @@ bool SkCanvas::quickReject(const SkRect& src) const {
     }
 
     // Verify that fIsScaleTranslate is set properly.
+    if (fIsScaleTranslate != fMCRec->fMatrix.isScaleTranslate()) {
+        SkDebugf("fIsScaleTranslate %d\n", fIsScaleTranslate);
+        fMCRec->fMatrix.fM.dump();
+    }
     SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 #endif
 
