@@ -56,7 +56,10 @@ void runFPTest(skiatest::Reporter* reporter, GrContext* context, T min, T max, T
             continue;
         }
 
-        auto sContext = GrSurfaceContext::Make(context, std::move(fpProxy), colorType,
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(fpProxy->backendFormat(),
+                                                                   colorType);
+        GrSurfaceProxyView view(std::move(fpProxy), origin, swizzle);
+        auto sContext = GrSurfaceContext::Make(context, std::move(view), colorType,
                                                kPremul_SkAlphaType, nullptr);
         REPORTER_ASSERT(reporter, sContext);
 

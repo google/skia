@@ -451,7 +451,10 @@ public:
         if (!rec) {
             return false;
         }
-        auto sContext = GrSurfaceContext::Make(fContext, fTextureProxy, fColorType,
+        // TODO: Store a GrSurfaceProxyView on SkSpecialImage_Gpu instead of just a GrTextureProxy
+        GrSurfaceProxyView view(fTextureProxy, fTextureProxy->origin(),
+                                fTextureProxy->textureSwizzle());
+        auto sContext = GrSurfaceContext::Make(fContext, std::move(view), fColorType,
                                                this->alphaType(), fColorSpace);
         if (!sContext) {
             return false;

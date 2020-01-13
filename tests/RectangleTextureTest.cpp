@@ -192,7 +192,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         TestCopyFromSurface(reporter, context, rectProxy.get(), GrColorType::kRGBA_8888, refPixels,
                             "RectangleTexture-copy-from");
 
-        auto rectContext = GrSurfaceContext::Make(context, std::move(rectProxy),
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(rectangleTex.getBackendFormat(),
+                                                                   GrColorType::kRGBA_8888);
+        GrSurfaceProxyView view(std::move(rectProxy), origin, swizzle);
+        auto rectContext = GrSurfaceContext::Make(context, std::move(view),
                                                   GrColorType::kRGBA_8888, kPremul_SkAlphaType,
                                                   nullptr);
         SkASSERT(rectContext);

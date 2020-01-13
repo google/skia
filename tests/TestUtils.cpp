@@ -84,7 +84,11 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
                                                           SkBackingFit::kExact, SkBudgeted::kYes);
     SkASSERT(dstProxy);
 
-    auto dstContext = GrSurfaceContext::Make(context, std::move(dstProxy), colorType,
+    GrSurfaceOrigin origin = dstProxy->origin();
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(dstProxy->backendFormat(),
+                                                               colorType);
+    GrSurfaceProxyView view(std::move(dstProxy), origin, swizzle);
+    auto dstContext = GrSurfaceContext::Make(context, std::move(view), colorType,
                                              kPremul_SkAlphaType, nullptr);
     SkASSERT(dstContext);
 
