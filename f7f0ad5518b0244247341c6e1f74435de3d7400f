@@ -2,6 +2,286 @@
   "comments": [
     {
       "key": {
+        "uuid": "25fdb3ea_b1e86c8c",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "This is no longer user. Remove the param?",
+      "range": {
+        "startLine": 12,
+        "startChar": 37,
+        "endLine": 12,
+        "endChar": 59
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8be2867e_311382ce",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "I really like how the logic for this is broken up into the offset logic for the two kinds of locations. It makes this function much simpler to read now.",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e48d5fd6_6880ed82",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "I\u0027d feel better if we put back the assert that swizzle_is_simple (even though the code clearly won\u0027t get here otherwise).",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7562bbb4_edc1fc0f",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "Thinking about some of the code-gen implications here. Not a deal breaker, but do we have ideas to make this better in a future CL. Consider:\n\nvoid main() {\n  float4 arr[4];\n  ...\n  arr[1] +\u003d arr[2];\n}\n\nI think that\u0027s going to generate the address computation sequence 12 times (?). Having vectorized operations will help (only three address calculations). Just something to consider. (Ah, as I re-read the code, I realized that the passed-in location will have pre-computed the address up through the indexing, so it\u0027s just the offset portion that will be replicated). So this is less bad than I thought, and vectorized ops will essentially remove all the overhead.",
+      "range": {
+        "startLine": 264,
+        "startChar": 0,
+        "endLine": 264,
+        "endChar": 80
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9ee2528_a5e4b43d",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "This assert is overly aggressive (off-by-one), right? eg: If kRegisterMax were 1, fNextRegister were 0, and count were 1, it should succeed, but the assert will fail?",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cf02782_e33f9606",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "lType ?",
+      "range": {
+        "startLine": 462,
+        "startChar": 40,
+        "endLine": 462,
+        "endChar": 54
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b17b67d_6b1a538c",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "You\u0027ve still got the (lVecOrMtx \u0026\u0026 !rVecOrMtx) case handled below, but this no longer handles the (!lVecOrMtx \u0026\u0026 rVecOrMtx) case?",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ad14099_2f8be9b3",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "This is a better condition to capture the special cases here than what I wrote before, but it might be worth putting a comment again (that there is special behavior for M*V, V*M, M*M, but not V*V)?",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9778c7fc_38aa5621",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "SlotCount(rType)",
+      "range": {
+        "startLine": 542,
+        "startChar": 54,
+        "endLine": 542,
+        "endChar": 55
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbe4ba96_0f6adf93",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "Ooh, I almost commented that this should be rType before I caught the logic. Add a comment explaining that at this point, SlotCount(rType) is either 1, or equal to SlotCount(lType), and we\u0027re about to replicate the value in the former case?",
+      "range": {
+        "startLine": 567,
+        "startChar": 52,
+        "endLine": 567,
+        "endChar": 57
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b265bbfb_244bdce4",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "This (and NEQ) are missing the logic that collapses the result down to a single bool. (float4 \u003d\u003d float4 produces bool, not bool4).",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0d354c0_6637f91f",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "This should be unreachable - these are handled up above.",
+      "range": {
+        "startLine": 654,
+        "startChar": 0,
+        "endLine": 669,
+        "endChar": 9
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58bbd2e5_2e0bbbcb",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "Is it worth also asserting that the existing pointer in the code is still 65535, to avoid double-setting?",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48d88fcf_24d48df6",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-13T16:30:24Z",
+      "side": 1,
+      "message": "Comment inconsistency: These don\u0027t actually return the result register, it\u0027s supplied by the caller, right? (Other than the top-level writeExpression that does return?)",
+      "range": {
+        "startLine": 230,
+        "startChar": 56,
+        "endLine": 230,
+        "endChar": 75
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "edee993d_bc28c690",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 35
