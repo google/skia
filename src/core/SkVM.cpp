@@ -2307,6 +2307,43 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), arg[immy]); }
                                  break;
 
+                case Op::gather32: {
+                    // We may not let any of dst(), index, or mask use the same register,
+                    // so we must allocate registers manually and very carefully.
+
+                    // index is argument x and has already been maybe_recycle_register()'d,
+                    // so we explicitly ignore its availability during this op.
+                    A::Ymm index = r[x];
+                    uint32_t avail_during_gather = avail & ~(1<<index);
+
+                    // Choose dst() to not overlap with index.
+                    if (int found = __builtin_ffs(avail_during_gather)) {
+                        set_dst((A::Ymm)(found-1));
+                        avail_during_gather ^= (1<<dst());
+                    } else {
+                        ok = false;
+                        break;
+                    }
+
+                    // Choose (temporary) mask to not overlap with dst() or index.
+                    A::Ymm mask;
+                    if (int found = __builtin_ffs(avail_during_gather)) {
+                        mask = (A::Ymm)(found-1);
+                    } else {
+                        ok = false;
+                        break;
+                    }
+
+                    // Our gather base pointer is immz bytes off of uniform immy.
+                    a->movq(scratch, arg[immy], immz);
+                    a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
+                    a->vgatherdps(dst(), A::FOUR, index, scratch, mask);
+
+                    // TODO: simpler impl. when scalar == true?
+                    // TODO: at least disable the other mask lanes?
+                }
+                break;
+
                 case Op::uniform8: a->movzbl(scratch, arg[immy], immz);
                                    a->vmovd_direct((A::Xmm)dst(), scratch);
                                    a->vbroadcastss(dst(), (A::Xmm)dst());
