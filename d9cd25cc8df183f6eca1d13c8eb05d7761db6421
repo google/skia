@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3bf2b00_7aa73ccc",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-13T14:55:47Z",
+      "side": 1,
+      "message": "I think this should go back to the way it was and then in the RT case add an extra check for FBO only or an assert that there is a texture",
+      "range": {
+        "startLine": 455,
+        "startChar": 4,
+        "endLine": 455,
+        "endChar": 65
+      },
+      "revId": "d9cd25cc8df183f6eca1d13c8eb05d7761db6421",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddc4a35d_cc9b7ace",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-13T14:55:47Z",
+      "side": 1,
+      "message": "Is this needed anymore? Should it be an assert that there is a texture?",
+      "range": {
+        "startLine": 495,
+        "startChar": 8,
+        "endLine": 495,
+        "endChar": 16
+      },
+      "revId": "d9cd25cc8df183f6eca1d13c8eb05d7761db6421",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
