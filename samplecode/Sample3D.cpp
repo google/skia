@@ -27,7 +27,7 @@ protected:
     float   fAngle = SK_ScalarPI / 12;
 
     SkPoint3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
-    SkPoint3    fCOA { 0, 0, 0 };
+//    SkPoint3    fCOA { 0, 0, 0 };
     SkPoint3    fUp  { 0, 1, 0 };
 
     SkMatrix44  fRot;
@@ -46,21 +46,20 @@ protected:
     }
 
 public:
-    SkMatrix44 get44(const SkRect& r, const SkMatrix44& model) const {
-        SkMatrix44  camera,
-                    perspective,
-                    translate,
-                    viewport;
+    SkMatrix44 proj() const { return Sk3Perspective(fNear, fFar, fAngle); }
+    SkMatrix44 camera() const {
+        SkPoint3 coa = { fEye.fX, fEye.fY, -10000 };
+        return Sk3LookAt(fEye, coa, fUp);
+    }
 
+    SkMatrix44 get44(const SkRect& r, const SkMatrix44& model) const {
         SkScalar w = r.width();
         SkScalar h = r.height();
 
-        Sk3Perspective(&perspective, fNear, fFar, fAngle);
-        Sk3LookAt(&camera, fEye, fCOA, fUp);
-        translate.setTranslate(fTrans.fX, fTrans.fY, fTrans.fZ);
-        viewport.setScale(w*0.5f, h*0.5f, 1).postTranslate(r.centerX(), r.centerY(), 0);
+        SkMatrix44 viewport;
+        viewport.setScale(w*0.5f, h*0.5f, w*0.5f).postTranslate(r.centerX(), r.centerY(), 0);
 
-        return viewport * perspective * camera * translate * fRot * model * inv(viewport);
+        return viewport * this->proj() * this->camera() * inv(viewport) * model;
     }
 
     bool onChar(SkUnichar uni) override {
@@ -73,8 +72,12 @@ public:
             case '-': this->rotate(0, 0,  delta); return true;
             case '+': this->rotate(0, 0, -delta); return true;
 
-            case 'i': fTrans.fZ += 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
-            case 'k': fTrans.fZ -= 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
+            case 'X': fEye.fX += 0.1f; return true;
+            case 'x': fEye.fX -= 0.1f; return true;
+            case 'Y': fEye.fY += 0.1f; return true;
+            case 'y': fEye.fY -= 0.1f; return true;
+            case 'Z': fEye.fZ += 0.1f; return true;
+            case 'z': fEye.fZ -= 0.1f; return true;
 
             case 'n': fNear += 0.1f; SkDebugf("near %g\n", fNear); return true;
             case 'N': fNear -= 0.1f; SkDebugf("near %g\n", fNear); return true;
@@ -152,7 +155,7 @@ struct Face {
 static void transpose(SkMatrix44* m) {
     SkScalar array[16];
     m->asColMajorf(array);
-    m->setColMajor(array);
+    m->setRowMajor(array);
 }
 
 static bool front(const SkMatrix44& m) {
@@ -175,8 +178,7 @@ const Face faces[] = {
     {             0,-SK_ScalarPI/2 }, // right
 };
 
-
-class SampleRR3D : public Sample3DView {
+class SampleCube3D : public Sample3DView {
     SkRRect fRR;
     sk_sp<SkShader> fShader;
 
@@ -193,7 +195,11 @@ class SampleRR3D : public Sample3DView {
     }
 
     void drawContent(SkCanvas* canvas, const SkMatrix44& m) {
-        auto mx = this->get44({0, 0, 400, 400}, m);
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);
+        SkMatrix44 model = trans * fRot * m * inv(trans);
+
+        auto mx = this->get44({0, 0, 400, 400}, model);
         canvas->concat(mx);
 
         SkPaint paint;
@@ -207,8 +213,72 @@ class SampleRR3D : public Sample3DView {
 
         for (auto f : faces) {
             SkAutoCanvasRestore acr(canvas, true);
-            this->drawContent(canvas, f.asM44(1));
+            this->drawContent(canvas, f.asM44(200));
         }
     }
 };
-DEF_SAMPLE( return new SampleRR3D(); )
+DEF_SAMPLE( return new SampleCube3D(); )
+
+///////////
+
+static SkMatrix44 ctm(SkCanvas* canvas) {
+    SkMatrix44 m;
+    SkScalar array[16];
+    canvas->getColMajor44(array);
+    m.setColMajor(array);
+    return m;
+}
+
+class SamplePlane3D : public Sample3DView {
+    SkRRect fRR;
+    sk_sp<SkShader> fShader;
+
+    SkString name() override { return SkString("plane3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
+        fShader = GetResourceAsImage("images/mandrill_128.png")
+                        ->makeShader(SkMatrix::MakeScale(3, 3));
+    }
+
+    void drawContent(SkCanvas* canvas, sk_sp<SkShader> shader) {
+        SkPaint paint;
+        paint.setColor(0xFFCCCCCC);
+        paint.setAlphaf(front(ctm(canvas)) ? 1 : 0.25f);
+        paint.setShader(shader);
+        canvas->drawRRect(fRR, paint);
+    }
+
+    void set_eye_z(SkScalar scale) {
+        fEye.fZ = (1.0f/tan(fAngle/2) - 1) * scale;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->translate(400, 300);
+
+        this->drawContent(canvas, nullptr);
+
+        {
+            SkScalar zscale = 1;
+
+            SkScalar w = 400 / zscale, h = 400 / zscale;
+            SkScalar cx = 200, cy = 200;
+            cx = cy = 0;
+            fEye.fX = fEye.fY = 0;
+
+            SkMatrix44 viewport;
+            viewport.setScale(w*0.5f, h*0.5f, 1).postTranslate(cx, cy, 0);
+
+            set_eye_z(zscale);
+
+            SkMatrix44 postVP;
+            postVP.setScale(zscale, zscale, 1);
+
+            auto mx = postVP * viewport * this->proj() * this->camera() * fRot * inv(viewport);
+            canvas->concat(mx);
+        }
+
+        this->drawContent(canvas, fShader);
+    }
+};
+DEF_SAMPLE( return new SamplePlane3D(); )
