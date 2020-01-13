@@ -1439,9 +1439,30 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
+#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
     SkMatrix m;
     m.setScale(sx, sy);
     this->concat(m);
+#else
+    if (sx != 1 || sy != 1) {
+        this->checkForDeferredSave();
+
+        SkDebugf("before %d ", fIsScaleTranslate);
+        SkM44 m = fMCRec->fMatrix.fM;
+        m.dump();
+
+        fMCRec->fMatrix.preScale(sx, sy);
+
+        // shouldn't need to do this (theoretically), as the state shouldn't have changed,
+        // but pre-scaling by a non-finite does change it, so we have to recompute.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+        SkDebugf("scale fIsScaleTranslate %d, %g %g\n", fIsScaleTranslate, sx, sy);
+
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+        this->didScale(sx, sy);
+    }
+#endif
 }
 
 void SkCanvas::rotate(SkScalar degrees) {
@@ -1719,6 +1740,10 @@ bool SkCanvas::quickReject(const SkRect& src) const {
     }
 
     // Verify that fIsScaleTranslate is set properly.
+    if (fIsScaleTranslate != fMCRec->fMatrix.isScaleTranslate()) {
+        SkDebugf("fIsScaleTranslate %d\n", fIsScaleTranslate);
+        fMCRec->fMatrix.fM.dump();
+    }
     SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
 #endif
 
