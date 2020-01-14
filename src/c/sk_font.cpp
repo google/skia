@@ -121,3 +121,7 @@ float sk_font_get_skew_x(const sk_font_t* font) {
 void sk_font_set_skew_x(sk_font_t* font, float value) {
     AsFont(font)->setSkewX(value);
 }
+
+float sk_font_get_metrics(const sk_font_t* font, sk_fontmetrics_t* metrics) {
+    return AsFont(font)->getMetrics(AsFontMetrics(metrics));
+}
