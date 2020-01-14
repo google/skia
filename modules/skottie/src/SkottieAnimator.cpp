@@ -7,6 +7,7 @@
 
 #include "include/core/SkCubicMap.h"
 #include "include/core/SkString.h"
+#include "modules/skottie/src/AnimatableProperty.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -434,13 +435,53 @@ bool BindSplitPositionProperty(const skjson::Value& jv,
     return false;
 }
 
+template <typename T>
+class AnimatablePropertyWrapper final : public sksg::Animator {
+public:
+    static sk_sp<sksg::Animator> Make(const skjson::ObjectValue* jprop,
+                                      const AnimationBuilder* abuilder,
+                                      std::function<void(const T&)>&& apply) {
+        if (!jprop) {
+            return nullptr;
+        }
+
+        sk_sp<AnimatablePropertyWrapper> wrapper(new AnimatablePropertyWrapper(jprop, abuilder,
+                                                                               std::move(apply)));
+
+        if (wrapper->fProperty.isStatic()) {
+
+        }
+
+        return wrapper;
+    }
+
+private:
+    AnimatablePropertyWrapper(const skjson::ObjectValue* jprop,
+                              const AnimationBuilder* abuilder,
+                              std::function<void(const T&)>&& apply)
+        : fApplyFunc(std::move(apply))
+        , fProperty(*abuilder, jprop) {}
+
+    void onTick(float t) override {
+        fApplyFunc(fProperty(t));
+    }
+
+    const std::function<void(const T&)> fApplyFunc;
+    AnimatableProperty<T>               fProperty;
+};
+
 } // namespace
 
 template <>
 bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   std::function<void(const ScalarValue&)>&& apply,
                   const ScalarValue* noop) const {
-    return BindPropertyImpl(jv, this, fCurrentAnimatorScope, std::move(apply), noop);
+    if (auto wrapper = AnimatablePropertyWrapper<ScalarValue>::Make(jv, this, std::move(apply))) {
+        fCurrentAnimatorScope->push_back(std::move(wrapper));
+        return true;
+    }
+
+    return false;
 }
 
 template <>
