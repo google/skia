@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c357017_f6dcf6f9",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-14T18:42:28Z",
+      "side": 1,
+      "message": "align ?",
+      "revId": "febcc2264b326fdaf7bad597faa01aa6f650b3f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9138fe2c_fb679863",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-14T18:42:28Z",
+      "side": 1,
+      "message": "Should this be image-\u003ealphaType ?",
+      "range": {
+        "startLine": 293,
+        "startChar": 68,
+        "endLine": 293,
+        "endChar": 87
+      },
+      "revId": "febcc2264b326fdaf7bad597faa01aa6f650b3f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efc477e2_30f44ec9",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-14T18:42:28Z",
+      "side": 1,
+      "message": "What does A565 mean ?",
+      "range": {
+        "startLine": 1311,
+        "startChar": 13,
+        "endLine": 1311,
+        "endChar": 18
+      },
+      "revId": "febcc2264b326fdaf7bad597faa01aa6f650b3f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
