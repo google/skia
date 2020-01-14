@@ -428,18 +428,19 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 
         // We can update the positions in the text blob without regenerating the whole
         // blob, but only for integer translations.
-        // This cool bit of math will determine the necessary translation to apply to the
-        // already generated vertex coordinates to move them to the correct position.
-        // Figure out the translation in view space given a translation in source space.
-        SkScalar transX = drawMatrix.getTranslateX() +
-                          drawMatrix.getScaleX() * (drawOrigin.x() - fInitialOrigin.x()) +
-                          drawMatrix.getSkewX() * (drawOrigin.y() - fInitialOrigin.y()) -
-                          fInitialMatrix.getTranslateX();
-        SkScalar transY = drawMatrix.getTranslateY() +
-                          drawMatrix.getSkewY() * (drawOrigin.x() - fInitialOrigin.x()) +
-                          drawMatrix.getScaleY() * (drawOrigin.y() - fInitialOrigin.y()) -
-                          fInitialMatrix.getTranslateY();
-        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
+        // Calculate the translation in source space to a translation in device space by mapping
+        // (0, 0) through both the initial matrix and the draw matrix; take the difference.
+        SkMatrix initialMatrix{fInitialMatrix};
+        initialMatrix.preTranslate(fInitialOrigin.x(), fInitialOrigin.y());
+        SkPoint initialDeviceOrigin{0, 0};
+        initialMatrix.mapPoints(&initialDeviceOrigin, 1);
+        SkMatrix completeDrawMatrix{drawMatrix};
+        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+        SkPoint drawDeviceOrigin{0, 0};
+        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
+        SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
+
+        if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
             return true;
         }
     } else if (this->hasDistanceField()) {
