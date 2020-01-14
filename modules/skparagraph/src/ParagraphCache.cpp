@@ -47,7 +47,9 @@ uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
 }
 uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
     uint32_t hash = 0;
+    /*
     for (auto& fd : key.fResolvedFonts) {
+        SkDebugf("%d %f %d\n", fd.fTextStart, fd.fFont.getSize(), hash);
         hash = mix(hash, SkGoodHash()(fd.fTextStart));
         hash = mix(hash, SkGoodHash()(fd.fFont.getSize()));
 
@@ -56,13 +58,22 @@ uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const
             fd.fFont.getTypeface()->getFamilyName(&name);
             hash = mix(hash, SkGoodHash()(name));
             hash = mix(hash, SkGoodHash()(fd.fFont.getTypeface()->fontStyle()));
+            SkDebugf("'%s' %d %d\n", name.c_str(), fd.fFont.getTypeface()->fontStyle(), hash);
+        } else {
+            SkDebugf("'null' 0\n");
         }
     }
+    */
     for (auto& ts : key.fTextStyles) {
         if (!ts.fStyle.isPlaceholder()) {
             hash = mix(hash, SkGoodHash()(ts.fStyle.getLetterSpacing()));
             hash = mix(hash, SkGoodHash()(ts.fStyle.getWordSpacing()));
             hash = mix(hash, SkGoodHash()(ts.fRange));
+            for (auto& ff : ts.fStyle.getFontFamilies()) {
+                hash = mix(hash, SkGoodHash()(ff));
+            }
+            hash = mix(hash, SkGoodHash()(ts.fStyle.getFontStyle()));
+            hash = mix(hash, SkGoodHash()(ts.fStyle.getFontSize()));
         } else {
             // TODO: cache placeholders
         }
@@ -75,9 +86,11 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     if (a.fText.size() != b.fText.size()) {
         return false;
     }
+    /*
     if (a.fResolvedFonts.count() != b.fResolvedFonts.count()) {
         return false;
     }
+    */
     if (a.fText != b.fText) {
         return false;
     }
@@ -89,7 +102,7 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
         // This is too strong, but at least we will not lose lines
         return false;
     }
-
+    /*
     for (size_t i = 0; i < a.fResolvedFonts.size(); ++i) {
         auto& fda = a.fResolvedFonts[i];
         auto& fdb = b.fResolvedFonts[i];
@@ -100,28 +113,30 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
             return false;
         }
     }
-
+    */
     for (size_t i = 0; i < a.fTextStyles.size(); ++i) {
         auto& tsa = a.fTextStyles[i];
         auto& tsb = b.fTextStyles[i];
         if (!(tsa.fStyle == tsb.fStyle)) {
             return false;
         }
-        if (!tsa.fStyle.isPlaceholder()) {
-            if (tsa.fStyle.getLetterSpacing() != tsb.fStyle.getLetterSpacing()) {
-                return false;
-            }
-            if (tsa.fStyle.getWordSpacing() != tsb.fStyle.getWordSpacing()) {
-                return false;
-            }
-            if (tsa.fRange.width() != tsb.fRange.width()) {
-                return false;
-            }
-            if (tsa.fRange.start != tsb.fRange.start) {
-                return false;
-            }
-        } else {
+        if (tsa.fStyle.isPlaceholder()) {
             // TODO: compare placeholders
+            continue;
+        }
+        /*
+        if (tsa.fStyle.getLetterSpacing() != tsb.fStyle.getLetterSpacing()) {
+            return false;
+        }
+        if (tsa.fStyle.getWordSpacing() != tsb.fStyle.getWordSpacing()) {
+            return false;
+        }
+        */
+        if (tsa.fRange.width() != tsb.fRange.width()) {
+            return false;
+        }
+        if (tsa.fRange.start != tsb.fRange.start) {
+            return false;
         }
     }
 
