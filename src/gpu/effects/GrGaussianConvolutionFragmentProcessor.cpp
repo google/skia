@@ -229,15 +229,49 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fRadius(radius)
         , fDirection(direction)
         , fMode(mode) {
-    // Make sure the sampler's ctor uses the clamp wrap mode
-    SkASSERT(fTextureSampler.samplerState().wrapModeX() == GrSamplerState::WrapMode::kClamp &&
-             fTextureSampler.samplerState().wrapModeY() == GrSamplerState::WrapMode::kClamp);
     this->addCoordTransform(&fCoordTransform);
     this->setTextureSamplerCnt(1);
     SkASSERT(radius <= kMaxKernelRadius);
 
     fill_in_1D_gaussian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
-
+    // SkGpuBlurUtils is not as aggressive as it once was about avoiding domains. So we check
+    // here if we can omit the domain. TODO: remove this when this effect uses a child to
+    // sample the texture.
+    auto samplerProxy = fTextureSampler.proxy();
+    if (!samplerProxy->isFullyLazy()) {
+        int wh = (fDirection == Direction::kX) ? samplerProxy->backingStoreDimensions().width()
+                                               : samplerProxy->backingStoreDimensions().height();
+        if (bounds[0] == 0 && bounds[1] == wh) {
+            bool useSampler = false;
+            GrSamplerState::WrapMode samplerMode = GrSamplerState::WrapMode::kClamp;
+            switch (fMode) {
+                case GrTextureDomain::kClamp_Mode:
+                case GrTextureDomain::kIgnore_Mode:
+                    useSampler = true;
+                    break;
+                case GrTextureDomain::kRepeat_Mode:
+                    useSampler = true;
+                    samplerMode = GrSamplerState::WrapMode::kRepeat;
+                    break;
+                case GrTextureDomain::kMirrorRepeat_Mode:
+                    useSampler = true;
+                    samplerMode = GrSamplerState::WrapMode::kMirrorRepeat;
+                    break;
+                case GrTextureDomain::kDecal_Mode:
+                    // Not sure if we support this in HW without having GrCaps here.
+                    // Just wait until we replace this with GrTextureEffect.
+                    break;
+            }
+            if (useSampler) {
+                fMode = GrTextureDomain::kIgnore_Mode;
+                if (fDirection == Direction::kX) {
+                    fTextureSampler.samplerState().setWrapModeX(samplerMode);
+                } else {
+                    fTextureSampler.samplerState().setWrapModeY(samplerMode);
+                }
+            }
+        }
+    }
     memcpy(fBounds, bounds, sizeof(fBounds));
 }
 
