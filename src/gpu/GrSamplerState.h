@@ -27,6 +27,9 @@ public:
     constexpr GrSamplerState(WrapMode wrapXAndY, Filter filter)
             : fWrapModes{wrapXAndY, wrapXAndY}, fFilter(filter) {}
 
+    constexpr GrSamplerState(WrapMode wrapX, WrapMode wrapY, Filter filter)
+            : fWrapModes{wrapX, wrapY}, fFilter(filter) {}
+
     constexpr GrSamplerState(const WrapMode wrapModes[2], Filter filter)
             : fWrapModes{wrapModes[0], wrapModes[1]}, fFilter(filter) {}
 

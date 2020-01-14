@@ -26,6 +26,7 @@ public:
                                                      const SkYUVAIndex indices[4],
                                                      SkYUVColorSpace yuvColorSpace,
                                                      GrSamplerState::Filter filterMode,
+                                                     const GrCaps&,
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
                                                      const SkRect* domain = nullptr);
 #ifdef SK_DEBUG
