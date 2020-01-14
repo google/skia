@@ -47,7 +47,7 @@ protected:
     }
 
 public:
-    void setupCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
+    void saveCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
         SkMatrix44  camera,
                     perspective,
                     viewport;
@@ -57,7 +57,7 @@ public:
         viewport.setScale(area.width()*0.5f, area.height()*0.5f, zscale)
                 .postTranslate(area.centerX(), area.centerY(), 0);
 
-        canvas->concat(viewport * perspective * camera * inv(viewport));
+        canvas->saveCamera(viewport * perspective, camera * inv(viewport));
     }
 
     bool onChar(SkUnichar uni) override {
@@ -201,12 +201,14 @@ class SampleRR3D : public Sample3DView {
     void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(400, 300);
 
-        this->setupCamera(canvas, {0, 0, 400, 400}, 200);
+        this->saveCamera(canvas, {0, 0, 400, 400}, 200);
 
         for (auto f : faces) {
             SkAutoCanvasRestore acr(canvas, true);
             this->drawContent(canvas, f.asM44(200));
         }
+
+        canvas->restore();
     }
 };
 DEF_SAMPLE( return new SampleRR3D(); )
