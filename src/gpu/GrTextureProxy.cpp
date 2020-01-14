@@ -151,8 +151,7 @@ bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* fi
                                                         const GrSurfaceProxy* second) {
     // In order to be compatible, the proxies should also have the same texture type. This is
     // checked explicitly since the GrBackendFormat == operator does not compare texture type
-    return first->config() == second->config() &&
-           first->backendFormat().textureType() == second->backendFormat().textureType() &&
+    return first->backendFormat().textureType() == second->backendFormat().textureType() &&
            first->backendFormat() == second->backendFormat();
 }
 

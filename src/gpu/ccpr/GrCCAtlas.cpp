@@ -231,7 +231,7 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
 #ifdef SK_DEBUG
         auto backingRT = backingTexture->asRenderTarget();
         SkASSERT(backingRT);
-        SkASSERT(backingRT->config() == fTextureProxy->config());
+        SkASSERT(backingRT->backendFormat() == fTextureProxy->backendFormat());
         SkASSERT(backingRT->numSamples() == fTextureProxy->asRenderTargetProxy()->numSamples());
         SkASSERT(backingRT->width() == fWidth);
         SkASSERT(backingRT->height() == fHeight);
