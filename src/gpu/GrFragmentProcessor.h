@@ -502,12 +502,13 @@ public:
 
     bool isInitialized() const { return SkToBool(this->proxy()); }
 
+    GrSurfaceProxy* proxy() const { return fView.proxy(); }
+
 #if GR_TEST_UTILS
     void set(GrSurfaceProxyView, GrSamplerState);
 #endif
-private:
-    GrSurfaceProxy* proxy() const { return fView.proxy(); }
 
+private:
     GrSurfaceProxyView    fView;
     GrSamplerState        fSamplerState;
 };
