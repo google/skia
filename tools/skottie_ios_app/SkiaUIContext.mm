@@ -59,7 +59,7 @@
     return skiaView;
 }
 - (SkiaViewController*) getViewController:(UIView*)view {
-    return [view isKindOfClass:[SkiaUIView class]] ? [view controller] : nil;
+    return [view isKindOfClass:[SkiaUIView class]] ? [(SkiaUIView*)view controller] : nil;
 }
 @end
 
