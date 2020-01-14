@@ -166,5 +166,13 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
     }
 }
 
+bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {
+    return this->fWidth == other.fWidth &&
+           this->fHeight == other.fHeight &&
+           this->fAlignment == other.fAlignment &&
+           this->fBaseline == other.fBaseline &&
+           this->fBaselineOffset == other.fBaselineOffset;
+}
+
 }  // namespace textlayout
 }  // namespace skia

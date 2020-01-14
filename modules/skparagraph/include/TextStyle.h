@@ -109,6 +109,8 @@ struct PlaceholderStyle {
             , fBaseline(baseline)
             , fBaselineOffset(offset) {}
 
+    bool equals(const PlaceholderStyle& other) const;
+
     SkScalar fWidth = 0;
     SkScalar fHeight = 0;
 
