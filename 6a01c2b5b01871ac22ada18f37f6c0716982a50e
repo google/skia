@@ -22,6 +22,30 @@
       "revId": "6a01c2b5b01871ac22ada18f37f6c0716982a50e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47f629f4_34df1e08",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2322,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-14T17:21:14Z",
+      "side": 1,
+      "message": "Oh, yeah, this is just clearing it knowing that it\u0027s set, and matches the idiom of how most of the rest of the register management code does this.\n\nThe previous `avail \u0026 ~(1\u003c\u003cindex)` is the oddball that I\u0027d like to stand out as being different... we want that bit clear whether or not it was originally set in avail.",
+      "parentUuid": "9c080a87_87a9de11",
+      "range": {
+        "startLine": 2322,
+        "startChar": 24,
+        "endLine": 2322,
+        "endChar": 58
+      },
+      "revId": "6a01c2b5b01871ac22ada18f37f6c0716982a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
