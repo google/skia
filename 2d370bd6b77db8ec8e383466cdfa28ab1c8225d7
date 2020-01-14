@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb5d6bcb_609887da",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "I think this probably is more likely to mislead if it becomes out of date than be helpful to someone. If your\u0027e not sure the header is there, remove it and you\u0027ll find out.",
+      "range": {
+        "startLine": 11,
+        "startChar": 43,
+        "endLine": 11,
+        "endChar": 55
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "881bc9fc_dda3a1dc",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "This creation pattern means that there\u0027s always one additional heap allocation to use GrBlockAllocator. It doesn\u0027t allow a user to make a GrBlockAllocator and std::aligned_storage in the user\u0027s memory. I wonder if that\u0027s something we will want? SkArenaAlloc lets you do this.",
+      "range": {
+        "startLine": 52,
+        "startChar": 1,
+        "endLine": 55,
+        "endChar": 5
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b50a6bb5_23baebfd",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "I think we\u0027d usually just call this \u0027Align\u0027.",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 27
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c23cb1e_63705d04",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "Microsoft uses this in debug heaps to tag \"uninitialized\" memory. Maybe a different pattern?",
+      "range": {
+        "startLine": 234,
+        "startChar": 43,
+        "endLine": 234,
+        "endChar": 53
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abb2edfb_4aab8862",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "is it simpler to write this as:\n\nreturn reinterpret_cast\u003cchar*\u003e(this) + offset;\n\n?",
+      "range": {
+        "startLine": 257,
+        "startChar": 12,
+        "endLine": 257,
+        "endChar": 87
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e1dba90_de661b5d",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 328,
+        "startChar": 7,
+        "endLine": 328,
+        "endChar": 11
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86cd158a_b70b4232",
+        "filename": "src/gpu/GrMemoryPool.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 18,
+        "startChar": 90,
+        "endLine": 19,
+        "endChar": 29
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2304ae18_42c96294",
+        "filename": "src/gpu/GrMemoryPool.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-14T18:23:51Z",
+      "side": 1,
+      "message": "private?",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 30
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
