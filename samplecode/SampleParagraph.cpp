@@ -1718,6 +1718,41 @@ protected:
 private:
     typedef Sample INHERITED;
 };
+
+class ParagraphView22 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph22"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "By continuing, you agree to the Google Payments ￼. The ￼ describes how your data is handled.";
+        for (size_t i = 0; i < 10000; ++i) {
+            ParagraphStyle paragraph_style;
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            TextStyle text_style;
+            text_style.setColor(SK_ColorBLACK);
+            text_style.setFontFamilies({SkString("Roboto")});
+            text_style.setFontSize(12);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(std::numeric_limits<SkScalar>::max());
+            SkDebugf("layout: %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight());
+            if (i % 3 != 1) {
+                paragraph->layout(566);
+                SkDebugf("layout: %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight());
+            } else if (i % 3 == 2) {
+                paragraph->layout(633);
+                SkDebugf("layout: %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight());
+            }
+        }
+        //paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1740,3 +1775,4 @@ DEF_SAMPLE(return new ParagraphView18();)
 DEF_SAMPLE(return new ParagraphView19();)
 DEF_SAMPLE(return new ParagraphView20();)
 DEF_SAMPLE(return new ParagraphView21();)
+DEF_SAMPLE(return new ParagraphView22();)
