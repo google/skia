@@ -723,7 +723,8 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 }
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
-                    // TODO: Sort it out with Flutter people
+                    // TODO: Change it once flutter rolls into google3
+                    //  (probably will break things if changed before)
                     clip.fBottom = line.height();
                     clip.fTop = line.sizes().baseline() -
                                 line.getMaxRunMetrics().baseline() +
