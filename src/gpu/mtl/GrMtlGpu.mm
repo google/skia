@@ -505,6 +505,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      SkBudgeted budgeted,
+                                                     GrMipMapped mipMapped,
                                                      const void* data,
                                                      size_t dataSize) {
     SkASSERT(this->caps()->isFormatTexturable(format));
