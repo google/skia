@@ -355,10 +355,6 @@ class CodeReview(object):
   def GetDescription(self):
     return self._gerrit.GetChangeDescription(self._issue)
 
-  def IsDryRun(self):
-    return self._gerrit.GetChangeInfo(
-        self._issue)['labels']['Commit-Queue'].get('value', 0) == 1
-
   def GetReviewers(self):
     code_review_label = (
         self._gerrit.GetChangeInfo(self._issue)['labels']['Code-Review'])
@@ -463,11 +459,6 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
 
     if re.match(REVERT_CL_SUBJECT_PREFIX, cr.GetSubject(), re.I):
       # It is a revert CL, ignore the public api owners check.
-      return results
-
-    if cr.IsDryRun():
-      # Ignore public api owners check for dry run CLs since they are not
-      # going to be committed.
       return results
 
     if input_api.gerrit:
