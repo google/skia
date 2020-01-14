@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c393031e_213dd7aa",
+        "filename": "docs/examples/MAD_Magazine_Oct_1985.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-14T16:46:50Z",
+      "side": 1,
+      "message": "As great as this one is, I\u0027m not sure we should add an Alfred E Neuman and MAD logo. Probably should not check this one in if we can avoid it.",
+      "revId": "dc1ffc34133faa63305c07b98f2e1dd8e3fba0e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
