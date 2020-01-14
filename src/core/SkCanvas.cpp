@@ -733,6 +733,16 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
+int SkCanvas::saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
+    // TODO: add a virtual for this, and update clients (e.g. chrome)
+    int n = this->save();
+    this->concat(projection);
+    // TODO: remember this point in the matrix stack, so we can communicate it to shaders
+    //       that want to perform lighting.
+    this->concat(camera);
+    return n;
+}
+
 void SkCanvas::restore() {
     if (fMCRec->fDeferredSaveCount > 0) {
         SkASSERT(fSaveCount > 1);
