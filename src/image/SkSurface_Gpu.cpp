@@ -123,8 +123,8 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcProxy->priv().isExact());
         GrSurfaceProxyView view(std::move(srcProxy), rtc->origin(), rtc->readSwizzle());
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, std::move(view),
-                                        info.colorType(), info.alphaType(), info.refColorSpace());
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, info.alphaType(),
+                                        std::move(view), info.refColorSpace());
     }
     return image;
 }
@@ -258,8 +258,8 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkPai
         const SkImageInfo info = fDevice->imageInfo();
         GrSurfaceProxyView view(std::move(srcProxy), rtc->origin(), rtc->readSwizzle());
         sk_sp<SkImage> image;
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, std::move(view),
-                                        info.colorType(), info.alphaType(), info.refColorSpace());
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, info.alphaType(),
+                                        std::move(view), info.refColorSpace());
         canvas->drawImage(image, x, y, paint);
         return true;
     };

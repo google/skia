@@ -131,10 +131,9 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
         return nullptr;
     }
 
-    SkColorType colorType = GrColorTypeToSkColorType(GrMaskFormatToColorType(format));
     SkASSERT(views[index].proxy()->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         views[index], colorType, kPremul_SkAlphaType, nullptr));
+                                         kPremul_SkAlphaType, views[index], nullptr));
     return image;
 }
 
