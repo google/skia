@@ -792,6 +792,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkGradientShader::MakeLinear(points, colors, positions, count,
                                             mode, flags, &localMatrix);
     }), allow_raw_pointers());
+#ifdef SK_SERIALIZE_SKP
+    function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
+                                                    size_t bytes)->sk_sp<SkPicture> {
+        // See comment above for uintptr_t explanation
+        uint8_t* d = reinterpret_cast<uint8_t*>(dPtr);
+        sk_sp<SkData> data = SkData::MakeFromMalloc(d, bytes);
+
+        return SkPicture::MakeFromData(data.get(), nullptr);
+    }), allow_raw_pointers());
+#endif
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
@@ -1335,12 +1345,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkPicture>("SkPicture")
         .smart_ptr<sk_sp<SkPicture>>("sk_sp<SkPicture>")
-#if defined(SK_DEBUG) || defined(SK_FORCE_SERIALIZE_SKP)
+#ifdef SK_SERIALIZE_SKP
         // The serialized format of an SkPicture (informally called an "skp"), is not something
-        // that clients should ever rely on. It is useful when filing bug reports, but that's
-        // about it. The format may change at anytime and no promises are made for backwards
-        // or forward compatibility.
-        .function("DEBUGONLY_serialize", optional_override([](SkPicture& self) -> sk_sp<SkData> {
+        // that clients should ever rely on.  The format may change at anytime and no promises
+        // are made for backwards or forward compatibility.
+        .function("serialize", optional_override([](SkPicture& self) -> sk_sp<SkData> {
             // Emscripten doesn't play well with optional arguments, which we don't
             // want to expose anyway.
             return self.serialize();
