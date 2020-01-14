@@ -697,7 +697,14 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         case kBGRA_8888_SkColorType: break;
     }
 
+    // Each call to sample() will try to rewrite the same uniforms over and over,
+    // so remember where we start and reset back there each time.  That way each
+    // sample() call uses the same uniform offsets.
+    const size_t uniforms_before_sample = uniforms->buf.size();
+
     auto sample = [&](skvm::F32 sx, skvm::F32 sy) -> skvm::Color {
+        uniforms->buf.resize(uniforms_before_sample);
+
         // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
         auto repeat = [&](skvm::F32 v, float scale) {
             skvm::F32 S = p->uniformF(uniforms->pushF(     scale)),
