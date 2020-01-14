@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
 
@@ -37,6 +38,8 @@ public:
     bool operator!=(const GrSurfaceProxyView& other) const { return !(*this == other); }
 
     GrSurfaceProxy* proxy() const { return fProxy.get(); }
+    sk_sp<GrSurfaceProxy> proxyRef() const { return fProxy; }
+
     GrTextureProxy* asTextureProxy() const {
         if (!fProxy) {
             return nullptr;
@@ -44,10 +47,7 @@ public:
         return fProxy->asTextureProxy();
     }
     sk_sp<GrTextureProxy> asTextureProxyRef() const {
-        if (!fProxy) {
-            return nullptr;
-        }
-        return sk_ref_sp<GrTextureProxy>(fProxy->asTextureProxy());
+        return sk_ref_sp<GrTextureProxy>(this->asTextureProxy());
     }
 
     GrRenderTargetProxy* asRenderTargetProxy() const {
@@ -57,8 +57,12 @@ public:
         return fProxy->asRenderTargetProxy();
     }
 
+    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() const {
+        return sk_ref_sp<GrRenderTargetProxy>(this->asRenderTargetProxy());
+    }
+
     GrSurfaceOrigin origin() const { return fOrigin; }
-    const GrSwizzle& swizzle() const { return fSwizzle; }
+    GrSwizzle swizzle() const { return fSwizzle; }
 
     void reset() {
         *this = {};

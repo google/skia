@@ -153,9 +153,12 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
     GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(format, colorType);
 
-    return std::make_unique<GrRenderTargetContext>(context, std::move(proxy), colorType, origin,
-                                                   readSwizzle, outSwizzle, std::move(colorSpace),
-                                                   surfaceProps, managedOps);
+    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
+    GrSurfaceProxyView outputView(std::move(proxy), origin, outSwizzle);
+
+    return std::make_unique<GrRenderTargetContext>(context, std::move(readView),
+                                                   std::move(outputView), colorType,
+                                                   std::move(colorSpace), surfaceProps, managedOps);
 }
 
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
@@ -351,20 +354,21 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromVulkanSeco
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
 // when the renderTargetContext attempts to use it (via getOpsTask).
 GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
-                                             sk_sp<GrSurfaceProxy> proxy,
+                                             GrSurfaceProxyView readView,
+                                             GrSurfaceProxyView outputView,
                                              GrColorType colorType,
-                                             GrSurfaceOrigin origin,
-                                             GrSwizzle readSwizzle,
-                                             GrSwizzle outSwizzle,
                                              sk_sp<SkColorSpace> colorSpace,
                                              const SkSurfaceProps* surfaceProps,
                                              bool managedOpsTask)
-        : GrSurfaceContext(context, std::move(proxy), colorType, kPremul_SkAlphaType,
-                           std::move(colorSpace), origin, readSwizzle)
-        , fOutputSwizzle(outSwizzle)
-        , fOpsTask(sk_ref_sp(fSurfaceProxy->getLastOpsTask()))
+        : GrSurfaceContext(context, std::move(readView), colorType, kPremul_SkAlphaType,
+                           std::move(colorSpace))
+        , fOutputView(std::move(outputView))
+        , fOpsTask(sk_ref_sp(this->asSurfaceProxy()->getLastOpsTask()))
         , fSurfaceProps(SkSurfacePropsCopyOrDefault(surfaceProps))
         , fManagedOpsTask(managedOpsTask) {
+    SkASSERT(this->asSurfaceProxy() == fOutputView.proxy());
+    SkASSERT(this->origin() == fOutputView.origin());
+
     fTextTarget.reset(new TextTarget(this));
     SkDEBUGCODE(this->validate();)
 }
@@ -372,7 +376,7 @@ GrRenderTargetContext::GrRenderTargetContext(GrRecordingContext* context,
 #ifdef SK_DEBUG
 void GrRenderTargetContext::onValidate() const {
     if (fOpsTask && !fOpsTask->isClosed()) {
-        SkASSERT(fSurfaceProxy->getLastRenderTask() == fOpsTask.get());
+        SkASSERT(fOutputView.proxy()->getLastRenderTask() == fOpsTask.get());
     }
 }
 #endif
@@ -557,7 +561,7 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
                                       const SkMatrix& viewMatrix) {
     // Start with the render target, since that is the maximum content we could possibly fill.
     // drawFilledQuad() will automatically restrict it to clip bounds for us if possible.
-    SkRect r = fSurfaceProxy->getBoundsRect();
+    SkRect r = this->asSurfaceProxy()->getBoundsRect();
     if (!paint.numTotalFragmentProcessors()) {
         // The paint is trivial so we won't need to use local coordinates, so skip calculating the
         // inverse view matrix.
@@ -621,7 +625,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     if (stencilSettings) {
         // Must use size at which the rendertarget will ultimately be allocated so that stencil
         // buffer updates on approximately sized render targets don't get corrupted.
-        rtRect = fSurfaceProxy->backingStoreBoundsRect();
+        rtRect = this->asSurfaceProxy()->backingStoreBoundsRect();
     } else {
         // Use the logical size of the render target, which allows for "fullscreen" clears even if
         // the render target has an approximate backing fit
@@ -1694,7 +1698,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
     }
     bool needsRescale = srcRect.width() != info.width() || srcRect.height() != info.height();
     auto colorTypeOfFinalContext = this->colorInfo().colorType();
-    auto backendFormatOfFinalContext = fSurfaceProxy->backendFormat();
+    auto backendFormatOfFinalContext = this->asSurfaceProxy()->backendFormat();
     if (needsRescale) {
         colorTypeOfFinalContext = dstCT;
         backendFormatOfFinalContext = this->caps()->getDefaultBackendFormat(dstCT,
@@ -1742,11 +1746,11 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
                 callback(context, nullptr);
                 return;
             }
-            sk_sp<GrTextureProxy> texProxy = sk_ref_sp(fSurfaceProxy->asTextureProxy());
+            sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef();
             SkRect srcRectToDraw = SkRect::Make(srcRect);
             // If the src is not texturable first try to make a copy to a texture.
             if (!texProxy) {
-                texProxy = GrSurfaceProxy::Copy(fContext, fSurfaceProxy.get(),
+                texProxy = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(),
                                                 GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
                                                 SkBudgeted::kNo);
                 if (!texProxy) {
@@ -2132,7 +2136,7 @@ GrSemaphoresSubmitted GrRenderTargetContext::flush(SkSurface::BackendSurfaceAcce
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "flush", fContext);
 
-    return this->drawingManager()->flushSurface(fSurfaceProxy.get(), access, info);
+    return this->drawingManager()->flushSurface(this->asSurfaceProxy(), access, info);
 }
 
 bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
@@ -2319,7 +2323,7 @@ SkBudgeted GrRenderTargetContextPriv::isBudgeted() const {
 
     SkDEBUGCODE(fRenderTargetContext->validate();)
 
-    return fRenderTargetContext->fSurfaceProxy->isBudgeted();
+    return fRenderTargetContext->asSurfaceProxy()->isBudgeted();
 }
 
 void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
@@ -2506,7 +2510,8 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
         return false;
     }
 
-    if (this->caps()->textureBarrierSupport() && !fSurfaceProxy->requiresManualMSAAResolve()) {
+    if (this->caps()->textureBarrierSupport() &&
+        !this->asSurfaceProxy()->requiresManualMSAAResolve()) {
         if (this->asTextureProxy()) {
             // The render target is a texture, so we can read from it directly in the shader. The XP
             // will be responsible to detect this situation and request a texture barrier.
@@ -2516,7 +2521,7 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
         }
     }
 
-    SkIRect copyRect = SkIRect::MakeSize(fSurfaceProxy->dimensions());
+    SkIRect copyRect = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
 
     SkIRect clippedRect;
     clip.getConservativeBounds(
@@ -2530,7 +2535,7 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
         // performance we may ignore the clip when the draw is entirely inside the clip is float
         // space but will hit pixels just outside the clip when actually rasterizing.
         clippedRect.outset(1, 1);
-        clippedRect.intersect(SkIRect::MakeSize(fSurfaceProxy->dimensions()));
+        clippedRect.intersect(SkIRect::MakeSize(this->asSurfaceProxy()->dimensions()));
     }
     SkIRect opIBounds;
     opBounds.roundOut(&opIBounds);
@@ -2560,7 +2565,7 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
         fit = SkBackingFit::kApprox;
     }
     sk_sp<GrTextureProxy> newProxy =
-            GrSurfaceProxy::Copy(fContext, fSurfaceProxy.get(), GrMipMapped::kNo, copyRect,
+            GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), GrMipMapped::kNo, copyRect,
                                  fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
     SkASSERT(newProxy);
 

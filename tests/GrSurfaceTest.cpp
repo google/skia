@@ -301,7 +301,11 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                 {kSize, kSize}, combo.fColorType, combo.fFormat, renderable, 1,
                                 kTopLeft_GrSurfaceOrigin, fit, SkBudgeted::kYes, GrProtected::kNo);
                         if (proxy) {
-                            auto texCtx = GrSurfaceContext::Make(context, std::move(proxy),
+                            GrSwizzle swizzle = caps->getReadSwizzle(combo.fFormat,
+                                                                     combo.fColorType);
+                            GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin,
+                                                    swizzle);
+                            auto texCtx = GrSurfaceContext::Make(context, std::move(view),
                                                                  combo.fColorType,
                                                                  kPremul_SkAlphaType, nullptr);
 
@@ -399,7 +403,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                                                        kTopLeft_GrSurfaceOrigin,
                                                        kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType);
-        auto surfContext = GrSurfaceContext::Make(context, proxy, GrColorType::kRGBA_8888,
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                   GrColorType::kRGBA_8888);
+        GrSurfaceProxyView view(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
+        auto surfContext = GrSurfaceContext::Make(context, std::move(view), GrColorType::kRGBA_8888,
                                                   kPremul_SkAlphaType, nullptr);
 
         // Read pixels should work with a read-only texture.

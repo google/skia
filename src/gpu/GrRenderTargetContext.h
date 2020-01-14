@@ -106,9 +106,9 @@ public:
             GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
             const SkSurfaceProps*);
 
-    GrRenderTargetContext(GrRecordingContext*, sk_sp<GrSurfaceProxy>, GrColorType,
-                          GrSurfaceOrigin, GrSwizzle readSwizzle, GrSwizzle outSwizzle,
-                          sk_sp<SkColorSpace>, const SkSurfaceProps*, bool managedOpsTask = true);
+    GrRenderTargetContext(GrRecordingContext*, GrSurfaceProxyView readView,
+                          GrSurfaceProxyView outputView, GrColorType, sk_sp<SkColorSpace>,
+                          const SkSurfaceProps*, bool managedOpsTask = true);
 
     ~GrRenderTargetContext() override;
 
@@ -543,13 +543,13 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
     GrMipMapped mipMapped() const;
 
-    GrSurfaceProxyView outputSurfaceView() {
-        return { fSurfaceProxy, fOrigin, fOutputSwizzle };
-    }
+    // TODO: See if it makes sense for this to return a const& instead and require the callers to
+    // make a copy (which refs the proxy) if needed.
+    GrSurfaceProxyView outputSurfaceView() { return fOutputView; }
 
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
-    GrRenderTarget* accessRenderTarget() { return fSurfaceProxy->peekRenderTarget(); }
+    GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
     GrRenderTargetContext* asRenderTargetContext() override { return this; }
 
@@ -560,7 +560,7 @@ public:
     GrTextTarget* textTarget() { return fTextTarget.get(); }
 
 #if GR_TEST_UTILS
-    bool testingOnly_IsInstantiated() const { return fSurfaceProxy->isInstantiated(); }
+    bool testingOnly_IsInstantiated() const { return this->asSurfaceProxy()->isInstantiated(); }
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
     GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
@@ -683,7 +683,7 @@ private:
 
     std::unique_ptr<GrTextTarget> fTextTarget;
 
-    GrSwizzle fOutputSwizzle;
+    GrSurfaceProxyView fOutputView;
 
     // In MDB-mode the GrOpsTask can be closed by some other renderTargetContext that has picked
     // it up. For this reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
