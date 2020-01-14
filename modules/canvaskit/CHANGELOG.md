@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - SKP serialization/deserialization now available (can be disabled with the 'no_skp').
+   `SkPicture.DEBUGONLY_saveAsFile` renamed to `SkPicture.saveAsFile` and
+   `CanvasKit.MakeSkPicture` is now exposed. SKP support is not shipped to npm builds.
+
 ## [0.11.0] - 2020-01-10
 
 ### Added
