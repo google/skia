@@ -139,7 +139,7 @@ static sk_sp<SkSurface> make_gl_surface(GrContext* grContext, int width, int hei
     return skiaView;
 }
 - (SkiaViewController*) getViewController:(UIView*)view {
-    return [view isKindOfClass:[SkiaGLView class]] ? [view controller] : nil;
+    return [view isKindOfClass:[SkiaGLView class]] ? [(SkiaGLView*)view controller] : nil;
 }
 @end
 

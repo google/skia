@@ -110,7 +110,7 @@
 }
 
 - (SkiaViewController*) getViewController:(UIView*)view {
-    return [view isKindOfClass:[SkiaMtkView class]] ? [view controller] : nil;
+    return [view isKindOfClass:[SkiaMtkView class]] ? [(SkiaMtkView*)view controller] : nil;
 }
 @end
 
