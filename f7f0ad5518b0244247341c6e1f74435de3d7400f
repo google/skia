@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "373a21fe_f4946ed4",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25fdb3ea_b1e86c8c",
+      "range": {
+        "startLine": 12,
+        "startChar": 37,
+        "endLine": 12,
+        "endChar": 59
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8be2867e_311382ce",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -56,6 +80,24 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2a1df27_43e7e9bd",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e48d5fd6_6880ed82",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -99,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "522d0c5f_bf57f085",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "a9ee2528_a5e4b43d",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cf02782_e33f9606",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -122,6 +182,30 @@
     },
     {
       "key": {
+        "uuid": "32857290_f580dfba",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0cf02782_e33f9606",
+      "range": {
+        "startLine": 462,
+        "startChar": 40,
+        "endLine": 462,
+        "endChar": 54
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b17b67d_6b1a538c",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -139,6 +223,24 @@
     },
     {
       "key": {
+        "uuid": "958f9571_fce9eef5",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Too many holes in the tests. I added a bunch of tests which exercise this as part of fixing it.",
+      "parentUuid": "1b17b67d_6b1a538c",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ad14099_2f8be9b3",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -153,6 +255,24 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "543eaed1_fb7201d1",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ad14099_2f8be9b3",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -202,6 +322,30 @@
     },
     {
       "key": {
+        "uuid": "7421a873_bebffe7f",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "It\u0027s now \u0027operandType\u0027 as part of fixing the promotion logic, so I think it\u0027s clear without a comment.",
+      "parentUuid": "dbe4ba96_0f6adf93",
+      "range": {
+        "startLine": 567,
+        "startChar": 52,
+        "endLine": 567,
+        "endChar": 57
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b265bbfb_244bdce4",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -216,6 +360,24 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "68564377_3b83d7e5",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Again, added tests to actually catch this. If nothing else, this exercise has been helpful for illustrating how much better the test coverage needs to be.",
+      "parentUuid": "b265bbfb_244bdce4",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -242,6 +404,30 @@
     },
     {
       "key": {
+        "uuid": "890203c9_6b27118f",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f0d354c0_6637f91f",
+      "range": {
+        "startLine": 654,
+        "startChar": 0,
+        "endLine": 669,
+        "endChar": 9
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2940b486_9ebe0fc7",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -262,6 +448,30 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac3d3f3e_c5bdb6f7",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2940b486_9ebe0fc7",
+      "range": {
+        "startLine": 744,
+        "startChar": 0,
+        "endLine": 754,
+        "endChar": 5
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -328,6 +538,30 @@
     },
     {
       "key": {
+        "uuid": "8c45fd5c_199c9d6f",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "3407d89b_e79b25ed",
+      "range": {
+        "startLine": 1203,
+        "startChar": 0,
+        "endLine": 1205,
+        "endChar": 50
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9946bd05_380bf5c4",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 35
@@ -348,6 +582,30 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b23f8299_fcbc9cfb",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "This return should only ever be reachable in void functions; if it were reachable, the compiler should have reported an error before reaching this point. I feel like just removing the fallthrough return in non-void functions kind of misses the point, so to ensure that this works as expected, I instead added an abort opcode and changed it to add either a return or an abort depending on whether the function returns void.",
+      "parentUuid": "9946bd05_380bf5c4",
+      "range": {
+        "startLine": 1356,
+        "startChar": 0,
+        "endLine": 1356,
+        "endChar": 48
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -374,6 +632,30 @@
     },
     {
       "key": {
+        "uuid": "d6c86c58_3e3cec8f",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7eab5436_bca2bf2d",
+      "range": {
+        "startLine": 1386,
+        "startChar": 20,
+        "endLine": 1386,
+        "endChar": 61
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "58bbd2e5_2e0bbbcb",
         "filename": "src/sksl/SkSLByteCodeGenerator.h",
         "patchSetId": 35
@@ -388,6 +670,24 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4bec04e_5c0452ad",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58bbd2e5_2e0bbbcb",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -414,6 +714,30 @@
     },
     {
       "key": {
+        "uuid": "cd909ce3_09d3a3b0",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Outdated comment, fixed.",
+      "parentUuid": "48d88fcf_24d48df6",
+      "range": {
+        "startLine": 230,
+        "startChar": 56,
+        "endLine": 230,
+        "endChar": 75
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edee993d_bc28c690",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 35
@@ -431,6 +755,24 @@
     },
     {
       "key": {
+        "uuid": "95192414_949c7e1f",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Not any more, oops!",
+      "parentUuid": "edee993d_bc28c690",
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03c505b2_1a429b27",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 35
@@ -442,6 +784,30 @@
       "writtenOn": "2020-01-10T20:55:36Z",
       "side": 1,
       "message": "I may need to go dig into ByteCodeGenerator (which is next on my list), but I\u0027m confused how this works. I get that the locals and parameters use the stack that grows down from the end of the memory block, but what about registers that are in use in the calling function? Does each function use a disjoint block of registers? Or can the callee end up trashing the caller\u0027s register values?",
+      "range": {
+        "startLine": 889,
+        "startChar": 22,
+        "endLine": 889,
+        "endChar": 27
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a57bade2_9111cfa1",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 889,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Currently registers are SSA and not shared between disparate functions. Obviously that\u0027s going to change in a future CL.",
+      "parentUuid": "03c505b2_1a429b27",
       "range": {
         "startLine": 889,
         "startChar": 22,
@@ -477,6 +843,30 @@
     },
     {
       "key": {
+        "uuid": "7522a3f8_6b36c0f7",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "I also reordered the parameters to put target first, for consistency with my other opcodes.",
+      "parentUuid": "c8ea8d11_bc35c213",
+      "range": {
+        "startLine": 891,
+        "startChar": 0,
+        "endLine": 892,
+        "endChar": 83
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "201aa2b6_62c078a2",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 35
@@ -488,6 +878,30 @@
       "writtenOn": "2020-01-10T20:55:36Z",
       "side": 1,
       "message": "These were fine with a limit of 4 in the old interpreter. Any reason to bump them up so much?",
+      "range": {
+        "startLine": 913,
+        "startChar": 0,
+        "endLine": 916,
+        "endChar": 48
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20f4732c_4ed1ab43",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "These are slot counts, so a single matrix would blow past that limit. The return count probably doesn\u0027t need to be that big (only possible to hit it when returning a struct), but I didn\u0027t think allocating a few hundred bytes once on an interpreter stack was really a huge concern.",
+      "parentUuid": "201aa2b6_62c078a2",
       "range": {
         "startLine": 913,
         "startChar": 0,
@@ -520,6 +934,30 @@
       "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cdd7788_95358e6a",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 35
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Outdated comment, deleted.",
+      "parentUuid": "ef08f762_8348cb37",
+      "range": {
+        "startLine": 1215,
+        "startChar": 44,
+        "endLine": 1215,
+        "endChar": 63
+      },
+      "revId": "f7f0ad5518b0244247341c6e1f74435de3d7400f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

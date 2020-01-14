@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "57104590_9a12ae51",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Well, it was 2019 when I wrote that! :-)",
+      "parentUuid": "74a476ce_985e3ab2",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bc028d51_2efc4b19",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -95,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9e50a416_11f4c1bb",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Outdated comment, fixed.",
+      "parentUuid": "bc028d51_2efc4b19",
+      "range": {
+        "startLine": 118,
+        "startChar": 22,
+        "endLine": 118,
+        "endChar": 44
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "776f7d21_2d034ac1",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -106,6 +154,30 @@
       "writtenOn": "2020-01-10T20:07:29Z",
       "side": 1,
       "message": "Oof, this is a pretty big memory cost per instance.",
+      "range": {
+        "startLine": 138,
+        "startChar": 47,
+        "endLine": 138,
+        "endChar": 75
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02974564_6326ab61",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Temporary; the plan is of course to calculate exactly how much memory and how many registers are needed (and to massively reduce the number of registers needed).",
+      "parentUuid": "776f7d21_2d034ac1",
       "range": {
         "startLine": 138,
         "startChar": 47,
@@ -141,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "242f67c0_2abb7a2d",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "df695667_700c8044",
+      "range": {
+        "startLine": 185,
+        "startChar": 73,
+        "endLine": 185,
+        "endChar": 91
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddf75cc7_492e2d1b",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -161,6 +257,30 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d613228_b4a1c0a5",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "I swear I remember deleting those.",
+      "parentUuid": "ddf75cc7_492e2d1b",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 231,
+        "endChar": 5
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -204,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "050c95b2_4e1070f8",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3d65da2d_964bf9f7",
+      "range": {
+        "startLine": 321,
+        "startChar": 16,
+        "endLine": 321,
+        "endChar": 51
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d7fe84b_d1894bad",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -224,6 +368,30 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fce585e2_de740730",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0d7fe84b_d1894bad",
+      "range": {
+        "startLine": 347,
+        "startChar": 16,
+        "endLine": 347,
+        "endChar": 67
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -250,6 +418,30 @@
     },
     {
       "key": {
+        "uuid": "30d46e02_d9bbbcf6",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "859f6d6c_fd973b3e",
+      "range": {
+        "startLine": 413,
+        "startChar": 24,
+        "endLine": 413,
+        "endChar": 38
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fcf7f14_17675fab",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -270,6 +462,30 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f36a425_a4638ac0",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fcf7f14_17675fab",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 423,
+        "endChar": 50
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -296,6 +512,30 @@
     },
     {
       "key": {
+        "uuid": "44c29d08_0fd4f4d0",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Inverse originally worked in place, and I forgot to remove the memcpy when I changed it. Fixed.",
+      "parentUuid": "5de8b51b_dfa7e64f",
+      "range": {
+        "startLine": 955,
+        "startChar": 20,
+        "endLine": 955,
+        "endChar": 26
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14f53fa7_6b3d36ad",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -316,6 +556,30 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12906e42_3c1a4a27",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "14f53fa7_6b3d36ad",
+      "range": {
+        "startLine": 981,
+        "startChar": 97,
+        "endLine": 981,
+        "endChar": 98
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -342,6 +606,30 @@
     },
     {
       "key": {
+        "uuid": "24f5c9f1_ab0cf0ae",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "470356eb_ad71f440",
+      "range": {
+        "startLine": 1137,
+        "startChar": 24,
+        "endLine": 1137,
+        "endChar": 79
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e15bb4b_8bbfdb58",
         "filename": "src/sksl/SkSLInterpreter.h",
         "patchSetId": 34
@@ -362,6 +650,30 @@
       "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e885399d_7091f3a6",
+        "filename": "src/sksl/SkSLInterpreter.h",
+        "patchSetId": 34
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-14T22:01:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8e15bb4b_8bbfdb58",
+      "range": {
+        "startLine": 1142,
+        "startChar": 88,
+        "endLine": 1142,
+        "endChar": 89
+      },
+      "revId": "2b5f5f5231226cf40d6f25416850bab8cf9f77c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
