@@ -187,12 +187,13 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
     // fContext->vaildaPMUPMConversionExists()).
     GrBackendFormat defaultRGBAFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                       GrRenderable::kYes);
+    GrColorType srcColorType = this->colorInfo().colorType();
     bool canvas2DFastPath = unpremul && !needColorConversion &&
                             (GrColorType::kRGBA_8888 == dstInfo.colorType() ||
                              GrColorType::kBGRA_8888 == dstInfo.colorType()) &&
                             SkToBool(srcProxy->asTextureProxy()) &&
-                            (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
-                             srcProxy->config() == kBGRA_8888_GrPixelConfig) &&
+                            (srcColorType == GrColorType::kRGBA_8888 ||
+                             srcColorType == GrColorType::kBGRA_8888) &&
                             defaultRGBAFormat.isValid() &&
                             direct->priv().validPMUPMConversionExists();
 
@@ -339,14 +340,15 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
     auto rgbaDefaultFormat = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                            GrRenderable::kNo);
 
+    GrColorType dstColorType = this->colorInfo().colorType();
     // For canvas2D putImageData performance we have a special code path for unpremul RGBA_8888 srcs
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
     bool canvas2DFastPath = !caps->avoidWritePixelsFastPath() && premul && !needColorConversion &&
                             (srcInfo.colorType() == GrColorType::kRGBA_8888 ||
                              srcInfo.colorType() == GrColorType::kBGRA_8888) &&
                             SkToBool(this->asRenderTargetContext()) &&
-                            (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
-                             dstProxy->config() == kBGRA_8888_GrPixelConfig) &&
+                            (dstColorType == GrColorType::kRGBA_8888 ||
+                             dstColorType == GrColorType::kBGRA_8888) &&
                             rgbaDefaultFormat.isValid() &&
                             direct->priv().validPMUPMConversionExists();
 
@@ -483,9 +485,8 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
 
     SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
     SkASSERT(src->origin() == this->asSurfaceProxy()->origin());
-    SkASSERT(caps->makeConfigSpecific(src->config(), src->backendFormat()) ==
-             caps->makeConfigSpecific(this->asSurfaceProxy()->config(),
-                                      this->asSurfaceProxy()->backendFormat()));
+    SkASSERT(src->textureSwizzle() == this->asSurfaceProxy()->textureSwizzle());
+    SkASSERT(src->backendFormat() == this->asSurfaceProxy()->backendFormat());
 
     if (!caps->canCopySurface(this->asSurfaceProxy(), src, srcRect, dstPoint)) {
         return false;
