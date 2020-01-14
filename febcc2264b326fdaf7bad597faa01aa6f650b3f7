@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0e012bd8_d98226db",
+        "filename": "gm/flippity.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T19:15:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c357017_f6dcf6f9",
+      "revId": "febcc2264b326fdaf7bad597faa01aa6f650b3f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9138fe2c_fb679863",
         "filename": "gm/image_pict.cpp",
         "patchSetId": 2
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "adea4b20_35f1f1ae",
+        "filename": "gm/image_pict.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T19:15:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9138fe2c_fb679863",
+      "range": {
+        "startLine": 293,
+        "startChar": 68,
+        "endLine": 293,
+        "endChar": 87
+      },
+      "revId": "febcc2264b326fdaf7bad597faa01aa6f650b3f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efc477e2_30f44ec9",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2020-01-14T18:42:28Z",
       "side": 1,
       "message": "What does A565 mean ?",
+      "range": {
+        "startLine": 1311,
+        "startChar": 13,
+        "endLine": 1311,
+        "endChar": 18
+      },
+      "revId": "febcc2264b326fdaf7bad597faa01aa6f650b3f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b41ba9a5_399f61df",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T19:15:13Z",
+      "side": 1,
+      "message": "¯\\_(ツ)_/¯",
+      "parentUuid": "efc477e2_30f44ec9",
       "range": {
         "startLine": 1311,
         "startChar": 13,
