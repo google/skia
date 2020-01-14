@@ -42,6 +42,7 @@ def find_repo_root():
     next_cwd = os.path.dirname(cwd)
     if next_cwd == cwd:
       raise Exception('Failed to find repo root!')
+    cwd = next_cwd
 
 
 def get_jobs(repo):
