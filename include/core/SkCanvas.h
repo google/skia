@@ -42,6 +42,7 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
+class SkM44;
 class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
@@ -2502,6 +2503,8 @@ public:
         example: https://fiddle.skia.org/c/@Clip
     */
     SkMatrix getTotalMatrix() const;
+
+    SkM44 getTotalM44() const;
 
     ///////////////////////////////////////////////////////////////////////////
 

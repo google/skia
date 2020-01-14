@@ -1797,6 +1797,10 @@ SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
+SkM44 SkCanvas::getTotalM44() const {
+    return fMCRec->fMatrix;
+}
+
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
     SkBaseDevice* dev = this->getTopDevice();
     return dev ? dev->accessRenderTargetContext() : nullptr;
