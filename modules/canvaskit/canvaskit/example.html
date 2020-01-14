@@ -116,6 +116,11 @@
     AtlasAPI1(CanvasKit, mandrillData);
   });
 
+  fetch('./red_line.skp').then((response) => response.arrayBuffer()).then((buffer) => {
+    skpData = buffer;
+    SkpExample(CanvasKit, skpData);
+  });
+
   function DrawingExample(CanvasKit, robotoData) {
     if (!robotoData || !CanvasKit) {
       return;
@@ -1273,4 +1278,26 @@
     surface.requestAnimationFrame(drawFrame);
 
   }
+
+  function SkpExample(CanvasKit, skpData) {
+    if (!skpData || !CanvasKit) {
+      return;
+    }
+
+    const surface = CanvasKit.MakeSWCanvasSurface('skp');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const pic = CanvasKit.MakeSkPicture(skpData);
+
+    function drawFrame(canvas) {
+      canvas.clear(CanvasKit.TRANSPARENT);
+      canvas.drawPicture(pic);
+      // Intentionally just draw frame once
+    }
+    surface.requestAnimationFrame(drawFrame);
+  }
+
 </script>
