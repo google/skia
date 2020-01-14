@@ -21,11 +21,7 @@ if (is_ios) {
       "main.mm",
     ]
     if (skia_enable_gpu && skia_use_metal) {
-      sources += [
-        "SkMetalViewBridge.h",
-        "SkMetalViewBridge.mm",
-        "SkiaMetalContext.mm",
-      ]
+      sources += [ "SkiaMetalContext.mm" ]
     } else if (skia_enable_gpu && skia_use_gl) {
       sources += [ "SkiaGLContext.mm" ]
     } else {
