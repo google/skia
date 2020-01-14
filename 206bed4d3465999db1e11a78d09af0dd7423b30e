@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aec9db27_b2248992",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-14T20:50:56Z",
+      "side": 1,
+      "message": "This was meant to be an unclamped draw because it\u0027s known to not touch the edges of the proxy. The kClamp tilemode should be fine, but we probably want to pass in [0, wh] to ensure we\u0027re just using the sampler wrap mode instead of a shader clamp?",
+      "range": {
+        "startLine": 260,
+        "startChar": 49,
+        "endLine": 260,
+        "endChar": 55
+      },
+      "revId": "206bed4d3465999db1e11a78d09af0dd7423b30e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02c8ec18_f80d93cc",
+        "filename": "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-14T20:50:56Z",
+      "side": 1,
+      "message": "\", because we don\u0027t have access to GrCaps to check\"?",
+      "range": {
+        "startLine": 261,
+        "startChar": 65,
+        "endLine": 261,
+        "endChar": 70
+      },
+      "revId": "206bed4d3465999db1e11a78d09af0dd7423b30e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
