@@ -1306,6 +1306,18 @@ namespace skvm {
         this->byte(mod_rm(Mod::Indirect, dst&7, src&7));
     }
 
+    void Assembler::vmovd(Xmm dst, Scale scale, GP64 index, GP64 base) {
+        int prefix = 0x66,
+            map    = 0x0f,
+            opcode = 0x6e;
+        VEX v = vex(0, dst>>3, index>>3, base>>3,
+                    map, 0, /*ymm?*/0, prefix);
+        this->bytes(v.bytes, v.len);
+        this->byte(opcode);
+        this->byte(mod_rm(Mod::Indirect, dst&7, rsp));
+        this->byte(sib(scale, index&7, base&7));
+    }
+
     void Assembler::vmovd_direct(Xmm dst, GP64 src) {
         int prefix = 0x66,
             map    = 0x0f,
@@ -1398,7 +1410,7 @@ namespace skvm {
                     map, mask, /*ymm?*/1, prefix);
         this->bytes(v.bytes, v.len);
         this->byte(opcode);
-        this->byte(mod_rm(Mod::Indirect, dst&7, 0b100/*TODO: what do these 0b100 bits mean?*/));
+        this->byte(mod_rm(Mod::Indirect, dst&7, rsp));
         this->byte(sib(scale, ix&7, base&7));
     }
 
@@ -2089,9 +2101,10 @@ namespace skvm {
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
-        A::GP64 N       = A::rdi,
-                scratch = A::rax,
-                arg[]   = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
+        A::GP64 N        = A::rdi,
+                scratch  = A::rax,
+                scratch2 = A::r11,
+                arg[]    = { A::rsi, A::rdx, A::rcx, A::r8, A::r9 };
 
         // All 16 ymm registers are available to use.
         using Reg = A::Ymm;
@@ -2171,7 +2184,7 @@ namespace skvm {
             // We track each instruction's dst in r[] so we can thread it through as an input
             // to any future instructions needing that value.
             //
-            // And some ops may need a temporary scratch register, tmp.  Some need both tmp and dst.
+            // And some ops may need a temporary register, tmp.  Some need both tmp and dst.
             //
             // tmp and dst are very similar and can and will often be assigned the same register,
             // but tmp may never alias any of the instructions's inputs, while dst may when this
@@ -2190,7 +2203,7 @@ namespace skvm {
                 if (!tmp_is_set) {
                     tmp_is_set = true;
                     if (int found = __builtin_ffs(avail)) {
-                        // This is a scratch register just for this op,
+                        // This is a temporary register just for this op,
                         // so we leave it marked available for future ops.
                         tmp_reg = (Reg)(found - 1);
                     } else {
@@ -2307,7 +2320,19 @@ namespace skvm {
                                  else        { a->vmovups(        dst(), arg[immy]); }
                                  break;
 
-                case Op::gather32: {
+                case Op::gather32:
+                if (scalar) {
+                    auto base  = scratch,
+                         index = scratch2;
+                    // Our gather base pointer is immz bytes off of uniform immy.
+                    a->movq(base, arg[immy], immz);
+
+                    // Grab our index from lane 0 of the index argument.
+                    a->vmovd_direct(index, (A::Xmm)r[x]);
+
+                    // dst = *(base + 4*index)
+                    a->vmovd((A::Xmm)dst(), A::FOUR, index, base);
+                } else {
                     // We may not let any of dst(), index, or mask use the same register,
                     // so we must allocate registers manually and very carefully.
 
@@ -2335,12 +2360,10 @@ namespace skvm {
                     }
 
                     // Our gather base pointer is immz bytes off of uniform immy.
-                    a->movq(scratch, arg[immy], immz);
+                    auto base = scratch;
+                    a->movq(base, arg[immy], immz);
                     a->vpcmpeqd(mask, mask, mask);   // (All lanes enabled.)
-                    a->vgatherdps(dst(), A::FOUR, index, scratch, mask);
-
-                    // TODO: simpler impl. when scalar == true?
-                    // TODO: at least disable the other mask lanes?
+                    a->vgatherdps(dst(), A::FOUR, index, base, mask);
                 }
                 break;
 
