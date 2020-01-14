@@ -39,7 +39,10 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
     cc, cxx: compiler binaries to use
     out: target directory for libEGL.so and libGLESv2.so
   """
-  swiftshader_opts = ['-DBUILD_TESTS=OFF', '-DWARNINGS_AS_ERRORS=0']
+  swiftshader_opts = [
+      '-DSWIFTSHADER_BUILD_TESTS=OFF',
+      '-DSWIFTSHADER_WARNINGS_AS_ERRORS=0',
+  ]
   cmake_bin = str(api.vars.slave_dir.join('cmake_linux', 'bin'))
   env = {
       'CC': cc,
@@ -60,7 +63,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
       '-I%s/include/c++/v1' % libcxx_msan,
     ])
     swiftshader_opts.extend([
-      '-DMSAN=ON',
+      '-DSWIFTSHADER_MSAN=ON',
       '-DCMAKE_C_FLAGS=%s' % msan_cflags,
       '-DCMAKE_CXX_FLAGS=%s' % msan_cflags,
     ])
