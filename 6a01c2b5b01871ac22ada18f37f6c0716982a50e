@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c080a87_87a9de11",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2322,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-14T17:17:38Z",
+      "side": 1,
+      "message": "I don\u0027t understand why you are toggling? Can you just clear it, or is there something clever I\u0027m missing?",
+      "range": {
+        "startLine": 2322,
+        "startChar": 24,
+        "endLine": 2322,
+        "endChar": 58
+      },
+      "revId": "6a01c2b5b01871ac22ada18f37f6c0716982a50e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
