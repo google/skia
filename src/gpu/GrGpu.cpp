@@ -272,6 +272,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
                                                 const GrBackendFormat& format,
                                                 SkBudgeted budgeted,
+                                                GrMipMapped mipMapped,
                                                 const void* data,
                                                 size_t dataSize) {
     this->handleDirtyContext();
@@ -291,11 +292,10 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
     // TODO: expand CompressedDataIsCorrect to work here too
     SkImage::CompressionType compressionType = this->caps()->compressionType(format);
 
-    if (dataSize < GrCompressedDataSize(compressionType, dimensions,
-                                        nullptr, GrMipMapped::kNo)) {
+    if (dataSize < GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped)) {
         return nullptr;
     }
-    return this->onCreateCompressedTexture(dimensions, format, budgeted, data, dataSize);
+    return this->onCreateCompressedTexture(dimensions, format, budgeted, mipMapped, data, dataSize);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
