@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ad95d3fc_9136acc1",
+        "filename": "src/gpu/GrProgramInfo.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T21:19:09Z",
+      "side": 0,
+      "message": "for dynamic textures checking the config here basically is checking that swizzles (via GrcolorType) and backend formats are the same. But we don\u0027t actually use the swizzle off the proxies but instead use one global swizzle for all the proxies. So we don\u0027t really gain much with this assert here now.",
+      "range": {
+        "startLine": 62,
+        "startChar": 16,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "b2b6a99dcafe7d2f000538af1616e3b49d6c3836",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0de6d5c_bf0f1017",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T21:19:09Z",
+      "side": 1,
+      "message": "Comparing configs is basically the same as comparing backend format and color type combos. However, the color type on this level is only really used for getting a swizzle.\n\nThis is valid cause all we are asking is can I copy this proxy into another. Our copySurface is already defined to ignore origin and swizzle while copying (that is the responsibility of calling code to handle if they care). So the only real check we need is that their backend formats are the same.",
+      "range": {
+        "startLine": 280,
+        "startChar": 7,
+        "endLine": 280,
+        "endChar": 53
+      },
+      "revId": "b2311154ffd66ed5b3f84e668f1db307e423954b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b8d2bb4_e8f91459",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T21:19:09Z",
+      "side": 1,
+      "message": "So changing this from config to colorType is valid today. Having an RGBA/BGRA_8888_PixelConfig means that we had a colorType of GrColorType::kRGBA/BGRA_8888 and a backendFormat that is the typical RGBA/BGRA_8888 unorm format for the given API. Today the only formats that back an RGBA_8888 colorType are these basic formats. So by just checking the colorType we know we have a valid backendFormat as well and don\u0027t need to check that they are the APIs RGBA/BGRA_8888 format.\n\nIf however in the future we allow the GrColorType::kRGBA/BGRA_8888 to be backed by weirder formats that can\u0027t do this canvas2DFastPath then we\u0027d need a way to check the formats are safe as well as the colorType. I could add to caps a silly query like \"bool isFormatRGBAorBGRA888Unorm(GrBackendFormat)\", but I feel like that is not needed now. Thoughts?",
+      "range": {
+        "startLine": 195,
+        "startChar": 29,
+        "endLine": 196,
+        "endChar": 67
+      },
+      "revId": "b2311154ffd66ed5b3f84e668f1db307e423954b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b1ffe6e_b9786b4f",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T21:19:09Z",
+      "side": 1,
+      "message": "ditto above",
+      "range": {
+        "startLine": 350,
+        "startChar": 29,
+        "endLine": 351,
+        "endChar": 68
+      },
+      "revId": "b2311154ffd66ed5b3f84e668f1db307e423954b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ba05a71_870879e3",
+        "filename": "src/gpu/GrTextureProxy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-14T21:19:09Z",
+      "side": 1,
+      "message": "We already checked the backendFormat here, so checking the config really only adds checking the swizzles between the two proxies are the same as well (cause config infers a GrColorType). However, when adding proxies as dynamicState we already store a swizzle that is checked separately. So there is not need to check the swizzle here for individual proxies.",
+      "range": {
+        "startLine": 154,
+        "startChar": 11,
+        "endLine": 154,
+        "endChar": 91
+      },
+      "revId": "b2311154ffd66ed5b3f84e668f1db307e423954b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
