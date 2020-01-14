@@ -213,7 +213,7 @@ echo "Compiling bitcode"
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_READBUFFER\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
@@ -273,7 +273,6 @@ ${EMCXX} \
     -Ithird_party/icu \
     -Ithird_party/skcms \
     -Ithird_party/externals/icu/source/common/ \
-    -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \
     $WASM_PATHOPS \

@@ -890,6 +890,20 @@ CanvasKit.MakeLinearGradientShader = function(start, end, colors, pos, mode, loc
   return lgs;
 }
 
+// data is a TypedArray or ArrayBuffer e.g. from fetch().then(resp.arrayBuffer())
+CanvasKit.MakeSkPicture = function(data) {
+  data = new Uint8Array(data);
+
+  var iptr = CanvasKit._malloc(data.byteLength);
+  CanvasKit.HEAPU8.set(data, iptr);
+  var pic = CanvasKit._MakeSkPicture(iptr, data.byteLength);
+  if (!pic) {
+    SkDebug('Could not decode picture');
+    return null;
+  }
+  return pic;
+}
+
 CanvasKit.MakeRadialGradientShader = function(center, radius, colors, pos, mode, localMatrix, flags) {
   var colorPtr = copy1dArray(colors, CanvasKit.HEAPU32);
   var posPtr =   copy1dArray(pos,    CanvasKit.HEAPF32);
