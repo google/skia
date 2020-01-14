@@ -705,6 +705,8 @@ typedef void (*sk_image_texture_release_proc)(void* context);
 
 typedef void (*sk_surface_raster_release_proc)(void* addr, void* context);
 
+typedef void (*sk_glyph_path_proc)(const sk_path_t* pathOrNull, const sk_matrix_t* matrix, void* context);
+
 typedef enum {
     ALLOW_SK_IMAGE_CACHING_HINT,
     DISALLOW_SK_IMAGE_CACHING_HINT,

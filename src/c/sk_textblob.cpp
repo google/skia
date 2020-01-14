@@ -30,6 +30,10 @@ void sk_textblob_get_bounds(const sk_textblob_t* blob, sk_rect_t* bounds) {
     *bounds = ToRect(AsTextBlob(blob)->bounds());
 }
 
+int sk_textblob_get_intercepts(const sk_textblob_t* blob, const float bounds[2], float intervals[], const sk_paint_t* paint) {
+    return AsTextBlob(blob)->getIntercepts(bounds, intervals, AsPaint(paint));
+}
+
 
 sk_textblob_builder_t* sk_textblob_builder_new(void) {
     return ToTextBlobBuilder(new SkTextBlobBuilder());

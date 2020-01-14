@@ -207,6 +207,19 @@ static inline sk_matrix_t ToMatrix(const SkMatrix* matrix) {
     m.persp2 = matrix->get(SkMatrix::kMPersp2);
     return m;
 }
+static inline sk_matrix_t ToMatrix(const SkMatrix& matrix) {
+    sk_matrix_t m;
+    m.scaleX = matrix.get(SkMatrix::kMScaleX);
+    m.skewX  = matrix.get(SkMatrix::kMSkewX);
+    m.transX = matrix.get(SkMatrix::kMTransX);
+    m.skewY  = matrix.get(SkMatrix::kMSkewY);
+    m.scaleY = matrix.get(SkMatrix::kMScaleY);
+    m.transY = matrix.get(SkMatrix::kMTransY);
+    m.persp0 = matrix.get(SkMatrix::kMPersp0);
+    m.persp1 = matrix.get(SkMatrix::kMPersp1);
+    m.persp2 = matrix.get(SkMatrix::kMPersp2);
+    return m;
+}
 
 #include "include/core/SkImageInfo.h"
 static inline SkImageInfo AsImageInfo(const sk_imageinfo_t* info) {
