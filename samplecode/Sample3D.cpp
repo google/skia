@@ -9,6 +9,7 @@
 #include "include/core/SkMatrix44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
+#include "include/private/SkM44.h"
 #include "include/utils/Sk3D.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
@@ -46,21 +47,17 @@ protected:
     }
 
 public:
-    SkMatrix44 get44(const SkRect& r, const SkMatrix44& model) const {
+    void setupCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
         SkMatrix44  camera,
                     perspective,
-                    translate,
                     viewport;
-
-        SkScalar w = r.width();
-        SkScalar h = r.height();
 
         Sk3Perspective(&perspective, fNear, fFar, fAngle);
         Sk3LookAt(&camera, fEye, fCOA, fUp);
-        translate.setTranslate(fTrans.fX, fTrans.fY, fTrans.fZ);
-        viewport.setScale(w*0.5f, h*0.5f, 1).postTranslate(r.centerX(), r.centerY(), 0);
+        viewport.setScale(area.width()*0.5f, area.height()*0.5f, zscale)
+                .postTranslate(area.centerX(), area.centerY(), 0);
 
-        return viewport * perspective * camera * translate * fRot * model * inv(viewport);
+        canvas->concat(viewport * perspective * camera * inv(viewport));
     }
 
     bool onChar(SkUnichar uni) override {
@@ -149,19 +146,16 @@ struct Face {
     }
 };
 
-static void transpose(SkMatrix44* m) {
-    SkScalar array[16];
-    m->asColMajorf(array);
-    m->setColMajor(array);
-}
-
-static bool front(const SkMatrix44& m) {
-    SkMatrix44 m2;
+static bool front(const SkM44& m) {
+    SkM44 m2;
     m.invert(&m2);
-    transpose(&m2);
-
-    auto v = m2 * SkVector4{0, 0, 1, 0};
-    return v.fData[2] > 0;
+    /*
+     *  Classically we want to dot the transpose(inverse(ctm)) with our surface normal.
+     *  In this case, the normal is known to be {0, 0, 1}, so we only actually need to look
+     *  at the z-scale of the inverse (the transpose doesn't change the main diagonal, so
+     *  no need to actually transpose).
+     */
+    return m2.atColMajor(10) > 0;
 }
 
 const Face faces[] = {
@@ -193,11 +187,13 @@ class SampleRR3D : public Sample3DView {
     }
 
     void drawContent(SkCanvas* canvas, const SkMatrix44& m) {
-        auto mx = this->get44({0, 0, 400, 400}, m);
-        canvas->concat(mx);
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
+
+        canvas->concat(trans * fRot * m * inv(trans));
 
         SkPaint paint;
-        paint.setAlphaf(front(mx) ? 1 : 0.25f);
+        paint.setAlphaf(front(canvas->getTotalM44()) ? 1 : 0.25f);
         paint.setShader(fShader);
         canvas->drawRRect(fRR, paint);
     }
@@ -205,9 +201,11 @@ class SampleRR3D : public Sample3DView {
     void onDrawContent(SkCanvas* canvas) override {
         canvas->translate(400, 300);
 
+        this->setupCamera(canvas, {0, 0, 400, 400}, 200);
+
         for (auto f : faces) {
             SkAutoCanvasRestore acr(canvas, true);
-            this->drawContent(canvas, f.asM44(1));
+            this->drawContent(canvas, f.asM44(200));
         }
     }
 };
