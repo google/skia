@@ -28,7 +28,6 @@ EMAR=`which emar`
 RELEASE_CONF="-Oz --closure 1 --llvm-lto 1 -DSK_RELEASE --pre-js $BASE_DIR/release.js \
               -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
 EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
-SKP_JS=""
 
 # Tracing will be disabled in release/profiling unless this flag is seen. Tracing will
 # be on debug builds always.
@@ -42,7 +41,6 @@ if [[ $@ == *debug* ]]; then
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
   RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
                 --source-map-base /node_modules/canvaskit/bin/ -DSK_DEBUG --pre-js $BASE_DIR/debug.js"
-  SKP_JS="--pre-js $BASE_DIR/skp.js"
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_debug"}
 elif [[ $@ == *profiling* ]]; then
   echo "Building a build for profiling"
@@ -50,13 +48,6 @@ elif [[ $@ == *profiling* ]]; then
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm_profile"}
 else
   BUILD_DIR=${BUILD_DIR:="out/canvaskit_wasm"}
-fi
-
-# This should only be set by clients who are trying to serialize an
-# skp to include in a bug report and for whatever reason, it is not
-# showing up in a debug build.
-if [[ $@ == *force_serialize_skp* ]] ; then
-  RELEASE_CONF+=" -DSK_FORCE_SERIALIZE_SKP"
 fi
 
 mkdir -p $BUILD_DIR
@@ -74,6 +65,15 @@ if [[ $@ == *cpu* ]]; then
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
   WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
+fi
+
+SKP_JS="--pre-js $BASE_DIR/skp.js"
+GN_SKP_FLAGS=""
+WASM_SKP="-DSK_SERIALIZE_SKP"
+if [[ $@ == *no_skp* ]]; then
+  GN_SKP_FLAGS="\"-DSK_DISABLE_READBUFFER\","
+  WASM_SKP="-DSK_DISABLE_READBUFFER"
+  SKP_JS=""
 fi
 
 SKOTTIE_JS="--pre-js $BASE_DIR/skottie.js"
@@ -213,9 +213,10 @@ echo "Compiling bitcode"
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_READBUFFER\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
     ${GN_GPU_FLAGS}
+    ${GN_SKP_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
@@ -273,11 +274,11 @@ ${EMCXX} \
     -Ithird_party/icu \
     -Ithird_party/skcms \
     -Ithird_party/externals/icu/source/common/ \
-    -DSK_DISABLE_READBUFFER \
     -DSK_DISABLE_AAA \
     $WASM_GPU \
     $WASM_PATHOPS \
     $WASM_RT_SHADER \
+    $WASM_SKP \
     $FONT_CFLAGS \
     -std=c++14 \
     --bind \

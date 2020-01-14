@@ -318,6 +318,30 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can decode and draw an skp', function(done) {
+        const skpPromise = fetch('/assets/red_line.skp')
+            .then((response) => response.arrayBuffer());
+        Promise.all([skpPromise, LoadCanvasKit]).then((values) => {
+            const skpData = values[0];
+            expect(skpData).toBeTruthy();
+            catchException(done, () => {
+                let pic = CanvasKit.MakeSkPicture(skpData);
+                expect(pic).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface');
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                canvas.clear(CanvasKit.TRANSPARENT);
+                canvas.drawPicture(pic);
+
+                reportSurface(surface, 'drawImage_skp', done);
+            })();
+        });
+    });
+
     it('can use DecodeCache APIs', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const initialLimit = CanvasKit.getDecodeCacheLimitBytes();
