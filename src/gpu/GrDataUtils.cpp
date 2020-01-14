@@ -57,25 +57,34 @@ static int test_table_entry(int rOrig, int gOrig, int bOrig,
     return SkTAbs(rOrig - r8) + SkTAbs(gOrig - g8) + SkTAbs(bOrig - b8);
 }
 
-// Create an ETC1 compressed block that is filled with 'col'
-static void create_etc1_block(SkColor col, ETC1Block* block) {
+// Create an ETC1 compressed block that is filled with 'col0'
+static void create_etc1_block(SkColor col0, SkColor col1, ETC1Block* block) {
     uint32_t high = 0;
     uint32_t low = 0;
 
-    int rOrig = SkColorGetR(col);
-    int gOrig = SkColorGetG(col);
-    int bOrig = SkColorGetB(col);
+    int rOrig = SkColorGetR(col0);
+    int gOrig = SkColorGetG(col0);
+    int bOrig = SkColorGetB(col0);
 
     int r5 = SkMulDiv255Round(31, rOrig);
     int g5 = SkMulDiv255Round(31, gOrig);
     int b5 = SkMulDiv255Round(31, bOrig);
 
+    int r52 = SkMulDiv255Round(31, SkColorGetR(col1));
+    int g52 = SkMulDiv255Round(31, SkColorGetG(col1));
+    int b52 = SkMulDiv255Round(31, SkColorGetB(col1));
+
     int r8 = convert_5To8(r5);
     int g8 = convert_5To8(g5);
     int b8 = convert_5To8(b5);
 
+    int dr5 = r52 - r5;
+    int dg5 = g52 - g5;
+    int db5 = b52 - b5;
+
     // We always encode solid color textures as 555 + zero diffs
     high |= (r5 << 27) | (g5 << 19) | (b5 << 11) | 0x2;
+
 
     int bestTableIndex = 0, bestPixelIndex = 0;
     int bestSoFar = 1024;
@@ -134,15 +143,18 @@ struct BC1Block {
     uint32_t fIndices;
 };
 
-// Create a BC1 compressed block that is filled with 'col'
-static void create_BC1_block(SkColor col, BC1Block* block) {
+static uint16_t to565(SkColor col) {
     int r5 = SkMulDiv255Round(31, SkColorGetR(col));
     int g6 = SkMulDiv255Round(63, SkColorGetG(col));
     int b5 = SkMulDiv255Round(31, SkColorGetB(col));
 
-    uint16_t c565 = (r5 << 11) | (g6 << 5) | b5;
-    block->fColor0 = c565;
-    block->fColor1 = c565;
+    return (r5 << 11) | (g6 << 5) | b5;
+}
+
+// Create a BC1 compressed block that is filled with 'col'
+static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
+    block->fColor0 = to565(col0);
+    block->fColor1 = to565(col1);
     // This sets all 16 pixels to just use 'fColor0'
     block->fIndices = 0;
 }
@@ -220,7 +232,7 @@ static void fillin_ETC1_with_color(SkISize dimensions, const SkColor4f& colorf, 
     SkColor color = colorf.toSkColor();
 
     ETC1Block block;
-    create_etc1_block(color, &block);
+    create_etc1_block(color, color, &block);
 
     int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
@@ -235,13 +247,92 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     SkColor color = colorf.toSkColor();
 
     BC1Block block;
-    create_BC1_block(color, &block);
+    create_BC1_block(color, color, &block);
 
     int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
     for (int i = 0; i < numBlocks; ++i) {
         memcpy(dest, &block, sizeof(BC1Block));
         dest += sizeof(BC1Block);
+    }
+}
+
+// Fill in 'dest' with ETC1 blocks derived from the 'pixmap'.
+static void ETC1_2color_compress(const SkPixmap& pixmap, SkColor otherColor, ETC1Block* dest) {
+    SkASSERT(pixmap.colorType() == kRGBA_8888_SkColorType);
+
+    ETC1Block block;
+
+    // black -> fColor0, otherColor -> fColor1
+    create_etc1_block(otherColor, SK_ColorBLACK, &block);
+
+    int numXBlocks = num_ETC1_blocks_w(pixmap.width());
+    int numYBlocks = num_ETC1_blocks_w(pixmap.height());
+
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+#if 0
+            int shift = 0;
+            int offsetX = 4 * x, offsetY = 4 * y;
+            block.fIndices = 0;
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    SkColor tmp = pixmap.getColor(offsetX + j, offsetY + i);
+                    if (tmp == SK_ColorTRANSPARENT) {
+                        // For RGBA BC1 images color3 is set to transparent black
+                        block.fIndices |= 3 << shift;
+                    } else if (tmp != SK_ColorBLACK) {
+                        block.fIndices |= 1 << shift;
+                    }
+                    shift += 2;
+                }
+            }
+#endif
+
+            dest[y*numXBlocks + x] = block;
+        }
+    }
+}
+
+// Fill in 'dest' with BC1 blocks derived from the 'pixmap'.
+
+
+void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
+    BC1Block* dstBlocks = (BC1Block*) dstPixels;
+    SkASSERT(pixmap.colorType() == SkColorType::kRGBA_8888_SkColorType);
+
+    BC1Block block;
+
+    // black -> fColor0, otherColor -> fColor1
+    create_BC1_block(SK_ColorBLACK, otherColor, &block);
+
+    int numXBlocks = num_ETC1_blocks_w(pixmap.width());
+    int numYBlocks = num_ETC1_blocks_w(pixmap.height());
+
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+            int shift = 0;
+            int offsetX = 4 * x, offsetY = 4 * y;
+            block.fIndices = 0;
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    if (offsetX + j >= pixmap.width() || offsetY + i >= pixmap.height()) {
+                        continue;
+                    }
+
+                    SkColor tmp = pixmap.getColor(offsetX + j, offsetY + i);
+                    if (tmp == SK_ColorTRANSPARENT) {
+                        // For RGBA BC1 images color3 is set to transparent black
+                        block.fIndices |= 3 << shift;
+                    } else if (tmp != SK_ColorBLACK) {
+                        block.fIndices |= 1 << shift;
+                    }
+                    shift += 2;
+                }
+            }
+
+            dstBlocks[y*numXBlocks + x] = block;
+        }
     }
 }
 
