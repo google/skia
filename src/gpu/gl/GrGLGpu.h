@@ -201,7 +201,7 @@ private:
                                      uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
-                                               SkBudgeted,
+                                               SkBudgeted, GrMipMapped,
                                                const void* data, size_t dataSize) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
