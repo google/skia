@@ -697,17 +697,32 @@ bool SkImageShader::onProgram(skvm::Builder* p,
         case kBGRA_8888_SkColorType: break;
     }
 
+    // Uniforms possibly used by sample().
+    auto minus_1_ulp = [](float f) {
+        int bits;
+        memcpy(&bits, &f, 4);
+        return bits-1;
+    };
+    skvm::F32  W  = p->uniformF(uniforms->pushF(           pm.width())),
+              IW  = p->uniformF(uniforms->pushF(1.0f/      pm.width())),
+              IW2 = p->uniformF(uniforms->pushF(0.5f/      pm.width())),
+              CW  = p->uniformF(uniforms->push(minus_1_ulp(pm.width())));
+
+    skvm::F32  H  = p->uniformF(uniforms->pushF(           pm.height())),
+              IH  = p->uniformF(uniforms->pushF(1.0f/      pm.height())),
+              IH2 = p->uniformF(uniforms->pushF(0.5f/      pm.height())),
+              CH  = p->uniformF(uniforms->push(minus_1_ulp(pm.height())));
+
+    skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
+    skvm::I32 stride = p->uniform32(uniforms->push(pm.rowBytesAsPixels()));
+
     auto sample = [&](skvm::F32 sx, skvm::F32 sy) -> skvm::Color {
-        // repeat() and mirror() are written assuming they'll be followed by a [0,scale) clamp.
-        auto repeat = [&](skvm::F32 v, float scale) {
-            skvm::F32 S = p->uniformF(uniforms->pushF(     scale)),
-                      I = p->uniformF(uniforms->pushF(1.0f/scale));
+        // repeat() and mirror() are written assuming they'll be followed by a clamp.
+        auto repeat = [&](skvm::F32 v, skvm::F32 S, skvm::F32 I) {
             // v - floor(v/scale)*scale
             return p->sub(v, p->mul(p->floor(p->mul(v,I)), S));
         };
-        auto mirror = [&](skvm::F32 v, float scale) {
-            skvm::F32 S  = p->uniformF(uniforms->pushF(     scale)),
-                      I2 = p->uniformF(uniforms->pushF(0.5f/scale));
+        auto mirror = [&](skvm::F32 v, skvm::F32 S, skvm::F32 I2) {
             // abs( (v-scale) - (2*scale)*floor((v-scale)*(0.5f/scale)) - scale )
             //      {---A---}   {------------------B------------------}
             skvm::F32 A = p->sub(v,S),
@@ -715,34 +730,27 @@ bool SkImageShader::onProgram(skvm::Builder* p,
             return p->abs(p->sub(p->sub(A,B), S));
         };
         switch (fTileModeX) {
-            case SkTileMode::kDecal:  /* handled after gather */ break;
-            case SkTileMode::kClamp:  /*    we always clamp   */ break;
-            case SkTileMode::kRepeat: sx = repeat(sx, pm.width()); break;
-            case SkTileMode::kMirror: sx = mirror(sx, pm.width()); break;
+            case SkTileMode::kDecal: /* handled after gather */ break;
+            case SkTileMode::kClamp: /*    we always clamp   */ break;
+            case SkTileMode::kRepeat: sx = repeat(sx, W, IW );  break;
+            case SkTileMode::kMirror: sx = mirror(sx, W, IW2);  break;
         }
         switch (fTileModeY) {
-            case SkTileMode::kDecal:  /* handled after gather */  break;
-            case SkTileMode::kClamp:  /*    we always clamp   */  break;
-            case SkTileMode::kRepeat: sy = repeat(sy, pm.height()); break;
-            case SkTileMode::kMirror: sy = mirror(sy, pm.height()); break;
+            case SkTileMode::kDecal: /* handled after gather */ break;
+            case SkTileMode::kClamp: /*    we always clamp   */ break;
+            case SkTileMode::kRepeat: sy = repeat(sy, H, IH );  break;
+            case SkTileMode::kMirror: sy = mirror(sy, H, IH2);  break;
         }
 
         // Always clamp sample coordinates to [0,width), [0,height), both for memory
         // safety and to handle the clamps still needed by kClamp, kRepeat, and kMirror.
-        auto clamp = [&](skvm::F32 v, float limit) {
-            // Subtract an ulp so the upper clamp limit excludes limit itself.
-            int bits;
-            memcpy(&bits, &limit, 4);
-            return p->clamp(v, p->splat(0.0f), p->uniformF(uniforms->push(bits-1)));
-        };
-        skvm::F32 clamped_x = clamp(sx, pm. width()),
-                  clamped_y = clamp(sy, pm.height());
+        skvm::F32 clamped_x = p->clamp(sx, p->splat(0.0f), CW),
+                  clamped_y = p->clamp(sy, p->splat(0.0f), CH);
 
         // Load pixels from pm.addr()[(int)sx + (int)sy*stride].
-        skvm::Builder::Uniform img = uniforms->pushPtr(pm.addr());
         skvm::I32 index = p->add(p->trunc(clamped_x),
-                          p->mul(p->trunc(clamped_y),
-                                 p->uniform32(uniforms->push(pm.rowBytesAsPixels()))));
+                          p->mul(p->trunc(clamped_y), stride));
+
         skvm::Color c;
         switch (pm.colorType()) {
             default: SkUNREACHABLE;
