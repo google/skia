@@ -74,7 +74,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
-        auto sContext = GrSurfaceContext::Make(context, std::move(proxy), GrColorType::kAlpha_8,
+
+        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
+        auto sContext = GrSurfaceContext::Make(context, std::move(view), GrColorType::kAlpha_8,
                                                kPremul_SkAlphaType, nullptr);
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
@@ -193,7 +198,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 continue;
             }
 
-            auto sContext = GrSurfaceContext::Make(context, std::move(proxy), info.fColorType,
+            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                       info.fColorType);
+            GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+            auto sContext = GrSurfaceContext::Make(context, std::move(view), info.fColorType,
                                                    kPremul_SkAlphaType, nullptr);
 
             for (auto rowBytes : kRowBytes) {

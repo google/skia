@@ -38,7 +38,8 @@ class GrSurfaceContext {
 public:
     // If the passed in GrSurfaceProxy is renderable this will return a GrRenderTargetContext,
     // otherwise it will return a GrSurfaceContext.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, sk_sp<GrSurfaceProxy>,
+    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
+                                                  GrSurfaceProxyView readView,
                                                   GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
 
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, const SkISize& dimensions,
@@ -50,20 +51,20 @@ public:
 
     // If it is known that the GrSurfaceProxy is not renderable, you can directly call the the ctor
     // here to make a GrSurfaceContext on the stack.
-    GrSurfaceContext(GrRecordingContext*, sk_sp<GrSurfaceProxy>, GrColorType, SkAlphaType,
-                     sk_sp<SkColorSpace>, GrSurfaceOrigin, GrSwizzle readSwizzle);
+    GrSurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, GrColorType, SkAlphaType,
+                     sk_sp<SkColorSpace>);
 
     virtual ~GrSurfaceContext() = default;
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
-    GrSurfaceOrigin origin() const { return fOrigin; }
-    const GrSwizzle& readSwizzle() const { return fReadSwizzle; }
-    GrSurfaceProxyView readSurfaceView() {
-        return { this->asSurfaceProxyRef(), fOrigin, fReadSwizzle };
-    }
+    GrSurfaceOrigin origin() const { return fReadView.origin(); }
+    GrSwizzle readSwizzle() const { return fReadView.swizzle(); }
+    // TODO: See if it makes sense for this to return a const& instead and require the callers to
+    // make a copy (which refs the proxy) if needed.
+    GrSurfaceProxyView readSurfaceView() { return fReadView; }
 
-    int width() const { return fSurfaceProxy->width(); }
-    int height() const { return fSurfaceProxy->height(); }
+    int width() const { return fReadView.proxy()->width(); }
+    int height() const { return fReadView.proxy()->height(); }
 
     const GrCaps* caps() const;
 
@@ -92,22 +93,20 @@ public:
     bool writePixels(const GrImageInfo& srcInfo, const void* src, size_t rowBytes, SkIPoint dstPt,
                      GrContext* direct = nullptr);
 
-    GrSurfaceProxy* asSurfaceProxy() { return fSurfaceProxy.get(); }
-    const GrSurfaceProxy* asSurfaceProxy() const { return fSurfaceProxy.get(); }
-    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fSurfaceProxy; }
+    GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
+    const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fReadView.proxyRef(); }
 
-    GrTextureProxy* asTextureProxy() { return fSurfaceProxy->asTextureProxy(); }
-    const GrTextureProxy* asTextureProxy() const { return fSurfaceProxy->asTextureProxy(); }
-    sk_sp<GrTextureProxy> asTextureProxyRef() {
-        return sk_ref_sp(fSurfaceProxy->asTextureProxy());
-    }
+    GrTextureProxy* asTextureProxy() { return fReadView.asTextureProxy(); }
+    const GrTextureProxy* asTextureProxy() const { return fReadView.asTextureProxy(); }
+    sk_sp<GrTextureProxy> asTextureProxyRef() { return fReadView.asTextureProxyRef(); }
 
-    GrRenderTargetProxy* asRenderTargetProxy() { return fSurfaceProxy->asRenderTargetProxy(); }
+    GrRenderTargetProxy* asRenderTargetProxy() { return fReadView.asRenderTargetProxy(); }
     const GrRenderTargetProxy* asRenderTargetProxy() const {
-        return fSurfaceProxy->asRenderTargetProxy();
+        return fReadView.asRenderTargetProxy();
     }
     sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() {
-        return sk_ref_sp(fSurfaceProxy->asRenderTargetProxy());
+        return fReadView.asRenderTargetProxyRef();
     }
 
     virtual GrRenderTargetContext* asRenderTargetContext() { return nullptr; }
@@ -140,8 +139,7 @@ protected:
 
     GrRecordingContext* fContext;
 
-    sk_sp<GrSurfaceProxy>  fSurfaceProxy;
-    GrSurfaceOrigin fOrigin;
+    GrSurfaceProxyView fReadView;
 
     // The rescaling step of asyncRescaleAndReadPixels[YUV420]().
     std::unique_ptr<GrRenderTargetContext> rescale(const SkImageInfo& info, const SkIRect& srcRect,
@@ -189,7 +187,6 @@ private:
     }
 
     GrColorInfo fColorInfo;
-    GrSwizzle fReadSwizzle;
 
     typedef SkRefCnt INHERITED;
 };
