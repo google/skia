@@ -2641,7 +2641,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
 
     // Format: COMPRESSED_RGB8_BC1
     {
-        FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_BC1);
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_BC1_1);
         info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fInternalFormatForTexImageOrStorage = GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
         if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
@@ -2651,6 +2651,20 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         } // No WebGL support
 
         // There are no support GrColorTypes for this format
+    }
+
+    // Format: COMPRESSED_RGBA8_BC1
+    {
+        FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGBA8_BC1);
+        info.fFormatType = FormatType::kNormalizedFixedPoint;
+        info.fInternalFormatForTexImageOrStorage = GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
+            if (ctxInfo.hasExtension("GL_EXT_texture_compression_s3tc")) {
+                info.fFlags = FormatInfo::kTexturable_Flag;
+            }
+        } // No WebGL support
+
+          // There are no support GrColorTypes for this format
     }
 
     // Format: COMPRESSED_RGB8_ETC2
@@ -3991,8 +4005,10 @@ SkImage::CompressionType GrGLCaps::compressionType(const GrBackendFormat& format
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as ETC2_RGB8_UNORM
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
             return SkImage::CompressionType::kETC2_RGB8_UNORM;
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
-            return SkImage::CompressionType::kBC1_RGB8_UNORM;
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1_1:
+            return SkImage::CompressionType::kBC1_RGB8_UNORM1;
+        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
+            return SkImage::CompressionType::kBC1_RGBA8_UNORM;
         default:
             return SkImage::CompressionType::kNone;
     }
@@ -4122,6 +4138,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
         case GrColorType::kRGBA_8888:
             if (format == GrGLFormat::kRGBA8) {
                 return kRGBA_8888_GrPixelConfig;
+            } else if (format == GrGLFormat::kCOMPRESSED_RGBA8_BC1) {
+                return kBC1_RGBA8_UNORM_GrPixelConfig;
             }
             break;
         case GrColorType::kRGBA_8888_SRGB:
@@ -4137,8 +4155,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
             } else if (format == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
                        format == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
                 return kRGB_ETC1_GrPixelConfig;
-            } else if (format == GrGLFormat::kCOMPRESSED_RGB8_BC1) {
-                return kRGB_BC1_GrPixelConfig;
+            } else if (format == GrGLFormat::kCOMPRESSED_RGB8_BC1_1) {
+                return kBC1_RGB8_UNORM_GrPixelConfig;
             }
             break;
         case GrColorType::kRG_88:
@@ -4248,8 +4266,10 @@ GrPixelConfig GrGLCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFo
     if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
         glFormat == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
         return kRGB_ETC1_GrPixelConfig;
-    } else if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_BC1) {
-        return kRGB_BC1_GrPixelConfig;
+    } else if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_BC1_1) {
+        return kBC1_RGB8_UNORM_GrPixelConfig;
+    } else if (glFormat == GrGLFormat::kCOMPRESSED_RGBA8_BC1) {
+        return kBC1_RGBA8_UNORM_GrPixelConfig;
     }
 
     return kUnknown_GrPixelConfig;
@@ -4304,9 +4324,15 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
                 return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D);
             }
             return {};
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
-            if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGB8_BC1)) {
+        case SkImage::CompressionType::kBC1_RGB8_UNORM1:
+            if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGB8_BC1_1)) {
                 return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT,
+                                               GR_GL_TEXTURE_2D);
+            }
+            return {};
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+            if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGBA8_BC1)) {
+                return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
                                                GR_GL_TEXTURE_2D);
             }
             return {};
@@ -4366,6 +4392,10 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinat
           GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB8_ETC2, GR_GL_TEXTURE_2D) },
         { GrColorType::kRGB_888x,
           GrBackendFormat::MakeGL(GR_GL_COMPRESSED_ETC1_RGB8, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGB_888x,
+          GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GR_GL_TEXTURE_2D) },
+        { GrColorType::kRGBA_8888,
+          GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GR_GL_TEXTURE_2D) },
         { GrColorType::kRG_88,
           GrBackendFormat::MakeGL(GR_GL_RG8, GR_GL_TEXTURE_2D) },
         { GrColorType::kRGBA_1010102,

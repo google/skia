@@ -134,17 +134,27 @@ struct BC1Block {
     uint32_t fIndices;
 };
 
-// Create a BC1 compressed block that is filled with 'col'
-static void create_BC1_block(SkColor col, BC1Block* block) {
+static uint16_t to565(SkColor col) {
     int r5 = SkMulDiv255Round(31, SkColorGetR(col));
     int g6 = SkMulDiv255Round(63, SkColorGetG(col));
     int b5 = SkMulDiv255Round(31, SkColorGetB(col));
 
-    uint16_t c565 = (r5 << 11) | (g6 << 5) | b5;
-    block->fColor0 = c565;
-    block->fColor1 = c565;
-    // This sets all 16 pixels to just use 'fColor0'
-    block->fIndices = 0;
+    return (r5 << 11) | (g6 << 5) | b5;
+}
+
+// Create a BC1 compressed block that has two colors but is initialized to 'col0'
+static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
+    block->fColor0 = to565(col0);
+    block->fColor1 = to565(col1);
+    if (col0 == SK_ColorTRANSPARENT) {
+        // This sets all 16 pixels to just use color3 (under the assumption
+        // that this is a kBC1_RGBA8_UNORM texture. Note that in this case
+        // fColor0 will be opaque black.
+        block->fIndices = 0xFFFF;
+    } else {
+        // This sets all 16 pixels to just use 'fColor0'
+        block->fIndices = 0;
+    }
 }
 
 size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
@@ -161,7 +171,8 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
         case SkImage::CompressionType::kNone:
             break;
         case SkImage::CompressionType::kETC2_RGB8_UNORM:
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: {
+        case SkImage::CompressionType::kBC1_RGB8_UNORM1:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
             for (int i = 0; i < numMipLevels; ++i) {
                 int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
@@ -174,6 +185,7 @@ size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
 
                 dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
             }
+            break;
         }
     }
 
@@ -189,12 +201,14 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:
             return 0;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
         case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM1:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
             int numBlocksWidth = num_ETC1_blocks_w(width);
 
             static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
             return numBlocksWidth * sizeof(ETC1Block);
+        }
     }
     SkUNREACHABLE;
 }
@@ -203,13 +217,15 @@ SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimens
     switch (type) {
         case SkImage::CompressionType::kNone:
             return baseDimensions;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:
         case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM1:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
             int numBlocksWidth = num_ETC1_blocks_w(baseDimensions.width());
             int numBlocksHeight = num_ETC1_blocks_w(baseDimensions.height());
 
             // Each BC1_RGB8_UNORM and ETC1 block has 16 pixels
             return { 4 * numBlocksWidth, 4 * numBlocksHeight };
+        }
     }
     SkUNREACHABLE;
 }
@@ -297,7 +313,8 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
         if (SkImage::CompressionType::kETC2_RGB8_UNORM == type) {
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
         } else {
-            SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM);
+            SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM1 ||
+                     type == SkImage::CompressionType::kBC1_RGBA8_UNORM);
             fillin_BC1_with_color(dimensions, colorf, &dstPixels[offset]);
         }
 
