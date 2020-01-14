@@ -297,7 +297,6 @@ public:
      * SkGlyphCache.
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
-                      const SkMatrix& drawMatrix, SkPoint drawOrigin, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
     // Return {success, number of glyphs regenerated}

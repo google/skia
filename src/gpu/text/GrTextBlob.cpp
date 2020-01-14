@@ -779,9 +779,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
-                                                 const SkMatrix& drawMatrix,
-                                                 SkPoint drawOrigin,
-                                                 GrColor color,
                                                  GrDeferredUploadTarget* uploadTarget,
                                                  GrStrikeCache* grStrikeCache,
                                                  GrAtlasManager* fullAtlasManager)
@@ -800,9 +797,6 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
     fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
     fActions.regenStrike = fSubRun->strike()->isAbandoned();
-
-    fSubRun->updateVerticesColorIfNeeded(color);
-    fSubRun->translateVerticesIfNeeded(drawMatrix, drawOrigin);
 }
 
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
