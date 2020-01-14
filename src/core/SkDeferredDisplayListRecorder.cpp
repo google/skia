@@ -191,9 +191,11 @@ bool SkDeferredDisplayListRecorder::init() {
                                                             grColorType);
     SkASSERT(readSwizzle == proxy->textureSwizzle());
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(fContext.get(), std::move(proxy),
-                                                       grColorType, fCharacterization.origin(),
-                                                       readSwizzle, outputSwizzle,
+    GrSurfaceProxyView readView(proxy, fCharacterization.origin(), readSwizzle);
+    GrSurfaceProxyView outputView(std::move(proxy), fCharacterization.origin(), outputSwizzle);
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(fContext.get(), std::move(readView),
+                                                       std::move(outputView), grColorType,
                                                        fCharacterization.refColorSpace(),
                                                        &fCharacterization.surfaceProps());
     fSurface = SkSurface_Gpu::MakeWrappedRenderTarget(fContext.get(), std::move(rtc));

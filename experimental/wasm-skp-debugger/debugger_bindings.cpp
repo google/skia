@@ -157,6 +157,12 @@ class SkpDebugPlayer {
       }
       fLayerManager->setClipVizColor(SkColor(color));
     }
+    void setAndroidClipViz(bool on) {
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setAndroidClipViz(on);
+      }
+      // doesn't matter in layers
+    }
     // The two operations below only apply to the current frame, because they concern the command
     // list, which is unique to each frame.
     void deleteCommand(int index) {
@@ -315,6 +321,7 @@ class SkpDebugPlayer {
           debugCanvas->setOverdrawViz(false);
           debugCanvas->setDrawGpuOpBounds(false);
           debugCanvas->setClipVizColor(SK_ColorTRANSPARENT);
+          debugCanvas->setAndroidClipViz(false);
           frames.push_back(std::move(debugCanvas));
           i++;
         }
@@ -447,7 +454,8 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("setCommandVisibility", &SkpDebugPlayer::setCommandVisibility)
     .function("setGpuOpBounds",       &SkpDebugPlayer::setGpuOpBounds)
     .function("setInspectedLayer",    &SkpDebugPlayer::setInspectedLayer)
-    .function("setOverdrawVis",       &SkpDebugPlayer::setOverdrawVis);
+    .function("setOverdrawVis",       &SkpDebugPlayer::setOverdrawVis)
+    .function("setAndroidClipViz",    &SkpDebugPlayer::setAndroidClipViz);
 
   // Structs used as arguments or returns to the functions above
   value_object<SkIRect>("SkIRect")

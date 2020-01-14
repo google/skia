@@ -98,14 +98,16 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    const GrSwizzle& readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
-    const GrSwizzle& outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
+    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
+    GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
 
     SkASSERT(readSwizzle == proxy->textureSwizzle());
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(proxy),
-                                                       grColorType, origin,
-                                                       readSwizzle, outputSwizzle,
+    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
+    GrSurfaceProxyView outputView(std::move(proxy), origin, outputSwizzle);
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(readView),
+                                                       std::move(outputView), grColorType,
                                                        colorSpace, surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));
@@ -186,9 +188,11 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
 
     SkASSERT(readSwizzle == proxy->textureSwizzle());
 
-    auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(proxy),
-                                                       grColorType, origin,
-                                                       readSwizzle, outputSwizzle,
+    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
+    GrSurfaceProxyView outputView(std::move(proxy), origin, outputSwizzle);
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(context, std::move(readView),
+                                                       std::move(outputView), grColorType,
                                                        colorSpace, surfaceProps);
 
     sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(context, std::move(rtc));

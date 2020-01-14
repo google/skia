@@ -46,7 +46,9 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     if (!proxy) {
         return nullptr;
     }
-    auto sContext = GrSurfaceContext::Make(context, proxy, imageInfo.colorType(),
+    GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
+    GrSurfaceProxyView view(proxy, origin, swizzle);
+    auto sContext = GrSurfaceContext::Make(context, std::move(view), imageInfo.colorType(),
                                            imageInfo.alphaType(), imageInfo.refColorSpace());
     if (!sContext) {
         return nullptr;

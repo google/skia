@@ -310,6 +310,59 @@ DEF_TEST(SkVM_LoopCounts, r) {
     });
 }
 
+DEF_TEST(SkVM_gather32, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg uniforms = b.uniform(),
+                  buf      = b.varying<int>();
+        skvm::I32 x = b.load32(buf);
+        b.store32(buf, b.gather32(uniforms,0, b.bit_and(x, b.splat(7))));
+    }
+
+#if defined(SK_CPU_X86)
+    test_jit_and_interpreter
+#else
+    test_interpreter_only
+#endif
+    (r, b.done(), [&](const skvm::Program& program) {
+        const int img[] = {12,34,56,78, 90,98,76,54};
+
+        int buf[20];
+        for (int i = 0; i < 20; i++) {
+            buf[i] = i;
+        }
+
+        struct Uniforms {
+            const int* img;
+        } uniforms{img};
+
+        program.eval(20, &uniforms, buf);
+        int i = 0;
+        REPORTER_ASSERT(r, buf[i] == 12); i++;
+        REPORTER_ASSERT(r, buf[i] == 34); i++;
+        REPORTER_ASSERT(r, buf[i] == 56); i++;
+        REPORTER_ASSERT(r, buf[i] == 78); i++;
+        REPORTER_ASSERT(r, buf[i] == 90); i++;
+        REPORTER_ASSERT(r, buf[i] == 98); i++;
+        REPORTER_ASSERT(r, buf[i] == 76); i++;
+        REPORTER_ASSERT(r, buf[i] == 54); i++;
+
+        REPORTER_ASSERT(r, buf[i] == 12); i++;
+        REPORTER_ASSERT(r, buf[i] == 34); i++;
+        REPORTER_ASSERT(r, buf[i] == 56); i++;
+        REPORTER_ASSERT(r, buf[i] == 78); i++;
+        REPORTER_ASSERT(r, buf[i] == 90); i++;
+        REPORTER_ASSERT(r, buf[i] == 98); i++;
+        REPORTER_ASSERT(r, buf[i] == 76); i++;
+        REPORTER_ASSERT(r, buf[i] == 54); i++;
+
+        REPORTER_ASSERT(r, buf[i] == 12); i++;
+        REPORTER_ASSERT(r, buf[i] == 34); i++;
+        REPORTER_ASSERT(r, buf[i] == 56); i++;
+        REPORTER_ASSERT(r, buf[i] == 78); i++;
+    });
+}
+
 DEF_TEST(SkVM_gathers, r) {
     skvm::Builder b;
     {
@@ -1031,6 +1084,10 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vmovd(A::xmm8, A::rax);
         a.vmovd(A::xmm0, A::r8);
 
+        a.vmovd(A::xmm0 , A::FOUR, A::rcx, A::rax);
+        a.vmovd(A::xmm15, A::TWO,  A::r8,  A::rax);
+        a.vmovd(A::xmm0 , A::ONE,  A::rcx, A::r8);
+
         a.vmovd_direct(A::rax, A::xmm0);
         a.vmovd_direct(A::rax, A::xmm8);
         a.vmovd_direct(A::r8,  A::xmm0);
@@ -1056,6 +1113,10 @@ DEF_TEST(SkVM_Assembler, r) {
         0xc5,0xf9,0x6e,0x00,
         0xc5,0x79,0x6e,0x00,
         0xc4,0xc1,0x79,0x6e,0x00,
+
+        0xc5,0xf9,0x6e,0x04,0x88,
+        0xc4,0x21,0x79,0x6e,0x3c,0x40,
+        0xc4,0xc1,0x79,0x6e,0x04,0x08,
 
         0xc5,0xf9,0x7e,0xc0,
         0xc5,0x79,0x7e,0xc0,

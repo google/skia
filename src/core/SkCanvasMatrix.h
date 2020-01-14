@@ -11,33 +11,33 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/SkM44.h"
 
-class SkCanvasMatrix {
-    SkM44 fM;
+class SkCanvasMatrix : public SkM44 {
 public:
-    SkCanvasMatrix& operator=(const SkMatrix& other) { fM = other; return *this; }
+    SkCanvasMatrix& operator=(const SkMatrix& other) {
+        this->SkM44::operator=(other);
+        return *this;
+    }
 
-    void reset() { fM.setIdentity(); }
-    void preTranslate(SkScalar x, SkScalar y) { fM.preTranslate(x, y); }
-    void preScale(SkScalar x, SkScalar y) { fM.preScale(x, y); }
-    void preConcat(const SkMatrix& m) { fM.preConcat(m); }
-    void preConcat44(const SkScalar m[]) { fM.setConcat(fM, m); }
+    void reset() { this->setIdentity(); }
+    void preConcat44(const SkScalar m[]) { this->setConcat(*this, m); }
 
-    operator SkMatrix() const { return fM.asM33(); }
+    operator SkMatrix() const { return this->asM33(); }
     // the legacy check was just for the 3x3 portion, so we only check those
     bool isScaleTranslate() const {
-        return fM.atColMajor(1) == 0 && fM.atColMajor(3) == 0 &&
-               fM.atColMajor(4) == 0 && fM.atColMajor(7) == 0 && fM.atColMajor(15) == 1;
+        return this->atColMajor(1) == 0 && this->atColMajor(3) == 0 &&
+               this->atColMajor(4) == 0 && this->atColMajor(7) == 0 &&
+               this->atColMajor(15) == 1;
     }
-    bool rectStaysRect() const { return fM.asM33().rectStaysRect(); }
+    bool rectStaysRect() const { return this->asM33().rectStaysRect(); }
 
-    float getScaleX() const { return fM.atColMajor(0); }
-    float getScaleY() const { return fM.atColMajor(5); }
-    float getTranslateX() const { return fM.atColMajor(12); }
-    float getTranslateY() const { return fM.atColMajor(13); }
+    float getScaleX() const { return this->atColMajor(0); }
+    float getScaleY() const { return this->atColMajor(5); }
+    float getTranslateX() const { return this->atColMajor(12); }
+    float getTranslateY() const { return this->atColMajor(13); }
 
-    bool invert(SkMatrix* inv) const { return fM.asM33().invert(inv); }
+    bool invert(SkMatrix* inv) const { return this->asM33().invert(inv); }
 
-    bool mapRect(SkRect* dst, const SkRect& src) { return fM.asM33().mapRect(dst, src); }
+    bool mapRect(SkRect* dst, const SkRect& src) { return this->asM33().mapRect(dst, src); }
 };
 
 #endif

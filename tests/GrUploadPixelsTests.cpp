@@ -35,8 +35,10 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
             {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        auto sContext = GrSurfaceContext::Make(context, proxy, SkColorTypeToGrColorType(ct),
-                                               kPremul_SkAlphaType, nullptr);
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(), grCT);
+        GrSurfaceProxyView view(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
+        auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
+                                               nullptr);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
@@ -62,8 +64,10 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
             {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
     REPORTER_ASSERT(reporter, proxy);
     if (proxy) {
-        auto sContext = GrSurfaceContext::Make(context, proxy, SkColorTypeToGrColorType(ct),
-                                               kPremul_SkAlphaType, nullptr);
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(), grCT);
+        GrSurfaceProxyView view(proxy, kBottomLeft_GrSurfaceOrigin, swizzle);
+        auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
+                                               nullptr);
 
         SkImageInfo dstInfo = SkImageInfo::Make(kWidth, kHeight, ct, kPremul_SkAlphaType);
 
