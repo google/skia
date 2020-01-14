@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This assumes it is being run inside a docker container of emsdk-base
+# This assumes it is being run inside a docker container of cmake-release
 # and a Skia checkout has been mounted at /SRC and the output directory
 # has been mounted at /OUT
 
@@ -16,21 +16,21 @@ set -xe
 
 #BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/cmake)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-SKIA_DIR=`cd $BASE_DIR/../.. && pwd`
+SKIA_DIR=`cd ${BASE_DIR}/../.. && pwd`
 
-# Delete everything to do a clean build
-rm -rf $SKIA_DIR/out/CMAKE
-mkdir --mode=0777 -p $SKIA_DIR/out/CMAKE
+OUT="$(mktemp -d)/CMAKE"
 
-cd $SKIA_DIR
+cd ${SKIA_DIR}
 ./bin/fetch-gn
-gn gen out/CMAKE --args='is_debug=false' --ide=json --json-ide-script=../../gn/gn_to_cmake.py
+gn gen ${OUT} --args='is_debug=false' --ide=json --json-ide-script=$SKIA_DIR/gn/gn_to_cmake.py
 
-cd $SKIA_DIR/out/CMAKE
+cd ${OUT}
+export CC=/usr/local/bin/clang
+export CXX=/usr/local/bin/clang++
 cmake -G"CodeBlocks - Unix Makefiles" .
 cmake --build . --parallel 8
 
 # Copy build products, ignoring the warning
 # for not copying directories.
-cp $SKIA_DIR/out/CMAKE/* /OUT || true
+cp ${OUT}/* /OUT || true
 chmod +rw /OUT/*
