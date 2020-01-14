@@ -86,15 +86,6 @@ namespace {
                               key.shader);
     }
 
-    static bool debug_dump(const Key& key) {
-    #if 0
-        SkDebugf("%s\n", debug_name(key).c_str());
-        return true;
-    #else
-        return false;
-    #endif
-    }
-
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
     #if 0 || defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0. pthread
@@ -465,16 +456,20 @@ namespace {
             SkASSERT(fUniforms.buf.size() == prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
-            if (debug_dump(key)) {
+            if (false) {
                 static std::atomic<int> done{0};
                 if (0 == done++) {
                     atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
                 }
 
-                if (!program.hasJIT()) {
-                    SkDebugf("\nfalling back to interpreter for blitter with this key.\n");
-                    builder.dump();
-                    program.dump();
+                SkDebugf("%s\n", debug_name(key).c_str());
+                builder.dump();
+                program.dump();
+
+                if (program.hasJIT()) {
+                    program.dumpJIT();
+                } else {
+                    SkDebugf("\nfell back to interpreter for blitter with this key.\n");
                 }
             }
             return program;
