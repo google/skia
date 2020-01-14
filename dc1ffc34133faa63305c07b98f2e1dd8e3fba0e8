@@ -16,6 +16,24 @@
       "revId": "dc1ffc34133faa63305c07b98f2e1dd8e3fba0e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a2804aa_14de0819",
+        "filename": "docs/examples/MAD_Magazine_Oct_1985.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2020-01-14T18:32:50Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "c393031e_213dd7aa",
+      "revId": "dc1ffc34133faa63305c07b98f2e1dd8e3fba0e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
