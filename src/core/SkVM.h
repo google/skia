@@ -635,6 +635,7 @@ namespace skvm {
 
         bool hasJIT() const;  // Has this Program been JITted?
         void dropJIT();       // If hasJIT(), drop it, forcing interpreter fallback.
+        void dumpJIT() const; // Disassemble to stdout.
 
         void dump(SkWStream* = nullptr) const;
 

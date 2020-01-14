@@ -377,6 +377,23 @@ namespace skvm {
         }
     }
 
+    void Program::dumpJIT() const {
+    #if !defined(SK_BUILD_FOR_WIN)
+        // Disassemble up through vzeroupper, retq exit.  No need for constants or zero padding.
+        const uint8_t vzeroupper_retq[] = { 0xc5, 0xf8, 0x77, 0xc3 };
+        auto end = (const uint8_t*)memmem(fJITBuf, fJITSize,
+                                          vzeroupper_retq, SK_ARRAY_COUNT(vzeroupper_retq));
+        SkASSERT(end);
+        end += SK_ARRAY_COUNT(vzeroupper_retq);
+
+        FILE* p = popen("llvm-mc --disassemble --no-warn", "w");
+        for (auto buf = (const uint8_t*)fJITBuf; buf != end; buf++) {
+            fprintf(p, "0x%02x\n", *buf);
+        }
+        pclose(p);
+    #endif
+    }
+
     // Builder -> Program, with liveness and loop hoisting analysis.
 
     Program Builder::done(const char* debug_name) {
