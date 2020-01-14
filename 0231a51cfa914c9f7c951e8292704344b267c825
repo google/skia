@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "869919f1_febb689c",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-14T21:55:51Z",
+      "side": 1,
+      "message": "break (English orthography is terrible.)",
+      "range": {
+        "startLine": 727,
+        "startChar": 39,
+        "endLine": 727,
+        "endChar": 44
+      },
+      "revId": "0231a51cfa914c9f7c951e8292704344b267c825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeaebe24_491dd76f",
+        "filename": "modules/skparagraph/src/TextStyle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-14T21:55:51Z",
+      "side": 1,
+      "message": "nit: I usually use \u0027that\u0027 since c++ uses \u0027this\u0027. In python one should use \u0027other\u0027 since python uses \u0027self\u0027.",
+      "range": {
+        "startLine": 105,
+        "startChar": 47,
+        "endLine": 105,
+        "endChar": 52
+      },
+      "revId": "0231a51cfa914c9f7c951e8292704344b267c825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0941642_e36a96d1",
+        "filename": "modules/skparagraph/src/TextStyle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-14T21:55:51Z",
+      "side": 1,
+      "message": "any reason this isn\u0027t just !\u003d ? (Though this is moot if done as suggested int he next comment.)",
+      "range": {
+        "startLine": 109,
+        "startChar": 8,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "0231a51cfa914c9f7c951e8292704344b267c825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f3ddf21_13fd684a",
+        "filename": "modules/skparagraph/src/TextStyle.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-14T21:55:51Z",
+      "side": 1,
+      "message": "This is a lot of small blocks. Seems like it might be easier to scan like\n\nreturn !fIsPlaceholder \u0026\u0026 !that.fIsPlaceholder \u0026\u0026\n       fFontStyle \u003d\u003d that.fFontStyle \u0026\u0026\n       fFontFamilies \u003d\u003d that.fFontFamilies \u0026\u0026\n       ...",
+      "revId": "0231a51cfa914c9f7c951e8292704344b267c825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
