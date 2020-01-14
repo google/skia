@@ -134,15 +134,18 @@ struct BC1Block {
     uint32_t fIndices;
 };
 
-// Create a BC1 compressed block that is filled with 'col'
-static void create_BC1_block(SkColor col, BC1Block* block) {
+static uint16_t to565(SkColor col) {
     int r5 = SkMulDiv255Round(31, SkColorGetR(col));
     int g6 = SkMulDiv255Round(63, SkColorGetG(col));
     int b5 = SkMulDiv255Round(31, SkColorGetB(col));
 
-    uint16_t c565 = (r5 << 11) | (g6 << 5) | b5;
-    block->fColor0 = c565;
-    block->fColor1 = c565;
+    return (r5 << 11) | (g6 << 5) | b5;
+}
+
+// Create a BC1 compressed block that has two colors but is initialized to 'col0'
+static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
+    block->fColor0 = to565(col0);
+    block->fColor1 = to565(col1);
     // This sets all 16 pixels to just use 'fColor0'
     block->fIndices = 0;
 }
@@ -235,13 +238,54 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     SkColor color = colorf.toSkColor();
 
     BC1Block block;
-    create_BC1_block(color, &block);
+    create_BC1_block(color, color, &block);
 
     int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
     for (int i = 0; i < numBlocks; ++i) {
         memcpy(dest, &block, sizeof(BC1Block));
         dest += sizeof(BC1Block);
+    }
+}
+
+// Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
+void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
+    BC1Block* dstBlocks = (BC1Block*) dstPixels;
+    SkASSERT(pixmap.colorType() == SkColorType::kRGBA_8888_SkColorType);
+
+    BC1Block block;
+
+    // black -> fColor0, otherColor -> fColor1
+    create_BC1_block(SK_ColorBLACK, otherColor, &block);
+
+    int numXBlocks = num_ETC1_blocks_w(pixmap.width());
+    int numYBlocks = num_ETC1_blocks_w(pixmap.height());
+
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+            int shift = 0;
+            int offsetX = 4 * x, offsetY = 4 * y;
+            block.fIndices = 0;  // init all the pixels to color0
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    if (offsetX + j >= pixmap.width() || offsetY + i >= pixmap.height()) {
+                        // This can happen for the topmost levels of a mipmap
+                        continue;
+                    }
+
+                    SkColor tmp = pixmap.getColor(offsetX + j, offsetY + i);
+                    if (tmp == SK_ColorTRANSPARENT) {
+                        // For RGBA BC1 images color3 is set to transparent black
+                        block.fIndices |= 3 << shift;
+                    } else if (tmp != SK_ColorBLACK) {
+                        block.fIndices |= 1 << shift; // color1
+                    }
+                    shift += 2;
+                }
+            }
+
+            dstBlocks[y*numXBlocks + x] = block;
+        }
     }
 }
 
