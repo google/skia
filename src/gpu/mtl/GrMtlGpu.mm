@@ -505,6 +505,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc,
 sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      SkBudgeted budgeted,
+                                                     GrMipMapped mipMapped,
                                                      const void* data,
                                                      size_t dataSize) {
     SkASSERT(this->caps()->isFormatTexturable(format));
@@ -515,6 +516,12 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     }
 
     MTLPixelFormat mtlPixelFormat = GrBackendFormatAsMTLPixelFormat(format);
+    SkASSERT(this->caps()->isFormatCompressed(format));
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
 
     // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
     // requested, this TexDesc describes the resolved texture. Therefore we always have samples
@@ -526,7 +533,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     texDesc.width = dimensions.width();
     texDesc.height = dimensions.height();
     texDesc.depth = 1;
-    texDesc.mipmapLevelCount = 1;
+    texDesc.mipmapLevelCount = numMipLevels;
     texDesc.sampleCount = 1;
     texDesc.arrayLength = 1;
     // Make all textures have private gpu only access. We can use transfer buffers or textures
@@ -536,12 +543,14 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
         texDesc.usage = MTLTextureUsageShaderRead;
     }
 
+    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes) ? GrMipMapsStatus::kDirty
+                                                                     : GrMipMapsStatus::kNotAllocated;
+
     GrSurfaceDesc desc;
     desc.fConfig = this->caps()->getConfigFromCompressedBackendFormat(format);
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
-    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc,
-                                            GrMipMapsStatus::kNotAllocated);
+    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
     if (!tex) {
         return nullptr;
     }
@@ -552,6 +561,12 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
 
     auto compressionType = GrMtlFormatToCompressionType(mtlTexture.pixelFormat);
     SkASSERT(compressionType != SkImage::CompressionType::kNone);
+
+    SkTArray<size_t> individualMipOffsets(numMipLevels);
+    SkDEBUGCODE(size_t combinedBufferSize =) GrCompressedDataSize(compressionType, dimensions,
+                                                                  &individualMipOffsets, mipMapped);
+    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(dataSize == combinedBufferSize);
 
     size_t bufferOffset;
     id<MTLBuffer> transferBuffer = this->resourceProvider().getDynamicBuffer(dataSize,
@@ -568,15 +583,25 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
 
     // copy data into the buffer, skipping any trailing bytes
     memcpy(buffer, data, dataSize);
-    [blitCmdEncoder copyFromBuffer: transferBuffer
-                      sourceOffset: bufferOffset
-                 sourceBytesPerRow: rowBytes
-               sourceBytesPerImage: dataSize
-                        sourceSize: MTLSizeMake(dimensions.width(), dimensions.height(), 1)
-                         toTexture: mtlTexture
-                  destinationSlice: 0
-                  destinationLevel: 0
-                 destinationOrigin: origin];
+
+    for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
+        size_t trimRowBytes = currentWidth * bytesPerPixel;
+        size_t levelSize = trimRowBytes*currentHeight;
+
+        // TODO: can this all be done in one go?
+        [blitCmdEncoder copyFromBuffer: transferBuffer
+                          sourceOffset: individualMipOffsets[currentMipLevel]
+                     sourceBytesPerRow: trimRowBytes
+                   sourceBytesPerImage: levelSize
+                            sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
+                             toTexture: mtlTexture
+                      destinationSlice: 0
+                      destinationLevel: currentMipLevel
+                     destinationOrigin: origin];
+
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
+    }
 #ifdef SK_BUILD_FOR_MAC
     [transferBuffer didModifyRange: NSMakeRange(bufferOffset, dataSize)];
 #endif
