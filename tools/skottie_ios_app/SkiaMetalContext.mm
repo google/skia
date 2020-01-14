@@ -5,7 +5,6 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
-#include "tools/skottie_ios_app/SkMetalViewBridge.h"
 
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
@@ -37,7 +36,9 @@
     self = [super initWithFrame:frameRect device:mtlDevice];
     fQueue = queue;
     fGrContext = grContext;
-    SkMtkViewConfigForSkia(self);
+    [self setDepthStencilPixelFormat:MTLPixelFormatDepth32Float_Stencil8];
+    [self setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
+    [self setSampleCount:1];
     return self;
 }
 
@@ -45,16 +46,26 @@
     [super drawRect:rect];
     // TODO(halcanary): Use the rect and the InvalidationController to speed up rendering.
     SkiaViewController* viewController = [self controller];
-    if (!viewController || ![[self currentDrawable] texture] || !fGrContext) {
+    if (!viewController || ![[self currentDrawable] texture] || !fGrContext  ||
+        MTLPixelFormatDepth32Float_Stencil8 != [self depthStencilPixelFormat] ||
+        MTLPixelFormatBGRA8Unorm != [self colorPixelFormat]) {
+        NSLog(@"error: SkiaMtkView misconfigured.");
         return;
     }
-    CGSize size = [self drawableSize];
-    sk_sp<SkSurface> surface = SkMtkViewToSurface(self, fGrContext);
+    constexpr SkColorType colorType = kBGRA_8888_SkColorType;  // MTLPixelFormatBGRA8Unorm
+    sk_sp<SkColorSpace> colorSpace = nullptr;  // MTLPixelFormatBGRA8Unorm
+    constexpr GrSurfaceOrigin origin = kTopLeft_GrSurfaceOrigin;
+    const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+    int sampleCount = (int)[self sampleCount];
+
+    sk_sp<SkSurface> surface = SkSurface::MakeFromMTKView(
+            fGrContext, (__bridge GrMTLHandle)self, origin, sampleCount,
+            colorType, colorSpace, &surfaceProps);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
     }
-    [viewController draw:rect toCanvas:surface->getCanvas() atSize:size];
+    [viewController draw:rect toCanvas:surface->getCanvas() atSize:[self drawableSize]];
     surface->flush();
     surface = nullptr;
 

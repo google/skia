@@ -6,37 +6,19 @@
 
 // Much of this code is copied from the default application created by XCode.
 
-#include "tools/skottie_ios_app/SkMetalViewBridge.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <UIKit/UIKit.h>
-
-////////////////////////////////////////////////////////////////////////////////
-
-static void config_paint(SkPaint* paint) {
-    if (!paint->getShader()) {
-        const SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
-        const SkPoint points[2] = {{0, -1024}, {0, 1024}};
-        paint->setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
-                                                      SkTileMode::kClamp, 0, nullptr));
-    }
-}
-
-static void draw_example(SkSurface* surface, const SkPaint& paint, double rotation) {
-    SkCanvas* canvas = surface->getCanvas();
-    canvas->translate(surface->width() * 0.5f, surface->height() * 0.5f);
-    canvas->rotate(rotation);
-    canvas->drawPaint(paint);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,21 +32,38 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 }
 
 - (void)drawInMTKView:(nonnull MTKView *)view {
-    if (![self grContext] || !view) {
+    if (![self grContext] || !view ||
+        MTLPixelFormatDepth32Float_Stencil8 != [view depthStencilPixelFormat] ||
+        MTLPixelFormatBGRA8Unorm != [view colorPixelFormat]) {
+        NSLog(@"error: misconfigured MTKView");
         return;
     }
     // Do as much as possible before creating surface.
-    config_paint(&fPaint);
+    if (!fPaint.getShader()) {
+        const SkColor4f colors[2] = {SkColors::kBlack, SkColors::kWhite};
+        const SkPoint points[2] = {{0, -1024}, {0, 1024}};
+        fPaint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, nullptr, 2,
+                                                      SkTileMode::kClamp, 0, nullptr));
+    }
     float rotation = (float)(180 * 1e-9 * SkTime::GetNSecs());
 
     // Create surface:
-    sk_sp<SkSurface> surface = SkMtkViewToSurface(view, [self grContext]);
+    constexpr SkColorType colorType = kBGRA_8888_SkColorType;  // MTLPixelFormatBGRA8Unorm
+    sk_sp<SkColorSpace> colorSpace = nullptr;  // MTLPixelFormatBGRA8Unorm
+    constexpr GrSurfaceOrigin origin = kTopLeft_GrSurfaceOrigin;
+    const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+    int sampleCount = (int)[view sampleCount];
+    sk_sp<SkSurface> surface = SkSurface::MakeFromMTKView(
+            [self grContext], (__bridge GrMTLHandle)view, origin,
+            sampleCount, colorType, colorSpace, &surfaceProps);
     if (!surface) {
         NSLog(@"error: no sksurface");
         return;
     }
-
-    draw_example(surface.get(), fPaint, rotation);
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->translate(surface->width() * 0.5f, surface->height() * 0.5f);
+    canvas->rotate(rotation);
+    canvas->drawPaint(fPaint);
 
     // Must flush *and* present for this to work!
     surface->flush();
@@ -88,7 +87,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 @end
 
 @implementation AppViewController {
-    GrContextHolder fGrContext;
+    sk_sp<GrContext> fGrContext;
 }
 
 - (void)loadView {
@@ -100,7 +99,9 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     if (!fGrContext) {
         [self setMetalDevice:MTLCreateSystemDefaultDevice()];
         [self setMetalQueue:[[self metalDevice] newCommandQueue]];
-        fGrContext = SkMetalDeviceToGrContext([self metalDevice], [self metalQueue]);
+        fGrContext = GrContext::MakeMetal((__bridge void*)[self metalDevice],
+                                          (__bridge void*)[self metalQueue],
+                                          GrContextOptions());
     }
     if (![self view] || ![self metalDevice]) {
         NSLog(@"Metal is not supported on this device");
@@ -110,7 +111,9 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
     MTKView* mtkView = (MTKView*)[self view];
     [mtkView setDevice:[self metalDevice]];
     [mtkView setBackgroundColor:[UIColor blackColor]];
-    SkMtkViewConfigForSkia(mtkView);
+    [mtkView setDepthStencilPixelFormat:MTLPixelFormatDepth32Float_Stencil8];
+    [mtkView setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
+    [mtkView setSampleCount:1];
     AppViewDelegate* viewDelegate = [[AppViewDelegate alloc] init];
     [viewDelegate setGrContext:fGrContext.get()];
     [viewDelegate setMetalQueue:[self metalQueue]];
