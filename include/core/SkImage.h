@@ -264,7 +264,8 @@ public:
         @return         created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
-                                             int width, int height, CompressionType type);
+                                             int width, int height, CompressionType type,
+                                             GrMipMapped mipMapped = GrMipMapped::kNo);
 
     /** User function called when supplied texture may be deleted.
     */

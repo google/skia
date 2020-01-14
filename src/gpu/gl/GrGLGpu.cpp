@@ -1412,7 +1412,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
-                                                    SkBudgeted budgeted,
+                                                    SkBudgeted budgeted, GrMipMapped mipMapped,
                                                     const void* data, size_t dataSize) {
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
@@ -1422,7 +1422,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat,
-                                               GrMipMapped::kNo, &initialState,
+                                               mipMapped, &initialState,
                                                data, dataSize);
     if (!desc.fID) {
         return nullptr;
@@ -1431,7 +1431,11 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
-    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, GrMipMapsStatus::kNotAllocated);
+    GrMipMapsStatus mipMapsStatus = mipMapped == GrMipMapped::kYes
+                                                            ? GrMipMapsStatus::kValid
+                                                            : GrMipMapsStatus::kNotAllocated;
+
+    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, mipMapsStatus);
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
