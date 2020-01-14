@@ -102,6 +102,35 @@ bool TextStyle::equals(const TextStyle& other) const {
     return true;
 }
 
+bool TextStyle::equalsByFonts(const TextStyle& other) const {
+    if (fIsPlaceholder || other.fIsPlaceholder) {
+        return false;
+    }
+    if (!(fFontStyle == other.fFontStyle)) {
+        return false;
+    }
+    if (fFontFamilies != other.fFontFamilies) {
+        return false;
+    }
+    if (fLetterSpacing != other.fLetterSpacing) {
+        return false;
+    }
+    if (fWordSpacing != other.fWordSpacing) {
+        return false;
+    }
+    if (fHeight != other.fHeight) {
+        return false;
+    }
+    if (fFontSize != other.fFontSize) {
+        return false;
+    }
+    if (fLocale != other.fLocale) {
+        return false;
+    }
+
+    return true;
+}
+
 bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) const {
     switch (styleType) {
         case kForeground:
@@ -164,6 +193,14 @@ void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
         metrics->fAscent = (metrics->fAscent - metrics->fLeading / 2);
         metrics->fDescent = (metrics->fDescent + metrics->fLeading / 2);
     }
+}
+
+bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {
+    return this->fWidth == other.fWidth &&
+           this->fHeight == other.fHeight &&
+           this->fAlignment == other.fAlignment &&
+           this->fBaseline == other.fBaseline &&
+           this->fBaselineOffset == other.fBaselineOffset;
 }
 
 }  // namespace textlayout
