@@ -80,10 +80,10 @@ uniform half blurRadius;
                                                    SkIPoint::Make(0, 0),
                                                    nullptr,
                                                    SkIRect::MakeSize(dimensions),
-                                                   SkIRect::MakeEmpty(),
+                                                   SkIRect::MakeSize(dimensions),
                                                    xformedSigma,
                                                    xformedSigma,
-                                                   GrTextureDomain::kIgnore_Mode,
+                                                   SkTileMode::kClamp,
                                                    SkBackingFit::kExact);
             if (!rtc2) {
                 return nullptr;
