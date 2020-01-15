@@ -89,10 +89,11 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
         return false;
     }
 
-    if (a.fParagraphStyle.getMaxLines() != b.fParagraphStyle.getMaxLines()) {
+    if (!(a.fParagraphStyle == b.fParagraphStyle)) {
         // This is too strong, but at least we will not lose lines
         return false;
     }
+
     for (size_t i = 0; i < a.fTextStyles.size(); ++i) {
         auto& tsa = a.fTextStyles[i];
         auto& tsb = b.fTextStyles[i];
