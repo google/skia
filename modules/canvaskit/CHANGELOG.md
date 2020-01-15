@@ -6,10 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `SkFontMgr.countFamilies` and `SkFontMgr.getFamilyName` to expose the parsed font names.
+
 ### Changed
  - SKP serialization/deserialization now available (can be disabled with the 'no_skp').
    `SkPicture.DEBUGONLY_saveAsFile` renamed to `SkPicture.saveAsFile` and
    `CanvasKit.MakeSkPicture` is now exposed. SKP support is not shipped to npm builds.
+   `force_serialize_skp` has been removed since it opt-out, not opt-in.
+
+### Fixed
+ - Bug that sometimes resulted in 'Cannot perform Construct on a neutered ArrayBuffer'
 
 ## [0.11.0] - 2020-01-10
 

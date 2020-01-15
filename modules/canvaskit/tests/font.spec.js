@@ -1,4 +1,4 @@
-describe('CanvasKit\'s Path Behavior', function() {
+describe('CanvasKit\'s Font Behavior', function() {
     let container = document.createElement('div');
     document.body.appendChild(container);
     const CANVAS_WIDTH = 600;
