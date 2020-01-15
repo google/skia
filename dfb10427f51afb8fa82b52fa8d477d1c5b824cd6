@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35182b6d_a39baa1e",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-01-15T05:49:41Z",
+      "side": 1,
+      "message": "I made this change because it made the work in this CL simpler, and since the instance variables of TextureSampler are all movable, it seems safe. LMK if that\u0027s not the case.",
+      "revId": "dfb10427f51afb8fa82b52fa8d477d1c5b824cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
