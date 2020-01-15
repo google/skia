@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adf1705c_ecc34f39",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T16:38:57Z",
+      "side": 1,
+      "message": "I feel awful making this the first review comment you get, but...\n\nnit: Wrap at 100 columns (a few other spots spilled over elsewhere, too)",
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79455e55_f7182022",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T16:38:57Z",
+      "side": 1,
+      "message": "Initializing this to kernel[size-1] makes it seem like that\u0027s important. Probably just start with min and max both equal to kernel[0] (and then start the loop at i \u003d 1?)",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 58,
+        "endChar": 32
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98481ecd_63731f22",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T16:38:57Z",
+      "side": 1,
+      "message": "Probably need to guard against inner_gain being zero (or very close). Unlikely, but a user could make a very large box blur with a matrix of identical values. In that case, I think inner_gain can just be 1, because all the result terms will be zero, and the kernelBias will handle moving every value correctly?",
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5882d03d_958646b5",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T16:38:57Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 78,
+        "startChar": 58,
+        "endLine": 78,
+        "endChar": 71
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2fed56a_82901f55",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T16:38:57Z",
+      "side": 1,
+      "message": "This comparison is always going to fail, because now it\u0027s just doing pointer comparison on those arrays, right? Seems like this function should instead figure out whether to compare fKernel (using memcmp as before), or fKernelPixels?",
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
