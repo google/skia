@@ -239,12 +239,16 @@ public:
      *                       | RGB8_ETC2           |                     |
      *  -------------------------------------------------------------------------------------
      *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                 | BC1_RGB_UNORM
+     *  -------------------------------------------------------------------------------------
+     *   kBC1_RGBA8_UNORM    | RGBA_S3TC_DXT1_EXT  | BC1_RGBA            | BC1_RGBA_UNORM
      */
     enum class CompressionType {
         kNone,
         kETC2_RGB8_UNORM, // the same as ETC1
+
         kBC1_RGB8_UNORM,
-        kLast = kBC1_RGB8_UNORM,
+        kBC1_RGBA8_UNORM,
+        kLast = kBC1_RGBA8_UNORM,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;

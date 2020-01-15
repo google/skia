@@ -173,6 +173,10 @@ protected:
         fOpaqueBC1Data = make_compressed_data({ kTexWidth, kTexHeight },
                                               kRGBA_8888_SkColorType, true,
                                               SkImage::CompressionType::kBC1_RGB8_UNORM);
+
+        fTransparentBC1Data = make_compressed_data({ kTexWidth, kTexHeight },
+                                                   kRGBA_8888_SkColorType, false,
+                                                   SkImage::CompressionType::kBC1_RGBA8_UNORM);
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
@@ -181,6 +185,10 @@ protected:
 
         this->drawCell(context, canvas, fOpaqueBC1Data,
                        SkImage::CompressionType::kBC1_RGB8_UNORM, { 2*kPad + kCellWidth, kPad });
+
+        this->drawCell(context, canvas, fTransparentBC1Data,
+                       SkImage::CompressionType::kBC1_RGBA8_UNORM,
+                       { 2*kPad + kCellWidth, 2*kPad + kTexHeight });
     }
 
 private:
@@ -220,6 +228,7 @@ private:
 
     sk_sp<SkData> fOpaqueETC2Data;
     sk_sp<SkData> fOpaqueBC1Data;
+    sk_sp<SkData> fTransparentBC1Data;
 
     typedef GM INHERITED;
 };
