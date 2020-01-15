@@ -297,25 +297,22 @@ public:
      * SkGlyphCache.
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
-                      GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
+                      GrDeferredUploadTarget*, GrAtlasManager*);
 
     // Return {success, number of glyphs regenerated}
     std::tuple<bool, int> regenerate(int begin, int end);
 
 private:
     // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> updateTextureCoordinatesMaybeStrike(int begin, int end);
+    std::tuple<bool, int> updateTextureCoordinates(
+            SkBulkGlyphMetricsAndImages& metricsAndImages, const int begin, const int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
-    GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
-    struct {
-        bool regenTextureCoordinates:1;
-        bool regenStrike:1;
-    } fActions = {false, false};
+    bool fUpdateTextureCoordinates{false};
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
@@ -341,6 +338,7 @@ public:
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
     void setStrike(sk_sp<GrTextStrike> strike);
     GrTextStrike* strike() const;
+    GrStrikeCache* grStrikeCache() const;
 
     GrMaskFormat maskFormat() const;
 
@@ -359,6 +357,8 @@ public:
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
+    // Returns if the texture coordinates need to be updated.
+    bool updateStrikeIfNeeded(SkBulkGlyphMetricsAndImages& metricsAndImages);
     void updateTexCoords(int begin, int end);
 
     // df properties
