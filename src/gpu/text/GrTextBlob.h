@@ -304,7 +304,7 @@ public:
 
 private:
     // Return {success, number of glyphs regenerated}
-    std::tuple<bool, int> updateTextureCoordinatesMaybeStrike(int begin, int end);
+    std::tuple<bool, int> updateTextureCoordinates(const int begin, const int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
@@ -312,10 +312,7 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
-    struct {
-        bool regenTextureCoordinates:1;
-        bool regenStrike:1;
-    } fActions = {false, false};
+    bool fUpdateTextureCoordinates{false};
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
@@ -359,6 +356,9 @@ public:
 
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
+    // Returns if the texture coordinates need to be updated.
+    bool updateStrikeIfNeeded(SkBulkGlyphMetricsAndImages& metricsAndImages,
+            GrStrikeCache* grStrikeCache, int begin, int end);
     void updateTexCoords(int begin, int end);
 
     // df properties
