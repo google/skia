@@ -187,7 +187,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
         SkColor4f                fColor;
     } combinations[] = {
         { SkImage::CompressionType::kETC2_RGB8_UNORM, SkColors::kRed },
-        { SkImage::CompressionType::kBC1_RGB8_UNORM,  SkColors::kBlue },
+        { SkImage::CompressionType::kBC1_RGB8_UNORM, SkColors::kBlue },
+        { SkImage::CompressionType::kBC1_RGBA8_UNORM, SkColors::kTransparent },
     };
 
     for (auto combo : combinations) {
