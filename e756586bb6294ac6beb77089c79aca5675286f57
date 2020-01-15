@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e97e1e6_3dbf9b0e",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-15T21:54:59Z",
+      "side": 1,
+      "message": "Move this before regenerator() to make it symmetric to what\u0027s in GrAtlasTextOp?",
+      "range": {
+        "startLine": 240,
+        "startChar": 8,
+        "endLine": 242,
+        "endChar": 92
+      },
+      "revId": "e756586bb6294ac6beb77089c79aca5675286f57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
