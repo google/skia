@@ -255,6 +255,7 @@ var CanvasKit = {
 		FromData: function() {},
 		RefDefault: function() {},
 		countFamilies: function() {},
+		getFamilyName: function() {},
 
 		// private API
 		_makeTypefaceFromData: function() {},
