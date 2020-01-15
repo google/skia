@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aec5e0dd_c21f1224",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb5d6bcb_609887da",
+      "range": {
+        "startLine": 11,
+        "startChar": 43,
+        "endLine": 11,
+        "endChar": 55
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "881bc9fc_dda3a1dc",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfa1cfd8_493785b5",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Subclasses use the protected static Prealloc function to make a single heap allocation for themselves, the GrBlockAllocator, and the first head block. With some care, a subclass could set it up instead to have the head block point to their own aligned storage / user memory. I will probably add something like that for handling GrAllocator, but in the short term, this Make() is only used when creating a GrBlockAllocator directly and Gr[Op]MemoryPool still only require one allocation when making them.",
+      "parentUuid": "881bc9fc_dda3a1dc",
+      "range": {
+        "startLine": 52,
+        "startChar": 1,
+        "endLine": 55,
+        "endChar": 5
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7e4093a4_8692b142",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6526a7b_5d1fd8d9",
+      "range": {
+        "startLine": 62,
+        "startChar": 22,
+        "endLine": 62,
+        "endChar": 27
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b50a6bb5_23baebfd",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 12
@@ -91,6 +163,30 @@
       "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90545384_023e4303",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b50a6bb5_23baebfd",
+      "range": {
+        "startLine": 68,
+        "startChar": 21,
+        "endLine": 68,
+        "endChar": 27
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "899e249a_d4ea4906",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9261124_0c4fd038",
+      "range": {
+        "startLine": 175,
+        "startChar": 53,
+        "endLine": 175,
+        "endChar": 62
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56ae7a1c_0dfdb5fb",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 12
@@ -137,6 +257,30 @@
       "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e535c79_2ef6a3d2",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56ae7a1c_0dfdb5fb",
+      "range": {
+        "startLine": 182,
+        "startChar": 30,
+        "endLine": 182,
+        "endChar": 39
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "a5a6813d_dd19117c",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Oh I did not realize this, it was just the patterns inherited from GrMemoryPool, but I will change them as the actual value isn\u0027t super important.",
+      "parentUuid": "8c23cb1e_63705d04",
+      "range": {
+        "startLine": 234,
+        "startChar": 43,
+        "endLine": 234,
+        "endChar": 53
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abb2edfb_4aab8862",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 12
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "69e88b32_eb85cfec",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abb2edfb_4aab8862",
+      "range": {
+        "startLine": 257,
+        "startChar": 12,
+        "endLine": 257,
+        "endChar": 87
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e1dba90_de661b5d",
         "filename": "src/gpu/GrBlockAllocator.h",
         "patchSetId": 12
@@ -206,6 +398,30 @@
       "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e5b269d_013a97d7",
+        "filename": "src/gpu/GrBlockAllocator.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "\"without loss of generality\", but I wrote it out and expanded on why the assumption is okay.",
+      "parentUuid": "7e1dba90_de661b5d",
+      "range": {
+        "startLine": 328,
+        "startChar": 7,
+        "endLine": 328,
+        "endChar": 11
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -252,6 +468,30 @@
       "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be64fc73_ddcfe546",
+        "filename": "src/gpu/GrMemoryPool.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T16:10:36Z",
+      "side": 1,
+      "message": "Done, I had thought it needed to be \u0027protected\u0027 so that GrOpMemoryPool could see the GrBlockAllocator inheritence (and use the Prealloc function), but I was mistaken.",
+      "parentUuid": "2304ae18_42c96294",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 30
+      },
+      "revId": "2d370bd6b77db8ec8e383466cdfa28ab1c8225d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
