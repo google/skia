@@ -359,29 +359,6 @@ void SkMatrixConvolutionImageFilterImpl::filterBorderPixels(const SkBitmap& src,
     }
 }
 
-// FIXME:  This should be refactored to SkImageFilterUtils for
-// use by other filters.  For now, we assume the input is always
-// premultiplied and unpremultiply it
-static SkBitmap unpremultiply_bitmap(const SkBitmap& src) {
-    if (!src.getPixels()) {
-        return SkBitmap();
-    }
-
-    const SkImageInfo info = SkImageInfo::MakeN32(src.width(), src.height(), src.alphaType());
-    SkBitmap result;
-    if (!result.tryAllocPixels(info)) {
-        return SkBitmap();
-    }
-    for (int y = 0; y < src.height(); ++y) {
-        const uint32_t* srcRow = src.getAddr32(0, y);
-        uint32_t* dstRow = result.getAddr32(0, y);
-        for (int x = 0; x < src.width(); ++x) {
-            dstRow[x] = SkUnPreMultiply::PMColorToColor(srcRow[x]);
-        }
-    }
-    return result;
-}
-
 #if SK_SUPPORT_GPU
 
 static GrTextureDomain::Mode convert_tilemodes(SkTileMode tileMode) {
@@ -489,7 +466,10 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
     }
 
     if (!fConvolveAlpha && !inputBM.isOpaque()) {
-        inputBM = unpremultiply_bitmap(inputBM);
+        // This leaves the bitmap tagged as premul, which seems weird to me,
+        // but is consistent with old behavior.
+        inputBM.readPixels(inputBM.info().makeAlphaType(kUnpremul_SkAlphaType),
+                           inputBM.getPixels(), inputBM.rowBytes(), 0,0);
     }
 
     if (!inputBM.getPixels()) {
