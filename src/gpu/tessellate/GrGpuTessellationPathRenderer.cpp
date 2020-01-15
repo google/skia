@@ -19,7 +19,8 @@ GrPathRenderer::CanDrawPath GrGpuTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     // This class should not have been added to the chain without tessellation support.
     SkASSERT(args.fCaps->shaderCaps()->tessellationSupport());
-    if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled()) {
+    if (!args.fShape->style().isSimpleFill() || args.fShape->inverseFilled() ||
+        args.fViewMatrix->hasPerspective()) {
         return CanDrawPath::kNo;
     }
     if (GrAAType::kCoverage == args.fAAType) {

@@ -309,6 +309,11 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cc', 'true', '--cachePathMasks', 'false'])
 
+    # Test GPU tessellation path renderer.
+    if 'GpuTess' in bot:
+      configs = [gl_prefix + 'msaa4']
+      args.extend(['--pr', 'gtess'])
+
     # Test non-nvpr on NVIDIA.
     if 'NonNVPR' in bot:
       configs = ['gl', 'glmsaa4']
@@ -1043,6 +1048,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
   'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-GpuTess',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NonNVPR',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
