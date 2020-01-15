@@ -82,6 +82,7 @@ static constexpr skcms_Matrix3x3 kAdobeRGB = {{
     { SkFixedToFloat(0x04fc), SkFixedToFloat(0x0f95), SkFixedToFloat(0xbe9c) },
 }};
 
+// TODO: this is the D65 P3 used for Display P3.  Rename, add the real ~D63 DCI P3?
 static constexpr skcms_Matrix3x3 kDCIP3 = {{
     {  0.515102f,   0.291965f,  0.157153f  },
     {  0.241182f,   0.692236f,  0.0665819f },
