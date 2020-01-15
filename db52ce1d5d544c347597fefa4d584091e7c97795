@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cc3a9e5_091dd53a",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-15T21:13:00Z",
+      "side": 1,
+      "message": "It\u0027d be nice to explain what the point of the resetGeometry and geometryTo are used for here.",
+      "range": {
+        "startLine": 433,
+        "startChar": 0,
+        "endLine": 445,
+        "endChar": 88
+      },
+      "revId": "db52ce1d5d544c347597fefa4d584091e7c97795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b2e4218_9165716e",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-15T21:13:00Z",
+      "side": 1,
+      "message": "A lot of our older iterators use this bool next() or Foo* next() pattern but many of the newer ones are designed to be used with range for loops, which I find much nicer.  To do that you\u0027d have to do something like make a ContourRange type that defines a begin() and end() that return an iterator so you could write something like:\n\nfor (auto\u0026 countor : SkPathPriv::ContourRange(path)) {\n    for (int i \u003d 0; i \u003c contour.countVerbs(); ++i) {\n...\n    }\n}",
+      "range": {
+        "startLine": 481,
+        "startChar": 9,
+        "endLine": 481,
+        "endChar": 13
+      },
+      "revId": "db52ce1d5d544c347597fefa4d584091e7c97795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
