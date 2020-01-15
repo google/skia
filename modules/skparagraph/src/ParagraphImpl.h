@@ -210,7 +210,7 @@ private:
     friend class TextWrapper;
     friend class OneLineShaper;
 
-    void calculateBoundaries(ClusterRange clusters, SkVector offset, SkVector advance);
+    void calculateBoundaries();
     void extractStyles();
 
     void markGraphemes16();

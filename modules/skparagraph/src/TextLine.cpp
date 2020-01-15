@@ -115,6 +115,36 @@ TextLine::TextLine(ParagraphImpl* master,
     }
 }
 
+SkRect TextLine::calculateBoundaries() {
+
+    auto boundaries = SkRect::MakeEmpty();
+    auto clusters = fMaster->clusters(fClusterRange);
+    Run* run = nullptr;
+    auto runShift = 0.0f;
+    auto clusterShift = 0.0f;
+    for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
+        if (run == nullptr || cluster->runIndex() != run->index()) {
+            run = &fMaster->run(cluster->runIndex());
+            runShift += clusterShift;
+            clusterShift = 0;
+        }
+        clusterShift += cluster->width();
+        for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
+            auto posX = run->posX(i);
+            auto posY = run->posY(i);
+            auto bounds = run->getBounds(i);
+            bounds.offset(posX + runShift, posY);
+            boundaries.joinPossiblyEmptyRect(bounds);
+        }
+    }
+
+    boundaries.offset(this->fOffset);         // Line offset from the beginning of the para
+    boundaries.offset(this->fShift, 0);     // Shift produced by formatting
+    boundaries.offset(0, this->baseline()); // Down by baseline
+
+    return boundaries;
+}
+
 void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
@@ -239,13 +269,13 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
 
     // TODO: This is the change for flutter, must be removed later
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
-
     SkTextBlobBuilder builder;
     context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(0, correctedBaseline));
     canvas->save();
     if (context.clippingNeeded) {
         canvas->clipRect(context.clip);
     }
+
     canvas->translate(context.fTextShift, 0);
     canvas->drawTextBlob(builder.make(), 0, 0, paint);
     canvas->restore();
