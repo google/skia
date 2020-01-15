@@ -581,6 +581,10 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			// ChOps VMs are at a newer version of MacOS.
 			d["os"] = "Mac-10.14.6"
 		}
+		if os == "Mac10.15" && parts["model"] == "MacMini8.1" {
+			// MacMini ended up on a newer version of MacOS
+			d["os"] = "Mac-10.15.2"
+		}
 		if parts["model"] == "LenovoYogaC630" {
 			// This is currently a unique snowflake.
 			d["os"] = "Windows-10"
@@ -722,6 +726,7 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelHD6000":   "8086:1626",
 					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
+					"IntelUHD630":   "8086:3e9b",
 					"RadeonHD8870M": "1002:6821-4.0.20-3.2.8",
 				}[parts["cpu_or_gpu_value"]]
 				if !ok {
