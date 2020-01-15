@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32727c42_60d970b6",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-15T18:14:58Z",
+      "side": 1,
+      "message": "Might be useful to have a comment about what the return values mean here.",
+      "revId": "504f8a6ab873c6f69d710cdf75e55754d85ad0de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
