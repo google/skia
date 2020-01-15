@@ -319,7 +319,7 @@ namespace skvm {
         M(select) M(bytes) M(pack)            \
     // End of SKVM_OPS
 
-    enum class Op : uint8_t {
+    enum class Op : int {
     #define M(op) op,
         SKVM_OPS(M)
     #undef M
