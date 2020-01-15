@@ -43,6 +43,23 @@ void SkDrawableGlyphBuffer::startSource(
     SkDEBUGCODE(fPhase = kInput);
 }
 
+void SkDrawableGlyphBuffer::startPaths(const SkZip<const SkGlyphID, const SkPoint> &source) {
+    fInputSize = source.size();
+    fDrawableSize = 0;
+
+    auto positions = source.get<1>();
+    for (int i = 0; i < (int)positions.size(); i++) {
+        fPositions[i] = positions[i];
+    }
+
+    // Convert from SkGlyphIDs to SkPackedGlyphIDs.
+    SkGlyphVariant* packedIDCursor = fMultiBuffer;
+    for (auto t : source) {
+        *packedIDCursor++ = SkPackedGlyphID{std::get<0>(t)};
+    }
+    SkDEBUGCODE(fPhase = kInput);
+}
+
 void SkDrawableGlyphBuffer::startDevice(
         const SkZip<const SkGlyphID, const SkPoint>& source,
         SkPoint origin, const SkMatrix& viewMatrix,

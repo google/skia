@@ -150,6 +150,7 @@ size_t GrTextBlob::SubRun::texCoordOffset() const {
 }
 
 char* GrTextBlob::SubRun::quadStart(size_t index) const {
+
     return SkTAddOffset<char>(fVertexData.data(), this->quadOffset(index));
 }
 
@@ -472,17 +473,13 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                              || style.applies()
                              || runPaint.getMaskFilter();
 
-            // The origin for the blob may have changed, so figure out the delta.
-            SkVector originShift = drawOrigin - fInitialOrigin;
 
             for (const auto& pathGlyph : subRun->fPaths) {
                 SkMatrix ctm{drawMatrix};
+                ctm.preTranslate(drawOrigin.x(), drawOrigin.y());
                 SkMatrix pathMatrix = SkMatrix::MakeScale(
                         subRun->fStrikeSpec.strikeToSourceRatio());
-                // Shift the original glyph location in source space to the position of the new
-                // blob.
-                pathMatrix.postTranslate(originShift.x() + pathGlyph.fOrigin.x(),
-                                         originShift.y() + pathGlyph.fOrigin.y());
+                pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
 
                 // TmpPath must be in the same scope as GrShape shape below.
                 SkTLazy<SkPath> tmpPath;
