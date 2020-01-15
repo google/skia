@@ -127,6 +127,9 @@ void GrTextBlob::SubRun::resetBulkUseToken() { fBulkUseToken.reset(); }
 GrDrawOpAtlas::BulkUseTokenUpdater* GrTextBlob::SubRun::bulkUseToken() { return &fBulkUseToken; }
 void GrTextBlob::SubRun::setStrike(sk_sp<GrTextStrike> strike) { fStrike = std::move(strike); }
 GrTextStrike* GrTextBlob::SubRun::strike() const { return fStrike.get(); }
+GrStrikeCache* GrTextBlob::SubRun::grStrikeCache() const {
+    return fBlob->fStrikeCache;
+}
 GrMaskFormat GrTextBlob::SubRun::maskFormat() const { return fMaskFormat; }
 size_t GrTextBlob::SubRun::vertexStride() const {
     return GetVertexStride(this->maskFormat(), this->hasW());
@@ -780,11 +783,9 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
                                                  GrDeferredUploadTarget* uploadTarget,
-                                                 GrStrikeCache* grStrikeCache,
                                                  GrAtlasManager* fullAtlasManager)
         : fResourceProvider(resourceProvider)
         , fUploadTarget(uploadTarget)
-        , fGrStrikeCache(grStrikeCache)
         , fFullAtlasManager(fullAtlasManager)
         , fSubRun(subRun){
     // Because the GrStrikeCache may evict the strike a blob depends on using for
@@ -813,7 +814,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
 
     if (fActions.regenStrike) {
         // Take the glyphs from the old strike, and translate them a new strike.
-        sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
+        sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fSubRun->grStrikeCache());
 
         // Start this batch at the start of the subRun plus any glyphs that were previously
         // processed.
@@ -840,8 +841,9 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
 
         if (!fFullAtlasManager->hasGlyph(glyph)) {
             code = grStrike->addGlyphToAtlas(
-                    fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
-                    fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
+                    fResourceProvider, fUploadTarget, fSubRun->grStrikeCache(), fFullAtlasManager,
+                    glyph, fMetricsAndImages.get(), fSubRun->maskFormat(),
+                    fSubRun->needsTransform());
             if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                 break;
             }
