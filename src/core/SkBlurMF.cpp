@@ -883,18 +883,17 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
-    auto renderTargetContext =
-            SkGpuBlurUtils::GaussianBlur(context,
-                                         srcProxy,
-                                         srcColorType,
-                                         srcAlphaType,
-                                         SkIPoint::Make(0, 0),
-                                         nullptr,
-                                         clipRect,
-                                         SkIRect::MakeSize(srcProxy->dimensions()),
-                                         xformedSigma,
-                                         xformedSigma,
-                                         SkTileMode::kClamp);
+    auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(context,
+                                                            srcProxy,
+                                                            srcColorType,
+                                                            srcAlphaType,
+                                                            SkIPoint::Make(0, 0),
+                                                            nullptr,
+                                                            clipRect,
+                                                            SkIRect::MakeEmpty(),
+                                                            xformedSigma,
+                                                            xformedSigma,
+                                                            GrTextureDomain::kIgnore_Mode);
     if (!renderTargetContext) {
         return nullptr;
     }
