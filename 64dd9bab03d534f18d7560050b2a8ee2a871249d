@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3ffa439_38197ec7",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-15T21:05:53Z",
+      "side": 1,
+      "message": "As a note to the future: this papers over the bidi iterator not knowing the full paragraph.",
+      "range": {
+        "startLine": 468,
+        "startChar": 105,
+        "endLine": 468,
+        "endChar": 109
+      },
+      "revId": "64dd9bab03d534f18d7560050b2a8ee2a871249d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
