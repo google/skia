@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "87df0bd8_47f95be3",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "79455e55_f7182022",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 58,
+        "endChar": 32
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "98481ecd_63731f22",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
         "patchSetId": 10
@@ -82,6 +106,144 @@
     },
     {
       "key": {
+        "uuid": "1c669558_099d0c75",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "We use \u0027k\u0027 for static constants, so I would just call these kernelWidth and kernelHeight (probably not width or height to avoid confusion with the texture\u0027s width/height).",
+      "range": {
+        "startLine": 95,
+        "startChar": 8,
+        "endLine": 95,
+        "endChar": 9
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2db3f59_c00c2acf",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "Maybe swap the if and else blocks and the !, so that it\u0027s an if (true) { do true; } else { do false; } instead of if (!true) { do false } else { do true }",
+      "range": {
+        "startLine": 106,
+        "startChar": 5,
+        "endLine": 111,
+        "endChar": 106
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97ca3518_4b088225",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "static?\n\nAlso, we may have a utility for this, but I can\u0027t remember...",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 29
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0977579c_1ecab249",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "It may be clearer to use the backing store dimensions of fTexSampler[1]\u0027s proxy?",
+      "range": {
+        "startLine": 138,
+        "startChar": 42,
+        "endLine": 138,
+        "endChar": 77
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a597c09_fa3f8026",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "Add comment along lines of \"first sampler is the image being filtered, second sampler holds the large kernel as a UNORM8 that must be modified by kernelBias.",
+      "range": {
+        "startLine": 142,
+        "startChar": 66,
+        "endLine": 142,
+        "endChar": 69
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d51dc412_1357ad69",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "I\u0027m not 100% sure I\u0027m following this comment. Since the key encodes the complete kernel dimensions, we ought to be safe for small or large kernels, right? Or is this suggesting that for large kernels, we change how the sksl is written to loop over the pow2 kernel size (or pass the kernel dimensions by uniform), so that the same shader can be reused across different logical kernel sizes?",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 196,
+        "endChar": 62
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2fed56a_82901f55",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
         "patchSetId": 10
@@ -93,6 +255,52 @@
       "writtenOn": "2020-01-15T16:38:57Z",
       "side": 1,
       "message": "This comparison is always going to fail, because now it\u0027s just doing pointer comparison on those arrays, right? Seems like this function should instead figure out whether to compare fKernel (using memcmp as before), or fKernelPixels?",
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26f7bb6b_1db21003",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "These values, interpreted as unorm8\u0027s (0-255 -\u003e 0-\u003e1.0), + kernel bias X the inner gain portion of \u0027gain\u0027 would match the floats stored in fKernel, right?",
+      "range": {
+        "startLine": 91,
+        "startChar": 25,
+        "endLine": 91,
+        "endChar": 38
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b3bf5f9_3a836e72",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-15T17:56:41Z",
+      "side": 1,
+      "message": "For large kernels, this now holds the combined user gain and (max - min) inner gain, right?",
+      "range": {
+        "startLine": 96,
+        "startChar": 25,
+        "endLine": 96,
+        "endChar": 30
+      },
       "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
