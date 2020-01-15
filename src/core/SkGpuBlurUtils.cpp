@@ -119,7 +119,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
-    auto conv = GrMatrixConvolutionEffect::MakeGaussian(std::move(srcProxy), srcBounds, size,
+    auto conv = GrMatrixConvolutionEffect::MakeGaussian(context, std::move(srcProxy), srcBounds, size,
                                                         1.0, 0.0, kernelOffset, mode, true,
                                                         sigmaX, sigmaY);
     paint.addColorFragmentProcessor(std::move(conv));

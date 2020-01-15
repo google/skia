@@ -19,6 +19,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #endif
@@ -431,9 +432,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
     }
 
 #if SK_SUPPORT_GPU
-    // Note: if the kernel is too big, the GPU path falls back to SW
-    if (ctx.gpuBacked() &&
-        fKernelSize.width() * fKernelSize.height() <= MAX_KERNEL_SIZE) {
+    if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 
         // Ensure the input is in the destination color space. Typically applyCropRect will have
@@ -454,7 +453,9 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
         // Map srcBounds from input's logical image domain to that of the proxy
         srcBounds.offset(input->subset().x(), input->subset().y());
 
-        auto fp = GrMatrixConvolutionEffect::Make(std::move(inputProxy),
+
+        auto fp = GrMatrixConvolutionEffect::Make(context,
+                                                  std::move(inputProxy),
                                                   srcBounds,
                                                   fKernelSize,
                                                   fKernel,
