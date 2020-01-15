@@ -328,12 +328,15 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
         block = EMPTY_RANGE;
     }
 
-    // One last block could have been left
     if (block.start != EMPTY_INDEX) {
+        // One last block could have been left
         block.end = fCurrentRun->size();
         sortOutUnresolvedBLock(block);
+    } else if (block.end == EMPTY_INDEX) {
+        // The entire block could have been resolved; it will be added later
+    } else {
+        SkASSERT(false);
     }
-
 }
 
 void OneLineShaper::iterateThroughFontStyles(SkSpan<Block> styleSpan,
@@ -466,7 +469,7 @@ bool OneLineShaper::shape() {
 
     // The text can be broken into many shaping sequences
     // (by place holders, possibly, by hard line breaks or tabs, too)
-    uint8_t textDirection = fParagraph->fParagraphStyle.getTextDirection() == TextDirection::kLtr  ? 2 : 1;
+    uint8_t textDirection = fParagraph->fParagraphStyle.getTextDirection() == TextDirection::kLtr  ? 2 : 0xff;
     auto limitlessWidth = std::numeric_limits<SkScalar>::max();
 
     auto result = iterateThroughShapingRegions(
