@@ -222,8 +222,11 @@ private:
 
         SkImage::CompressionType compression = format.asMockCompressionType();
         if (compression == SkImage::CompressionType::kETC2_RGB8_UNORM ||
-            compression == SkImage::CompressionType::kBC1_RGB8_UNORM) {
+            compression == SkImage::CompressionType::kBC1_RGB8_UNORM1) {
             return ct == GrColorType::kRGB_888x; // TODO: this may be too restrictive
+        }
+        if (compression == SkImage::CompressionType::kBC1_RGBA8_UNORM) {
+            return ct == GrColorType::kRGBA_8888;
         }
 
         return ct == format.asMockColorType();
