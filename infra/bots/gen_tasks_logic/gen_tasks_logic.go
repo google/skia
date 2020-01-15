@@ -466,7 +466,8 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
-				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp", "Docker"}
+				"BonusConfigs", "SkottieTracing", "SkottieWASM", "GpuTess", "NonNVPR", "Mskp",
+				"Docker"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
