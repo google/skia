@@ -224,7 +224,6 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     FlushInfo flushInfo;
     auto& context = target->context()->internal();
-    auto glyphCache = context.grContext()->priv().getGrStrikeCache();
     auto atlasManager = context.grContext()->priv().getAtlasManager();
     auto resourceProvider = context.grContext()->priv().resourceProvider();
 
@@ -238,7 +237,7 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
         GrTextBlob::VertexRegenerator regenerator(
                 resourceProvider, fGeoData[i].fSubRunPtr,
                 fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin,
-                fGeoData[i].fColor.toBytes_RGBA(), &context, glyphCache, atlasManager);
+                fGeoData[i].fColor.toBytes_RGBA(), &context, atlasManager);
         auto subRun = fGeoData[i].fSubRunPtr;
         int subRunEnd = subRun->fGlyphs.size();
         for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
