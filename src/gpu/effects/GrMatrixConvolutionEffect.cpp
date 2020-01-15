@@ -7,7 +7,10 @@
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
 #include "include/gpu/GrTexture.h"
+#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -30,14 +33,71 @@ private:
     UniformHandle               fKernelOffsetUni;
     UniformHandle               fGainUni;
     UniformHandle               fBiasUni;
-    GrTextureDomain::GLDomain   fDomain;
+    UniformHandle               fKernelTextureBiasUni;
+
+    GrTextureDomain::GLDomain   fSourceDomain;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
 
+/**
+ Returned vector size will be GrNextPow2 of the actual kernel size.
+ This vector literally acts as the buffer for creating the texture.
+
+ The gain will be multiplied by the gain required to re-hydrate the kernel
+ values after the texture lookup. The bias, which should be applied BEFORE
+ the gain, must be transmitted to the shader separately.
+ */
+static std::vector<uint8_t> make_kernel_pixels(const SkScalar *kernel, int size, float *gain, float *bias) {
+    if (size < MAX_KERNEL_SIZE) return {};
+    SkScalar min = kernel[0];
+    SkScalar max = kernel[size-1];
+    for (int i = 0; i < size; i++) {
+        if (kernel[i] < min) min = kernel[i];
+        if (kernel[i] > max) max = kernel[i];
+    }
+
+    int vec_size = GrNextPow2(size);
+    std::vector<uint8_t> result(vec_size);
+    float inner_gain = (max - min);
+    float inner_bias = min;
+    for (int i = 0; i < size; i++) {
+        result[i] = SkScalarRoundToInt((kernel[i] - inner_bias) / inner_gain * 255);
+    }
+    *gain *= inner_gain;
+    *bias = inner_bias / inner_gain;
+    return result;
+}
+
+static std::vector<float> make_kernel_vector(const SkScalar *kernel, int size) {
+    if (size >= MAX_KERNEL_SIZE) return {};
+    std::vector<float> result(size);
+    for (int i = 0; i < size; i++) {
+        result[i] = SkScalarToFloat(kernel[i]);
+    }
+    return result;
+}
+
+static GrFragmentProcessor::TextureSampler make_kernel_texture(GrRecordingContext *context, const std::vector<uint8_t> &kernel) {
+    if (kernel.size() < MAX_KERNEL_SIZE) return GrFragmentProcessor::TextureSampler();
+    // Need to ensure that the texture we create is power of 2 so a copy isn't needed.
+    // We also know that we will not be using mipmaps. If things things weren't true we should
+    // go through GrBitmapTextureMaker to handle needed copy.
+    SkImageInfo kernelInfo = SkImageInfo::MakeA8(kernel.size(), 1);
+    SkPixmap kernelPixmap(kernelInfo, kernel.data(), kernelInfo.minRowBytes());
+
+    auto kernelImage = SkImage::MakeFromRaster(kernelPixmap, nullptr, nullptr);
+    SkASSERT(kernelImage.get() != nullptr);
+    SkASSERT(SkIsPow2(kernelImage->width()) && SkIsPow2(kernelImage->height()));
+    auto kernelProxy = GrMakeCachedImageProxy(context->priv().proxyProvider(),
+                                                                 std::move(kernelImage));
+    SkASSERT(kernelProxy);
+    return GrFragmentProcessor::TextureSampler(std::move(kernelProxy));
+}
+
 void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     const GrMatrixConvolutionEffect& mce = args.fFp.cast<GrMatrixConvolutionEffect>();
-    const GrTextureDomain& domain = mce.domain();
+    const GrTextureDomain& sourceDomain = mce.sourceDomain();
 
     int kWidth = mce.kernelSize().width();
     int kHeight = mce.kernelSize().height();
@@ -48,9 +108,16 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
     GrGLSLUniformHandler* uniformHandler = args.fUniformHandler;
     fImageIncrementUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                     "ImageIncrement");
-    fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                 "Kernel",
-                                                 arrayCount);
+
+    const bool kernelIsSampler = mce.kernelSize().area() > MAX_KERNEL_SIZE;
+    if (!kernelIsSampler) {
+        fKernelUni = uniformHandler->addUniformArray(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                     "Kernel",
+                                                     arrayCount);
+    } else {
+        fKernelTextureBiasUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "KernelTextureBias");
+
+    }
     fKernelOffsetUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType,
                                                   "KernelOffset");
     fGainUni = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "Gain");
@@ -58,7 +125,6 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
 
     const char* kernelOffset = uniformHandler->getUniformCStr(fKernelOffsetUni);
     const char* imgInc = uniformHandler->getUniformCStr(fImageIncrementUni);
-    const char* kernel = uniformHandler->getUniformCStr(fKernelUni);
     const char* gain = uniformHandler->getUniformCStr(fGainUni);
     const char* bias = uniformHandler->getUniformCStr(fBiasUni);
 
@@ -74,14 +140,27 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
             GrGLSLShaderBuilder::ShaderBlock block(fragBuilder);
             int offset = y*kWidth + x;
 
-            fragBuilder->codeAppendf("half k = %s[%d]%s;", kernel, offset / 4,
-                                     kVecSuffix[offset & 0x3]);
+            if (kernelIsSampler) {
+                const char *kernelTextureBias = uniformHandler->getUniformCStr(fKernelTextureBiasUni);
+                SkString kernelCoord;
+                float texCoord = offset / (float)GrNextPow2(kWidth * kHeight);
+                kernelCoord.printf("half2(%f, 0.5)", texCoord);
+
+                fragBuilder->codeAppend("half k = ");
+                fragBuilder->appendTextureLookup(args.fTexSamplers[1], kernelCoord.c_str());
+                fragBuilder->codeAppendf(".w + %s;", kernelTextureBias);
+            } else {
+                const char* kernel = uniformHandler->getUniformCStr(fKernelUni);
+                fragBuilder->codeAppendf("half k = %s[%d]%s;", kernel, offset / 4,
+                                         kVecSuffix[offset & 0x3]);
+            }
+
             SkString coord;
             coord.printf("coord + half2(%d, %d) * %s", x, y, imgInc);
-            fDomain.sampleTexture(fragBuilder,
+            fSourceDomain.sampleTexture(fragBuilder,
                                   uniformHandler,
                                   args.fShaderCaps,
-                                  domain,
+                                  sourceDomain,
                                   "c",
                                   coord,
                                   args.fTexSamplers[0]);
@@ -98,10 +177,10 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("%s.rgb = clamp(%s.rgb, 0.0, %s.a);",
                                  args.fOutputColor, args.fOutputColor, args.fOutputColor);
     } else {
-        fDomain.sampleTexture(fragBuilder,
+        fSourceDomain.sampleTexture(fragBuilder,
                               uniformHandler,
                               args.fShaderCaps,
-                              domain,
+                              sourceDomain,
                               "c",
                               coords2D,
                               args.fTexSamplers[0]);
@@ -119,7 +198,7 @@ void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,
     uint32_t key = m.kernelSize().width() << 16 | m.kernelSize().height();
     key |= m.convolveAlpha() ? 1U << 31 : 0;
     b->add32(key);
-    b->add32(GrTextureDomain::GLDomain::DomainKey(m.domain()));
+    b->add32(GrTextureDomain::GLDomain::DomainKey(m.sourceDomain()));
 }
 
 void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdman,
@@ -137,13 +216,18 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     int kernelCount = conv.kernelSize().width() * conv.kernelSize().height();
     int arrayCount = (kernelCount + 3) / 4;
     SkASSERT(4 * arrayCount >= kernelCount);
-    pdman.set4fv(fKernelUni, arrayCount, conv.kernel());
+    if (kernelCount <= MAX_KERNEL_SIZE) {
+        pdman.set4fv(fKernelUni, arrayCount, conv.kernel().data());
+    } else {
+        pdman.set1f(fKernelTextureBiasUni, conv.kernelBias());
+    }
     pdman.set1f(fGainUni, conv.gain());
     pdman.set1f(fBiasUni, conv.bias());
-    fDomain.setData(pdman, conv.domain(), view, conv.textureSampler(0).samplerState());
+    fSourceDomain.setData(pdman, conv.sourceDomain(), view, conv.textureSampler(0).samplerState());
 }
 
-GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcProxy,
+GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrRecordingContext *context,
+                                                     sk_sp<GrSurfaceProxy> srcProxy,
                                                      const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -156,17 +240,21 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcPr
         // parameters.
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
         , fCoordTransform(srcProxy.get())
-        , fDomain(srcProxy.get(), GrTextureDomain::MakeTexelDomain(srcBounds, tileMode),
-                  tileMode, tileMode)
-        , fTextureSampler(std::move(srcProxy))
+        , fSourceDomain(srcProxy.get(), GrTextureDomain::MakeTexelDomain(srcBounds, tileMode),
+                  tileMode, tileMode, 0)
+        , fSourceSampler(std::move(srcProxy))
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)
         , fConvolveAlpha(convolveAlpha) {
+    fKernel = make_kernel_vector(kernel, kernelSize.area());
+    fKernelPixels = make_kernel_pixels(kernel, kernelSize.area(), &fGain, &fKernelBias);
+    fKernelSampler = make_kernel_texture(context, fKernelPixels);
     this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
-    for (int i = 0; i < kernelSize.width() * kernelSize.height(); i++) {
-        fKernel[i] = SkScalarToFloat(kernel[i]);
+    if (kernelSize.area() > MAX_KERNEL_SIZE) {
+        this->setTextureSamplerCnt(2);
+    } else {
+        this->setTextureSamplerCnt(1);
     }
     fKernelOffset[0] = static_cast<float>(kernelOffset.x());
     fKernelOffset[1] = static_cast<float>(kernelOffset.y());
@@ -175,15 +263,18 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcPr
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(const GrMatrixConvolutionEffect& that)
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
         , fCoordTransform(that.fCoordTransform)
-        , fDomain(that.fDomain)
-        , fTextureSampler(that.fTextureSampler)
+        , fSourceDomain(that.fSourceDomain)
+        , fSourceSampler(that.fSourceSampler)
+        , fKernelSampler(that.fKernelSampler)
         , fKernelSize(that.fKernelSize)
+        , fKernel(that.fKernel)
+        , fKernelPixels(that.fKernelPixels)
         , fGain(that.fGain)
         , fBias(that.fBias)
+        , fKernelBias(that.fKernelBias)
         , fConvolveAlpha(that.fConvolveAlpha) {
     this->addCoordTransform(&fCoordTransform);
-    this->setTextureSamplerCnt(1);
-    memcpy(fKernel, that.fKernel, sizeof(float) * fKernelSize.width() * fKernelSize.height());
+    this->setTextureSamplerCnt(that.numTextureSamplers());
     memcpy(fKernelOffset, that.fKernelOffset, sizeof(fKernelOffset));
 }
 
@@ -203,13 +294,12 @@ GrGLSLFragmentProcessor* GrMatrixConvolutionEffect::onCreateGLSLInstance() const
 bool GrMatrixConvolutionEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrMatrixConvolutionEffect& s = sBase.cast<GrMatrixConvolutionEffect>();
     return fKernelSize == s.kernelSize() &&
-           !memcmp(fKernel, s.kernel(),
-                   fKernelSize.width() * fKernelSize.height() * sizeof(float)) &&
+           fKernel == s.kernel() &&
            fGain == s.gain() &&
            fBias == s.bias() &&
            !memcmp(fKernelOffset, s.kernelOffset(), sizeof(fKernelOffset)) &&
            fConvolveAlpha == s.convolveAlpha() &&
-           fDomain == s.domain();
+           fSourceDomain == s.sourceDomain();
 }
 
 static void fill_in_1D_gaussian_kernel_with_stride(float* kernel, int size, int stride,
@@ -236,7 +326,6 @@ static void fill_in_1D_gaussian_kernel_with_stride(float* kernel, int size, int 
 
 static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
                                        SkScalar sigmaX, SkScalar sigmaY) {
-    SkASSERT(width * height <= MAX_KERNEL_SIZE);
     const float twoSigmaSqrdX = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaX));
     const float twoSigmaSqrdY = 2.0f * SkScalarToFloat(SkScalarSquare(sigmaY));
 
@@ -294,6 +383,7 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
 // Static function to create a 2D convolution
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
+        GrRecordingContext *context,
         sk_sp<GrTextureProxy> srcProxy,
         const SkIRect& srcBounds,
         const SkISize& kernelSize,
@@ -304,12 +394,12 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
         bool convolveAlpha,
         SkScalar sigmaX,
         SkScalar sigmaY) {
-    float kernel[MAX_KERNEL_SIZE];
+    std::vector<float> kernel(kernelSize.area());
 
-    fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
+    fill_in_2D_gaussian_kernel(kernel.data(), kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
 
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(std::move(srcProxy), srcBounds, kernelSize, kernel,
+            new GrMatrixConvolutionEffect(context, std::move(srcProxy), srcBounds, kernelSize, kernel.data(),
                                           gain, bias, kernelOffset, tileMode, convolveAlpha));
 }
 
@@ -319,8 +409,9 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {
     auto [proxy, ct, at] = d->randomProxy();
 
-    int width = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE);
-    int height = d->fRandom->nextRangeU(1, MAX_KERNEL_SIZE / width);
+    static constexpr size_t kMaxTestKernelSize = 2 * MAX_KERNEL_SIZE;
+    int width = d->fRandom->nextRangeU(1, kMaxTestKernelSize);
+    int height = d->fRandom->nextRangeU(1, kMaxTestKernelSize / width);
     SkISize kernelSize = SkISize::Make(width, height);
     std::unique_ptr<SkScalar[]> kernel(new SkScalar[width * height]);
     for (int i = 0; i < width * height; i++) {
@@ -337,7 +428,8 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrPro
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
-    return GrMatrixConvolutionEffect::Make(std::move(proxy),
+    return GrMatrixConvolutionEffect::Make(d->context()->priv().asRecordingContext(),
+                                           std::move(proxy),
                                            bounds,
                                            kernelSize,
                                            kernel.get(),
