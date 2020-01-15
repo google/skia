@@ -1126,6 +1126,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkFontMgr_New_Custom_Data(datas, sizes, numFonts);
         }), allow_raw_pointers())
         .class_function("RefDefault", &SkFontMgr::RefDefault)
+        .function("countFamilies", &SkFontMgr::countFamilies)
+        .function("getFamilyName", optional_override([](SkFontMgr& self, int index)->JSString {
+            if (index < 0 || index >= self.countFamilies()) {
+                return emscripten::val::null();
+            }
+            SkString s;
+            self.getFamilyName(index, &s);
+            return emscripten::val(s.c_str());
+        }))
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {
             int numFam = self.countFamilies();
@@ -1137,7 +1146,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
         }))
 #endif
-        .function("countFamilies", &SkFontMgr::countFamilies)
         .function("_makeTypefaceFromData", optional_override([](SkFontMgr& self,
                                                 uintptr_t /* uint8_t*  */ fPtr,
                                                 int flen)->sk_sp<SkTypeface> {
