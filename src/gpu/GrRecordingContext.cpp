@@ -140,7 +140,7 @@ GrRecordingContext::Arenas GrRecordingContext::OwnedArenas::get() {
         // DDL TODO: should the size of the memory pool be decreased in DDL mode? CPU-side memory
         // consumed in DDL mode vs. normal mode for a single skp might be a good metric of wasted
         // memory.
-        fOpMemoryPool = GrOpMemoryPool::Make(16384, 16384);
+        fOpMemoryPool = GrOpMemoryPool::Make(16384);
     }
 
     if (!fRecordTimeAllocator) {
