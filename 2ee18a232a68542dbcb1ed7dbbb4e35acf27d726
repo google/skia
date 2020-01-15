@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2fb9835e_5288310e",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-15T20:59:36Z",
+      "side": 1,
+      "message": "I reworked the logic here to avoid the issue altogether.",
+      "parentUuid": "f9e7b7b8_ac5f65ef",
+      "range": {
+        "startLine": 497,
+        "startChar": 28,
+        "endLine": 497,
+        "endChar": 36
+      },
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4015407d_6835d094",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 38
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "401ae253_fa897506",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-15T20:59:36Z",
+      "side": 1,
+      "message": "Likewise.",
+      "parentUuid": "4015407d_6835d094",
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "316a0c38_c3423ff1",
         "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
         "patchSetId": 38
@@ -53,6 +95,30 @@
       "writtenOn": "2020-01-15T17:52:45Z",
       "side": 1,
       "message": "re:  A prior comment. I see now that registers are not shared across functions, but this (and a few other spots, IIRC) do break the SSA model, right? It\u0027s not a bug per-se (everything still works), but it might interfere with future analysis?",
+      "range": {
+        "startLine": 624,
+        "startChar": 0,
+        "endLine": 625,
+        "endChar": 36
+      },
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79986271_b3663a04",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-15T20:59:36Z",
+      "side": 1,
+      "message": "I don\u0027t *think* we need to assume SSA... it\u0027s primarily useful for optimization, which we aren\u0027t doing on this representation.",
+      "parentUuid": "316a0c38_c3423ff1",
       "range": {
         "startLine": 624,
         "startChar": 0,
@@ -85,6 +151,30 @@
       "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bc118ab_4991a806",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-15T20:59:36Z",
+      "side": 1,
+      "message": "I evidently wasn\u0027t fast enough; I uploaded a patch for this while you were still reviewing it :-).",
+      "parentUuid": "484b8165_bd562c45",
+      "range": {
+        "startLine": 190,
+        "startChar": 12,
+        "endLine": 190,
+        "endChar": 36
+      },
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
