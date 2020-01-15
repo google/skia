@@ -11,8 +11,8 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/tessellate/GrCenterWedgePatchGen.h"
 #include "src/gpu/tessellate/GrCoverShader.h"
+#include "src/gpu/tessellate/GrPathParser.h"
 #include "src/gpu/tessellate/GrTessellateWedgeShader.h"
 
 GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() const {
@@ -24,16 +24,11 @@ GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() 
 }
 
 void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
-    SkSTArray<16, SkPoint, true> contourMidpoints;
-    GrCenterWedgePatchGen patchGen(fPath);
-    int numPatches = patchGen.walkPath(nullptr, &contourMidpoints);
-    if (!numPatches) {
-        return;
-    }
-    if (auto* wedgeData = (std::array<SkPoint, 5>*)state->makeVertexSpace(
-            sizeof(SkPoint), numPatches * 5, &fWedgeBuffer, &fBaseWedgeVertex)) {
-        fNumWedges = patchGen.walkPath(wedgeData, &contourMidpoints);
-        SkASSERT(fNumWedges == numPatches);
+    int maxVertexCount = GrPathParser::MaxPossibleWedgeVertices(fPath);
+    if (auto* wedgeData = (SkPoint*)state->makeVertexSpace(
+            sizeof(SkPoint), maxVertexCount, &fWedgeBuffer, &fBaseWedgeVertex)) {
+        fWedgeVertexCount = GrPathParser::EmitCenterWedges(fPath, wedgeData);
+        state->putBackVertices(maxVertexCount - fWedgeVertexCount, sizeof(SkPoint));
     }
 }
 
@@ -97,7 +92,7 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* state, const GrAppliedH
                               GrPrimitiveType::kPatches, 5);
 
     GrMesh mesh(GrPrimitiveType::kPatches, 5);
-    mesh.setNonIndexedNonInstanced(fNumWedges * 5);
+    mesh.setNonIndexedNonInstanced(fWedgeVertexCount);
     mesh.setVertexData(fWedgeBuffer, fBaseWedgeVertex);
 
     state->opsRenderPass()->draw(programInfo, &mesh, 1, this->bounds());
