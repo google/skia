@@ -1723,36 +1723,52 @@ class ParagraphView22 : public ParagraphView_Base {
 protected:
     SkString name() override { return SkString("Paragraph22"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-
-        const char* text =  "By continuing, you agree to the Google Payments ￼. The ￼ describes how your data is handled.";
-        for (size_t i = 0; i < 10000; ++i) {
-            ParagraphStyle paragraph_style;
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
-            TextStyle text_style;
-            text_style.setColor(SK_ColorBLACK);
-            text_style.setFontFamilies({SkString("Roboto")});
-            text_style.setFontSize(12);
-            builder.pushStyle(text_style);
-            builder.addText(text);
-            auto paragraph = builder.Build();
-            paragraph->layout(std::numeric_limits<SkScalar>::max());
-            SkDebugf("layout: %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight());
-            if (i % 3 != 1) {
-                paragraph->layout(566);
-                SkDebugf("layout: %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight());
-            } else if (i % 3 == 2) {
-                paragraph->layout(633);
-                SkDebugf("layout: %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight());
+    bool onChar(SkUnichar uni) override {
+            switch (uni) {
+                case 'l':
+                    direction = true;
+                    return true;
+                case 'r':
+                    direction = false;
+                    return true;
+                default:
+                    break;
             }
-        }
-        //paragraph->paint(canvas, 0, 0);
+            return false;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(direction ? TextDirection::kLtr : TextDirection::kRtl);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        collection->getParagraphCache()->reset();
+        collection->getParagraphCache()->turnOn(false);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(12);
+        builder.pushStyle(text_style);
+        builder.addText("I have got a ");
+        text_style.setFontStyle(SkFontStyle::Bold());
+        builder.pushStyle(text_style);
+        builder.addText("lovely bunch");
+        text_style.setFontStyle(SkFontStyle::Normal());
+        builder.pushStyle(text_style);
+        builder.addText(" of coconuts.");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->width());
+        paragraph->paint(canvas, 0, 0);
+        collection->getParagraphCache()->turnOn(true);
     }
 
 private:
     typedef Sample INHERITED;
+    bool direction;
 };
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
