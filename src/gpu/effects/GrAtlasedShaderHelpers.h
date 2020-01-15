@@ -31,11 +31,11 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
         args.fVertBuilder->codeAppend("float indexX = 0; float indexY = 0;");
         // Could possibly do this with mix() but not clear it's worth it.
         args.fVertBuilder->codeAppend("if (unormTexCoords.x < 0) {");
-        args.fVertBuilder->codeAppend("  unormTexCoords.x = -unormTexCoords.x-1;");
+        args.fVertBuilder->codeAppend("  unormTexCoords.x = -(unormTexCoords.x+1);");
         args.fVertBuilder->codeAppend("  indexX = 2;");
         args.fVertBuilder->codeAppend("}");
         args.fVertBuilder->codeAppend("if (unormTexCoords.y < 0) {");
-        args.fVertBuilder->codeAppend("  unormTexCoords.y = -unormTexCoords.y-1;");
+        args.fVertBuilder->codeAppend("  unormTexCoords.y = -(unormTexCoords.y+1);");
         args.fVertBuilder->codeAppend("  indexY = 1;");
         args.fVertBuilder->codeAppend("}");
         args.fVertBuilder->codeAppend("float texIdx = indexX + indexY;");
