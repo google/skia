@@ -192,22 +192,17 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
             // In the LCD case the color will be garbage, but we'll overwrite it with the texcoords
             // and it avoids a lot of conditionals.
             auto color = *reinterpret_cast<const SkColor*>(blobVertices + sizeof(SkPoint));
-            size_t coordOffset = vertexStride - 2*sizeof(int16_t);
-            auto* blobCoordsLT = reinterpret_cast<const int16_t*>(blobVertices + coordOffset);
-            auto* blobCoordsRB = reinterpret_cast<const int16_t*>(blobVertices + 3 * vertexStride +
+            size_t coordOffset = vertexStride - 2*sizeof(uint16_t);
+            auto* blobCoordsLT = reinterpret_cast<const uint16_t*>(blobVertices + coordOffset);
+            auto* blobCoordsRB = reinterpret_cast<const uint16_t*>(blobVertices + 3 * vertexStride +
                                                                    coordOffset);
             // Pull out the texel coordinates and texture index bits
-            int16_t coordsRectL = blobCoordsLT[0];
-            int16_t coordsRectT = blobCoordsLT[1];
-            int16_t coordsRectR = blobCoordsRB[0];
-            int16_t coordsRectB = blobCoordsRB[1];
-            int index0, index1;
-
-            std::tie(coordsRectL, coordsRectT, index0) =
-                    GrDrawOpAtlas::UnpackIndexFromTexCoords(coordsRectL, coordsRectT);
-            std::tie(coordsRectR, coordsRectB, index1) =
-                    GrDrawOpAtlas::UnpackIndexFromTexCoords(coordsRectR, coordsRectB);
-            SkASSERT(index0 == index1);
+            uint16_t coordsRectL = blobCoordsLT[0] >> 1;
+            uint16_t coordsRectT = blobCoordsLT[1] >> 1;
+            uint16_t coordsRectR = blobCoordsRB[0] >> 1;
+            uint16_t coordsRectB = blobCoordsRB[1] >> 1;
+            uint16_t pageIndexX = blobCoordsLT[0] & 0x1;
+            uint16_t pageIndexY = blobCoordsLT[1] & 0x1;
 
             int positionRectWidth = positionRect.width();
             int positionRectHeight = positionRect.height();
@@ -233,10 +228,10 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
             positionRect.fBottom -= delta;
 
             // Repack texel coordinates and index
-            std::tie(coordsRectL, coordsRectT) =
-                    GrDrawOpAtlas::PackIndexInTexCoords(coordsRectL, coordsRectT, index0);
-            std::tie(coordsRectR, coordsRectB) =
-                    GrDrawOpAtlas::PackIndexInTexCoords(coordsRectR, coordsRectB, index1);
+            coordsRectL = coordsRectL << 1 | pageIndexX;
+            coordsRectT = coordsRectT << 1 | pageIndexY;
+            coordsRectR = coordsRectR << 1 | pageIndexX;
+            coordsRectB = coordsRectB << 1 | pageIndexY;
 
             // Set new positions and coords
             SkPoint* currPosition = reinterpret_cast<SkPoint*>(currVertex);

@@ -231,14 +231,14 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
     const size_t vertexStride = this->vertexStride();
     const size_t texCoordOffset = this->texCoordOffset();
     char* vertex = this->quadStart(begin);
-    int16_t* textureCoords = reinterpret_cast<int16_t*>(vertex + texCoordOffset);
+    uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
     for (int i = begin; i < end; i++) {
         GrGlyph* glyph = this->fGlyphs[i];
         SkASSERT(glyph != nullptr);
 
         int width = glyph->fBounds.width();
         int height = glyph->fBounds.height();
-        int16_t u0, v0, u1, v1;
+        uint16_t u0, v0, u1, v1;
         if (this->drawAsDistanceFields()) {
             u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
             v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
@@ -251,23 +251,32 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
             v1 = v0 + height;
         }
 
-        // We pack the 2bit page index as the sign bit of the u and v texture coords
+        // We pack the 2bit page index in the low bit of the u and v texture coords
         uint32_t pageIndex = glyph->pageIndex();
-        std::tie(u0, v0) = GrDrawOpAtlas::PackIndexInTexCoords(u0, v0, pageIndex);
-        std::tie(u1, v1) = GrDrawOpAtlas::PackIndexInTexCoords(u1, v1, pageIndex);
+        SkASSERT(pageIndex < 4);
+        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
+        uint16_t vBit = pageIndex & 0x1u;
+        u0 <<= 1u;
+        u0 |= uBit;
+        v0 <<= 1u;
+        v0 |= vBit;
+        u1 <<= 1u;
+        u1 |= uBit;
+        v1 <<= 1u;
+        v1 |= vBit;
 
         textureCoords[0] = u0;
         textureCoords[1] = v0;
-        textureCoords = SkTAddOffset<int16_t>(textureCoords, vertexStride);
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
         textureCoords[0] = u0;
         textureCoords[1] = v1;
-        textureCoords = SkTAddOffset<int16_t>(textureCoords, vertexStride);
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
         textureCoords[0] = u1;
         textureCoords[1] = v0;
-        textureCoords = SkTAddOffset<int16_t>(textureCoords, vertexStride);
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
         textureCoords[0] = u1;
         textureCoords[1] = v1;
-        textureCoords = SkTAddOffset<int16_t>(textureCoords, vertexStride);
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
     }
 }
 
