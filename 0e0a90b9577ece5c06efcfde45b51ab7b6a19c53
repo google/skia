@@ -22,6 +22,30 @@
       "revId": "0e0a90b9577ece5c06efcfde45b51ab7b6a19c53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebdf9086_af681a92",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-15T18:52:43Z",
+      "side": 1,
+      "message": "Ah.  That makes sense.  I think PS2/3 should slip through then.\n\nI think it\u0027s probably ok here to mix up r and b.  They might actually be holding each other, but are not getting channel swapped?",
+      "parentUuid": "89d49b63_a5db10ae",
+      "range": {
+        "startLine": 299,
+        "startChar": 0,
+        "endLine": 304,
+        "endChar": 13
+      },
+      "revId": "0e0a90b9577ece5c06efcfde45b51ab7b6a19c53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
