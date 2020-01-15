@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89d49b63_a5db10ae",
+        "filename": "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T17:59:02Z",
+      "side": 1,
+      "message": "I think that weirdness with the \"wrong\" alphaType is because this code implicitly premultiplies in that case. (Though it\u0027s making assumptions about N32 here again, right?).",
+      "range": {
+        "startLine": 299,
+        "startChar": 0,
+        "endLine": 304,
+        "endChar": 13
+      },
+      "revId": "0e0a90b9577ece5c06efcfde45b51ab7b6a19c53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
