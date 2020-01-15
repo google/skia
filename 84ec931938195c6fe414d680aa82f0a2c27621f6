@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06ba4515_36a91e74",
+        "filename": "src/gpu/GrSurfaceProxy.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-15T15:11:17Z",
+      "side": 1,
+      "message": "Should this be \u0027srcColorType\u0027 ? and maybe a comment as to why we need it at all ?",
+      "range": {
+        "startLine": 291,
+        "startChar": 50,
+        "endLine": 291,
+        "endChar": 59
+      },
+      "revId": "84ec931938195c6fe414d680aa82f0a2c27621f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
