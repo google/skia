@@ -23,21 +23,31 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      GrGLSLVarying* st) {
     // This extracts the texture index and texel coordinates from the same variable
     // Packing structure: to store an index bit, texel coordinate [0,N] is mapped to [-1,-N-1]
-    args.fVertBuilder->codeAppendf("float2 unormTexCoords = float2(%s.x, %s.y);",
-                                   inTexCoordsName, inTexCoordsName);
     if (numTextureSamplers < 2) {
+        args.fVertBuilder->codeAppendf("float2 unormTexCoords = float2(%s.x, %s.y);",
+                                       inTexCoordsName, inTexCoordsName);
         args.fVertBuilder->codeAppend("float texIdx = 0;");
     } else {
+        if (args.fShaderCaps->integerSupport()) {
+            args.fVertBuilder->codeAppendf("int2 intTexCoords = int2(%s.x, %s.y);",
+                                           inTexCoordsName, inTexCoordsName);
+        } else {
+            args.fVertBuilder->codeAppend("float2 intTexCoords;");
+            args.fVertBuilder->codeAppendf("intTexCoords.x = floor(float(%s.x));", inTexCoordsName);
+            args.fVertBuilder->codeAppendf("intTexCoords.y = floor(float(%s.y));", inTexCoordsName);
+        }
         args.fVertBuilder->codeAppend("float indexX = 0; float indexY = 0;");
         // Could possibly do this with mix() but not clear it's worth it.
-        args.fVertBuilder->codeAppend("if (unormTexCoords.x < 0) {");
-        args.fVertBuilder->codeAppend("  unormTexCoords.x = -unormTexCoords.x-1;");
+        args.fVertBuilder->codeAppend("if (intTexCoords.x < 0) {");
+        args.fVertBuilder->codeAppend("  intTexCoords.x = -intTexCoords.x-1;");
         args.fVertBuilder->codeAppend("  indexX = 2;");
         args.fVertBuilder->codeAppend("}");
-        args.fVertBuilder->codeAppend("if (unormTexCoords.y < 0) {");
-        args.fVertBuilder->codeAppend("  unormTexCoords.y = -unormTexCoords.y-1;");
+        args.fVertBuilder->codeAppend("if (intTexCoords.y < 0) {");
+        args.fVertBuilder->codeAppend("  intTexCoords.y = -intTexCoords.y-1;");
         args.fVertBuilder->codeAppend("  indexY = 1;");
         args.fVertBuilder->codeAppend("}");
+        args.fVertBuilder->codeAppend(
+                "float2 unormTexCoords = float2(intTexCoords.x, intTexCoords.y);");
         args.fVertBuilder->codeAppend("float texIdx = indexX + indexY;");
     }
 
