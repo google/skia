@@ -193,7 +193,7 @@ class SampleRR3D : public Sample3DView {
         canvas->concat(trans * fRot * m * inv(trans));
 
         SkPaint paint;
-        paint.setAlphaf(front(canvas->getTotalM44()) ? 1 : 0.25f);
+        paint.setAlphaf(front(canvas->getLocalToDevice()) ? 1 : 0.25f);
         paint.setShader(fShader);
         canvas->drawRRect(fRR, paint);
     }

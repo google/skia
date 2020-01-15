@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 
 class SkMatrix;
+class SkMatrix44;
 
 class SkM44 {
 public:
@@ -41,6 +42,9 @@ public:
         fMat[2] = m2; fMat[6] = m6; fMat[10] = m10; fMat[14] = m14;
         fMat[3] = m3; fMat[7] = m7; fMat[11] = m11; fMat[15] = m15;
     }
+
+    SkM44(const SkMatrix44&);
+    SkM44& operator=(const SkMatrix44&);
 
     static SkM44 Translate(SkScalar x, SkScalar y, SkScalar z = 0) {
         return SkM44(1, 0, 0, x,
@@ -111,14 +115,18 @@ public:
                                  0, 0, 0, 1);
     }
 
-    SkM44& setConcat(const SkM44& a, const SkScalar colMajor[16]);
+    SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
 
     SkM44& setConcat(const SkM44& a, const SkM44& b) {
-        return this->setConcat(a, b.fMat);
+        return this->setConcat16(a, b.fMat);
     }
 
     friend SkM44 operator*(const SkM44& a, const SkM44& b) {
         return SkM44(a, b);
+    }
+
+    SkM44& preConcat16(const SkScalar colMajor[16]) {
+        return this->setConcat16(*this, colMajor);
     }
 
     /** If this is invertible, return that in inverse and return true. If it is

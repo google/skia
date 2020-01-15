@@ -19,7 +19,6 @@ public:
     }
 
     void reset() { this->setIdentity(); }
-    void preConcat44(const SkScalar m[]) { this->setConcat(*this, m); }
 
     operator SkMatrix() const { return this->asM33(); }
     // the legacy check was just for the 3x3 portion, so we only check those
