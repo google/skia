@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "d61783b1_5d7e5c40",
+        "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-15T19:34:45Z",
+      "side": 1,
+      "message": "It\u0027s kind of crazy that we have this macro in the header. This might be a good opportunity to make it a static constexpr class member and rename it to something like kMaxUniformKernelSize.",
+      "range": {
+        "startLine": 55,
+        "startChar": 20,
+        "endLine": 55,
+        "endChar": 35
+      },
+      "revId": "f026175c8444c250c9bcd89a0a4baed59b8a725e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "79455e55_f7182022",
         "filename": "src/gpu/effects/GrMatrixConvolutionEffect.cpp",
         "patchSetId": 10
