@@ -13,8 +13,8 @@
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
-#include <functional>  // std::hash
 #include <string.h>
 
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
@@ -495,36 +495,19 @@ namespace skvm {
         return {fProgram, fStrides, debug_name};
     }
 
-    // TODO: it's probably not important that we include post-Builder::done() fields like
-    // death, can_hoist, and used_in_loop in operator==() and InstructionHash::operator().
-    // They'll always have the same, initial values as set in Builder::push().
-
+    // death, can_hoist, and used_in_loop are not populated until done()
+    // and will always have default values.  We skip them in operator==() and hashing.
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
         return a.op           == b.op
             && a.x            == b.x
             && a.y            == b.y
             && a.z            == b.z
             && a.immy         == b.immy
-            && a.immz         == b.immz
-            && a.death        == b.death
-            && a.can_hoist    == b.can_hoist
-            && a.used_in_loop == b.used_in_loop;
+            && a.immz         == b.immz;
     }
 
-    // TODO: replace with SkOpts::hash()?
     size_t Builder::InstructionHash::operator()(const Instruction& inst) const {
-        auto hash = [](auto v) {
-            return std::hash<decltype(v)>{}(v);
-        };
-        return hash((uint8_t)inst.op)
-             ^ hash(inst.x)
-             ^ hash(inst.y)
-             ^ hash(inst.z)
-             ^ hash(inst.immy)
-             ^ hash(inst.immz)
-             ^ hash(inst.death)
-             ^ hash(inst.can_hoist)
-             ^ hash(inst.used_in_loop);
+        return SkOpts::hash(&inst, offsetof(Instruction, death));
     }
 
     uint32_t Builder::hash() const { return fHash; }
