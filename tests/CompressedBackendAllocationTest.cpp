@@ -40,7 +40,8 @@ static void check_compressed_mipmaps(GrContext* context, const GrBackendTexture&
 
     SkImage::CompressionType compression = caps->compressionType(backendTex.getBackendFormat());
 
-    SkAlphaType at = kOpaque_SkAlphaType;
+    SkAlphaType at = GrCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
+                                                            : kPremul_SkAlphaType;
 
     sk_sp<SkImage> img = SkImage::MakeFromCompressedTexture(context,
                                                             backendTex,
@@ -66,7 +67,8 @@ static void check_compressed_mipmaps(GrContext* context, const GrBackendTexture&
     SkCanvas* canvas = surf->getCanvas();
 
     SkPaint p;
-    p.setFilterQuality(kHigh_SkFilterQuality);
+    p.setFilterQuality(kHigh_SkFilterQuality); // to force mipMapping
+    p.setBlendMode(SkBlendMode::kSrc);
 
     int numMipLevels = 1;
     if (mipMapped == GrMipMapped::kYes) {
@@ -154,7 +156,6 @@ static void test_compressed_data_init(GrContext* context,
                                       SkImage::CompressionType compression,
                                       GrMipMapped mipMapped) {
 
-    // TODO: make these transparent for RGBA compressed formats
     SkColor4f expectedColors[6] = {
         { 1.0f, 0.0f, 0.0f, 1.0f }, // R
         { 0.0f, 1.0f, 0.0f, 1.0f }, // G
@@ -187,7 +188,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
         SkColor4f                fColor;
     } combinations[] = {
         { SkImage::CompressionType::kETC2_RGB8_UNORM, SkColors::kRed },
-        { SkImage::CompressionType::kBC1_RGB8_UNORM,  SkColors::kBlue },
+        { SkImage::CompressionType::kBC1_RGB8_UNORM, SkColors::kBlue },
+        { SkImage::CompressionType::kBC1_RGBA8_UNORM, SkColors::kTransparent },
     };
 
     for (auto combo : combinations) {

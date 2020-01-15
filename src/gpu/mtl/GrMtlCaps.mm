@@ -313,19 +313,21 @@ bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
 }
 
 SkImage::CompressionType GrMtlCaps::compressionType(const GrBackendFormat& format) const {
-#ifdef SK_BUILD_FOR_MAC
-    return SkImage::CompressionType::kNone;
-#else
+
     switch (GrBackendFormatAsMTLPixelFormat(format)) {
+#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:
             // ETC2 uses the same compression layout as ETC1
             return SkImage::CompressionType::kETC2_RGB8_UNORM;
+#else
+        case MTLPixelFormatBC1_RGBA:
+            return SkImage::CompressionType::kBC1_RGBA8_UNORM;
+#endif
         default:
             return SkImage::CompressionType::kNone;
     }
 
     SkUNREACHABLE;
-#endif
 }
 
 bool GrMtlCaps::isFormatTexturableAndUploadable(GrColorType ct,
@@ -478,6 +480,8 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatRG16Unorm,
 #ifdef SK_BUILD_FOR_IOS
     MTLPixelFormatETC2_RGB8,
+#else
+    MTLPixelFormatBC1_RGBA,
 #endif
     MTLPixelFormatRGBA16Unorm,
     MTLPixelFormatRG16Float,
@@ -783,6 +787,11 @@ void GrMtlCaps::initFormatTable() {
     info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
     info->fFlags = FormatInfo::kTexturable_Flag;
     // NO supported colorTypes
+#else
+    // BC1_RGBA
+    info = &fFormatTable[GetFormatIndex(MTLPixelFormatBC1_RGBA)];
+    info->fFlags = FormatInfo::kTexturable_Flag;
+    // NO supported colorTypes
 #endif
 
     // Format: RGBA16Unorm
@@ -893,6 +902,11 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
             if (MTLPixelFormatRGBA8Unorm == format) {
                 return kRGBA_8888_GrPixelConfig;
             }
+#ifdef SK_BUILD_FOR_MAC
+            else if (MTLPixelFormatBC1_RGBA == format) {
+                return kBC1_RGBA8_UNORM_GrPixelConfig;
+            }
+#endif
             break;
         case GrColorType::kRGBA_8888_SRGB:
             if (MTLPixelFormatRGBA8Unorm_sRGB == format) {
@@ -1000,6 +1014,8 @@ GrPixelConfig GrMtlCaps::onGetConfigFromCompressedBackendFormat(const GrBackendF
     switch (GrBackendFormatAsMTLPixelFormat(f)) {
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8: return kRGB_ETC1_GrPixelConfig;
+#else
+        case MTLPixelFormatBC1_RGBA:  return kBC1_RGBA8_UNORM_GrPixelConfig;
 #endif
         default:                      return kUnknown_GrPixelConfig;
     }
@@ -1047,8 +1063,15 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
             return GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8);
 #endif
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
-            // Metal only supports the RGBA BC1 variants
+            // Metal only supports the RGBA BC1 variant (see following)
             return {};
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM:
+#ifdef SK_BUILD_FOR_MAC
+            return GrBackendFormat::MakeMtl(MTLPixelFormatBC1_RGBA);
+#else
+            return {};
+#endif
+
     }
     SK_ABORT("Invalid compression type");
 }
@@ -1174,6 +1197,8 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm)      },
 #ifdef SK_BUILD_FOR_IOS
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8)       },
+#else
+        { GrColorType::kRGBA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatBC1_RGBA)        },
 #endif
         { GrColorType::kRG_88,            GrBackendFormat::MakeMtl(MTLPixelFormatRG8Unorm)        },
         { GrColorType::kBGRA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatBGRA8Unorm)      },

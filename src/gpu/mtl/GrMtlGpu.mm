@@ -584,17 +584,16 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     // copy data into the buffer, skipping any trailing bytes
     memcpy(buffer, data, dataSize);
 
-    size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlPixelFormat);
-
     SkISize levelDimensions = dimensions;
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
-        size_t trimRowBytes = levelDimensions.width() * bytesPerPixel;
-        size_t levelSize = trimRowBytes * levelDimensions.height();
+        const size_t levelRowBytes = GrCompressedRowBytes(compressionType, levelDimensions.width());
+        size_t levelSize = GrCompressedDataSize(compressionType, levelDimensions, nullptr,
+                                                GrMipMapped::kNo);
 
         // TODO: can this all be done in one go?
         [blitCmdEncoder copyFromBuffer: transferBuffer
                           sourceOffset: individualMipOffsets[currentMipLevel]
-                     sourceBytesPerRow: trimRowBytes
+                     sourceBytesPerRow: levelRowBytes
                    sourceBytesPerImage: levelSize
                             sourceSize: MTLSizeMake(levelDimensions.width(),
                                                     levelDimensions.height(), 1)
