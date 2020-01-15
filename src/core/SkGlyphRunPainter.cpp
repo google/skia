@@ -273,7 +273,7 @@ SkPMColor4f generate_filtered_color(const SkPaint& paint, const GrColorInfo& col
 
 void GrTextContext::drawGlyphRunList(
         GrRecordingContext* context, GrTextTarget* target, const GrClip& clip,
-        const SkMatrix& drawMatrix, const SkSurfaceProps& props,
+        const SkMatrix& unpositionedDrawMatrix, const SkSurfaceProps& props,
         const SkGlyphRunList& glyphRunList) {
     auto contextPriv = context->priv();
     // If we have been abandoned, then don't draw
@@ -292,7 +292,8 @@ void GrTextContext::drawGlyphRunList(
     // When creating the a new blob, use the GrColor calculated from the drawingColor.
     GrColor initialVertexColor = drawingColor.toBytes_RGBA();
 
-    SkPoint drawOrigin = glyphRunList.origin();
+    SkPoint origin = glyphRunList.origin();
+    SkMatrix drawMatrix = SkMatrix{unpositionedDrawMatrix}.preTranslate(origin.x(), origin.y());
 
     SkMaskFilterBase::BlurRec blurRec;
     // It might be worth caching these things, but its not clear at this time
@@ -331,7 +332,7 @@ void GrTextContext::drawGlyphRunList(
     SkGlyphRunListPainter* painter = target->glyphPainter();
     if (cachedBlob) {
         if (cachedBlob->mustRegenerate(blobPaint, glyphRunList.anyRunsSubpixelPositioned(),
-                                       blurRec, drawMatrix, drawOrigin)) {
+                                       blurRec, drawMatrix)) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away reuse most of the time if the pointer is unique,
             // but we'd have to clear the subrun information
@@ -359,7 +360,7 @@ void GrTextContext::drawGlyphRunList(
     }
 
     cachedBlob->flush(target, props, fDistanceAdjustTable.get(), blobPaint, drawingColor,
-                      clip, drawMatrix, drawOrigin);
+                      clip, drawMatrix);
 }
 
 #if GR_TEST_UTILS

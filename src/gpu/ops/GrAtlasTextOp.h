@@ -32,7 +32,6 @@ public:
         SkMatrix    fDrawMatrix;
         SkIRect     fClipRect;
         GrTextBlob* fBlob;
-        SkPoint     fDrawOrigin;
         GrTextBlob::SubRun* fSubRunPtr;
         SkPMColor4f fColor;
     };

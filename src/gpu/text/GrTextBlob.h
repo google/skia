@@ -128,16 +128,15 @@ public:
     static size_t GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord);
 
     bool mustRegenerate(const SkPaint&, bool, const SkMaskFilterBase::BlurRec& blurRec,
-                        const SkMatrix& drawMatrix, SkPoint drawOrigin);
+                        const SkMatrix& drawMatrix);
 
     void flush(GrTextTarget*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                const SkPaint& paint, const SkPMColor4f& filteredColor, const GrClip& clip,
-               const SkMatrix& drawMatrix, SkPoint drawOrigin);
+               const SkMatrix& drawMatrix);
 
     void computeSubRunBounds(SkRect* outBounds, const SubRun& subRun,
-                             const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                             bool needsGlyphTransform);
+                             const SkMatrix& drawMatrix, bool needsGlyphTransform);
 
     // Normal text mask, SDFT, or color.
     struct Mask2DVertex {
@@ -212,7 +211,6 @@ private:
     GrTextBlob(size_t allocSize,
                GrStrikeCache* strikeCache,
                const SkMatrix& drawMatrix,
-               SkPoint origin,
                GrColor color,
                SkColor initialLuminance,
                bool forceWForDistanceFields);
@@ -221,7 +219,7 @@ private:
 
     std::unique_ptr<GrAtlasTextOp> makeOp(
             SubRun& info, int glyphCount,
-            const SkMatrix& drawMatrix, SkPoint drawOrigin, const SkIRect& clipRect,
+            const SkMatrix& drawMatrix, const SkIRect& clipRect,
             const SkPaint& paint, const SkPMColor4f& filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextTarget*);
 
@@ -252,10 +250,6 @@ private:
     // we need to return to source space so we can update the vertex bounds appropriately.
     const SkMatrix fInitialMatrix;
     const SkMatrix fInitialMatrixInverse;
-
-    // Initial position of this blob. Used for calculating position differences when reusing this
-    // blob.
-    const SkPoint fInitialOrigin;
 
     // From the distance field options to force distance fields to have a W coordinate.
     const bool fForceWForDistanceFields;
@@ -386,7 +380,6 @@ public:
     SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
     uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
     GrColor fCurrentColor;
-    SkPoint fCurrentOrigin;
     SkMatrix fCurrentMatrix;
     std::vector<PathGlyph> fPaths;
 
