@@ -146,6 +146,9 @@ public:
     // Load the buffer with SkPackedGlyphIDs and positions in source space.
     void startSource(const SkZip<const SkGlyphID, const SkPoint>& source, SkPoint origin);
 
+    // Use the original glyphIDs and positions.
+    void startPaths(const SkZip<const SkGlyphID, const SkPoint>& source);
+
     // Load the buffer with SkPackedGlyphIDs and positions using the device transform.
     void startDevice(
             const SkZip<const SkGlyphID, const SkPoint>& source,
