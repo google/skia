@@ -1204,6 +1204,7 @@ func (b *builder) compile(name string, parts map[string]string) string {
 			Name: "xcode",
 			Path: "cache/Xcode.app",
 		})
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_mac"))
 		if strings.Contains(name, "CommandBuffer") {
 			timeout(task, 2*time.Hour)
 		}
@@ -1698,6 +1699,9 @@ func (b *builder) process(name string) {
 				b.MustGetCipdPackageFromAsset("opencl_intel_neo_linux"),
 			)
 		}
+	}
+	if strings.Contains(name, "Mac") && strings.Contains(name, "SAN") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_mac"))
 	}
 	if strings.Contains(name, "ProcDump") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("procdump_win"))
