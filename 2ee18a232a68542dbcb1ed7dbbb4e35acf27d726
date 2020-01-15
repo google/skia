@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9e7b7b8_ac5f65ef",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T17:52:45Z",
+      "side": 1,
+      "message": "Hmm. My first reaction was: Is this writing to unallocated registers, because we only called next() with SlotCount(lType). Then I saw the ++fNextRegister below, and thought that this is okay, but needed a comment. Then I wondered about intervening code allocating more registers, which seems possible during the evaluation of fLeft in the call to writeExpression (or indirectly during the lvalue load). If you add an assert here that (fNextRegister \u003d\u003d left + i), then compile something like:\n\nfloat4 v \u003d dot(vecA, vecB) * vecC;\n\nDoes it trigger?",
+      "range": {
+        "startLine": 497,
+        "startChar": 28,
+        "endLine": 497,
+        "endChar": 36
+      },
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4015407d_6835d094",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T17:52:45Z",
+      "side": 1,
+      "message": "Same concern here...",
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "316a0c38_c3423ff1",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 38
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T17:52:45Z",
+      "side": 1,
+      "message": "re:  A prior comment. I see now that registers are not shared across functions, but this (and a few other spots, IIRC) do break the SSA model, right? It\u0027s not a bug per-se (everything still works), but it might interfere with future analysis?",
+      "range": {
+        "startLine": 624,
+        "startChar": 0,
+        "endLine": 625,
+        "endChar": 36
+      },
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "484b8165_bd562c45",
+        "filename": "src/sksl/SkSLByteCodeGenerator.h",
+        "patchSetId": 38
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-15T17:52:45Z",
+      "side": 1,
+      "message": "I know I asked for this, but is this going to trip alignment checks on ASAN, etc? To make this safe, we need to memcpy out, right?",
+      "range": {
+        "startLine": 190,
+        "startChar": 12,
+        "endLine": 190,
+        "endChar": 36
+      },
+      "revId": "2ee18a232a68542dbcb1ed7dbbb4e35acf27d726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
