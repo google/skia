@@ -8,6 +8,8 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+  * Added support for BC1 RGBA compressed textures
+
   * Added CachingHint to SkImage::makeRasterImage
 
   * Added SkAnimatedImage::getCurrentFrame()
