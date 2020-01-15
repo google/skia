@@ -1252,6 +1252,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
         // texture that matches the device contents
         proxy = GrSurfaceProxy::Copy(fContext.get(),
                                      rtc->asSurfaceProxy(),
+                                     rtc->colorInfo().colorType(),
                                      GrMipMapped::kNo,      // Don't auto generate mips
                                      subset,
                                      SkBackingFit::kApprox,

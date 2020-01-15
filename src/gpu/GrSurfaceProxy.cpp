@@ -284,6 +284,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceProxy* src,
+                                           GrColorType colorType,
                                            GrMipMapped mipMapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
@@ -307,7 +308,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     if (!srcRect.intersect(SkIRect::MakeSize(src->dimensions()))) {
         return nullptr;
     }
-    auto colorType = GrPixelConfigToColorType(src->config());
     auto format = src->backendFormat().makeTexture2D();
     SkASSERT(format.isValid());
     auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
@@ -343,10 +343,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfaceProxy* src,
-                                           GrMipMapped mipMapped, SkBackingFit fit,
-                                           SkBudgeted budgeted) {
+                                           GrColorType colorType, GrMipMapped mipMapped,
+                                           SkBackingFit fit, SkBudgeted budgeted) {
     SkASSERT(!src->isFullyLazy());
-    return Copy(context, src, mipMapped, SkIRect::MakeSize(src->dimensions()), fit, budgeted);
+    return Copy(context, src, colorType, mipMapped, SkIRect::MakeSize(src->dimensions()), fit,
+                budgeted);
 }
 
 #if GR_TEST_UTILS
