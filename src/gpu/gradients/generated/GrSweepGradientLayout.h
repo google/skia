@@ -33,7 +33,7 @@ private:
     GrSweepGradientLayout(SkMatrix44 gradientMatrix, float bias, float scale)
             : INHERITED(kGrSweepGradientLayout_ClassID,
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
-            , fCoordTransform0(gradientMatrix)
+            , fCoordTransform0(SkMatrix(gradientMatrix))
             , gradientMatrix(gradientMatrix)
             , bias(bias)
             , scale(scale) {

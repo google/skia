@@ -188,6 +188,8 @@ public:
      */
     SkMatrix44(const SkMatrix&);
     SkMatrix44& operator=(const SkMatrix& src);
+
+    // TODO: make this explicit (will need to guard that change to update chrome, etc.
     operator SkMatrix() const;
 
     /**

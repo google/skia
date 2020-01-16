@@ -51,7 +51,7 @@ static void do_draw(SkCanvas* canvas, SkColor color) {
     SkMatrix44 m;
     m.setRotateDegreesAbout(0, 1, 0, 30);
 
-    canvas->concat(make_ctm(info, m, {300, 300}));
+    canvas->experimental_concat44(make_ctm(info, m, {300, 300}));
 
     canvas->translate(150, 150);
     SkPaint paint;
