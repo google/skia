@@ -312,10 +312,7 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
-    struct {
-        bool regenTextureCoordinates:1;
-        bool regenStrike:1;
-    } fActions = {false, false};
+    bool fRegenerateTextureCoordinates;
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
@@ -360,6 +357,7 @@ public:
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
     void updateTexCoords(int begin, int end);
+    void updateStrikeIfNeeded(SkBulkGlyphMetricsAndImages& metricsAndImages, GrStrikeCache* grStrikeCache);
 
     // df properties
     void setUseLCDText(bool useLCDText);
