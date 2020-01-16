@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8af67ae5_f0efbf9b",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2511,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-16T19:01:24Z",
+      "side": 1,
+      "message": "Inline impl to minimize confusion vs. getTotalMatrix()?",
+      "revId": "0c979396d2d8e2282651c9abeaaf2d6784ba1b70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ec658512_921d0a91",
         "filename": "include/private/SkM44.h",
         "patchSetId": 5
@@ -46,6 +63,52 @@
       "revId": "0c979396d2d8e2282651c9abeaaf2d6784ba1b70",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bda49cc1_d0dd869c",
+        "filename": "src/core/SkM44.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-16T19:01:24Z",
+      "side": 1,
+      "message": "nit: sizeof(fMat)?",
+      "range": {
+        "startLine": 16,
+        "startChar": 25,
+        "endLine": 16,
+        "endChar": 46
+      },
+      "revId": "0c979396d2d8e2282651c9abeaaf2d6784ba1b70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c44ad44d_ecd7276a",
+        "filename": "src/core/SkM44.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-16T19:01:24Z",
+      "side": 1,
+      "message": "nit: ditto",
+      "range": {
+        "startLine": 20,
+        "startChar": 25,
+        "endLine": 20,
+        "endChar": 46
+      },
+      "revId": "0c979396d2d8e2282651c9abeaaf2d6784ba1b70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
