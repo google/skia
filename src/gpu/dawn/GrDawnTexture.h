@@ -16,9 +16,9 @@ struct GrDawnImageInfo;
 
 class GrDawnTexture : public GrTexture {
 public:
-    static sk_sp<GrDawnTexture> Make(GrDawnGpu*, const SkISize& dimensions, GrPixelConfig config,
+    static sk_sp<GrDawnTexture> Make(GrDawnGpu*, SkISize dimensions, GrPixelConfig config,
                                      wgpu::TextureFormat format, GrRenderable, int sampleCnt,
-                                     SkBudgeted, int mipLevels, GrMipMapsStatus);
+                                     SkBudgeted, GrMipMapped, GrMipMapsStatus);
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
                                             GrPixelConfig config, GrRenderable, int sampleCnt,
