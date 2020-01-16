@@ -701,6 +701,10 @@ enum class GrInternalSurfaceFlags {
     // (asTexture() might or might not return the internal texture, but if it does, we always
     // resolve the render target before accessing this texture's data.)
     kRequiresManualMSAAResolve      = 1 << 2,
+
+    // This means the pixels in the render target are write-only. This is used for Dawn and Metal
+    // swap chain targets which can be rendered to, but not read or copied.
+    kFramebufferOnly                = 1 << 3,
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)

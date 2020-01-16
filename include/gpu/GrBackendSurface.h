@@ -49,6 +49,7 @@ public:
     GrBackendRenderTarget() {}
 
     bool isValid() const { return false; }
+    bool isFramebufferOnly() const { return false; }
 };
 #else
 
@@ -371,6 +372,7 @@ public:
     int sampleCnt() const { return fSampleCnt; }
     int stencilBits() const { return fStencilBits; }
     GrBackendApi backend() const {return fBackend; }
+    bool isFramebufferOnly() const { return fFramebufferOnly; }
 
     // If the backend API is GL, copies a snapshot of the GrGLFramebufferInfo struct into the passed
     // in pointer and returns true. Otherwise returns false if the backend API is not GL.
@@ -427,6 +429,7 @@ private:
     void cleanup();
 
     bool fIsValid;
+    bool fFramebufferOnly = false;
     int fWidth;         //<! width in pixels
     int fHeight;        //<! height in pixels
 

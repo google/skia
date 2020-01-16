@@ -81,8 +81,17 @@ public:
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
+    bool framebufferOnly() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly;
+    }
+
     // Returns true if we are working with protected content.
     bool isProtected() const { return fIsProtected == GrProtected::kYes; }
+
+    void setFramebufferOnly() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kFramebufferOnly;
+    }
 
 protected:
     void setGLRTFBOIDIs0() {
