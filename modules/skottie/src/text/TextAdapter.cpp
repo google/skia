@@ -73,13 +73,14 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 
     auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
                                                       std::move(logger),
-                                                      std::move(animators)));
-    auto* raw_adapter = adapter.get();
+                                                      std::move(animators),
+                                                      abuilder, *jd));
+//    auto* raw_adapter = adapter.get();
 
-    abuilder->bindProperty<TextValue>(*jd,
-        [raw_adapter] (const TextValue& txt) {
-            raw_adapter->setText(txt);
-        });
+//    abuilder->bindProperty<TextValue>(*jd,
+//        [raw_adapter] (const TextValue& txt) {
+//            raw_adapter->setText(txt);
+//        });
 
     abuilder->dispatchTextProperty(adapter);
 
@@ -88,11 +89,14 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 
 TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr,
                          sk_sp<Logger> logger,
-                         std::vector<sk_sp<TextAnimator>>&& animators)
+                         std::vector<sk_sp<TextAnimator>>&& animators,
+                         const AnimationBuilder* abuilder,
+                         const skjson::ObjectValue& jd)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
     , fAnimators(std::move(animators))
-    , fLogger(std::move(logger)) {}
+    , fLogger(std::move(logger))
+    , fTextProp(*abuilder, jd) {}
 
 TextAdapter::~TextAdapter() = default;
 
@@ -250,7 +254,9 @@ void TextAdapter::reshape() {
 #endif
 }
 
-void TextAdapter::onSync() {
+void TextAdapter::onTick(float t) {
+    this->setText(fTextProp(t));
+
     if (!fText.fHasFill && !fText.fHasStroke) {
         return;
     }

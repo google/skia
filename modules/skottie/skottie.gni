@@ -13,10 +13,14 @@ skia_skottie_public = [
 ]
 
 skia_skottie_sources = [
+  "$_src/AnimatableProperty.cpp",
+  "$_src/AnimatableProperty.h",
   "$_src/Camera.cpp",
   "$_src/Camera.h",
   "$_src/Composition.cpp",
   "$_src/Composition.h",
+  "$_src/Keyframe.cpp",
+  "$_src/Keyframe.h",
   "$_src/Layer.cpp",
   "$_src/Layer.h",
   "$_src/Skottie.cpp",

@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
+#include "modules/skottie/src/AnimatableProperty.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
@@ -17,40 +18,38 @@ namespace internal {
 
 namespace {
 
-class InvertEffectAdapter final : public DiscardableAdaptorBase {
+class InvertEffectAdapter final : public AnimatableAdapter {
 public:
     static sk_sp<InvertEffectAdapter> Make(const skjson::ArrayValue& jprops,
                                            sk_sp<sksg::RenderNode> layer,
                                            const AnimationBuilder* abuilder) {
-        enum : size_t {
-            kChannel_Index = 0,
-        };
-
-        auto      adapter = sk_sp<InvertEffectAdapter>(new InvertEffectAdapter(std::move(layer)));
-        auto* raw_adapter = adapter.get();
-
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kChannel_Index),
-            [raw_adapter](const ScalarValue& c) {
-                raw_adapter->fChannel = c;
-            });
-
-        return adapter;
+        return sk_sp<InvertEffectAdapter>(
+                    new InvertEffectAdapter(jprops, std::move(layer), abuilder));
     }
 
     const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
 
-private:
-    explicit InvertEffectAdapter(sk_sp<sksg::RenderNode> layer)
-        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {}
+    bool isStatic() const { return fChannelProp.isStatic(); }
 
-    void onSync() override {
+private:
+    enum : size_t {
+        kChannel_Index = 0,
+    };
+
+    explicit InvertEffectAdapter(const skjson::ArrayValue& jprops,
+                                 sk_sp<sksg::RenderNode> layer,
+                                 const AnimationBuilder* abuilder)
+        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer)))
+        , fChannelProp(*abuilder, EffectBuilder::GetPropValue(jprops, kChannel_Index)) {}
+
+    void onTick(float t) override {
         struct STColorMatrix {
             std::array<float,4> scale,
                                 trans;
             bool                hsla;
         };
 
-        const auto stcm = [this]() -> STColorMatrix {
+        const auto stcm = [this,t]() -> STColorMatrix {
             // https://helpx.adobe.com/after-effects/using/channel-effects.html#invert_effect
             enum : uint8_t {
                 kRGB_Channel =  1,
@@ -72,7 +71,7 @@ private:
                   kA_Channel = 16,
             };
 
-            switch (static_cast<uint8_t>(fChannel)) {
+            switch (static_cast<uint8_t>(fChannelProp(t))) {
             case   kR_Channel: return { {-1, 1, 1, 1}, {  1,0,0,0}, false}; // r' = 1 - r
             case   kG_Channel: return { { 1,-1, 1, 1}, {  0,1,0,0}, false}; // g' = 1 - g
             case   kB_Channel: return { { 1, 1,-1, 1}, {  0,0,1,0}, false}; // b' = 1 - b
@@ -104,7 +103,7 @@ private:
 
     const sk_sp<sksg::ExternalColorFilter> fColorFilter;
 
-    float fChannel = 0;
+    AnimatableProperty<ScalarValue> fChannelProp;
 };
 
 } // namespace

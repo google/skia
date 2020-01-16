@@ -8,8 +8,10 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/private/SkColorData.h"
+#include "modules/skottie/src/AnimatableProperty.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
+#include "src/utils/SkJSON.h"
 
 namespace skottie {
 namespace internal {
@@ -25,65 +27,56 @@ namespace {
  *
  *     C.r, C.g, C.b, C.a, Luminance(C), Hue(C), Saturation(C), Lightness(C), 1 or 0.
  */
-class ShiftChannelsEffectAdapter final : public DiscardableAdaptorBase {
+class ShiftChannelsEffectAdapter final : public AnimatableAdapter {
 public:
     static sk_sp<ShiftChannelsEffectAdapter> Make(const skjson::ArrayValue& jprops,
                                                   sk_sp<sksg::RenderNode> layer,
                                                   const AnimationBuilder* abuilder) {
-        enum : size_t {
-            kTakeAlphaFrom_Index = 0,
-            kTakeRedFrom_Index   = 1,
-            kTakeGreenFrom_Index = 2,
-            kTakeBlueFrom_Index  = 3,
-
-            kMax_Index = kTakeBlueFrom_Index
-        };
-
-        auto adapter = sk_sp<ShiftChannelsEffectAdapter>(
-                    new ShiftChannelsEffectAdapter(std::move(layer)));
-
-        // Use raw captures, pending TheBigRefactoringToComeReallySoonNow.
-        auto* raw_adapter = adapter.get();
-
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeRedFrom_Index),
-            [raw_adapter](const ScalarValue& r) { raw_adapter->fR = r; });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeGreenFrom_Index),
-            [raw_adapter](const ScalarValue& g) { raw_adapter->fG = g; });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeBlueFrom_Index),
-            [raw_adapter](const ScalarValue& b) { raw_adapter->fB = b; });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kTakeAlphaFrom_Index),
-            [raw_adapter](const ScalarValue& a) { raw_adapter->fA = a; });
-
-        return adapter;
+        return sk_sp<ShiftChannelsEffectAdapter>(new ShiftChannelsEffectAdapter(jprops,
+                                                                                std::move(layer),
+                                                                                abuilder));
     }
 
     const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
 
+    bool isStatic() const {
+        return fRProp.isStatic() && fGProp.isStatic() && fBProp.isStatic() && fAProp.isStatic();
+    }
+
 private:
-    explicit ShiftChannelsEffectAdapter(sk_sp<sksg::RenderNode> layer)
-        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {}
-
-    enum class Source : uint8_t {
-        kAlpha      = 1,
-        kRed        = 2,
-        kGreen      = 3,
-        kBlue       = 4,
-        kLuminance  = 5,
-        kHue        = 6,
-        kLightness  = 7,
-        kSaturation = 8,
-        kFullOn     = 9,
-        kFullOff    = 10,
-
-        kMax        = kFullOff
+    enum : size_t {
+        kTakeAlphaFrom_Index = 0,
+        kTakeRedFrom_Index   = 1,
+        kTakeGreenFrom_Index = 2,
+        kTakeBlueFrom_Index  = 3,
     };
 
-    void onSync() override {
+    ShiftChannelsEffectAdapter(const skjson::ArrayValue& jprops,
+                               sk_sp<sksg::RenderNode> layer,
+                               const AnimationBuilder* abuilder)
+        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer)))
+        , fRProp(*abuilder, EffectBuilder::GetPropValue(jprops, kTakeRedFrom_Index))
+        , fGProp(*abuilder, EffectBuilder::GetPropValue(jprops, kTakeGreenFrom_Index))
+        , fBProp(*abuilder, EffectBuilder::GetPropValue(jprops, kTakeBlueFrom_Index))
+        , fAProp(*abuilder, EffectBuilder::GetPropValue(jprops, kTakeAlphaFrom_Index)) {}
+
+    void onTick(float t) override {
         // TODO: support for HSL sources will require a custom color filter.
+
+        enum class Source : uint8_t {
+            kAlpha      = 1,
+            kRed        = 2,
+            kGreen      = 3,
+            kBlue       = 4,
+            kLuminance  = 5,
+            kHue        = 6,
+            kLightness  = 7,
+            kSaturation = 8,
+            kFullOn     = 9,
+            kFullOff    = 10,
+
+            kMax        = kFullOff
+        };
 
         static constexpr float gSourceCoeffs[][5] = {
             {             0,              0,              0, 1, 0}, // kAlpha
@@ -106,10 +99,10 @@ private:
             return gSourceCoeffs[static_cast<size_t>(src) - 1];
         };
 
-        const float* rc = coeffs(fR);
-        const float* gc = coeffs(fG);
-        const float* bc = coeffs(fB);
-        const float* ac = coeffs(fA);
+        const float* rc = coeffs(fRProp(t));
+        const float* gc = coeffs(fGProp(t));
+        const float* bc = coeffs(fBProp(t));
+        const float* ac = coeffs(fAProp(t));
 
         const float cm[] = {
             rc[0], rc[1], rc[2], rc[3], rc[4],
@@ -123,12 +116,10 @@ private:
 
     const sk_sp<sksg::ExternalColorFilter> fColorFilter;
 
-    float fR = static_cast<float>(Source::kRed),
-          fG = static_cast<float>(Source::kGreen),
-          fB = static_cast<float>(Source::kBlue),
-          fA = static_cast<float>(Source::kAlpha);
-
-    using INHERITED = DiscardableAdaptorBase;
+    AnimatableProperty<ScalarValue>        fRProp,
+                                           fGProp,
+                                           fBProp,
+                                           fAProp;
 };
 
 } // namespace

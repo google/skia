@@ -8,6 +8,7 @@
 #ifndef SkottieTextAdapter_DEFINED
 #define SkottieTextAdapter_DEFINED
 
+#include "modules/skottie/src/AnimatableProperty.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
 #include "modules/skottie/src/text/TextAnimator.h"
@@ -20,7 +21,7 @@ class SkFontMgr;
 namespace skottie {
 namespace internal {
 
-class TextAdapter final : public DiscardableAdaptorBase {
+class TextAdapter final : public AnimatableAdapter {
 public:
     static sk_sp<TextAdapter> Make(const skjson::ObjectValue&, const AnimationBuilder*,
                                    sk_sp<SkFontMgr>, sk_sp<Logger>);
@@ -29,14 +30,16 @@ public:
 
     const sk_sp<sksg::Group>& renderNode() const { return fRoot; }
 
+    bool isStatic() const { return fTextProp.isStatic() && fAnimators.empty(); }
+
     const TextValue& getText() const { return fText; }
     void setText(const TextValue&);
 
-protected:
-    void onSync() override;
-
 private:
-    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>, std::vector<sk_sp<TextAnimator>>&&);
+    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>, std::vector<sk_sp<TextAnimator>>&&,
+                const AnimationBuilder*, const skjson::ObjectValue&);
+
+    void onTick(float) override;
 
     struct FragmentRec {
         SkPoint                       fOrigin; // fragment position
@@ -64,8 +67,9 @@ private:
     std::vector<FragmentRec> fFragments;
     TextAnimator::DomainMaps fMaps;
 
-    TextValue                fText;
-    bool                     fTextDirty = true;
+    AnimatableProperty<TextValue> fTextProp;
+    TextValue                     fText;
+    bool                          fTextDirty = true;
 };
 
 } // namespace internal

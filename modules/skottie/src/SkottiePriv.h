@@ -118,22 +118,19 @@ public:
 
     template <typename T,  typename... Args>
     sk_sp<sksg::RenderNode> attachDiscardableAdapter(Args&&... args) const {
-        AutoScope ascope(this);
-        auto adapter = T::Make(std::forward<Args>(args)...);
-        auto adapter_animators = ascope.release();
+        if (auto adapter = T::Make(std::forward<Args>(args)...)) {
+            sk_sp<sksg::RenderNode> node = adapter->renderNode();
 
-        if (!adapter) { return nullptr; }
+            if (adapter->isStatic()) {
+                // Fire off a synthetic tick to force a one-time SG sync before discarding.
+                adapter->tick(0);
+            } else {
+                fCurrentAnimatorScope->push_back(std::move(adapter));
+            }
 
-        const auto& node = adapter->renderNode();
-        if (adapter_animators.empty()) {
-            // Fire off a synthetic tick to force a single SG sync before discarding the adapter.
-            adapter->tick(0);
-        } else {
-            adapter->setAnimators(std::move(adapter_animators));
-            fCurrentAnimatorScope->push_back(std::move(adapter));
+            return node;
         }
-
-        return node;
+        return nullptr;
     }
 
     class AutoPropertyTracker {
