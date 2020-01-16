@@ -27,7 +27,9 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     int maxVertexCount = GrPathParser::MaxPossibleWedgeVertices(fPath);
     if (auto* wedgeData = (SkPoint*)state->makeVertexSpace(
             sizeof(SkPoint), maxVertexCount, &fWedgeBuffer, &fBaseWedgeVertex)) {
-        fWedgeVertexCount = GrPathParser::EmitCenterWedges(fPath, wedgeData);
+        if (!(fWedgeVertexCount = GrPathParser::EmitCenterWedges(fPath, wedgeData))) {
+            fWedgeBuffer.reset();
+        }
         state->putBackVertices(maxVertexCount - fWedgeVertexCount, sizeof(SkPoint));
     }
 }
