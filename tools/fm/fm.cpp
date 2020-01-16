@@ -520,7 +520,7 @@ int main(int argc, char** argv) {
     };
     const FlagOption<skcms_Matrix3x3> kGamuts[] = {
         { "srgb",    SkNamedGamut::kSRGB },
-        { "p3",      SkNamedGamut::kDCIP3 },
+        { "p3",      SkNamedGamut::kDisplayP3 },
         { "rec2020", SkNamedGamut::kRec2020 },
         { "adobe",   SkNamedGamut::kAdobeRGB },
         { "narrow",  gNarrow_toXYZD50},

@@ -82,12 +82,13 @@ static constexpr skcms_Matrix3x3 kAdobeRGB = {{
     { SkFixedToFloat(0x04fc), SkFixedToFloat(0x0f95), SkFixedToFloat(0xbe9c) },
 }};
 
-// TODO: this is the D65 P3 used for Display P3.  Rename, add the real ~D63 DCI P3?
-static constexpr skcms_Matrix3x3 kDCIP3 = {{
+static constexpr skcms_Matrix3x3 kDisplayP3 = {{
     {  0.515102f,   0.291965f,  0.157153f  },
     {  0.241182f,   0.692236f,  0.0665819f },
     { -0.00104941f, 0.0418818f, 0.784378f  },
 }};
+// TODO: skia:9792 We originally misnamed this matrix... delete this incorrect alias?
+static constexpr skcms_Matrix3x3 kDCIP3 = kDisplayP3;
 
 static constexpr skcms_Matrix3x3 kRec2020 = {{
     {  0.673459f,   0.165661f,  0.125100f  },

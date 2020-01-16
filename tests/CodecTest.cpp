@@ -1555,7 +1555,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
 
     // Test with P3 color space.
     SkDynamicMemoryWStream p3Buf;
-    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+    sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
     pixmap.setColorSpace(p3);
     encode_format(&p3Buf, pixmap, format);
     sk_sp<SkData> p3Data = p3Buf.detachAsData();

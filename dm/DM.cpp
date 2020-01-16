@@ -970,7 +970,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50),
                srgb = SkColorSpace::MakeSRGB(),
          srgbLinear = SkColorSpace::MakeSRGBLinear(),
-                 p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+                 p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
 
         SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
         SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
@@ -1207,12 +1207,12 @@ struct Task {
                 return true;
             };
 
-            if (eq(gamut, SkNamedGamut::kSRGB    )) { return SkString("sRGB"); }
-            if (eq(gamut, SkNamedGamut::kAdobeRGB)) { return SkString("Adobe"); }
-            if (eq(gamut, SkNamedGamut::kDCIP3   )) { return SkString("P3"); }
-            if (eq(gamut, SkNamedGamut::kRec2020 )) { return SkString("2020"); }
-            if (eq(gamut, SkNamedGamut::kXYZ     )) { return SkString("XYZ"); }
-            if (eq(gamut,     gNarrow_toXYZD50   )) { return SkString("narrow"); }
+            if (eq(gamut, SkNamedGamut::kSRGB     )) { return SkString("sRGB"); }
+            if (eq(gamut, SkNamedGamut::kAdobeRGB )) { return SkString("Adobe"); }
+            if (eq(gamut, SkNamedGamut::kDisplayP3)) { return SkString("P3"); }
+            if (eq(gamut, SkNamedGamut::kRec2020  )) { return SkString("2020"); }
+            if (eq(gamut, SkNamedGamut::kXYZ      )) { return SkString("XYZ"); }
+            if (eq(gamut,     gNarrow_toXYZD50    )) { return SkString("narrow"); }
             return SkString("other");
         }
         return SkString("non-XYZ");
