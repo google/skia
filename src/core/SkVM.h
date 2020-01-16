@@ -593,9 +593,6 @@ namespace skvm {
         }
     };
 
-    // Maps Builder::Instructions to regions of JIT'd code, for debugging in VTune.
-    struct LineTableEntry { int line; size_t offset; };
-
     using Reg = int;
 
     class Program {
@@ -635,7 +632,6 @@ namespace skvm {
 
         bool hasJIT() const;  // Has this Program been JITted?
         void dropJIT();       // If hasJIT(), drop it, forcing interpreter fallback.
-        void dumpJIT() const; // Disassemble to stdout.
 
         void dump(SkWStream* = nullptr) const;
 
@@ -645,11 +641,7 @@ namespace skvm {
 
         bool jit(const std::vector<Builder::Instruction>&,
                  bool try_hoisting,
-                 std::vector<LineTableEntry>*,
                  Assembler*) const;
-
-        // Dump jit-*.dump files for perf inject.
-        void dumpJIT(const char* debug_name, size_t size) const;
 
         std::vector<Instruction> fInstructions;
         int                      fRegs = 0;
