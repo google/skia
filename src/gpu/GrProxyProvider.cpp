@@ -459,7 +459,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         }
     }
 
-    if (!caps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig, renderable,
+    if (!caps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, renderable,
                                      renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }

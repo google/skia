@@ -386,9 +386,8 @@ public:
         return {};
     }
 
-    bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrPixelConfig,
-                               GrRenderable renderable, int renderTargetSampleCnt,
-                               GrMipMapped) const;
+    bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrRenderable renderable,
+                               int renderTargetSampleCnt, GrMipMapped) const;
 
     bool areColorTypeAndFormatCompatible(GrColorType grCT,
                                          const GrBackendFormat& format) const {

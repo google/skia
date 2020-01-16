@@ -156,8 +156,8 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(const GrSurfaceDesc& desc,
     }
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
-    if (!this->caps()->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, desc.fConfig,
-                                             renderable, renderTargetSampleCnt, mipMapped)) {
+    if (!this->caps()->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, renderable,
+                                             renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
 

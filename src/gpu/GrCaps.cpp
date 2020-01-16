@@ -284,8 +284,8 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
 }
 
 bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFormat& format,
-                                   GrPixelConfig config, GrRenderable renderable,
-                                   int renderTargetSampleCnt, GrMipMapped mipped) const {
+                                   GrRenderable renderable, int renderTargetSampleCnt,
+                                   GrMipMapped mipped) const {
     if (!this->isFormatTexturable(format)) {
         return false;
     }
