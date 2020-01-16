@@ -1005,24 +1005,21 @@ private:
 // 4. the opsz variation in kCTFontVariationAttribute in CTFontDescriptor (crashes 10.10)
 // 5. the size requested (can fudge in SkTypeface but not SkScalerContext)
 // The first one which is found will be used to set the opsz variation (after clamping).
-static SkUniqueCFRef<CTFontDescriptorRef> create_opsz_descriptor(double opsz) {
-    SkUniqueCFRef<CFMutableDictionaryRef> attr(
-            CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
-                                      &kCFTypeDictionaryKeyCallBacks,
-                                      &kCFTypeDictionaryValueCallBacks));
+static void add_opsz_attr(CFMutableDictionaryRef attr, double opsz) {
     SkUniqueCFRef<CFNumberRef> opszValueNumber(
         CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &opsz));
     // Avoid using kCTFontOpticalSizeAttribute directly
     CFStringRef SkCTFontOpticalSizeAttribute = CFSTR("NSCTFontOpticalSizeAttribute");
-    CFDictionarySetValue(attr.get(), SkCTFontOpticalSizeAttribute, opszValueNumber.get());
+    CFDictionarySetValue(attr, SkCTFontOpticalSizeAttribute, opszValueNumber.get());
+}
 
+// This turns off application of the 'trak' table to advances, but also all other tracking.
+static void add_notrak_attr(CFMutableDictionaryRef attr) {
     int zero = 0;
     SkUniqueCFRef<CFNumberRef> unscaledTrackingNumber(
         CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &zero));
     CFStringRef SkCTFontUnscaledTrackingAttribute = CFSTR("NSCTFontUnscaledTrackingAttribute");
-    CFDictionarySetValue(attr.get(),SkCTFontUnscaledTrackingAttribute,unscaledTrackingNumber.get());
-
-    return SkUniqueCFRef<CTFontDescriptorRef>(CTFontDescriptorCreateWithAttributes(attr.get()));
+    CFDictionarySetValue(attr, SkCTFontUnscaledTrackingAttribute, unscaledTrackingNumber.get());
 }
 
 // CTFontCreateCopyWithAttributes or CTFontCreateCopyWithSymbolicTraits cannot be used on 10.10
@@ -1035,19 +1032,30 @@ static SkUniqueCFRef<CTFontRef> ctfont_create_exact_copy(CTFontRef baseFont, CGF
 {
     SkUniqueCFRef<CGFontRef> baseCGFont(CTFontCopyGraphicsFont(baseFont, nullptr));
 
-    // The last parameter (CTFontDescriptorRef attributes) *must* not set variations.
-    // If it sets variations then with fonts with variation axes the copy will fail in
-    // CGFontVariationFromDictCallback when it assumes kCGFontVariationAxisName is CFNumberRef
-    // which it quite obviously is not.
-
     // Because we cannot setup the CTFont descriptor to match, the same restriction applies here
     // as other uses of CTFontCreateWithGraphicsFont which is that such CTFonts should not escape
     // the scaler context, since they aren't 'normal'.
 
-    SkUniqueCFRef<CTFontDescriptorRef> desc;
+    SkUniqueCFRef<CFMutableDictionaryRef> attr(
+    CFDictionaryCreateMutable(kCFAllocatorDefault, 1,
+                              &kCFTypeDictionaryKeyCallBacks,
+                              &kCFTypeDictionaryValueCallBacks));
+
     if (opsz.isSet) {
-        desc = create_opsz_descriptor(opsz.value);
+        add_opsz_attr(attr.get(), opsz.value);
     }
+    add_notrak_attr(attr.get());
+
+    SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontDescriptorCreateWithAttributes(attr.get()));
+
+    // The attributes parameter to CTFontCreateWithGraphicsFont *must* not set variations.
+    // If it sets variations then with fonts with variation axes the copy will fail in
+    // CGFontVariationFromDictCallback when it assumes kCGFontVariationAxisName is CFNumberRef
+    // which it quite obviously is not (in 10.11, fixed by 10.14).
+
+    // However, the attributes parameter to CTFontCreateWithGraphicsFont *must* not be nullptr.
+    // If it is then variable system fonts will only work on named instances on 10.14 and earlier.
+
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateWithGraphicsFont(baseCGFont.get(), textSize, nullptr, desc.get()));
 }
