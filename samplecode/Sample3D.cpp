@@ -57,7 +57,7 @@ public:
         viewport.setScale(area.width()*0.5f, area.height()*0.5f, zscale)
                 .postTranslate(area.centerX(), area.centerY(), 0);
 
-        canvas->saveCamera(viewport * perspective, camera * inv(viewport));
+        canvas->experimental_saveCamera(viewport * perspective, camera * inv(viewport));
     }
 
     bool onChar(SkUnichar uni) override {
@@ -150,7 +150,7 @@ const Face faces[] = {
 static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
 
 static SkColorMatrix comput_planar_lighting(SkCanvas* canvas, SkV3 lightDir) {
-    SkM44 l2w = canvas->getLocalToWorld();
+    SkM44 l2w = canvas->experimental_getLocalToWorld();
     auto normal = normalize(l2w * SkV3{0, 0, 1});
     float dot = -normal * lightDir;
 
@@ -229,12 +229,12 @@ class SampleRR3D : public Sample3DView {
 
         canvas->concat(trans * fRot * m * inv(trans));
 
-        if (!front(canvas->getLocalToDevice())) {
+        if (!front(canvas->experimental_getLocalToDevice())) {
             return;
         }
 
         SkPaint paint;
-        paint.setAlphaf(front(canvas->getLocalToDevice()) ? 1 : 0.25f);
+        paint.setAlphaf(front(canvas->experimental_getLocalToDevice()) ? 1 : 0.25f);
         paint.setShader(fShader);
 
         SkColorMatrix cm = comput_planar_lighting(canvas, fLight.getDir());

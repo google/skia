@@ -756,7 +756,7 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    int saveCamera(const SkMatrix44& projection, const SkMatrix44& camera);
+    int experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
@@ -880,8 +880,8 @@ public:
     */
     void concat(const SkMatrix& matrix);
 
-    void concat(const SkMatrix44&);
-    void concat44(const SkScalar[]); // column-major
+    void experimental_concat(const SkMatrix44&);
+    void experimental_concat44(const SkScalar[]); // column-major
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -2508,9 +2508,9 @@ public:
     */
     SkMatrix getTotalMatrix() const;
 
-    SkM44 getLocalToDevice() const; // entire matrix stack
-    SkM44 getLocalToWorld() const;  // up to but not including top-most camera, else localToDevice
-    SkM44 getLocalToCamera() const; // top-most camera, else localToDevice
+    SkM44 experimental_getLocalToDevice() const; // entire matrix stack
+    SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
+    SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
 
     ///////////////////////////////////////////////////////////////////////////
 

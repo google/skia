@@ -733,7 +733,7 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
-int SkCanvas::saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
+int SkCanvas::experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
     this->concat(projection * camera);
@@ -1504,7 +1504,7 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     this->didConcat(matrix);
 }
 
-void SkCanvas::concat44(const SkScalar m[16]) {
+void SkCanvas::experimental_concat44(const SkScalar m[16]) {
     this->checkForDeferredSave();
 
     fMCRec->fMatrix.preConcat16(m);
@@ -1516,8 +1516,8 @@ void SkCanvas::concat44(const SkScalar m[16]) {
     this->didConcat44(m);
 }
 
-void SkCanvas::concat(const SkMatrix44& m) {
-    this->concat44(m.values());
+void SkCanvas::experimental_concat(const SkMatrix44& m) {
+    this->experimental_concat44(m.values());
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
@@ -1822,25 +1822,25 @@ SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
 }
 
-SkM44 SkCanvas::getLocalToDevice() const {
+SkM44 SkCanvas::experimental_getLocalToDevice() const {
     return fMCRec->fMatrix;
 }
 
-SkM44 SkCanvas::getLocalToWorld() const {
+SkM44 SkCanvas::experimental_getLocalToWorld() const {
     if (fCameraStack.empty()) {
-        return this->getLocalToDevice();
+        return this->experimental_getLocalToDevice();
     } else {
         const auto& top = fCameraStack.back();
-        return top.fInvPostCamera * this->getLocalToDevice();
+        return top.fInvPostCamera * this->experimental_getLocalToDevice();
     }
 }
 
-SkM44 SkCanvas::getLocalToCamera() const {
+SkM44 SkCanvas::experimental_getLocalToCamera() const {
     if (fCameraStack.empty()) {
-        return this->getLocalToDevice();
+        return this->experimental_getLocalToDevice();
     } else {
         const auto& top = fCameraStack.back();
-        return top.fCamera * top.fInvPostCamera * this->getLocalToDevice();
+        return top.fCamera * top.fInvPostCamera * this->experimental_getLocalToDevice();
     }
 }
 
