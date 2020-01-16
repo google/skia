@@ -45,9 +45,11 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fAvoidLargeIndexBufferDraws = false;
     fPerformStencilClearsAsDraws = false;
     fAllowCoverageCounting = false;
-    fTransferBufferSupport = false;
+    fTransferFromBufferToTextureSupport = false;
+    fTransferFromSurfaceToBufferSupport = false;
     fWritePixelsRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;
+    fShouldCollapseSrcOverToSrcWhenAble = false;
     fDriverBlacklistCCPR = false;
     fDriverBlacklistMSAACCPR = false;
 
@@ -212,7 +214,10 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Avoid Large IndexBuffer Draws", fAvoidLargeIndexBufferDraws);
     writer->appendBool("Use draws for stencil clip clears", fPerformStencilClearsAsDraws);
     writer->appendBool("Allow coverage counting shortcuts", fAllowCoverageCounting);
-    writer->appendBool("Supports transfer buffers", fTransferBufferSupport);
+    writer->appendBool("Supports transfers from buffers to textures",
+                       fTransferFromBufferToTextureSupport);
+    writer->appendBool("Supports transfers from textures to buffers",
+                       fTransferFromSurfaceToBufferSupport);
     writer->appendBool("Write pixels row bytes support", fWritePixelsRowBytesSupport);
     writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
     writer->appendBool("Blacklist CCPR on current driver [workaround]", fDriverBlacklistCCPR);
@@ -271,14 +276,8 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
     if (dst->readOnly()) {
         return false;
     }
-    // Currently we only ever do copies where the configs are the same. This check really should be
-    // checking if the backend formats, color types, and swizzle are compatible. Our copy always
-    // copies exact byte to byte from src to dst so when need to check the if we do this, the dst
-    // has the expected values stored in the right places taking the swizzle into account. For now
-    // we can be more restrictive and just make sure the configs are the same and if we generalize
-    // copies and swizzles more in the future this can be updated.
-    if (this->makeConfigSpecific(dst->config(), dst->backendFormat()) !=
-        this->makeConfigSpecific(src->config(), src->backendFormat())) {
+
+    if (dst->backendFormat() != src->backendFormat()) {
         return false;
     }
     return this->onCanCopySurface(dst, src, srcRect, dstPoint);

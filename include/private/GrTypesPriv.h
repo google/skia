@@ -750,6 +750,10 @@ enum class GrInternalSurfaceFlags {
     // (asTexture() might or might not return the internal texture, but if it does, we always
     // resolve the render target before accessing this texture's data.)
     kRequiresManualMSAAResolve      = 1 << 2,
+
+    // This means the pixels in the render target are write-only. This is used for Dawn and Metal
+    // swap chain targets which can be rendered to, but not read or copied.
+    kFramebufferOnly                = 1 << 3,
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
@@ -797,16 +801,17 @@ typedef uint64_t GrFence;
  * Used to include or exclude specific GPU path renderers for testing purposes.
  */
 enum class GpuPathRenderers {
-    kNone              =  0, // Always use software masks and/or GrDefaultPathRenderer.
-    kDashLine          =  1 << 0,
-    kStencilAndCover   =  1 << 1,
-    kCoverageCounting  =  1 << 2,
-    kAAHairline        =  1 << 3,
-    kAAConvex          =  1 << 4,
-    kAALinearizing     =  1 << 5,
-    kSmall             =  1 << 6,
-    kTessellating      =  1 << 7,
-    kDefault           = (1 << 8) - 1  // All.
+    kNone              =   0,  // Always use software masks and/or GrDefaultPathRenderer.
+    kDashLine          =   1 << 0,
+    kGpuTessellation   =   1 << 1,
+    kStencilAndCover   =   1 << 2,
+    kCoverageCounting  =   1 << 3,
+    kAAHairline        =   1 << 4,
+    kAAConvex          =   1 << 5,
+    kAALinearizing     =   1 << 6,
+    kSmall             =   1 << 7,
+    kTessellating      =   1 << 8,
+    kDefault           = ((1 << 9) - 1) & ~kGpuTessellation  // All but kGpuTessellation.
 };
 
 /**
@@ -1283,9 +1288,9 @@ static constexpr GrPixelConfig GrColorTypeToPixelConfig(GrColorType colorType) {
 
 static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::CompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:           return kUnknown_GrPixelConfig;
-        case SkImage::CompressionType::kETC1:           return kRGB_ETC1_GrPixelConfig;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: return kRGB_BC1_GrPixelConfig;
+        case SkImage::CompressionType::kNone:            return kUnknown_GrPixelConfig;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM: return kRGB_ETC1_GrPixelConfig;
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return kRGB_BC1_GrPixelConfig;
     }
 
     SkUNREACHABLE;
@@ -1358,9 +1363,9 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
 
 static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType compression) {
     switch (compression) {
-        case SkImage::CompressionType::kNone:           return "kNone";
-        case SkImage::CompressionType::kETC1:           return "kETC1";
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: return "kBC1_RGB8_UNORM";
+        case SkImage::CompressionType::kNone:            return "kNone";
+        case SkImage::CompressionType::kETC2_RGB8_UNORM: return "kETC2_RGB8_UNORM";
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
     }
     SkUNREACHABLE;
 }

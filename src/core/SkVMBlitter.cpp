@@ -86,15 +86,6 @@ namespace {
                               key.shader);
     }
 
-    static bool debug_dump(const Key& key) {
-    #if 0
-        SkDebugf("%s\n", debug_name(key).c_str());
-        return true;
-    #else
-        return false;
-    #endif
-    }
-
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
     #if 0 || defined(SK_BUILD_FOR_IOS)
         // iOS doesn't support thread_local on versions less than 9.0. pthread
@@ -186,9 +177,6 @@ namespace {
                                                          params.quality, params.colorSpace.get(),
                                                          uniforms, alloc,
                                                          x,y, &src.r, &src.g, &src.b, &src.a));
-            // We don't know if the src color is normalized (logical [0,1], premul [0,a]) or not.
-            bool src_is_normalized = false;
-
             if (params.coverage == Coverage::Mask3D) {
                 skvm::F32 M = unorm(8, load8(varying<uint8_t>())),
                           A = unorm(8, load8(varying<uint8_t>()));
@@ -198,23 +186,25 @@ namespace {
                 src.b = min(mad(src.b, M, A), src.a);
             }
 
+            // If we can determine this we can skip a fair bit of clamping!
+            bool src_in_gamut = false;
+
             // Normalized premul formats can surprisingly represent some out-of-gamut
             // values (e.g. r=0xff, a=0xee fits in unorm8 but r = 1.07), but most code
             // working with normalized premul colors is not prepared to handle r,g,b > a.
             // So we clamp the shader to gamut here before blending and coverage.
-            if (params.alphaType == kPremul_SkAlphaType
+            //
+            // In addition, GL clamps all its color channels to limits of the format just
+            // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
+            // [0,1] too, just in case someone gave us a crazy alpha.
+            if (!src_in_gamut
+                    && params.alphaType == kPremul_SkAlphaType
                     && SkColorTypeIsNormalized(params.colorType)) {
-                src.r = min(max(splat(0.0f), src.r), src.a);
-                src.g = min(max(splat(0.0f), src.g), src.a);
-                src.b = min(max(splat(0.0f), src.b), src.a);
-
-                assert_true(gte(src.a, splat(0.0f)));
-                assert_true(lte(src.a, splat(1.0f)));
-
-                // Knowing that we're normalizing here and that blending and coverage
-                // won't affect that when the destination is normalized, we can avoid
-                // avoid a redundant clamp just before storing.
-                src_is_normalized = true;
+                src.a = clamp(src.a, splat(0.0f), splat(1.0f));
+                src.r = clamp(src.r, splat(0.0f), src.a);
+                src.g = clamp(src.g, splat(0.0f), src.a);
+                src.b = clamp(src.b, splat(0.0f), src.a);
+                src_in_gamut = true;
             }
 
             // There are several orderings here of when we load dst and coverage
@@ -297,13 +287,18 @@ namespace {
             }
 
             // Clamp to fit destination color format if needed.
-            if (!src_is_normalized && SkColorTypeIsNormalized(params.colorType)) {
-                src.r = min(max(splat(0.0f), src.r), splat(1.0f));
-                src.g = min(max(splat(0.0f), src.g), splat(1.0f));
-                src.b = min(max(splat(0.0f), src.b), splat(1.0f));
-
-                assert_true(gte(src.a, splat(0.0f)));
-                assert_true(lte(src.a, splat(1.0f)));
+            if (src_in_gamut) {
+                // An in-gamut src blended with an in-gamut dst should stay in gamut.
+                // Being in-gamut implies all channels are in [0,1], so no need to clamp.
+                assert_true(eq(src.a, clamp(src.a, splat(0.0f), splat(1.0f))));
+                assert_true(eq(src.r, clamp(src.r, splat(0.0f), src.a)));
+                assert_true(eq(src.g, clamp(src.g, splat(0.0f), src.a)));
+                assert_true(eq(src.b, clamp(src.b, splat(0.0f), src.a)));
+            } else if (SkColorTypeIsNormalized(params.colorType)) {
+                src.r = clamp(src.r, splat(0.0f), splat(1.0f));
+                src.g = clamp(src.g, splat(0.0f), splat(1.0f));
+                src.b = clamp(src.b, splat(0.0f), splat(1.0f));
+                src.a = clamp(src.a, splat(0.0f), splat(1.0f));
             }
             if (force_opaque) {
                 src.a = splat(1.0f);
@@ -461,16 +456,20 @@ namespace {
             SkASSERT(fUniforms.buf.size() == prev);
 
             skvm::Program program = builder.done(debug_name(key).c_str());
-            if (debug_dump(key)) {
+            if (false) {
                 static std::atomic<int> done{0};
                 if (0 == done++) {
                     atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
                 }
 
-                if (!program.hasJIT()) {
-                    SkDebugf("\nfalling back to interpreter for blitter with this key.\n");
-                    builder.dump();
-                    program.dump();
+                SkDebugf("%s\n", debug_name(key).c_str());
+                builder.dump();
+                program.dump();
+
+                if (program.hasJIT()) {
+                    program.dumpJIT();
+                } else {
+                    SkDebugf("\nfell back to interpreter for blitter with this key.\n");
                 }
             }
             return program;

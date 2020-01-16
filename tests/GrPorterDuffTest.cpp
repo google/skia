@@ -825,7 +825,11 @@ static void test_color_opaque_no_coverage(skiatest::Reporter* reporter, const Gr
                 TEST_ASSERT(kNone_OutputType == xpi.fSecondaryOutputType);
                 TEST_ASSERT(kAdd_GrBlendEquation == xpi.fBlendInfo.fEquation);
                 TEST_ASSERT(kOne_GrBlendCoeff == xpi.fBlendInfo.fSrcBlend);
-                TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
+                if (caps.shouldCollapseSrcOverToSrcWhenAble()) {
+                    TEST_ASSERT(kZero_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
+                } else {
+                    TEST_ASSERT(kISA_GrBlendCoeff == xpi.fBlendInfo.fDstBlend);
+                }
                 TEST_ASSERT(xpi.fBlendInfo.fWriteColor);
                 break;
             case SkBlendMode::kDstOver:

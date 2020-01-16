@@ -184,7 +184,7 @@ public:
     int getFragmentUniformSet() const;
 
     void addExtraSamplerKey(GrProcessorKeyBuilder*,
-                            const GrSamplerState&,
+                            GrSamplerState,
                             const GrBackendFormat&) const override;
 
     GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;

@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrTextureProducer.h"
+
 #include "include/private/GrRecordingContext.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkRectPriv.h"
@@ -13,12 +15,11 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
-#include "src/gpu/GrTextureProducer.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
                                                    sk_sp<GrTextureProxy> inputProxy,
@@ -49,17 +50,17 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
         }
     }
 
-    auto copyRTC = context->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kExact, dstRect.width(), dstRect.height(), colorType, nullptr, 1,
-            mipMapped, inputProxy->origin());
+    auto copyRTC = GrRenderTargetContext::MakeWithFallback(
+            context, colorType, nullptr, SkBackingFit::kExact, copyParams.fDimensions, 1,
+            mipMapped, inputProxy->isProtected(), inputProxy->origin());
     if (!copyRTC) {
         return nullptr;
     }
 
     GrPaint paint;
 
-    auto fp = GrSimpleTextureEffect::Make(std::move(inputProxy), kUnknown_SkAlphaType,
-                                          SkMatrix::I(), copyParams.fFilter);
+    auto fp = GrTextureEffect::Make(std::move(inputProxy), kUnknown_SkAlphaType, SkMatrix::I(),
+                                    copyParams.fFilter);
     if (needsDomain) {
         const SkRect domain = localRect.makeInset(0.5f, 0.5f);
         // This would cause us to read values from outside the subset. Surely, the caller knows
@@ -205,8 +206,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                                                     ? GrSamplerState::WrapMode::kClampToBorder
                                                     : GrSamplerState::WrapMode::kClamp;
         GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
-        auto fp = GrSimpleTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix,
-                                              samplerState);
+        auto fp =
+                GrTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix, samplerState);
         if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
             GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
                                                                : GrTextureDomain::kClamp_Mode;
@@ -251,9 +252,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
     return this->refTextureProxyForParams(sampler, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
-        const GrSamplerState& sampler,
-        SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(GrSamplerState sampler,
+                                                                  SkScalar scaleAdjust[2]) {
     // Check that the caller pre-initialized scaleAdjust
     SkASSERT(!scaleAdjust || (scaleAdjust[0] == 1 && scaleAdjust[1] == 1));
     // Check that if the caller passed nullptr for scaleAdjust that we're in the case where there

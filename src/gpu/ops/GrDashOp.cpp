@@ -262,12 +262,7 @@ public:
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
-        GrProcessorAnalysisCoverage coverage;
-        if (AAMode::kNone == fAAMode && !clip->numClipCoverageFragmentProcessors()) {
-            coverage = GrProcessorAnalysisCoverage::kNone;
-        } else {
-            coverage = GrProcessorAnalysisCoverage::kSingleChannel;
-        }
+        GrProcessorAnalysisCoverage coverage = GrProcessorAnalysisCoverage::kSingleChannel;
         auto analysis = fProcessorSet.finalize(
                 fColor, coverage, clip, fStencilSettings, hasMixedSampledCoverage, caps, clampType,
                 &fColor);

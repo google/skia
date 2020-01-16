@@ -123,8 +123,10 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
                                          bool wideColor,
                                          const GrSurfaceProxyView* views,
                                          int numActiveViews,
-                                         const GrSamplerState& params, GrMaskFormat format,
-                                         const SkMatrix& localMatrix, bool usesW)
+                                         GrSamplerState params,
+                                         GrMaskFormat format,
+                                         const SkMatrix& localMatrix,
+                                         bool usesW)
         : INHERITED(kGrBitmapTextGeoProc_ClassID)
         , fColor(color)
         , fLocalMatrix(localMatrix)
@@ -162,7 +164,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(const GrShaderCaps& caps,
 
 void GrBitmapTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                       int numActiveViews,
-                                      const GrSamplerState& params) {
+                                      GrSamplerState params) {
     SkASSERT(numActiveViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
     numActiveViews = SkTMin(numActiveViews, kMaxTextures);

@@ -351,6 +351,12 @@ go.skia.org/infra v0.0.0-20191204112307-6a511fedc008 h1:2Go74pB/Px+N+qo2Cd1PK7z+
 go.skia.org/infra v0.0.0-20191204112307-6a511fedc008/go.mod h1:PgEMfZ1OVU5dQFV14hzkzrfqYUsjRyiq8fJrfgUGmVQ=
 go.skia.org/infra v0.0.0-20191205170533-8892bdf67fe1 h1:eTFXUYpaIAXki6CN5aP3Sk7dG/AorHl9TaRsHGNneVQ=
 go.skia.org/infra v0.0.0-20191205170533-8892bdf67fe1/go.mod h1:PgEMfZ1OVU5dQFV14hzkzrfqYUsjRyiq8fJrfgUGmVQ=
+go.skia.org/infra v0.0.0-20200107115738-39c5060df28d h1:vm8h4ZNrOfxu3f8rCQ5Sur1/cBo6GSI7LCTHprGQWIo=
+go.skia.org/infra v0.0.0-20200107115738-39c5060df28d/go.mod h1:PgEMfZ1OVU5dQFV14hzkzrfqYUsjRyiq8fJrfgUGmVQ=
+go.skia.org/infra v0.0.0-20200107224849-54c87cb24a32 h1:0c6Tfi1xowhL4BoOsx84il4XEEz0XWqR9xBOi/CJ024=
+go.skia.org/infra v0.0.0-20200107224849-54c87cb24a32/go.mod h1:PgEMfZ1OVU5dQFV14hzkzrfqYUsjRyiq8fJrfgUGmVQ=
+go.skia.org/infra v0.0.0-20200109142149-1bda9c00942c h1:6TgE/9drF+yUpk9v8MV1PqXDxBOXRKDCpvGOa2jgMYk=
+go.skia.org/infra v0.0.0-20200109142149-1bda9c00942c/go.mod h1:PgEMfZ1OVU5dQFV14hzkzrfqYUsjRyiq8fJrfgUGmVQ=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20181025213731-e84da0312774/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
@@ -533,6 +539,7 @@ gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 h1:YR8cESwS4TdDjEe65xsg0ogRM/Nc3DYOhEAlW+xobZo=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
+gopkg.in/fsnotify.v1 v1.4.7 h1:xOHLXZwVvI9hhs+cLKq5+I5onOuwQLhQwiu63xxlHs4=
 gopkg.in/fsnotify.v1 v1.4.7/go.mod h1:Tz8NjZHkW78fSQdbUxIjBTcgA1z1m8ZHf0WmKUhAMys=
 gopkg.in/inf.v0 v0.9.0/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=
 gopkg.in/inf.v0 v0.9.1/go.mod h1:cWUDdTG/fYaXco+Dcufb5Vnc6Gp2YChqWtbxRZE0mXw=

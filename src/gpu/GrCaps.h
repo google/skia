@@ -14,6 +14,7 @@
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBlend.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
@@ -25,7 +26,6 @@ class GrProcessorKeyBuilder;
 class GrProgramDesc;
 class GrProgramInfo;
 class GrRenderTargetProxy;
-class GrSamplerState;
 class GrSurface;
 class SkJSONWriter;
 
@@ -120,6 +120,13 @@ public:
         SkASSERT(GrBlendEquationIsAdvanced(equation));
         SkASSERT(this->advancedBlendEquationSupport());
         return SkToBool(fAdvBlendEqBlacklist & (1 << equation));
+    }
+
+    // On some GPUs it is a performance win to disable blending instead of doing src-over with a src
+    // alpha equal to 1. To disable blending we collapse src-over to src and the backends will
+    // handle the disabling of blending.
+    bool shouldCollapseSrcOverToSrcWhenAble() const {
+        return fShouldCollapseSrcOverToSrcWhenAble;
     }
 
     /**
@@ -290,8 +297,8 @@ public:
      */
     bool readPixelsRowBytesSupport() const { return fReadPixelsRowBytesSupport; }
 
-    /** Are transfer buffers (to textures and from surfaces) supported? */
-    bool transferBufferSupport() const { return fTransferBufferSupport; }
+    bool transferFromSurfaceToBufferSupport() const { return fTransferFromSurfaceToBufferSupport; }
+    bool transferFromBufferToTextureSupport() const { return fTransferFromBufferToTextureSupport; }
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -455,7 +462,7 @@ public:
      * with immutable samplers.
      */
     virtual void addExtraSamplerKey(GrProcessorKeyBuilder*,
-                                    const GrSamplerState&,
+                                    GrSamplerState,
                                     const GrBackendFormat&) const {}
 
     virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
@@ -511,9 +518,11 @@ protected:
     bool fAvoidLargeIndexBufferDraws                 : 1;
     bool fPerformStencilClearsAsDraws                : 1;
     bool fAllowCoverageCounting                      : 1;
-    bool fTransferBufferSupport                      : 1;
+    bool fTransferFromBufferToTextureSupport         : 1;
+    bool fTransferFromSurfaceToBufferSupport         : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
     bool fReadPixelsRowBytesSupport                  : 1;
+    bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
 
     // Driver workaround
     bool fDriverBlacklistCCPR                        : 1;

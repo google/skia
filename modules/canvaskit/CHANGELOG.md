@@ -6,11 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - SKP serialization/deserialization now available (can be disabled with the 'no_skp').
+   `SkPicture.DEBUGONLY_saveAsFile` renamed to `SkPicture.saveAsFile` and
+   `CanvasKit.MakeSkPicture` is now exposed. SKP support is not shipped to npm builds.
+
+## [0.11.0] - 2020-01-10
+
 ### Added
  - A "Core" build that removes Fonts, the Skottie animation player, the Particles demo,
    and PathOps is available in `bin/core/`. It is about half the size of the "CoreWithFonts"
    build.
  - Experimental Runtime shader available for custom builds.
+ - WebP support.
+ - `SkAnimatedImage.getCurrentFrame` which returns an SkImage.
 
 ### Fixed
  - `CanvasKit.SaveLayerInitWithPrevious` and `CanvasKit.SaveLayerF16ColorType` constants.
@@ -35,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkPicture.DEBUGONLY_saveAsFile` was accidentally included in release builds. It has been
    removed. Clients who need this in a release build (e.g. to file a bug report that only
    reproduces in release) should do a custom build with the `force_serialize_skp` flag given.
+
+### Deprecated
+ - `SkCanvas.drawAnimatedImage` will be renamed soon. Calls can be replaced with `SkCanvas.drawImage`
+   and `SkAnimatedImage.getCurrentFrame`.
 
 ## [0.10.0] - 2019-12-09
 

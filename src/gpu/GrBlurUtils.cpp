@@ -17,7 +17,7 @@
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrShape.h"
 
 #include "include/core/SkPaint.h"
@@ -48,7 +48,7 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(
-            GrSimpleTextureEffect::Make(std::move(mask), kUnknown_SkAlphaType, matrix));
+            GrTextureEffect::Make(std::move(mask), kUnknown_SkAlphaType, matrix));
 
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(maskRect), inverse);
@@ -185,9 +185,9 @@ static std::unique_ptr<GrRenderTargetContext> create_mask_GPU(GrRecordingContext
     // the same. We should offset our filter within the render target and expand the size as needed
     // to guarantee at least 1px of padding on all sides.
     auto approxSize = GrResourceProvider::MakeApprox(maskRect.size());
-    auto rtContext = context->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kExact, approxSize.width(), approxSize.height(), GrColorType::kAlpha_8,
-            nullptr, sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    auto rtContext = GrRenderTargetContext::MakeWithFallback(
+            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, approxSize, sampleCnt,
+            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!rtContext) {
         return nullptr;
     }

@@ -165,7 +165,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc,
 // TODO: why no 'isProtected' ?!
 sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
                                                       const GrBackendFormat& format,
-                                                      SkBudgeted budgeted,
+                                                      SkBudgeted budgeted, GrMipMapped mipMapped,
                                                       const void* data, size_t dataSize) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
@@ -180,7 +180,9 @@ sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
     desc.fHeight = dimensions.height();
     desc.fConfig = GrCompressionTypeToPixelConfig(compression);
 
-    GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes)
+                                                                ? GrMipMapsStatus::kValid
+                                                                : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo texInfo(GrColorType::kUnknown,
                               format.asMockCompressionType(),
                               NextInternalTextureID());

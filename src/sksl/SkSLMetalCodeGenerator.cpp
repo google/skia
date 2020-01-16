@@ -69,47 +69,46 @@ void MetalCodeGenerator::writeExtension(const Extension& ext) {
     this->writeLine("#extension " + ext.fName + " : enable");
 }
 
-void MetalCodeGenerator::writeType(const Type& type) {
+String MetalCodeGenerator::typeName(const Type& type) {
     switch (type.kind()) {
-        case Type::kStruct_Kind:
-            for (const Type* search : fWrittenStructs) {
-                if (*search == type) {
-                    // already written
-                    this->write(type.name());
-                    return;
-                }
-            }
-            fWrittenStructs.push_back(&type);
-            this->writeLine("struct " + type.name() + " {");
-            fIndentation++;
-            this->writeFields(type.fields(), type.fOffset);
-            fIndentation--;
-            this->write("}");
-            break;
         case Type::kVector_Kind:
-            this->writeType(type.componentType());
-            this->write(to_string(type.columns()));
-            break;
+            return this->typeName(type.componentType()) + to_string(type.columns());
         case Type::kMatrix_Kind:
-            this->writeType(type.componentType());
-            this->write(to_string(type.columns()));
-            this->write("x");
-            this->write(to_string(type.rows()));
-            break;
+            return this->typeName(type.componentType()) + to_string(type.columns()) + "x" +
+                                  to_string(type.rows());
         case Type::kSampler_Kind:
-            this->write("texture2d<float> "); // FIXME - support other texture types;
-            break;
+            return "texture2d<float>"; // FIXME - support other texture types;
         default:
             if (type == *fContext.fHalf_Type) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
-                this->write(fContext.fFloat_Type->name());
+                return fContext.fFloat_Type->name();
             } else if (type == *fContext.fByte_Type) {
-                this->write("char");
+                return "char";
             } else if (type == *fContext.fUByte_Type) {
-                this->write("uchar");
+                return "uchar";
             } else {
-                this->write(type.name());
+                return type.name();
             }
+    }
+}
+
+void MetalCodeGenerator::writeType(const Type& type) {
+    if (type.kind() == Type::kStruct_Kind) {
+        for (const Type* search : fWrittenStructs) {
+            if (*search == type) {
+                // already written
+                this->write(type.name());
+                return;
+            }
+        }
+        fWrittenStructs.push_back(&type);
+        this->writeLine("struct " + type.name() + " {");
+        fIndentation++;
+        this->writeFields(type.fields(), type.fOffset);
+        fIndentation--;
+        this->write("}");
+    } else {
+        this->write(this->typeName(type));
     }
 }
 
@@ -352,26 +351,33 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->writeExpression(*c.fArguments[0], kSequence_Precedence);
             this->write(SAMPLER_SUFFIX);
             this->write(", ");
-            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
             if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
-                this->write(".xy)"); // FIXME - add projection functionality
+                // have to store the vector in a temp variable to avoid double evaluating it
+                String tmpVar = "tmpCoord" + to_string(fVarCount++);
+                this->fFunctionHeader += "    " + this->typeName(c.fArguments[1]->fType) + " " +
+                                         tmpVar + ";\n";
+                this->write("(" + tmpVar + " = ");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
             } else {
                 SkASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
                 this->write(")");
             }
             break;
-        case kMod_SpecialIntrinsic:
+        case kMod_SpecialIntrinsic: {
             // fmod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
-            this->write("((");
+            String tmpX = "tmpX" + to_string(fVarCount++);
+            String tmpY = "tmpY" + to_string(fVarCount++);
+            this->fFunctionHeader += "    " + this->typeName(c.fArguments[0]->fType) + " " + tmpX +
+                                     ", " + tmpY + ";\n";
+            this->write("(" + tmpX + " = ");
             this->writeExpression(*c.fArguments[0], kSequence_Precedence);
-            this->write(") - (");
+            this->write(", " + tmpY + " = ");
             this->writeExpression(*c.fArguments[1], kSequence_Precedence);
-            this->write(") * floor((");
-            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
-            this->write(") / (");
-            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
-            this->write(")))");
+            this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
             break;
+        }
         default:
             ABORT("unsupported special intrinsic kind");
     }

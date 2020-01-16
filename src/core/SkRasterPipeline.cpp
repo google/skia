@@ -295,6 +295,10 @@ void SkRasterPipeline::append_transfer_function(const skcms_TransferFunction& tf
 // Clamp premul values to [0,alpha] (logical [0,1]) to avoid the confusing
 // scenario of being able to store a logical color channel > 1.0 when alpha < 1.0.
 // Most software that works with normalized premul values expect r,g,b channels all <= a.
+//
+// In addition, GL clamps all its color channels to limits of the format just
+// before the blend step (~here).  To match that auto-clamp, we clamp alpha to
+// [0,1] too, just in case someone gave us a crazy alpha.
 void SkRasterPipeline::append_gamut_clamp_if_normalized(const SkImageInfo& info) {
     if (info.alphaType() == kPremul_SkAlphaType && SkColorTypeIsNormalized(info.colorType())) {
         this->unchecked_append(SkRasterPipeline::clamp_gamut, nullptr);

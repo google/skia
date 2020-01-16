@@ -7,6 +7,7 @@
 _gm = get_path_info("../gm", "abspath")
 
 gm_sources = [
+  "$_gm/3d.cpp",
   "$_gm/aaa.cpp",
   "$_gm/aaclip.cpp",
   "$_gm/aarectmodes.cpp",
@@ -31,6 +32,7 @@ gm_sources = [
   "$_gm/badpaint.cpp",
   "$_gm/beziereffects.cpp",
   "$_gm/beziers.cpp",
+  "$_gm/bicubic.cpp",
   "$_gm/bigblurs.cpp",
   "$_gm/bigmatrix.cpp",
   "$_gm/bigrect.cpp",
@@ -93,6 +95,7 @@ gm_sources = [
   "$_gm/complexclip_blur_tiled.cpp",
   "$_gm/composeshader.cpp",
   "$_gm/compositor_quads.cpp",
+  "$_gm/compressed_textures.cpp",
   "$_gm/concavepaths.cpp",
   "$_gm/conicpaths.cpp",
   "$_gm/constcolorprocessor.cpp",
@@ -151,7 +154,6 @@ gm_sources = [
   "$_gm/encode_alpha_jpeg.cpp",
   "$_gm/encode_platform.cpp",
   "$_gm/encode_srgb.cpp",
-  "$_gm/etc1.cpp",
   "$_gm/extractbitmap.cpp",
   "$_gm/fadefilter.cpp",
   "$_gm/fatpathfill.cpp",
@@ -266,7 +268,6 @@ gm_sources = [
   "$_gm/pathmaskcache.cpp",
   "$_gm/pathmeasure.cpp",
   "$_gm/pathopsinverse.cpp",
-  "$_gm/pathopsskpclip.cpp",
   "$_gm/pathreverse.cpp",
   "$_gm/pdf_never_embed.cpp",
   "$_gm/perlinnoise.cpp",
@@ -336,6 +337,7 @@ gm_sources = [
   "$_gm/strokedlines.cpp",
   "$_gm/strokefill.cpp",
   "$_gm/strokerect.cpp",
+  "$_gm/strokerect_anisotropic.cpp",
   "$_gm/strokerects.cpp",
   "$_gm/strokes.cpp",
   "$_gm/stroketext.cpp",

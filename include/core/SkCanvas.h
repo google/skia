@@ -42,6 +42,7 @@ class SkFont;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
+class SkM44;
 class SkPaintFilterCanvas;
 class SkPath;
 class SkPicture;
@@ -753,6 +754,8 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
+    int saveCamera(const SkMatrix44& projection, const SkMatrix44& camera);
+
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
 
@@ -874,6 +877,9 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_concat
     */
     void concat(const SkMatrix& matrix);
+
+    void concat(const SkMatrix44&);
+    void concat44(const SkScalar[]); // column-major
 
     /** Replaces SkMatrix with matrix.
         Unlike concat(), any prior matrix state is overwritten.
@@ -1014,13 +1020,6 @@ public:
     */
     void clipPath(const SkPath& path, bool doAntiAlias = false) {
         this->clipPath(path, SkClipOp::kIntersect, doAntiAlias);
-    }
-
-    /** Experimental. For testing only.
-        Set to simplify clip stack using PathOps.
-    */
-    void setAllowSimplifyClip(bool allow) {
-        fAllowSimplifyClip = allow;
     }
 
     /** Replaces clip with the intersection or difference of clip and SkRegion deviceRgn.
@@ -2505,7 +2504,9 @@ public:
         example: https://fiddle.skia.org/c/@Canvas_getTotalMatrix
         example: https://fiddle.skia.org/c/@Clip
     */
-    const SkMatrix& getTotalMatrix() const;
+    SkMatrix getTotalMatrix() const;
+
+    SkM44 getTotalM44() const;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -2558,11 +2559,19 @@ protected:
     virtual bool onDoSaveBehind(const SkRect*) { return true; }
     virtual void willRestore() {}
     virtual void didRestore() {}
+
+    virtual void didConcat44(const SkScalar[]) {} // colMajor
     virtual void didConcat(const SkMatrix& ) {}
     virtual void didSetMatrix(const SkMatrix& ) {}
+#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
     virtual void didTranslate(SkScalar dx, SkScalar dy) {
         this->didConcat(SkMatrix::MakeTrans(dx, dy));
     }
+#else
+    virtual void didTranslate(SkScalar, SkScalar) {}
+#endif
+    // Called if SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS is not defined
+    virtual void didScale(SkScalar, SkScalar) {}
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
     // SkCanvasVirtualEnforcer (in SkCanvasVirtualEnforcer.h). This ensures that subclasses using
@@ -2749,7 +2758,6 @@ private:
     friend class SkCanvasPriv;      // needs kDontClipToLayer_PrivateSaveLayerFlag
     friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoLayerForImageFilter;
-    friend class DebugCanvas;       // needs experimental fAllowSimplifyClip
     friend class SkSurface_Raster;  // needs getDevice()
     friend class SkNoDrawCanvas;    // needs resetForNextPicture()
     friend class SkPictureRecord;   // predrawNotify (why does it need it? <reed>)
@@ -2840,9 +2848,6 @@ private:
      */
     bool   fIsScaleTranslate;
     SkRect fDeviceClipBounds;
-
-    bool fAllowSoftClip;
-    bool fAllowSimplifyClip;
 
     class AutoValidateClip {
     public:

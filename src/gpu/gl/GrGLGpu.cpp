@@ -283,7 +283,7 @@ public:
         }
     }
 
-    void bindSampler(int unitIdx, const GrSamplerState& state) {
+    void bindSampler(int unitIdx, GrSamplerState state) {
         int index = StateToIndex(state);
         if (!fSamplers[index]) {
             GrGLuint s;
@@ -332,7 +332,7 @@ public:
     }
 
 private:
-    static int StateToIndex(const GrSamplerState& state) {
+    static int StateToIndex(GrSamplerState state) {
         int filter = static_cast<int>(state.filter());
         SkASSERT(filter >= 0 && filter < 3);
         int wrapX = static_cast<int>(state.wrapModeX());
@@ -1412,7 +1412,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
-                                                    SkBudgeted budgeted,
+                                                    SkBudgeted budgeted, GrMipMapped mipMapped,
                                                     const void* data, size_t dataSize) {
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
@@ -1422,7 +1422,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat,
-                                               GrMipMapped::kNo, &initialState,
+                                               mipMapped, &initialState,
                                                data, dataSize);
     if (!desc.fID) {
         return nullptr;
@@ -1431,7 +1431,11 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     // Unbind this texture from the scratch texture unit.
     this->bindTextureToScratchUnit(GR_GL_TEXTURE_2D, 0);
 
-    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, GrMipMapsStatus::kNotAllocated);
+    GrMipMapsStatus mipMapsStatus = mipMapped == GrMipMapped::kYes
+                                                            ? GrMipMapsStatus::kValid
+                                                            : GrMipMapsStatus::kNotAllocated;
+
+    auto tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, mipMapsStatus);
     // The non-sampler params are still at their default values.
     tex->parameters()->set(&initialState, GrGLTextureParameters::NonsamplerState(),
                            fResetTimestampForTextureParameters);
@@ -3491,7 +3495,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     int w = srcRect.width();
     int h = srcRect.height();
     // We don't swizzle at all in our copies.
-    this->bindTexture(0, GrSamplerState::ClampNearest(), GrSwizzle::RGBA(), srcTex);
+    this->bindTexture(0, GrSamplerState::Filter::kNearest, GrSwizzle::RGBA(), srcTex);
     this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
     this->flushViewport(dst->width(), dst->height());
     fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -3636,7 +3640,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     // We'll be changing our base level further below:
     this->setTextureUnit(0);
     // The mipmap program does not do any swizzling.
-    this->bindTexture(0, GrSamplerState::ClampBilerp(), GrSwizzle::RGBA(), glTex);
+    this->bindTexture(0, GrSamplerState::Filter::kBilerp, GrSwizzle::RGBA(), glTex);
 
     // Vertex data:
     if (!fMipmapProgramArrayBuffer) {

@@ -172,7 +172,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
 }
 
 sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                                      SkBudgeted, const void* data,
+                                                      SkBudgeted, GrMipMapped, const void* data,
                                                       size_t dataSize) {
     SkASSERT(!"unimplemented");
     return nullptr;
@@ -622,7 +622,7 @@ sk_sp<GrDawnProgram> GrDawnGpu::getOrCreateRenderPipeline(
     return program;
 }
 
-wgpu::Sampler GrDawnGpu::getOrCreateSampler(const GrSamplerState& samplerState) {
+wgpu::Sampler GrDawnGpu::getOrCreateSampler(GrSamplerState samplerState) {
     auto i = fSamplers.find(samplerState);
     if (i != fSamplers.end()) {
         return i->second;

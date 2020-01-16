@@ -66,43 +66,6 @@ public:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-    /*
-     * Create a new render target context backed by a deferred-style
-     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
-     * renderTargetContexts created via this entry point.
-     */
-    std::unique_ptr<GrRenderTargetContext> makeDeferredRenderTargetContext(
-            SkBackingFit fit,
-            int width,
-            int height,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo,
-            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr,
-            SkBudgeted = SkBudgeted::kYes,
-            GrProtected isProtected = GrProtected::kNo);
-
-    /*
-     * This method will attempt to create a renderTargetContext that has, at least, the number of
-     * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
-     * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
-     * SRGB-ness will be preserved.
-     */
-    std::unique_ptr<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit fit,
-            int width,
-            int height,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo,
-            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr,
-            SkBudgeted budgeted = SkBudgeted::kYes,
-            GrProtected isProtected = GrProtected::kNo);
-
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
     // CONTEXT TODO: remove this backdoor

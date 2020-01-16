@@ -32,7 +32,9 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fProxyProvider(nullptr)
-        , fDeferredUploader(nullptr) {}
+        , fDeferredUploader(nullptr) {
+    SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
+}
 
 // Lazy-callback version
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
@@ -52,7 +54,9 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fProxyProvider(nullptr)
-        , fDeferredUploader(nullptr) {}
+        , fDeferredUploader(nullptr) {
+    SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
+}
 
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
@@ -151,8 +155,7 @@ bool GrTextureProxy::ProxiesAreCompatibleAsDynamicState(const GrSurfaceProxy* fi
                                                         const GrSurfaceProxy* second) {
     // In order to be compatible, the proxies should also have the same texture type. This is
     // checked explicitly since the GrBackendFormat == operator does not compare texture type
-    return first->config() == second->config() &&
-           first->backendFormat().textureType() == second->backendFormat().textureType() &&
+    return first->backendFormat().textureType() == second->backendFormat().textureType() &&
            first->backendFormat() == second->backendFormat();
 }
 

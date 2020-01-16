@@ -58,7 +58,7 @@ void DebugLayerManager::storeSkPicture(int nodeId, int frame, sk_sp<SkPicture> p
     nullptr,                                      // image
     std::move(debugCanvas),                       // debugCanvas
     numCommands-1,                                // command
-    {layerBounds.height(), layerBounds.width()},  // layerBounds
+    {layerBounds.width(), layerBounds.height()},  // layerBounds
   };
 
   fDraws.set(k, std::move(event));

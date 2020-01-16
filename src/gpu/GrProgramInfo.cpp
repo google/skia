@@ -50,7 +50,6 @@ void GrProgramInfo::validate(bool flushTime) const {
 
             const GrBackendFormat& format = dynamicPrimProcTextures[s]->backendFormat();
             GrTextureType type = dynamicPrimProcTextures[s]->backendFormat().textureType();
-            GrPixelConfig config = dynamicPrimProcTextures[s]->config();
 
             for (int m = 1; m < fNumDynamicStateArrays; ++m) {
                 dynamicPrimProcTextures = this->dynamicPrimProcTextures(m);
@@ -59,7 +58,6 @@ void GrProgramInfo::validate(bool flushTime) const {
                 SkASSERT(testProxy->asTextureProxy());
                 SkASSERT(testProxy->backendFormat() == format);
                 SkASSERT(testProxy->backendFormat().textureType() == type);
-                SkASSERT(testProxy->config() == config);
             }
         }
     }
@@ -84,8 +82,7 @@ void GrProgramInfo::checkAllInstantiated() const {
 }
 
 void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
-
-    auto assertResolved = [](GrTexture* tex, const GrSamplerState& sampler) {
+    auto assertResolved = [](GrTexture* tex, GrSamplerState sampler) {
         SkASSERT(tex);
 
         // Ensure mipmaps were all resolved ahead of time by the DAG.

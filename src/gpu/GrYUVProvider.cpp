@@ -152,14 +152,17 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
         auto proxyProvider = ctx->priv().proxyProvider();
         yuvTextureProxies[i] =
                 proxyProvider->createTextureProxy(yuvImage, 1, SkBudgeted::kYes, fit);
+        if (!yuvTextureProxies[i]) {
+            return nullptr;
+        }
 
         SkASSERT(yuvTextureProxies[i]->dimensions() == yuvSizeInfo.fSizes[i]);
     }
 
     // TODO: investigate preallocating mip maps here
-    auto renderTargetContext = ctx->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, desc.fWidth, desc.fHeight, colorType, nullptr, 1,
-            GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            ctx, colorType, nullptr, SkBackingFit::kExact, {desc.fWidth, desc.fHeight}, 1,
+            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }

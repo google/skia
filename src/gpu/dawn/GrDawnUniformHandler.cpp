@@ -232,7 +232,7 @@ void GrDawnUniformHandler::updateUniformVisibility(UniformHandle u, uint32_t vis
 }
 
 GrGLSLUniformHandler::SamplerHandle GrDawnUniformHandler::addSampler(const GrSurfaceProxy*,
-                                                                     const GrSamplerState&,
+                                                                     GrSamplerState,
                                                                      const GrSwizzle& swizzle,
                                                                      const char* name,
                                                                      const GrShaderCaps* caps) {

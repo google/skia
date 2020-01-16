@@ -326,8 +326,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrRRectEffect.h",
   "$_src/gpu/effects/GrShadowGeoProc.cpp",
   "$_src/gpu/effects/GrShadowGeoProc.h",
-  "$_src/gpu/effects/GrSimpleTextureEffect.cpp",
-  "$_src/gpu/effects/GrSimpleTextureEffect.h",
+  "$_src/gpu/effects/GrTextureEffect.cpp",
+  "$_src/gpu/effects/GrTextureEffect.h",
   "$_src/gpu/effects/GrSkSLFP.cpp",
   "$_src/gpu/effects/GrSkSLFP.h",
   "$_src/gpu/effects/GrSRGBEffect.cpp",
@@ -419,6 +419,17 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/generated/GrClampedGradientEffect.h",
   "$_src/gpu/gradients/generated/GrTiledGradientEffect.cpp",
   "$_src/gpu/gradients/generated/GrTiledGradientEffect.h",
+
+  "$_src/gpu/tessellate/GrCenterWedgePatchGen.cpp",
+  "$_src/gpu/tessellate/GrCenterWedgePatchGen.h",
+  "$_src/gpu/tessellate/GrCoverShader.cpp",
+  "$_src/gpu/tessellate/GrCoverShader.h",
+  "$_src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+  "$_src/gpu/tessellate/GrGpuTessellationPathRenderer.h",
+  "$_src/gpu/tessellate/GrTessellatePathOp.cpp",
+  "$_src/gpu/tessellate/GrTessellatePathOp.h",
+  "$_src/gpu/tessellate/GrTessellateWedgeShader.cpp",
+  "$_src/gpu/tessellate/GrTessellateWedgeShader.h",
 
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",

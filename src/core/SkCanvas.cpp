@@ -22,6 +22,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCanvasMatrix.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
@@ -235,7 +236,7 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkCanvasMatrix fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
@@ -493,7 +494,6 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
-    fAllowSimplifyClip = false;
     fSaveCount = 1;
 
     fMCRec = (MCRec*)fMCStack.push_back();
@@ -731,6 +731,16 @@ void SkCanvas::doSave() {
     SkASSERT(fMCRec->fDeferredSaveCount > 0);
     fMCRec->fDeferredSaveCount -= 1;
     this->internalSave();
+}
+
+int SkCanvas::saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
+    // TODO: add a virtual for this, and update clients (e.g. chrome)
+    int n = this->save();
+    this->concat(projection);
+    // TODO: remember this point in the matrix stack, so we can communicate it to shaders
+    //       that want to perform lighting.
+    this->concat(camera);
+    return n;
 }
 
 void SkCanvas::restore() {
@@ -1428,7 +1438,9 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         fMCRec->fMatrix.preTranslate(dx,dy);
 
         // Translate shouldn't affect the is-scale-translateness of the matrix.
-        SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
+        // However, if either is non-finite, we might still complicate the matrix type,
+        // so we still have to compute this.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
         FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
@@ -1437,9 +1449,24 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
+#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
     SkMatrix m;
     m.setScale(sx, sy);
     this->concat(m);
+#else
+    if (sx != 1 || sy != 1) {
+        this->checkForDeferredSave();
+        fMCRec->fMatrix.preScale(sx, sy);
+
+        // shouldn't need to do this (theoretically), as the state shouldn't have changed,
+        // but pre-scaling by a non-finite does change it, so we have to recompute.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+        this->didScale(sx, sy);
+    }
+#endif
 }
 
 void SkCanvas::rotate(SkScalar degrees) {
@@ -1472,6 +1499,22 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
     this->didConcat(matrix);
+}
+
+void SkCanvas::concat44(const SkScalar m[16]) {
+    this->checkForDeferredSave();
+
+    fMCRec->fMatrix.preConcat44(m);
+
+    fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+    this->didConcat44(m);
+}
+
+void SkCanvas::concat(const SkMatrix44& m) {
+    this->concat44(m.values());
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
@@ -1583,8 +1626,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1761,7 +1803,11 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+SkMatrix SkCanvas::getTotalMatrix() const {
+    return fMCRec->fMatrix;
+}
+
+SkM44 SkCanvas::getTotalM44() const {
     return fMCRec->fMatrix;
 }
 

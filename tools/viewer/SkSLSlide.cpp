@@ -83,7 +83,7 @@ bool SkSLSlide::rebuild() {
     if (effect->inputSize() > oldSize) {
         memset(fInputs.get() + oldSize, 0, effect->inputSize() - oldSize);
     }
-    fChildren.resize_back(effect->fChildren.size());
+    fChildren.resize_back(effect->children().count());
     for (auto& c : fChildren) {
         if (!c) {
             c = fShaders[0].second;
@@ -112,7 +112,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         return;
     }
 
-    for (const auto& v : fEffect->fInAndUniformVars) {
+    for (const auto& v : fEffect->inputs()) {
         switch (v.fType) {
             case SkRuntimeEffect::Variable::Type::kBool:
                 ImGui::Checkbox(v.fName.c_str(), (bool*)(fInputs.get() + v.fOffset));
@@ -154,7 +154,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
         }
     }
 
-    for (const auto [i, name] : SkMakeEnumerate(fEffect->fChildren)) {
+    for (const auto [i, name] : SkMakeEnumerate(fEffect->children())) {
         auto curShader = std::find_if(fShaders.begin(), fShaders.end(),
                                       [tgt = fChildren[i]](auto p) { return p.second == tgt; });
         SkASSERT(curShader!= fShaders.end());

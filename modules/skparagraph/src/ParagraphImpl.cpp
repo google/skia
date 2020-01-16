@@ -192,6 +192,8 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
+        // We have to calculate the paragraph boundaries only after we format the lines
+        this->calculateBoundaries();
         fState = kFormatted;
     }
 
@@ -205,15 +207,6 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
     // TODO: This is strictly Flutter thing. Must be factored out into some flutter code
     if (fParagraphStyle.getMaxLines() == 1 || (fParagraphStyle.unlimited_lines() && fParagraphStyle.ellipsized())) {
         fMinIntrinsicWidth = fMaxIntrinsicWidth;
-    }
-
-    // TODO: This rounding is done to match Flutter tests. Must be removed..
-    if (floorWidth == 0.0f) {
-        fWidth = 0;
-        if (fParagraphStyle.unlimited_lines() && !fParagraphStyle.ellipsized()) {
-            fMinIntrinsicWidth = fHeight;
-            fHeight = fMaxIntrinsicWidth;
-        }
     }
 }
 
@@ -399,11 +392,17 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 SkVector advance,
                 InternalLineMetrics metrics,
                 bool addEllipsis) {
-                // Add the line
                 // TODO: Take in account clipped edges
                 auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
+                    if (line.ellipsis() != nullptr) {
+                        // Make sure the paragraph boundaries include its ellipsis
+                        auto size = line.ellipsis()->advance();
+                        auto offset = line.ellipsis()->offset();
+                        SkRect boundaries = SkRect::MakeXYWH(offset.fX, offset.fY, size.fX, size.fY);
+                        fOrigin.joinPossiblyEmptyRect(boundaries);
+                    }
                 }
 
                 fLongestLine = SkTMax(fLongestLine, advance.fX);
@@ -495,34 +494,10 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
     return { begin, end + 1 };
 }
 
-void ParagraphImpl::calculateBoundaries(ClusterRange clusters, SkVector offset, SkVector advance) {
-
-    auto boundaries = SkRect::MakeXYWH(0, 0, advance.fX, advance.fY);
-
-    if (!fRuns.empty()) {
-        // TODO: Move it down to the TextWrapper to avoid extra calculations
-        auto run = &fRuns[0];
-        auto runShift = 0.0f;
-        auto clusterShift = 0.0f;
-        for (auto index = clusters.start; index < clusters.end; ++index) {
-            auto& cluster = fClusters[index];
-            if (cluster.runIndex() != run->index()) {
-                run = &fRuns[cluster.runIndex()];
-                runShift += clusterShift;
-                clusterShift = 0;
-            }
-            clusterShift += cluster.width();
-            for (auto i = cluster.startPos(); i < cluster.endPos(); ++i) {
-                auto posX = run->posX(i);
-                auto posY = run->posY(i);
-                auto bounds = run->getBounds(i);
-                bounds.offset(posX + runShift, posY);
-                boundaries.joinPossiblyEmptyRect(bounds);
-            }
-        }
+void ParagraphImpl::calculateBoundaries() {
+    for (auto& line : fLines) {
+        fOrigin.joinPossiblyEmptyRect(line.calculateBoundaries());
     }
-    boundaries.offset(offset);
-    fOrigin.joinPossiblyEmptyRect(boundaries);
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
@@ -535,11 +510,6 @@ TextLine& ParagraphImpl::addLine(SkVector offset,
                                  InternalLineMetrics sizes) {
     // Define a list of styles that covers the line
     auto blocks = findAllBlocks(text);
-
-    auto correctedOffset = offset;
-    correctedOffset.offset(0, sizes.baseline());
-    calculateBoundaries(clusters, correctedOffset, advance);
-
     return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, sizes);
 }
 
@@ -726,7 +696,8 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 }
 
                 if (rectHeightStyle == RectHeightStyle::kMax) {
-                    // TODO: Sort it out with Flutter people
+                    // TODO: Change it once flutter rolls into google3
+                    //  (probably will break things if changed before)
                     clip.fBottom = line.height();
                     clip.fTop = line.sizes().baseline() -
                                 line.getMaxRunMetrics().baseline() +

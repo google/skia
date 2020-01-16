@@ -51,7 +51,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
 
-    fTransferBufferSupport = true;
+    fTransferFromBufferToTextureSupport = true;
+    fTransferFromSurfaceToBufferSupport = true;
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec
@@ -403,7 +404,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kQualcomm_VkVendor == properties.vendorID) {
         fMustDoCopiesFromOrigin = true;
         // Transfer doesn't support this workaround.
-        fTransferBufferSupport = false;
+        fTransferFromSurfaceToBufferSupport = false;
     }
 
 #if defined(SK_BUILD_FOR_WIN)
@@ -571,6 +572,10 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
                 // fBlendEquationSupport = kAdvanced_BlendEquationSupport;
             }
         }
+    }
+
+    if (kARM_VkVendor == properties.vendorID) {
+        fShouldCollapseSrcOverToSrcWhenAble = true;
     }
 }
 
@@ -1276,7 +1281,7 @@ SkImage::CompressionType GrVkCaps::compressionType(const GrBackendFormat& format
     }
 
     switch (vkFormat) {
-        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkImage::CompressionType::kETC1;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkImage::CompressionType::kETC2_RGB8_UNORM;
         case VK_FORMAT_BC1_RGB_UNORM_BLOCK:     return SkImage::CompressionType::kBC1_RGB8_UNORM;
         default:                                return SkImage::CompressionType::kNone;
     }
@@ -1699,7 +1704,7 @@ GrBackendFormat GrVkCaps::getBackendFormatFromCompressionType(
     switch (compressionType) {
         case SkImage::CompressionType::kNone:
             return {};
-        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
             if (this->isVkFormatTexturable(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK)) {
                 return GrBackendFormat::MakeVk(VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
             }
@@ -1774,7 +1779,7 @@ int GrVkCaps::getFragmentUniformSet() const {
 }
 
 void GrVkCaps::addExtraSamplerKey(GrProcessorKeyBuilder* b,
-                                  const GrSamplerState& samplerState,
+                                  GrSamplerState samplerState,
                                   const GrBackendFormat& format) const {
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     if (!ycbcrInfo) {

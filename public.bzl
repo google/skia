@@ -794,11 +794,19 @@ SKSHAPER_PRIMITIVE_SRCS = [
 ################################################################################
 
 SKOTTIE_IOS_LIB_SRCS = [
-    "tools/skottie_ios_app/SkAnimationDraw.h",
-    "tools/skottie_ios_app/SkTimeKeeper.h",
-    "tools/skottie_ios_app/SkottieUIView.mm",
+    "tools/skottie_ios_app/SkiaContext.mm",
+    "tools/skottie_ios_app/SkiaUIContext.mm",
+    "tools/skottie_ios_app/SkiaViewController.mm",
+    "tools/skottie_ios_app/SkottieViewController.mm",
 ]
 
 SKOTTIE_IOS_LIB_HDRS = [
-    "tools/skottie_ios_app/SkottieUIView.h",
+    "tools/skottie_ios_app/SkiaContext.h",
+    "tools/skottie_ios_app/SkiaViewController.h",
+    "tools/skottie_ios_app/SkottieViewController.h",
+]
+
+SKOTTIE_IOS_LIB_SDK_FRAMEWORKS = [
+    "Foundation",
+    "UIKit",
 ]

@@ -139,7 +139,7 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     const SkBitmap& bitmap,
-                                                    const GrSamplerState& params,
+                                                    GrSamplerState params,
                                                     SkScalar scaleAdjust[2]) {
     return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, scaleAdjust);
 }

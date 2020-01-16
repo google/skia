@@ -417,12 +417,12 @@ public:
         auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
         // don't need to set ctx->paintColor
         ctx->inputs = fInputs->data();
-        ctx->ninputs = fInputs->size() / 4;
+        ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = false;
 
         SkAutoMutexExclusive ama(fByteCodeMutex);
         if (!fByteCode) {
-            auto [byteCode, errorText] = fEffect->toByteCode();
+            auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
             if (!byteCode) {
                 SkDebugf("%s\n", errorText.c_str());
                 return false;

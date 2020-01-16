@@ -123,8 +123,9 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
         GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                        grColorType);
 
-        GrSurfaceContext sContext(context, std::move(proxy), grColorType, kPremul_SkAlphaType,
-                                  nullptr, origin, readSwizzle);
+        GrSurfaceProxyView view(std::move(proxy), origin, readSwizzle);
+        GrSurfaceContext sContext(context, std::move(view), grColorType, kPremul_SkAlphaType,
+                                  nullptr);
 
         if (!sContext.readPixels(dstInfo, readBuffer.begin(), 0, {0, 0})) {
             // We only require this to succeed if the format is renderable.

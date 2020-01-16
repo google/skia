@@ -59,6 +59,8 @@ public:
      */
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
 
+    void setAndroidClipViz(bool enable) {this->fShowAndroidClip = enable; }
+
     void setDrawGpuOpBounds(bool drawGpuOpBounds) { fDrawGpuOpBounds = drawGpuOpBounds; }
 
     bool getDrawGpuOpBounds() const { return fDrawGpuOpBounds; }
@@ -129,9 +131,11 @@ protected:
     bool              onDoSaveBehind(const SkRect*) override;
     void              willRestore() override;
 
+    void didConcat44(const SkScalar[16]) override;
     void didConcat(const SkMatrix&) override;
-
     void didSetMatrix(const SkMatrix&) override;
+    void didScale(SkScalar, SkScalar) override;
+    void didTranslate(SkScalar, SkScalar) override;
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) override;
@@ -222,9 +226,10 @@ private:
     SkMatrix                fMatrix;
     SkIRect                 fClip;
 
-    bool    fOverdrawViz;
+    bool    fOverdrawViz = false;
     SkColor fClipVizColor;
-    bool    fDrawGpuOpBounds;
+    bool    fDrawGpuOpBounds = false;
+    bool    fShowAndroidClip = false;
 
     // When not negative, indicates the render node id of the layer represented by the next
     // drawPicture call.
@@ -236,6 +241,7 @@ private:
     // May be set when DebugCanvas is used in playing back an animation.
     // Only used for passing to fLayerManager to identify itself.
     int fFrame = -1;
+    SkRect fAndroidClip = SkRect::MakeEmpty();
 
     /**
         Adds the command to the class' vector of commands.

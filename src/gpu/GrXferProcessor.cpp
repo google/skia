@@ -182,6 +182,7 @@ sk_sp<const GrXferProcessor> GrXPFactory::MakeXferProcessor(const GrXPFactory* f
                                                             const GrCaps& caps,
                                                             GrClampType clampType) {
     SkASSERT(!hasMixedSamples || caps.shaderCaps()->dualSourceBlendingSupport());
+
     if (factory) {
         return factory->makeXferProcessor(color, coverage, hasMixedSamples, caps, clampType);
     } else {

@@ -231,17 +231,25 @@ public:
         return DecodeToTexture(ctx, data->data(), data->size(), subset);
     }
 
-    // Experimental
+    /*
+     * Experimental:
+     *   Skia                | GL_COMPRESSED_*     | MTLPixelFormat*     | VK_FORMAT_*_BLOCK
+     *  -------------------------------------------------------------------------------------
+     *   kETC2_RGB8_UNORM    | ETC1_RGB8           | ETC2_RGB8 (iOS-only)| ETC2_R8G8B8_UNORM
+     *                       | RGB8_ETC2           |                     |
+     *  -------------------------------------------------------------------------------------
+     *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                 | BC1_RGB_UNORM
+     */
     enum class CompressionType {
         kNone,
-        kETC1,
+        kETC2_RGB8_UNORM, // the same as ETC1
         kBC1_RGB8_UNORM,
         kLast = kBC1_RGB8_UNORM,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
 
-    static const CompressionType kETC1_CompressionType = CompressionType::kETC1;
+    static const CompressionType kETC1_CompressionType = CompressionType::kETC2_RGB8_UNORM;
 
     /** Creates a GPU-backed SkImage from compressed data.
 
@@ -256,7 +264,8 @@ public:
         @return         created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
-                                             int width, int height, CompressionType type);
+                                             int width, int height, CompressionType type,
+                                             GrMipMapped mipMapped = GrMipMapped::kNo);
 
     /** User function called when supplied texture may be deleted.
     */
@@ -1077,11 +1086,15 @@ public:
 
         Returns nullptr if copy, decode, or pixel read fails.
 
+        If cachingHint is kAllow_CachingHint, pixels may be retained locally.
+        If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
+
+        @param cachingHint    one of: kAllow_CachingHint, kDisallow_CachingHint
         @return  raster image, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeRasterImage
     */
-    sk_sp<SkImage> makeRasterImage() const;
+    sk_sp<SkImage> makeRasterImage(CachingHint cachingHint = kDisallow_CachingHint) const;
 
     /** Creates filtered SkImage. filter processes original SkImage, potentially changing
         color, position, and size. subset is the bounds of original SkImage processed

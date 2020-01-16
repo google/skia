@@ -146,7 +146,7 @@ public:
                     GrSurfaceProxy::UseAllocator::kYes);
             GrSwizzle swizzle = ctx->priv().caps()->getReadSwizzle(format, kColorType);
             fAccess.set(GrSurfaceProxyView(fLazyProxy, kOrigin, swizzle),
-                        GrSamplerState::ClampNearest());
+                        GrSamplerState::Filter::kNearest);
             this->setTextureSamplerCnt(1);
         }
 
@@ -211,11 +211,11 @@ DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     for (bool nullTexture : {false, true}) {
         LazyProxyTest test(reporter);
         ctx->priv().addOnFlushCallbackObject(&test);
-        auto rtc = ctx->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
-                                                               GrColorType::kRGBA_8888, nullptr);
+        auto rtc = GrRenderTargetContext::Make(
+                ctx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {100, 100});
         REPORTER_ASSERT(reporter, rtc);
-        auto mockAtlas = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 10, 10, GrColorType::kAlpha_F16, nullptr);
+        auto mockAtlas = GrRenderTargetContext::Make(
+                ctx.get(), GrColorType::kAlpha_F16, nullptr, SkBackingFit::kExact, {10, 10});
         REPORTER_ASSERT(reporter, mockAtlas);
         rtc->priv().testingOnly_addDrawOp(LazyProxyTest::Clip(&test, mockAtlas->asTextureProxy()),
                         LazyProxyTest::Op::Make(ctx.get(), proxyProvider, &test, nullTexture));
@@ -386,8 +386,8 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
     sk_sp<GrContext> ctx = GrContext::MakeMock(&mockOptions, GrContextOptions());
     GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
     for (bool failInstantiation : {false, true}) {
-        auto rtc = ctx->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact, 100, 100,
-                                                               GrColorType::kRGBA_8888, nullptr);
+        auto rtc = GrRenderTargetContext::Make(
+                ctx.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {100, 100});
         REPORTER_ASSERT(reporter, rtc);
 
         rtc->clear(nullptr, SkPMColor4f::FromBytes_RGBA(0xbaaaaaad),

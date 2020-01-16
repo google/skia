@@ -1674,28 +1674,101 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text =
-                "NoSuchMethodError: The method 'run' was called on null.\n"
-                "Receiver: null\n"
-                "Tried calling: run(definition: Instance of 'ReportDefinition', includeReportColumns: true)\n"
-                "See also: https://flutter.dev/docs/testing/errors";
+        const char* text =  "Manage your google account";
         ParagraphStyle paragraph_style;
-        //paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(1);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(20);
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(296);
+        paragraph->layout(this->width());
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
+
+class ParagraphView21 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph21"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "Referral Code";
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(0);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView22 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph22"); }
+
+    bool onChar(SkUnichar uni) override {
+            switch (uni) {
+                case 'l':
+                    direction = true;
+                    return true;
+                case 'r':
+                    direction = false;
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(direction ? TextDirection::kLtr : TextDirection::kRtl);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        collection->getParagraphCache()->reset();
+        collection->getParagraphCache()->turnOn(false);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(12);
+        builder.pushStyle(text_style);
+        builder.addText("I have got a ");
+        text_style.setFontStyle(SkFontStyle::Bold());
+        builder.pushStyle(text_style);
+        builder.addText("lovely bunch");
+        text_style.setFontStyle(SkFontStyle::Normal());
+        builder.pushStyle(text_style);
+        builder.addText(" of coconuts.");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->width());
+        paragraph->paint(canvas, 0, 0);
+        collection->getParagraphCache()->turnOn(true);
+    }
+
+private:
+    typedef Sample INHERITED;
+    bool direction;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1717,3 +1790,5 @@ DEF_SAMPLE(return new ParagraphView17();)
 DEF_SAMPLE(return new ParagraphView18();)
 DEF_SAMPLE(return new ParagraphView19();)
 DEF_SAMPLE(return new ParagraphView20();)
+DEF_SAMPLE(return new ParagraphView21();)
+DEF_SAMPLE(return new ParagraphView22();)

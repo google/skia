@@ -24,20 +24,12 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
         auto width = fWords.width() + fClusters.width() + cluster->width();
         auto roundedWidth = littleRound(width);
         if (cluster->isHardBreak()) {
-        } else if (maxWidth == 0.0f) {
-            // Do nothing
         } else if (roundedWidth > maxWidth) {
             if (cluster->isWhitespaces()) {
                 // It's the end of the word
                 fClusters.extend(cluster);
                 fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, getClustersTrimmedWidth());
                 fWords.extend(fClusters);
-                break;
-            }
-            if (cluster->width() > maxWidth) {
-                fClusters.extend(cluster);
-                fTooLongCluster = true;
-                fTooLongWord = true;
                 break;
             }
 
@@ -52,6 +44,12 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             if (nextWordLength > maxWidth) {
                 // If the word is too long we can break it right now and hope it's enough
                 fMinIntrinsicWidth = SkTMax(fMinIntrinsicWidth, nextWordLength);
+                fTooLongWord = true;
+            }
+
+            if (cluster->width() > maxWidth) {
+                fClusters.extend(cluster);
+                fTooLongCluster = true;
                 fTooLongWord = true;
             }
             break;
@@ -72,23 +70,29 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
     }
 }
 
-void TextWrapper::moveForward() {
-    do {
-        if (!fWords.empty()) {
-            fEndLine.extend(fWords);
-        } else if (!fClusters.empty()) {
-            fEndLine.extend(fClusters);
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else if (!fClip.empty() || (fTooLongWord && fTooLongCluster)) {
-            // Flutter: forget the clipped cluster but keep the metrics
-            fEndLine.metrics().add(fClip.metrics());
-            fTooLongWord = false;
-            fTooLongCluster = false;
-        } else {
-            break;
+void TextWrapper::moveForward(bool hasEllipsis) {
+
+    // We normally break lines by words.
+    // The only way we may go to clusters is if the word is too long or
+    // it's the first word and it has an ellipsis attached to it.
+    // If nothing fits we show the clipping.
+    if (!fWords.empty()) {
+        fEndLine.extend(fWords);
+        if (!fTooLongWord || hasEllipsis) {
+            return;
         }
-    } while (fTooLongWord || fTooLongCluster);
+    }
+    if (!fClusters.empty()) {
+        fEndLine.extend(fClusters);
+        if (!fTooLongCluster) {
+            return;
+        }
+    }
+
+    if (!fClip.empty()) {
+        // Flutter: forget the clipped cluster but keep the metrics
+        fEndLine.metrics().add(fClip.metrics());
+    }
 }
 
 // Special case for start/end cluster since they can be clipped
@@ -160,6 +164,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
     return std::make_tuple(cluster, 0, width);
 }
 
+// TODO: refactor the code for line ending (with/without ellipsis)
 void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                                      SkScalar maxWidth,
                                      const AddLineToParagraph& addLine) {
@@ -169,7 +174,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
     auto span = parent->clusters();
     if (span.size() == 0) {
-      return;
+        return;
     }
     auto maxLines = parent->paragraphStyle().getMaxLines();
     auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
@@ -185,10 +190,10 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     while (fEndLine.endCluster() != end) {
 
         reset();
-
+        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
         fEndLine.metrics().clean();
         lookAhead(maxWidth, end);
-        moveForward();
+        moveForward(exceededLines && !ellipsisStr.isEmpty());
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
@@ -204,9 +209,11 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             SkScalarIsFinite(maxWidth) &&
             !ellipsisStr.isEmpty();
 
-        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
-
-        // TODO: perform ellipsis work here
+        if (needEllipsis && exceededLines && !fHardLineBreak) {
+            // This is what we need to do to preserve a space before the ellipsis
+            fEndLine.restoreBreak();
+            widthWithSpaces = fEndLine.withWithGhostSpaces();
+        }
 
         // If the line is empty with the hard line break, let's take the paragraph font (flutter???)
         if (fHardLineBreak && fEndLine.width() == 0) {
@@ -264,8 +271,10 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         fEndLine.startFrom(startLine, pos);
         parent->fMaxWidthWithTrailingSpaces = SkMaxScalar(parent->fMaxWidthWithTrailingSpaces, widthWithSpaces);
 
-        if (exceededLines || (needEllipsis && endlessLine && !fHardLineBreak)) {
+        if (exceededLines) {
             fHardLineBreak = false;
+            break;
+        } else if (endlessLine && needEllipsis) {
             break;
         }
 
@@ -302,7 +311,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 
     if (fHardLineBreak) {
-
         // Last character is a line break
         if (parent->strutEnabled()) {
             // Make sure font metrics are not less than the strut

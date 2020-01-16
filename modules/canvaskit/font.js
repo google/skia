@@ -39,7 +39,7 @@ CanvasKit._extraInitializations.push(function() {
     }
     // reminder, this shouldn't copy the data, just is a nice way to
     // wrap 4 bytes together into a float.
-    var widths = new Float32Array(CanvasKit.buffer, widthPtr, codePoints);
+    var widths = new Float32Array(CanvasKit.HEAPU8.buffer, widthPtr, codePoints);
     // This copies the data so we can free the CanvasKit memory
     var retVal = Array.from(widths);
     CanvasKit._free(strPtr);

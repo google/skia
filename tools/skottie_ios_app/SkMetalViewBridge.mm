@@ -13,35 +13,21 @@
 #import <MetalKit/MetalKit.h>
 
 sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrContext* grContext) {
-    if (![[mtkView currentDrawable] texture] ||
-        !grContext ||
+    if (!grContext ||
         MTLPixelFormatDepth32Float_Stencil8 != [mtkView depthStencilPixelFormat] ||
         MTLPixelFormatBGRA8Unorm != [mtkView colorPixelFormat]) {
         return nullptr;
     }
+
     const SkColorType colorType = kBGRA_8888_SkColorType;  // MTLPixelFormatBGRA8Unorm
     sk_sp<SkColorSpace> colorSpace = nullptr;  // MTLPixelFormatBGRA8Unorm
     const GrSurfaceOrigin origin = kTopLeft_GrSurfaceOrigin;
     const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
     int sampleCount = (int)[mtkView sampleCount];
-    CGSize size = [mtkView drawableSize];
-    int width  = (int)size.width;
-    int height = (int)size.height;
 
-    GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((__bridge const void*)([[mtkView currentDrawable] texture]));
-    if (sampleCount == 1) {
-        GrBackendRenderTarget backendRT(width, height, 1, fbInfo);
-        return SkSurface::MakeFromBackendRenderTarget(grContext, backendRT, origin,
-                                                      colorType, colorSpace, &surfaceProps);
-    } else {
-        GrBackendTexture backendTexture(width, height, GrMipMapped::kNo, fbInfo);
-        return SkSurface::MakeFromBackendTexture(grContext, backendTexture, origin, sampleCount,
-                                                 colorType, colorSpace, &surfaceProps);
-    }
+    return SkSurface::MakeFromMTKView(grContext, (__bridge GrMTLHandle)mtkView, origin, sampleCount,
+                                      colorType, colorSpace, &surfaceProps);
 }
-
-void GrContextRelease::operator()(GrContext* ptr) { SkSafeUnref(ptr); }
 
 GrContextHolder SkMetalDeviceToGrContext(id<MTLDevice> device, id<MTLCommandQueue> queue) {
     GrContextOptions grContextOptions;  // set different options here.

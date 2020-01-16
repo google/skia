@@ -107,19 +107,9 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
                                                                    int finalH,
                                                                    sk_sp<SkColorSpace> finalCS,
                                                                    SkBackingFit dstFit) {
-
-    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            dstFit,
-            finalW,
-            finalH,
-            srcColorType,
-            std::move(finalCS),
-            1,
-            GrMipMapped::kNo,
-            srcProxy->origin(),
-            nullptr,
-            SkBudgeted::kYes,
-            srcProxy->isProtected());
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, srcColorType, std::move(finalCS), dstFit, {finalW, finalH}, 1,
+            GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -167,18 +157,9 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
                                                                 SkBackingFit fit) {
     SkASSERT(srcRect.width() <= finalW && srcRect.height() <= finalH);
 
-    auto dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            fit,
-            srcRect.width(),
-            srcRect.height(),
-            srcColorType,
-            std::move(finalCS),
-            1,
-            GrMipMapped::kNo,
-            srcProxy->origin(),
-            nullptr,
-            SkBudgeted::kYes,
-            srcProxy->isProtected());
+    auto dstRenderTargetContext = GrRenderTargetContext::Make(
+            context, srcColorType, std::move(finalCS), fit, srcRect.size(), 1,
+            GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -302,26 +283,17 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
     for (int i = 1; i < scaleFactorX || i < scaleFactorY; i *= 2) {
         shrink_irect_by_2(&dstRect, i < scaleFactorX, i < scaleFactorY);
 
-        // We know this will not be the final draw so we are free to make it an approx match.
-        dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox,
-                dstRect.fRight,
-                dstRect.fBottom,
-                srcColorType,
-                finalCS,
-                1,
-                GrMipMapped::kNo,
-                srcProxy->origin(),
-                nullptr,
-                SkBudgeted::kYes,
-                srcProxy->isProtected());
+        dstRenderTargetContext = GrRenderTargetContext::Make(
+                context, srcColorType, finalCS, SkBackingFit::kApprox,
+                {dstRect.fRight, dstRect.fBottom}, 1, GrMipMapped::kNo, srcProxy->isProtected(),
+                srcProxy->origin());
         if (!dstRenderTargetContext) {
             return nullptr;
         }
 
         GrPaint paint;
-        auto fp = GrSimpleTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
-                                              GrSamplerState::Filter::kBilerp);
+        auto fp = GrTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
+                                        GrSamplerState::Filter::kBilerp);
         if (GrTextureDomain::kIgnore_Mode != mode && i == 1) {
             // GrDomainEffect does not support kRepeat_Mode with GrSamplerState::Filter.
             GrTextureDomain::Mode modeForScaling = (GrTextureDomain::kRepeat_Mode == mode ||
@@ -392,9 +364,9 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
 
     srcRenderTargetContext = nullptr; // no longer needed
 
-    auto dstRenderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            fit, finalW, finalH, srcColorType, std::move(finalCS), 1, GrMipMapped::kNo,
-            srcProxy->origin());
+    auto dstRenderTargetContext = GrRenderTargetContext::Make(
+            context, srcColorType, std::move(finalCS), fit, {finalW, finalH}, 1,
+            GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -402,8 +374,8 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
     GrPaint paint;
     SkRect domain = GrTextureDomain::MakeTexelDomain(localSrcBounds, GrTextureDomain::kClamp_Mode,
                                                      GrTextureDomain::kClamp_Mode);
-    auto fp = GrSimpleTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
-                                          GrSamplerState::Filter::kBilerp);
+    auto fp = GrTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I(),
+                                    GrSamplerState::Filter::kBilerp);
     fp = GrDomainEffect::Make(std::move(fp), domain, GrTextureDomain::kClamp_Mode, true);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);

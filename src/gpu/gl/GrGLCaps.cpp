@@ -493,7 +493,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(2, 1) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object") ||
             ctxInfo.hasExtension("GL_EXT_pixel_buffer_object")) {
-            fTransferBufferSupport = true;
+            fTransferFromBufferToTextureSupport = true;
+            fTransferFromSurfaceToBufferSupport = true;
             fTransferBufferType = kPBO_TransferBufferType;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
@@ -501,11 +502,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             (ctxInfo.hasExtension("GL_NV_pixel_buffer_object") &&
              // GL_EXT_unpack_subimage needed to support subtexture rectangles
              ctxInfo.hasExtension("GL_EXT_unpack_subimage"))) {
-            fTransferBufferSupport = true;
+            fTransferFromBufferToTextureSupport = true;
+            fTransferFromSurfaceToBufferSupport = true;
             fTransferBufferType = kPBO_TransferBufferType;
 // TODO: get transfer buffers working in Chrome
 //        } else if (ctxInfo.hasExtension("GL_CHROMIUM_pixel_transfer_buffer_object")) {
-//            fTransferBufferSupport = true;
+//            fTransferFromBufferToTextureSupport = false;
+//            fTransferFromSurfaceToBufferSupport = false;
 //            fTransferBufferType = kChromium_TransferBufferType;
         }
     } // no WebGL support
@@ -694,8 +697,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSamplerObjectSupport = version >= GR_GL_VER(2,0);
     }
 
-    if (GR_IS_GR_GL_ES(standard)) {
-        fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
+    // https://github.com/flutter/flutter/issues/47164
+    // https://github.com/flutter/flutter/issues/47804
+    // if (GR_IS_GR_GL_ES(standard)) {
+    //     fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
+    // }
+
+    if (kARM_GrGLVendor == ctxInfo.vendor()) {
+        fShouldCollapseSrcOverToSrcWhenAble = true;
     }
 
     FormatWorkarounds formatWorkarounds;
@@ -3315,7 +3324,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // See skbug.com/7058
     fMapBufferType = kNone_MapBufferType;
     fMapBufferFlags = kNone_MapFlags;
-    fTransferBufferSupport = false;
+    fTransferFromBufferToTextureSupport = false;
+    fTransferFromSurfaceToBufferSupport = false;
     fTransferBufferType = kNone_TransferBufferType;
 #endif
 #endif
@@ -3328,14 +3338,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driverVersion() > GR_GL_DRIVER_VER(127, 0, 0)) {
         fMapBufferType = kNone_MapBufferType;
         fMapBufferFlags = kNone_MapFlags;
-        fTransferBufferSupport = false;
+        fTransferFromBufferToTextureSupport = false;
+        fTransferFromSurfaceToBufferSupport = false;
         fTransferBufferType = kNone_TransferBufferType;
     }
 
-    // TODO: re-enable for ANGLE
+    // The TransferPixelsToTexture test fails on ANGLE.
     if (kANGLE_GrGLDriver == ctxInfo.driver()) {
-        fTransferBufferSupport = false;
-        fTransferBufferType = kNone_TransferBufferType;
+        fTransferFromBufferToTextureSupport = false;
     }
 
     // Using MIPs on this GPU seems to be a source of trouble.
@@ -3978,9 +3988,9 @@ SkImage::CompressionType GrGLCaps::compressionType(const GrBackendFormat& format
     auto fmt = format.asGLFormat();
 
     switch (fmt) {
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as RGB8_ETC2
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: // same compression layout as ETC2_RGB8_UNORM
         case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-            return SkImage::CompressionType::kETC1;
+            return SkImage::CompressionType::kETC2_RGB8_UNORM;
         case GrGLFormat::kCOMPRESSED_RGB8_BC1:
             return SkImage::CompressionType::kBC1_RGB8_UNORM;
         default:
@@ -4210,7 +4220,8 @@ static GrPixelConfig validate_sized_format(GrGLFormat format,
             break;
     }
 
-    SkDebugf("Unknown pixel config 0x%x\n", format);
+    SkDebugf("GL format/colorType mismatch - glFormat: %d colorType: %d standard: %d\n",
+             format, ct, standard);
     return kUnknown_GrPixelConfig;
 }
 
@@ -4284,7 +4295,7 @@ GrBackendFormat GrGLCaps::getBackendFormatFromCompressionType(
     switch (compressionType) {
         case SkImage::CompressionType::kNone:
             return {};
-        case SkImage::CompressionType::kETC1:
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
             // if ETC2 is available default to that format
             if (this->isFormatTexturable(GrGLFormat::kCOMPRESSED_RGB8_ETC2)) {
                 return GrBackendFormat::MakeGL(GR_GL_COMPRESSED_RGB8_ETC2, GR_GL_TEXTURE_2D);

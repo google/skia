@@ -909,33 +909,3 @@ void GrDrawingManager::flushIfNecessary() {
     }
 }
 
-std::unique_ptr<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
-        sk_sp<GrSurfaceProxy> sProxy,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* surfaceProps,
-        bool managedOpsTask) {
-    if (this->wasAbandoned() || !sProxy->asRenderTargetProxy()) {
-        return nullptr;
-    }
-
-    sk_sp<GrRenderTargetProxy> renderTargetProxy(sk_ref_sp(sProxy->asRenderTargetProxy()));
-
-    GrSurfaceOrigin origin = renderTargetProxy->origin();
-    GrSwizzle readSwizzle = fContext->priv().caps()->getReadSwizzle(sProxy->backendFormat(),
-                                                                      colorType);
-    GrSwizzle outSwizzle = fContext->priv().caps()->getOutputSwizzle(sProxy->backendFormat(),
-                                                                     colorType);
-
-    return std::unique_ptr<GrRenderTargetContext>(
-            new GrRenderTargetContext(fContext,
-                                      std::move(renderTargetProxy),
-                                      colorType,
-                                      origin,
-                                      readSwizzle,
-                                      outSwizzle,
-                                      std::move(colorSpace),
-                                      surfaceProps,
-                                      managedOpsTask));
-}
-

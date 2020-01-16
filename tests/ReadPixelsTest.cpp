@@ -426,8 +426,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadPixels_Texture, reporter, ctxInfo) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             sk_sp<GrTextureProxy> proxy = sk_gpu_test::MakeTextureProxyFromData(
                     context, renderable, origin, bmp.info(), bmp.getPixels(), bmp.rowBytes());
-            auto sContext = GrSurfaceContext::Make(context, std::move(proxy),
-                    SkColorTypeToGrColorType(bmp.colorType()), kPremul_SkAlphaType, nullptr);
+            GrColorType grColorType = SkColorTypeToGrColorType(bmp.colorType());
+            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                       grColorType);
+            GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+            auto sContext = GrSurfaceContext::Make(context, std::move(view),
+                    grColorType, kPremul_SkAlphaType, nullptr);
             auto info = SkImageInfo::Make(DEV_W, DEV_H, kN32_SkColorType, kPremul_SkAlphaType);
             test_readpixels_texture(reporter, std::move(sContext), info);
         }
@@ -1035,8 +1039,9 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                 if (!context) {
                     continue;
                 }
-                // This test is only meaningful for contexts that support transfer buffers.
-                if (!context->priv().caps()->transferBufferSupport()) {
+                // This test is only meaningful for contexts that support transfer buffers for
+                // reads.
+                if (!context->priv().caps()->transferFromSurfaceToBufferSupport()) {
                     continue;
                 }
                 auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 1, nullptr);

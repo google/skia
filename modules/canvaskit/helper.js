@@ -417,7 +417,7 @@ CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
 CanvasKit.Malloc = function(typedArray, len) {
   var byteLen = len * typedArray.BYTES_PER_ELEMENT;
   var ptr = CanvasKit._malloc(byteLen);
-  var ta = new typedArray(CanvasKit.buffer, ptr, len);
+  var ta = new typedArray(CanvasKit.HEAPU8.buffer, ptr, len);
   // add a marker that this was allocated in C++ land
   ta['_ck'] = true;
   return ta;
