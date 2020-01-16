@@ -274,7 +274,7 @@ public:
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         auto p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
-                                        SkNamedGamut::kDCIP3);
+                                        SkNamedGamut::kDisplayP3);
         auto xform = GrColorSpaceXform::Make(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                                              p3.get(),            kUnpremul_SkAlphaType);
 
