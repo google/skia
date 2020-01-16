@@ -144,8 +144,10 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(GrRecordingContext* context,
 
     sk_sp<GrSurfaceProxy> proxy = this->asTextureProxyRef(context);
 
+    GrColorType grColorType = SkColorTypeToGrColorType(this->colorType());
+
     sk_sp<GrTextureProxy> copyProxy =
-            GrSurfaceProxy::Copy(context, proxy.get(), GrMipMapped::kNo, subset,
+            GrSurfaceProxy::Copy(context, proxy.get(), grColorType, GrMipMapped::kNo, subset,
                                  SkBackingFit::kExact, proxy->isBudgeted());
 
     if (!copyProxy) {
