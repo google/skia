@@ -125,6 +125,14 @@ enum class GrPrimitiveRestart : bool {
 };
 
 /**
+ * Should a created surface be texturable?
+ */
+enum class GrTexturable : bool {
+    kNo = false,
+    kYes = true
+};
+
+/**
  *  Formats for masks, used by the font cache. Important that these are 0-based.
  */
 enum GrMaskFormat {
