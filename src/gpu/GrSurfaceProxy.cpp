@@ -284,6 +284,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceProxy* src,
+                                           GrColorType srcColorType,
                                            GrMipMapped mipMapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
@@ -307,10 +308,9 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     if (!srcRect.intersect(SkIRect::MakeSize(src->dimensions()))) {
         return nullptr;
     }
-    auto colorType = GrPixelConfigToColorType(src->config());
     auto format = src->backendFormat().makeTexture2D();
     SkASSERT(format.isValid());
-    auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
+    auto config = context->priv().caps()->getConfigFromBackendFormat(format, srcColorType);
     if (config == kUnknown_GrPixelConfig) {
         return nullptr;
     }
@@ -323,14 +323,14 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         auto dstContext = GrSurfaceContext::Make(context, {width, height}, format,
                                                  GrRenderable::kNo, 1, mipMapped,
-                                                 src->isProtected(), origin, colorType,
+                                                 src->isProtected(), origin, srcColorType,
                                                  kUnknown_SkAlphaType, nullptr, fit, budgeted);
         if (dstContext && dstContext->copy(src, srcRect, dstPoint)) {
             return dstContext->asTextureProxyRef();
         }
     }
     if (src->asTextureProxy()) {
-        auto dstContext = GrRenderTargetContext::Make(context, colorType, nullptr, fit,
+        auto dstContext = GrRenderTargetContext::Make(context, srcColorType, nullptr, fit,
                                                       {width, height}, format, 1,
                                                       mipMapped, src->isProtected(), origin,
                                                       budgeted, nullptr);
@@ -343,10 +343,11 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 }
 
 sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context, GrSurfaceProxy* src,
-                                           GrMipMapped mipMapped, SkBackingFit fit,
-                                           SkBudgeted budgeted) {
+                                           GrColorType srcColorType, GrMipMapped mipMapped,
+                                           SkBackingFit fit, SkBudgeted budgeted) {
     SkASSERT(!src->isFullyLazy());
-    return Copy(context, src, mipMapped, SkIRect::MakeSize(src->dimensions()), fit, budgeted);
+    return Copy(context, src, srcColorType, mipMapped, SkIRect::MakeSize(src->dimensions()), fit,
+                budgeted);
 }
 
 #if GR_TEST_UTILS

@@ -526,8 +526,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
     GrColorType srcColorType = this->colorInfo().colorType();
     SkAlphaType srcAlphaType = this->colorInfo().alphaType();
     if (!texProxy) {
-        texProxy = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), GrMipMapped::kNo, srcRect,
-                                        SkBackingFit::kApprox, SkBudgeted::kNo);
+        texProxy = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), srcColorType,
+                                        GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
+                                        SkBudgeted::kNo);
         if (!texProxy) {
             return nullptr;
         }
