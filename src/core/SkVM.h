@@ -648,13 +648,9 @@ namespace skvm {
         int                      fLoop = 0;
         std::vector<int>         fStrides;
 
-        // We only hang onto these to help debugging.
-        std::vector<Builder::Instruction> fOriginalProgram;
-
-        void*  fJITBuf      = nullptr;
-        size_t fJITSize     = 0;
-        void*  fDylibHandle = nullptr;
-        void*  fDylibEntry  = nullptr;
+        void*  fJITEntry = nullptr;
+        size_t fJITSize  = 0;
+        void*  fDylib    = nullptr;
     };
 
     // TODO: control flow
