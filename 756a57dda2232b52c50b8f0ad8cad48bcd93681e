@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b99b8023_762f8aa6",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-16T19:44:47Z",
+      "side": 1,
+      "message": "I thought you didn\u0027t want this flag?",
+      "range": {
+        "startLine": 1301,
+        "startChar": 35,
+        "endLine": 1301,
+        "endChar": 53
+      },
+      "revId": "756a57dda2232b52c50b8f0ad8cad48bcd93681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
