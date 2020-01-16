@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkNx.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/text/RangeSelector.h"
 #include "src/utils/SkJSON.h"
@@ -58,7 +59,8 @@ namespace internal {
  * }
  */
 sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
-                                       const AnimationBuilder* abuilder) {
+                                       const AnimationBuilder* abuilder,
+                                       AnimatablePropertyContainer* acontainer) {
     if (!janimator) {
         return nullptr;
     }
@@ -75,18 +77,19 @@ sk_sp<TextAnimator> TextAnimator::Make(const skjson::ObjectValue* janimator,
     if (const skjson::ArrayValue* jselectors = (*janimator)["s"]) {
         selectors.reserve(jselectors->size());
         for (const skjson::ObjectValue* jselector : *jselectors) {
-            if (auto sel = RangeSelector::Make(*jselector, abuilder)) {
+            if (auto sel = RangeSelector::Make(*jselector, abuilder, acontainer)) {
                 selectors.push_back(std::move(sel));
             }
         }
     } else {
-        if (auto sel = RangeSelector::Make((*janimator)["s"], abuilder)) {
+        if (auto sel = RangeSelector::Make((*janimator)["s"], abuilder, acontainer)) {
             selectors.reserve(1);
             selectors.push_back(std::move(sel));
         }
     }
 
-    return sk_sp<TextAnimator>(new TextAnimator(std::move(selectors), *jprops, abuilder));
+    return sk_sp<TextAnimator>(
+                new TextAnimator(std::move(selectors), *jprops, abuilder, acontainer));
 }
 
 void TextAnimator::modulateProps(const DomainMaps& maps, ModulatorBuffer& buf) const {
@@ -109,15 +112,15 @@ void TextAnimator::modulateProps(const DomainMaps& maps, ModulatorBuffer& buf) c
     }
 }
 
-TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& props,
+TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& props,
                                                         float amount) const {
     auto modulated_props = props;
 
     // Transform props compose.
-    modulated_props.position += fTextProps.position * amount;
+    modulated_props.position += ValueTraits<VectorValue>::As<SkPoint>(fTextProps.position) * amount;
     modulated_props.rotation += fTextProps.rotation * amount;
     modulated_props.tracking += fTextProps.tracking * amount;
-    modulated_props.scale    *= 1 + (fTextProps.scale - 1) * amount;
+    modulated_props.scale    *= 1 + (fTextProps.scale * 0.01f - 1) * amount; // scale is 100-based
 
     const auto lerp_color = [](SkColor c0, SkColor c1, float t) {
         const auto c0_4f = SkNx_cast<float>(Sk4b::Load(&c0)),
@@ -132,56 +135,32 @@ TextAnimator::AnimatedProps TextAnimator::modulateProps(const AnimatedProps& pro
     // Colors and opacity are overridden, and use a clamped amount value.
     const auto clamped_amount = std::max(amount, 0.0f);
     if (fHasFillColor) {
-        modulated_props.fill_color = lerp_color(props.fill_color,
-                                                fTextProps.fill_color,
-                                                clamped_amount);
+        const auto fc = ValueTraits<VectorValue>::As<SkColor>(fTextProps.fill_color);
+        modulated_props.fill_color = lerp_color(props.fill_color, fc, clamped_amount);
     }
     if (fHasStrokeColor) {
-        modulated_props.stroke_color = lerp_color(props.stroke_color,
-                                                  fTextProps.stroke_color,
-                                                  clamped_amount);
+        const auto sc = ValueTraits<VectorValue>::As<SkColor>(fTextProps.stroke_color);
+        modulated_props.stroke_color = lerp_color(props.stroke_color, sc, clamped_amount);
     }
-    modulated_props.opacity *= 1 + (fTextProps.opacity - 1) * clamped_amount;
+    modulated_props.opacity *= 1 + (fTextProps.opacity * 0.01f - 1) * clamped_amount; // 100-based
 
     return modulated_props;
 }
 
 TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
                            const skjson::ObjectValue& jprops,
-                           const AnimationBuilder* abuilder)
+                           const AnimationBuilder* abuilder,
+                           AnimatablePropertyContainer* acontainer)
     : fSelectors(std::move(selectors)) {
-    auto* animator = this;
 
-    abuilder->bindProperty<VectorValue>(jprops["p"],
-        [animator](const VectorValue& p) {
-            animator->fTextProps.position = ValueTraits<VectorValue>::As<SkPoint>(p);
-        });
-    abuilder->bindProperty<ScalarValue>(jprops["s"],
-        [animator](const ScalarValue& s) {
-            // Scale is 100-based.
-            animator->fTextProps.scale = s * 0.01f;
-        });
-    abuilder->bindProperty<ScalarValue>(jprops["r"],
-        [animator](const ScalarValue& r) {
-            animator->fTextProps.rotation = r;
-        });
-    fHasFillColor   = abuilder->bindProperty<VectorValue>(jprops["fc"],
-        [animator](const VectorValue& fc) {
-            animator->fTextProps.fill_color = ValueTraits<VectorValue>::As<SkColor>(fc);
-        });
-    fHasStrokeColor = abuilder->bindProperty<VectorValue>(jprops["sc"],
-        [animator](const VectorValue& sc) {
-            animator->fTextProps.stroke_color = ValueTraits<VectorValue>::As<SkColor>(sc);
-        });
-    abuilder->bindProperty<ScalarValue>(jprops["o"],
-        [animator](const ScalarValue& o) {
-            // Opacity is 100-based.
-            animator->fTextProps.opacity = SkTPin<float>(o * 0.01f, 0, 1);
-        });
-    abuilder->bindProperty<ScalarValue>(jprops["t"],
-        [animator](const ScalarValue& t) {
-            animator->fTextProps.tracking = t;
-        });
+    acontainer->bind(*abuilder, jprops["p" ], &fTextProps.position);
+    acontainer->bind(*abuilder, jprops["s" ], &fTextProps.scale   );
+    acontainer->bind(*abuilder, jprops["r" ], &fTextProps.rotation);
+    acontainer->bind(*abuilder, jprops["o" ], &fTextProps.opacity );
+    acontainer->bind(*abuilder, jprops["t" ], &fTextProps.tracking);
+
+    fHasFillColor   = acontainer->bind(*abuilder, jprops["fc"], &fTextProps.fill_color  );
+    fHasStrokeColor = acontainer->bind(*abuilder, jprops["sc"], &fTextProps.stroke_color);
 }
 
 } // namespace internal
