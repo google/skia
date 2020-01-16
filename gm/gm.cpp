@@ -63,6 +63,78 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     canvas->drawPaint(paint);
 }
 
+
+// ~~~~~~~~~~~~~~~~~~ Verifier ~~~~~~~~~~~~~~~~~~
+GMVerifier::~GMVerifier() {}
+
+VerifierResult GMVerifier::verify(const SkBitmap& gold, const SkBitmap& actual) {
+    return defaultVerify(gold, actual);
+}
+
+const SkBitmap* GMVerifier::goldStageImg() const {
+    return fGoldStageImg.get();
+}
+
+const SkBitmap* GMVerifier::actualStageImg() const {
+    return fActualStageImg.get();
+}
+
+VerifierResult GMVerifier::defaultVerify(const SkBitmap& gold, const SkBitmap& actual) {
+    fGoldStageImg = mask(gold);
+    fActualStageImg = mask(actual);
+
+    if (!bitmapsEqual(*fGoldStageImg, *fActualStageImg))
+        return VerifierResult::kFail;
+
+    return VerifierResult::kOk;
+}
+
+std::unique_ptr<SkBitmap> GMVerifier::mask(const SkBitmap& bmp) {
+    const SkISize input_size = bmp.info().bounds().size();
+    const SkImageInfo
+        image_info = SkImageInfo::Make(input_size, bmp.colorType(), bmp.alphaType(), nullptr);
+
+    std::unique_ptr<SkBitmap> result(new SkBitmap);
+    result->allocPixelsFlags(image_info, SkBitmap::kZeroPixels_AllocFlag);
+
+    SkCanvas canvas(*result);
+    canvas.clear(SK_ColorWHITE);
+
+    const SkPixmap& pixmap = bmp.pixmap();
+    for (int y = 0; y < input_size.fHeight; y++) {
+        for (int x = 0; x < input_size.fWidth; x++) {
+            SkColor c = pixmap.getColor(x, y);
+            if (c != SK_ColorWHITE && SkColorGetA(c) > 0) {
+                *result->getAddr32(x, y) = SK_ColorBLACK;
+            }
+        }
+    }
+
+    return result;
+}
+
+bool GMVerifier::bitmapsEqual(const SkBitmap& a, const SkBitmap& b) {
+    const SkISize a_size = a.info().bounds().size();
+    const SkISize b_size = b.info().bounds().size();
+
+    if (!a_size.equals(b_size.fWidth, b_size.fHeight))
+        return false;
+
+    const SkPixmap& a_pixmap = a.pixmap();
+    const SkPixmap& b_pixmap = b.pixmap();
+    for (int y = 0; y < b_size.fHeight; y++) {
+        for (int x = 0; x < b_size.fWidth; x++) {
+            if (b_pixmap.getColor(x, y) != a_pixmap.getColor(x, y)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// ~~~~~~~~~~~~~~~~~~ End Verifier ~~~~~~~~~~~~~~~~~~
+
 GM::GM(SkColor bgColor) {
     fMode = kGM_Mode;
     fBGColor = bgColor;
@@ -142,6 +214,10 @@ bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 
 bool GM::runAsBench() const { return false; }
 void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+std::unique_ptr<GMVerifier> GM::getVerifier() {
+    return std::unique_ptr<GMVerifier>(new GMVerifier);
+}
 
 void GM::onOnceBeforeDraw() {}
 

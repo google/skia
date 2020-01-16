@@ -20,6 +20,7 @@
 
 class GrContext;
 class GrRenderTargetContext;
+class SkBitmap;
 class SkCanvas;
 class SkMetaData;
 struct GrContextOptions;
@@ -85,6 +86,39 @@ struct GrContextOptions;
 
 namespace skiagm {
 
+    // ~~~~~~~~~~~~~~~~~~ Verifier ~~~~~~~~~~~~~~~~~~
+
+    enum class VerifierResult {
+        kOk,
+        kFail
+    };
+
+    class GMVerifier {
+    public:
+        virtual ~GMVerifier();
+
+        virtual VerifierResult verify(const SkBitmap& gold, const SkBitmap& actual);
+
+        const SkBitmap* goldStageImg() const;
+
+        const SkBitmap* actualStageImg() const;
+
+    protected:
+        std::unique_ptr<SkBitmap> fGoldStageImg;
+        std::unique_ptr<SkBitmap> fActualStageImg;
+
+        VerifierResult defaultVerify(const SkBitmap& gold, const SkBitmap& actual);
+
+        std::unique_ptr<SkBitmap> mask(const SkBitmap& bmp);
+
+        /**
+         * Returns true 'a' is pixel-equivalent to 'b'.
+         */
+        static bool bitmapsEqual(const SkBitmap& a, const SkBitmap& b);
+    };
+
+    // ~~~~~~~~~~~~~~~~~~ End Verifier ~~~~~~~~~~~~~~~~~~
+
     enum class DrawResult {
         kOk,  // Test drew successfully.
         kFail,  // Test failed to draw.
@@ -147,6 +181,8 @@ namespace skiagm {
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
 
         virtual void modifyGrContextOptions(GrContextOptions*);
+
+        std::unique_ptr<GMVerifier> getVerifier();
 
     protected:
         virtual void onOnceBeforeDraw();

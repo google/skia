@@ -1125,6 +1125,40 @@ struct Task {
                 }
             }
 
+            // Run task src verifier on the output.
+            {
+                SkBitmap gold_bmp;
+                RasterSink gold_sink(kN32_SkColorType);
+                err = gold_sink.draw(*task.src, &gold_bmp, nullptr, &log);
+                SkASSERT(err.isEmpty());
+
+                auto verifier = task.src->getVerifier();
+                if (verifier && verifier->verify(gold_bmp, bitmap) != skiagm::VerifierResult::kOk) {
+                    // Write the image stage that failed.
+                    auto write_bmp = [&task](const SkBitmap* bmp, const char* ext) {
+                        SkASSERT(bmp);
+                        HashAndEncode hashAndEncode(*bmp);
+                        SkMD5 hash;
+                        hashAndEncode.write(&hash);
+                        SkMD5::Digest digest = hash.finish();
+                        SkString md5;
+                        for (int i = 0; i < 16; i++) {
+                            md5.appendf("%02x", digest.data[i]);
+                        }
+                        WriteToDisk(task, md5, ext, nullptr, 0, bmp, &hashAndEncode);
+                    };
+
+                    write_bmp(verifier->goldStageImg(), "png-gold-stage");
+                    write_bmp(verifier->actualStageImg(), "png-actual-stage");
+
+                    fail(SkStringPrintf("%s %s %s %s: verifier failed",
+                                        task.sink.tag.c_str(),
+                                        task.src.tag.c_str(),
+                                        task.src.options.c_str(),
+                                        name.c_str()));
+                }
+            }
+
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
             SkStreamAsset* data = stream.detachAsStream().release();
             gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
