@@ -131,23 +131,6 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(static_cast<int>(fTileMode));
 }
 
-#if SK_SUPPORT_GPU
-static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
-    switch (tileMode) {
-        case SkTileMode::kClamp:
-            return GrTextureDomain::kClamp_Mode;
-        case SkTileMode::kDecal:
-            return GrTextureDomain::kDecal_Mode;
-        case SkTileMode::kMirror:
-            // TODO (michaelludwig) - Support mirror mode, treat as repeat for now
-        case SkTileMode::kRepeat:
-            return GrTextureDomain::kRepeat_Mode;
-        default:
-            SK_ABORT("Unsupported tile mode.");
-    }
-}
-#endif
-
 // This is defined by the SVG spec:
 // https://drafts.fxtf.org/filter-effects/#feGaussianBlurElement
 static int calculate_window(double sigma) {
@@ -677,7 +660,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
             inputBounds,
             sigma.x(),
             sigma.y(),
-            to_texture_domain_mode(fTileMode));
+            fTileMode);
     if (!renderTargetContext) {
         return nullptr;
     }
