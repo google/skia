@@ -80,14 +80,14 @@ public:
     /*
      * Create a GrSurfaceProxy without any data.
      */
-    sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&,
-                                      const GrSurfaceDesc&,
+    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&,
+                                      const GrBackendFormat&,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
                                       GrSurfaceOrigin,
+                                      SkBudgeted,
                                       GrMipMapped,
                                       SkBackingFit,
-                                      SkBudgeted,
                                       GrProtected,
                                       GrInternalSurfaceFlags = GrInternalSurfaceFlags::kNone,
                                       UseAllocator useAllocator = UseAllocator::kYes);
@@ -95,7 +95,10 @@ public:
     /*
      * Create a texture proxy from compressed texture data.
      */
-    sk_sp<GrTextureProxy> createCompressedTextureProxy(SkISize dimensions, SkBudgeted, GrMipMapped,
+    sk_sp<GrTextureProxy> createCompressedTextureProxy(SkISize dimensions,
+                                                       SkBudgeted,
+                                                       GrMipMapped,
+                                                       GrProtected,
                                                        SkImage::CompressionType,
                                                        sk_sp<SkData> data);
 
