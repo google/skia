@@ -639,6 +639,8 @@ namespace skvm {
         void setupInterpreter(const std::vector<Builder::Instruction>&);
         void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
 
+        void interpret(int n, void* args[]) const;
+
         bool jit(const std::vector<Builder::Instruction>&,
                  bool try_hoisting,
                  Assembler*) const;
@@ -648,13 +650,9 @@ namespace skvm {
         int                      fLoop = 0;
         std::vector<int>         fStrides;
 
-        // We only hang onto these to help debugging.
-        std::vector<Builder::Instruction> fOriginalProgram;
-
-        void*  fJITBuf      = nullptr;
-        size_t fJITSize     = 0;
-        void*  fDylibHandle = nullptr;
-        void*  fDylibEntry  = nullptr;
+        void*  fJITEntry = nullptr;
+        size_t fJITSize  = 0;
+        void*  fDylib    = nullptr;
     };
 
     // TODO: control flow
