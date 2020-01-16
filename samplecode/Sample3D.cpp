@@ -83,31 +83,6 @@ public:
     }
 };
 
-struct SkV3 {
-    float x, y, z;
-
-    static SkScalar Dot(const SkV3& a, const SkV3& b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
-    static SkV3   Cross(const SkV3& a, const SkV3& b) {
-        return { a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x };
-    }
-
-    SkV3 operator+(const SkV3& v) const { return { x + v.x, y + v.y, z + v.z }; }
-    SkV3 operator-(const SkV3& v) const { return { x - v.x, y - v.y, z - v.z }; }
-
-    friend SkV3 operator*(const SkV3& v, SkScalar s) {
-        return { v.x*s, v.y*s, v.z*s };
-    }
-    friend SkV3 operator*(SkScalar s, const SkV3& v) { return v*s; }
-
-    SkScalar operator*(const SkV3& v) const { return   Dot(*this, v); }
-    SkV3     operator%(const SkV3& v) const { return Cross(*this, v); }
-
-    SkScalar lengthSquared() const { return Dot(*this, *this); }
-    SkScalar length() const { return SkScalarSqrt(Dot(*this, *this)); }
-};
-
-typedef SkV3 SkP3;
-
 static SkMatrix44 RX(SkScalar rad) {
     SkScalar c = SkScalarCos(rad), s = SkScalarSin(rad);
     SkMatrix44 m;

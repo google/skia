@@ -397,3 +397,36 @@ DEF_BENCH( return new M4EQ(); )
 DEF_BENCH( return new M4NEQ(); )
 DEF_BENCH( return new M4Concat(); )
 DEF_BENCH( return new M4SetConcat(); )
+
+class M4_map4 : public M4Bench {
+public:
+    M4_map4() : INHERITED("map4") {}
+protected:
+    void performTest() override {
+        SkV4 v = {1, 2, 3, 4};
+        for (int i = 0; i < 100000; ++i) {
+            fV = fM0 * v;
+        }
+    }
+private:
+    SkV4 fV;
+    typedef M4Bench INHERITED;
+};
+DEF_BENCH( return new M4_map4(); )
+
+class M4_map2 : public M4Bench {
+public:
+    M4_map2() : INHERITED("map2") {}
+protected:
+    void performTest() override {
+        SkMatrix m;
+        m.setRotate(1);
+        for (int i = 0; i < 100000; ++i) {
+            fV = m.mapXY(5, 6);
+        }
+    }
+private:
+    SkPoint fV;
+    typedef M4Bench INHERITED;
+};
+DEF_BENCH( return new M4_map2(); )
