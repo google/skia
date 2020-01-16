@@ -995,3 +995,26 @@ DEF_TEST(M44, reporter) {
     REPORTER_ASSERT(reporter, eq(SkM44(), m, 0.0000005f));
     REPORTER_ASSERT(reporter, SkM44() != m);
 }
+
+DEF_TEST(M44_v3, reporter) {
+    SkV3 a = {1, 2, 3},
+         b = {1, 2, 2};
+
+    REPORTER_ASSERT(reporter, a.lengthSquared() == 1 + 4 + 9);
+    REPORTER_ASSERT(reporter, b.length() == 3);
+    REPORTER_ASSERT(reporter, a * b == 1 + 4 + 6);
+
+    SkM44 m = {
+        2, 0, 0, 3,
+        0, 1, 0, 5,
+        0, 0, 3, 1,
+        0, 0, 0, 1
+    };
+
+    SkV3 c = m * a,
+        c2 = {2, 2, 9};
+    REPORTER_ASSERT(reporter, c == c2);
+    SkV4 d = m.map(4, 3, 2, 1),
+        d2 = {11, 8, 7, 1};
+    REPORTER_ASSERT(reporter, d == d2);
+}
