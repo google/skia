@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec658512_921d0a91",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-16T18:44:27Z",
+      "side": 1,
+      "message": "why friend instead of\n\nSkV3 operator-() { return {-x, -y, -z}; }\n\n?",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 28,
+        "endChar": 71
+      },
+      "revId": "0c979396d2d8e2282651c9abeaaf2d6784ba1b70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
