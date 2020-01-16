@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5bf7a60b_9067e059",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-16T08:16:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cc3a9e5_091dd53a",
+      "range": {
+        "startLine": 433,
+        "startChar": 0,
+        "endLine": 445,
+        "endChar": 88
+      },
+      "revId": "db52ce1d5d544c347597fefa4d584091e7c97795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5b2e4218_9165716e",
         "filename": "src/core/SkPathPriv.h",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-15T21:13:00Z",
       "side": 1,
       "message": "A lot of our older iterators use this bool next() or Foo* next() pattern but many of the newer ones are designed to be used with range for loops, which I find much nicer.  To do that you\u0027d have to do something like make a ContourRange type that defines a begin() and end() that return an iterator so you could write something like:\n\nfor (auto\u0026 countor : SkPathPriv::ContourRange(path)) {\n    for (int i \u003d 0; i \u003c contour.countVerbs(); ++i) {\n...\n    }\n}",
+      "range": {
+        "startLine": 481,
+        "startChar": 9,
+        "endLine": 481,
+        "endChar": 13
+      },
+      "revId": "db52ce1d5d544c347597fefa4d584091e7c97795",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbebf29d_0a79e177",
+        "filename": "src/core/SkPathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-16T08:16:20Z",
+      "side": 1,
+      "message": "I spent a fair amount of time thinking about how to make a ContourRange work, but haven\u0027t found a solution yet that I\u0027m pleased with. The \"Iter\" is a large object that would require lots of copies or awkward pointer/template magic, and the operator* I had to hack was nonintuitive. If you have some suggestions then let\u0027s definitely chat offline.\n\nFor now I\u0027ve concluded that this is more a stateful parser than a lightweight iterator for a collection of elements, and have updated the naming to reflect that.",
+      "parentUuid": "5b2e4218_9165716e",
       "range": {
         "startLine": 481,
         "startChar": 9,
