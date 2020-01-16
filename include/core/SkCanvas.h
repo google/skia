@@ -26,10 +26,12 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
+#include "include/private/SkM44.h"
 #include "include/private/SkMacros.h"
 
 #include <cstring>
 #include <memory>
+#include <vector>
 
 class GrContext;
 class GrRenderTargetContext;
@@ -2506,7 +2508,9 @@ public:
     */
     SkMatrix getTotalMatrix() const;
 
-    SkM44 getTotalM44() const;
+    SkM44 getLocalToDevice() const; // entire matrix stack
+    SkM44 getLocalToWorld() const;  // up to but not including top-most camera, else localToDevice
+    SkM44 getLocalToCamera() const; // top-most camera, else localToDevice
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -2725,6 +2729,15 @@ private:
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
+
+    struct CameraRec {
+        MCRec*  fMCRec;         // the saveCamera rec that built us
+        SkM44   fCamera;        // just the user's camera
+        SkM44   fInvPostCamera; // cache of ctm post camera
+
+        CameraRec(MCRec* owner, const SkM44& camera);
+    };
+    std::vector<CameraRec> fCameraStack;
 
     // the first N recs that can fit here mean we won't call malloc
     static constexpr int kMCRecSize      = 128;  // most recent measurement
