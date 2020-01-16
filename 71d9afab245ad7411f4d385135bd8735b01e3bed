@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f92c795e_2de9bbd7",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-16T15:19:27Z",
+      "side": 1,
+      "message": "as discussed offline this affects our logic for readPixels canvas2DFastPath. We just need to disable to fast path for compressed textures and all should work fine. WritePixels has the same fast path logic but we don\u0027t support readOnly textures in write pixels so hopefully that already is fine for compressed.",
+      "range": {
+        "startLine": 1568,
+        "startChar": 14,
+        "endLine": 1570,
+        "endChar": 13
+      },
+      "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
