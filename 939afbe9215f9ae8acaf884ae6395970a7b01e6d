@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab01078_65e229ff",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-16T21:22:57Z",
+      "side": 1,
+      "message": "This might want a pass or two of editing?  Some of it is rather hard to follow.\n\nHow about something like\n\n// GrStrikeCache may evict the strike a blob needs to generate texture coordinates.\n// If our strike has been abandoned in this way, we\u0027ll translate all our old glyphs\n// over to a new strike and carry on with that.",
+      "range": {
+        "startLine": 282,
+        "startChar": 0,
+        "endLine": 290,
+        "endChar": 73
+      },
+      "revId": "939afbe9215f9ae8acaf884ae6395970a7b01e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b67007b7_45b9b272",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-16T21:22:57Z",
+      "side": 1,
+      "message": "Maybe just as clear as just \"cache\"?",
+      "range": {
+        "startLine": 292,
+        "startChar": 61,
+        "endLine": 292,
+        "endChar": 73
+      },
+      "revId": "939afbe9215f9ae8acaf884ae6395970a7b01e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98aa4117_beb44e5c",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-16T21:22:57Z",
+      "side": 1,
+      "message": "Redundant with the comment on 294?",
+      "revId": "939afbe9215f9ae8acaf884ae6395970a7b01e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "010500c8_f7ca6ed2",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-16T21:22:57Z",
+      "side": 1,
+      "message": "Kind of weird to see an auto\u0026 being assigned to.  Let\u0027s make a new name for this one,  replace auto\u0026 with the type, or both?  Maybe\n\nfor (const GrGlyph* glyph : fGlyphs) {\n    SkDEBUGCODE(const GrGlyph* newGlyph \u003d)\n    newStrike-\u003egetGlyph(glyph-\u003efPackedID, \u0026metricsAndImage);\n    SkASSERT(newGlyph-\u003efPackedID \u003d\u003d glyph-\u003efPackedID);\n}\n\n?",
+      "range": {
+        "startLine": 300,
+        "startChar": 12,
+        "endLine": 300,
+        "endChar": 18
+      },
+      "revId": "939afbe9215f9ae8acaf884ae6395970a7b01e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a2ac6b9_aa2f89aa",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-16T21:22:57Z",
+      "side": 1,
+      "message": "Let\u0027s pass by SkBulkGlyphMetricsAndImages*?  Reading this call site I\u0027d expect updateStrikeIfNeeded() cannot mutate fMetricsAndImages.",
+      "range": {
+        "startLine": 827,
+        "startChar": 34,
+        "endLine": 827,
+        "endChar": 52
+      },
+      "revId": "939afbe9215f9ae8acaf884ae6395970a7b01e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
