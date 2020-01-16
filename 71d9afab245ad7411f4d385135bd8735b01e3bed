@@ -70,6 +70,30 @@
       "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a04f740_d5137bda",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-16T18:46:20Z",
+      "side": 1,
+      "message": "It seems fine to me if anything with a CT of RGBA_8888/BGRA_8888 goes through the fast path. Unless I\u0027m missing something.",
+      "parentUuid": "9aadb338_b861214c",
+      "range": {
+        "startLine": 1568,
+        "startChar": 14,
+        "endLine": 1570,
+        "endChar": 13
+      },
+      "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
