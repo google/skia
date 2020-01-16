@@ -148,13 +148,14 @@ sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(SkISize dimensions,
                                                              const GrBackendFormat& format,
                                                              SkBudgeted budgeted,
                                                              GrMipMapped mipMapped,
+                                                             GrProtected isProtected,
                                                              SkData* data) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
     return fGpu->createCompressedTexture(dimensions, format, budgeted, mipMapped,
-                                         data->data(), data->size());
+                                         isProtected, data->data(), data->size());
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
@@ -185,7 +186,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return tex;
     }
 
-    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, mipMapped, budgeted,
+    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped,
                                isProtected);
 }
 
@@ -250,7 +251,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     }
 
     return fGpu->createTexture(copyDesc, format, renderable, renderTargetSampleCnt,
-                               GrMipMapped::kNo, SkBudgeted::kYes, isProtected);
+                               SkBudgeted::kYes, GrMipMapped::kNo, isProtected);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc,

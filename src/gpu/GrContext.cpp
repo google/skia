@@ -380,13 +380,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
-    }
-
-    return fGpu->createBackendTexture({width, height}, backendFormat, renderable, nullptr,
-                                      numMipLevels, isProtected);
+    return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
+                                      mipMapped, isProtected, nullptr);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,

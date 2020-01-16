@@ -74,8 +74,7 @@ enum GrPixelConfig {
     kRGBA_half_GrPixelConfig,
     kRGBA_half_Clamped_GrPixelConfig,
     kRGB_ETC1_GrPixelConfig,
-    kBC1_RGB8_UNORM_GrPixelConfig,
-    kBC1_RGBA8_UNORM_GrPixelConfig,
+    kRGB_BC1_GrPixelConfig,
     kAlpha_16_GrPixelConfig,
     kRG_1616_GrPixelConfig,
     kRGBA_16161616_GrPixelConfig,
@@ -120,6 +119,14 @@ static constexpr bool GrIsPrimTypeTris(GrPrimitiveType type) {
 }
 
 enum class GrPrimitiveRestart : bool {
+    kNo = false,
+    kYes = true
+};
+
+/**
+ * Should a created surface be texturable?
+ */
+enum class GrTexturable : bool {
     kNo = false,
     kYes = true
 };
@@ -1222,14 +1229,11 @@ static constexpr GrColorType GrPixelConfigToColorType(GrPixelConfig config) {
             return GrColorType::kRGBA_F16;
         case kRGBA_half_Clamped_GrPixelConfig:
             return GrColorType::kRGBA_F16_Clamped;
-
-        // We may need a roughly equivalent color type for a compressed textures. This should be
-        // the logical format for decompressing the data into.
         case kRGB_ETC1_GrPixelConfig:
-        case kBC1_RGB8_UNORM_GrPixelConfig:
+        case kRGB_BC1_GrPixelConfig:
+            // We may need a roughly equivalent color type for a compressed texture. This should be
+            // the logical format for decompressing the data into.
             return GrColorType::kRGB_888x;
-        case kBC1_RGBA8_UNORM_GrPixelConfig:
-            return GrColorType::kRGBA_8888;
         case kAlpha_8_as_Alpha_GrPixelConfig:
             return GrColorType::kAlpha_8;
         case kAlpha_8_as_Red_GrPixelConfig:
@@ -1290,19 +1294,7 @@ static constexpr GrPixelConfig GrCompressionTypeToPixelConfig(SkImage::Compressi
     switch (compression) {
         case SkImage::CompressionType::kNone:            return kUnknown_GrPixelConfig;
         case SkImage::CompressionType::kETC2_RGB8_UNORM: return kRGB_ETC1_GrPixelConfig;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return kBC1_RGB8_UNORM_GrPixelConfig;
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return kBC1_RGBA8_UNORM_GrPixelConfig;
-    }
-
-    SkUNREACHABLE;
-}
-
-static constexpr bool GrCompressionTypeIsOpaque(SkImage::CompressionType compression) {
-    switch (compression) {
-        case SkImage::CompressionType::kNone:            return true;
-        case SkImage::CompressionType::kETC2_RGB8_UNORM: return true;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return true;
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return false;
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return kRGB_BC1_GrPixelConfig;
     }
 
     SkUNREACHABLE;
@@ -1378,7 +1370,6 @@ static constexpr const char* GrCompressionTypeToStr(SkImage::CompressionType com
         case SkImage::CompressionType::kNone:            return "kNone";
         case SkImage::CompressionType::kETC2_RGB8_UNORM: return "kETC2_RGB8_UNORM";
         case SkImage::CompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return "kBC1_RGBA8_UNORM";
     }
     SkUNREACHABLE;
 }

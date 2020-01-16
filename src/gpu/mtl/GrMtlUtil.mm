@@ -98,16 +98,9 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
 #else
             return false;
 #endif
-        case kBC1_RGB8_UNORM_GrPixelConfig:
-            // Even Mac desktops only support the RGBA variant
+        case kRGB_BC1_GrPixelConfig:
+            // Even Mac desktops only support the RGBA variants
             return false;
-        case kBC1_RGBA8_UNORM_GrPixelConfig:
-#ifdef SK_BUILD_FOR_IOS
-            return false;
-#else
-            *format = MTLPixelFormatBC1_RGBA;
-            return true;
-#endif
         case kAlpha_16_GrPixelConfig:
             *format = MTLPixelFormatR16Unorm;
             return true;
@@ -307,9 +300,6 @@ bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:
             return true;
-#else
-        case MTLPixelFormatBC1_RGBA:
-            return true;
 #endif
         default:
             return false;
@@ -320,8 +310,6 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) 
     switch (mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8: return SkImage::CompressionType::kETC2_RGB8_UNORM;
-#else
-        case MTLPixelFormatBC1_RGBA:  return SkImage::CompressionType::kBC1_RGBA8_UNORM;
 #endif
         default:                      return SkImage::CompressionType::kNone;
     }
@@ -355,14 +343,12 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR16Unorm:        return "R16Unorm";
         case MTLPixelFormatRG16Unorm:       return "RG16Unorm";
 #ifdef SK_BUILD_FOR_IOS
-        case MTLPixelFormatETC2_RGB8:       return "ETC2_RGB8";
-#else
-        case MTLPixelFormatBC1_RGBA:        return "BC1_RGBA";
+        case MTLPixelFormatETC2_RGB8:      return "ETC2_RGB8";
 #endif
-        case MTLPixelFormatRGBA16Unorm:     return "RGBA16Unorm";
-        case MTLPixelFormatRG16Float:       return "RG16Float";
+        case MTLPixelFormatRGBA16Unorm:    return "RGBA16Unorm";
+        case MTLPixelFormatRG16Float:      return "RG16Float";
 
-        default:                            return "Unknown";
+        default:                           return "Unknown";
     }
 }
 
