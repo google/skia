@@ -16,6 +16,8 @@
 #include "src/core/SkVM.h"
 #include <functional>  // std::hash
 
+bool gSkVMJITViaDylib{false};
+
 // JIT code isn't MSAN-instrumented, so we won't see when it uses
 // uninitialized memory, and we'll not see the writes it makes as properly
 // initializing memory.  Instead force the interpreter, which should let
@@ -27,6 +29,7 @@
 #endif
 
 #if defined(SKVM_JIT)
+    #include <dlfcn.h>      // dlopen, dlsym
     #include <sys/mman.h>   // mmap, mprotect
 #endif
 
@@ -1570,9 +1573,9 @@ namespace skvm {
     void Program::eval(int n, void* args[]) const {
         const int nargs = (int)fStrides.size();
 
-        if (fJITBuf) {
+        if (const void* b = fDylibEntry ? fDylibEntry
+                                        : fJITBuf) {
             void** a = args;
-            const void* b = fJITBuf;
             switch (nargs) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
                 case 1: return ((void(*)(int,void*                  ))b)(n,a[0]               );
@@ -1864,12 +1867,17 @@ namespace skvm {
         if (fJITBuf) {
             munmap(fJITBuf, fJITSize);
         }
+        if (fDylibHandle) {
+            dlclose(fDylibHandle);
+        }
     #else
         SkASSERT(!this->hasJIT());
     #endif
 
-        fJITBuf   = nullptr;
-        fJITSize  = 0;
+        fJITBuf      = nullptr;
+        fJITSize     = 0;
+        fDylibHandle = nullptr;
+        fDylibEntry  = nullptr;
     }
 
     Program::~Program() { this->dropJIT(); }
@@ -1881,8 +1889,10 @@ namespace skvm {
         fStrides         = std::move(other.fStrides);
         fOriginalProgram = std::move(other.fOriginalProgram);
 
-        std::swap(fJITBuf  , other.fJITBuf);
-        std::swap(fJITSize , other.fJITSize);
+        std::swap(fJITBuf     , other.fJITBuf);
+        std::swap(fJITSize    , other.fJITSize);
+        std::swap(fDylibHandle, other.fDylibHandle);
+        std::swap(fDylibEntry , other.fDylibEntry);
     }
 
     Program& Program::operator=(Program&& other) {
@@ -1892,8 +1902,10 @@ namespace skvm {
         fStrides         = std::move(other.fStrides);
         fOriginalProgram = std::move(other.fOriginalProgram);
 
-        std::swap(fJITBuf  , other.fJITBuf);
-        std::swap(fJITSize , other.fJITSize);
+        std::swap(fJITBuf     , other.fJITBuf);
+        std::swap(fJITSize    , other.fJITSize);
+        std::swap(fDylibHandle, other.fDylibHandle);
+        std::swap(fDylibEntry , other.fDylibEntry);
         return *this;
     }
 
@@ -2657,6 +2669,28 @@ namespace skvm {
         mprotect(fJITBuf, fJITSize, PROT_READ|PROT_EXEC);
         __builtin___clear_cache((char*)fJITBuf,
                                 (char*)fJITBuf + fJITSize);
+
+        // For profiling and debugging, it's helpful to have this code loaded
+        // dynamically rather than just jumping info fJITBuf.
+        if (gSkVMJITViaDylib) {
+            // Dump the raw program binary.
+            SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
+            int fd = mkstemp(path.writable_str());
+            ::write(fd, fJITBuf, a.size());
+            close(fd);
+
+            // Convert it to an shared library with a single symbol "skvm_jit":
+            SkString cmd = SkStringPrintf(
+                    "echo '.global _skvm_jit\n_skvm_jit: .incbin \"%s\"'"
+                    " | clang -x assembler -shared - -o %s.lib",
+                    path.c_str(), path.c_str());
+            system(cmd.c_str());
+
+            // Load that dynamic library and look up skvm_jit().
+            path += ".lib";
+            fDylibHandle = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
+            fDylibEntry = dlsym(fDylibHandle, "skvm_jit");
+        }
     }
 #endif
 
