@@ -64,7 +64,7 @@
                     ]
                 }
             },
-            "nm": "Deep Cyan Solid 1",
+            "nm": "$Deep Cyan Solid 1",
             "op": 261,
             "sc": "#00b794",
             "sh": 50,
@@ -118,7 +118,7 @@
                     ]
                 }
             },
-            "nm": "text_center",
+            "nm": "$text_center",
             "op": 261,
             "sr": 1,
             "st": 0,
@@ -205,7 +205,7 @@
                     ]
                 }
             },
-            "nm": "Deep Cyan Solid 1",
+            "nm": "$Deep Cyan Solid 2",
             "op": 261,
             "sc": "#00b794",
             "sh": 50,
@@ -259,7 +259,7 @@
                     ]
                 }
             },
-            "nm": "Deep Cyan Solid 1",
+            "nm": "$Deep Cyan Solid 3",
             "op": 261,
             "sc": "#00b794",
             "sh": 50,
@@ -313,7 +313,7 @@
                     ]
                 }
             },
-            "nm": "text_left",
+            "nm": "$text_left",
             "op": 261,
             "sr": 1,
             "st": 0,
@@ -400,7 +400,7 @@
                     ]
                 }
             },
-            "nm": "Deep Cyan Solid 1",
+            "nm": "$Deep Cyan Solid 4",
             "op": 261,
             "sc": "#00b794",
             "sh": 50,
@@ -454,7 +454,7 @@
                     ]
                 }
             },
-            "nm": "Deep Cyan Solid 1",
+            "nm": "$Deep Cyan Solid 5",
             "op": 261,
             "sc": "#00b794",
             "sh": 50,
@@ -508,7 +508,7 @@
                     ]
                 }
             },
-            "nm": "text_right",
+            "nm": "$text_right",
             "op": 261,
             "sr": 1,
             "st": 0,
@@ -595,7 +595,7 @@
                     ]
                 }
             },
-            "nm": "Deep Cyan Solid 1",
+            "nm": "$Deep Cyan Solid 6",
             "op": 261,
             "sc": "#00b794",
             "sh": 50,
