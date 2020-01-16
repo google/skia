@@ -6,10 +6,20 @@
  */
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 #include "include/private/SkM44.h"
 #include "include/private/SkVx.h"
 
 typedef skvx::Vec<4, float> sk4f;
+
+SkM44::SkM44(const SkMatrix44& m) {
+    memcpy(fMat, m.fMat, 16 * sizeof(SkScalar));
+}
+
+SkM44& SkM44::operator=(const SkMatrix44& m) {
+    memcpy(fMat, m.fMat, 16 * sizeof(SkScalar));
+    return *this;
+}
 
 bool SkM44::operator==(const SkM44& other) const {
     if (this == &other) {
@@ -46,7 +56,7 @@ SkM44& SkM44::setRowMajor(const SkScalar v[]) {
     return *this;
 }
 
-SkM44& SkM44::setConcat(const SkM44& a, const SkScalar b[16]) {
+SkM44& SkM44::setConcat16(const SkM44& a, const SkScalar b[16]) {
     sk4f c0 = sk4f::Load(a.fMat +  0);
     sk4f c1 = sk4f::Load(a.fMat +  4);
     sk4f c2 = sk4f::Load(a.fMat +  8);
