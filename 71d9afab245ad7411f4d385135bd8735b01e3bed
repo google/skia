@@ -22,6 +22,30 @@
       "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5f49048_31565775",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-16T16:06:05Z",
+      "side": 1,
+      "message": "Curious what the connection is between this and the fast path.",
+      "parentUuid": "f92c795e_2de9bbd7",
+      "range": {
+        "startLine": 1568,
+        "startChar": 14,
+        "endLine": 1570,
+        "endChar": 13
+      },
+      "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
