@@ -67,7 +67,8 @@ public:
 
         // add varyings
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrGLSLVarying texIdx(kFloat_GrSLType);
+        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
                                  dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
@@ -344,7 +345,8 @@ public:
                                                                 &atlasDimensionsInvName);
 
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrGLSLVarying texIdx(kFloat_GrSLType);
+        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfPathEffect.numTextureSamplers(),
                                  dfPathEffect.inTextureCoords().name(), atlasDimensionsInvName,
@@ -649,7 +651,8 @@ public:
 
         // set up varyings
         GrGLSLVarying uv(kFloat2_GrSLType);
-        GrGLSLVarying texIdx(kFloat_GrSLType);
+        GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
+        GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
         append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
                                  dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
