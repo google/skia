@@ -8,7 +8,7 @@
 #ifndef SkottieTextAdapter_DEFINED
 #define SkottieTextAdapter_DEFINED
 
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
@@ -17,10 +17,16 @@
 
 class SkFontMgr;
 
+namespace sksg {
+class Group;
+template <typename T>
+class Matrix;
+} // namespace sksg
+
 namespace skottie {
 namespace internal {
 
-class TextAdapter final : public DiscardableAdaptorBase {
+class TextAdapter final : public AnimatablePropertyContainer {
 public:
     static sk_sp<TextAdapter> Make(const skjson::ObjectValue&, const AnimationBuilder*,
                                    sk_sp<SkFontMgr>, sk_sp<Logger>);
@@ -36,7 +42,7 @@ protected:
     void onSync() override;
 
 private:
-    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>, std::vector<sk_sp<TextAnimator>>&&);
+    TextAdapter(sk_sp<SkFontMgr>, sk_sp<Logger>);
 
     struct FragmentRec {
         SkPoint                       fOrigin; // fragment position
@@ -50,22 +56,24 @@ private:
     void addFragment(const Shaper::Fragment&);
     void buildDomainMaps(const Shaper::Result&);
 
-    void pushPropsToFragment(const TextAnimator::AnimatedProps&, const FragmentRec&) const;
+    void pushPropsToFragment(const TextAnimator::ResolvedProps&, const FragmentRec&) const;
 
     void adjustLineTracking(const TextAnimator::ModulatorBuffer&,
                             const TextAnimator::DomainSpan&,
                             float line_tracking) const;
 
-    const sk_sp<sksg::Group>               fRoot;
-    const sk_sp<SkFontMgr>                 fFontMgr;
-    const std::vector<sk_sp<TextAnimator>> fAnimators;
-    sk_sp<Logger>                          fLogger;
+    const sk_sp<sksg::Group>         fRoot;
+    const sk_sp<SkFontMgr>           fFontMgr;
+    sk_sp<Logger>                    fLogger;
 
-    std::vector<FragmentRec> fFragments;
-    TextAnimator::DomainMaps fMaps;
+    std::vector<sk_sp<TextAnimator>> fAnimators;
+    std::vector<FragmentRec>         fFragments;
+    TextAnimator::DomainMaps         fMaps;
 
-    TextValue                fText;
-    bool                     fTextDirty = true;
+    // We store two text values to detect animator-driven changes (to elide reshaping).
+    TextValue                        fText,
+                                     fAnimatableText;
+    bool                             fTextDirty = true;
 };
 
 } // namespace internal

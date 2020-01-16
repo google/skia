@@ -60,38 +60,27 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
         return nullptr;
     }
 
-    std::vector<sk_sp<TextAnimator>> animators;
+    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr), std::move(logger)));
+    adapter->bind(*abuilder, jd, &adapter->fAnimatableText);
+
     if (const skjson::ArrayValue* janimators = (*jt)["a"]) {
-        animators.reserve(janimators->size());
+        adapter->fAnimators.reserve(janimators->size());
 
         for (const skjson::ObjectValue* janimator : *janimators) {
-            if (auto animator = TextAnimator::Make(janimator, abuilder)) {
-                animators.push_back(std::move(animator));
+            if (auto animator = TextAnimator::Make(janimator, abuilder, adapter.get())) {
+                adapter->fAnimators.push_back(std::move(animator));
             }
         }
     }
-
-    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
-                                                      std::move(logger),
-                                                      std::move(animators)));
-    auto* raw_adapter = adapter.get();
-
-    abuilder->bindProperty<TextValue>(*jd,
-        [raw_adapter] (const TextValue& txt) {
-            raw_adapter->setText(txt);
-        });
 
     abuilder->dispatchTextProperty(adapter);
 
     return adapter;
 }
 
-TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr,
-                         sk_sp<Logger> logger,
-                         std::vector<sk_sp<TextAnimator>>&& animators)
+TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
-    , fAnimators(std::move(animators))
     , fLogger(std::move(logger)) {}
 
 TextAdapter::~TextAdapter() = default;
@@ -251,6 +240,9 @@ void TextAdapter::reshape() {
 }
 
 void TextAdapter::onSync() {
+    // Push (and track for change) the animator-driven value.
+    this->setText(fAnimatableText);
+
     if (!fText.fHasFill && !fText.fHasStroke) {
         return;
     }
@@ -265,7 +257,7 @@ void TextAdapter::onSync() {
     }
 
     // Seed props from the current text value.
-    TextAnimator::AnimatedProps seed_props;
+    TextAnimator::ResolvedProps seed_props;
     seed_props.fill_color   = fText.fFillColor;
     seed_props.stroke_color = fText.fStrokeColor;
 
@@ -299,7 +291,7 @@ void TextAdapter::onSync() {
     }
 }
 
-void TextAdapter::pushPropsToFragment(const TextAnimator::AnimatedProps& props,
+void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec) const {
     // TODO: share this with TransformAdapter2D?
     auto t = SkMatrix::MakeTrans(rec.fOrigin.x() + props.position.x(),
