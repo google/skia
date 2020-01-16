@@ -22,6 +22,30 @@
       "revId": "9f60b2d304dad603e531cce23d817220d242d411",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aafce5cd_afed3601",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-16T21:29:44Z",
+      "side": 1,
+      "message": "Yeah, in my prev change I made it pass proxy bounds instead empty. This change passes clipRect (same as it passed for dst bounds).\n\nThis code effectively says if the caller passes kIgnore/EmptyRect then we use the dst bounds also as the src bounds.",
+      "parentUuid": "c695680d_5bc6a1f2",
+      "range": {
+        "startLine": 263,
+        "startChar": 3,
+        "endLine": 264,
+        "endChar": 31
+      },
+      "revId": "9f60b2d304dad603e531cce23d817220d242d411",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
