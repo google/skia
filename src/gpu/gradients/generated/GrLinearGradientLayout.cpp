@@ -85,5 +85,5 @@ std::unique_ptr<GrFragmentProcessor> GrLinearGradientLayout::Make(const SkLinear
         return nullptr;
     }
     matrix.postConcat(grad.getGradientMatrix());
-    return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(SkMatrix(matrix)));
+    return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(matrix));
 }
