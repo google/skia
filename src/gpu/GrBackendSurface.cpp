@@ -665,6 +665,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int stencilBits,
                                              const GrDawnImageInfo& dawnInfo)
         : fIsValid(true)
+        , fFramebufferOnly(true)
         , fWidth(width)
         , fHeight(height)
         , fSampleCnt(sampleCnt)
@@ -715,6 +716,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int sampleCnt,
                                              const GrMtlTextureInfo& mtlInfo)
         : fIsValid(true)
+        , fFramebufferOnly(false) // TODO: set this from mtlInfo.fTexture->framebufferOnly
         , fWidth(width)
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))

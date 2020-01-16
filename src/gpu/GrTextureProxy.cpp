@@ -32,7 +32,9 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fProxyProvider(nullptr)
-        , fDeferredUploader(nullptr) {}
+        , fDeferredUploader(nullptr) {
+    SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
+}
 
 // Lazy-callback version
 GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
@@ -52,7 +54,9 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
         , fMipMapped(mipMapped)
         , fMipMapsStatus(mipMapsStatus) SkDEBUGCODE(, fInitialMipMapsStatus(fMipMapsStatus))
         , fProxyProvider(nullptr)
-        , fDeferredUploader(nullptr) {}
+        , fDeferredUploader(nullptr) {
+    SkASSERT(!(fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly));
+}
 
 // Wrapped version
 GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
