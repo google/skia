@@ -22,6 +22,30 @@
       "revId": "756a57dda2232b52c50b8f0ad8cad48bcd93681e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6ba23ab_844bbf08",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-16T20:32:00Z",
+      "side": 1,
+      "message": "Yep, I\u0027m not a fan of leaving commented code in place, but in this case this is the code we *don\u0027t want* introduced again later (without at least thinking though why it would be re-added.",
+      "parentUuid": "b99b8023_762f8aa6",
+      "range": {
+        "startLine": 1301,
+        "startChar": 35,
+        "endLine": 1301,
+        "endChar": 53
+      },
+      "revId": "756a57dda2232b52c50b8f0ad8cad48bcd93681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
