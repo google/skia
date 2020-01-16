@@ -784,6 +784,8 @@ typedef enum {
     TWO_DOT_TWO_SK_NAMED_TRANSFER_FN,
     LINEAR_SK_NAMED_TRANSFER_FN,
     REC2020_SK_NAMED_TRANSFER_FN,
+    PQ_SK_NAMED_TRANSFER_FN,
+    HLG_SK_NAMED_TRANSFER_FN,
 } sk_named_transfer_fn_t;
 
 typedef enum {
@@ -791,7 +793,18 @@ typedef enum {
     ADOBE_RGB_SK_NAMED_GAMUT,
     DCIP3_D65_SK_NAMED_GAMUT,
     REC2020_SK_NAMED_GAMUT,
+    XYZ_SK_NAMED_GAMUT,
 } sk_named_gamut_t;
+
+typedef struct {
+    float fG;
+    float fA;
+    float fB;
+    float fC;
+    float fD;
+    float fE;
+    float fF;
+} sk_colorspace_transfer_fn_t;
 
 typedef struct {
     float fRX;

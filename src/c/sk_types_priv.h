@@ -109,6 +109,7 @@ DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
 DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 
 DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspace_primaries_t, ColorSpacePrimaries)
+DEF_STRUCT_MAP(skcms_TransferFunction, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
 DEF_STRUCT_MAP(SkHighContrastConfig, sk_highcontrastconfig_t, HighContrastConfig)
 DEF_STRUCT_MAP(SkIPoint, sk_ipoint_t, IPoint)
 DEF_STRUCT_MAP(SkIRect, sk_irect_t, IRect)
@@ -164,6 +165,8 @@ static inline skcms_Matrix3x3 AsNamedGamut(sk_named_gamut_t gamut) {
             return SkNamedGamut::kDCIP3;
         case REC2020_SK_NAMED_GAMUT:
             return SkNamedGamut::kRec2020;
+        case XYZ_SK_NAMED_GAMUT:
+            return SkNamedGamut::kXYZ;
         default:
             SkDEBUGFAIL("An unknown sk_named_gamut_t was provided.");
             return SkNamedGamut::kXYZ;
@@ -181,6 +184,10 @@ static inline skcms_TransferFunction AsNamedTransferFn(sk_named_transfer_fn_t tr
             return SkNamedTransferFn::kLinear;
         case REC2020_SK_NAMED_TRANSFER_FN:
             return SkNamedTransferFn::kRec2020;
+        case PQ_SK_NAMED_TRANSFER_FN:
+            return SkNamedTransferFn::kPQ;
+        case HLG_SK_NAMED_TRANSFER_FN:
+            return SkNamedTransferFn::kHLG;
         default:
             SkDEBUGFAIL("An unknown sk_named_transfer_fn_t was provided.");
             return SkNamedTransferFn::kLinear;
