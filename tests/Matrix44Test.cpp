@@ -261,7 +261,7 @@ static void test_common_angles(skiatest::Reporter* reporter) {
     for (int i = 0; i < 9; ++i) {
         rot.setRotateDegreesAbout(0, 0, -1, SkIntToScalar(common_angles[i]));
 
-        SkMatrix rot3x3 = rot;
+        SkMatrix rot3x3 = SkMatrix(rot);
         REPORTER_ASSERT(reporter, rot3x3.rectStaysRect());
     }
 }
@@ -535,7 +535,7 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
     SkMatrix44 a44;
     a44.setRowMajor(values4x4);
 
-    SkMatrix a33 = a44;
+    SkMatrix a33 = SkMatrix(a44);
     SkMatrix expected33;
     for (int i = 0; i < 9; i++) expected33[i] = values3x3[i];
     REPORTER_ASSERT(reporter, expected33 == a33);

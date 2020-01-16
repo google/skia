@@ -227,7 +227,7 @@ class SampleRR3D : public Sample3DView {
         SkMatrix44 trans;
         trans.setTranslate(200, 200, 0);   // center of the rotation
 
-        canvas->concat(trans * fRot * m * inv(trans));
+        canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
         if (!front(canvas->experimental_getLocalToDevice())) {
             return;

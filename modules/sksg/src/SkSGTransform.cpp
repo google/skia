@@ -47,7 +47,7 @@ protected:
 
     SkMatrix asMatrix() const override {
         SkASSERT(!this->hasInval());
-        return fComposed;
+        return SkMatrix(fComposed);
     }
 
     SkMatrix44 asMatrix44() const override {
@@ -93,7 +93,7 @@ protected:
 
     SkMatrix asMatrix() const override {
         SkASSERT(!this->hasInval());
-        return fInverted;
+        return SkMatrix(fInverted);
     }
 
     SkMatrix44 asMatrix44() const override {

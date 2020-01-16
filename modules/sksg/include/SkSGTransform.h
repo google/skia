@@ -70,7 +70,7 @@ protected:
 
     bool is44() const override { return std::is_same<T, SkMatrix44>::value; }
 
-    SkMatrix   asMatrix  () const override { return fMatrix; }
+    SkMatrix   asMatrix  () const override { return SkMatrix(fMatrix); }
     SkMatrix44 asMatrix44() const override { return fMatrix; }
 
 private:

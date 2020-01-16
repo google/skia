@@ -33,7 +33,7 @@
 class SkMetaData;
 
 static SkMatrix operator*(const SkMatrix& a, const SkMatrix& b) {
-    SkMatrix44 c;
+    SkMatrix c;
     c.setConcat(a, b);
     return c;
 }
