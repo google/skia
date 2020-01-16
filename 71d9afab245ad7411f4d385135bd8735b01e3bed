@@ -46,6 +46,30 @@
       "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aadb338_b861214c",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-16T16:29:04Z",
+      "side": 1,
+      "message": "Before my change a few days ago the fast path required the pixelConfig was either RGBA_8888 or BGRA_8888. Technically this was basically checking that the format and colorType combination were of RGBA/BGRA_8888. But I recently made a change to have to just check the colorType because in the world at that time a colorType of RGBA/BGRA_8888 was only supported with a format of RGBA/BGRA_8888. Now with this change a colorType of RGBA_8888 could also be used with  the new compressed format.",
+      "parentUuid": "d5f49048_31565775",
+      "range": {
+        "startLine": 1568,
+        "startChar": 14,
+        "endLine": 1570,
+        "endChar": 13
+      },
+      "revId": "71d9afab245ad7411f4d385135bd8735b01e3bed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
