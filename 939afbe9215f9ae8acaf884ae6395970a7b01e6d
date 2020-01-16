@@ -88,6 +88,30 @@
     },
     {
       "key": {
+        "uuid": "0b8eb300_90d8fbfe",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-16T21:30:34Z",
+      "side": 1,
+      "message": "Oh, we\u0027re rewriting fGlyphs too as we go along, huh?\n\nHow about we do this the old fashioned way?\n\nfor (size_t i \u003d 0; i \u003c fGlyphs.size(); i++) {\n    SkPackedGlyphID id \u003d fGlyphs[i]-\u003efPackedID;\n    fGlyphs[i] \u003d newStrike-\u003egetGlyph(id, \u0026metricsAndImages);\n    SkASSERT(id \u003d\u003d fGlyphs[i]-\u003efPackedID);\n}\n\nthough that does get me wondering about those asserts.  Are they there to note some sort of subtle invariant, or just there to double check that we didn\u0027t put a typo in the code?  I don\u0027t think I\u0027d be looking for more asserts or worried at all if I read this loop \n\nfor (size_t i \u003d 0; i \u003c fGlyphs.size(); i++) {\n    fGlyphs[i] \u003d newStrike-\u003egetGlyph(fGlyphs[i]-\u003efPackedID, \n                                     \u0026metricsAndImages);\n}",
+      "parentUuid": "010500c8_f7ca6ed2",
+      "range": {
+        "startLine": 300,
+        "startChar": 12,
+        "endLine": 300,
+        "endChar": 18
+      },
+      "revId": "939afbe9215f9ae8acaf884ae6395970a7b01e6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a2ac6b9_aa2f89aa",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 3
