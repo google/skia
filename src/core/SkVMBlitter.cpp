@@ -457,19 +457,17 @@ namespace {
 
             skvm::Program program = builder.done(debug_name(key).c_str());
             if (false) {
-                static std::atomic<int> done{0};
-                if (0 == done++) {
-                    atexit([]{ SkDebugf("%d calls to done\n", done.load()); });
+                static std::atomic<int> missed{0},
+                                         total{0};
+                if (!program.hasJIT()) {
+                    SkDebugf("\ncouldn't JIT %s\n", debug_name(key).c_str());
+                    builder.dump();
+                    program.dump();
+                    missed++;
                 }
-
-                SkDebugf("%s\n", debug_name(key).c_str());
-                builder.dump();
-                program.dump();
-
-                if (program.hasJIT()) {
-                    program.dumpJIT();
-                } else {
-                    SkDebugf("\nfell back to interpreter for blitter with this key.\n");
+                if (0 == total++) {
+                    atexit([]{ SkDebugf("SkVMBlitter compiled %d programs, %d without JIT.\n",
+                                        total.load(), missed.load()); });
                 }
             }
             return program;
