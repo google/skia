@@ -697,11 +697,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSamplerObjectSupport = version >= GR_GL_VER(2,0);
     }
 
-    // https://github.com/flutter/flutter/issues/47164
-    // https://github.com/flutter/flutter/issues/47804
-    // if (GR_IS_GR_GL_ES(standard)) {
-    //     fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
-    // }
+    if (GR_IS_GR_GL_ES(standard)) {
+        fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
+    }
 
     FormatWorkarounds formatWorkarounds;
 
