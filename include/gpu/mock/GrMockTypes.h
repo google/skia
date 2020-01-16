@@ -110,7 +110,6 @@ struct GrMockOptions {
 
         fCompressedOptions[(int)SkImage::CompressionType::kETC2_RGB8_UNORM].fTexturable = true;
         fCompressedOptions[(int)SkImage::CompressionType::kBC1_RGB8_UNORM].fTexturable = true;
-        fCompressedOptions[(int)SkImage::CompressionType::kBC1_RGBA8_UNORM].fTexturable = true;
     }
 
     struct ConfigOptions {

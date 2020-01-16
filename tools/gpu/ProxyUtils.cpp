@@ -40,9 +40,9 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     desc.fConfig = GrColorTypeToPixelConfig(imageInfo.colorType());
     desc.fWidth = imageInfo.width();
     desc.fHeight = imageInfo.height();
-    proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
-                                                         GrMipMapped::kNo, SkBackingFit::kExact,
-                                                         SkBudgeted::kYes, GrProtected::kNo);
+    proxy = context->priv().proxyProvider()->createProxy(desc, format, renderable, 1, origin,
+                                                         SkBudgeted::kYes, GrMipMapped::kNo,
+                                                         SkBackingFit::kExact, GrProtected::kNo);
     if (!proxy) {
         return nullptr;
     }

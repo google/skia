@@ -1639,8 +1639,8 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrContext * context,
     auto origin = renderable == GrRenderable::kYes ? kBottomLeft_GrSurfaceOrigin
                                                    : kTopLeft_GrSurfaceOrigin;
 
-    return proxyProvider->createProxy(format, desc, renderable, sampleCnt, origin,
-                                      GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes,
+    return proxyProvider->createProxy(desc, format, renderable, sampleCnt, origin,
+                                      SkBudgeted::kYes, GrMipMapped::kYes, SkBackingFit::kExact,
                                       GrProtected::kNo);
 }
 

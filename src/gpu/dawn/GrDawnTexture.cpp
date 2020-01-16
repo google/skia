@@ -8,6 +8,7 @@
 #include "src/gpu/dawn/GrDawnTexture.h"
 
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkMipMap.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnTextureRenderTarget.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
@@ -23,10 +24,10 @@ GrDawnTexture::GrDawnTexture(GrDawnGpu* gpu,
         , fInfo(info)
         , fTextureView(textureView) {}
 
-sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensions,
+sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
                                          GrPixelConfig config, wgpu::TextureFormat format,
                                          GrRenderable renderable, int sampleCnt,
-                                         SkBudgeted budgeted, int mipLevels,
+                                         SkBudgeted budgeted, GrMipMapped mipMapped,
                                          GrMipMapsStatus status) {
     bool renderTarget = renderable == GrRenderable::kYes;
     wgpu::TextureDescriptor textureDesc;
@@ -40,11 +41,16 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensio
         textureDesc.usage |= wgpu::TextureUsage::OutputAttachment;
     }
 
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
     textureDesc.size.width = dimensions.fWidth;
     textureDesc.size.height = dimensions.fHeight;
     textureDesc.size.depth = 1;
     textureDesc.format = format;
-    textureDesc.mipLevelCount = std::max(mipLevels, 1);
+    textureDesc.mipLevelCount = numMipLevels;
     textureDesc.sampleCount = sampleCnt;
 
     wgpu::Texture tex = gpu->device().CreateTexture(&textureDesc);
@@ -62,7 +68,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, const SkISize& dimensio
     GrDawnImageInfo info;
     info.fTexture = tex;
     info.fFormat = textureDesc.format;
-    info.fLevelCount = mipLevels;
+    info.fLevelCount = numMipLevels;
     sk_sp<GrDawnTexture> result;
     if (renderTarget) {
         result = sk_sp<GrDawnTextureRenderTarget>(new GrDawnTextureRenderTarget(gpu,

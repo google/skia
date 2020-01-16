@@ -233,22 +233,18 @@ public:
 
     /*
      * Experimental:
-     *   Skia                | GL_COMPRESSED_*     | MTLPixelFormat*      | VK_FORMAT_*_BLOCK
-     *  --------------------------------------------------------------------------------------
-     *   kETC2_RGB8_UNORM    | ETC1_RGB8           | ETC2_RGB8 (iOS-only) | ETC2_R8G8B8_UNORM
-     *                       | RGB8_ETC2           |                      |
-     *  --------------------------------------------------------------------------------------
-     *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                  | BC1_RGB_UNORM
-     *  --------------------------------------------------------------------------------------
-     *   kBC1_RGBA8_UNORM    | RGBA_S3TC_DXT1_EXT  | BC1_RGBA (macOS-only)| BC1_RGBA_UNORM
+     *   Skia                | GL_COMPRESSED_*     | MTLPixelFormat*     | VK_FORMAT_*_BLOCK
+     *  -------------------------------------------------------------------------------------
+     *   kETC2_RGB8_UNORM    | ETC1_RGB8           | ETC2_RGB8 (iOS-only)| ETC2_R8G8B8_UNORM
+     *                       | RGB8_ETC2           |                     |
+     *  -------------------------------------------------------------------------------------
+     *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                 | BC1_RGB_UNORM
      */
     enum class CompressionType {
         kNone,
         kETC2_RGB8_UNORM, // the same as ETC1
-
         kBC1_RGB8_UNORM,
-        kBC1_RGBA8_UNORM,
-        kLast = kBC1_RGBA8_UNORM,
+        kLast = kBC1_RGB8_UNORM,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
@@ -260,16 +256,19 @@ public:
         SkImage is returned if format of the compressed data is supported.
         Supported formats vary by platform.
 
-        @param context  GPU context
-        @param data     compressed data to store in SkImage
-        @param width    width of full SkImage
-        @param height   height of full SkImage
-        @param type     type of compression used
-        @return         created SkImage, or nullptr
+        @param context     GPU context
+        @param data        compressed data to store in SkImage
+        @param width       width of full SkImage
+        @param height      height of full SkImage
+        @param type        type of compression used
+        @param mipMapped   does 'data' contain data for all the mipmap levels?
+        @param isProtected does the contents of 'data' require DRM?
+        @return            created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
                                              int width, int height, CompressionType type,
-                                             GrMipMapped mipMapped = GrMipMapped::kNo);
+                                             GrMipMapped mipMapped = GrMipMapped::kNo,
+                                             GrProtected isProtected = GrProtected::kNo);
 
     /** User function called when supplied texture may be deleted.
     */
