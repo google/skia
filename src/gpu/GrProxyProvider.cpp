@@ -603,8 +603,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
         return nullptr;
     }
 
-    const GrCaps* caps = this->caps();
-
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
 
     sk_sp<GrTexture> tex = resourceProvider->wrapCompressedBackendTexture(beTex, ownership,
@@ -621,10 +619,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
     // Make sure we match how we created the proxy with SkBudgeted::kNo
     SkASSERT(GrBudgetedType::kBudgeted != tex->resourcePriv().budgetedType());
 
-    SkImage::CompressionType compressionType = caps->compressionType(beTex.getBackendFormat());
-
-    GrSwizzle texSwizzle = GrCompressionTypeIsOpaque(compressionType) ? GrSwizzle::RGB1()
-                                                                      : GrSwizzle::RGBA();
+    // TODO: this will need to be changed for compressed RGBA formats
+    GrSwizzle texSwizzle = GrSwizzle::RGB1();
 
     return sk_sp<GrTextureProxy>(
         new GrTextureProxy(std::move(tex), origin, texSwizzle, UseAllocator::kNo));

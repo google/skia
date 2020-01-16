@@ -631,15 +631,15 @@ private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     GrRenderable,
-                                                    const BackendTextureData*,
                                                     GrMipMapped,
-                                                    GrProtected isProtected) = 0;
+                                                    GrProtected,
+                                                    const BackendTextureData*) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                               const GrBackendFormat&,
-                                                              const BackendTextureData*,
                                                               GrMipMapped,
-                                                              GrProtected isProtected) = 0;
+                                                              GrProtected,
+                                                              const BackendTextureData*) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -664,12 +664,14 @@ private:
                                              GrRenderable,
                                              int renderTargetSampleCnt,
                                              SkBudgeted,
+                                             GrMipMapped,
                                              GrProtected,
-                                             int mipLevelCoont,
                                              uint32_t levelClearMask) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                        const GrBackendFormat&,
-                                                       SkBudgeted, GrMipMapped,
+                                                       SkBudgeted,
+                                                       GrMipMapped,
+                                                       GrProtected,
                                                        const void* data, size_t dataSize) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                                   GrWrapOwnership, GrWrapCacheable, GrIOType) = 0;
