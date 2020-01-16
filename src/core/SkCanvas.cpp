@@ -736,7 +736,7 @@ void SkCanvas::doSave() {
 int SkCanvas::experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
-    this->concat(projection * camera);
+    this->experimental_concat44(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     return n;
 }
@@ -1516,7 +1516,7 @@ void SkCanvas::experimental_concat44(const SkScalar m[16]) {
     this->didConcat44(m);
 }
 
-void SkCanvas::experimental_concat(const SkMatrix44& m) {
+void SkCanvas::experimental_concat44(const SkMatrix44& m) {
     this->experimental_concat44(m.values());
 }
 

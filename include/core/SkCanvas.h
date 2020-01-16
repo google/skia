@@ -880,7 +880,7 @@ public:
     */
     void concat(const SkMatrix& matrix);
 
-    void experimental_concat(const SkMatrix44&);
+    void experimental_concat44(const SkMatrix44&);
     void experimental_concat44(const SkScalar[]); // column-major
 
     /** Replaces SkMatrix with matrix.

@@ -557,7 +557,7 @@ class HalfPlaneView3 : public SampleCameraView {
 
         if (fShowUnclipped) {
             canvas->save();
-            canvas->concat(mx);
+            canvas->experimental_concat44(mx);
             paint.setAlphaf(0.33f);
             canvas->drawPath(fPath, paint);
             paint.setAlphaf(1.f);
@@ -567,16 +567,16 @@ class HalfPlaneView3 : public SampleCameraView {
 
         SkColor planeColor = SK_ColorBLUE;
         SkPath clippedPath, *path = &fPath;
-        if (SkPathPriv::PerspectiveClip(fPath, mx, &clippedPath)) {
+        if (SkPathPriv::PerspectiveClip(fPath, SkMatrix(mx), &clippedPath)) {
             path = &clippedPath;
             planeColor = SK_ColorRED;
         }
         canvas->save();
-        canvas->concat(mx);
+        canvas->experimental_concat44(mx);
         canvas->drawPath(*path, paint);
         canvas->restore();
 
-        SkHalfPlane hpw = half_plane_w0(mx);
+        SkHalfPlane hpw = half_plane_w0(SkMatrix(mx));
         draw_halfplane(canvas, hpw, planeColor);
     }
 };
@@ -615,7 +615,7 @@ class HalfPlaneCoons : public SampleCameraView {
         SkPaint paint;
 
         canvas->save();
-        canvas->concat(this->get44({0, 0, 300, 300}));
+        canvas->experimental_concat44(this->get44({0, 0, 300, 300}));
 
         const SkPoint* tex = nullptr;
         const SkColor* col = nullptr;

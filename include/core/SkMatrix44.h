@@ -188,7 +188,7 @@ public:
      */
     SkMatrix44(const SkMatrix&);
     SkMatrix44& operator=(const SkMatrix& src);
-    operator SkMatrix() const;
+    explicit operator SkMatrix() const;
 
     /**
      *  Return a reference to a const identity matrix

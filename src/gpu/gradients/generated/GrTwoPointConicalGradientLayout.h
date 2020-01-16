@@ -42,7 +42,7 @@ private:
                                     bool isNativelyFocal, SkPoint focalParams)
             : INHERITED(kGrTwoPointConicalGradientLayout_ClassID,
                         (OptimizationFlags)kNone_OptimizationFlags)
-            , fCoordTransform0(gradientMatrix)
+            , fCoordTransform0(SkMatrix(gradientMatrix))
             , gradientMatrix(gradientMatrix)
             , type(type)
             , isRadiusIncreasing(isRadiusIncreasing)
