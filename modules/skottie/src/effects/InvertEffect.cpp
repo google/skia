@@ -7,7 +7,7 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 #include "src/utils/SkJSON.h"
@@ -17,31 +17,28 @@ namespace internal {
 
 namespace {
 
-class InvertEffectAdapter final : public DiscardableAdaptorBase {
+class InvertEffectAdapter final : public AnimatablePropertyContainer {
 public:
     static sk_sp<InvertEffectAdapter> Make(const skjson::ArrayValue& jprops,
                                            sk_sp<sksg::RenderNode> layer,
                                            const AnimationBuilder* abuilder) {
-        enum : size_t {
-            kChannel_Index = 0,
-        };
-
-        auto      adapter = sk_sp<InvertEffectAdapter>(new InvertEffectAdapter(std::move(layer)));
-        auto* raw_adapter = adapter.get();
-
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops, kChannel_Index),
-            [raw_adapter](const ScalarValue& c) {
-                raw_adapter->fChannel = c;
-            });
-
-        return adapter;
+        return sk_sp<InvertEffectAdapter>(
+                    new InvertEffectAdapter(jprops, std::move(layer), abuilder));
     }
 
     const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
 
 private:
-    explicit InvertEffectAdapter(sk_sp<sksg::RenderNode> layer)
-        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {}
+    InvertEffectAdapter(const skjson::ArrayValue& jprops,
+                        sk_sp<sksg::RenderNode> layer,
+                        const AnimationBuilder* abuilder)
+        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {
+        enum : size_t {
+            kChannel_Index = 0,
+        };
+
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kChannel_Index), &fChannel);
+    }
 
     void onSync() override {
         struct STColorMatrix {
