@@ -177,6 +177,7 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
 
 void TextAdapter::setText(const TextValue& txt) {
     fText.fCurrentValue = txt;
+    this->onSync();
 }
 
 void TextAdapter::reshape() {
