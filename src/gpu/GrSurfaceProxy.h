@@ -245,6 +245,9 @@ public:
      * assignment in GrResourceAllocator.
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
+    bool framebufferOnly() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly;
+    }
 
     /**
      * This means surface is a multisampled render target, and internally holds a non-msaa texture

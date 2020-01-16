@@ -378,7 +378,11 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
         return nullptr;
     }
 
-    return this->onWrapBackendRenderTarget(backendRT, colorType);
+    sk_sp<GrRenderTarget> rt = this->onWrapBackendRenderTarget(backendRT, colorType);
+    if (backendRT.isFramebufferOnly()) {
+        rt->setFramebufferOnly();
+    }
+    return rt;
 }
 
 sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
@@ -430,6 +434,7 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                         const SkIPoint& dstPoint) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(dst && src);
+    SkASSERT(!src->framebufferOnly());
 
     if (dst->readOnly()) {
         return false;
@@ -445,6 +450,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
                        size_t rowBytes) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
+    SkASSERT(!surface->framebufferOnly());
     SkASSERT(this->caps()->isFormatTexturable(surface->backendFormat()));
 
     auto subRect = SkIRect::MakeXYWH(left, top, width, height);
@@ -482,6 +488,7 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
                         const GrMipLevel texels[], int mipLevelCount, bool prepForTexSampling) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
+    SkASSERT(!surface->framebufferOnly());
     SkASSERT(this->caps()->isFormatTexturableAndUploadable(surfaceColorType,
                                                            surface->backendFormat()));
 
