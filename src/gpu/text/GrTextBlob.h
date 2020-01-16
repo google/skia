@@ -297,7 +297,7 @@ public:
      * SkGlyphCache.
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
-                      GrDeferredUploadTarget*, GrAtlasManager*);
+                      GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
     // Return {success, number of glyphs regenerated}
     std::tuple<bool, int> regenerate(int begin, int end);
@@ -308,6 +308,7 @@ private:
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
+    GrStrikeCache* fGrStrikeCache;
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
@@ -340,7 +341,6 @@ public:
     GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
     void setStrike(sk_sp<GrTextStrike> strike);
     GrTextStrike* strike() const;
-    GrStrikeCache* grStrikeCache() const;
 
     GrMaskFormat maskFormat() const;
 

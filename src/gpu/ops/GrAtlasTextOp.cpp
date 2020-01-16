@@ -286,6 +286,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
 
     GrAtlasManager* atlasManager = target->atlasManager();
+    GrStrikeCache* glyphCache = target->glyphCache();
+
     GrMaskFormat maskFormat = this->maskFormat();
 
     unsigned int numActiveViews;
@@ -359,7 +361,8 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, args.fSubRunPtr, target->deferredUploadTarget(), atlasManager);
+                resourceProvider, args.fSubRunPtr, target->deferredUploadTarget(), glyphCache,
+                atlasManager);
 
         // Where the subRun begins and ends relative to totalGlyphsRegened.
         int subRunBegin = totalGlyphsRegened;
