@@ -22,6 +22,30 @@
       "revId": "35812b31457707decf43e985da8e791b890fbf40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d01328_a18d4ce3",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-16T15:16:39Z",
+      "side": 1,
+      "message": "Overly trigger-happy, my bad.",
+      "parentUuid": "e4b6aeba_d61b8c44",
+      "range": {
+        "startLine": 582,
+        "startChar": 64,
+        "endLine": 582,
+        "endChar": 76
+      },
+      "revId": "35812b31457707decf43e985da8e791b890fbf40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
