@@ -19,7 +19,6 @@ public:
     }
 
     void reset() { this->setIdentity(); }
-    void preConcat44(const SkScalar m[]) { this->setConcat(*this, m); }
 
     operator SkMatrix() const { return this->asM33(); }
     // the legacy check was just for the 3x3 portion, so we only check those
@@ -34,8 +33,6 @@ public:
     float getScaleY() const { return this->atColMajor(5); }
     float getTranslateX() const { return this->atColMajor(12); }
     float getTranslateY() const { return this->atColMajor(13); }
-
-    bool invert(SkMatrix* inv) const { return this->asM33().invert(inv); }
 
     bool mapRect(SkRect* dst, const SkRect& src) { return this->asM33().mapRect(dst, src); }
 };
