@@ -280,6 +280,23 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
     }
 }
 
+void GrTextBlob::SubRun::updateStrikeIfNeeded(SkBulkGlyphMetricsAndImages& metricsAndImages,
+                                              GrStrikeCache* grStrikeCache) {
+    if (this->strike()->isAbandoned()) {
+        // Take the glyphs from the old strike, and translate them a new strike.
+        sk_sp<GrTextStrike> newStrike = this->strikeSpec().findOrCreateGrStrike(grStrikeCache);
+
+        // Convert old glyphs to newStrike.
+        for (auto& glyph : fGlyphs) {
+            SkPackedGlyphID id = glyph->fPackedID;
+            glyph = newStrike->getGlyph(id, &metricsAndImages);
+            SkASSERT(id == glyph->fPackedID);
+        }
+
+        this->setStrike(newStrike);
+    }
+}
+
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
 bool GrTextBlob::SubRun::hasUseLCDText() const { return fFlags.useLCDText; }
 void GrTextBlob::SubRun::setAntiAliased(bool antiAliased) { fFlags.antiAliased = antiAliased; }
@@ -795,13 +812,10 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
     // new strike, we instead keep our ref to the old strike and use the packed ids from
     // it.  These ids will still be valid as long as we hold the ref.  When we are done
     // updating our cache of the GrGlyph*s, we drop our ref on the old strike
-    fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
-    fActions.regenStrike = fSubRun->strike()->isAbandoned();
 }
 
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
         const int begin, const int end) {
-    SkASSERT(fActions.regenTextureCoordinates);
     fSubRun->resetBulkUseToken();
 
     const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
@@ -811,23 +825,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
         fMetricsAndImages.init(strikeSpec);
     }
 
-    if (fActions.regenStrike) {
-        // Take the glyphs from the old strike, and translate them a new strike.
-        sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
-
-        // Start this batch at the start of the subRun plus any glyphs that were previously
-        // processed.
-        SkSpan<GrGlyph*> glyphs = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - begin);
-
-        // Convert old glyphs to newStrike.
-        for (auto& glyph : glyphs) {
-            SkPackedGlyphID id = glyph->fPackedID;
-            glyph = newStrike->getGlyph(id, fMetricsAndImages.get());
-            SkASSERT(id == glyph->fPackedID);
-        }
-
-        fSubRun->setStrike(newStrike);
-    }
+    fSubRun->updateStrikeIfNeeded(*fMetricsAndImages, fGrStrikeCache);
 
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
@@ -870,10 +868,11 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
-    fActions.regenTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
-    if (fActions.regenStrike) { SkASSERT(fActions.regenTextureCoordinates); }
 
-    if (fActions.regenStrike || fActions.regenTextureCoordinates) {
+    // TODO: figure out why this needs to latch true instead of maintaining the invariant with
+    //  the atlas generation.
+    fRegenerateTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
+    if (fSubRun->strike()->isAbandoned() || fRegenerateTextureCoordinates) {
         return this->updateTextureCoordinatesMaybeStrike(begin, end);
     } else {
         // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.
