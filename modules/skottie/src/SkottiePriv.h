@@ -63,8 +63,7 @@ public:
     };
     const FontInfo* findFont(const SkString& name) const;
 
-    // This is the workhorse for property binding: depending on whether the property is animated,
-    // it will either apply immediately or instantiate and attach a keyframe animator.
+    // DEPRECATED/TO-BE-REMOVED: use AnimatablePropertyContainer::bind<> instead.
     template <typename T>
     bool bindProperty(const skjson::Value&,
                       std::function<void(const T&)>&&,
@@ -118,22 +117,18 @@ public:
 
     template <typename T,  typename... Args>
     sk_sp<sksg::RenderNode> attachDiscardableAdapter(Args&&... args) const {
-        AutoScope ascope(this);
-        auto adapter = T::Make(std::forward<Args>(args)...);
-        auto adapter_animators = ascope.release();
-
-        if (!adapter) { return nullptr; }
-
-        const auto& node = adapter->renderNode();
-        if (adapter_animators.empty()) {
-            // Fire off a synthetic tick to force a single SG sync before discarding the adapter.
-            adapter->tick(0);
-        } else {
-            adapter->setAnimators(std::move(adapter_animators));
-            fCurrentAnimatorScope->push_back(std::move(adapter));
+        if (auto adapter = T::Make(std::forward<Args>(args)...)) {
+            sk_sp<sksg::RenderNode> node = adapter->renderNode();
+            if (adapter->isStatic()) {
+                // Fire off a synthetic tick to force a single SG sync before discarding.
+                adapter->tick(0);
+            } else {
+                fCurrentAnimatorScope->push_back(std::move(adapter));
+            }
+            return node;
         }
 
-        return node;
+        return nullptr;
     }
 
     class AutoPropertyTracker {
