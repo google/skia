@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4b6aeba_d61b8c44",
+        "filename": "src/sksl/SkSLByteCodeGenerator.cpp",
+        "patchSetId": 40
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-16T14:23:23Z",
+      "side": 1,
+      "message": "This one should still be rType, right? Because in this case, we\u0027re not doing the scalar expansion to make the two counts the same - we want left and right to each have their original (and possibly different) counts.\n\neg: If it\u0027s M*V, this is allocating extra slots that are unused, and if it\u0027s V*M, this is possibly under-allocating. With M*M, it could be either.",
+      "range": {
+        "startLine": 582,
+        "startChar": 64,
+        "endLine": 582,
+        "endChar": 76
+      },
+      "revId": "35812b31457707decf43e985da8e791b890fbf40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
