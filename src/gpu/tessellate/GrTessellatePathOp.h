@@ -68,7 +68,7 @@ private:
 
     sk_sp<const GrBuffer> fWedgeBuffer;
     int fBaseWedgeVertex;
-    int fNumWedges;
+    int fWedgeVertexCount;
 
     friend class GrOpMemoryPool;  // For ctor.
 };
