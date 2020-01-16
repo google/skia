@@ -1295,8 +1295,10 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
     hb_buffer_set_cluster_level(buffer, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
 
-    // See 763e5466c0a03a7c27020e1e2598e488612529a7 for documentation.
-    hb_buffer_set_flags(buffer, HB_BUFFER_FLAG_BOT | HB_BUFFER_FLAG_EOT);
+    // Documentation for HB_BUFFER_FLAG_BOT/EOT at 763e5466c0a03a7c27020e1e2598e488612529a7.
+    // Currently BOT forces a dotted circle when first codepoint is a mark; EOT has no effect.
+    // Avoid adding dotted circle, re-evaluate if BOT/EOT change. See https://skbug.com/9618.
+    // hb_buffer_set_flags(buffer, HB_BUFFER_FLAG_BOT | HB_BUFFER_FLAG_EOT);
 
     // Add precontext.
     hb_buffer_add_utf8(buffer, utf8, utf8Start - utf8, utf8Start - utf8, 0);
