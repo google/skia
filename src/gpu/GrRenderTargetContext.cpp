@@ -1751,8 +1751,8 @@ void GrRenderTargetContext::asyncRescaleAndReadPixels(
             // If the src is not texturable first try to make a copy to a texture.
             if (!texProxy) {
                 texProxy = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(),
-                                                GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
-                                                SkBudgeted::kNo);
+                                                this->colorInfo().colorType(), GrMipMapped::kNo,
+                                                srcRect, SkBackingFit::kApprox, SkBudgeted::kNo);
                 if (!texProxy) {
                     callback(context, nullptr);
                     return;
@@ -2546,10 +2546,11 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
         return false;
     }
 
+    GrColorType colorType = this->colorInfo().colorType();
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
     GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
-            this->asRenderTargetProxy(), this->colorInfo().colorType());
+            this->asRenderTargetProxy(), colorType);
 
     if (!restrictions.fMustCopyWholeSrc) {
         copyRect = clippedRect;
@@ -2565,8 +2566,8 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
         fit = SkBackingFit::kApprox;
     }
     sk_sp<GrTextureProxy> newProxy =
-            GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), GrMipMapped::kNo, copyRect,
-                                 fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
+            GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), colorType, GrMipMapped::kNo,
+                                 copyRect, fit, SkBudgeted::kYes, restrictions.fRectsMustMatch);
     SkASSERT(newProxy);
 
     dstProxyView->setProxyView({std::move(newProxy), this->origin(), this->readSwizzle()});
