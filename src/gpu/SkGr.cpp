@@ -141,7 +141,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     const SkBitmap& bitmap,
                                                     GrSamplerState params,
                                                     SkScalar scaleAdjust[2]) {
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, scaleAdjust);
+    return GrBitmapTextureMaker::Make(ctx, bitmap).refTextureProxyForParams(params, scaleAdjust);
 }
 
 sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
