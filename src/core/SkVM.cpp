@@ -1571,12 +1571,9 @@ namespace skvm {
     }
 
     void Program::eval(int n, void* args[]) const {
-        const int nargs = (int)fStrides.size();
-
-        if (const void* b = fDylibEntry ? fDylibEntry
-                                        : fJITBuf) {
+        if (const void* b = fJITEntry) {
             void** a = args;
-            switch (nargs) {
+            switch (fStrides.size()) {
                 case 0: return ((void(*)(int                        ))b)(n                    );
                 case 1: return ((void(*)(int,void*                  ))b)(n,a[0]               );
                 case 2: return ((void(*)(int,void*,void*            ))b)(n,a[0],a[1]          );
@@ -1588,6 +1585,10 @@ namespace skvm {
             }
         }
 
+        this->interpret(n, args);
+    }
+
+    void Program::interpret(int n, void* args[]) const {
         // We'll operate in SIMT style, knocking off K-size chunks from n while possible.
         constexpr int K = 16;
         using I32 = skvx::Vec<K, int>;
@@ -1631,7 +1632,7 @@ namespace skvm {
             return regs[id];
         };
         auto arg = [&](int ix) {
-            SkASSERT(0 <= ix && ix < nargs);
+            SkASSERT(0 <= ix && ix < (int)fStrides.size());
             return args[ix];
         };
 
@@ -1859,25 +1860,23 @@ namespace skvm {
     }
 
     bool Program::hasJIT() const {
-        return fJITBuf != nullptr;
+        return fJITEntry != nullptr;
     }
 
     void Program::dropJIT() {
     #if defined(SKVM_JIT)
-        if (fJITBuf) {
-            munmap(fJITBuf, fJITSize);
-        }
-        if (fDylibHandle) {
-            dlclose(fDylibHandle);
+        if (fDylib) {
+            dlclose(fDylib);
+        } else if (fJITEntry) {
+            munmap(fJITEntry, fJITSize);
         }
     #else
         SkASSERT(!this->hasJIT());
     #endif
 
-        fJITBuf      = nullptr;
-        fJITSize     = 0;
-        fDylibHandle = nullptr;
-        fDylibEntry  = nullptr;
+        fJITEntry = nullptr;
+        fJITSize  = 0;
+        fDylib    = nullptr;
     }
 
     Program::~Program() { this->dropJIT(); }
@@ -1887,12 +1886,10 @@ namespace skvm {
         fRegs            = other.fRegs;
         fLoop            = other.fLoop;
         fStrides         = std::move(other.fStrides);
-        fOriginalProgram = std::move(other.fOriginalProgram);
 
-        std::swap(fJITBuf     , other.fJITBuf);
-        std::swap(fJITSize    , other.fJITSize);
-        std::swap(fDylibHandle, other.fDylibHandle);
-        std::swap(fDylibEntry , other.fDylibEntry);
+        std::swap(fJITEntry, other.fJITEntry);
+        std::swap(fJITSize , other.fJITSize);
+        std::swap(fDylib   , other.fDylib);
     }
 
     Program& Program::operator=(Program&& other) {
@@ -1900,12 +1897,10 @@ namespace skvm {
         fRegs            = other.fRegs;
         fLoop            = other.fLoop;
         fStrides         = std::move(other.fStrides);
-        fOriginalProgram = std::move(other.fOriginalProgram);
 
-        std::swap(fJITBuf     , other.fJITBuf);
-        std::swap(fJITSize    , other.fJITSize);
-        std::swap(fDylibHandle, other.fDylibHandle);
-        std::swap(fDylibEntry , other.fDylibEntry);
+        std::swap(fJITEntry, other.fJITEntry);
+        std::swap(fJITSize , other.fJITSize);
+        std::swap(fDylib   , other.fDylib);
         return *this;
     }
 
@@ -1915,7 +1910,6 @@ namespace skvm {
                      const std::vector<int>& strides,
                      const char* debug_name)
         : fStrides(strides)
-        , fOriginalProgram(instructions)
     {
         this->setupInterpreter(instructions);
     #if 1 && defined(SKVM_JIT)
@@ -2066,7 +2060,6 @@ namespace skvm {
         #if 0
             SkDebugfStream stream;
             this->dump(&stream);
-            dump_builder_program(fOriginalProgram, &stream);
             return true;
         #else
             return false;
@@ -2658,38 +2651,39 @@ namespace skvm {
         // Allocate space that we can remap as executable.
         const size_t page = sysconf(_SC_PAGESIZE);
         fJITSize = ((a.size() + page - 1) / page) * page;  // mprotect works at page granularity.
-        fJITBuf = mmap(nullptr,fJITSize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
+        fJITEntry = mmap(nullptr,fJITSize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1,0);
 
         // Assemble the program for real.
-        a = Assembler{fJITBuf};
+        a = Assembler{fJITEntry};
         SkAssertResult(this->jit(instructions, try_hoisting, &a));
         SkASSERT(a.size() <= fJITSize);
 
         // Remap as executable, and flush caches on platforms that need that.
-        mprotect(fJITBuf, fJITSize, PROT_READ|PROT_EXEC);
-        __builtin___clear_cache((char*)fJITBuf,
-                                (char*)fJITBuf + fJITSize);
+        mprotect(fJITEntry, fJITSize, PROT_READ|PROT_EXEC);
+        __builtin___clear_cache((char*)fJITEntry,
+                                (char*)fJITEntry + fJITSize);
 
         // For profiling and debugging, it's helpful to have this code loaded
-        // dynamically rather than just jumping info fJITBuf.
+        // dynamically rather than just jumping info fJITEntry.
         if (gSkVMJITViaDylib) {
             // Dump the raw program binary.
             SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
             int fd = mkstemp(path.writable_str());
-            ::write(fd, fJITBuf, a.size());
+            ::write(fd, fJITEntry, a.size());
             close(fd);
 
-            // Convert it to an shared library with a single symbol "skvm_jit":
+            this->dropJIT();  // (unmap and null out fJITEntry.)
+
+            // Convert it in-place to a dynamic library with a single symbol "skvm_jit":
             SkString cmd = SkStringPrintf(
                     "echo '.global _skvm_jit\n_skvm_jit: .incbin \"%s\"'"
-                    " | clang -x assembler -shared - -o %s.lib",
+                    " | clang -x assembler -shared - -o %s",
                     path.c_str(), path.c_str());
             system(cmd.c_str());
 
             // Load that dynamic library and look up skvm_jit().
-            path += ".lib";
-            fDylibHandle = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
-            fDylibEntry = dlsym(fDylibHandle, "skvm_jit");
+            fDylib = dlopen(path.c_str(), RTLD_NOW|RTLD_LOCAL);
+            fJITEntry = dlsym(fDylib, "skvm_jit");
         }
     }
 #endif
