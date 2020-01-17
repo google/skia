@@ -143,6 +143,10 @@ static DEFINE_string(key, "",
 static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
 
+static DEFINE_bool(runVerifiers, false, "if true, run SkQP-style verification of images.");
+static DEFINE_bool(verifierOutputOnly, false,
+    "if true, and verifiers are run, only write failing verifier images instead of all images.");
+
 
 #if defined(__MSVC_RUNTIME_CHECKS)
 #include <rtcapi.h>
@@ -1125,9 +1129,68 @@ struct Task {
                 }
             }
 
+            // Run task src verifier on the output.
+            bool verificationFailed = false;
+            if (FLAGS_runVerifiers) {
+                SkBitmap gold_bmp;
+                RasterSink gold_sink(kN32_SkColorType);
+                err = gold_sink.draw(*task.src, &gold_bmp, nullptr, &log);
+                if (!log.isEmpty()) {
+                    info("%s %s %s %s:\n%s\n",
+                         task.sink.tag.c_str(),
+                         task.src.tag.c_str(),
+                         task.src.options.c_str(),
+                         name.c_str(),
+                         log.c_str());
+                }
+                if (!err.isEmpty()) {
+                    if (err.isFatal()) {
+                        fail(SkStringPrintf("%s %s %s %s: %s",
+                                            task.sink.tag.c_str(),
+                                            task.src.tag.c_str(),
+                                            task.src.options.c_str(),
+                                            name.c_str(),
+                                            err.c_str()));
+                    } else {
+                        done(task.sink.tag.c_str(), task.src.tag.c_str(),
+                             task.src.options.c_str(), name.c_str());
+                        return;
+                    }
+                }
+
+                auto verifier = task.src->getVerifiers();
+                if (verifier && verifier->verify(gold_bmp, bitmap) != skiagm::VerifierResult::kOk) {
+                    // Write the image stage that failed.
+                    auto write_bmp = [&task](const SkBitmap* bmp, const char* ext) {
+                        SkASSERT(bmp);
+                        HashAndEncode hashAndEncode(*bmp);
+                        SkMD5 hash;
+                        hashAndEncode.write(&hash);
+                        SkMD5::Digest digest = hash.finish();
+                        SkString md5;
+                        for (int i = 0; i < 16; i++) {
+                            md5.appendf("%02x", digest.data[i]);
+                        }
+                        WriteToDisk(task, md5, ext, nullptr, 0, bmp, &hashAndEncode);
+                    };
+
+//                    write_bmp(verifier->goldStageImg(), "gold-stage.png");
+//                    write_bmp(verifier->actualStageImg(), "actual-stage.png");
+
+                    verificationFailed = true;
+                    fail(SkStringPrintf("%s %s %s %s: verifier failed",
+                                        task.sink.tag.c_str(),
+                                        task.src.tag.c_str(),
+                                        task.src.options.c_str(),
+                                        name.c_str()));
+                }
+            }
+
             // We're likely switching threads here, so we must capture by value, [=] or [foo,bar].
             SkStreamAsset* data = stream.detachAsStream().release();
-            gDefinitelyThreadSafeWork.add([task,name,bitmap,data]{
+            const bool writeOutputImage = !FLAGS_writePath.isEmpty() &&
+                (verificationFailed || !FLAGS_verifierOutputOnly);
+            gDefinitelyThreadSafeWork.add([task,name,bitmap,data,writeOutputImage]{
                 std::unique_ptr<SkStreamAsset> ownedData(data);
 
                 std::unique_ptr<HashAndEncode> hashAndEncode;
@@ -1160,7 +1223,7 @@ struct Task {
                                         FLAGS_readPath[0]));
                 }
 
-                if (!FLAGS_writePath.isEmpty()) {
+                if (writeOutputImage) {
                     const char* ext = task.sink->fileExtension();
                     if (ext && !FLAGS_dont_write.contains(ext)) {
                         if (data->getLength()) {

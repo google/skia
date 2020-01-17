@@ -108,6 +108,11 @@ void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     gm->modifyGrContextOptions(options);
 }
 
+std::unique_ptr<skiagm::GMVerifiers> GMSrc::getVerifiers() const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    return gm->getVerifiers();
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 BRDSrc::BRDSrc(Path path, Mode mode, CodecSrc::DstColorType dstColorType, uint32_t sampleSize)

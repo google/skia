@@ -17,11 +17,14 @@
 #include "tools/Registry.h"
 
 #include <memory>
+#include <vector>
 
 class GrContext;
 class GrRenderTargetContext;
+class SkBitmap;
 class SkCanvas;
 class SkMetaData;
+class SkPixmap;
 struct GrContextOptions;
 
 #define DEF_GM(CODE) \
@@ -85,6 +88,97 @@ struct GrContextOptions;
 
 namespace skiagm {
 
+    // ~~~~~~~~~~~~~~~~~~ Verifier ~~~~~~~~~~~~~~~~~~
+
+    enum class VerifierResult {
+        kOk,
+        kFail
+    };
+
+    class GMVerifier {
+    public:
+        virtual ~GMVerifier();
+
+        virtual SkString name() = 0;
+
+        virtual VerifierResult verify(const SkBitmap& gold, const SkBitmap& actual) = 0;
+
+        const SkBitmap* goldStageImg() const;
+
+        const SkBitmap* actualStageImg() const;
+
+        void getLastError(SkString* msg);
+
+    protected:
+        SkString fLastError;
+        std::unique_ptr<SkBitmap> fGoldStageImg;
+        std::unique_ptr<SkBitmap> fActualStageImg;
+
+        void saveError(const SkString& msg);
+
+        static SkString toString(const SkIRect& r);
+
+        static std::unique_ptr<SkBitmap> duplicate(const SkBitmap& bmp);
+
+        static std::unique_ptr<SkBitmap> mask(const SkBitmap& bmp);
+
+        static bool colorInNeighborhood(const SkBitmap& bitmap,
+                                        int x,
+                                        int y,
+                                        SkColor color,
+                                        int n = 2);
+
+        static uint32_t colorDist(SkColor a, SkColor b);
+    };
+
+    class GMVerifiers {
+    public:
+        void add(std::unique_ptr<GMVerifier> verifier);
+
+        VerifierResult verify(const SkBitmap& gold, const SkBitmap& actual);
+
+    private:
+        std::vector<std::unique_ptr<GMVerifier>> verifiers;
+    };
+
+    class ExactPixelMatch : public GMVerifier {
+    public:
+        ExactPixelMatch();
+
+        explicit ExactPixelMatch(const SkIRect& region);
+
+        SkString name() override;
+
+        VerifierResult verify(const SkBitmap& gold, const SkBitmap& actual) override;
+
+    private:
+        std::unique_ptr<SkIRect> fRegion;
+
+        bool bitmapsEqual(const SkBitmap& a,
+                          const SkBitmap& b,
+                          const std::unique_ptr<SkIRect>& region);
+    };
+
+    class PixelsAreInGoldMask : public GMVerifier {
+    public:
+        PixelsAreInGoldMask();
+
+        explicit PixelsAreInGoldMask(const SkIRect& region);
+
+        SkString name() override;
+
+        VerifierResult verify(const SkBitmap& gold, const SkBitmap& actual) override;
+
+    private:
+        std::unique_ptr<SkIRect> fRegion;
+
+        bool allPixelsAreInMask(SkBitmap& a,
+                                SkBitmap& mask,
+                                const std::unique_ptr<SkIRect>& region);
+    };
+
+    // ~~~~~~~~~~~~~~~~~~ End Verifier ~~~~~~~~~~~~~~~~~~
+
     enum class DrawResult {
         kOk,  // Test drew successfully.
         kFail,  // Test failed to draw.
@@ -147,6 +241,8 @@ namespace skiagm {
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
 
         virtual void modifyGrContextOptions(GrContextOptions*);
+
+        std::unique_ptr<GMVerifiers> getVerifiers();
 
     protected:
         virtual void onOnceBeforeDraw();
