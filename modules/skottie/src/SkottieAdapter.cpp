@@ -30,21 +30,6 @@
 
 namespace skottie {
 
-RRectAdapter::RRectAdapter(sk_sp<sksg::RRect> wrapped_node)
-    : fRRectNode(std::move(wrapped_node)) {}
-
-RRectAdapter::~RRectAdapter() = default;
-
-void RRectAdapter::apply() {
-    // BM "position" == "center position"
-    auto rr = SkRRect::MakeRectXY(SkRect::MakeXYWH(fPosition.x() - fSize.width() / 2,
-                                                   fPosition.y() - fSize.height() / 2,
-                                                   fSize.width(), fSize.height()),
-                                  fRadius.width(),
-                                  fRadius.height());
-   fRRectNode->setRRect(rr);
-}
-
 RepeaterAdapter::RepeaterAdapter(sk_sp<sksg::RenderNode> repeater_node, Composite composite)
     : fRepeaterNode(repeater_node)
     , fComposite(composite)
@@ -80,42 +65,6 @@ void RepeaterAdapter::apply() {
         fRoot->addChild(sksg::TransformEffect::Make(fRepeaterNode,
                                                     compute_transform(insert_index)));
     }
-}
-
-PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)
-    : fPathNode(std::move(wrapped_node))
-    , fType(t) {}
-
-PolyStarAdapter::~PolyStarAdapter() = default;
-
-void PolyStarAdapter::apply() {
-    static constexpr int kMaxPointCount = 100000;
-    const auto count = SkToUInt(SkTPin(SkScalarRoundToInt(fPointCount), 0, kMaxPointCount));
-    const auto arc   = sk_ieee_float_divide(SK_ScalarPI * 2, count);
-
-    const auto pt_on_circle = [](const SkPoint& c, SkScalar r, SkScalar a) {
-        return SkPoint::Make(c.x() + r * std::cos(a),
-                             c.y() + r * std::sin(a));
-    };
-
-    // TODO: inner/outer "roundness"?
-
-    SkPath poly;
-
-    auto angle = SkDegreesToRadians(fRotation - 90);
-    poly.moveTo(pt_on_circle(fPosition, fOuterRadius, angle));
-    poly.incReserve(fType == Type::kStar ? count * 2 : count);
-
-    for (unsigned i = 0; i < count; ++i) {
-        if (fType == Type::kStar) {
-            poly.lineTo(pt_on_circle(fPosition, fInnerRadius, angle + arc * 0.5f));
-        }
-        angle += arc;
-        poly.lineTo(pt_on_circle(fPosition, fOuterRadius, angle));
-    }
-
-    poly.close();
-    fPathNode->setPath(poly);
 }
 
 GradientAdapter::GradientAdapter(sk_sp<sksg::Gradient> grad, size_t colorStopCount)
