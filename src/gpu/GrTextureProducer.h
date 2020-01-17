@@ -96,18 +96,19 @@ public:
     // wrap mode. To support that flag now would require us to support scaleAdjust array like in
     // refTextureProxyForParams, however the current public API that uses this call does not expose
     // that array.
-    sk_sp<GrTextureProxy> refTextureProxy(GrMipMapped willNeedMips);
+    std::pair<sk_sp<GrTextureProxy>, GrColorType> refTextureProxy(GrMipMapped willNeedMips);
 
     virtual ~GrTextureProducer() {}
 
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkISize dimensions() const { return fImageInfo.dimensions(); }
-    const GrColorInfo& colorInfo() const { return fImageInfo.colorInfo(); }
-    GrColorType colorType() const { return fImageInfo.colorType(); }
     SkAlphaType alphaType() const { return fImageInfo.alphaType(); }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     bool isAlphaOnly() const { return GrColorTypeIsAlphaOnly(fImageInfo.colorType()); }
+    // This refers to the original colorType for the producer and not the format of the produced
+    // texture or the "colorType" of the produced texture.
+    bool hasAlpha() const { return GrColorTypeHasAlpha(fImageInfo.colorType()); }
     bool domainNeedsDecal() const { return fDomainNeedsDecal; }
     // If the "texture" samples multiple images that have different resolutions (e.g. YUV420)
     virtual bool hasMixedResolutions() const { return false; }
@@ -119,6 +120,8 @@ protected:
                       const GrImageInfo& imageInfo,
                       bool domainNeedsDecal)
             : fContext(context), fImageInfo(imageInfo), fDomainNeedsDecal(domainNeedsDecal) {}
+
+    GrColorType colorType() const { return fImageInfo.colorType(); }
 
     /** Helper for creating a key for a copy from an original key. */
     static void MakeCopyKeyFromOrigKey(const GrUniqueKey& origKey,

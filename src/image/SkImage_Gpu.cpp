@@ -391,7 +391,7 @@ static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTexturePr
                                                  SkAlphaType at, uint32_t id,
                                                  GrMipMapped mipMapped) {
     // TODO: have texture producer return a GrSurfaceProxyView
-    sk_sp<GrTextureProxy> proxy(producer->refTextureProxy(mipMapped));
+    auto [proxy, colorType] = producer->refTextureProxy(mipMapped);
     if (!proxy) {
         return nullptr;
     }
@@ -424,13 +424,13 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, GrMipMapped mipMapp
     }
 
     if (this->isLazyGenerated()) {
-        GrImageTextureMaker maker(context, this, kDisallow_CachingHint);
+        GrImageTextureMaker maker = GrImageTextureMaker::Make(context, this, kDisallow_CachingHint);
         return create_image_from_producer(context, &maker, this->alphaType(),
                                           this->uniqueID(), mipMapped);
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
-        GrBitmapTextureMaker maker(context, *bmp);
+        GrBitmapTextureMaker maker = GrBitmapTextureMaker::Make(context, *bmp);
         return create_image_from_producer(context, &maker, this->alphaType(),
                                           this->uniqueID(), mipMapped);
     }
@@ -531,12 +531,12 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
         }
         pixmap = &resized;
     }
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     // Turn the pixmap into a GrTextureProxy
     SkBitmap bmp;
     bmp.installPixels(*pixmap);
+    GrBitmapTextureMaker bitmapMaker = GrBitmapTextureMaker::Make(context, bmp, false, false);
     GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(bmp, mipMapped);
+    auto [proxy, grCT] = bitmapMaker.refTextureProxy(mipMapped);
     if (!proxy) {
         return SkImage::MakeRasterCopy(*pixmap);
     }
@@ -549,8 +549,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
 
     std::unique_ptr<GrSemaphore> sema = gpu->prepareTextureForCrossContextUsage(texture.get());
 
+    SkColorType skCT = GrColorTypeToSkColorType(grCT);
     auto gen = GrBackendTextureImageGenerator::Make(std::move(texture), proxy->origin(),
-                                                    std::move(sema), pixmap->colorType(),
+                                                    std::move(sema), skCT,
                                                     pixmap->alphaType(),
                                                     pixmap->info().refColorSpace());
     return SkImage::MakeFromGenerator(std::move(gen));
