@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d9b61b33_cac0af45",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-17T21:13:49Z",
+      "side": 1,
+      "message": "Could hoist this check up, so it\u0027s just:\nif (!bitmap.isVolatile() \u0026\u0026 shouldUseUniqueKey) { ... }",
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "17345b23_bd98aa06",
         "filename": "src/gpu/GrBitmapTextureMaker.h",
         "patchSetId": 8
@@ -64,6 +81,29 @@
         "startChar": 9,
         "endLine": 111,
         "endChar": 17
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6df5581_2f117508",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-17T21:13:49Z",
+      "side": 1,
+      "message": "Is this true? The derived constructors have already re-mapped the colorType before forwarding the info to the base class constructor, so this will reflect the colorType of the texture, right?",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 0
       },
       "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
