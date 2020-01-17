@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17345b23_bd98aa06",
+        "filename": "src/gpu/GrBitmapTextureMaker.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-17T21:10:09Z",
+      "side": 1,
+      "message": "Why do we need a Make?",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 92
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f7d2f73_e676e07c",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-17T21:10:09Z",
+      "side": 1,
+      "message": "WDYT about just adding GrBackendFormat::isCompressed()?",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 1
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a4d62d_96232851",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-17T21:10:09Z",
+      "side": 1,
+      "message": "Following the trail of usages of this, I think we really care about opaqueness and not whether the original color type had an alpha channel.\n\nIf only we had kAlpha_SkAlphaType to describe things that are ONLY alpha we could have an alphatype getter here and eliminate this and isAlphaOnly.",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 17
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
