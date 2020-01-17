@@ -403,7 +403,14 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
-        GrColorInfo colorInfo(image->imageInfo().colorInfo());
+        GrColorInfo colorInfo;
+        if (fContext->priv().caps()->isFormatSRGB(proxy->backendFormat())) {
+            SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, image->imageInfo().alphaType(),
+                                    image->imageInfo().refColorSpace());
+        } else {
+            colorInfo = GrColorInfo(image->imageInfo().colorInfo());
+        }
 
         if (attemptDrawTexture && can_use_draw_texture(paint)) {
             draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
@@ -437,14 +444,16 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Lazily generated images must get drawn as a texture producer that handles the final
     // texture creation.
     if (image->isLazyGenerated()) {
-        GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint, useDecal);
+        GrImageTextureMaker maker = GrImageTextureMaker::Make(fContext.get(), image,
+                                                              SkImage::kAllow_CachingHint,
+                                                              useDecal);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               attemptDrawTexture);
         return;
     }
     if (as_IB(image)->getROPixels(&bm)) {
-        GrBitmapTextureMaker maker(fContext.get(), bm, useDecal);
+        GrBitmapTextureMaker maker = GrBitmapTextureMaker::Make(fContext.get(), bm, useDecal);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               attemptDrawTexture);
