@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa4bc50d_6d50c199",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-17T19:49:52Z",
+      "side": 1,
+      "message": "nit: include that we are now building with a newer version of freetype/png",
+      "revId": "de83e4c30e5645846e7ffb81bf81ae68713018fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
