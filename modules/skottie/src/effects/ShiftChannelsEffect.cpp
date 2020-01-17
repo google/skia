@@ -35,7 +35,7 @@ public:
                     new ShiftChannelsEffectAdapter(jprops, std::move(layer), abuilder));
     }
 
-    const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
+    const sk_sp<sksg::ExternalColorFilter>& node() const { return fColorFilter; }
 
 private:
     ShiftChannelsEffectAdapter(const skjson::ArrayValue& jprops,

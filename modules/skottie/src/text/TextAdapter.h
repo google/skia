@@ -33,7 +33,7 @@ public:
 
     ~TextAdapter() override;
 
-    const sk_sp<sksg::Group>& renderNode() const { return fRoot; }
+    const sk_sp<sksg::Group>& node() const { return fRoot; }
 
     const TextValue& getText() const { return fText.fCurrentValue; }
     void setText(const TextValue&);
