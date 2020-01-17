@@ -39,7 +39,6 @@ size_t GrSurface::ComputeSize(const GrCaps& caps,
     } else {
         colorSize = (size_t)dimensions.width() * dimensions.height() * caps.bytesPerPixel(format);
     }
-    SkASSERT(colorSize > 0);
 
     size_t finalSize = colorSamplesPerPixel * colorSize;
 
