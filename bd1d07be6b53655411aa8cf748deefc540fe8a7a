@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe60999f_da200416",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-17T15:33:24Z",
+      "side": 1,
+      "message": "Can we make the lower level more robust so that all current or future call sites that try to wrap 0 w/h RT benefits and don\u0027t have to check?",
+      "range": {
+        "startLine": 587,
+        "startChar": 0,
+        "endLine": 590,
+        "endChar": 0
+      },
+      "revId": "bd1d07be6b53655411aa8cf748deefc540fe8a7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
