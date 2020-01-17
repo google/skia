@@ -44,47 +44,70 @@ private:
         return SkISize::Make(550, 700);
     }
 
+    static constexpr int rows = 2;
+    static constexpr int cols = 5;
+    sk_sp<SkTypeface> typeface[rows][cols];
+    void onOnceBeforeDraw() override {
+        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
+
+        constexpr SkFourByteTag wght = SkSetFourByteTag('w','g','h','t');
+        //constexpr SkFourByteTag wdth = SkSetFourByteTag('w','d','t','h');
+        struct {
+            sk_sp<SkTypeface> distortable;
+            SkFourByteTag axisTag;
+            SkScalar axisMin;
+            SkScalar axisMax;
+        } info = {
+            MakeResourceAsTypeface("fonts/Distortable.ttf"), wght, 0.5f, 2.0f
+            //SkTypeface::MakeFromFile("/Library/Fonts/Skia.ttf"), wght, 0.48f, 3.2f
+            //SkTypeface::MakeFromName("Skia", SkFontStyle()), wdth, 0.62f, 1.3f
+            //SkTypeface::MakeFromFile("/System/Library/Fonts/SFNS.ttf"), wght, 100.0f, 900.0f
+            //SkTypeface::MakeFromName(".SF NS", SkFontStyle()), wght, 100.0f, 900.0f
+        };
+        std::unique_ptr<SkStreamAsset> distortableStream( info.distortable
+                                                        ? info.distortable->openStream(nullptr)
+                                                        : nullptr);
+        for (int row = 0; row < rows; ++row) {
+            for (int col = 0; col < cols; ++col) {
+                SkScalar styleValue = SkScalarInterp(info.axisMin, info.axisMax,
+                                                     SkScalar(row * cols + col) / (rows * cols));
+                SkFontArguments::VariationPosition::Coordinate coordinates[] = {
+                    {info.axisTag, styleValue},
+                    {info.axisTag, styleValue}
+                };
+                SkFontArguments::VariationPosition position = {
+                    coordinates, SK_ARRAY_COUNT(coordinates)
+                };
+                typeface[row][col] = [&]() -> sk_sp<SkTypeface> {
+                    if (row == 0 && info.distortable) {
+                        return info.distortable->makeClone(
+                                SkFontArguments().setVariationDesignPosition(position));
+                    }
+                    if (distortableStream) {
+                        return fontMgr->makeFromStream(distortableStream->duplicate(),
+                                SkFontArguments().setVariationDesignPosition(position));
+                    }
+                    return nullptr;
+                }();
+            }
+        }
+    }
+
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         SkFont font;
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-        sk_sp<SkFontMgr> fontMgr(SkFontMgr::RefDefault());
 
-        std::unique_ptr<SkStreamAsset> distortableStream(GetResourceAsStream("fonts/Distortable.ttf"));
-        sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
-
-        if (!distortableStream) {
-            *errorMsg = "No distortableStream";
-            return DrawResult::kFail;
-        }
         const char* text = "abc";
         const size_t textLen = strlen(text);
 
-        SkFourByteTag tag = SkSetFourByteTag('w','g','h','t');
-        constexpr SkScalar tagMin = 0.5f;
-        constexpr SkScalar tagMax = 2.0f;
-        constexpr int rows = 2;
-        constexpr int cols = 5;
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
                 SkScalar x = SkIntToScalar(10);
                 SkScalar y = SkIntToScalar(20);
 
-                SkScalar styleValue = SkScalarInterp(tagMin, tagMax,
-                                                     SkScalar(row * cols + col) / (rows * cols));
-                SkFontArguments::VariationPosition::Coordinate coordinates[] = {{tag, styleValue}};
-                SkFontArguments::VariationPosition position =
-                        { coordinates, SK_ARRAY_COUNT(coordinates) };
-                if (row == 0 && distortable) {
-                    sk_sp<SkTypeface> clone = distortable->makeClone(
-                            SkFontArguments().setVariationDesignPosition(position));
-                    font.setTypeface(clone ? std::move(clone) : distortable);
-                } else {
-                    font.setTypeface(fontMgr->makeFromStream(
-                        distortableStream->duplicate(),
-                        SkFontArguments().setVariationDesignPosition(position)));
-                }
+                font.setTypeface(typeface[row][col] ? typeface[row][col] : nullptr);
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SkIntToScalar(30 + col * 100), SkIntToScalar(20));
