@@ -27,11 +27,15 @@ if [[ $@ == *debug* ]]; then
   RELEASE_CONF="-O0 --js-opts 0 -s DEMANGLE_SUPPORT=1 -s ASSERTIONS=1 -s GL_ASSERTIONS=1 -g4 \
                 --source-map-base /node_modules/debugger/bin/ -DSK_DEBUG"
   BUILD_DIR=${BUILD_DIR:="out/debugger_wasm_debug"}
+  DEBUG="true"
+  OFFICIAL="false"
 else
   echo "Building a Release build"
   EXTRA_CFLAGS="\"-DSK_RELEASE\", \"-DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0\","
   RELEASE_CONF="-Oz --closure 1 --llvm-lto 3 -DSK_RELEASE -DGR_GL_CHECK_ALLOC_WITH_GET_ERROR=0"
   BUILD_DIR=${BUILD_DIR:="out/debugger_wasm"}
+  DEBUG="false"
+  OFFICIAL="true"
 fi
 
 mkdir -p $BUILD_DIR
@@ -66,13 +70,13 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
-  is_debug=false \
-  is_official_build=true \
+  is_debug=${DEBUG} \
+  is_official_build=${OFFICIAL} \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
@@ -90,10 +94,11 @@ echo "Compiling bitcode"
   skia_use_wuffs=true \
   skia_use_lua=false \
   skia_use_piex=false \
-  skia_use_system_libpng=true \
-  skia_use_system_freetype2=true \
+  skia_use_system_libpng=false \
+  skia_use_system_freetype2=false \
   skia_use_system_libjpeg_turbo = false \
   skia_use_system_libwebp=false \
+  skia_use_system_zlib=false\
   skia_use_vulkan=false \
   skia_use_zlib=true \
   skia_enable_gpu=true \
@@ -136,11 +141,12 @@ ${EMCXX} \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
     -s TOTAL_MEMORY=128MB \
-    -s USE_FREETYPE=1 \
-    -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -s USE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js
 
 # TODO(nifong): write unit tests
+
+    # -s USE_FREETYPE=1 \
+    # -s USE_LIBPNG=1 \
