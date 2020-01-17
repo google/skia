@@ -176,7 +176,7 @@ public:
 
     SkV4 map(float x, float y, float z, float w) const;
     SkV4 operator*(const SkV4& v) const {
-        return this->map(v.x, v.y, v.z, v.z);
+        return this->map(v.x, v.y, v.z, v.w);
     }
     SkV3 operator*(const SkV3& v) const {
         auto v4 = this->map(v.x, v.y, v.z, 0);
