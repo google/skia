@@ -21,6 +21,17 @@ static SkMatrix44 inv(const SkMatrix44& m) {
     return inverse;
 }
 
+static SkM44 inv(const SkM44& m) {
+    SkM44 inverse;
+    SkAssertResult(m.invert(&inverse));
+    return inverse;
+}
+
+static SkPoint project(const SkM44& m, SkV4 p) {
+    auto v = m * p;
+    return {v.x / v.w, v.y / v.w};
+}
+
 class Sample3DView : public Sample {
 protected:
     float   fNear = 0.05f;
@@ -57,6 +68,8 @@ public:
         viewport.setScale(area.width()*0.5f, area.height()*0.5f, zscale)
                 .postTranslate(area.centerX(), area.centerY(), 0);
 
+        // want "world" to be in our big coordinates (e.g. area), so apply this inverse
+        // as part of our "camera".
         canvas->experimental_saveCamera(viewport * perspective, camera * inv(viewport));
     }
 
@@ -103,6 +116,7 @@ static SkMatrix44 RY(SkScalar rad) {
 
 struct Face {
     SkScalar fRx, fRy;
+    SkColor  fColor;
 
     static SkMatrix44 T(SkScalar x, SkScalar y, SkScalar z) {
         SkMatrix44 m;
@@ -134,14 +148,14 @@ static bool front(const SkM44& m) {
 }
 
 const Face faces[] = {
-    {             0,             0 }, // front
-    {             0,   SK_ScalarPI }, // back
+    {             0,             0,  SK_ColorRED }, // front
+    {             0,   SK_ScalarPI,  SK_ColorGREEN }, // back
 
-    { SK_ScalarPI/2,             0 }, // top
-    {-SK_ScalarPI/2,             0 }, // bottom
+    { SK_ScalarPI/2,             0,  SK_ColorBLUE }, // top
+    {-SK_ScalarPI/2,             0,  SK_ColorCYAN }, // bottom
 
-    {             0, SK_ScalarPI/2 }, // left
-    {             0,-SK_ScalarPI/2 }, // right
+    {             0, SK_ScalarPI/2,  SK_ColorMAGENTA }, // left
+    {             0,-SK_ScalarPI/2,  SK_ColorYELLOW }, // right
 };
 
 #include "include/core/SkColorFilter.h"
@@ -272,3 +286,156 @@ class SampleRR3D : public Sample3DView {
     }
 };
 DEF_SAMPLE( return new SampleRR3D(); )
+
+#include "include/effects/SkRuntimeEffect.h"
+
+struct LightPos {
+    SkV4     fPos;
+    SkScalar fUIRadius;
+
+    bool hitTest(SkScalar x, SkScalar y) const {
+        auto xx = x - fPos.x;
+        auto yy = y - fPos.y;
+        return xx*xx + yy*yy <= fUIRadius*fUIRadius;
+    }
+
+    void update(SkScalar x, SkScalar y) {
+        fPos.x = x;
+        fPos.y = y;
+    }
+
+    void draw(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->experimental_concat44(SkM44::Translate(0, 0, fPos.z));
+        canvas->drawCircle(fPos.x, fPos.y, fUIRadius, paint);
+    }
+};
+
+class SamplePointLight3D : public Sample3DView {
+    SkRRect fRR;
+    LightPos fLight = {{200, 200, 800, 1}, 8};
+
+    sk_sp<SkShader> fShader;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    SkM44 fWorldToClick,
+          fClickToWorld;
+
+    SkString name() override { return SkString("pointlight3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
+        fShader = GetResourceAsImage("images/mandrill_128.png")
+                        ->makeShader(SkMatrix::MakeScale(3, 3));
+
+        const char code[] = R"(
+        //    in fragmentProcessor texture;
+        //       color = sample(texture) * half(scale);
+
+            uniform float4x4 localToWorld;
+            uniform float3   lightPos;
+
+            void main(float x, float y, inout half4 color) {
+                float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
+                float3 plane_norm = normalize((localToWorld * float4(0, 0, 1, 0)).xyz);
+                float3 light_dir = normalize(lightPos - plane_pos);
+                float ambient = 0.5;
+                float dp = dot(plane_norm, light_dir);
+                float scale = ambient + max(dp, 0);
+
+                color = color * half4(float4(scale, scale, scale, 1));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    bool onChar(SkUnichar uni) override {
+        switch (uni) {
+            case 'X': fLight.fPos.x += 10; return true;
+            case 'x': fLight.fPos.x -= 10; return true;
+            case 'Y': fLight.fPos.y += 10; return true;
+            case 'y': fLight.fPos.y -= 10; return true;
+            case 'Z': fLight.fPos.z += 10; return true;
+            case 'z': fLight.fPos.z -= 10; return true;
+        }
+        return this->Sample3DView::onChar(uni);
+    }
+
+    void drawContent(SkCanvas* canvas, const SkMatrix44& m, SkColor color) {
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
+
+        canvas->experimental_concat44(trans * fRot * m * inv(trans));
+
+        // wonder if the runtimeeffect can do this reject? (in a setup function)
+        if (!front(canvas->experimental_getLocalToDevice())) {
+            return;
+        }
+
+        struct Uniforms {
+            SkM44  fLocalToWorld;
+            SkV3   fLightPos;
+        } uni;
+        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLightPos     = {fLight.fPos.x, fLight.fPos.y, fLight.fPos.z};
+        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+
+        SkPaint paint;
+        paint.setColor(color);
+        paint.setShader(fEffect->makeShader(data, &fShader, 0, nullptr, true));
+
+        canvas->drawRRect(fRR, paint);
+    }
+
+    void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
+        auto l2d = canvas->experimental_getLocalToDevice();
+        fWorldToClick = inv(clickM) * l2d;
+        fClickToWorld = inv(fWorldToClick);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (canvas->getGrContext() == nullptr) {
+            return;
+        }
+        SkM44 clickM = canvas->experimental_getLocalToDevice();
+
+        canvas->save();
+        canvas->translate(400, 300);
+
+        this->saveCamera(canvas, {0, 0, 400, 400}, 200);
+
+        this->setClickToWorld(canvas, clickM);
+
+        for (auto f : faces) {
+            SkAutoCanvasRestore acr(canvas, true);
+            this->drawContent(canvas, f.asM44(200), f.fColor);
+        }
+
+        fLight.draw(canvas);
+        canvas->restore();
+        canvas->restore();
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        auto L = fWorldToClick * fLight.fPos;
+        SkPoint c = project(fClickToWorld, {x, y, L.z/L.w, 1});
+        if (fLight.hitTest(c.fX, c.fY)) {
+            return new Click();
+        }
+        return nullptr;
+    }
+    bool onClick(Click* click) override {
+        auto L = fWorldToClick * fLight.fPos;
+        SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
+        fLight.update(c.fX, c.fY);
+        return true;
+    }
+};
+DEF_SAMPLE( return new SamplePointLight3D(); )
