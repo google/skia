@@ -272,3 +272,89 @@ class SampleRR3D : public Sample3DView {
     }
 };
 DEF_SAMPLE( return new SampleRR3D(); )
+
+#include "include/effects/SkRuntimeEffect.h"
+
+class SampleBump3D : public Sample3DView {
+    SkRRect fRR;
+    Light   fLight = {
+        {60, 60}, {60, 60}, 50, 10
+    };
+    sk_sp<SkShader> fShader;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    SkString name() override { return SkString("bump3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
+        fShader = GetResourceAsImage("images/mandrill_128.png")
+                        ->makeShader(SkMatrix::MakeScale(3, 3));
+
+        const char code[] = R"(
+            in fragmentProcessor texture;
+
+            void main(float x, float y, inout half4 color) {
+                color = sample(texture);
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    bool onChar(SkUnichar uni) override {
+        return this->Sample3DView::onChar(uni);
+    }
+
+    void drawContent(SkCanvas* canvas, const SkMatrix44& m) {
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
+
+        canvas->experimental_concat44(trans * fRot * m * inv(trans));
+
+        if (!front(canvas->experimental_getLocalToDevice())) {
+            return;
+        }
+
+        SkPaint paint;
+
+        sk_sp<SkData> data = SkData::MakeEmpty();
+        paint.setShader(fEffect->makeShader(data, &fShader, 1, nullptr, true));
+
+        SkColorMatrix cm = comput_planar_lighting(canvas, fLight.getDir());
+        paint.setColorFilter(SkColorFilters::Matrix(cm));
+
+        canvas->drawRRect(fRR, paint);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->save();
+        canvas->translate(400, 300);
+
+        this->saveCamera(canvas, {0, 0, 400, 400}, 200);
+
+        for (auto f : faces) {
+            SkAutoCanvasRestore acr(canvas, true);
+            this->drawContent(canvas, f.asM44(200));
+        }
+
+        canvas->restore();
+        canvas->restore();
+
+        fLight.draw(canvas);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        if (fLight.hitTest(x, y)) {
+            return new Click();
+        }
+        return nullptr;
+    }
+    bool onClick(Click* click) override {
+        fLight.update(click->fCurr.fX, click->fCurr.fY);
+        return true;
+    }
+};
+DEF_SAMPLE( return new SampleBump3D(); )
