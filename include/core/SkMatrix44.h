@@ -190,6 +190,9 @@ public:
     SkMatrix44& operator=(const SkMatrix& src);
 
     // TODO: make this explicit (will need to guard that change to update chrome, etc.
+#ifndef SK_SUPPORT_LEGACY_IMPLICIT_CONVERSION_MATRIX44
+    explicit
+#endif
     operator SkMatrix() const;
 
     /**
