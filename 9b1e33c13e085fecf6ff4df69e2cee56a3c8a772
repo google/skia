@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8833f64e_97fd3880",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-17T21:20:21Z",
+      "side": 1,
+      "message": "Are rects passed by value, stylistically now? I remember you made points do that, and with this new function, there\u0027s no need to pass back the updated values for these offsets/rects, which is pretty nice.",
+      "range": {
+        "startLine": 424,
+        "startChar": 57,
+        "endLine": 424,
+        "endChar": 64
+      },
+      "revId": "9b1e33c13e085fecf6ff4df69e2cee56a3c8a772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed325215_d470f842",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-17T21:20:21Z",
+      "side": 1,
+      "message": "These two lines feel a little isolated compared to the decimate/blur/reexpand code. Maybe it\u0027d be easier to read if it was \"if (scaleX \u003d\u003d 1 \u0026\u0026 scaleY \u003d\u003d 1) { // do blur w/o decimate }\".\n\nCould push that even farther and have it organized as:\n\nif (scaleX \u003d\u003d 1 \u0026\u0026 scaleY \u003d\u003d 1) {\n  if (small kernel) { do gaussian2D }\n  else { do two pass gaussian }\n}\n\ndecimate\ntwo pass gaussian\nreexpand\n\nUp to you, in terms of what you think is more readable too, this is already an improvement in flow.",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 527,
+        "endChar": 91
+      },
+      "revId": "9b1e33c13e085fecf6ff4df69e2cee56a3c8a772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
