@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba6cd39e_351dd7c9",
+        "filename": "src/gpu/GrSurfaceContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-17T20:01:33Z",
+      "side": 1,
+      "message": "is this needed, Brian seemed to think we should be able to support it maybe?",
+      "range": {
+        "startLine": 193,
+        "startChar": 64,
+        "endLine": 193,
+        "endChar": 83
+      },
+      "revId": "1379240c3192c7ed4eb6f28b5878b276df614cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
