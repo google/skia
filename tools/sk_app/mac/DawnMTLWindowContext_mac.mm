@@ -52,9 +52,9 @@ public:
 
     ~SwapChainImplMTL() {}
 
-    DawnSwapChainError Configure(DawnTextureFormat format, DawnTextureUsage,
+    DawnSwapChainError Configure(WGPUTextureFormat format, WGPUTextureUsage,
             uint32_t width, uint32_t height) {
-        if (format != DAWN_TEXTURE_FORMAT_RGBA8_UNORM) {
+        if (format != WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm) {
             return "unsupported format";
         }
         SkASSERT(width > 0);

@@ -89,9 +89,7 @@ public:
      */
     bool readOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kReadOnly; }
 
-    bool framebufferOnly() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly;
-    }
+    bool framebufferOnly() const { return fSurfaceFlags & GrInternalSurfaceFlags::kFramebufferOnly; }
 
     // Returns true if we are working with protected content.
     bool isProtected() const { return fIsProtected == GrProtected::kYes; }
