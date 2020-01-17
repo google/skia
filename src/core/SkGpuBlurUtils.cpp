@@ -413,6 +413,75 @@ static std::unique_ptr<GrRenderTargetContext> reexpand(
     return dstRenderTargetContext;
 }
 
+std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingContext* context,
+                                                         sk_sp<GrTextureProxy> srcProxy,
+                                                         GrColorType srcColorType,
+                                                         SkAlphaType srcAlphaType,
+                                                         sk_sp<SkColorSpace> colorSpace,
+                                                         SkIPoint proxyOffset,
+                                                         int finalW,
+                                                         int finalH,
+                                                         SkIRect srcRect,
+                                                         SkIPoint srcOffset,
+                                                         SkIRect* srcBounds,
+                                                         float sigmaX,
+                                                         float sigmaY,
+                                                         int radiusX,
+                                                         int radiusY,
+                                                         SkTileMode mode,
+                                                         SkBackingFit fit) {
+    // Only the last rendered renderTargetContext needs to match the supplied 'fit'
+    SkBackingFit xFit = fit, yFit = fit;
+    if (sigmaY > 0.0f) {
+        xFit = SkBackingFit::kApprox;
+    }
+
+    std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
+    if (sigmaX > 0.0f) {
+        dstRenderTargetContext =
+                convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
+                                  proxyOffset, srcRect, srcOffset, Direction::kX, radiusX, sigmaX,
+                                  srcBounds, mode, finalW, finalH, colorSpace, xFit);
+        if (!dstRenderTargetContext) {
+            return nullptr;
+        }
+
+        srcProxy = dstRenderTargetContext->asTextureProxyRef();
+        if (!srcProxy) {
+            return nullptr;
+        }
+
+        srcRect.offsetTo(0, 0);
+        srcOffset.set(0, 0);
+        proxyOffset.set(0, 0);
+    }
+
+    if (sigmaY > 0.0f) {
+        dstRenderTargetContext =
+                convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
+                                  proxyOffset, srcRect, srcOffset, Direction::kY, radiusY, sigmaY,
+                                  srcBounds, mode, finalW, finalH, colorSpace, yFit);
+        if (!dstRenderTargetContext) {
+            return nullptr;
+        }
+
+        srcProxy = dstRenderTargetContext->asTextureProxyRef();
+        if (!srcProxy) {
+            return nullptr;
+        }
+
+        srcRect.offsetTo(0, 0);
+        srcOffset.set(0, 0);
+        proxyOffset.set(0, 0);
+    }
+
+    SkASSERT(dstRenderTargetContext);
+    SkASSERT(srcProxy.get() == dstRenderTargetContext->asTextureProxy());
+    SkASSERT(proxyOffset.isZero());
+    SkASSERT(!dstRenderTargetContext || dstRenderTargetContext->origin() == srcProxy->origin());
+    return dstRenderTargetContext;
+}
+
 namespace SkGpuBlurUtils {
 
 std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
@@ -442,95 +511,45 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     SkASSERT(sigmaX || sigmaY);
 
     SkIPoint srcOffset = SkIPoint::Make(-dstBounds.x(), -dstBounds.y());
-    SkIRect localSrcBounds = srcBounds;
-    SkIPoint localProxyOffset = proxyOffset;
 
     // For really small blurs (certainly no wider than 5x5 on desktop gpus) it is faster to just
     // launch a single non separable kernel vs two launches
     if (sigmaX > 0.0f && sigmaY > 0.0f &&
-            (2 * radiusX + 1) * (2 * radiusY + 1) <= MAX_KERNEL_SIZE) {
+        (2 * radiusX + 1) * (2 * radiusY + 1) <= MAX_KERNEL_SIZE) {
         // We shouldn't be scaling because this is a small size blur
         SkASSERT((1 == scaleFactorX) && (1 == scaleFactorY));
         // Apply the proxy offset to src bounds and offset directly
-        srcOffset -= proxyOffset;
-        localSrcBounds.offset(proxyOffset);
-        return convolve_gaussian_2d(context, std::move(srcProxy), srcColorType, localSrcBounds,
-                                    srcOffset, radiusX, radiusY, sigmaX, sigmaY, mode,
-                                    finalW, finalH, colorSpace, fit);
+        return convolve_gaussian_2d(context, std::move(srcProxy), srcColorType,
+                                    srcBounds.makeOffset(proxyOffset), srcOffset - proxyOffset,
+                                    radiusX, radiusY, sigmaX, sigmaY, mode, finalW, finalH,
+                                    colorSpace, fit);
     }
 
-    // Only the last rendered renderTargetContext needs to match the supplied 'fit'
-    SkBackingFit xFit = fit, yFit = fit;
-    if (scaleFactorX > 1 || scaleFactorY > 1) {
-        xFit = yFit = SkBackingFit::kApprox;  // reexpand will be last
-    } else if (sigmaY > 0.0f) {
-        xFit = SkBackingFit::kApprox;         // the y-pass will be last
-    }
-
+    auto localSrcBounds = srcBounds;
     if (scaleFactorX > 1 || scaleFactorY > 1) {
         srcProxy =
-                decimate(context, std::move(srcProxy), srcColorType, srcAlphaType, localProxyOffset,
+                decimate(context, std::move(srcProxy), srcColorType, srcAlphaType, proxyOffset,
                          &srcOffset, &localSrcBounds, scaleFactorX, scaleFactorY, mode, colorSpace);
         if (!srcProxy) {
             return nullptr;
         }
-        localProxyOffset.set(0, 0);
+        auto srcRect = SkIRect::MakeWH(finalW, finalH);
+        scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
+        auto rtc = two_pass_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
+                                     std::move(colorSpace), {0, 0}, finalW, finalH, srcRect,
+                                     srcOffset, &localSrcBounds, sigmaX, sigmaY, radiusX, radiusY,
+                                     mode, SkBackingFit::kApprox);
+        if (!rtc) {
+            return nullptr;
+        }
+        return reexpand(context, std::move(rtc), localSrcBounds, scaleFactorX, scaleFactorY, finalW,
+                        finalH, colorSpace, fit);
     }
-
-    std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
 
     auto srcRect = SkIRect::MakeWH(finalW, finalH);
-    scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
-    if (sigmaX > 0.0f) {
-        dstRenderTargetContext =
-                convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                  localProxyOffset, srcRect, srcOffset, Direction::kX, radiusX,
-                                  sigmaX, &localSrcBounds, mode, finalW, finalH, colorSpace, xFit);
-        if (!dstRenderTargetContext) {
-            return nullptr;
-        }
-
-        srcProxy = dstRenderTargetContext->asTextureProxyRef();
-        if (!srcProxy) {
-            return nullptr;
-        }
-
-        srcRect.offsetTo(0, 0);
-        srcOffset.set(0, 0);
-        localProxyOffset.set(0, 0);
-    }
-
-    if (sigmaY > 0.0f) {
-        dstRenderTargetContext =
-                convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                  localProxyOffset, srcRect, srcOffset, Direction::kY, radiusY,
-                                  sigmaY, &localSrcBounds, mode, finalW, finalH, colorSpace, yFit);
-        if (!dstRenderTargetContext) {
-            return nullptr;
-        }
-
-        srcProxy = dstRenderTargetContext->asTextureProxyRef();
-        if (!srcProxy) {
-            return nullptr;
-        }
-
-        srcRect.offsetTo(0, 0);
-        srcOffset.set(0, 0);
-        localProxyOffset.set(0, 0);
-    }
-
-    SkASSERT(dstRenderTargetContext);
-    SkASSERT(srcProxy.get() == dstRenderTargetContext->asTextureProxy());
-    SkASSERT(localProxyOffset.x() == 0 && localProxyOffset.y() == 0);
-
-    if (scaleFactorX > 1 || scaleFactorY > 1) {
-        dstRenderTargetContext =
-                reexpand(context, std::move(dstRenderTargetContext), localSrcBounds, scaleFactorX,
-                         scaleFactorY, finalW, finalH, colorSpace, fit);
-    }
-
-    SkASSERT(!dstRenderTargetContext || dstRenderTargetContext->origin() == srcProxy->origin());
-    return dstRenderTargetContext;
+    return two_pass_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
+                             std::move(colorSpace), proxyOffset, finalW, finalH, srcRect, srcOffset,
+                             &localSrcBounds, sigmaX, sigmaY, radiusX, radiusY, mode, fit);
 }
 }
 
