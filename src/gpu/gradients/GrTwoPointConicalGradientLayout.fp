@@ -10,7 +10,7 @@ enum class Type {
     kRadial, kStrip, kFocal
 };
 
-in half4x4 gradientMatrix;
+in half3x3 gradientMatrix;
 
 layout(key) in Type type;
 layout(key) in bool isRadiusIncreasing;
