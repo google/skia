@@ -115,10 +115,10 @@ public:
         AnimatorScope*          fPrevScope;
     };
 
-    template <typename T,  typename... Args>
-    sk_sp<sksg::RenderNode> attachDiscardableAdapter(Args&&... args) const {
+    template <typename T,  typename NodeType = sk_sp<sksg::RenderNode>, typename... Args>
+    NodeType attachDiscardableAdapter(Args&&... args) const {
         if (auto adapter = T::Make(std::forward<Args>(args)...)) {
-            sk_sp<sksg::RenderNode> node = adapter->renderNode();
+            auto node = adapter->node();
             if (adapter->isStatic()) {
                 // Fire off a synthetic tick to force a single SG sync before discarding.
                 adapter->tick(0);

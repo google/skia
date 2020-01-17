@@ -31,115 +31,17 @@
 namespace skottie {
 namespace internal {
 
+sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue&,
+                                                const AnimationBuilder*);
+sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue&,
+                                              const AnimationBuilder*);
+sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue&,
+                                                 const AnimationBuilder*);
 namespace {
 
 sk_sp<sksg::GeometryNode> AttachPathGeometry(const skjson::ObjectValue& jpath,
                                              const AnimationBuilder* abuilder) {
     return abuilder->attachPath(jpath["ks"]);
-}
-
-sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
-                                              const AnimationBuilder* abuilder) {
-    auto rect_node = sksg::RRect::Make();
-    rect_node->setDirection(ParseDefault(jrect["d"], -1) == 3 ? SkPathDirection::kCCW
-                                                              : SkPathDirection::kCW);
-    rect_node->setInitialPointIndex(2); // starting point: (Right, Top - radius.y)
-
-    auto adapter = sk_make_sp<RRectAdapter>(rect_node);
-
-    auto p_attached = abuilder->bindProperty<VectorValue>(jrect["p"],
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    auto s_attached = abuilder->bindProperty<VectorValue>(jrect["s"],
-        [adapter](const VectorValue& s) {
-            adapter->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
-        });
-    auto r_attached = abuilder->bindProperty<ScalarValue>(jrect["r"],
-        [adapter](const ScalarValue& r) {
-            adapter->setRadius(SkSize::Make(r, r));
-        });
-
-    if (!p_attached && !s_attached && !r_attached) {
-        return nullptr;
-    }
-
-    return rect_node;
-}
-
-sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jellipse,
-                                                const AnimationBuilder* abuilder) {
-    auto rect_node = sksg::RRect::Make();
-    rect_node->setDirection(ParseDefault(jellipse["d"], -1) == 3 ? SkPathDirection::kCCW
-                                                                 : SkPathDirection::kCW);
-    rect_node->setInitialPointIndex(1); // starting point: (Center, Top)
-
-    auto adapter = sk_make_sp<RRectAdapter>(rect_node);
-
-    auto p_attached = abuilder->bindProperty<VectorValue>(jellipse["p"],
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    auto s_attached = abuilder->bindProperty<VectorValue>(jellipse["s"],
-        [adapter](const VectorValue& s) {
-            const auto sz = ValueTraits<VectorValue>::As<SkSize>(s);
-            adapter->setSize(sz);
-            adapter->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
-        });
-
-    if (!p_attached && !s_attached) {
-        return nullptr;
-    }
-
-    return rect_node;
-}
-
-sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jstar,
-                                                 const AnimationBuilder* abuilder) {
-    static constexpr PolyStarAdapter::Type gTypes[] = {
-        PolyStarAdapter::Type::kStar, // "sy": 1
-        PolyStarAdapter::Type::kPoly, // "sy": 2
-    };
-
-    const auto type = ParseDefault<size_t>(jstar["sy"], 0) - 1;
-    if (type >= SK_ARRAY_COUNT(gTypes)) {
-        abuilder->log(Logger::Level::kError, &jstar, "Unknown polystar type.");
-        return nullptr;
-    }
-
-    auto path_node = sksg::Path::Make();
-    auto adapter = sk_make_sp<PolyStarAdapter>(path_node, gTypes[type]);
-
-    abuilder->bindProperty<VectorValue>(jstar["p"],
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["pt"],
-        [adapter](const ScalarValue& pt) {
-            adapter->setPointCount(pt);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["ir"],
-        [adapter](const ScalarValue& ir) {
-            adapter->setInnerRadius(ir);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["or"],
-        [adapter](const ScalarValue& otr) {
-            adapter->setOuterRadius(otr);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["is"],
-        [adapter](const ScalarValue& is) {
-            adapter->setInnerRoundness(is);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["os"],
-        [adapter](const ScalarValue& os) {
-            adapter->setOuterRoundness(os);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["r"],
-        [adapter](const ScalarValue& r) {
-            adapter->setRotation(r);
-        });
-
-    return path_node;
 }
 
 sk_sp<sksg::ShaderPaint> AttachGradient(const skjson::ObjectValue& jgrad,

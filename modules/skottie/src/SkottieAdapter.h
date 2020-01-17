@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottieAdapter_DEFINED
-#define SkottieAdapter_DEFINED
+#ifndef SkottieAdapter__DEFINED
+#define SkottieAdapter__DEFINED
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
@@ -55,45 +55,6 @@ namespace skottie {
   private:                                          \
     p_type f##p_name = p_default;                   \
   public:
-
-class RRectAdapter final : public SkNVRefCnt<RRectAdapter> {
-public:
-    explicit RRectAdapter(sk_sp<sksg::RRect>);
-    ~RRectAdapter();
-
-    ADAPTER_PROPERTY(Position, SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(Size    , SkSize  ,  SkSize::Make(0, 0))
-    ADAPTER_PROPERTY(Radius  , SkSize  ,  SkSize::Make(0, 0))
-
-private:
-    void apply();
-
-    sk_sp<sksg::RRect> fRRectNode;
-};
-
-class PolyStarAdapter final : public SkNVRefCnt<PolyStarAdapter> {
-public:
-    enum class Type {
-        kStar, kPoly,
-    };
-
-    PolyStarAdapter(sk_sp<sksg::Path>, Type);
-    ~PolyStarAdapter();
-
-    ADAPTER_PROPERTY(Position      , SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(PointCount    , SkScalar, 0)
-    ADAPTER_PROPERTY(InnerRadius   , SkScalar, 0)
-    ADAPTER_PROPERTY(OuterRadius   , SkScalar, 0)
-    ADAPTER_PROPERTY(InnerRoundness, SkScalar, 0)
-    ADAPTER_PROPERTY(OuterRoundness, SkScalar, 0)
-    ADAPTER_PROPERTY(Rotation      , SkScalar, 0)
-
-private:
-    void apply();
-
-    sk_sp<sksg::Path> fPathNode;
-    Type              fType;
-};
 
 class RepeaterAdapter final : public SkNVRefCnt<RepeaterAdapter> {
 public:
@@ -183,4 +144,4 @@ private:
 
 } // namespace skottie
 
-#endif // SkottieAdapter_DEFINED
+#endif // SkottieAdapter__DEFINED
