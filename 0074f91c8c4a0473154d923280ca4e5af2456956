@@ -108,6 +108,29 @@
       "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c34c89a5_922ea61f",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-17T21:24:14Z",
+      "side": 1,
+      "message": "Is this because we still don\u0027t have an sRGB SkColorType? We need to fix that.",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 414,
+        "endChar": 9
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
