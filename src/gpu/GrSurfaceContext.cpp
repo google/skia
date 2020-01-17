@@ -57,6 +57,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
         surfaceContext.reset(new GrSurfaceContext(context, std::move(readView), colorType,
                                                   alphaType, std::move(colorSpace)));
     }
+    SkDEBUGCODE(surfaceContext->validate();)
     return surfaceContext;
 }
 
