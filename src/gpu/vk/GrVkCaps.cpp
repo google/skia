@@ -1513,6 +1513,12 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
         return false;
     }
 
+    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        return ct == (GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                             : GrColorType::kRGBA_8888);
+    }
+
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -1779,6 +1785,12 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
 
     if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
+    }
+
+    SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        return { GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                        : GrColorType::kRGBA_8888, 0 };
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.

@@ -57,6 +57,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
         surfaceContext.reset(new GrSurfaceContext(context, std::move(readView), colorType,
                                                   alphaType, std::move(colorSpace)));
     }
+    SkDEBUGCODE(surfaceContext->validate();)
     return surfaceContext;
 }
 
@@ -180,6 +181,7 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
          premul              = flags.premul;
 
     const GrCaps* caps = direct->priv().caps();
+    bool srcIsCompressed = caps->isFormatCompressed(srcSurface->backendFormat());
     // This is the getImageData equivalent to the canvas2D putImageData fast path. We probably don't
     // care so much about getImageData performance. However, in order to ensure putImageData/
     // getImageData in "legacy" mode are round-trippable we use the GPU to do the complementary
@@ -203,8 +205,8 @@ bool GrSurfaceContext::readPixels(const GrImageInfo& origDstInfo, void* dst, siz
     }
 
     if (readFlag == GrCaps::SurfaceReadPixelsSupport::kCopyToTexture2D || canvas2DFastPath) {
-        GrColorType colorType =
-                canvas2DFastPath ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
+        GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
+                                    ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
         sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
 
         auto tempCtx = GrRenderTargetContext::Make(
