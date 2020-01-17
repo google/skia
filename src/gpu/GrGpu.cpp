@@ -467,10 +467,6 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
         }
     }
 
-    if (this->caps()->isFormatCompressed(surface->backendFormat())) {
-        return false;
-    }
-
     this->handleDirtyContext();
 
     return this->onReadPixels(surface, left, top, width, height, surfaceColorType, dstColorType,
