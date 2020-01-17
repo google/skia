@@ -63,6 +63,163 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     canvas->drawPaint(paint);
 }
 
+
+// ~~~~~~~~~~~~~~~~~~ Verifier ~~~~~~~~~~~~~~~~~~
+GMVerifier::~GMVerifier() {}
+
+VerifierResult GMVerifier::verify(const SkBitmap& gold, const SkBitmap& actual) {
+    return defaultVerify(gold, actual);
+}
+
+const SkBitmap* GMVerifier::goldStageImg() const {
+    return fGoldStageImg.get();
+}
+
+const SkBitmap* GMVerifier::actualStageImg() const {
+    return fActualStageImg.get();
+}
+
+VerifierResult GMVerifier::defaultVerify(const SkBitmap& gold, const SkBitmap& actual) {
+    fGoldStageImg = mask(gold);
+    fActualStageImg = duplicate(actual);
+    if (!allPixelsAreInMask(*fActualStageImg, *fGoldStageImg))
+        return VerifierResult::kFail;
+
+    return VerifierResult::kOk;
+}
+
+std::unique_ptr<SkBitmap> GMVerifier::duplicate(const SkBitmap& bmp) {
+    const SkISize input_size = bmp.info().bounds().size();
+    const SkImageInfo image_info = bmp.info();
+
+    std::unique_ptr<SkBitmap> result(new SkBitmap);
+    result->allocPixelsFlags(image_info, SkBitmap::kZeroPixels_AllocFlag);
+
+    const SkPixmap& pixmap = bmp.pixmap();
+    for (int y = 0; y < input_size.fHeight; y++) {
+        for (int x = 0; x < input_size.fWidth; x++) {
+            *result->getAddr32(x, y) = *pixmap.addr32(x, y);
+        }
+    }
+
+    return result;
+}
+
+std::unique_ptr<SkBitmap> GMVerifier::mask(const SkBitmap& bmp) {
+    const SkISize input_size = bmp.info().bounds().size();
+    const SkImageInfo
+        image_info = SkImageInfo::Make(input_size, bmp.colorType(), bmp.alphaType(), nullptr);
+
+    std::unique_ptr<SkBitmap> result(new SkBitmap);
+    result->allocPixelsFlags(image_info, SkBitmap::kZeroPixels_AllocFlag);
+
+    SkCanvas canvas(*result);
+    canvas.clear(SK_ColorWHITE);
+
+    const SkPixmap& pixmap = bmp.pixmap();
+    for (int y = 0; y < input_size.fHeight; y++) {
+        for (int x = 0; x < input_size.fWidth; x++) {
+            SkColor c = pixmap.getColor(x, y);
+            if (c != SK_ColorWHITE && SkColorGetA(c) > 0) {
+                *result->getAddr32(x, y) = SK_ColorBLACK;
+            }
+        }
+    }
+
+    return result;
+}
+
+bool GMVerifier::bitmapsEqual(const SkBitmap& a, const SkBitmap& b) {
+    const SkISize a_size = a.info().bounds().size();
+    const SkISize b_size = b.info().bounds().size();
+
+    if (!a_size.equals(b_size.fWidth, b_size.fHeight))
+        return false;
+
+    const SkPixmap& a_pixmap = a.pixmap();
+    const SkPixmap& b_pixmap = b.pixmap();
+    for (int y = 0; y < b_size.fHeight; y++) {
+        for (int x = 0; x < b_size.fWidth; x++) {
+            if (b_pixmap.getColor(x, y) != a_pixmap.getColor(x, y)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool GMVerifier::allPixelsAreInMask(SkBitmap& a, SkBitmap& mask) {
+    const SkColor background_color = SK_ColorWHITE;
+    const SkISize a_size = a.info().bounds().size();
+    const SkISize mask_size = mask.info().bounds().size();
+
+    const uint8_t color_dist_threshold = 16;
+    const uint32_t failed_pixel_threshold = static_cast<uint32_t>(0.01 * a_size.area());
+
+    if (!a_size.equals(mask_size.fWidth, mask_size.fHeight)) {
+        return false;
+    }
+
+    uint32_t num_failed_pixels = 0;
+    for (int y = 0; y < mask_size.fHeight; y++) {
+        for (int x = 0; x < mask_size.fWidth; x++) {
+            const SkColor c = a.getColor(x, y);
+            const uint32_t distance_from_bg = colorDist(c, background_color);
+            if (distance_from_bg > color_dist_threshold &&
+                !colorInNeighborhood(mask, x, y, SK_ColorBLACK)) {
+                // Test image drew a pixel that gold image did not (approximately).
+                num_failed_pixels++;
+                a.erase(SK_ColorRED, SkIRect::MakeLTRB(x, y, x + 1, y + 1));
+            }
+        }
+    }
+
+    return num_failed_pixels < failed_pixel_threshold;
+}
+
+bool GMVerifier::colorInNeighborhood(const SkBitmap& bitmap, int x, int y, SkColor color, int n) {
+    const SkIRect bounds = bitmap.bounds();
+    const int minX = std::max(x - n, bounds.fLeft),
+        maxX = std::min(x + n, bounds.fRight - 1),
+        minY = std::max(y - n, bounds.fTop),
+        maxY = std::min(y + n, bounds.fBottom - 1);
+
+    for (int i = minY; i <= maxY; i++) {
+        for (int j = minX; j <= maxX; j++) {
+            if (color == bitmap.getColor(j, i)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+uint32_t GMVerifier::colorDist(SkColor a, SkColor b) {
+    const auto abs_delta = [](uint8_t x, uint8_t y) {
+        return x < y ? y - x : x - y;
+    };
+
+    const uint8_t a_a = SkColorGetA(a),
+        a_r = SkColorGetR(a),
+        a_g = SkColorGetG(a),
+        a_b = SkColorGetB(a);
+    const uint8_t b_a = SkColorGetA(b),
+        b_r = SkColorGetR(b),
+        b_g = SkColorGetG(b),
+        b_b = SkColorGetB(b);
+
+    const uint32_t da = abs_delta(a_a, b_a);
+    const uint32_t dr = abs_delta(a_r, b_r);
+    const uint32_t dg = abs_delta(a_g, b_g);
+    const uint32_t db = abs_delta(a_b, b_b);
+
+    return da + dr + dg + db;
+}
+
+// ~~~~~~~~~~~~~~~~~~ End Verifier ~~~~~~~~~~~~~~~~~~
+
 GM::GM(SkColor bgColor) {
     fMode = kGM_Mode;
     fBGColor = bgColor;
@@ -142,6 +299,10 @@ bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 
 bool GM::runAsBench() const { return false; }
 void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+std::unique_ptr<GMVerifier> GM::getVerifier() {
+    return std::unique_ptr<GMVerifier>(new GMVerifier);
+}
 
 void GM::onOnceBeforeDraw() {}
 

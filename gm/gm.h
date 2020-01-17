@@ -20,8 +20,10 @@
 
 class GrContext;
 class GrRenderTargetContext;
+class SkBitmap;
 class SkCanvas;
 class SkMetaData;
+class SkPixmap;
 struct GrContextOptions;
 
 #define DEF_GM(CODE) \
@@ -85,6 +87,48 @@ struct GrContextOptions;
 
 namespace skiagm {
 
+    // ~~~~~~~~~~~~~~~~~~ Verifier ~~~~~~~~~~~~~~~~~~
+
+    enum class VerifierResult {
+        kOk,
+        kFail
+    };
+
+    class GMVerifier {
+    public:
+        virtual ~GMVerifier();
+
+        virtual VerifierResult verify(const SkBitmap& gold, const SkBitmap& actual);
+
+        const SkBitmap* goldStageImg() const;
+
+        const SkBitmap* actualStageImg() const;
+
+    protected:
+        std::unique_ptr<SkBitmap> fGoldStageImg;
+        std::unique_ptr<SkBitmap> fActualStageImg;
+
+        VerifierResult defaultVerify(const SkBitmap& gold, const SkBitmap& actual);
+
+        std::unique_ptr<SkBitmap> duplicate(const SkBitmap& bmp);
+
+        std::unique_ptr<SkBitmap> mask(const SkBitmap& bmp);
+
+        static bool bitmapsEqual(const SkBitmap& a, const SkBitmap& b);
+
+        static bool allPixelsAreInMask(SkBitmap& a, SkBitmap& mask);
+
+        static bool colorInNeighborhood(const SkBitmap& bitmap,
+                                        int x,
+                                        int y,
+                                        SkColor color,
+                                        int n = 2);
+
+        static uint32_t colorDist(SkColor a, SkColor b);
+    };
+
+    // ~~~~~~~~~~~~~~~~~~ End Verifier ~~~~~~~~~~~~~~~~~~
+
     enum class DrawResult {
         kOk,  // Test drew successfully.
         kFail,  // Test failed to draw.
@@ -147,6 +191,8 @@ namespace skiagm {
         void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
 
         virtual void modifyGrContextOptions(GrContextOptions*);
+
+        std::unique_ptr<GMVerifier> getVerifier();
 
     protected:
         virtual void onOnceBeforeDraw();
