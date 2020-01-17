@@ -18,10 +18,13 @@ class SkImage_GpuYUVA;
     is kAllow the image's ID is used for the cache key. */
 class GrImageTextureMaker : public GrTextureMaker {
 public:
-    GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
+    static GrImageTextureMaker Make(GrRecordingContext* context, const SkImage* client,
+                                    SkImage::CachingHint chint, bool useDecal = false);
+
+private:
+    GrImageTextureMaker(GrRecordingContext* context, const SkImage_Lazy* client, GrColorType,
                         SkImage::CachingHint chint, bool useDecal = false);
 
-protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
@@ -31,7 +34,6 @@ protected:
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
 
-private:
     const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
     SkImage::CachingHint    fCachingHint;
