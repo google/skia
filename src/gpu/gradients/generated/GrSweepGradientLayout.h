@@ -25,12 +25,12 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SweepGradientLayout"; }
     GrCoordTransform fCoordTransform0;
-    SkMatrix44 gradientMatrix;
+    SkMatrix gradientMatrix;
     float bias;
     float scale;
 
 private:
-    GrSweepGradientLayout(SkMatrix44 gradientMatrix, float bias, float scale)
+    GrSweepGradientLayout(SkMatrix gradientMatrix, float bias, float scale)
             : INHERITED(kGrSweepGradientLayout_ClassID,
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
             , fCoordTransform0(gradientMatrix)
