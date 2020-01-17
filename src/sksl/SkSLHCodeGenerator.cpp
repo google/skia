@@ -245,7 +245,7 @@ void HCodeGenerator::writeConstructor() {
                          FieldName(s.fArgument.c_str()).c_str());
         }
         else {
-            this->writef("\n    , %s(%s)", field.c_str(), s.fText.c_str());
+            this->writef("\n    , %s(SkMatrix(%s))", field.c_str(), s.fText.c_str());
         }
     }
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
