@@ -9,6 +9,7 @@
 
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
+#include "include/utils/SkTextUtils.h"
 
 #include "include/c/sk_font.h"
 
@@ -171,4 +172,9 @@ void sk_font_get_paths(const sk_font_t* font, uint16_t glyphs[], int count, cons
 
 float sk_font_get_metrics(const sk_font_t* font, sk_fontmetrics_t* metrics) {
     return AsFont(font)->getMetrics(AsFontMetrics(metrics));
+}
+
+
+void sk_text_utils_get_path(const void* text, size_t length, sk_text_encoding_t encoding, float x, float y, const sk_font_t* font, sk_path_t* path) {
+    SkTextUtils::GetPath(text, length, (SkTextEncoding)encoding, x, y, *AsFont(font), AsPath(path));
 }
