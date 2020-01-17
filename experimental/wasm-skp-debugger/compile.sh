@@ -66,7 +66,7 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\",\"USE_FREETYPE=1\",\"-s\",\"USE_LIBPNG=1\", \"-s\", \"WARN_UNALIGNED=1\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
@@ -90,10 +90,11 @@ echo "Compiling bitcode"
   skia_use_wuffs=true \
   skia_use_lua=false \
   skia_use_piex=false \
-  skia_use_system_libpng=true \
-  skia_use_system_freetype2=true \
+  skia_use_system_libpng=false \
+  skia_use_system_freetype2=false \
   skia_use_system_libjpeg_turbo = false \
   skia_use_system_libwebp=false \
+  skia_use_system_zlib=false\
   skia_use_vulkan=false \
   skia_use_zlib=true \
   skia_enable_gpu=true \
@@ -136,11 +137,7 @@ ${EMCXX} \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
     -s TOTAL_MEMORY=128MB \
-    -s USE_FREETYPE=1 \
-    -s USE_LIBPNG=1 \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -s USE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js
-
-# TODO(nifong): write unit tests
