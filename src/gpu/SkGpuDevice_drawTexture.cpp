@@ -568,6 +568,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(
                     textures[i].fProxyView.proxy(),
                     textures[base].fProxyView.proxy()) ||
+             textures[i].fProxyView.swizzle() != textures[base].fProxyView.swizzle() ||
              set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
              !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
             draw(i);
