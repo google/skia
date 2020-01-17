@@ -175,12 +175,8 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
                                                                 float sigma,
                                                                 SkIRect* contentRect,
                                                                 SkTileMode mode,
-                                                                int finalW,
-                                                                int finalH,
                                                                 sk_sp<SkColorSpace> finalCS,
                                                                 SkBackingFit fit) {
-    SkASSERT(srcRect.width() <= finalW && srcRect.height() <= finalH);
-
     auto dstRenderTargetContext = GrRenderTargetContext::Make(
             context, srcColorType, std::move(finalCS), fit, srcRect.size(), 1,
             GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
@@ -188,14 +184,12 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
         return nullptr;
     }
 
-    GrFixedClip clip(SkIRect::MakeWH(finalW, finalH));
-
     SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
     SkIPoint netOffset = srcOffset - proxyOffset;
     if (SkTileMode::kClamp == mode && proxyOffset.isZero() &&
         contentRect->contains(SkIRect::MakeSize(srcProxy->backingStoreDimensions()))) {
         *contentRect = dstRect;
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), GrNoClip(), dstRect, netOffset,
                              std::move(srcProxy), srcAlphaType, direction, radius, sigma,
                              SkTileMode::kClamp, nullptr);
         return dstRenderTargetContext;
@@ -252,16 +246,16 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
 
     if (midRect.isEmpty()) {
         // Blur radius covers srcBounds; use bounds over entire draw
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, dstRect, netOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), GrNoClip(), dstRect, netOffset,
                              std::move(srcProxy), srcAlphaType, direction, radius, sigma, mode,
                              bounds);
     } else {
         // Draw right and left margins with bounds; middle without.
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, leftRect, netOffset, srcProxy,
-                             srcAlphaType, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, rightRect, netOffset, srcProxy,
-                             srcAlphaType, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), clip, midRect, netOffset,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), GrNoClip(), leftRect, netOffset,
+                             srcProxy, srcAlphaType, direction, radius, sigma, mode, bounds);
+        convolve_gaussian_1d(dstRenderTargetContext.get(), GrNoClip(), rightRect, netOffset,
+                             srcProxy, srcAlphaType, direction, radius, sigma, mode, bounds);
+        convolve_gaussian_1d(dstRenderTargetContext.get(), GrNoClip(), midRect, netOffset,
                              std::move(srcProxy), srcAlphaType, direction, radius, sigma,
                              SkTileMode::kClamp, nullptr);
     }
@@ -419,8 +413,6 @@ std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingContext* con
                                                          SkAlphaType srcAlphaType,
                                                          sk_sp<SkColorSpace> colorSpace,
                                                          SkIPoint proxyOffset,
-                                                         int finalW,
-                                                         int finalH,
                                                          SkIRect srcRect,
                                                          SkIPoint srcOffset,
                                                          SkIRect* srcBounds,
@@ -438,10 +430,9 @@ std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingContext* con
 
     std::unique_ptr<GrRenderTargetContext> dstRenderTargetContext;
     if (sigmaX > 0.0f) {
-        dstRenderTargetContext =
-                convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                  proxyOffset, srcRect, srcOffset, Direction::kX, radiusX, sigmaX,
-                                  srcBounds, mode, finalW, finalH, colorSpace, xFit);
+        dstRenderTargetContext = convolve_gaussian(
+                context, std::move(srcProxy), srcColorType, srcAlphaType, proxyOffset, srcRect,
+                srcOffset, Direction::kX, radiusX, sigmaX, srcBounds, mode, colorSpace, xFit);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -453,10 +444,9 @@ std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingContext* con
     }
 
     if (sigmaY > 0.0f) {
-        dstRenderTargetContext =
-                convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                  proxyOffset, srcRect, srcOffset, Direction::kY, radiusY, sigmaY,
-                                  srcBounds, mode, finalW, finalH, colorSpace, yFit);
+        dstRenderTargetContext = convolve_gaussian(
+                context, std::move(srcProxy), srcColorType, srcAlphaType, proxyOffset, srcRect,
+                srcOffset, Direction::kY, radiusY, sigmaY, srcBounds, mode, colorSpace, yFit);
     }
 
     SkASSERT(!dstRenderTargetContext || dstRenderTargetContext->origin() == srcProxy->origin());
@@ -517,9 +507,8 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         auto srcRect = SkIRect::MakeWH(finalW, finalH);
         scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
         auto rtc = two_pass_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                     colorSpace, {0, 0}, finalW, finalH, srcRect,
-                                     srcOffset, &localSrcBounds, sigmaX, sigmaY, radiusX, radiusY,
-                                     mode, SkBackingFit::kApprox);
+                                     colorSpace, {0, 0}, srcRect, srcOffset, &localSrcBounds,
+                                     sigmaX, sigmaY, radiusX, radiusY, mode, SkBackingFit::kApprox);
         if (!rtc) {
             return nullptr;
         }
@@ -529,7 +518,7 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
 
     auto srcRect = SkIRect::MakeWH(finalW, finalH);
     return two_pass_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                             std::move(colorSpace), proxyOffset, finalW, finalH, srcRect, srcOffset,
+                             std::move(colorSpace), proxyOffset, srcRect, srcOffset,
                              &localSrcBounds, sigmaX, sigmaY, radiusX, radiusY, mode, fit);
 }
 }
