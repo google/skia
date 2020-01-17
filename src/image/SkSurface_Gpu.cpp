@@ -584,6 +584,10 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
 
 bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTarget& rt,
                                     GrColorType grCT) {
+    if (rt.width() == 0 || rt.height() == 0) {
+        return false;
+    }
+
     if (!caps->areColorTypeAndFormatCompatible(grCT, rt.getBackendFormat())) {
         return false;
     }
