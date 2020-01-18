@@ -7,6 +7,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 #include "include/c/sk_types.h"
 #include "include/c/sk_general.h"
@@ -52,4 +53,12 @@ void sk_nvrefcnt_safe_unref(sk_nvrefcnt_t* refcnt) {
 
 sk_colortype_t sk_colortype_get_default_8888() {
     return (sk_colortype_t)SkColorType::kN32_SkColorType;
+}
+
+gr_pixelconfig_t sk_colortype_to_gr_pixelconfig(sk_colortype_t colorType) {
+    return (gr_pixelconfig_t)GrColorTypeToPixelConfig(SkColorTypeToGrColorType((SkColorType)colorType));
+}
+
+sk_colortype_t gr_pixelconfig_to_sk_colortype(gr_pixelconfig_t pixelConfig) {
+    return (sk_colortype_t)GrColorTypeToSkColorType(GrPixelConfigToColorType((GrPixelConfig)pixelConfig));
 }
