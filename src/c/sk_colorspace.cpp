@@ -43,6 +43,7 @@ sk_colorspace_t* sk_colorspace_new_icc(const void* input, size_t len) {
     if (skcms_Parse(input, len, &profile)) {
         return ToColorSpace(SkColorSpace::Make(profile).release());
     }
+    return nullptr;
 }
 
 bool sk_colorspace_gamma_close_to_srgb(const sk_colorspace_t* colorspace) {

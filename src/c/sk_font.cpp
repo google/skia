@@ -152,7 +152,7 @@ void sk_font_get_xpos(const sk_font_t* font, const uint16_t glyphs[], int count,
 }
 
 bool sk_font_get_path(const sk_font_t* font, uint16_t glyph, sk_path_t* path) {
-    AsFont(font)->getPath(glyph, AsPath(path));
+    return AsFont(font)->getPath(glyph, AsPath(path));
 }
 
 void sk_font_get_paths(const sk_font_t* font, uint16_t glyphs[], int count, const sk_glyph_path_proc glyphPathProc, void* context) {
@@ -163,8 +163,10 @@ void sk_font_get_paths(const sk_font_t* font, uint16_t glyphs[], int count, cons
 
     auto proc = [](const SkPath* p, const SkMatrix& m, void* c) {
         Pair* pair = static_cast<Pair*>(c);
-        if (pair->fProc)
-            pair->fProc(ToPath(p), &ToMatrix(m), pair->fContext);
+        if (pair->fProc) {
+            sk_matrix_t cm = ToMatrix(m);
+            pair->fProc(ToPath(p), &cm, pair->fContext);
+        }
     };
 
     AsFont(font)->getPaths(glyphs, count, proc, &pair);
