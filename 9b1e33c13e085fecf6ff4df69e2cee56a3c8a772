@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a1023dc_ac78a118",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-18T01:28:13Z",
+      "side": 1,
+      "message": "Nothing to do with any notion of universal style. I passed it by value since I\u0027d need a local copy to modify it in the function anyway and one of the things I found hard to read about the old code were all the modifiable copies of const\u0026 params.",
+      "parentUuid": "8833f64e_97fd3880",
+      "range": {
+        "startLine": 424,
+        "startChar": 57,
+        "endLine": 424,
+        "endChar": 64
+      },
+      "revId": "9b1e33c13e085fecf6ff4df69e2cee56a3c8a772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed325215_d470f842",
         "filename": "src/core/SkGpuBlurUtils.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "9b1e33c13e085fecf6ff4df69e2cee56a3c8a772",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "560de903_68ffe3fa",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-18T01:28:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed325215_d470f842",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 527,
+        "endChar": 91
+      },
+      "revId": "9b1e33c13e085fecf6ff4df69e2cee56a3c8a772",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
