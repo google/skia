@@ -358,10 +358,6 @@ class SamplePointLight3D : public Sample3DView {
 
     bool onChar(SkUnichar uni) override {
         switch (uni) {
-            case 'X': fLight.fPos.x += 10; return true;
-            case 'x': fLight.fPos.x -= 10; return true;
-            case 'Y': fLight.fPos.y += 10; return true;
-            case 'y': fLight.fPos.y -= 10; return true;
             case 'Z': fLight.fPos.z += 10; return true;
             case 'z': fLight.fPos.z -= 10; return true;
         }
@@ -439,3 +435,193 @@ class SamplePointLight3D : public Sample3DView {
     }
 };
 DEF_SAMPLE( return new SamplePointLight3D(); )
+
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkSurface.h"
+
+static sk_sp<SkImage> make_bump(sk_sp<SkImage> src) {
+    src = src->makeRasterImage();
+
+    SkPixmap s;
+    SkAssertResult(src->peekPixels(&s));
+
+    SkImageInfo info = SkImageInfo::Make(src->width(), src->height(),
+                                         kR8G8_unorm_SkColorType, kOpaque_SkAlphaType);
+
+    size_t rb = info.minRowBytes();
+    auto data = SkData::MakeUninitialized(rb * info.height());
+    SkPixmap d = { info, data->writable_data(), rb };
+
+    const int W = src->width();
+    const int H = src->height();
+
+    for (int y = 0; y < H; ++y) {
+        int y1 = y == H-1 ? 0 : y + 1;
+        for (int x = 0; x < W; ++x) {
+            int x1 = x == W-1 ? 0 : x + 1;
+
+            auto lum = [](SkPMColor c) {
+                return SkGetPackedR32(c);
+                return (SkGetPackedR32(c) * 2 + SkGetPackedG32(c) * 5 + SkGetPackedB32(c)) >> 3;
+            };
+
+            int s00 = lum(*s.addr32(x,  y)),
+                s01 = lum(*s.addr32(x1, y)),
+                s10 = lum(*s.addr32(x, y1));
+
+            auto delta_lum_to_byte = [](int d) {
+                SkASSERT(d >= -255 && d <= 255);
+                d >>= 1;
+                if (d < 0) {
+                    d += 255;
+                }
+                SkASSERT(d >= 0 && d <= 255);
+                return d;
+            };
+
+            int dx = delta_lum_to_byte(s01 - s00);
+            int dy = delta_lum_to_byte(s10 - s00);
+            *d.writable_addr16(x, y) = (dx << 8) | dy;
+        }
+    }
+    return SkImage::MakeRasterData(info, data, rb);
+}
+
+class SampleBump3D : public Sample3DView {
+    SkRRect fRR;
+    LightPos fLight = {{200, 200, 800, 1}, 8};
+
+    sk_sp<SkShader> fBmpShader, fImgShader;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    SkM44 fWorldToClick,
+          fClickToWorld;
+
+    SkString name() override { return SkString("bump3d"); }
+
+    void onOnceBeforeDraw() override {
+        fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
+        auto img = GetResourceAsImage("images/brickwork-texture.jpg");
+        fImgShader = img->makeShader(SkMatrix::MakeScale(2, 2));
+        fBmpShader = make_bump(img)->makeShader(SkMatrix::MakeScale(2, 2));
+
+        const char code[] = R"(
+            in fragmentProcessor color_map;
+            in fragmentProcessor bump_map;
+
+            uniform float4x4 localToWorld;
+            uniform float3   lightPos;
+
+            float convert_bump_to_delta(float bump) {
+                if (bump > 0.5) {
+                    bump -= 1;
+                }
+                return bump * 6;
+            }
+
+            void main(float x, float y, inout half4 color) {
+                half4 bmp = sample(bump_map);
+
+                float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
+
+                float3 plane_norm = (localToWorld * float4(
+                     convert_bump_to_delta(bmp.r),
+                     convert_bump_to_delta(bmp.g),
+                     1, 0)).xyz;
+                plane_norm = normalize(plane_norm);
+
+                float3 light_dir = normalize(lightPos - plane_pos);
+                float ambient = 0.4;
+                float dp = dot(plane_norm, light_dir);
+                float scale = min(ambient + max(dp, 0), 2);
+
+                color = sample(color_map) * half4(float4(scale, scale, scale, 1));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    bool onChar(SkUnichar uni) override {
+        switch (uni) {
+            case 'Z': fLight.fPos.z += 10; return true;
+            case 'z': fLight.fPos.z -= 10; return true;
+        }
+        return this->Sample3DView::onChar(uni);
+    }
+
+    void drawContent(SkCanvas* canvas, const SkMatrix44& m, SkColor color) {
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
+
+        canvas->experimental_concat44(trans * fRot * m * inv(trans));
+
+        // wonder if the runtimeeffect can do this reject? (in a setup function)
+        if (!front(canvas->experimental_getLocalToDevice())) {
+            return;
+        }
+
+        struct Uniforms {
+            SkM44  fLocalToWorld;
+            SkV3   fLightPos;
+        } uni;
+        uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLightPos     = {fLight.fPos.x, fLight.fPos.y, fLight.fPos.z};
+        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+        sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
+
+        SkPaint paint;
+        paint.setColor(color);
+        paint.setShader(fEffect->makeShader(data, children, 2, nullptr, true));
+
+        canvas->drawRRect(fRR, paint);
+    }
+
+    void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
+        auto l2d = canvas->experimental_getLocalToDevice();
+        fWorldToClick = inv(clickM) * l2d;
+        fClickToWorld = inv(fWorldToClick);
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        if (canvas->getGrContext() == nullptr) {
+            return;
+        }
+        SkM44 clickM = canvas->experimental_getLocalToDevice();
+
+        canvas->save();
+        canvas->translate(400, 300);
+
+        this->saveCamera(canvas, {0, 0, 400, 400}, 200);
+
+        this->setClickToWorld(canvas, clickM);
+
+        for (auto f : faces) {
+            SkAutoCanvasRestore acr(canvas, true);
+            this->drawContent(canvas, f.asM44(200), f.fColor);
+        }
+
+        fLight.draw(canvas);
+        canvas->restore();
+        canvas->restore();
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        auto L = fWorldToClick * fLight.fPos;
+        SkPoint c = project(fClickToWorld, {x, y, L.z/L.w, 1});
+        if (fLight.hitTest(c.fX, c.fY)) {
+            return new Click();
+        }
+        return nullptr;
+    }
+    bool onClick(Click* click) override {
+        auto L = fWorldToClick * fLight.fPos;
+        SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
+        fLight.update(c.fX, c.fY);
+        return true;
+    }
+};
+DEF_SAMPLE( return new SampleBump3D(); )
