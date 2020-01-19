@@ -74,7 +74,6 @@ uniform half blurRadius;
                                                    std::move(srcProxy),
                                                    rtc->colorInfo().colorType(),
                                                    rtc->colorInfo().alphaType(),
-                                                   SkIPoint::Make(0, 0),
                                                    nullptr,
                                                    SkIRect::MakeSize(dimensions),
                                                    SkIRect::MakeSize(dimensions),
