@@ -200,16 +200,6 @@ private:
     uint64_t data_;
 };
 
-// Simple union to store various types as uint64_t.
-union TraceValueUnion {
-  bool as_bool;
-  uint64_t as_uint;
-  long long as_int;
-  double as_double;
-  const void* as_pointer;
-  const char* as_string;
-};
-
 // Simple container for const char* that should be copied instead of retained.
 class TraceStringWithCopy {
  public:
