@@ -198,8 +198,8 @@ static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
     SkMScalar dstA[4], dstB[4];
 
     for (int i = 0; i < 4; ++i) {
-        dstA[i] = SkDoubleToMScalar(123456789);
-        dstB[i] = SkDoubleToMScalar(987654321);
+        dstA[i] = 123456789;
+        dstB[i] = 987654321;
     }
 
     mat.map2(src2, 1, dstA);
@@ -809,12 +809,12 @@ static void test_toint(skiatest::Reporter* reporter) {
     SkMatrix44 mat;
     mat.setScale(3, 3, 3);
 
-    SkMScalar sum = SkMScalarFloor(mat.get(0, 0)) +
-                    SkMScalarRound(mat.get(1, 0)) +
-                    SkMScalarCeil(mat.get(2, 0));
-    int isum =      SkMScalarFloorToInt(mat.get(0, 1)) +
-                    SkMScalarRoundToInt(mat.get(1, 2)) +
-                    SkMScalarCeilToInt(mat.get(2, 3));
+    SkScalar sum = SkScalarFloorToScalar(mat.get(0, 0)) +
+                   SkScalarRoundToScalar(mat.get(1, 0)) +
+                   SkScalarCeilToScalar(mat.get(2, 0));
+    int isum =     SkScalarFloorToInt(mat.get(0, 1)) +
+                   SkScalarRoundToInt(mat.get(1, 2)) +
+                   SkScalarCeilToInt(mat.get(2, 3));
     REPORTER_ASSERT(reporter, sum >= 0);
     REPORTER_ASSERT(reporter, isum >= 0);
     REPORTER_ASSERT(reporter, static_cast<SkMScalar>(isum) == SkIntToMScalar(isum));
@@ -854,7 +854,7 @@ DEF_TEST(Matrix44, reporter) {
 
     // test tiny-valued matrix inverse
     mat.reset();
-    auto v = SkDoubleToMScalar(1.0e-12);
+    auto v = 1.0e-12f;
     mat.setScale(v,v,v);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
@@ -866,14 +866,10 @@ DEF_TEST(Matrix44, reporter) {
 
     // test mixed-valued matrix inverse
     mat.reset();
-    mat.setScale(SkDoubleToMScalar(1.0e-2),
-                 SkDoubleToMScalar(3.0),
-                 SkDoubleToMScalar(1.0e+2));
+    mat.setScale(1.0e-2f, 3.0f, 1.0e+2f);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    mat.postTranslate(SkDoubleToMScalar(1.0e+2),
-                      SkDoubleToMScalar(3.0),
-                      SkDoubleToMScalar(1.0e-2));
+    mat.postTranslate(1.0e+2f, 3.0f, 1.0e-2f);
     REPORTER_ASSERT(reporter, mat.invert(nullptr));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
