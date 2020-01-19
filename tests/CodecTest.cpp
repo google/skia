@@ -40,6 +40,7 @@
 #include "src/core/SkMD5.h"
 #include "src/core/SkMakeUnique.h"
 #include "src/core/SkStreamPriv.h"
+#include "tests/CodecPriv.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -60,6 +61,65 @@
     // The parts that are broken are likely not used by Google3.
     #define SK_PNG_DISABLE_TESTS
 #endif
+
+DEF_TEST(Codec_sample, r) {
+    auto data = GetResourceAsData("images/sample_1mp.dng");
+    if (!data) {
+        ERRORF(r, "Failed to get file!");
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromData(std::move(data));
+    if (!codec) {
+        ERRORF(r, "Failed to create a codec");
+        return;
+    }
+
+    SkISize targetSize = { 75, 42 }, decodeSize = targetSize;
+    SkImageInfo targetInfo = codec->getInfo().makeDimensions(targetSize);
+
+    int sampleSize = codec->computeSampleSize(&decodeSize);
+    SkImageInfo decodeInfo = codec->getInfo().makeDimensions(decodeSize);
+
+    size_t rowBytes = targetInfo.minRowBytes() * 1.5;
+    void* pixels = sk_malloc_flags(rowBytes * (targetSize.height() - 1) + targetInfo.minRowBytes(),
+                                   0);
+
+    size_t decodeRowBytes = rowBytes;
+    void* decodePixels = pixels;
+    SkBitmap tmp;
+    bool scale = decodeSize != targetSize;
+    REPORTER_ASSERT(r, scale);
+
+    if (scale) {
+        tmp.allocPixels(decodeInfo);
+
+        decodePixels = tmp.getPixels();
+        decodeRowBytes = tmp.rowBytes();
+    }
+
+    SkAndroidCodec::AndroidOptions options;
+    options.fSampleSize = sampleSize;
+    auto result = codec->getAndroidPixels(decodeInfo, decodePixels, decodeRowBytes, &options);
+    if (scale) {
+        SkBitmap scaledBm;
+        scaledBm.installPixels(targetInfo, pixels, rowBytes);
+
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
+        paint.setFilterQuality(kLow_SkFilterQuality);
+
+        SkCanvas canvas(scaledBm);
+        float scaleX = (float) targetSize.width() / decodeSize.width();
+        float scaleY = (float) targetSize.height() / decodeSize.height();
+        canvas.scale(scaleX, scaleY);
+
+        canvas.drawBitmap(tmp, 0.0f, 0.0f, &paint);
+        write_bm("sample_1_5.png", scaledBm);
+    }
+
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+}
 
 static SkMD5::Digest md5(const SkBitmap& bm) {
     SkASSERT(bm.getPixels());
