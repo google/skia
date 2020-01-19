@@ -887,7 +887,6 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
                                                             srcProxy,
                                                             srcColorType,
                                                             srcAlphaType,
-                                                            SkIPoint::Make(0, 0),
                                                             nullptr,
                                                             clipRect,
                                                             clipRect,
