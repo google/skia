@@ -304,16 +304,6 @@ public:
   (static_cast<unsigned int>(TRACE_EVENT_FLAG_SCOPE_OFFSET | \
                              TRACE_EVENT_FLAG_SCOPE_EXTRA))
 
-// Type values for identifying types in the TraceValue union.
-#define TRACE_VALUE_TYPE_BOOL (static_cast<unsigned char>(1))
-#define TRACE_VALUE_TYPE_UINT (static_cast<unsigned char>(2))
-#define TRACE_VALUE_TYPE_INT (static_cast<unsigned char>(3))
-#define TRACE_VALUE_TYPE_DOUBLE (static_cast<unsigned char>(4))
-#define TRACE_VALUE_TYPE_POINTER (static_cast<unsigned char>(5))
-#define TRACE_VALUE_TYPE_STRING (static_cast<unsigned char>(6))
-#define TRACE_VALUE_TYPE_COPY_STRING (static_cast<unsigned char>(7))
-#define TRACE_VALUE_TYPE_CONVERTABLE (static_cast<unsigned char>(8))
-
 // Enum reflecting the scope of an INSTANT event. Must fit within TRACE_EVENT_FLAG_SCOPE_MASK.
 #define TRACE_EVENT_SCOPE_GLOBAL (static_cast<unsigned char>(0 << 3))
 #define TRACE_EVENT_SCOPE_PROCESS (static_cast<unsigned char>(1 << 3))
