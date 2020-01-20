@@ -8,9 +8,9 @@
 #ifndef SkM44_DEFINED
 #define SkM44_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-class SkMatrix;
 class SkMatrix44;
 
 struct SkV3 {
@@ -47,6 +47,10 @@ struct SkV4 {
     bool operator==(const SkV4& v) const {
         return x == v.x && y == v.y && z == v.z && w == v.w;
     }
+
+    SkV4 operator-() const { return {-x, -y, -z, -w}; }
+    SkV4 operator+(const SkV4& v) const { return { x + v.x, y + v.y, z + v.z, w + v.w }; }
+    SkV4 operator-(const SkV4& v) const { return { x - v.x, y - v.y, z - v.z, w + v.w }; }
 };
 
 class SkM44 {

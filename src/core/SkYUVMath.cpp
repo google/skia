@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkMatrix44.h"
+#include "include/private/SkM44.h"
 #include "src/core/SkYUVMath.h"
 
 // in SkColorMatrix order (row-major)
@@ -106,17 +106,11 @@ void SkColorMatrix_YUV2RGB(SkYUVColorSpace cs, float m[20]) {
 //           |  3x3   tg |
 //           |        tb |
 //           | 0 0 0  1  |
-static void colormatrix_to_matrix44(const float src[20], SkMatrix44* dst) {
-    for (int r = 0; r < 3; ++r) {
-        for (int c = 0; c < 3; ++c) {
-            dst->set(r, c, src[r*5 + c]);
-        }
-        dst->set(r, 3, src[r*5 + 4]);
-    }
-    dst->set(3, 0, 0);
-    dst->set(3, 1, 0);
-    dst->set(3, 2, 0);
-    dst->set(3, 3, 1);
+static void colormatrix_to_matrix44(const float src[20], SkM44* dst) {
+    *dst = SkM44(src[ 0], src[ 1], src[ 2], src[ 4],
+                 src[ 5], src[ 6], src[ 7], src[ 9],
+                 src[10], src[11], src[12], src[14],
+                       0,       0,       0,       1);
 }
 
 // input: ignore the bottom row

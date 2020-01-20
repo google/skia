@@ -8,7 +8,7 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMatrix44.h"
+#include "include/private/SkM44.h"
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {

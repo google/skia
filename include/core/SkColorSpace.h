@@ -8,7 +8,6 @@
 #ifndef SkColorSpace_DEFINED
 #define SkColorSpace_DEFINED
 
-#include "include/core/SkMatrix44.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkOnce.h"
