@@ -787,8 +787,9 @@ void GrOpsTask::recordOp(
     // A closed GrOpsTask should never receive new/more ops
     SkASSERT(!this->isClosed());
     if (!op->bounds().isFinite()) {
-        fArenas.opMemoryPool()->release(std::move(op));
-        return;
+        SkDebugf("op bounds are not finite, NOT discarding\n");
+        // fArenas.opMemoryPool()->release(std::move(op));
+        // return;
     }
 
     // Account for this op's bounds before we attempt to combine.

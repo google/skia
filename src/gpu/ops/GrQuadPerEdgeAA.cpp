@@ -30,6 +30,7 @@ static void write_quad_generic(GrVertexWriter* vb, const GrQuadPerEdgeAA::Vertex
 
     SkASSERT(!spec.hasLocalCoords() || localQuad);
 
+    // SkDebugf("write_generic: [%.2f %.2f %.2f %.2f]\n", geomDomain.fLeft, geomDomain.fTop, geomDomain.fRight, geomDomain.fBottom);
     GrQuadPerEdgeAA::CoverageMode mode = spec.coverageMode();
     for (int i = 0; i < 4; ++i) {
         // save position, this is a float2 or float3 or float4 depending on the combination of
@@ -314,6 +315,7 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
     static const float kZeroCoverage[4] = {0.f, 0.f, 0.f, 0.f};
     static const SkRect kIgnoredDomain = SkRect::MakeEmpty();
 
+    SkDebugf("append quad tris, %d\n", fVertexSpec.usesCoverageAA());
     if (fVertexSpec.usesCoverageAA()) {
         SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kWithColor ||
                  fVertexSpec.coverageMode() == CoverageMode::kWithPosition);
@@ -350,21 +352,52 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
                                   (aaFlags & GrQuadAAFlags::kRight)  ? 0.5f : 0.f };
             }
 
+            // GrQuad q = *deviceQuad;
+            // SkDebugf("device quad:\n");
+            // SkDebugf("  0: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(0), q.y(0), q.w(0), q.x(0) / q.w(0), q.y(0) / q.w(0));
+            // SkDebugf("  1: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(1), q.y(1), q.w(1), q.x(1) / q.w(1), q.y(1) / q.w(1));
+            // SkDebugf("  2: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(2), q.y(2), q.w(2), q.x(2) / q.w(2), q.y(2) / q.w(2));
+            // SkDebugf("  3: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(3), q.y(3), q.w(3), q.x(3) / q.w(3), q.y(3) / q.w(3));
             // Write inner vertices first
             float coverage[4];
             fAAHelper.inset(edgeDistances, deviceQuad, localQuad).store(coverage);
             fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, coverage, color,
                        geomDomain, uvDomain);
-
+            // q = *deviceQuad;
+            // SkDebugf("inset quad:\n");
+            // SkDebugf("  0: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(0), q.y(0), q.w(0), q.x(0) / q.w(0), q.y(0) / q.w(0));
+            // SkDebugf("  1: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(1), q.y(1), q.w(1), q.x(1) / q.w(1), q.y(1) / q.w(1));
+            // SkDebugf("  2: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(2), q.y(2), q.w(2), q.x(2) / q.w(2), q.y(2) / q.w(2));
+            // SkDebugf("  3: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(3), q.y(3), q.w(3), q.x(3) / q.w(3), q.y(3) / q.w(3));
+            // SkDebugf("cov: %.2f %.2f %.2f %.2f\n", coverage[0], coverage[1], coverage[2], coverage[3]);
             // Then outer vertices, which use 0.f for their coverage
             fAAHelper.outset(edgeDistances, deviceQuad, localQuad);
             fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
                        geomDomain, uvDomain);
+            // q = *deviceQuad;
+            // SkDebugf("outset quad:\n");
+            // SkDebugf("  0: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(0), q.y(0), q.w(0), q.x(0) / q.w(0), q.y(0) / q.w(0));
+            // SkDebugf("  1: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(1), q.y(1), q.w(1), q.x(1) / q.w(1), q.y(1) / q.w(1));
+            // SkDebugf("  2: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(2), q.y(2), q.w(2), q.x(2) / q.w(2), q.y(2) / q.w(2));
+            // SkDebugf("  3: (%.2f %.2f %.2f) -> (%.2f %.2f)\n",
+            //          q.x(3), q.y(3), q.w(3), q.x(3) / q.w(3), q.y(3) / q.w(3));
         }
     } else {
         // No outsetting needed, just write a single quad with full coverage
         SkASSERT(fVertexSpec.coverageMode() == CoverageMode::kNone &&
                  !fVertexSpec.requiresGeometryDomain());
+
         fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
                    kIgnoredDomain, uvDomain);
     }
