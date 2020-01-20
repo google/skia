@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f292662_b0e82c15",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-20T14:02:08Z",
+      "side": 1,
+      "message": "Is this functionally the same as a GrNoClip(), since the renderTargetContext was created to be dstSize, and we\u0027re drawing SkRect::Make(dstSize)? Might be simpler to just pass that in.",
+      "range": {
+        "startLine": 149,
+        "startChar": 3,
+        "endLine": 149,
+        "endChar": 49
+      },
+      "revId": "f5c6936ae2d789a9cf38378efb12d9c774310076",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
