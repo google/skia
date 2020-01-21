@@ -23,7 +23,9 @@ public:
                           const skjson::ObjectValue* jprop,
                           std::function<void(const T&)>&& apply)
         : fApplyFunc(std::move(apply)) {
-        this->bind<T>(abuilder, jprop, &fValue);
+        if (!this->bind<T>(abuilder, jprop, &fValue)) {
+            fValue = T();
+        }
     }
 
     const T& value() const { return fValue; }
