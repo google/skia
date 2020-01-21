@@ -16,6 +16,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -345,9 +346,12 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
     desc.fWidth = 1;
     desc.fHeight = 1;
     desc.fConfig = mipmapProxy->config();
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mipmapProxy->backendFormat(),
+                                                               colorType);
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
-            mipmapProxy->backendFormat(), desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
-            GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+            mipmapProxy->backendFormat(), desc, swizzle, GrRenderable::kYes, 1,
+            kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
+            GrProtected::kNo);
 
     auto rtc = GrRenderTargetContext::Make(
             context, colorType, nullptr, std::move(renderTarget), kTopLeft_GrSurfaceOrigin,
@@ -393,9 +397,12 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         desc.fWidth = 4;
         desc.fHeight = 4;
         desc.fConfig = config;
+
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
+
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kYes,
-                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                format, desc, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
+                GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

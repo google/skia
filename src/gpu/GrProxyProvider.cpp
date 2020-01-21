@@ -425,6 +425,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
 
 sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format,
                                                    const GrSurfaceDesc& desc,
+                                                   GrSwizzle readSwizzle,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
                                                    GrSurfaceOrigin origin,
@@ -446,11 +447,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
         return nullptr;
     }
 
-    GrColorType colorType = GrPixelConfigToColorType(desc.fConfig);
-
-    SkASSERT(GrCaps::AreConfigsCompatible(desc.fConfig,
-                                          caps->getConfigFromBackendFormat(format, colorType)));
-
     if (GrMipMapped::kYes == mipMapped) {
         // SkMipMap doesn't include the base level in the level count so we have to add 1
         int mipCount = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
@@ -467,7 +463,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
     GrMipMapsStatus mipMapsStatus = (GrMipMapped::kYes == mipMapped)
             ? GrMipMapsStatus::kDirty
             : GrMipMapsStatus::kNotAllocated;
-    GrSwizzle readSwizzle = caps->getReadSwizzle(format, colorType);
     if (renderable == GrRenderable::kYes) {
         renderTargetSampleCnt =
                 caps->getRenderTargetSampleCount(renderTargetSampleCnt, format);

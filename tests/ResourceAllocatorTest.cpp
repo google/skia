@@ -41,8 +41,9 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
     desc.fConfig = config;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, p.fColorType);
 
-    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin,
+    return proxyProvider->createProxy(format, desc, swizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
                                       GrMipMapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
 }
 

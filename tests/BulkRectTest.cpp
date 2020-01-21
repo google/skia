@@ -26,9 +26,10 @@ sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
     const GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(
                                                                            GrColorType::kRGBA_8888,
                                                                            GrRenderable::kYes);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     return context->priv().proxyProvider()->createProxy(
-        format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+        format, desc, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
         SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 }
 

@@ -34,19 +34,20 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     if (!format.isValid()) {
         return nullptr;
     }
+    GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
 
     sk_sp<GrTextureProxy> proxy;
     GrSurfaceDesc desc;
     desc.fConfig = GrColorTypeToPixelConfig(imageInfo.colorType());
     desc.fWidth = imageInfo.width();
     desc.fHeight = imageInfo.height();
-    proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
-                                                         GrMipMapped::kNo, SkBackingFit::kExact,
-                                                         SkBudgeted::kYes, GrProtected::kNo);
+    proxy = context->priv().proxyProvider()->createProxy(format, desc, swizzle, renderable, 1,
+                                                         origin, GrMipMapped::kNo,
+                                                         SkBackingFit::kExact, SkBudgeted::kYes,
+                                                         GrProtected::kNo);
     if (!proxy) {
         return nullptr;
     }
-    GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
     GrSurfaceProxyView view(proxy, origin, swizzle);
     auto sContext = GrSurfaceContext::Make(context, std::move(view), imageInfo.colorType(),
                                            imageInfo.alphaType(), imageInfo.refColorSpace());

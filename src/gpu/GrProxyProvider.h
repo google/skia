@@ -82,6 +82,7 @@ public:
      */
     sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&,
                                       const GrSurfaceDesc&,
+                                      GrSwizzle readSwizzle,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
                                       GrSurfaceOrigin,

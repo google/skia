@@ -84,14 +84,15 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(
     desc.fHeight = dimensions.height();
     desc.fConfig = config;
 
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
+
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, renderable, renderTargetSampleCnt, origin, mipMapped, fit, budgeted,
-            isProtected);
+            format, desc, swizzle, renderable, renderTargetSampleCnt, origin, mipMapped, fit,
+            budgeted, isProtected);
     if (!proxy) {
         return nullptr;
     }
 
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     return GrSurfaceContext::Make(context, std::move(view), colorType, alphaType,
                                   std::move(colorSpace));
@@ -387,7 +388,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         GrSurfaceOrigin tempOrigin =
                 this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, GrRenderable::kNo, 1, tempOrigin, GrMipMapped::kNo,
+                format, desc, tempReadSwizzle, GrRenderable::kNo, 1, tempOrigin, GrMipMapped::kNo,
                 SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
         if (!tempProxy) {
             return false;

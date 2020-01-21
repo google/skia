@@ -1638,8 +1638,9 @@ static sk_sp<GrTextureProxy> make_mipmap_proxy(GrContext * context,
                                                                  GrRenderable::kNo);
     auto origin = renderable == GrRenderable::kYes ? kBottomLeft_GrSurfaceOrigin
                                                    : kTopLeft_GrSurfaceOrigin;
+    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
-    return proxyProvider->createProxy(format, desc, renderable, sampleCnt, origin,
+    return proxyProvider->createProxy(format, desc, swizzle, renderable, sampleCnt, origin,
                                       GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes,
                                       GrProtected::kNo);
 }

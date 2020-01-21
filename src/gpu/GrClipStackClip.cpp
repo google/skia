@@ -487,10 +487,13 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                GrRenderable::kNo);
 
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
+
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
         proxy = proxyProvider->createProxy(format,
                                            desc,
+                                           swizzle,
                                            GrRenderable::kNo,
                                            1,
                                            kTopLeft_GrSurfaceOrigin,

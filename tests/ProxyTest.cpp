@@ -139,6 +139,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                             if (!format.isValid()) {
                                 continue;
                             }
+                            GrSwizzle swizzle = caps.getReadSwizzle(format, ct);
 
                             // Renderable
                             {
@@ -154,8 +155,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                                        format, desc, GrRenderable::kYes, numSamples, origin,
-                                        GrMipMapped::kNo, fit, budgeted, GrProtected::kNo);
+                                        format, desc, swizzle, GrRenderable::kYes, numSamples,
+                                        origin, GrMipMapped::kNo, fit, budgeted, GrProtected::kNo);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
@@ -191,8 +192,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
-                                        format, desc, GrRenderable::kNo, numSamples, origin,
-                                        GrMipMapped::kNo, fit, budgeted, GrProtected::kNo));
+                                        format, desc, swizzle, GrRenderable::kNo, numSamples,
+                                        origin, GrMipMapped::kNo, fit, budgeted, GrProtected::kNo));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     // This forces the proxy to compute and cache its
@@ -393,9 +394,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                             context->priv().caps()->getDefaultBackendFormat(
                                 GrColorType::kRGBA_8888,
                                 renderable);
+                    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                            format, GrColorType::kRGBA_8888);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, desc, renderable, 1, kBottomLeft_GrSurfaceOrigin,
+                            format, desc, swizzle, renderable, 1, kBottomLeft_GrSurfaceOrigin,
                             GrMipMapped::kNo, fit, SkBudgeted::kNo, GrProtected::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }

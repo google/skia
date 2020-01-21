@@ -268,7 +268,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
-        proxies[0] = {proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes, 1,
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
+        proxies[0] = {proxyProvider->createProxy(format, dummyDesc, swizzle, GrRenderable::kYes, 1,
                                                  kBottomLeft_GrSurfaceOrigin, mipMapped,
                                                  SkBackingFit::kExact, SkBudgeted::kNo,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
@@ -284,7 +285,8 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);
-        proxies[1] = {proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo, 1,
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
+        proxies[1] = {proxyProvider->createProxy(format, dummyDesc, swizzle, GrRenderable::kNo, 1,
                                                  kTopLeft_GrSurfaceOrigin, mipMapped,
                                                  SkBackingFit::kExact, SkBudgeted::kNo,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),

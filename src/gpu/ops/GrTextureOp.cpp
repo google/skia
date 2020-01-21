@@ -1292,10 +1292,11 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kNo);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
+            format, desc, swizzle, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
             GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);
