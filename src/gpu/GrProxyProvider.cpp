@@ -369,18 +369,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     GrBackendFormat format = this->caps()->getDefaultBackendFormat(
             SkColorTypeToGrColorType(bitmap.info().colorType()), GrRenderable::kNo);
     if (!format.isValid()) {
-        SkBitmap copy8888;
-        if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
-            !bitmap.readPixels(copy8888.pixmap())) {
-            return nullptr;
-        }
-        copy8888.setImmutable();
-        baseLevel = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
-        format = this->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kNo);
-        if (!format.isValid()) {
-            return nullptr;
-        }
+        return nullptr;
     }
 
     SkPixmap pixmap;

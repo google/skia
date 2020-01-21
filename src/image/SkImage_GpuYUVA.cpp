@@ -16,6 +16,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkScopeExit.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -272,7 +273,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
     }
 
     // Make proxies
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> tempTextureProxies[4];
     GrColorType proxyColorTypes[4];
     for (int i = 0; i < numPixmaps; ++i) {
@@ -296,12 +296,13 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
         // Turn the pixmap into a GrTextureProxy
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
+        GrBitmapTextureMaker bitmapMaker(context, bmp, false, false);
         GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
-        tempTextureProxies[i] = proxyProvider->createProxyFromBitmap(bmp, mipMapped);
+        std::tie(tempTextureProxies[i], proxyColorTypes[i]) =
+                bitmapMaker.refTextureProxy(mipMapped);
         if (!tempTextureProxies[i]) {
             return nullptr;
         }
-        proxyColorTypes[i] = SkColorTypeToGrColorType(bmp.colorType());
     }
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageSize, kNeedNewImageUniqueID,

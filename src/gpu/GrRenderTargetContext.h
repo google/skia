@@ -489,7 +489,7 @@ public:
                           GrPaint&&,
                           const SkMatrix& viewMatrix,
                           GrSurfaceProxyView,
-                          GrColorType srcColorType,
+                          SkAlphaType alphaType,
                           sk_sp<GrColorSpaceXform>,
                           GrSamplerState::Filter,
                           std::unique_ptr<SkLatticeIter>,

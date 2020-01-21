@@ -241,13 +241,14 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
     if (attemptDrawTexture && can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = producer->refTextureProxyForParams(GrSamplerState::Filter::kNearest, nullptr);
+        auto [proxy, ct] = producer->refTextureProxy(GrMipMapped::kNo);
         if (!proxy) {
             return;
         }
 
         draw_texture(rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint,
-                     std::move(proxy), producer->colorInfo());
+                     std::move(proxy),
+                     {ct, producer->alphaType(), sk_ref_sp(producer->colorSpace())});
         return;
     }
 
@@ -403,7 +404,14 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
-        GrColorInfo colorInfo(image->imageInfo().colorInfo());
+        GrColorInfo colorInfo;
+        if (fContext->priv().caps()->isFormatSRGB(proxy->backendFormat())) {
+            SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, image->imageInfo().alphaType(),
+                                    image->imageInfo().refColorSpace());
+        } else {
+            colorInfo = GrColorInfo(image->imageInfo().colorInfo());
+        }
 
         if (attemptDrawTexture && can_use_draw_texture(paint)) {
             draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
