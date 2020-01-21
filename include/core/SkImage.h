@@ -260,16 +260,19 @@ public:
         SkImage is returned if format of the compressed data is supported.
         Supported formats vary by platform.
 
-        @param context  GPU context
-        @param data     compressed data to store in SkImage
-        @param width    width of full SkImage
-        @param height   height of full SkImage
-        @param type     type of compression used
-        @return         created SkImage, or nullptr
+        @param context     GPU context
+        @param data        compressed data to store in SkImage
+        @param width       width of full SkImage
+        @param height      height of full SkImage
+        @param type        type of compression used
+        @param mipMapped   does 'data' contain data for all the mipmap levels?
+        @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
+        @return            created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
                                              int width, int height, CompressionType type,
-                                             GrMipMapped mipMapped = GrMipMapped::kNo);
+                                             GrMipMapped mipMapped = GrMipMapped::kNo,
+                                             GrProtected isProtected = GrProtected::kNo);
 
     /** User function called when supplied texture may be deleted.
     */
