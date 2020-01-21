@@ -93,12 +93,11 @@ public:
         kLast_MapBufferType = kChromium_MapBufferType,
     };
 
-    enum TransferBufferType {
-        kNone_TransferBufferType,
-        kPBO_TransferBufferType,          // ARB_pixel_buffer_object
-        kChromium_TransferBufferType,     // CHROMIUM_pixel_transfer_buffer_object
-
-        kLast_TransferBufferType = kChromium_TransferBufferType,
+    enum class TransferBufferType {
+        kNone,
+        kNV_PBO,    // NV__pixel_buffer_object
+        kARB_PBO,   // ARB_pixel_buffer_object
+        kChromium,  // CHROMIUM_pixel_transfer_buffer_object
     };
 
     /**
