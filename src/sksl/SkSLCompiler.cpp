@@ -1481,8 +1481,9 @@ std::unique_ptr<Program> Compiler::specialize(
     for (auto iter = inputs.begin(); iter != inputs.end(); ++iter) {
         settings.fArgs.insert(*iter);
     }
+    std::unique_ptr<String> sourceCopy(new String(*program.fSource));
     std::unique_ptr<Program> result(new Program(program.fKind,
-                                                nullptr,
+                                                std::move(sourceCopy),
                                                 settings,
                                                 program.fContext,
                                                 program.fInheritedElements,
@@ -1621,9 +1622,12 @@ std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     if (!this->optimize(program)) {
         return nullptr;
     }
+    fSource = program.fSource.get();
     std::unique_ptr<ByteCode> result(new ByteCode());
     ByteCodeGenerator cg(fContext.get(), &program, this, result.get());
-    if (cg.generateCode()) {
+    bool success = cg.generateCode();
+    fSource = nullptr;
+    if (success) {
         return result;
     }
 #else

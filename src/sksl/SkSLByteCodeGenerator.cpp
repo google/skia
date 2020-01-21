@@ -19,12 +19,17 @@ static TypeCategory type_category(const Type& type) {
         default:
             if (type.fName == "bool") {
                 return TypeCategory::kBool;
-            } else if (type.fName == "int" || type.fName == "short") {
+            } else if (type.fName == "int" ||
+                       type.fName == "short" ||
+                       type.fName == "$intLiteral") {
                 return TypeCategory::kSigned;
-            } else if (type.fName == "uint" || type.fName == "ushort") {
+            } else if (type.fName == "uint" ||
+                       type.fName == "ushort") {
                 return TypeCategory::kUnsigned;
             } else {
-                SkASSERT(type.fName == "float" || type.fName == "half");
+                SkASSERT(type.fName == "float" ||
+                         type.fName == "half" ||
+                         type.fName == "$floatLiteral");
                 return TypeCategory::kFloat;
             }
             ABORT("unsupported type: %s\n", type.displayName().c_str());
@@ -979,7 +984,8 @@ void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
 void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
     auto found = fIntrinsics.find(c.fFunction.fName);
     if (found == fIntrinsics.end()) {
-        fErrors.error(c.fOffset, "unsupported intrinsic function");
+        fErrors.error(c.fOffset, String::printf("Unsupported intrinsic: '%s'",
+                                                String(c.fFunction.fName).c_str()));
         return;
     }
     int count = SlotCount(c.fArguments[0]->fType);

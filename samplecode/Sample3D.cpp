@@ -406,9 +406,6 @@ class SamplePointLight3D : public Sample3DView {
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        if (canvas->getGrContext() == nullptr) {
-            return;
-        }
         SkM44 clickM = canvas->experimental_getLocalToDevice();
 
         canvas->save();
