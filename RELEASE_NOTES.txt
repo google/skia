@@ -8,6 +8,8 @@ Milestone 81
 
 <Insert new notes here- top is most recent.>
 
+  * Removed support for sfntly PDF font subsetting in favor of Harfbuzz
+
   * Added support for BC1 RGBA compressed textures
 
   * Added CachingHint to SkImage::makeRasterImage

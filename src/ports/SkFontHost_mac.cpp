@@ -1789,9 +1789,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
     }
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
-    // fonts always have both glyf and loca tables. At the least, this is what
-    // sfntly needs to subset the font. CTFontCopyAttribute() does not always
-    // succeed in determining this directly.
+    // fonts always have both glyf and loca tables. CTFontCopyAttribute() does
+    // not always succeed in determining this directly.
     if (!this->getTableSize('glyf') || !this->getTableSize('loca')) {
         return info;
     }
