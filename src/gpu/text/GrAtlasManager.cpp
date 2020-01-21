@@ -22,6 +22,20 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrStrikeCache* gl
 
 GrAtlasManager::~GrAtlasManager() = default;
 
+static GrColorType mask_format_to_gr_color_type(GrMaskFormat format) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return GrColorType::kAlpha_8;
+        case kA565_GrMaskFormat:
+            return GrColorType::kBGR_565;
+        case kARGB_GrMaskFormat:
+            return GrColorType::kRGBA_8888;
+        default:
+            SkDEBUGFAIL("unsupported GrMaskFormat");
+            return GrColorType::kAlpha_8;
+    }
+}
+
 void GrAtlasManager::freeAll() {
     for (int i = 0; i < kMaskFormatCount; ++i) {
         fAtlases[i] = nullptr;
@@ -127,7 +141,7 @@ void GrAtlasManager::dump(GrContext* context) const {
 #else
                 filename.printf("fontcache_%d%d%d.png", gDumpCount, i, pageIdx);
 #endif
-                auto ct = GrMaskFormatToColorType(AtlasIndexToMaskFormat(i));
+                auto ct = mask_format_to_gr_color_type(AtlasIndexToMaskFormat(i));
                 save_pixels(context, views[pageIdx], ct, filename.c_str());
             }
         }
@@ -150,7 +164,7 @@ void GrAtlasManager::setAtlasDimensionsToMinimum_ForTesting() {
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
     if (fAtlases[index] == nullptr) {
-        GrColorType grColorType = GrMaskFormatToColorType(format);
+        GrColorType grColorType = mask_format_to_gr_color_type(format);
         SkISize atlasDimensions = fAtlasConfig.atlasDimensions(format);
         SkISize plotDimensions = fAtlasConfig.plotDimensions(format);
 
