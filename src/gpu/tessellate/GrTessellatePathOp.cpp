@@ -13,7 +13,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/tessellate/GrCoverShader.h"
 #include "src/gpu/tessellate/GrPathParser.h"
-#include "src/gpu/tessellate/GrTessellateWedgeShader.h"
+#include "src/gpu/tessellate/GrStencilPathShader.h"
 
 GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() const {
     auto flags = FixedFunctionFlags::kUsesStencil;
@@ -24,21 +24,51 @@ GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() 
 }
 
 void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
-    int maxVertexCount = GrPathParser::MaxPossibleWedgeVertices(fPath);
-    if (auto* wedgeData = (SkPoint*)state->makeVertexSpace(
-            sizeof(SkPoint), maxVertexCount, &fWedgeBuffer, &fBaseWedgeVertex)) {
-        if (!(fWedgeVertexCount = GrPathParser::EmitCenterWedges(fPath, wedgeData))) {
-            fWedgeBuffer.reset();
+    // First see if we should split up inner polygon triangles and curves, and triangulate the inner
+    // polygon(s) more efficiently. This causes greater CPU overhead due to the extra shaders and
+    // draw calls, but the better triangulation can reduce the rasterizer load by a great deal on
+    // complex paths.
+    const SkRect& bounds = fPath.getBounds();
+    float scale = fViewMatrix.getMaxScale();
+    // Raster-edge work is 1-dimensional, so we sum height and width rather than multiplying them.
+    float rasterEdgeWork = (bounds.height() + bounds.width()) * scale * fPath.countVerbs();
+    if (rasterEdgeWork > 1000 * 1000) {
+        int numCurves = 0;
+        int maxVertexCount = GrPathParser::MaxInnerPolygonVertices(fPath);
+        if (auto* triangleData = (SkPoint*)state->makeVertexSpace(
+                sizeof(SkPoint), maxVertexCount, &fPathVertexBuffer, &fBasePathVertex)) {
+            if ((fPathVertexCount =
+                     GrPathParser::EmitInnerPolygonTriangles(fPath, triangleData, &numCurves))) {
+                fPathShader = state->allocator()->make<GrStencilTriangleShader>(fViewMatrix);
+            } else {
+                fPathVertexBuffer.reset();
+            }
+            state->putBackVertices(maxVertexCount - fPathVertexCount, sizeof(SkPoint));
         }
-        state->putBackVertices(maxVertexCount - fWedgeVertexCount, sizeof(SkPoint));
+        if (numCurves) {
+            if (auto* cubicData = (SkPoint*)state->makeVertexSpace(
+                    sizeof(SkPoint) * 4, numCurves, &fCubicInstanceBuffer, &fBaseCubicInstance)) {
+                fCubicInstanceCount = GrPathParser::EmitCubicInstances(fPath, cubicData);
+                SkASSERT(fCubicInstanceCount == numCurves);
+            }
+        }
+        return;
+    }
+
+    // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
+    int maxVertexCount = GrPathParser::MaxWedgeVertices(fPath);
+    if (auto* patchData = (SkPoint*)state->makeVertexSpace(
+            sizeof(SkPoint), maxVertexCount, &fPathVertexBuffer, &fBasePathVertex)) {
+        if ((fPathVertexCount = GrPathParser::EmitCenterWedgePatches(fPath, patchData))) {
+            fPathShader = state->allocator()->make<GrStencilWedgeShader>(fViewMatrix);
+        } else {
+            fPathVertexBuffer.reset();
+        }
+        state->putBackVertices(maxVertexCount - fPathVertexCount, sizeof(SkPoint));
     }
 }
 
 void GrTessellatePathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
-    if (!fWedgeBuffer) {
-        return;
-    }
-
     GrAppliedClip clip = state->detachAppliedClip();
     GrPipeline::FixedDynamicState fixedDynamicState;
     if (clip.scissorState().enabled()) {
@@ -46,6 +76,7 @@ void GrTessellatePathOp::onExecute(GrOpFlushState* state, const SkRect& chainBou
     }
 
     this->drawStencilPass(state, clip.hardClip(), &fixedDynamicState);
+
     if (!(Flags::kStencilOnly & fFlags)) {
         this->drawCoverPass(state, std::move(clip), &fixedDynamicState);
     }
@@ -87,17 +118,35 @@ void GrTessellatePathOp::drawStencilPass(GrOpFlushState* state, const GrAppliedH
     initArgs.fCaps = &state->caps();
 
     GrPipeline pipeline(initArgs, GrDisableColorXPFactory::MakeXferProcessor(), hardClip);
-    GrTessellateWedgeShader shader(fViewMatrix);
-    GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
-                              state->proxy()->backendFormat(), state->view()->origin(), &pipeline,
-                              &shader, fixedDynamicState, nullptr, 0,
-                              GrPrimitiveType::kPatches, 5);
 
-    GrMesh mesh(GrPrimitiveType::kPatches, 5);
-    mesh.setNonIndexedNonInstanced(fWedgeVertexCount);
-    mesh.setVertexData(fWedgeBuffer, fBaseWedgeVertex);
+    if (fPathVertexBuffer) {
+        GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
+                                  state->proxy()->backendFormat(), state->view()->origin(),
+                                  &pipeline, fPathShader, fixedDynamicState, nullptr, 0,
+                                  fPathShader->primitiveType(),
+                                  fPathShader->tessellationPatchVertexCount());
 
-    state->opsRenderPass()->draw(programInfo, &mesh, 1, this->bounds());
+        GrMesh mesh(fPathShader->primitiveType(), fPathShader->tessellationPatchVertexCount());
+        mesh.setNonIndexedNonInstanced(fPathVertexCount);
+        mesh.setVertexData(fPathVertexBuffer, fBasePathVertex);
+
+        state->opsRenderPass()->draw(programInfo, &mesh, 1, this->bounds());
+    }
+
+    if (fCubicInstanceBuffer) {
+        // Here we treat the cubic instance buffer as tessellation patches.
+        GrStencilCubicShader shader(fViewMatrix);
+        GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
+                                  state->proxy()->backendFormat(), state->view()->origin(),
+                                  &pipeline, &shader, fixedDynamicState, nullptr, 0,
+                                  GrPrimitiveType::kPatches, 4);
+
+        GrMesh mesh(GrPrimitiveType::kPatches, 4);
+        mesh.setNonIndexedNonInstanced(fCubicInstanceCount * 4);
+        mesh.setVertexData(fCubicInstanceBuffer, fBaseCubicInstance * 4);
+
+        state->opsRenderPass()->draw(programInfo, &mesh, 1, this->bounds());
+    }
 
     // http://skbug.com/9739
     if (state->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
