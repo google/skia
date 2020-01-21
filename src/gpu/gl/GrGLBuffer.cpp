@@ -6,8 +6,10 @@
  */
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/gl/GrGLBuffer.h"
+#include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLGpu.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->glGpu()->glInterface(), X)
@@ -31,7 +33,7 @@
 
 sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                    GrAccessPattern accessPattern, const void* data) {
-    if (gpu->glCaps().transferBufferType() == GrGLCaps::kNone_TransferBufferType &&
+    if (gpu->glCaps().transferBufferType() == GrGLCaps::TransferBufferType::kNone &&
         (GrGpuBufferType::kXferCpuToGpu == intendedType ||
          GrGpuBufferType::kXferGpuToCpu == intendedType)) {
         return nullptr;
@@ -49,7 +51,8 @@ sk_sp<GrGLBuffer> GrGLBuffer::Make(GrGLGpu* gpu, size_t size, GrGpuBufferType in
 #define DYNAMIC_DRAW_PARAM GR_GL_STREAM_DRAW
 
 inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
-                                               GrAccessPattern accessPattern) {
+                                               GrAccessPattern accessPattern,
+                                               const GrGLCaps& caps) {
     auto drawUsage = [](GrAccessPattern pattern) {
         switch (pattern) {
             case kDynamic_GrAccessPattern:
@@ -75,7 +78,12 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
         SK_ABORT("Unexpected access pattern");
     };
 
-    auto usageType = [&drawUsage, &readUsage](GrGpuBufferType type, GrAccessPattern pattern) {
+    auto usageType = [&drawUsage, &readUsage, &caps](GrGpuBufferType type,
+                                                     GrAccessPattern pattern) {
+        // GL_NV_pixel_buffer_object adds transfer buffers but not the related <usage> values.
+        if (caps.transferBufferType() == GrGLCaps::TransferBufferType::kNV_PBO) {
+            return drawUsage(pattern);
+        }
         switch (type) {
             case GrGpuBufferType::kVertex:
             case GrGpuBufferType::kIndex:
@@ -84,7 +92,7 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
             case GrGpuBufferType::kXferGpuToCpu:
                 return readUsage(pattern);
         }
-        SK_ABORT("Unexpected gpu buffer type.");
+        SkUNREACHABLE;
     };
 
     return usageType(bufferType, accessPattern);
@@ -95,7 +103,7 @@ GrGLBuffer::GrGLBuffer(GrGLGpu* gpu, size_t size, GrGpuBufferType intendedType,
         : INHERITED(gpu, size, intendedType, accessPattern)
         , fIntendedType(intendedType)
         , fBufferID(0)
-        , fUsage(gr_to_gl_access_pattern(intendedType, accessPattern))
+        , fUsage(gr_to_gl_access_pattern(intendedType, accessPattern, gpu->glCaps()))
         , fGLSizeInBytes(0)
         , fHasAttachedToTexture(false) {
     GL_CALL(GenBuffers(1, &fBufferID));
