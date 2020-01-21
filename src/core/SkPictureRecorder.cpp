@@ -26,17 +26,13 @@ SkPictureRecorder::SkPictureRecorder() {
 SkPictureRecorder::~SkPictureRecorder() {}
 
 SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
-                                            SkBBHFactory* bbhFactory /* = nullptr */,
+                                            sk_sp<SkBBoxHierarchy> bbh,
                                             uint32_t recordFlags /* = 0 */) {
     const SkRect cullRect = userCullRect.isEmpty() ? SkRect::MakeEmpty() : userCullRect;
 
     fCullRect = cullRect;
     fFlags = recordFlags;
-
-    if (bbhFactory) {
-        fBBH = (*bbhFactory)();
-        SkASSERT(fBBH.get());
-    }
+    fBBH = std::move(bbh);
 
     if (!fRecord) {
         fRecord.reset(new SkRecord);
@@ -47,6 +43,12 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
     fRecorder->reset(fRecord.get(), cullRect, dpm, fMiniRecorder.get());
     fActivelyRecording = true;
     return this->getRecordingCanvas();
+}
+
+SkCanvas* SkPictureRecorder::beginRecording(const SkRect& bounds,
+                                            SkBBHFactory* factory,
+                                            uint32_t flags) {
+    return this->beginRecording(bounds, factory ? (*factory)() : nullptr, flags);
 }
 
 SkCanvas* SkPictureRecorder::getRecordingCanvas() {
