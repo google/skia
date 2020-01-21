@@ -65,6 +65,12 @@ public:
         this->setConcat(a, b);
     }
 
+    enum Uninitialized_Constructor {
+        kUninitialized_Constructor
+    };
+
+    SkM44(Uninitialized_Constructor) {}
+
     /**
      *  Parameters are treated as row-major.
      */
@@ -169,6 +175,8 @@ public:
      *  not invertible, return false and leave the inverse parameter unchanged.
      */
     bool invert(SkM44* inverse) const;
+
+    SkM44 transpose() const;
 
     void dump() const;
 

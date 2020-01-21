@@ -510,6 +510,7 @@ class SampleBump3D : public Sample3DView {
             in fragmentProcessor bump_map;
 
             uniform float4x4 localToWorld;
+            uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
             float convert_bump_to_delta(float bump) {
@@ -524,14 +525,14 @@ class SampleBump3D : public Sample3DView {
 
                 float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
 
-                float3 plane_norm = (localToWorld * float4(
+                float3 plane_norm = (localToWorldAdjInv * float4(
                      convert_bump_to_delta(bmp.r),
                      convert_bump_to_delta(bmp.g),
                      1, 0)).xyz;
                 plane_norm = normalize(plane_norm);
 
                 float3 light_dir = normalize(lightPos - plane_pos);
-                float ambient = 0.4;
+                float ambient = 0.1;
                 float dp = dot(plane_norm, light_dir);
                 float scale = min(ambient + max(dp, 0), 2);
 
@@ -564,11 +565,19 @@ class SampleBump3D : public Sample3DView {
             return;
         }
 
+        auto adj_inv = [](const SkM44& m) {
+            SkM44 inv;
+            SkAssertResult(m.invert(&inv));
+            return inv.transpose();
+        };
+
         struct Uniforms {
             SkM44  fLocalToWorld;
+            SkM44  fLocalToWorldAdjInv;
             SkV3   fLightPos;
         } uni;
         uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
+        uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos     = {fLight.fPos.x, fLight.fPos.y, fLight.fPos.z};
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
         sk_sp<SkShader> children[] = { fImgShader, fBmpShader };

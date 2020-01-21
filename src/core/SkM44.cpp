@@ -40,7 +40,7 @@ bool SkM44::operator==(const SkM44& other) const {
     return (eq[0] & eq[1] & eq[2] & eq[3]) == ~0;
 }
 
-static void transpose(SkScalar dst[], const SkScalar src[]) {
+static void transpose_arrays(SkScalar dst[], const SkScalar src[]) {
     dst[0]  = src[0]; dst[1]  = src[4]; dst[2]  = src[8];  dst[3]  = src[12];
     dst[4]  = src[1]; dst[5]  = src[5]; dst[6]  = src[9];  dst[7]  = src[13];
     dst[8]  = src[2]; dst[9]  = src[6]; dst[10] = src[10]; dst[11] = src[14];
@@ -48,11 +48,11 @@ static void transpose(SkScalar dst[], const SkScalar src[]) {
 }
 
 void SkM44::getRowMajor(SkScalar v[]) const {
-    transpose(v, fMat);
+    transpose_arrays(v, fMat);
 }
 
 SkM44& SkM44::setRowMajor(const SkScalar v[]) {
-    transpose(fMat, v);
+    transpose_arrays(fMat, v);
     return *this;
 }
 
@@ -248,6 +248,12 @@ bool SkM44::invert(SkM44* inverse) const {
     }
     memcpy(inverse->fMat, tmp, sizeof(tmp));
     return true;
+}
+
+SkM44 SkM44::transpose() const {
+    SkM44 trans(SkM44::kUninitialized_Constructor);
+    transpose_arrays(trans.fMat, fMat);
+    return trans;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
