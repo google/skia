@@ -40,6 +40,12 @@ namespace GrQuadUtils {
     bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
                     GrQuad* local=nullptr);
 
+    /**
+     * Calculate the projected 2D bounds of a GrQuad, safely handling when the 3D points are behind
+     * the viewer. Assuming the quads coordinates are finite, this will produce finite bounds.
+     */
+    SkRect ProjectedBounds(const GrQuad& quad);
+
     class TessellationHelper {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
