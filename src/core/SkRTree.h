@@ -28,10 +28,9 @@
  *  Beckmann, N.; Kriegel, H. P.; Schneider, R.; Seeger, B. (1990). "The R*-tree:
  *      an efficient and robust access method for points and rectangles"
  */
-class SkRTree : public SkBBoxHierarchy {
+class SkRTree : public SkBBoxHierarchy_Base {
 public:
     SkRTree();
-    ~SkRTree() override {}
 
     void insert(const SkRect[], int N) override;
     void search(const SkRect& query, SkTDArray<int>* results) const override;
@@ -82,8 +81,6 @@ private:
     int fCount;
     Branch fRoot;
     SkTDArray<Node> fNodes;
-
-    typedef SkBBoxHierarchy INHERITED;
 };
 
 #endif

@@ -28,7 +28,7 @@ void SkRecordDraw(const SkRecord& record,
         SkRect query = canvas->getLocalClipBounds();
 
         SkTDArray<int> ops;
-        bbh->search(query, &ops);
+        static_cast<const SkBBoxHierarchy_Base*>(bbh)->search(query, &ops);
 
         SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
         for (int i = 0; i < ops.count(); i++) {
