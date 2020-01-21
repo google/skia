@@ -8,15 +8,18 @@
 #ifndef SkBBHFactory_DEFINED
 #define SkBBHFactory_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include <vector>
 
 class SkBBoxHierarchy : public SkRefCnt {
 public:
     SkBBoxHierarchy() {}
     virtual ~SkBBoxHierarchy() {}
 
-    // Future public APIs may go here.
+    /** Return (in arbitrary order) boxes that conservatively may intersect `query`. */
+    virtual void search(const SkRect& query, std::vector<SkRect>*) const = 0;
 };
 
 class SK_API SkBBHFactory {
