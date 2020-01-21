@@ -807,9 +807,9 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
                                                  SkISize dimensions,
                                                  GrTexturable texturable,
                                                  GrRenderable renderable,
-                                                 const BackendTextureData* data,
                                                  GrMipMapped mipMapped,
-                                                 GrMtlTextureInfo* info) {
+                                                 GrMtlTextureInfo* info,
+                                                 const BackendTextureData* data) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
     if (texturable == GrTexturable::kNo) {
         SkASSERT(!data && mipMapped == GrMipMapped::kNo);
@@ -947,14 +947,14 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
 GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const GrBackendFormat& format,
                                                   GrRenderable renderable,
-                                                  const BackendTextureData* data,
                                                   GrMipMapped mipMapped,
-                                                  GrProtected isProtected) {
+                                                  GrProtected isProtected,
+                                                  const BackendTextureData* data) {
     // GrGpu::createBackendTexture should've ensured these conditions
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     GrMtlTextureInfo info;
     if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, GrTexturable::kYes,
-                                                 renderable, data, mipMapped, &info)) {
+                                                 renderable, mipMapped, &info, data)) {
         return {};
     }
 
@@ -964,9 +964,9 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
 
 GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(SkISize dimensions,
                                                             const GrBackendFormat&,
-                                                            const BackendTextureData*,
                                                             GrMipMapped,
-                                                            GrProtected) {
+                                                            GrProtected,
+                                                            const BackendTextureData*) {
     return {};
 }
 
@@ -1008,8 +1008,8 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
 
     GrMtlTextureInfo info;
     if (!this->createMtlTextureForBackendSurface(format, {w, h}, GrTexturable::kNo,
-                                                 GrRenderable::kYes, nullptr,
-                                                 GrMipMapped::kNo, &info)) {
+                                                 GrRenderable::kYes,
+                                                 GrMipMapped::kNo, &info, nullptr)) {
         return {};
     }
 

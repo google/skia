@@ -176,14 +176,14 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            const BackendTextureData*,
                                             GrMipMapped,
-                                            GrProtected) override;
+                                            GrProtected,
+                                            const BackendTextureData*) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      const BackendTextureData*,
                                                       GrMipMapped,
-                                                      GrProtected) override;
+                                                      GrProtected,
+                                                      const BackendTextureData*) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
                                      const GrBackendFormat& format,
@@ -270,13 +270,13 @@ private:
                       const SkIPoint& dstPoint);
 
     bool createVkImageForBackendSurface(VkFormat,
-                                        SkISize,
+                                        SkISize dimensions,
                                         GrTexturable,
                                         GrRenderable,
-                                        const BackendTextureData*,
                                         GrMipMapped,
                                         GrVkImageInfo*,
-                                        GrProtected);
+                                        GrProtected,
+                                        const BackendTextureData*);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;

@@ -301,9 +301,9 @@ GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(
 GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& format,
                                                    GrRenderable,
-                                                   const BackendTextureData*,
                                                    GrMipMapped mipMapped,
-                                                   GrProtected) {
+                                                   GrProtected,
+                                                   const BackendTextureData*) {
     SkImage::CompressionType compression = format.asMockCompressionType();
     if (compression != SkImage::CompressionType::kNone) {
         return {}; // should go through onCreateCompressedBackendTexture
@@ -322,9 +322,9 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
 
 GrBackendTexture GrMockGpu::onCreateCompressedBackendTexture(SkISize dimensions,
                                                              const GrBackendFormat& format,
-                                                             const BackendTextureData*,
                                                              GrMipMapped mipMapped,
-                                                             GrProtected) {
+                                                             GrProtected,
+                                                             const BackendTextureData*) {
     SkImage::CompressionType compression = format.asMockCompressionType();
     if (compression == SkImage::CompressionType::kNone) {
         return {}; // should go through onCreateBackendTexture
