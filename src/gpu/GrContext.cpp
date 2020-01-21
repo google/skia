@@ -385,8 +385,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
     }
 
-    return fGpu->createBackendTexture({width, height}, backendFormat, renderable, nullptr,
-                                      numMipLevels, isProtected);
+    return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
+                                      numMipLevels, isProtected, nullptr);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -490,8 +490,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
     }
     GrGpu::BackendTextureData data(color);
-    return fGpu->createBackendTexture({width, height}, backendFormat, renderable, &data,
-                                      numMipLevels, isProtected);
+    return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
+                                      numMipLevels, isProtected, &data);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -543,8 +543,8 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
 
     GrGpu::BackendTextureData data(srcData);
-    return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat, renderable, &data,
-                                      numLevels, isProtected);
+    return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat, renderable,
+                                      numLevels, isProtected, &data);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -564,8 +564,8 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
     }
 
     GrGpu::BackendTextureData data(color);
-    return fGpu->createCompressedBackendTexture({width, height}, backendFormat, &data,
-                                                mipMapped, isProtected);
+    return fGpu->createCompressedBackendTexture({width, height}, backendFormat,
+                                                mipMapped, isProtected, &data);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
@@ -603,8 +603,8 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
     }
 
     GrGpu::BackendTextureData data(compressedData, dataSize);
-    return fGpu->createCompressedBackendTexture({width, height}, backendFormat, &data,
-                                                mipMapped, isProtected);
+    return fGpu->createCompressedBackendTexture({width, height}, backendFormat,
+                                                mipMapped, isProtected, &data);
 }
 
 GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height,
