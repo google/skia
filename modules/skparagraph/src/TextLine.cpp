@@ -138,6 +138,38 @@ SkRect TextLine::calculateBoundaries() {
         }
     }
 
+    // We need to take in account all the shadows when we calculate the boundaries
+    // TODO: Need to find a better solution
+    if (fHasShadows) {
+        SkRect shadow = SkRect::MakeEmpty();
+        this->iterateThroughVisualRuns(false,
+            [this, &shadow]
+            (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            *runWidthInLine = this->iterateThroughSingleRunByStyles(
+                run, runOffsetInLine, textRange, StyleType::kShadow,
+                [&shadow](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+                    for (auto& sh : style.getShadows()) {
+                        auto radius = SkDoubleToScalar(sh.fBlurRadius) * 2.0f;
+                        if (sh.fOffset.fX < 0) {
+                            shadow.fLeft = SkTMin(shadow.fLeft, sh.fOffset.fX - radius);
+                        } else {
+                            shadow.fRight = SkTMax(shadow.fRight, sh.fOffset.fX + radius);
+                        }
+                        if (sh.fOffset.fY < 0) {
+                            shadow.fTop = SkTMin(shadow.fTop, sh.fOffset.fY - radius);
+                        } else {
+                            shadow.fBottom = SkTMax(shadow.fBottom, sh.fOffset.fY + radius);
+                        }
+                    }
+                });
+            return true;
+            });
+        boundaries.fLeft += shadow.fLeft;
+        boundaries.fTop += shadow.fTop;
+        boundaries.fRight += shadow.fRight;
+        boundaries.fBottom += shadow.fBottom;
+    }
+
     boundaries.offset(this->fOffset);         // Line offset from the beginning of the para
     boundaries.offset(this->fShift, 0);     // Shift produced by formatting
     boundaries.offset(0, this->baseline()); // Down by baseline

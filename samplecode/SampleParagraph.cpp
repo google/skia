@@ -1657,7 +1657,6 @@ protected:
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(this->width());
-
         paragraph->paint(canvas, 0, 0);
     }
 
@@ -1769,6 +1768,56 @@ private:
     bool direction;
 };
 
+class ParagraphView23 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph23"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "Text with shadow";
+        ParagraphStyle paragraph_style;
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+
+        auto draw = [&](SkScalar h, SkScalar v, SkScalar b) {
+            text_style.resetShadows();
+            text_style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(h, v), b));
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(300);
+            paragraph->paint(canvas, 0, 0);
+
+            auto rect = SkRect::MakeXYWH(0, 0, paragraph->getMaxWidth(), paragraph->getHeight());
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(1);
+            canvas->drawRect(rect, paint);
+        };
+
+        draw(10, 10, 5);
+        canvas->translate(0, 100);
+
+        draw(10, -10, 5);
+        canvas->translate(0, 100);
+
+        draw(-10, -10, 5);
+        canvas->translate(0, 100);
+
+        draw(-10, 10, 5);
+        canvas->translate(0, 100);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1792,3 +1841,4 @@ DEF_SAMPLE(return new ParagraphView19();)
 DEF_SAMPLE(return new ParagraphView20();)
 DEF_SAMPLE(return new ParagraphView21();)
 DEF_SAMPLE(return new ParagraphView22();)
+DEF_SAMPLE(return new ParagraphView23();)
