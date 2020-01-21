@@ -610,7 +610,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
     sk_sp<GrTexture> tex = resourceProvider->wrapCompressedBackendTexture(beTex, ownership,
                                                                           cacheable);
     if (!tex) {
-        return nullptr;
+      return nullptr;
     }
 
     if (releaseProc) {
