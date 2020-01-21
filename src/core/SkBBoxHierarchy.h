@@ -20,6 +20,8 @@ class SkBBoxHierarchy_Base : public SkBBoxHierarchy {
 public:
     SkBBoxHierarchy_Base() {}
 
+    using SkBBoxHierarchy::search;
+
     /**
      * Insert N bounding boxes into the hierarchy.
      */

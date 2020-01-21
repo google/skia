@@ -50,6 +50,8 @@ public:
     static const int kMinChildren = 6,
                      kMaxChildren = 11;
 
+    void search(const SkRect& query, std::vector<SkRect>*) const override;
+
 private:
     struct Node;
 
@@ -68,6 +70,7 @@ private:
     };
 
     void search(Node* root, const SkRect& query, SkTDArray<int>* results) const;
+    void search(Node* root, const SkRect& query, std::vector<SkRect>* results) const;
 
     // Consumes the input array.
     Branch bulkLoad(SkTDArray<Branch>* branches, int level = 0);

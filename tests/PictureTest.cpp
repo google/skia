@@ -676,6 +676,10 @@ struct CountingBBH : public SkBBoxHierarchy_Base {
         this->searchCalls++;
     }
 
+    void search(const SkRect& query, std::vector<SkRect>* results) const override {
+        // Not the search call we're counting.
+    }
+
     void insert(const SkRect[], int) override {}
     virtual size_t bytesUsed() const override { return 0; }
     SkRect getRootBound() const override { return rootBound; }
