@@ -156,6 +156,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     const GrBackendFormat format =
         context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                         GrRenderable::kNo);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
@@ -163,7 +164,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1});
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                        format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+                        format, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
                         GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
                 {

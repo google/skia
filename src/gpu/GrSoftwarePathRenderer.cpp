@@ -183,8 +183,11 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                  GrRenderable::kNo);
 
-    return proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                                      GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
+
+    return proxyProvider->createProxy(format, desc, swizzle, GrRenderable::kNo, 1,
+                                      kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
+                                      SkBudgeted::kYes, GrProtected::kNo);
 }
 
 namespace {

@@ -560,14 +560,14 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     int numPlotsY = fTextureHeight/fPlotHeight;
 
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
+        GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
         sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
-                fFormat, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
+                fFormat, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+                GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
                 GrInternalSurfaceFlags::kNone, GrSurfaceProxy::UseAllocator::kNo);
         if (!proxy) {
             return false;
         }
-        GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
         fViews[i] = GrSurfaceProxyView(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
 
         // set up allocated plots

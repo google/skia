@@ -411,8 +411,11 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kNo);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
+
     auto proxy = context->priv().proxyProvider()->createProxy(format,
                                                               desc,
+                                                              swizzle,
                                                               GrRenderable::kNo,
                                                               1,
                                                               origin,
