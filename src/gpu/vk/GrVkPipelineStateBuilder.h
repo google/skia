@@ -21,6 +21,16 @@ class GrVkGpu;
 class GrVkRenderPass;
 class SkReader32;
 
+struct GrVkPrecompiledPipeline {
+    GrVkPrecompiledPipeline(GrVkPipeline* pipeline = nullptr,
+                            SkSL::Program::Inputs inputs = SkSL::Program::Inputs())
+        : fPipeline(pipeline)
+        , fInputs(inputs) {}
+
+    GrVkPipeline* fPipeline;
+    SkSL::Program::Inputs fInputs;
+};
+
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
     /** Generates a pipeline state.
@@ -35,7 +45,10 @@ public:
                                                   GrRenderTarget*,
                                                   const GrProgramInfo&,
                                                   GrProgramDesc*,
-                                                  VkRenderPass compatibleRenderPass);
+                                                  VkRenderPass compatibleRenderPass,
+                                                  const GrVkPrecompiledPipeline* = nullptr);
+
+    static bool PrecompilePipelineState(GrVkPrecompiledPipeline*, GrVkGpu*, const SkData&);
 
     const GrCaps* caps() const override;
 
@@ -47,7 +60,8 @@ public:
 private:
     GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
 
-    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*);
+    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*,
+                                const GrVkPrecompiledPipeline*);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],

@@ -101,6 +101,7 @@ static const struct {
     { "vkbetex",               "gpu", "api=vulkan,surf=betex" },
     { "vkbert",                "gpu", "api=vulkan,surf=bert" },
     { "vktestpersistentcache", "gpu", "api=vulkan,testPersistentCache=1" },
+    { "vktestprecompile",      "gpu", "api=vulkan,testPrecompile=true" },
 #endif
 #ifdef SK_METAL
     { "mtl",                   "gpu", "api=metal" },

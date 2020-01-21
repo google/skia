@@ -187,6 +187,7 @@ private:
         GrVkPipelineState* refPipelineState(GrRenderTarget*,
                                             const GrProgramInfo&,
                                             VkRenderPass compatibleRenderPass);
+        bool precompileShader(const SkData& key, const SkData& data);
 
     private:
         struct Entry;

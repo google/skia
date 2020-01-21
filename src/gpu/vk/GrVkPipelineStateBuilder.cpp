@@ -25,7 +25,8 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
         GrProgramDesc* desc,
-        VkRenderPass compatibleRenderPass) {
+        VkRenderPass compatibleRenderPass,
+        const GrVkPrecompiledPipeline* precompiledPipeline) {
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");
 
@@ -37,7 +38,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         return nullptr;
     }
 
-    return builder.finalize(compatibleRenderPass, desc);
+    return builder.finalize(compatibleRenderPass, desc, precompiledPipeline);
 }
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
@@ -149,8 +150,10 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
-                                                      GrProgramDesc* desc) {
+GrVkPipelineState* GrVkPipelineStateBuilder::finalize(
+        VkRenderPass compatibleRenderPass,
+        GrProgramDesc* desc,
+        const GrVkPrecompiledPipeline* precompiledPipeline) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
@@ -166,6 +169,23 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
                                                    fUniformHandler, &samplerDSHandle);
     dsLayout[GrVkUniformHandler::kSamplerDescSet] =
             resourceProvider.getSamplerDSLayout(samplerDSHandle);
+
+    if (precompiledPipeline) {
+        if (precompiledPipeline->fInputs.fRTHeight) {
+            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+        }
+        return new GrVkPipelineState(fGpu,
+                                     precompiledPipeline->fPipeline,
+                                     samplerDSHandle,
+                                     fUniformHandles,
+                                     fUniformHandler.fUniforms,
+                                     fUniformHandler.fCurrentUBOOffset,
+                                     fUniformHandler.fSamplers,
+                                     std::move(fGeometryProcessor),
+                                     std::move(fXferProcessor),
+                                     std::move(fFragmentProcessors),
+                                     fFragmentProcessorCnt);
+    }
 
     // Create the VkPipelineLayout
     VkPipelineLayoutCreateInfo layoutCreateInfo;
@@ -328,4 +348,16 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
                                  std::move(fXferProcessor),
                                  std::move(fFragmentProcessors),
                                  fFragmentProcessorCnt);
+}
+
+bool GrVkPipelineStateBuilder::PrecompilePipelineState(GrVkPrecompiledPipeline* precompiledPipeline,
+                                                       GrVkGpu* gpu,
+                                                       const SkData& cachedData) {
+    SkReader32 reader(cachedData.data(), cachedData.size());
+    SkFourByteTag shaderType = reader.readU32();
+    if (shaderType != kSKSL_Tag) {
+        return false;
+    }
+
+    // ...
 }

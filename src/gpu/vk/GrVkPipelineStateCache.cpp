@@ -15,6 +15,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkPipelineStateBuilder.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
@@ -26,17 +27,24 @@ static const bool c_DisplayVkPipelineCache{false};
 
 struct GrVkResourceProvider::PipelineStateCache::Entry {
     Entry(GrVkGpu* gpu, GrVkPipelineState* pipelineState)
-    : fGpu(gpu)
-    , fPipelineState(pipelineState) {}
+        : fGpu(gpu)
+        , fPipelineState(pipelineState) {}
+
+    Entry(GrVkGpu* gpu, const GrVkPrecompiledPipeline& precompiledPipeline)
+        : fGpu(gpu)
+        , fPrecompiledPipeline(precompiledPipeline) {}
 
     ~Entry() {
         if (fPipelineState) {
             fPipelineState->freeGPUResources(fGpu);
+        } else if (fPrecompiledPipeline.fPipeline) {
+            fPrecompiledPipeline.fPipeline->unref(fGpu);
         }
     }
 
     GrVkGpu* fGpu;
     std::unique_ptr<GrVkPipelineState> fPipelineState;
+    GrVkPrecompiledPipeline fPrecompiledPipeline;
 };
 
 GrVkResourceProvider::PipelineStateCache::PipelineStateCache(GrVkGpu* gpu)
@@ -90,7 +98,20 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
     }
 
     std::unique_ptr<Entry>* entry = fMap.find(desc);
-    if (!entry) {
+    if (entry && !(*entry)->fPipelineState) {
+        // We've pre-compiled the Vk pipeline, but don't have the GrVkPipelineState scaffolding
+        const GrVkPrecompiledPipeline* precompiledPipeline = &((*entry)->fPrecompiledPipeline);
+        SkASSERT(precompiledPipeline->fPipeline != nullptr);
+        SkASSERT((*entry)->fGpu == fGpu);
+        GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
+                fGpu, renderTarget, programInfo, &desc, compatibleRenderPass, precompiledPipeline));
+        if (!pipelineState) {
+            // Should we purge the precompiled pipeline from the cache at this point?
+            SkDEBUGFAIL("Couldn't create pipeline state from precompiled pipeline");
+            return nullptr;
+        }
+        (*entry)->fPipelineState.reset(pipelineState);
+    } else if (!entry) {
 #ifdef GR_PIPELINE_STATE_CACHE_STATS
         ++fCacheMisses;
 #endif
@@ -100,7 +121,28 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
             return nullptr;
         }
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, pipelineState)));
-        return (*entry)->fPipelineState.get();
     }
     return (*entry)->fPipelineState.get();
+}
+
+bool GrVkResourceProvider::PipelineStateCache::precompileShader(const SkData& key,
+                                                                const SkData& data) {
+    GrProgramDesc desc;
+    if (!GrProgramDesc::BuildFromData(&desc, key.data(), key.size())) {
+        return false;
+    }
+
+    std::unique_ptr<Entry>* entry = fMap.find(desc);
+    if (entry) {
+        // We've already seen/compiled this shader
+        return true;
+    }
+
+    GrVkPrecompiledPipeline precompiledPipeline;
+    if (!GrVkPipelineStateBuilder::PrecompilePipeline(&precompiledPipeline, fGpu, data)) {
+        return false;
+    }
+
+    fMap.insert(desc, std::unique_ptr<Entry>(new Entry(fGpu, precompiledPipeline)));
+    return true;
 }
