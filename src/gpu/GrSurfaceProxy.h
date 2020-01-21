@@ -143,6 +143,8 @@ public:
 
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
+    bool isFormatCompressed(const GrCaps*) const;
+
     class UniqueID {
     public:
         static UniqueID InvalidID() {

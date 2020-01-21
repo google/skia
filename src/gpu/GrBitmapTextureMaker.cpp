@@ -17,10 +17,20 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 
+static GrImageInfo get_image_info(GrRecordingContext* context, const SkBitmap& bitmap) {
+    GrColorType ct = SkColorTypeToGrColorType(bitmap.info().colorType());
+    GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(ct, GrRenderable::kNo);
+    if (!format.isValid()) {
+        ct = GrColorType::kRGBA_8888;
+    }
+    return {ct, bitmap.alphaType(), bitmap.refColorSpace(), bitmap.dimensions()};
+}
+
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                                           bool useDecal)
-        : INHERITED(context, bitmap.info(), useDecal), fBitmap(bitmap) {
-    if (!bitmap.isVolatile()) {
+                                           bool useDecal, bool shouldUseUniqueKey)
+        : INHERITED(context, get_image_info(context, bitmap), useDecal)
+        , fBitmap(bitmap) {
+    if (!bitmap.isVolatile() && shouldUseUniqueKey) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
                                            bitmap.height());
@@ -47,8 +57,20 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     }
 
     if (!proxy) {
-        proxy = proxyProvider->createProxyFromBitmap(fBitmap, willBeMipped ? GrMipMapped::kYes
-                                                                           : GrMipMapped::kNo);
+        if (this->colorType() != SkColorTypeToGrColorType(fBitmap.info().colorType())) {
+            SkASSERT(this->colorType() == GrColorType::kRGBA_8888);
+            SkBitmap copy8888;
+            if (!copy8888.tryAllocPixels(fBitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
+                !fBitmap.readPixels(copy8888.pixmap())) {
+                return nullptr;
+            }
+            copy8888.setImmutable();
+            proxy = proxyProvider->createProxyFromBitmap(copy8888, willBeMipped ? GrMipMapped::kYes
+                                                                                : GrMipMapped::kNo);
+        } else {
+            proxy = proxyProvider->createProxyFromBitmap(fBitmap, willBeMipped ? GrMipMapped::kYes
+                                                                               : GrMipMapped::kNo);
+        }
         if (proxy) {
             if (fOriginalKey.isValid()) {
                 proxyProvider->assignUniqueKeyToProxy(fOriginalKey, proxy.get());

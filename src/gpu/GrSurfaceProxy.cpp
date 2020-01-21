@@ -274,6 +274,10 @@ bool GrSurfaceProxy::isFunctionallyExact() const {
            fDimensions == GrResourceProvider::MakeApprox(fDimensions);
 }
 
+bool GrSurfaceProxy::isFormatCompressed(const GrCaps* caps) const {
+    return caps->isFormatCompressed(this->backendFormat());
+}
+
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validate(GrContext_Base* context) const {
     if (fTarget) {

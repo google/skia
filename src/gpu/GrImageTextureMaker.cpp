@@ -8,14 +8,24 @@
 #include "src/gpu/GrImageTextureMaker.h"
 
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_GpuYUVA.h"
 #include "src/image/SkImage_Lazy.h"
 
+static GrImageInfo get_image_info(GrRecordingContext* context, const SkImage* client) {
+    SkASSERT(client->isLazyGenerated());
+    const SkImage_Lazy* lazyImage = static_cast<const SkImage_Lazy*>(client);
+
+    GrColorType ct = lazyImage->colorTypeOfLockTextureProxy(context->priv().caps());
+
+    return {ct, client->alphaType(), client->refColorSpace(), client->dimensions()};
+}
+
 GrImageTextureMaker::GrImageTextureMaker(GrRecordingContext* context, const SkImage* client,
                                          SkImage::CachingHint chint, bool useDecal)
-        : INHERITED(context, client->imageInfo(), useDecal)
+        : INHERITED(context, get_image_info(context, client), useDecal)
         , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
     SkASSERT(client->isLazyGenerated());
@@ -41,7 +51,7 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
 
 GrYUVAImageTextureMaker::GrYUVAImageTextureMaker(GrContext* context, const SkImage* client,
                                                  bool useDecal)
-        : INHERITED(context, client->imageInfo(), useDecal)
+        : INHERITED(context, get_image_info(context, client), useDecal)
         , fImage(static_cast<const SkImage_GpuYUVA*>(client)) {
     SkASSERT(as_IB(client)->isYUVA());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(), SkIRect::MakeSize(this->dimensions()));
