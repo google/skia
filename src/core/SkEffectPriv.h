@@ -9,6 +9,7 @@
 #define SkEffectPriv_DEFINED
 
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 
 class SkArenaAlloc;
 class SkColorSpace;
