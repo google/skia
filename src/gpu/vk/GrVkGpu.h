@@ -271,7 +271,7 @@ private:
 
     bool createVkImageForBackendSurface(VkFormat,
                                         SkISize,
-                                        bool texturable,
+                                        GrTexturable,
                                         GrRenderable,
                                         const BackendTextureData*,
                                         GrMipMapped,

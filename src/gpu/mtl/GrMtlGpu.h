@@ -210,7 +210,7 @@ private:
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
                                            SkISize dimensions,
-                                           bool texturable,
+                                           GrTexturable,
                                            GrRenderable,
                                            const BackendTextureData*,
                                            GrMipMapped,
