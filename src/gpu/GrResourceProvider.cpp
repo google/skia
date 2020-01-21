@@ -148,13 +148,14 @@ sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(SkISize dimensions,
                                                              const GrBackendFormat& format,
                                                              SkBudgeted budgeted,
                                                              GrMipMapped mipMapped,
+                                                             GrProtected isProtected,
                                                              SkData* data) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
     }
     return fGpu->createCompressedTexture(dimensions, format, budgeted, mipMapped,
-                                         data->data(), data->size());
+                                         isProtected, data->data(), data->size());
 }
 
 sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,

@@ -273,6 +273,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
                                                 const GrBackendFormat& format,
                                                 SkBudgeted budgeted,
                                                 GrMipMapped mipMapped,
+                                                GrProtected isProtected,
                                                 const void* data,
                                                 size_t dataSize) {
     this->handleDirtyContext();
@@ -295,7 +296,8 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
     if (dataSize < GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped)) {
         return nullptr;
     }
-    return this->onCreateCompressedTexture(dimensions, format, budgeted, mipMapped, data, dataSize);
+    return this->onCreateCompressedTexture(dimensions, format, budgeted, mipMapped, isProtected,
+                                           data, dataSize);
 }
 
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
