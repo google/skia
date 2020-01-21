@@ -11,6 +11,7 @@
 #include "modules/skottie/src/SkottieAdapter.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMatrix44.h"
 
 namespace skottie {
 namespace internal {
