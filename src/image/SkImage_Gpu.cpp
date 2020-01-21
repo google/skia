@@ -154,6 +154,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
     const GrCaps* caps = ctx->priv().caps();
 
     if (!SkImage_GpuBase::ValidateCompressedBackendTexture(caps, tex, at)) {
+        SkDebugf("22\n");
         return nullptr;
     }
 
@@ -162,6 +163,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrContext* ctx,
         proxyProvider->wrapCompressedBackendTexture(tex, origin, kBorrow_GrWrapOwnership,
                                                     GrWrapCacheable::kNo, releaseP, releaseC);
     if (!proxy) {
+        SkDebugf("11\n");
         return nullptr;
     }
 

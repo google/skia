@@ -328,10 +328,12 @@ sk_sp<GrTexture> GrGpu::wrapCompressedBackendTexture(const GrBackendTexture& bac
     SkASSERT(caps);
 
     if (!caps->isFormatTexturable(backendTex.getBackendFormat())) {
+        SkDebugf("77\n");
         return nullptr;
     }
     if (backendTex.width() > caps->maxTextureSize() ||
         backendTex.height() > caps->maxTextureSize()) {
+        SkDebugf("88\n");
         return nullptr;
     }
 

@@ -600,6 +600,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
     // This is only supported on a direct GrContext.
     GrContext* direct = fImageContext->priv().asDirectContext();
     if (!direct) {
+        SkDebugf("44\n");
         return nullptr;
     }
 
@@ -610,6 +611,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
     sk_sp<GrTexture> tex = resourceProvider->wrapCompressedBackendTexture(beTex, ownership,
                                                                           cacheable);
     if (!tex) {
+        SkDebugf("55\n");
         return nullptr;
     }
 
