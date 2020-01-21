@@ -8,10 +8,9 @@
 #ifndef SkottieTransform_DEFINED
 #define SkottieTransform_DEFINED
 
-#include "modules/skottie/src/SkottieAdapter.h"
-
 #include "include/core/SkMatrix.h"
 #include "include/core/SkMatrix44.h"
+#include "modules/skottie/src/SkottieAdapter.h"
 
 namespace skottie {
 namespace internal {
