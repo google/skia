@@ -162,17 +162,6 @@ struct Metadata {
         Experimental.
     */
     SkExecutor* fExecutor = nullptr;
-
-    /** Preferred Subsetter. Only respected if both are compiled in.
-
-        The Sfntly subsetter is deprecated.
-
-        Experimental.
-    */
-    enum Subsetter {
-        kHarfbuzz_Subsetter,
-        kSfntly_Subsetter,
-    } fSubsetter = kHarfbuzz_Subsetter;
 };
 
 /** Associate a node ID with subsequent drawing commands in an
