@@ -271,6 +271,10 @@ public:
                                              int width, int height, CompressionType type,
                                              GrMipMapped mipMapped = GrMipMapped::kNo);
 
+    static sk_sp<SkImage> MakeRasterFromCompressed(int width, int height, CompressionType type,
+                                                   sk_sp<SkData> data,
+                                                   GrMipMapped mipMapped = GrMipMapped::kNo);
+
     /** User function called when supplied texture may be deleted.
     */
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);

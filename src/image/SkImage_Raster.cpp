@@ -282,6 +282,27 @@ sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> da
     return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes);
 }
 
+// $$
+sk_sp<SkImage> SkImage::MakeRasterFromCompressed(int width, int height, CompressionType type,
+                                                 sk_sp<SkData> data,
+                                                 GrMipMapped mipMapped) {
+    size_t expectedSize = GrCompressedFormatDataSize(type, { width, height }, mipMapped);
+    if (!data || data->size() < expectedSize) {
+        return nullptr;
+    }
+
+
+    SkColorType ct = GrCompressionTypeIsOpaque(type) ? kRGB_888x_SkColorType
+                                                     : kRGBA_8888_SkColorType;
+    SkAlphaType at = GrCompressionTypeIsOpaque(type) ? kOpaque_SkAlphaType
+                                                     : kPremul_SkAlphaType;
+
+    SkImageInfo ii = SkImageInfo::Make({ width, height }, ct, at);
+
+
+
+}
+
 sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc proc,
                                        ReleaseContext ctx) {
     size_t size;
