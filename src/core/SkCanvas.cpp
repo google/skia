@@ -733,6 +733,8 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
+#include "include/core/SkMatrix44.h"
+
 int SkCanvas::experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
