@@ -5,10 +5,6 @@
 
 import("../../gn/skia.gni")
 
-declare_args() {
-  skia_enable_skottie = !(is_win && is_component_build)
-}
-
 if (skia_enable_skottie) {
   config("public_config") {
     defines = [ "SK_ENABLE_SKOTTIE" ]
