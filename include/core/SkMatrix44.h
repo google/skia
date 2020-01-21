@@ -360,12 +360,14 @@ public:
         this->mapScalars(vec, vec);
     }
 
+#ifdef SK_SUPPORT_LEGACY_MSCALAR
     inline void mapMScalars(const SkScalar src[4], SkScalar dst[4]) const {
         this->mapScalars(src, dst);
     }
     inline void mapMScalars(SkScalar vec[4]) const {
         this->mapMScalars(vec, vec);
     }
+#endif
 
     friend SkVector4 operator*(const SkMatrix44& m, const SkVector4& src) {
         SkVector4 dst;
