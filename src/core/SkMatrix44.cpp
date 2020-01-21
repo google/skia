@@ -517,24 +517,24 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         double invYScale = 1 / fMat[1][1];
         double invZScale = 1 / fMat[2][2];
 
-        inverse->fMat[0][0] = SkScalar(invXScale);
+        inverse->fMat[0][0] = SkDoubleToScalar(invXScale);
         inverse->fMat[0][1] = 0;
         inverse->fMat[0][2] = 0;
         inverse->fMat[0][3] = 0;
 
         inverse->fMat[1][0] = 0;
-        inverse->fMat[1][1] = SkScalar(invYScale);
+        inverse->fMat[1][1] = SkDoubleToScalar(invYScale);
         inverse->fMat[1][2] = 0;
         inverse->fMat[1][3] = 0;
 
         inverse->fMat[2][0] = 0;
         inverse->fMat[2][1] = 0;
-        inverse->fMat[2][2] = SkScalar(invZScale);
+        inverse->fMat[2][2] = SkDoubleToScalar(invZScale);
         inverse->fMat[2][3] = 0;
 
-        inverse->fMat[3][0] = SkScalar(-fMat[3][0] * invXScale);
-        inverse->fMat[3][1] = SkScalar(-fMat[3][1] * invYScale);
-        inverse->fMat[3][2] = SkScalar(-fMat[3][2] * invZScale);
+        inverse->fMat[3][0] = SkDoubleToScalar(-fMat[3][0] * invXScale);
+        inverse->fMat[3][1] = SkDoubleToScalar(-fMat[3][1] * invYScale);
+        inverse->fMat[3][2] = SkDoubleToScalar(-fMat[3][2] * invZScale);
         inverse->fMat[3][3] = 1;
 
         inverse->setTypeMask(this->getType());
@@ -607,21 +607,21 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         b10 *= invdet;
         b11 *= invdet;
 
-        inverse->fMat[0][0] = SkScalar(a11 * b11 - a12 * b10);
-        inverse->fMat[0][1] = SkScalar(a02 * b10 - a01 * b11);
-        inverse->fMat[0][2] = SkScalar(b03);
+        inverse->fMat[0][0] = SkDoubleToScalar(a11 * b11 - a12 * b10);
+        inverse->fMat[0][1] = SkDoubleToScalar(a02 * b10 - a01 * b11);
+        inverse->fMat[0][2] = SkDoubleToScalar(b03);
         inverse->fMat[0][3] = 0;
-        inverse->fMat[1][0] = SkScalar(a12 * b08 - a10 * b11);
-        inverse->fMat[1][1] = SkScalar(a00 * b11 - a02 * b08);
-        inverse->fMat[1][2] = SkScalar(-b01);
+        inverse->fMat[1][0] = SkDoubleToScalar(a12 * b08 - a10 * b11);
+        inverse->fMat[1][1] = SkDoubleToScalar(a00 * b11 - a02 * b08);
+        inverse->fMat[1][2] = SkDoubleToScalar(-b01);
         inverse->fMat[1][3] = 0;
-        inverse->fMat[2][0] = SkScalar(a10 * b10 - a11 * b08);
-        inverse->fMat[2][1] = SkScalar(a01 * b08 - a00 * b10);
-        inverse->fMat[2][2] = SkScalar(b00);
+        inverse->fMat[2][0] = SkDoubleToScalar(a10 * b10 - a11 * b08);
+        inverse->fMat[2][1] = SkDoubleToScalar(a01 * b08 - a00 * b10);
+        inverse->fMat[2][2] = SkDoubleToScalar(b00);
         inverse->fMat[2][3] = 0;
-        inverse->fMat[3][0] = SkScalar(a11 * b07 - a10 * b09 - a12 * b06);
-        inverse->fMat[3][1] = SkScalar(a00 * b09 - a01 * b07 + a02 * b06);
-        inverse->fMat[3][2] = SkScalar(a31 * b01 - a30 * b03 - a32 * b00);
+        inverse->fMat[3][0] = SkDoubleToScalar(a11 * b07 - a10 * b09 - a12 * b06);
+        inverse->fMat[3][1] = SkDoubleToScalar(a00 * b09 - a01 * b07 + a02 * b06);
+        inverse->fMat[3][2] = SkDoubleToScalar(a31 * b01 - a30 * b03 - a32 * b00);
         inverse->fMat[3][3] = 1;
 
         inverse->setTypeMask(this->getType());
@@ -671,22 +671,22 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
     b10 *= invdet;
     b11 *= invdet;
 
-    inverse->fMat[0][0] = SkScalar(a11 * b11 - a12 * b10 + a13 * b09);
-    inverse->fMat[0][1] = SkScalar(a02 * b10 - a01 * b11 - a03 * b09);
-    inverse->fMat[0][2] = SkScalar(a31 * b05 - a32 * b04 + a33 * b03);
-    inverse->fMat[0][3] = SkScalar(a22 * b04 - a21 * b05 - a23 * b03);
-    inverse->fMat[1][0] = SkScalar(a12 * b08 - a10 * b11 - a13 * b07);
-    inverse->fMat[1][1] = SkScalar(a00 * b11 - a02 * b08 + a03 * b07);
-    inverse->fMat[1][2] = SkScalar(a32 * b02 - a30 * b05 - a33 * b01);
-    inverse->fMat[1][3] = SkScalar(a20 * b05 - a22 * b02 + a23 * b01);
-    inverse->fMat[2][0] = SkScalar(a10 * b10 - a11 * b08 + a13 * b06);
-    inverse->fMat[2][1] = SkScalar(a01 * b08 - a00 * b10 - a03 * b06);
-    inverse->fMat[2][2] = SkScalar(a30 * b04 - a31 * b02 + a33 * b00);
-    inverse->fMat[2][3] = SkScalar(a21 * b02 - a20 * b04 - a23 * b00);
-    inverse->fMat[3][0] = SkScalar(a11 * b07 - a10 * b09 - a12 * b06);
-    inverse->fMat[3][1] = SkScalar(a00 * b09 - a01 * b07 + a02 * b06);
-    inverse->fMat[3][2] = SkScalar(a31 * b01 - a30 * b03 - a32 * b00);
-    inverse->fMat[3][3] = SkScalar(a20 * b03 - a21 * b01 + a22 * b00);
+    inverse->fMat[0][0] = SkDoubleToScalar(a11 * b11 - a12 * b10 + a13 * b09);
+    inverse->fMat[0][1] = SkDoubleToScalar(a02 * b10 - a01 * b11 - a03 * b09);
+    inverse->fMat[0][2] = SkDoubleToScalar(a31 * b05 - a32 * b04 + a33 * b03);
+    inverse->fMat[0][3] = SkDoubleToScalar(a22 * b04 - a21 * b05 - a23 * b03);
+    inverse->fMat[1][0] = SkDoubleToScalar(a12 * b08 - a10 * b11 - a13 * b07);
+    inverse->fMat[1][1] = SkDoubleToScalar(a00 * b11 - a02 * b08 + a03 * b07);
+    inverse->fMat[1][2] = SkDoubleToScalar(a32 * b02 - a30 * b05 - a33 * b01);
+    inverse->fMat[1][3] = SkDoubleToScalar(a20 * b05 - a22 * b02 + a23 * b01);
+    inverse->fMat[2][0] = SkDoubleToScalar(a10 * b10 - a11 * b08 + a13 * b06);
+    inverse->fMat[2][1] = SkDoubleToScalar(a01 * b08 - a00 * b10 - a03 * b06);
+    inverse->fMat[2][2] = SkDoubleToScalar(a30 * b04 - a31 * b02 + a33 * b00);
+    inverse->fMat[2][3] = SkDoubleToScalar(a21 * b02 - a20 * b04 - a23 * b00);
+    inverse->fMat[3][0] = SkDoubleToScalar(a11 * b07 - a10 * b09 - a12 * b06);
+    inverse->fMat[3][1] = SkDoubleToScalar(a00 * b09 - a01 * b07 + a02 * b06);
+    inverse->fMat[3][2] = SkDoubleToScalar(a31 * b01 - a30 * b03 - a32 * b00);
+    inverse->fMat[3][3] = SkDoubleToScalar(a20 * b03 - a21 * b01 + a22 * b00);
     inverse->setTypeMask(this->getType());
     if (!is_matrix_finite(*inverse)) {
         return false;
