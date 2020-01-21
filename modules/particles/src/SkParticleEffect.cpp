@@ -119,7 +119,9 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         fDrawable->prepare(resourceProvider);
     }
 
-    auto buildProgram = [this](const SkSL::String& code, Program* p) {
+    auto buildProgram = [this](const SkSL::String& code) ->
+                                     std::pair<std::unique_ptr<SkSL::ByteCode>,
+                                               SkTArray<std::unique_ptr<SkParticleExternalValue>>> {
         SkSL::Compiler compiler;
         SkSL::Program::Settings settings;
 
@@ -140,17 +142,15 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings);
         if (!program) {
             SkDebugf("%s\n", compiler.errorText().c_str());
-            return;
+            return std::make_pair(nullptr, std::move(externalValues));
         }
 
         auto byteCode = compiler.toByteCode(*program);
         if (!byteCode) {
             SkDebugf("%s\n", compiler.errorText().c_str());
-            return;
+            return std::make_pair(nullptr, std::move(externalValues));
         }
-
-        p->fByteCode = std::move(byteCode);
-        p->fExternalValues.swap(externalValues);
+        return std::make_pair(std::move(byteCode), std::move(externalValues));
     };
 
     SkSL::String effectCode(kCommonHeader);
@@ -160,8 +160,15 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     particleCode.append(kParticleHeader);
     particleCode.append(fParticleCode.c_str());
 
-    buildProgram(effectCode, &fEffectProgram);
-    buildProgram(particleCode, &fParticleProgram);
+    auto effectProgram = buildProgram(effectCode);
+    fEffectProgram.fInterpreter.reset(new SkSL::Interpreter<INTERPRETER_WIDTH>(
+                                                                   std::move(effectProgram.first)));
+    fEffectProgram.fExternalValues.swap(effectProgram.second);
+
+    auto particleProgram = buildProgram(particleCode);
+    fParticleProgram.fInterpreter.reset(new SkSL::Interpreter<INTERPRETER_WIDTH>(
+                                                                 std::move(particleProgram.first)));
+    fParticleProgram.fExternalValues.swap(particleProgram.second);
 }
 
 SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
@@ -222,15 +229,22 @@ void SkParticleEffect::processEffectSpawnRequests(double now) {
 }
 
 void SkParticleEffect::runEffectScript(double now, const char* entry) {
-    if (const auto& byteCode = fParams->fEffectProgram.fByteCode) {
-        if (auto fun = byteCode->getFunction(entry)) {
+    SkSL::Interpreter<INTERPRETER_WIDTH>* interpreter = fParams->fEffectProgram.fInterpreter.get();
+    if (interpreter) {
+        const auto& byteCode = interpreter->getCode();
+        if (auto fun = byteCode.getFunction(entry)) {
             for (const auto& value : fParams->fEffectProgram.fExternalValues) {
                 value->setRandom(&fRandom);
                 value->setEffect(this);
             }
-            SkAssertResult(byteCode->run(fun, &fState.fAge, sizeof(EffectState) / sizeof(float),
-                                         nullptr, 0,
-                                         fEffectUniforms.data(), fEffectUniforms.count()));
+            interpreter->setUniforms(fEffectUniforms.data());
+            static constexpr int numChannels = sizeof(EffectState) / sizeof(float);
+            SkASSERT(numChannels == fun->getParameterSlotCount());
+            float* args[numChannels];
+            for (int i = 0; i < numChannels; ++i) {
+                args[i] = &fState.fAge + i;
+            }
+            SkAssertResult(interpreter->runStriped(fun, 1, args));
             this->processEffectSpawnRequests(now);
         }
     }
@@ -263,8 +277,11 @@ void SkParticleEffect::processParticleSpawnRequests(double now, int start) {
 }
 
 void SkParticleEffect::runParticleScript(double now, const char* entry, int start, int count) {
-    if (const auto& byteCode = fParams->fParticleProgram.fByteCode) {
-        if (auto fun = byteCode->getFunction(entry)) {
+    SkSL::Interpreter<INTERPRETER_WIDTH>* interpreter =
+                                                       fParams->fParticleProgram.fInterpreter.get();
+    if (interpreter) {
+        const auto& byteCode = interpreter->getCode();
+        if (auto fun = byteCode.getFunction(entry)) {
             float* args[SkParticles::kNumChannels];
             for (int i = 0; i < SkParticles::kNumChannels; ++i) {
                 args[i] = fParticles.fData[i].get() + start;
@@ -275,10 +292,8 @@ void SkParticleEffect::runParticleScript(double now, const char* entry, int star
                 value->setEffect(this);
             }
             memcpy(&fParticleUniforms[1], &fState.fAge, sizeof(EffectState));
-            SkAssertResult(byteCode->runStriped(fun, count, args, SkParticles::kNumChannels,
-                                                nullptr, 0,
-                                                fParticleUniforms.data(),
-                                                fParticleUniforms.count()));
+            interpreter->setUniforms(fParticleUniforms.data());
+            SkAssertResult(interpreter->runStriped(fun, count, (float**) args));
             this->processParticleSpawnRequests(now, start);
         }
     }
