@@ -90,7 +90,7 @@ public:
     PreScaleMatrix44Bench()
         : INHERITED("prescale")
     {
-        fX = fY = fZ = SkDoubleToMScalar(1.5);
+        fX = fY = fZ = 1.5f;
     }
 protected:
     void performTest() override {
@@ -101,7 +101,7 @@ protected:
     }
 private:
     SkMatrix44 fM0;
-    SkMScalar  fX, fY, fZ;
+    SkScalar   fX, fY, fZ;
     typedef Matrix44Bench INHERITED;
 };
 
@@ -218,7 +218,7 @@ public:
     PostScaleMatrix44Bench()
         : INHERITED("postscale")
     {
-        fX = fY = fZ = SkDoubleToMScalar(1.5);
+        fX = fY = fZ = 1.5f;
     }
 protected:
     void performTest() override {
@@ -229,7 +229,7 @@ protected:
     }
 private:
     SkMatrix44 fM0;
-    SkMScalar  fX, fY, fZ;
+    SkScalar   fX, fY, fZ;
     typedef Matrix44Bench INHERITED;
 };
 
@@ -240,7 +240,7 @@ public:
         : INHERITED(fastPath ? "setconcat_fast" : "setconcat_general")
 {
         if (fastPath) {
-            const SkMScalar v = SkDoubleToMScalar(1.5);
+            const SkScalar v = 1.5f;
             fM1.setScale(v,v,v);
             fM2.setTranslate(v,v,v);
         } else {
