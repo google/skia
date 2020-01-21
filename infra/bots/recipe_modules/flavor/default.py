@@ -168,9 +168,11 @@ class DefaultFlavor(object):
     if 'SwiftShader' in extra_tokens:
       ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
 
+    # Find the MSAN/TSAN-built libc++.
     if 'MSAN' in extra_tokens:
-      # Find the MSAN-built libc++.
       ld_library_path.append(clang_linux + '/msan')
+    elif 'TSAN' in extra_tokens:
+      ld_library_path.append(clang_linux + '/tsan')
 
     if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
