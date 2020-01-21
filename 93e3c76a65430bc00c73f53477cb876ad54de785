@@ -16,6 +16,24 @@
       "revId": "93e3c76a65430bc00c73f53477cb876ad54de785",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f238211_3a28582b",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 0,
+      "message": "yes, the refTExtureProxy can send in a mipMapped thing with no scale",
+      "parentUuid": "ec2db925_85015e08",
+      "revId": "93e3c76a65430bc00c73f53477cb876ad54de785",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c4ddc8d8_bf846bc4",
+        "filename": "src/gpu/GrBitmapTextureMaker.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9b61b33_cac0af45",
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "17345b23_bd98aa06",
         "filename": "src/gpu/GrBitmapTextureMaker.h",
         "patchSetId": 8
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "0c97c243_5f571334",
+        "filename": "src/gpu/GrBitmapTextureMaker.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 1,
+      "message": "changed to static helper to get color info.",
+      "parentUuid": "17345b23_bd98aa06",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 92
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f7d2f73_e676e07c",
         "filename": "src/gpu/GrSurfaceProxy.cpp",
         "patchSetId": 8
@@ -62,6 +104,30 @@
       "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d180c8da_d9bfe0b9",
+        "filename": "src/gpu/GrSurfaceProxy.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 1,
+      "message": "This is just using an already available call on caps. It just allows us to not have to break the call on the proxy into two calls (getFormat then caps call).\n\nAs talked about offline, if we move all the backend formats for vulkan and metal to an Gr enum then it could make sense to have some general GrBackend helper/get functions that don\u0027t need caps. So not doing that in this change.",
+      "parentUuid": "5f7d2f73_e676e07c",
+      "range": {
+        "startLine": 277,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 1
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -111,6 +177,54 @@
     },
     {
       "key": {
+        "uuid": "211a3139_14f2ada9",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 1,
+      "message": "Function has been deleted.",
+      "parentUuid": "f6df5581_2f117508",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 0
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bbeeca81_0504d736",
+        "filename": "src/gpu/GrTextureProducer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 1,
+      "message": "Just using alphaType now. function deleted.",
+      "parentUuid": "46a4d62d_96232851",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 17
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c34c89a5_922ea61f",
         "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
         "patchSetId": 8
@@ -122,6 +236,30 @@
       "writtenOn": "2020-01-17T21:24:14Z",
       "side": 1,
       "message": "Is this because we still don\u0027t have an sRGB SkColorType? We need to fix that.",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 414,
+        "endChar": 9
+      },
+      "revId": "0074f91c8c4a0473154d923280ca4e5af2456956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2e0dc77_40a21e7b",
+        "filename": "src/gpu/SkGpuDevice_drawTexture.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-21T15:33:47Z",
+      "side": 1,
+      "message": "yup... :(",
+      "parentUuid": "c34c89a5_922ea61f",
       "range": {
         "startLine": 408,
         "startChar": 0,
