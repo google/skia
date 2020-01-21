@@ -49,7 +49,7 @@ DEF_TEST(MallocPixelRef, reporter) {
         // data too small.
         REPORTER_ASSERT(reporter, nullptr == pr.get());
     }
-    size_t rowBytes = info.minRowBytes() + 7;
+    size_t rowBytes = info.minRowBytes() + info.bytesPerPixel();
     size_t size = info.computeByteSize(rowBytes) + 9;
     {
         SkAutoMalloc memory(size);
