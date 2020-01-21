@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLByteCode.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #endif
@@ -135,6 +136,10 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
         }
         fp->addChild(std::move(childFP));
     }
-    return fp;
+    if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
+        return GrFragmentProcessor::ClampPremulOutput(std::move(fp));
+    } else {
+        return fp;
+    }
 }
 #endif

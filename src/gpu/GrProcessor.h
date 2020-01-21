@@ -168,6 +168,7 @@ public:
         kMappedNormalsFP_ClassID,
         kLightingFP_ClassID,
         kLinearStrokeProcessor_ClassID,
+        kGrClampPremulInputFragmentProcessor_ClassID,
     };
 
     virtual ~GrProcessor() = default;
