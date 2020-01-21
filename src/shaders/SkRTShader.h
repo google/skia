@@ -18,12 +18,7 @@ class SkData;
 class SkMatrix;
 class SkRuntimeEffect;
 
-namespace SkSL {
-    class ByteCodeFunction;
-
-    template<int width>
-    class Interpreter;
-}
+namespace SkSL { class ByteCode; }
 
 class SkRTShader : public SkShaderBase {
 public:
@@ -42,8 +37,6 @@ protected:
     bool onAppendStages(const SkStageRec& rec) const override;
 
 private:
-    static constexpr int VECTOR_WIDTH = 8;
-
     SK_FLATTENABLE_HOOKS(SkRTShader)
 
     sk_sp<SkRuntimeEffect> fEffect;
@@ -52,9 +45,8 @@ private:
     sk_sp<SkData> fInputs;
     std::vector<sk_sp<SkShader>> fChildren;
 
-    mutable SkMutex fInterpreterMutex;
-    mutable std::unique_ptr<SkSL::Interpreter<VECTOR_WIDTH>> fInterpreter;
-    mutable const SkSL::ByteCodeFunction* fMain;
+    mutable SkMutex fByteCodeMutex;
+    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 
     typedef SkShaderBase INHERITED;
 };

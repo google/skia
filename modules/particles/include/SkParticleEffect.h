@@ -16,7 +16,6 @@
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "modules/particles/include/SkParticleData.h"
-#include "src/sksl/SkSLInterpreter.h"
 
 #include <memory>
 
@@ -25,8 +24,6 @@ class SkFieldVisitor;
 class SkParticleBinding;
 class SkParticleDrawable;
 class SkParticleExternalValue;
-
-static constexpr int INTERPRETER_WIDTH = 8;
 
 namespace skresources {
     class ResourceProvider;
@@ -125,16 +122,13 @@ private:
     friend class SkParticleEffect;
 
     // Cached
-    template<int width>
     struct Program {
-        std::unique_ptr<SkSL::Interpreter<width>> fInterpreter;
+        std::unique_ptr<SkSL::ByteCode> fByteCode;
         SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
     };
 
-    // for performance it would be better to run this with a Program<1>, but for code-size reasons
-    // we stick to INTERPRETER_WIDTH
-    Program<INTERPRETER_WIDTH> fEffectProgram;
-    Program<INTERPRETER_WIDTH> fParticleProgram;
+    Program fEffectProgram;
+    Program fParticleProgram;
 };
 
 class SkParticleEffect : public SkRefCnt {
@@ -189,17 +183,8 @@ public:
     void setFrame   (float     f) { fState.fFrame    = f; }
     void setFlags   (uint32_t  f) { fState.fFlags    = f; }
 
-    const SkSL::ByteCode* effectCode() const {
-        return fParams->fEffectProgram.fInterpreter ?
-               &fParams->fEffectProgram.fInterpreter->getCode() :
-               nullptr;
-    }
-
-    const SkSL::ByteCode* particleCode() const {
-        return fParams->fParticleProgram.fInterpreter ?
-               &fParams->fParticleProgram.fInterpreter->getCode() :
-               nullptr;
-    }
+    const SkSL::ByteCode* effectCode() const { return fParams->fEffectProgram.fByteCode.get(); }
+    const SkSL::ByteCode* particleCode() const { return fParams->fParticleProgram.fByteCode.get(); }
 
     float* effectUniforms() { return fEffectUniforms.data(); }
     float* particleUniforms() { return fParticleUniforms.data(); }
