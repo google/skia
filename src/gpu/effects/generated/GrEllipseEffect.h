@@ -11,6 +11,7 @@
 #ifndef GrEllipseEffect_DEFINED
 #define GrEllipseEffect_DEFINED
 #include "include/core/SkTypes.h"
+#include "include/private/SkM44.h"
 
 #include "src/gpu/GrShaderCaps.h"
 
