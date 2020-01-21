@@ -28,8 +28,8 @@ sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
                                                                            GrRenderable::kYes);
 
     return context->priv().proxyProvider()->createProxy(
-        format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
-        SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
+        desc, format, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo,
+        GrMipMapped::kNo, SkBackingFit::kExact, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 }
 
 typedef GrQuadAAFlags (*PerQuadAAFunc)(int i);

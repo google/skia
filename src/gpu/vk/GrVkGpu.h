@@ -176,26 +176,29 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            const BackendTextureData*,
                                             GrMipMapped,
-                                            GrProtected) override;
+                                            GrProtected,
+                                            const BackendTextureData*) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      const BackendTextureData*,
                                                       GrMipMapped,
-                                                      GrProtected) override;
+                                                      GrProtected,
+                                                      const BackendTextureData*) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
-                                     const GrBackendFormat& format,
+                                     const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
+                                     GrMipMapped,
                                      GrProtected,
-                                     int mipLevelCount,
                                      uint32_t levelClearMask) override;
-    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                               SkBudgeted, GrMipMapped, const void* data,
-                                               size_t dataSize) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
+                                               const GrBackendFormat&,
+                                               SkBudgeted,
+                                               GrMipMapped,
+                                               GrProtected,
+                                               const void* data, size_t dataSize) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
                                           GrWrapCacheable, GrIOType) override;
@@ -269,14 +272,14 @@ private:
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 
-    bool createVkImageForBackendSurface(VkFormat,
-                                        SkISize,
+    bool createVkImageForBackendSurface(SkISize dimensions,
+                                        VkFormat,
+                                        GrVkImageInfo*,
                                         GrTexturable,
                                         GrRenderable,
-                                        const BackendTextureData*,
                                         GrMipMapped,
-                                        GrVkImageInfo*,
-                                        GrProtected);
+                                        GrProtected,
+                                        const BackendTextureData*);
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;

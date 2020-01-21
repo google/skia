@@ -90,7 +90,14 @@ public:
      * @param renderTargetSampleCnt The number of samples to use for rendering if renderable is
      *                       kYes. If renderable is kNo then this must be 1.
      * @param budgeted       does this texture count against the resource cache budget?
+     * @param mipMapped
+     * @param texelLevelCount the number of levels in 'texels'. May be 0, 1, or
+     *                       floor(max((log2(desc.fWidth), log2(desc.fHeight)))). It must be the
+     *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
      * @param isProtected    should the texture be created as protected.
+     * @param textureColorType The color type interpretation of the texture for the purpose of
+     *                       of uploading texel data.
+     * @param srcColorType   The color type of data in texels[].
      * @param texels         array of mipmap levels containing texel data to load.
      *                       If level i has pixels then it is assumed that its dimensions are
      *                       max(1, floor(desc.fWidth / 2)) by max(1, floor(desc.fHeight / 2)).
@@ -102,38 +109,35 @@ public:
      *                       If mipLevelCount > 1 and texels[i].fPixels != nullptr for any i > 0
      *                       then all levels must have non-null pixels. All levels must have
      *                       non-null pixels if GrCaps::createTextureMustSpecifyAllLevels() is true.
-     * @param textureColorType The color type interpretation of the texture for the purpose of
-     *                       of uploading texel data.
-     * @param srcColorType   The color type of data in texels[].
-     * @param texelLevelCount the number of levels in 'texels'. May be 0, 1, or
-     *                       floor(max((log2(desc.fWidth), log2(desc.fHeight)))). It must be the
-     *                       latter if GrCaps::createTextureMustSpecifyAllLevels() is true.
      * @return  The texture object if successful, otherwise nullptr.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createTexture2(const GrSurfaceDesc& desc,
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   SkBudgeted,
+                                   SkBudgeted budgeted,
+                                   GrMipMapped mipMapped,
                                    GrProtected isProtected,
                                    GrColorType textureColorType,
                                    GrColorType srcColorType,
-                                   const GrMipLevel texels[],
-                                   int texelLevelCount);
+                                   const GrMipLevel texels[]);
 
     /**
      * Simplified createTexture() interface for when there is no initial texel data to upload.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
-                                   const GrBackendFormat& format,
-                                   GrRenderable renderable,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&,
+                                   const GrBackendFormat&,
+                                   GrRenderable,
                                    int renderTargetSampleCnt,
+                                   SkBudgeted,
                                    GrMipMapped,
-                                   SkBudgeted budgeted,
-                                   GrProtected isProtected);
+                                   GrProtected);
 
-    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                             SkBudgeted, GrMipMapped,
+    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
+                                             const GrBackendFormat&,
+                                             SkBudgeted,
+                                             GrMipMapped,
+                                             GrProtected,
                                              const void* data, size_t dataSize);
 
     /**
@@ -529,15 +533,15 @@ public:
     GrBackendTexture createBackendTexture(SkISize dimensions,
                                           const GrBackendFormat&,
                                           GrRenderable,
-                                          const BackendTextureData*,
-                                          int numMipLevels,
-                                          GrProtected);
+                                          GrMipMapped,
+                                          GrProtected,
+                                          const BackendTextureData*);
 
     GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
-                                                    const BackendTextureData*,
                                                     GrMipMapped,
-                                                    GrProtected);
+                                                    GrProtected,
+                                                    const BackendTextureData*);
 
     /**
      * Frees a texture created by createBackendTexture(). If ownership of the backend
@@ -614,7 +618,7 @@ public:
     }
 
 protected:
-    static bool MipMapsAreCorrect(SkISize dimensions, const BackendTextureData*, int numMipLevels);
+    static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
                                         GrMipMapped, const BackendTextureData*);
 
@@ -631,15 +635,15 @@ private:
     virtual GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     GrRenderable,
-                                                    const BackendTextureData*,
                                                     GrMipMapped,
-                                                    GrProtected isProtected) = 0;
+                                                    GrProtected,
+                                                    const BackendTextureData*) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                               const GrBackendFormat&,
-                                                              const BackendTextureData*,
                                                               GrMipMapped,
-                                                              GrProtected isProtected) = 0;
+                                                              GrProtected,
+                                                              const BackendTextureData*) = 0;
 
     // called when the 3D context state is unknown. Subclass should emit any
     // assumed 3D context state and dirty any state cache.
@@ -664,12 +668,14 @@ private:
                                              GrRenderable,
                                              int renderTargetSampleCnt,
                                              SkBudgeted,
+                                             GrMipMapped,
                                              GrProtected,
-                                             int mipLevelCoont,
                                              uint32_t levelClearMask) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                        const GrBackendFormat&,
-                                                       SkBudgeted, GrMipMapped,
+                                                       SkBudgeted,
+                                                       GrMipMapped,
+                                                       GrProtected,
                                                        const void* data, size_t dataSize) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                                   GrWrapOwnership, GrWrapCacheable, GrIOType) = 0;
@@ -731,13 +737,13 @@ private:
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
 
-    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc& desc,
-                                         const GrBackendFormat& format,
-                                         GrRenderable renderable,
+    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc&,
+                                         const GrBackendFormat&,
+                                         GrRenderable,
                                          int renderTargetSampleCnt,
-                                         SkBudgeted budgeted,
-                                         GrProtected isProtected,
-                                         int mipLevelCnt,
+                                         SkBudgeted,
+                                         GrMipMapped,
+                                         GrProtected,
                                          uint32_t levelClearMask);
 
     void resetContext() {

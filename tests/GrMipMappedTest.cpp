@@ -346,8 +346,8 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
     desc.fHeight = 1;
     desc.fConfig = mipmapProxy->config();
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
-            mipmapProxy->backendFormat(), desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
-            GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+            desc, mipmapProxy->backendFormat(), GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
+            SkBudgeted::kYes, GrMipMapped::kNo, SkBackingFit::kApprox, GrProtected::kNo);
 
     auto rtc = GrRenderTargetContext::Make(
             context, colorType, nullptr, std::move(renderTarget), kTopLeft_GrSurfaceOrigin,
@@ -394,8 +394,8 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         desc.fHeight = 4;
         desc.fConfig = config;
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, desc, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, GrMipMapped::kYes,
-                SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                desc, format, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                GrMipMapped::kYes, SkBackingFit::kExact, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

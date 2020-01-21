@@ -191,7 +191,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     desc.fConfig = config;
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, GrRenderable::kYes, sampleCnt, origin, mipMapped, fit, budgeted,
+            desc, format, GrRenderable::kYes, sampleCnt, origin, budgeted, mipMapped, fit,
             isProtected);
     if (!proxy) {
         return nullptr;

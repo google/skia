@@ -85,7 +85,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(
     desc.fConfig = config;
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, renderable, renderTargetSampleCnt, origin, mipMapped, fit, budgeted,
+            desc, format, renderable, renderTargetSampleCnt, origin, budgeted, mipMapped, fit,
             isProtected);
     if (!proxy) {
         return nullptr;
@@ -387,8 +387,8 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         GrSurfaceOrigin tempOrigin =
                 this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, GrRenderable::kNo, 1, tempOrigin, GrMipMapped::kNo,
-                SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+                desc, format, GrRenderable::kNo, 1, tempOrigin, SkBudgeted::kYes, GrMipMapped::kNo,
+                SkBackingFit::kApprox, GrProtected::kNo);
         if (!tempProxy) {
             return false;
         }
