@@ -952,3 +952,29 @@ DEF_TEST(Picture_emptyNestedPictureBug, r) {
     REPORTER_ASSERT(r, (middle->cullRect() == SkRect{-100,-100, -50,-50}));
     REPORTER_ASSERT(r, (outer ->cullRect() == SkRect{-100,-100, -50,-50}));   // Used to fail.
 }
+
+DEF_TEST(Picture_fillsBBH, r) {
+    // Test empty (0 draws), mini (1 draw), and big (2+) pictures, making sure they fill the BBH.
+    const SkRect rects[] = {
+        { 0, 0, 20,20},
+        {20,20, 40,40},
+    };
+
+    for (int n = 0; n <= 2; n++) {
+        SkRTreeFactory factory;
+        SkPictureRecorder rec;
+
+        sk_sp<SkBBoxHierarchy> bbh = factory();
+
+        SkCanvas* c = rec.beginRecording({0,0, 100,100}, bbh);
+        for (int i = 0; i < n; i++) {
+            c->drawRect(rects[i], SkPaint{});
+        }
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        SkTDArray<int> results;
+        bbh->search({0,0, 100,100}, &results);
+        REPORTER_ASSERT(r, results.count() == n,
+                        "results.count() == %d, want %d\n", results.count(), n);
+    }
+}
