@@ -136,7 +136,7 @@ static void test_compressed_color_init(GrContext* context,
                                        GrMipMapped mipMapped) {
     GrBackendTexture backendTex = create(context, color, mipMapped);
     if (!backendTex.isValid()) {
-        // errors here should be reported by the test_wrapping test
+          SkDebugf("fail z\n");
         return;
     }
 
@@ -209,6 +209,7 @@ static void test_compressed_data_init(GrContext* context,
 
     GrBackendTexture backendTex = create(context, data.get(), dataSize, mipMapped);
     if (!backendTex.isValid()) {
+          SkDebugf("fail a\n");
         return;
     }
 
@@ -229,6 +230,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
     GrContext* context = ctxInfo.grContext();
     const GrCaps* caps = context->priv().caps();
 
+    switch (context->backend()) {
+    case GrBackendApi::kMetal:
+      SkDebugf("Mtl\n");
+      break;
+    case GrBackendApi::kOpenGL:
+      SkDebugf("OpenGL\n");
+      return;
+      break;
+    default:
+      SkDebugf("Unknown %d\n", context->backend());
+      break;
+    }
+
     struct {
         SkImage::CompressionType fCompression;
         SkColor4f                fColor;
@@ -241,15 +255,18 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
     for (auto combo : combinations) {
         GrBackendFormat format = context->compressedBackendFormat(combo.fCompression);
         if (!format.isValid()) {
+          SkDebugf("fail 1: %s\n", GrCompressionTypeToStr(combo.fCompression));
             continue;
         }
 
         if (!caps->isFormatTexturable(format)) {
+          SkDebugf("fail 2\n");
             continue;
         }
 
         for (auto mipMapped : { GrMipMapped::kNo, GrMipMapped::kYes }) {
             if (GrMipMapped::kYes == mipMapped && !caps->mipMapSupport()) {
+          SkDebugf("fail 3\n");
                 continue;
             }
 
