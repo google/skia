@@ -86,10 +86,16 @@ static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
     }
 }
 
+/**
+ * Blurs the 'proxyRect' area of 'proxy' and stored the result in 'dst' at a rect
+ * the same size as 'proxyRect' but translated by 'translateToDst'. 'bounds' is
+ * optional and specifies the edges of the content area of 'proxy' at which
+ * 'mode' should be applied. If null the proxy edges are used.
+ */
 static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
-                                 const SkIRect& dstRect,
-                                 const SkIPoint& srcOffset,
                                  sk_sp<GrTextureProxy> proxy,
+                                 SkIVector srcOffset,
+                                 const SkIRect& dstRect,
                                  SkAlphaType srcAlphaType,
                                  Direction direction,
                                  int radius,
@@ -109,34 +115,31 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
             std::move(proxy), srcAlphaType, direction, radius, sigma, domainMode, realBounds));
     paint.addColorFragmentProcessor(std::move(conv));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
-                                               -SkIntToScalar(srcOffset.y()));
-    renderTargetContext->fillRectWithLocalMatrix(GrNoClip(), std::move(paint), GrAA::kNo,
-                                                 SkMatrix::I(), SkRect::Make(dstRect), localMatrix);
+    auto srcRect = SkRect::Make(dstRect.makeOffset(srcOffset));
+    renderTargetContext->fillRectToRect(GrNoClip(), std::move(paint), GrAA::kNo,
+                                                 SkMatrix::I(), SkRect::Make(dstRect), srcRect);
 }
 
 static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingContext* context,
                                                                    sk_sp<GrTextureProxy> srcProxy,
                                                                    GrColorType srcColorType,
                                                                    const SkIRect& srcBounds,
-                                                                   const SkIPoint& srcOffset,
+                                                                   const SkIRect& dstBounds,
                                                                    int radiusX,
                                                                    int radiusY,
                                                                    SkScalar sigmaX,
                                                                    SkScalar sigmaY,
                                                                    SkTileMode mode,
-                                                                   SkISize dstSize,
                                                                    sk_sp<SkColorSpace> finalCS,
                                                                    SkBackingFit dstFit) {
     auto renderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(finalCS), dstFit, dstSize, 1,
+            context, srcColorType, std::move(finalCS), dstFit, dstBounds.size(), 1,
             GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
     if (!renderTargetContext) {
         return nullptr;
     }
 
-    SkMatrix localMatrix = SkMatrix::MakeTrans(-SkIntToScalar(srcOffset.x()),
-                                               -SkIntToScalar(srcOffset.y()));
+    SkMatrix localMatrix = SkMatrix::MakeTrans(dstBounds.topLeft());
     SkISize size = SkISize::Make(2 * radiusX + 1,  2 * radiusY + 1);
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
     GrPaint paint;
@@ -148,7 +151,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian_2d(GrRecordingCo
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     renderTargetContext->fillRectWithLocalMatrix(GrNoClip(), std::move(paint), GrAA::kNo,
-                                                 SkMatrix::I(), SkRect::Make(dstSize), localMatrix);
+                                                 SkMatrix::I(), SkRect::Make(dstBounds.size()), localMatrix);
 
     return renderTargetContext;
 }
@@ -157,69 +160,88 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
                                                                 sk_sp<GrTextureProxy> srcProxy,
                                                                 GrColorType srcColorType,
                                                                 SkAlphaType srcAlphaType,
-                                                                const SkIRect& srcRect,
-                                                                const SkIPoint& srcOffset,
+                                                                SkIRect* contentRect,
+                                                                SkIRect dstBounds,
                                                                 Direction direction,
                                                                 int radius,
                                                                 float sigma,
-                                                                SkIRect* contentRect,
                                                                 SkTileMode mode,
                                                                 sk_sp<SkColorSpace> finalCS,
                                                                 SkBackingFit fit) {
+    // Logically we're creating an infinite blur of 'contentRect' of 'srcProxy' with 'mode' tiling
+    // and then capturing the 'dstBounds' portion in a new RTC where the top left of 'dstBounds' is
+    // at {0, 0} in the new RTC.
     auto dstRenderTargetContext = GrRenderTargetContext::Make(
-            context, srcColorType, std::move(finalCS), fit, srcRect.size(), 1,
+            context, srcColorType, std::move(finalCS), fit, dstBounds.size(), 1,
             GrMipMapped::kNo, srcProxy->isProtected(), srcProxy->origin());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
 
-    SkIRect dstRect = SkIRect::MakeWH(srcRect.width(), srcRect.height());
+    // This represents the translation from 'dstRenderTargetContext' coords to 'srcProxy' coords.
+    auto dstToSrcOffset = dstBounds.topLeft();
+
     if (SkTileMode::kClamp == mode &&
         contentRect->contains(SkIRect::MakeSize(srcProxy->backingStoreDimensions()))) {
-        *contentRect = dstRect;
-        convolve_gaussian_1d(dstRenderTargetContext.get(), dstRect, srcOffset, std::move(srcProxy),
+        auto dstRect = SkIRect::MakeSize(dstBounds.size());
+        convolve_gaussian_1d(dstRenderTargetContext.get(), std::move(srcProxy), dstToSrcOffset, dstRect,
                              srcAlphaType, direction, radius, sigma, SkTileMode::kClamp, nullptr);
+        *contentRect = dstRect;
         return dstRenderTargetContext;
     }
 
-    // These destination rects need to be adjusted by srcOffset.
-    SkIRect midRect = *contentRect, leftRect, rightRect;
-    midRect.offset(srcOffset);
+    // 'leftRect' and 'rightRect' are the rects where 'mode' must be enforced. 'midRect' is the area
+    // where we can ignore the mode because the kernel does not reach to the edge of 'contentRect'.
+    // The names are derived from the Direction::kX case.
+    // TODO: When mode is kMirror or kRepeat it makes more sense to think of contentRect
+    // as a tile and figure out the collection of mid/left/right rects that cover dstBounds.
+    // Also if 'midRect' is small relative to left/right we should probably issue one draw
+    // that implements the mode in the shader rather than break it up in this fashion.
+    SkIRect midRect, leftRect, rightRect;
+    // 'topRect' and 'bottomRect' are areas of 'dstBounds' that are entirely above/below
+    // 'contentRect'. These are areas that we can simply clear in the dst. If 'contentRect'
+    // straddles the top edge of 'dstBounds' then 'topRect' will be inverted and we will skip
+    // the clear. Similar for 'bottomRect'. The positional/directional labels above refer to the
+    // Direction::kX case and one should think of these as 'left' and 'right' for Direction::kY.
     SkIRect topRect, bottomRect;
     int bounds[2];
     if (Direction::kX == direction) {
         bounds[0] = contentRect->left();
         bounds[1] = contentRect->right();
-        topRect = SkIRect::MakeLTRB(0, 0, dstRect.right(), midRect.top());
-        bottomRect = SkIRect::MakeLTRB(0, midRect.bottom(), dstRect.right(), dstRect.bottom());
-        midRect.inset(radius, 0);
-        leftRect = SkIRect::MakeLTRB(0, midRect.top(), midRect.left(), midRect.bottom());
-        rightRect =
-            SkIRect::MakeLTRB(midRect.right(), midRect.top(), dstRect.width(), midRect.bottom());
-        dstRect.fTop = midRect.top();
-        dstRect.fBottom = midRect.bottom();
-
-        contentRect->fLeft = dstRect.fLeft;
-        contentRect->fTop = midRect.fTop;
-        contentRect->fRight = dstRect.fRight;
-        contentRect->fBottom = midRect.fBottom;
+        // Inset to get the portion of 'contentRect' where the kernel doesn't reach the edges.
+        midRect = contentRect->makeInset(radius, 0);
+        // 'topRect' is the rect of 'dstBounds' above the top of 'contentRect'. It will be inverted
+        // if 'contentRect's top is above 'dstBounds'. 'bottomRect' is the area below 'contentRect'
+        topRect    = {dstBounds.left(), dstBounds.top()      , dstBounds.right(), contentRect->top()};
+        bottomRect = {dstBounds.left(), contentRect->bottom(), dstBounds.right(), dstBounds.bottom()};
+        // 'leftRect' and 'rightRect' are the areas of 'dstBounds' intersected with 'contentRect'
+        // where the kernel reaches the edge of 'contentRect' and therefore 'mode' must be considered.
+        leftRect   = {dstBounds.left(), midRect.top()        , midRect.left()   , midRect.bottom()  };
+        rightRect  = {midRect.right(),  midRect.top()        , dstBounds.right(), midRect.bottom()  };
+        // The new 'contentRect' will be the area between the clears.
+        *contentRect = {dstBounds.left(), topRect.bottom(), dstBounds.right(), bottomRect.top()};
     } else {
+        // This is the same as the x direction code if you turn your head 90 degrees ccw. Think
+        // 'leftRect' for 'topRect', 'rightRect' for 'bottomRect' and vice-versa.
         bounds[0] = contentRect->top();
         bounds[1] = contentRect->bottom();
-        topRect = SkIRect::MakeLTRB(0, 0, midRect.left(), dstRect.bottom());
-        bottomRect = SkIRect::MakeLTRB(midRect.right(), 0, dstRect.right(), dstRect.bottom());
-        midRect.inset(0, radius);
-        leftRect = SkIRect::MakeLTRB(midRect.left(), 0, midRect.right(), midRect.top());
-        rightRect =
-            SkIRect::MakeLTRB(midRect.left(), midRect.bottom(), midRect.right(), dstRect.height());
-        dstRect.fLeft = midRect.left();
-        dstRect.fRight = midRect.right();
-
-        contentRect->fLeft = midRect.fLeft;
-        contentRect->fTop = dstRect.fTop;
-        contentRect->fRight = midRect.fRight;
-        contentRect->fBottom = dstRect.fBottom;
+        // Inset to get the portion of 'contentRect' where the kernel doesn't reach the edges.
+        midRect = contentRect->makeInset(0, radius);
+        topRect    = {dstBounds.left(),     dstBounds.top() , contentRect->left(), dstBounds.bottom()};
+        bottomRect = {contentRect->right(), dstBounds.top() , dstBounds.right()  , dstBounds.bottom()};
+        leftRect   = {midRect.left()      , dstBounds.top() , midRect.right()    , midRect.bottom()  };
+        rightRect  = {midRect.left()      , midRect.bottom(), midRect.right()    , dstBounds.bottom()};
+        *contentRect = {topRect.right(), dstBounds.top(), bottomRect.left(), dstBounds.bottom()};
     }
+    // Move all the rects into 'dstRenderTargetContext' coord system.
+    midRect   .offset(-dstToSrcOffset);
+    topRect   .offset(-dstToSrcOffset);
+    bottomRect.offset(-dstToSrcOffset);
+    leftRect  .offset(-dstToSrcOffset);
+    rightRect .offset(-dstToSrcOffset);
+
+    contentRect->offset(-dstToSrcOffset);
+
     if (!topRect.isEmpty()) {
         dstRenderTargetContext->clear(&topRect, SK_PMColor4fTRANSPARENT,
                                       GrRenderTargetContext::CanClearFullscreen::kYes);
@@ -231,16 +253,15 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
     }
 
     if (midRect.isEmpty()) {
-        // Blur radius covers srcBounds; use bounds over entire draw
-        convolve_gaussian_1d(dstRenderTargetContext.get(), dstRect, srcOffset, std::move(srcProxy),
+        convolve_gaussian_1d(dstRenderTargetContext.get(), std::move(srcProxy), dstToSrcOffset, *contentRect,
                              srcAlphaType, direction, radius, sigma, mode, bounds);
     } else {
         // Draw right and left margins with bounds; middle without.
-        convolve_gaussian_1d(dstRenderTargetContext.get(), leftRect, srcOffset, srcProxy,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), srcProxy, dstToSrcOffset, leftRect,
                              srcAlphaType, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), rightRect, srcOffset, srcProxy,
+        convolve_gaussian_1d(dstRenderTargetContext.get(), srcProxy, dstToSrcOffset, rightRect,
                              srcAlphaType, direction, radius, sigma, mode, bounds);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), midRect, srcOffset, std::move(srcProxy),
+        convolve_gaussian_1d(dstRenderTargetContext.get(), std::move(srcProxy), dstToSrcOffset, midRect,
                              srcAlphaType, direction, radius, sigma, SkTileMode::kClamp, nullptr);
     }
 
@@ -254,7 +275,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                                       sk_sp<GrTextureProxy> srcProxy,
                                       GrColorType srcColorType,
                                       SkAlphaType srcAlphaType,
-                                      SkIPoint* srcOffset,
+                                      SkIPoint srcOffset,
                                       SkIRect* contentRect,
                                       int scaleFactorX,
                                       int scaleFactorY,
@@ -263,8 +284,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
     SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
 
-    SkIRect srcRect = *contentRect;
-    srcRect.offset(*srcOffset);
+    SkIRect srcRect = contentRect->makeOffset(srcOffset);
 
     scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
     scale_irect(&srcRect, scaleFactorX, scaleFactorY);
@@ -308,10 +328,7 @@ static sk_sp<GrTextureProxy> decimate(GrRecordingContext* context,
                 domain.fTop = domain.fBottom = SkScalarAve(domain.fTop, domain.fBottom);
             }
             fp = GrDomainEffect::Make(std::move(fp), domain, domainMode, true);
-            srcRect.offset(-(*srcOffset));
-            // TODO: consume the srcOffset in both first draws and always set it to zero
-            // back in GaussianBlur
-            srcOffset->set(0, 0);
+            srcRect.offset(-srcOffset);
         }
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -389,9 +406,8 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
                                                                 GrColorType srcColorType,
                                                                 SkAlphaType srcAlphaType,
                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                SkIRect srcRect,
-                                                                SkIPoint srcOffset,
                                                                 SkIRect* srcBounds,
+                                                                SkIRect dstBounds,
                                                                 float sigmaX,
                                                                 float sigmaY,
                                                                 int radiusX,
@@ -402,23 +418,21 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
     if (sigmaX > 0.0f) {
         SkBackingFit xFit = sigmaY > 0 ? SkBackingFit::kApprox : fit;
         dstRenderTargetContext = convolve_gaussian(
-                context, std::move(srcProxy), srcColorType, srcAlphaType, srcRect, srcOffset,
-                Direction::kX, radiusX, sigmaX, srcBounds, mode, colorSpace, xFit);
+                context, std::move(srcProxy), srcColorType, srcAlphaType, srcBounds, dstBounds,
+                Direction::kX, radiusX, sigmaX, mode, colorSpace, xFit);
         if (!dstRenderTargetContext) {
             return nullptr;
         }
         srcProxy = dstRenderTargetContext->asTextureProxyRef();
-
-        srcRect.offsetTo(0, 0);
-        srcOffset.set(0, 0);
+        dstBounds = SkIRect::MakeSize(dstBounds.size());
     }
 
     if (sigmaY == 0.0f) {
         return dstRenderTargetContext;
     }
 
-    return convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType, srcRect,
-                             srcOffset, Direction::kY, radiusY, sigmaY, srcBounds, mode, colorSpace,
+    return convolve_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType, srcBounds, dstBounds,
+                             Direction::kY, radiusY, sigmaY, mode, colorSpace,
                              fit);
 }
 
@@ -446,7 +460,6 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
     sigmaY = adjust_sigma(sigmaY, maxTextureSize, &scaleFactorY, &radiusY);
     SkASSERT(sigmaX || sigmaY);
 
-    SkIPoint srcOffset = -dstBounds.topLeft();
     auto localSrcBounds = srcBounds;
 
     if (scaleFactorX == 1 && scaleFactorY == 1) {
@@ -455,24 +468,24 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
         if (sigmaX > 0 && sigmaY > 0 && (2 * radiusX + 1) * (2 * radiusY + 1) <= MAX_KERNEL_SIZE) {
             // Apply the proxy offset to src bounds and offset directly
             return convolve_gaussian_2d(context, std::move(srcProxy), srcColorType, srcBounds,
-                                        srcOffset, radiusX, radiusY, sigmaX, sigmaY, mode,
-                                        dstBounds.size(), colorSpace, fit);
+                                        dstBounds, radiusX, radiusY, sigmaX, sigmaY, mode,
+                                        colorSpace, fit);
         }
-        auto srcRect = SkIRect::MakeSize(dstBounds.size());
         return two_pass_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                 std::move(colorSpace), srcRect, srcOffset, &localSrcBounds, sigmaX,
+                                 std::move(colorSpace), &localSrcBounds, dstBounds, sigmaX,
                                  sigmaY, radiusX, radiusY, mode, fit);
     }
 
-    srcProxy = decimate(context, std::move(srcProxy), srcColorType, srcAlphaType, &srcOffset,
+    auto srcOffset = -dstBounds.topLeft();
+    srcProxy = decimate(context, std::move(srcProxy), srcColorType, srcAlphaType, srcOffset,
                         &localSrcBounds, scaleFactorX, scaleFactorY, mode, colorSpace);
     if (!srcProxy) {
         return nullptr;
     }
-    auto srcRect = SkIRect::MakeSize(dstBounds.size());
-    scale_irect_roundout(&srcRect, 1.0f / scaleFactorX, 1.0f / scaleFactorY);
+    auto scaledDstBounds = SkIRect::MakeWH(sk_float_ceil(dstBounds.width()  / (float)scaleFactorX),
+                                           sk_float_ceil(dstBounds.height() / (float)scaleFactorY));
     auto rtc = two_pass_gaussian(context, std::move(srcProxy), srcColorType, srcAlphaType,
-                                 colorSpace, srcRect, srcOffset, &localSrcBounds, sigmaX, sigmaY,
+                                 colorSpace, &localSrcBounds, scaledDstBounds, sigmaX, sigmaY,
                                  radiusX, radiusY, mode, SkBackingFit::kApprox);
     if (!rtc) {
         return nullptr;
