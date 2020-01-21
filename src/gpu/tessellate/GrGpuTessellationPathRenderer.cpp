@@ -41,9 +41,9 @@ bool GrGpuTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPath path;
     args.fShape->asPath(&path);
 
-    GrOpMemoryPool* pool = args.fContext->priv().opMemoryPool();
-    args.fRenderTargetContext->addDrawOp(*args.fClip, pool->allocate<GrTessellatePathOp>(
-            *args.fViewMatrix, path, std::move(args.fPaint), args.fAAType));
+    auto op = args.fContext->priv().opMemoryPool()->allocate<GrTessellatePathOp>(
+            *args.fViewMatrix, path, std::move(args.fPaint), args.fAAType);
+    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
 
     return true;
 }
@@ -54,7 +54,7 @@ void GrGpuTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 
-    GrOpMemoryPool* pool = args.fContext->priv().opMemoryPool();
-    args.fRenderTargetContext->addDrawOp(*args.fClip, pool->allocate<GrTessellatePathOp>(
-            *args.fViewMatrix, path, GrPaint(), aaType, GrTessellatePathOp::Flags::kStencilOnly));
+    auto op = args.fContext->priv().opMemoryPool()->allocate<GrTessellatePathOp>(
+            *args.fViewMatrix, path, GrPaint(), aaType, GrTessellatePathOp::Flags::kStencilOnly);
+    args.fRenderTargetContext->addDrawOp(*args.fClip, std::move(op));
 }

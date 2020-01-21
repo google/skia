@@ -25,9 +25,20 @@
 class TessellatedWedgeView : public Sample {
 public:
     TessellatedWedgeView() {
+#if 0
+        fPath.moveTo(1, 0);
+        int numSides = 32 * 3;
+        for (int i = 1; i < numSides; ++i) {
+            float theta = 2*3.1415926535897932384626433832785 * i / numSides;
+            fPath.lineTo(std::cos(theta), std::sin(theta));
+        }
+        fPath.transform(SkMatrix::MakeScale(200, 200));
+        fPath.transform(SkMatrix::MakeTrans(300, 300));
+#else
         fPath.moveTo(100, 200);
         fPath.cubicTo(100, 100, 400, 100, 400, 200);
         fPath.lineTo(250, 500);
+#endif
     }
 
 private:
@@ -87,8 +98,14 @@ void TessellatedWedgeView::onDrawContent(SkCanvas* canvas) {
     SkPaint pointsPaint;
     pointsPaint.setColor(SK_ColorBLUE);
     pointsPaint.setStrokeWidth(8);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, fPath.countPoints(),
-                       SkPathPriv::PointData(fPath), pointsPaint);
+    SkPath devPath = fPath;
+    devPath.transform(canvas->getTotalMatrix());
+    {
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->setMatrix(SkMatrix::I());
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, devPath.countPoints(),
+                           SkPathPriv::PointData(devPath), pointsPaint);
+    }
 
     fLastViewMatrix = canvas->getTotalMatrix();
 }

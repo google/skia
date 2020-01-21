@@ -426,10 +426,10 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrGpuTessellationPathRenderer.h",
   "$_src/gpu/tessellate/GrPathParser.cpp",
   "$_src/gpu/tessellate/GrPathParser.h",
+  "$_src/gpu/tessellate/GrStencilPathShader.cpp",
+  "$_src/gpu/tessellate/GrStencilPathShader.h",
   "$_src/gpu/tessellate/GrTessellatePathOp.cpp",
   "$_src/gpu/tessellate/GrTessellatePathOp.h",
-  "$_src/gpu/tessellate/GrTessellateWedgeShader.cpp",
-  "$_src/gpu/tessellate/GrTessellateWedgeShader.h",
 
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",
