@@ -11,7 +11,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 
-class SkBBoxHierarchy;
+class SkBBoxHierarchy : public SkRefCnt {
+public:
+    SkBBoxHierarchy() {}
+    virtual ~SkBBoxHierarchy() {}
+
+    // Future public APIs may go here.
+};
 
 class SK_API SkBBHFactory {
 public:
