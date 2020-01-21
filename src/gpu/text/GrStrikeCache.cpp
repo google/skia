@@ -191,26 +191,23 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
 
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
-    int width = glyph->width();
-    int height = glyph->height();
-    int rowBytes = width * bytesPerPixel;
 
-    size_t size = glyph->fBounds.area() * bytesPerPixel;
-    bool isSDFGlyph = GrGlyph::kDistance_MaskStyle == glyph->maskStyle();
+    bool isSDFGlyph =  glyph->maskStyle() == GrGlyph::kDistance_MaskStyle;
+    // Add 1 pixel padding around glyph if needed.
     bool addPad = isScaledGlyph && !isSDFGlyph;
-    if (addPad) {
-        width += 2;
-        rowBytes += 2*bytesPerPixel;
-        size += 2 * rowBytes;
-        height += 2;
-        size += 2 * (height + 2) * bytesPerPixel;
-    }
-    SkAutoSMalloc<1024> storage(size);
+    const int width = addPad ? glyph->width() + 2 : glyph->width();
+    const int height = addPad ? glyph->height() + 2 : glyph->height();
+    int rowBytes = width * bytesPerPixel;
+    size_t size = height * rowBytes;
 
     const SkGlyph* skGlyph = metricsAndImages->glyph(glyph->fPackedID);
+
+    // Temporary storage for normalizing glyph image.
+    SkAutoSMalloc<1024> storage(size);
     void* dataPtr = storage.get();
     if (addPad) {
         sk_bzero(dataPtr, size);
+        // Advance in one row and one column.
         dataPtr = (char*)(dataPtr) + rowBytes + bytesPerPixel;
     }
     if (!get_packed_glyph_image(skGlyph, glyph->width(), glyph->height(),
