@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "207dfe87_4c8d52b6",
+        "filename": "include/ports/SkTypeface_mac.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-21T22:21:40Z",
+      "side": 1,
+      "message": "I think if this just did something like https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/fonts/mac/core_text_font_format_support.cc for version detection instead (rather than adding this API), then this might be ok short term.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 71
+      },
+      "revId": "93010a66318371a9e45455285e2ffbf3b991e035",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89fadf8e_f478d607",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-21T22:21:40Z",
+      "side": 1,
+      "message": "Instead of globals like this, something more like https://cs.chromium.org/chromium/src/third_party/blink/renderer/platform/fonts/mac/core_text_font_format_support.cc , something like\n\nauto skipSymbolicTraits \u003d [](){ return \u0026CTGetCoreTextVersion \u0026\u0026 CTGetCoreTextVersion() \u003d\u003d kBlinkLocalCTVersionNumber10_14; }\n\nauto skizSlantTraits \u003d [](){ return \u0026CTGetCoreTextVersion \u0026\u0026 CTGetCoreTextVersion() \u003e\u003d kBlinkLocalCTVersionNumber10_15; }\n\ndown in create_descriptor and then just use them.",
+      "range": {
+        "startLine": 473,
+        "startChar": 0,
+        "endLine": 474,
+        "endChar": 65
+      },
+      "revId": "93010a66318371a9e45455285e2ffbf3b991e035",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
