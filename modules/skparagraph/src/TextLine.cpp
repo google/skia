@@ -138,6 +138,41 @@ SkRect TextLine::calculateBoundaries() {
         }
     }
 
+    // We need to take in account all the shadows when we calculate the boundaries
+    // TODO: Need to find a better solution
+    if (fHasShadows) {
+        SkRect shadowRect = SkRect::MakeEmpty();
+        this->iterateThroughVisualRuns(false,
+            [this, &shadowRect, boundaries]
+            (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            *runWidthInLine = this->iterateThroughSingleRunByStyles(
+                run, runOffsetInLine, textRange, StyleType::kShadow,
+                [&shadowRect, boundaries](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+
+                    for (TextShadow shadow : style.getShadows()) {
+                        if (!shadow.hasShadow()) continue;
+                        SkPaint paint;
+                        paint.setColor(shadow.fColor);
+                        if (shadow.fBlurRadius != 0.0) {
+                            auto filter = SkMaskFilter::MakeBlur(
+                                    kNormal_SkBlurStyle,
+                                    SkDoubleToScalar(shadow.fBlurRadius),
+                                    false);
+                            paint.setMaskFilter(filter);
+                            SkRect bound;
+                            paint.doComputeFastBounds(boundaries, &bound, SkPaint::Style::kFill_Style);
+                            shadowRect.joinPossiblyEmptyRect(bound);
+                        }
+                    }
+                });
+            return true;
+            });
+        boundaries.fLeft += shadowRect.fLeft;
+        boundaries.fTop += shadowRect.fTop;
+        boundaries.fRight += shadowRect.fRight;
+        boundaries.fBottom += shadowRect.fBottom;
+    }
+
     boundaries.offset(this->fOffset);         // Line offset from the beginning of the para
     boundaries.offset(this->fShift, 0);     // Shift produced by formatting
     boundaries.offset(0, this->baseline()); // Down by baseline
