@@ -273,9 +273,9 @@ GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrR
 GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& backendFormat,
                                                    GrRenderable renderable,
-                                                   const BackendTextureData* data,
                                                    GrMipMapped mipMapped,
-                                                   GrProtected isProtected) {
+                                                   GrProtected isProtected,
+                                                   const BackendTextureData* data) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
         return GrBackendTexture();
@@ -366,9 +366,9 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
 
 GrBackendTexture GrDawnGpu::onCreateCompressedBackendTexture(SkISize dimensions,
                                                              const GrBackendFormat&,
-                                                             const BackendTextureData*,
                                                              GrMipMapped,
-                                                             GrProtected) {
+                                                             GrProtected,
+                                                             const BackendTextureData*) {
     return {};
 }
 
