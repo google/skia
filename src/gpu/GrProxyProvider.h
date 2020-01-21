@@ -96,7 +96,10 @@ public:
     /*
      * Create a texture proxy from compressed texture data.
      */
-    sk_sp<GrTextureProxy> createCompressedTextureProxy(SkISize dimensions, SkBudgeted, GrMipMapped,
+    sk_sp<GrTextureProxy> createCompressedTextureProxy(SkISize dimensions,
+                                                       SkBudgeted,
+                                                       GrMipMapped,
+                                                       GrProtected,
                                                        SkImage::CompressionType,
                                                        sk_sp<SkData> data);
 

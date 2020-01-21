@@ -201,7 +201,9 @@ private:
                                      uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
-                                               SkBudgeted, GrMipMapped,
+                                               SkBudgeted,
+                                               GrMipMapped,
+                                               GrProtected,
                                                const void* data, size_t dataSize) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
@@ -230,14 +232,15 @@ private:
     // The texture is populated with |texels|, if it is non-null.
     // The texture parameters are cached in |initialTexParams|.
     GrGLuint createTexture2D(const SkISize& dimensions,
-                             GrGLFormat format,
+                             GrGLFormat,
                              GrRenderable,
                              GrGLTextureParameters::SamplerOverriddenState*,
                              int mipLevelCount);
 
-    GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat,
+    GrGLuint createCompressedTexture2D(const SkISize& dimensions,
+                                       GrGLFormat,
                                        GrMipMapped,
-                                       GrGLTextureParameters::SamplerOverriddenState* initialState,
+                                       GrGLTextureParameters::SamplerOverriddenState*,
                                        const void* data, size_t dataSize);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,

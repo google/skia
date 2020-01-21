@@ -94,22 +94,26 @@ public:
      * for the format and also describe the texel data. This will ensure any conversions that
      * need to get applied to the data before upload are applied.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
-                                   const GrBackendFormat& format,
+    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&,
+                                   const GrBackendFormat&,
                                    GrColorType srcColorType,
-                                   GrRenderable renderable,
+                                   GrRenderable,
                                    int renderTargetSampleCnt,
-                                   SkBudgeted budgeted,
-                                   SkBackingFit fit,
-                                   GrProtected isProtected,
+                                   SkBudgeted,
+                                   SkBackingFit,
+                                   GrProtected,
                                    const GrMipLevel& mipLevel);
 
     /**
      * Creates a compressed texture. The GrGpu must support the SkImageImage::Compression type.
      * It will not be renderable.
      */
-    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                             SkBudgeted, GrMipMapped, SkData* data);
+    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
+                                             const GrBackendFormat&,
+                                             SkBudgeted,
+                                             GrMipMapped,
+                                             GrProtected,
+                                             SkData* data);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces

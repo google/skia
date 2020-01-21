@@ -506,8 +506,13 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
                                                      SkBudgeted budgeted,
                                                      GrMipMapped mipMapped,
-                                                     const void* data,
-                                                     size_t dataSize) {
+                                                     GrProtected isProtected,
+                                                     const void* data, size_t dataSize) {
+    // We don't support protected textures in Metal.
+    if (isProtected == GrProtected::kYes) {
+        return nullptr;
+    }
+
     SkASSERT(this->caps()->isFormatTexturable(format));
     SkASSERT(data);
 

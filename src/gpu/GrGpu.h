@@ -114,7 +114,7 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   SkBudgeted,
+                                   SkBudgeted budgeted,
                                    GrProtected isProtected,
                                    GrColorType textureColorType,
                                    GrColorType srcColorType,
@@ -128,12 +128,15 @@ public:
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   GrMipMapped,
+                                   GrMipMapped mipMapped,
                                    SkBudgeted budgeted,
                                    GrProtected isProtected);
 
-    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                             SkBudgeted, GrMipMapped,
+    sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
+                                             const GrBackendFormat& format,
+                                             SkBudgeted budgeted,
+                                             GrMipMapped mipMapped,
+                                             GrProtected isProtected,
                                              const void* data, size_t dataSize);
 
     /**
@@ -669,7 +672,9 @@ private:
                                              uint32_t levelClearMask) = 0;
     virtual sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                        const GrBackendFormat&,
-                                                       SkBudgeted, GrMipMapped,
+                                                       SkBudgeted,
+                                                       GrMipMapped,
+                                                       GrProtected,
                                                        const void* data, size_t dataSize) = 0;
     virtual sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                                   GrWrapOwnership, GrWrapCacheable, GrIOType) = 0;
@@ -731,12 +736,12 @@ private:
     virtual void onDumpJSON(SkJSONWriter*) const {}
 #endif
 
-    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc& desc,
-                                         const GrBackendFormat& format,
-                                         GrRenderable renderable,
+    sk_sp<GrTexture> createTextureCommon(const GrSurfaceDesc&,
+                                         const GrBackendFormat&,
+                                         GrRenderable,
                                          int renderTargetSampleCnt,
-                                         SkBudgeted budgeted,
-                                         GrProtected isProtected,
+                                         SkBudgeted,
+                                         GrProtected,
                                          int mipLevelCnt,
                                          uint32_t levelClearMask);
 
