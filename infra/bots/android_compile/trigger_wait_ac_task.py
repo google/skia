@@ -119,6 +119,11 @@ def _add_cl_comment(issue, comment):
 
 def trigger_and_wait(options):
   """Triggers a task on the compile server and waits for it to complete."""
+
+  print 'Going to sleep for 45 mins before proceeding to trigger CQ alert'
+  time.sleep(45*60)
+  print 'Done sleeping'
+
   task = _trigger_task(options)
   print 'Android Compile Task for %d/%d has been successfully added to %s.' % (
       options.issue, options.patchset, ANDROID_COMPILE_BUCKET)
