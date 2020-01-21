@@ -50,22 +50,29 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
       'PATH': '%%(PATH)s:%s' % cmake_bin
   }
 
-  # Extra flags for MSAN, if necessary.
+  # Extra flags for MSAN/TSAN, if necessary.
+  san = None
   if 'MSAN' in extra_tokens:
+    san = ('msan','memory')
+  elif 'TSAN' in extra_tokens:
+    san = ('tsan','thread')
+
+  if san:
+    short,full = san
     clang_linux = str(api.vars.slave_dir.join('clang_linux'))
-    libcxx_msan = clang_linux + '/msan'
-    msan_cflags = ' '.join([
-      '-fsanitize=memory',
+    libcxx = clang_linux + '/' + short
+    cflags = ' '.join([
+      '-fsanitize=' + full,
       '-stdlib=libc++',
-      '-L%s/lib' % libcxx_msan,
+      '-L%s/lib' % libcxx,
       '-lc++abi',
-      '-I%s/include' % libcxx_msan,
-      '-I%s/include/c++/v1' % libcxx_msan,
+      '-I%s/include' % libcxx,
+      '-I%s/include/c++/v1' % libcxx,
     ])
     swiftshader_opts.extend([
-      '-DSWIFTSHADER_MSAN=ON',
-      '-DCMAKE_C_FLAGS=%s' % msan_cflags,
-      '-DCMAKE_CXX_FLAGS=%s' % msan_cflags,
+      '-DSWIFTSHADER_{}=ON'.format(short.upper()),
+      '-DCMAKE_C_FLAGS=%s' % cflags,
+      '-DCMAKE_CXX_FLAGS=%s' % cflags,
     ])
 
   # Build SwiftShader.
@@ -195,6 +202,8 @@ def compile_fn(api, checkout_root, out_dir):
 
   if 'MSAN' in extra_tokens:
     extra_ldflags.append('-L' + clang_linux + '/msan')
+  elif 'TSAN' in extra_tokens:
+    extra_ldflags.append('-L' + clang_linux + '/tsan')
   elif api.vars.is_linux:
     extra_ldflags.append('-L' + clang_linux + '/lib')
 
