@@ -26,17 +26,13 @@ SkPictureRecorder::SkPictureRecorder() {
 SkPictureRecorder::~SkPictureRecorder() {}
 
 SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
-                                            SkBBHFactory* bbhFactory /* = nullptr */,
+                                            sk_sp<SkBBoxHierarchy> bbh,
                                             uint32_t recordFlags /* = 0 */) {
     const SkRect cullRect = userCullRect.isEmpty() ? SkRect::MakeEmpty() : userCullRect;
 
     fCullRect = cullRect;
     fFlags = recordFlags;
-
-    if (bbhFactory) {
-        fBBH = (*bbhFactory)();
-        SkASSERT(fBBH.get());
-    }
+    fBBH = std::move(bbh);
 
     if (!fRecord) {
         fRecord.reset(new SkRecord);
@@ -49,6 +45,12 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
     return this->getRecordingCanvas();
 }
 
+SkCanvas* SkPictureRecorder::beginRecording(const SkRect& bounds,
+                                            SkBBHFactory* factory,
+                                            uint32_t flags) {
+    return this->beginRecording(bounds, factory ? (*factory)() : nullptr, flags);
+}
+
 SkCanvas* SkPictureRecorder::getRecordingCanvas() {
     return fActivelyRecording ? fRecorder.get() : nullptr;
 }
@@ -59,6 +61,10 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
 
     if (fRecord->count() == 0) {
         auto pic = fMiniRecorder->detachAsPicture(fBBH ? nullptr : &fCullRect);
+        if (auto bbh = fBBH.get()) {
+            SkRect bounds = pic->cullRect();  // actually the computed bounds, not fCullRect.
+            bbh->insert(&bounds, 1);
+        }
         fBBH.reset(nullptr);
         return pic;
     }
