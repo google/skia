@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01c7e600_0b47f67e",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-21T22:41:44Z",
+      "side": 1,
+      "message": "So this makes the rest of this change a no-op since if the image were nullptr we would end up returning kError anyway.\n\nSo this (continues to) return kError when the glyph image cannot be retrieved, is empty, or is too large. I can see asserting that the glyph image has been retrieved, but it is less obvious that the calling code has already verified that no empty or overly large glyphs have made it this far.\n\nIt seems odd that returning kError here causes the caller updateTextureCoordinatesMaybeStrike to stop uploading. It almost seems like instead of returning kError this case should return with kSucceeded with an atlas location of 0,0 with size 0 (or return a new kSkip result)? It seems like it should continue trying with the rest of the glyphs and just skip this one?",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 81
+      },
+      "revId": "4803512ccaba65d09c266fc2b3d45a3aabdd21f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
