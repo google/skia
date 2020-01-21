@@ -9,23 +9,22 @@
 #define SkBBHFactory_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/core/SkRefCnt.h"
+
 class SkBBoxHierarchy;
-struct SkRect;
 
 class SK_API SkBBHFactory {
 public:
     /**
      *  Allocate a new SkBBoxHierarchy. Return NULL on failure.
      */
-    virtual SkBBoxHierarchy* operator()() const = 0;
+    virtual sk_sp<SkBBoxHierarchy> operator()() const = 0;
     virtual ~SkBBHFactory() {}
 };
 
 class SK_API SkRTreeFactory : public SkBBHFactory {
 public:
-    SkBBoxHierarchy* operator()() const override;
-private:
-    typedef SkBBHFactory INHERITED;
+    sk_sp<SkBBoxHierarchy> operator()() const override;
 };
 
 #endif

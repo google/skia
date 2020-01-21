@@ -34,7 +34,7 @@ SkCanvas* SkPictureRecorder::beginRecording(const SkRect& userCullRect,
     fFlags = recordFlags;
 
     if (bbhFactory) {
-        fBBH.reset((*bbhFactory)());
+        fBBH = (*bbhFactory)();
         SkASSERT(fBBH.get());
     }
 
@@ -67,8 +67,9 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     SkRecordOptimize(fRecord.get());
 
     SkDrawableList* drawableList = fRecorder->getDrawableList();
-    SkBigPicture::SnapshotArray* pictList =
-        drawableList ? drawableList->newDrawableSnapshot() : nullptr;
+    std::unique_ptr<SkBigPicture::SnapshotArray> pictList{
+        drawableList ? drawableList->newDrawableSnapshot() : nullptr
+    };
 
     if (fBBH.get()) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());
@@ -87,7 +88,10 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
     }
-    return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
+    return sk_make_sp<SkBigPicture>(fCullRect,
+                                    std::move(fRecord),
+                                    std::move(pictList),
+                                    std::move(fBBH),
                                     subPictureBytes);
 }
 

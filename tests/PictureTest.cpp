@@ -683,19 +683,20 @@ struct CountingBBH : public SkBBoxHierarchy {
 
 class SpoonFedBBHFactory : public SkBBHFactory {
 public:
-    explicit SpoonFedBBHFactory(SkBBoxHierarchy* bbh) : fBBH(bbh) {}
-    SkBBoxHierarchy* operator()() const override {
-        return SkRef(fBBH);
+    explicit SpoonFedBBHFactory(sk_sp<SkBBoxHierarchy> bbh) : fBBH(bbh) {}
+    sk_sp<SkBBoxHierarchy> operator()() const override {
+        return fBBH;
     }
 private:
-    SkBBoxHierarchy* fBBH;
+    sk_sp<SkBBoxHierarchy> fBBH;
 };
 
 // When the canvas clip covers the full picture, we don't need to call the BBH.
 DEF_TEST(Picture_SkipBBH, r) {
     SkRect bound = SkRect::MakeWH(320, 240);
-    CountingBBH bbh(bound);
-    SpoonFedBBHFactory factory(&bbh);
+
+    auto bbh = sk_make_sp<CountingBBH>(bound);
+    SpoonFedBBHFactory factory(bbh);
 
     SkPictureRecorder recorder;
     SkCanvas* c = recorder.beginRecording(bound, &factory);
@@ -707,10 +708,10 @@ DEF_TEST(Picture_SkipBBH, r) {
     SkCanvas big(640, 480), small(300, 200);
 
     picture->playback(&big);
-    REPORTER_ASSERT(r, bbh.searchCalls == 0);
+    REPORTER_ASSERT(r, bbh->searchCalls == 0);
 
     picture->playback(&small);
-    REPORTER_ASSERT(r, bbh.searchCalls == 1);
+    REPORTER_ASSERT(r, bbh->searchCalls == 1);
 }
 
 DEF_TEST(Picture_BitmapLeak, r) {
