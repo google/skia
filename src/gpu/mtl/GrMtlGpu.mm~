@@ -827,7 +827,16 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         SkASSERT(!data && mipMapped == GrMipMapped::kNo);
     }
 
+<<<<<<< HEAD
+#ifdef SK_BUILD_FOR_IOS
+    // Compressed formats go through onCreateCompressedBackendTexture
+    SkASSERT(!GrMtlFormatIsCompressed(format));
+#endif
+
     if (texturable == GrTexturable::kYes && !fMtlCaps->isFormatTexturable(format)) {
+=======
+    if (texturable && !fMtlCaps->isFormatTexturable(mtlFormat)) {
+>>>>>>> git squash commit for master.
         return false;
     }
     if (renderable == GrRenderable::kYes && !fMtlCaps->isFormatRenderable(mtlFormat, 1)) {
