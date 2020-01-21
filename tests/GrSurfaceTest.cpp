@@ -96,7 +96,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrFillInCompressedData(compression, dimensions, GrMipMapped::kNo,
                                    (char*)data->writable_data(), color);
             return rp->createCompressedTexture(dimensions, format, SkBudgeted::kNo,
-                                               GrMipMapped::kNo, data.get());
+                                               GrMipMapped::kNo, GrProtected::kNo, data.get());
         } else {
             GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
 

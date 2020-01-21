@@ -1412,8 +1412,14 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
-                                                    SkBudgeted budgeted, GrMipMapped mipMapped,
+                                                    SkBudgeted budgeted,
+                                                    GrMipMapped mipMapped,
+                                                    GrProtected isProtected,
                                                     const void* data, size_t dataSize) {
+    // We don't support protected textures in GL.
+    if (isProtected == GrProtected::kYes) {
+        return nullptr;
+    }
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
     desc.fSize = dimensions;
