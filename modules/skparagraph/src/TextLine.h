@@ -130,6 +130,7 @@ private:
     bool fHasBackground;
     bool fHasShadows;
     bool fHasDecorations;
+    SkRect fBoundaries;
 };
 }  // namespace textlayout
 }  // namespace skia

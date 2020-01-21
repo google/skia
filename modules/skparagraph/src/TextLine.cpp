@@ -69,7 +69,8 @@ TextLine::TextLine(ParagraphImpl* master,
         , fSizes(sizes)
         , fHasBackground(false)
         , fHasShadows(false)
-        , fHasDecorations(false) {
+        , fHasDecorations(false)
+        , fBoundaries(SkRect::MakeEmpty()){
     // Reorder visual runs
     auto& start = master->cluster(fGhostClusterRange.start);
     auto& end = master->cluster(fGhostClusterRange.end - 1);
@@ -138,6 +139,37 @@ SkRect TextLine::calculateBoundaries() {
         }
     }
 
+    // We need to take in account all the shadows when we calculate the boundaries
+    if (fHasShadows) {
+        SkRect shadow = SkRect::MakeEmpty();
+        this->iterateThroughVisualRuns(false,
+            [this, &shadow]
+            (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            *runWidthInLine = this->iterateThroughSingleRunByStyles(
+                run, runOffsetInLine, textRange, StyleType::kShadow,
+                [this, &shadow](TextRange textRange, const TextStyle& style, const ClipContext& context) {
+                    for (auto& sh : style.getShadows()) {
+                        auto radius = SkDoubleToScalar(sh.fBlurRadius);
+                        if (sh.fOffset.fX < 0) {
+                            shadow.fLeft = SkTMin(shadow.fLeft, sh.fOffset.fX - radius);
+                        } else {
+                            shadow.fRight = SkTMax(shadow.fRight, sh.fOffset.fX + radius);
+                        }
+                        if (sh.fOffset.fY < 0) {
+                            shadow.fTop = SkTMin(shadow.fTop, sh.fOffset.fY - radius);
+                        } else {
+                            shadow.fBottom = SkTMax(shadow.fBottom, sh.fOffset.fY + radius);
+                        }
+                    }
+                });
+            return true;
+            });
+        boundaries.fLeft += shadow.fLeft;
+        boundaries.fTop += shadow.fTop;
+        boundaries.fRight += shadow.fRight;
+        boundaries.fBottom += shadow.fBottom;
+    }
+
     boundaries.offset(this->fOffset);         // Line offset from the beginning of the para
     boundaries.offset(this->fShift, 0);     // Shift produced by formatting
     boundaries.offset(0, this->baseline()); // Down by baseline
@@ -149,6 +181,8 @@ void TextLine::paint(SkCanvas* textCanvas) {
     if (this->empty()) {
         return;
     }
+
+    fBoundaries = SkRect::MakeEmpty();
 
     textCanvas->save();
     textCanvas->translate(this->offset().fX, this->offset().fY);
@@ -190,6 +224,15 @@ void TextLine::paint(SkCanvas* textCanvas) {
             run, runOffsetInLine, textRange, StyleType::kForeground,
             [textCanvas, this](TextRange textRange, const TextStyle& style, const ClipContext& context) {
                 this->paintText(textCanvas, textRange, style, context);
+
+
+                for (auto i = context.pos; i < context.size; ++i) {
+                    auto posX = context.run->posX(i);
+                    auto posY = context.run->posY(i);
+                    auto bounds = context.run->getBounds(i);
+                    bounds.offset(posX + context.fTextShift, posY);
+                    fBoundaries.joinPossiblyEmptyRect(bounds);
+                }
             });
             return true;
         });
