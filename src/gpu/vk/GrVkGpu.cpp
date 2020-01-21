@@ -1633,10 +1633,10 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
                                              SkISize dimensions,
                                              GrTexturable texturable,
                                              GrRenderable renderable,
-                                             const BackendTextureData* data,
                                              GrMipMapped mipMapped,
                                              GrVkImageInfo* info,
-                                             GrProtected isProtected) {
+                                             GrProtected isProtected,
+                                             const BackendTextureData* data) {
     if (!fCmdPool) {
         return false;
     }
@@ -1918,9 +1918,9 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
 GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
-                                                 const BackendTextureData* data,
                                                  GrMipMapped mipMapped,
-                                                 GrProtected isProtected) {
+                                                 GrProtected isProtected,
+                                                 const BackendTextureData* data) {
     this->handleDirtyContext();
 
     const GrVkCaps& caps = this->vkCaps();
@@ -1948,8 +1948,8 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              renderable, data, mipMapped,
-                                              &info, isProtected)) {
+                                              renderable, mipMapped,
+                                              &info, isProtected, data)) {
         SkDebugf("Failed to create testing only image\n");
         return {};
     }
@@ -1959,9 +1959,9 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 
 GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
                                                            const GrBackendFormat& format,
-                                                           const BackendTextureData* data,
                                                            GrMipMapped mipMapped,
-                                                           GrProtected isProtected) {
+                                                           GrProtected isProtected,
+                                                           const BackendTextureData* data) {
     this->handleDirtyContext();
 
     const GrVkCaps& caps = this->vkCaps();
@@ -1989,8 +1989,8 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              GrRenderable::kNo, data, mipMapped,
-                                              &info, isProtected)) {
+                                              GrRenderable::kNo, mipMapped,
+                                              &info, isProtected, data)) {
         SkDebugf("Failed to create testing only image\n");
         return {};
     }
@@ -2095,8 +2095,8 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
 
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, {w, h}, GrTexturable::kNo,
-                                              GrRenderable::kYes, nullptr,
-                                              GrMipMapped::kNo, &info, GrProtected::kNo)) {
+                                              GrRenderable::kYes, GrMipMapped::kNo,
+                                              &info, GrProtected::kNo, nullptr)) {
         return {};
     }
 
