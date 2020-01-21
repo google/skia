@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/gl/GrGLCaps.h"
+
 #include "include/gpu/GrContextOptions.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
@@ -14,7 +16,6 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"
 #include "src/gpu/gl/GrGLTexture.h"
@@ -29,7 +30,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMSFBOType = kNone_MSFBOType;
     fInvalidateFBType = kNone_InvalidateFBType;
     fMapBufferType = kNone_MapBufferType;
-    fTransferBufferType = kNone_TransferBufferType;
+    fTransferBufferType = TransferBufferType::kNone;
     fMaxFragmentUniformVectors = 0;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
@@ -495,7 +496,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             ctxInfo.hasExtension("GL_EXT_pixel_buffer_object")) {
             fTransferFromBufferToTextureSupport = true;
             fTransferFromSurfaceToBufferSupport = true;
-            fTransferBufferType = kPBO_TransferBufferType;
+            fTransferBufferType = TransferBufferType::kARB_PBO;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (version >= GR_GL_VER(3, 0) ||
@@ -504,12 +505,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
              ctxInfo.hasExtension("GL_EXT_unpack_subimage"))) {
             fTransferFromBufferToTextureSupport = true;
             fTransferFromSurfaceToBufferSupport = true;
-            fTransferBufferType = kPBO_TransferBufferType;
+            if (version < GR_GL_VER(3, 0)) {
+                fTransferBufferType = TransferBufferType::kNV_PBO;
+            } else {
+                fTransferBufferType = TransferBufferType::kARB_PBO;
+            }
 // TODO: get transfer buffers working in Chrome
 //        } else if (ctxInfo.hasExtension("GL_CHROMIUM_pixel_transfer_buffer_object")) {
 //            fTransferFromBufferToTextureSupport = false;
 //            fTransferFromSurfaceToBufferSupport = false;
-//            fTransferBufferType = kChromium_TransferBufferType;
+//            fTransferBufferType = TransferBufferType::kChromium;
         }
     } // no WebGL support
 
@@ -3339,7 +3344,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     fMapBufferFlags = kNone_MapFlags;
     fTransferFromBufferToTextureSupport = false;
     fTransferFromSurfaceToBufferSupport = false;
-    fTransferBufferType = kNone_TransferBufferType;
+    fTransferBufferType = TransferBufferType::kNone;
 #endif
 #endif
 
@@ -3353,7 +3358,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fMapBufferFlags = kNone_MapFlags;
         fTransferFromBufferToTextureSupport = false;
         fTransferFromSurfaceToBufferSupport = false;
-        fTransferBufferType = kNone_TransferBufferType;
+        fTransferBufferType = TransferBufferType::kNone;
     }
 
     // The TransferPixelsToTexture test fails on ANGLE.
