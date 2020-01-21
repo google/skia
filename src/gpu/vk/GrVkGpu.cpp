@@ -979,14 +979,13 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture, VkFormat vkFor
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TODO: make this take a GrMipMapped
 sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
                                           SkBudgeted budgeted,
+                                          GrMipMapped mipMapped,
                                           GrProtected isProtected,
-                                          int mipLevelCount,
                                           uint32_t levelClearMask) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
@@ -1005,23 +1004,28 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
     // texture.
     usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
+    }
+
     // This ImageDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this ImageDesc describes the resolved texture. Therefore we always have samples set
-    // to 1.
-    SkASSERT(mipLevelCount > 0);
+    // requested, this ImageDesc describes the resolved texture. Therefore we always have samples
+    // set to 1.
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
     imageDesc.fWidth = desc.fWidth;
     imageDesc.fHeight = desc.fHeight;
-    imageDesc.fLevels = mipLevelCount;
+    imageDesc.fLevels = numMipLevels;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fIsProtected = isProtected;
 
-    GrMipMapsStatus mipMapsStatus =
-            mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes)
+                                                ? GrMipMapsStatus::kDirty
+                                                : GrMipMapsStatus::kNotAllocated;
 
     sk_sp<GrVkTexture> tex;
     if (renderable == GrRenderable::kYes) {
@@ -1067,7 +1071,9 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
 
 sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
-                                                    SkBudgeted budgeted, GrMipMapped mipMapped,
+                                                    SkBudgeted budgeted,
+                                                    GrMipMapped mipMapped,
+                                                    GrProtected isProtected,
                                                     const void* data, size_t dataSize) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
@@ -1629,12 +1635,12 @@ static void set_image_layout(const GrVkInterface* vkInterface, VkCommandBuffer c
     info->fImageLayout = newLayout;
 }
 
-bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
-                                             SkISize dimensions,
+bool GrVkGpu::createVkImageForBackendSurface(SkISize dimensions,
+                                             VkFormat vkFormat,
+                                             GrVkImageInfo* info,
                                              GrTexturable texturable,
                                              GrRenderable renderable,
                                              GrMipMapped mipMapped,
-                                             GrVkImageInfo* info,
                                              GrProtected isProtected,
                                              const BackendTextureData* data) {
     if (!fCmdPool) {
@@ -1947,9 +1953,8 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              renderable, mipMapped,
-                                              &info, isProtected, data)) {
+    if (!this->createVkImageForBackendSurface(dimensions, vkFormat, &info, GrTexturable::kYes,
+                                              renderable, mipMapped, isProtected, data)) {
         SkDebugf("Failed to create testing only image\n");
         return {};
     }
@@ -1988,9 +1993,8 @@ GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(SkISize dimensions,
     }
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, dimensions, GrTexturable::kYes,
-                                              GrRenderable::kNo, mipMapped,
-                                              &info, isProtected, data)) {
+    if (!this->createVkImageForBackendSurface(dimensions, vkFormat, &info, GrTexturable::kYes,
+                                              GrRenderable::kNo, mipMapped, isProtected, data)) {
         SkDebugf("Failed to create testing only image\n");
         return {};
     }
@@ -2094,9 +2098,9 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
     VkFormat vkFormat = this->vkCaps().getFormatFromColorType(ct);
 
     GrVkImageInfo info;
-    if (!this->createVkImageForBackendSurface(vkFormat, {w, h}, GrTexturable::kNo,
+    if (!this->createVkImageForBackendSurface({w, h}, vkFormat, &info, GrTexturable::kNo,
                                               GrRenderable::kYes, GrMipMapped::kNo,
-                                              &info, GrProtected::kNo, nullptr)) {
+                                              GrProtected::kNo, nullptr)) {
         return {};
     }
 

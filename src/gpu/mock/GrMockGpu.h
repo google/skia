@@ -67,13 +67,16 @@ private:
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
+                                     GrMipMapped,
                                      GrProtected,
-                                     int mipLevelCount,
                                      uint32_t levelClearMask) override;
 
-    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                               SkBudgeted, GrMipMapped, const void* data,
-                                               size_t dataSize) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
+                                               const GrBackendFormat&,
+                                               SkBudgeted,
+                                               GrMipMapped,
+                                               GrProtected,
+                                               const void* data, size_t dataSize) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType, GrWrapOwnership,
                                           GrWrapCacheable, GrIOType) override;

@@ -154,8 +154,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                                        format, desc, GrRenderable::kYes, numSamples, origin,
-                                        GrMipMapped::kNo, fit, budgeted, GrProtected::kNo);
+                                        desc, format, GrRenderable::kYes, numSamples, origin,
+                                        budgeted, GrMipMapped::kNo, fit, GrProtected::kNo);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
@@ -191,8 +191,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
-                                        format, desc, GrRenderable::kNo, numSamples, origin,
-                                        GrMipMapped::kNo, fit, budgeted, GrProtected::kNo));
+                                        desc, format, GrRenderable::kNo, numSamples, origin,
+                                        budgeted, GrMipMapped::kNo, fit, GrProtected::kNo));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     // This forces the proxy to compute and cache its
@@ -395,8 +395,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                                 renderable);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, desc, renderable, 1, kBottomLeft_GrSurfaceOrigin,
-                            GrMipMapped::kNo, fit, SkBudgeted::kNo, GrProtected::kNo);
+                            desc, format, renderable, 1, kBottomLeft_GrSurfaceOrigin,
+                            SkBudgeted::kNo, GrMipMapped::kNo, fit, GrProtected::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }
             }

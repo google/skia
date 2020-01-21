@@ -411,14 +411,14 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kNo);
-    auto proxy = context->priv().proxyProvider()->createProxy(format,
-                                                              desc,
+    auto proxy = context->priv().proxyProvider()->createProxy(desc,
+                                                              format,
                                                               GrRenderable::kNo,
                                                               1,
                                                               origin,
+                                                              SkBudgeted::kYes,
                                                               GrMipMapped::kNo,
                                                               SkBackingFit::kExact,
-                                                              SkBudgeted::kYes,
                                                               GrProtected::kNo);
 
     do {

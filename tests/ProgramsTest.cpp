@@ -268,9 +268,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
-        proxies[0] = {proxyProvider->createProxy(format, dummyDesc, GrRenderable::kYes, 1,
-                                                 kBottomLeft_GrSurfaceOrigin, mipMapped,
-                                                 SkBackingFit::kExact, SkBudgeted::kNo,
+        proxies[0] = {proxyProvider->createProxy(dummyDesc, format, GrRenderable::kYes, 1,
+                                                 kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo,
+                                                 mipMapped, SkBackingFit::kExact,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
                       GrColorType::kRGBA_8888,
                       kPremul_SkAlphaType
@@ -284,9 +284,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);
-        proxies[1] = {proxyProvider->createProxy(format, dummyDesc, GrRenderable::kNo, 1,
-                                                 kTopLeft_GrSurfaceOrigin, mipMapped,
-                                                 SkBackingFit::kExact, SkBudgeted::kNo,
+        proxies[1] = {proxyProvider->createProxy(dummyDesc, format, GrRenderable::kNo, 1,
+                                                 kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo,
+                                                 mipMapped, SkBackingFit::kExact,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
                       GrColorType::kAlpha_8,
                       kPremul_SkAlphaType

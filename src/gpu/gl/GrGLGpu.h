@@ -196,12 +196,14 @@ private:
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
+                                     GrMipMapped,
                                      GrProtected,
-                                     int mipLevelCount,
                                      uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
-                                               SkBudgeted, GrMipMapped,
+                                               SkBudgeted,
+                                               GrMipMapped,
+                                               GrProtected,
                                                const void* data, size_t dataSize) override;
 
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t size, GrGpuBufferType intendedType, GrAccessPattern,
@@ -229,15 +231,16 @@ private:
     // returned. On failure, zero is returned.
     // The texture is populated with |texels|, if it is non-null.
     // The texture parameters are cached in |initialTexParams|.
-    GrGLuint createTexture2D(const SkISize& dimensions,
-                             GrGLFormat format,
+    GrGLuint createTexture2D(SkISize dimensions,
+                             GrGLFormat,
                              GrRenderable,
-                             GrGLTextureParameters::SamplerOverriddenState*,
-                             int mipLevelCount);
+                             GrMipMapped,
+                             GrGLTextureParameters::SamplerOverriddenState*);
 
-    GrGLuint createCompressedTexture2D(const SkISize& dimensions, GrGLFormat,
+    GrGLuint createCompressedTexture2D(SkISize dimensions,
+                                       GrGLFormat,
                                        GrMipMapped,
-                                       GrGLTextureParameters::SamplerOverriddenState* initialState,
+                                       GrGLTextureParameters::SamplerOverriddenState*,
                                        const void* data, size_t dataSize);
 
     bool onReadPixels(GrSurface*, int left, int top, int width, int height,
