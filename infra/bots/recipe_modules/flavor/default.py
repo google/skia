@@ -173,13 +173,27 @@ class DefaultFlavor(object):
       ld_library_path.append(clang_linux + '/msan')
 
     if any('SAN' in t for t in extra_tokens):
-      # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      path.append(clang_linux + '/bin')
-      # We find that testing sanitizer builds with libc++ uncovers more issues
-      # than with the system-provided C++ standard library, which is usually
-      # libstdc++. libc++ proactively hooks into sanitizers to help their
-      # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
-      ld_library_path.append(clang_linux + '/lib')
+      if self.m.vars.is_linux:
+        # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
+        path.append(clang_linux + '/bin')
+        # We find that testing sanitizer builds with libc++ uncovers more issues
+        # than with the system-provided C++ standard library, which is usually
+        # libstdc++. libc++ proactively hooks into sanitizers to help their
+        # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
+        ld_library_path.append(clang_linux + '/lib')
+      elif 'Mac' in self.m.vars.builder_cfg.get('os', ''):
+        clang_mac_dir = slave_dir.join('clang_mac')
+        path.append(str(clang_mac_dir) + '/bin')
+        # The XSAN dylibs are in clang_mac/lib/clang/10.0.0/lib/darwin, where
+        # 10.0.0 could change in future versions.
+        clang_mac_ver_dirs = self.m.file.listdir(
+            'find clang_mac version',
+            clang_mac_dir.join('lib', 'clang'),
+            test_data=['10.0.0'])
+        assert len(clang_mac_ver_dirs) == 1
+        dylib_dir = clang_mac_ver_dirs[0].join('lib', 'darwin')
+        ld_library_path.append(str(dylib_dir))
+
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
     elif 'ProcDump' in extra_tokens:

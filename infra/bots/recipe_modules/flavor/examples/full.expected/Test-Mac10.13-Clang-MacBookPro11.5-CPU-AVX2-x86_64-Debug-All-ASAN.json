@@ -195,15 +195,32 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "listdir",
+      "[START_DIR]/clang_mac/lib/clang"
+    ],
+    "infra_step": true,
+    "name": "find clang_mac version",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/clang_mac/lib/clang/10.0.0@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
       "[START_DIR]/build/dm",
       "--some-flag"
     ],
     "env": {
       "ASAN_OPTIONS": "symbolize=1",
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/lib",
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_mac/lib/clang/10.0.0/lib/darwin",
       "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_mac/bin",
       "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
     },
     "name": "dm"

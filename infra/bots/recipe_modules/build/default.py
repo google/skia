@@ -10,12 +10,7 @@ from . import util
 # https://developer.apple.com/news/releases/, or on Wikipedia here:
 # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
 # Use lowercase letters.
-# When updating XCODE_BUILD_VERSION, you will also need to update
-# XCODE_CLANG_VERSION.
 XCODE_BUILD_VERSION = '10g8'
-# Wikipedia lists the Clang version here:
-# https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
-XCODE_CLANG_VERSION = '10.0.1'
 
 
 def build_command_buffer(api, chrome_dir, skia_dir, out):
@@ -95,59 +90,80 @@ def compile_fn(api, checkout_root, out_dir):
   args = {'werror': 'true'}
   env = {}
 
-  if os == 'Mac':
-    extra_cflags.append(
-        '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
-    mac_toolchain_cmd = api.vars.slave_dir.join(
-        'mac_toolchain', 'mac_toolchain')
-    xcode_app_path = api.vars.cache_dir.join('Xcode.app')
-    # Copied from
-    # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
-    with api.step.nest('ensure xcode') as step_result:
-      step_result.presentation.step_text = (
-          'Ensuring Xcode version %s in %s' % (
-              XCODE_BUILD_VERSION, xcode_app_path))
-      install_xcode_cmd = [
-          mac_toolchain_cmd, 'install',
-          # "ios" is needed for simulator builds
-          # (Build-Mac-Clang-x64-Release-iOS).
-          '-kind', 'ios',
-          '-xcode-version', XCODE_BUILD_VERSION,
-          '-output-dir', xcode_app_path,
-      ]
-      api.step('install xcode', install_xcode_cmd)
-      api.step('select xcode', [
-          'sudo', 'xcode-select', '-switch', xcode_app_path])
-      if 'iOS' in extra_tokens:
-        if target_arch == 'arm':
-          # Can only compile for 32-bit up to iOS 10.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+  if compiler == 'Clang':
+    if os == 'Mac':
+      extra_cflags.append(
+          '-DDUMMY_xcode_build_version=%s' % XCODE_BUILD_VERSION)
+      mac_toolchain_cmd = api.vars.slave_dir.join(
+          'mac_toolchain', 'mac_toolchain')
+      xcode_app_path = api.vars.cache_dir.join('Xcode.app')
+      # Copied from
+      # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
+      with api.step.nest('ensure xcode') as step_result:
+        step_result.presentation.step_text = (
+            'Ensuring Xcode version %s in %s' % (
+                XCODE_BUILD_VERSION, xcode_app_path))
+        install_xcode_cmd = [
+            mac_toolchain_cmd, 'install',
+            # "ios" is needed for simulator builds
+            # (Build-Mac-Clang-x64-Release-iOS).
+            '-kind', 'ios',
+            '-xcode-version', XCODE_BUILD_VERSION,
+            '-output-dir', xcode_app_path,
+        ]
+        api.step('install xcode', install_xcode_cmd)
+        api.step('select xcode', [
+            'sudo', 'xcode-select', '-switch', xcode_app_path])
+        if 'iOS' in extra_tokens:
+          if target_arch == 'arm':
+            # Can only compile for 32-bit up to iOS 10.
+            env['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
+          else:
+            # Our iOS devices are on an older version.
+            # Can't compile for Metal before 11.0.
+            env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
         else:
-          # Our iOS devices are on an older version.
-          # Can't compile for Metal before 11.0.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
-      else:
-        # We have some bots on 10.13.
-        env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+          # We have some bots on 10.13.
+          env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+      clang_mac_dir = api.vars.slave_dir.join('clang_mac')
+      clang_mac = str(clang_mac_dir)
+      cc  = clang_mac + '/bin/clang'
+      cxx = clang_mac + '/bin/clang++'
+      extra_cflags.append('-B%s/bin' % clang_mac)
+      extra_ldflags.append('-B%s/bin' % clang_mac)
+      extra_cflags.append('-DDUMMY_clang_mac_version=%s' %
+                          api.run.asset_version('clang_mac', skia_dir))
+      # Using the clang_mac compiler seems to trigger more OOMs for dlsymutil.
+      args['dlsymutil_pool_depth'] = '1'
+      if any('SAN' in t for t in extra_tokens) and 'Mac' in os:
+        # The XSAN dylibs are in clang_mac/lib/clang/10.0.0/lib/darwin, where
+        # 10.0.0 could change in future versions.
+        clang_mac_ver_dirs = api.file.listdir(
+            'find clang_mac version',
+            clang_mac_dir.join('lib', 'clang'),
+            test_data=['10.0.0'])
+        assert len(clang_mac_ver_dirs) == 1
+        dylib_dir = clang_mac_ver_dirs[0].join('lib', 'darwin')
+        extra_ldflags.append('-L%s' % dylib_dir)
+
+    elif api.vars.is_linux:
+      cc  = clang_linux + '/bin/clang'
+      cxx = clang_linux + '/bin/clang++'
+      extra_cflags .append('-B%s/bin' % clang_linux)
+      extra_ldflags.append('-B%s/bin' % clang_linux)
+      extra_ldflags.append('-fuse-ld=lld')
+      extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
+                          api.run.asset_version('clang_linux', skia_dir))
+      if 'Static' in extra_tokens:
+        extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
+
+    else:
+      cc, cxx = 'clang', 'clang++'
 
   if 'CheckGeneratedFiles' in extra_tokens:
     compiler = 'Clang'
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
-
-  if compiler == 'Clang' and api.vars.is_linux:
-    cc  = clang_linux + '/bin/clang'
-    cxx = clang_linux + '/bin/clang++'
-    extra_cflags .append('-B%s/bin' % clang_linux)
-    extra_ldflags.append('-B%s/bin' % clang_linux)
-    extra_ldflags.append('-fuse-ld=lld')
-    extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
-                        api.run.asset_version('clang_linux', skia_dir))
-    if 'Static' in extra_tokens:
-      extra_ldflags.extend(['-static-libstdc++', '-static-libgcc'])
-
-  elif compiler == 'Clang':
-    cc, cxx = 'clang', 'clang++'
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
@@ -311,7 +327,8 @@ def compile_fn(api, checkout_root, out_dir):
     with api.env(env):
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      # TODO j flag
+      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir, '-j1'])
 
 
 def copy_build_products(api, src, dst):
@@ -324,20 +341,3 @@ def copy_build_products(api, src, dst):
         src.join('swiftshader_out'),
         api.vars.swarming_out_dir.join('swiftshader_out'),
         util.DEFAULT_BUILD_PRODUCTS)
-
-  if os == 'Mac' and any('SAN' in t for t in extra_tokens):
-    # Hardcoding this path because it should only change when we upgrade to a
-    # new Xcode.
-    lib_dir = api.vars.cache_dir.join(
-        'Xcode.app', 'Contents', 'Developer', 'Toolchains',
-        'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang', XCODE_CLANG_VERSION,
-        'lib', 'darwin')
-    dylibs = api.file.glob_paths('find xSAN dylibs', lib_dir,
-                                 'libclang_rt.*san_osx_dynamic.dylib',
-                                 test_data=[
-                                     'libclang_rt.asan_osx_dynamic.dylib',
-                                     'libclang_rt.tsan_osx_dynamic.dylib',
-                                     'libclang_rt.ubsan_osx_dynamic.dylib',
-                                 ])
-    for f in dylibs:
-      api.file.copy('copy %s' % api.path.basename(f), f, dst)

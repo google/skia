@@ -52,6 +52,7 @@
       'assets/android_ndk_windows/VERSION',
       'assets/cast_toolchain/VERSION',
       'assets/clang_linux/VERSION',
+      'assets/clang_mac/VERSION',
       'assets/clang_win/VERSION',
     ],
   },
