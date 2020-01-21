@@ -434,7 +434,7 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
 
 /** We always perform the calculation in doubles, to avoid prematurely losing
     precision along the way. This relies on the compiler automatically
-    promoting our SkMScalar values to double (if needed).
+    promoting our SkScalar values to double (if needed).
  */
 double SkMatrix44::determinant() const {
     if (this->isIdentity()) {

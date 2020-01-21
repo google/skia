@@ -131,7 +131,7 @@ SkV4 SkM44::map(float x, float y, float z, float w) const {
 
 /** We always perform the calculation in doubles, to avoid prematurely losing
     precision along the way. This relies on the compiler automatically
-    promoting our SkMScalar values to double (if needed).
+    promoting our SkScalar values to double (if needed).
  */
 double SkM44::determinant() const {
     double a00 = fMat[0];

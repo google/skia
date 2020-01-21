@@ -18,12 +18,6 @@ static bool nearly_equal_double(double a, double b) {
     return diff <= tolerance;
 }
 
-static bool nearly_equal_mscalar(SkScalar a, SkScalar b) {
-    const SkScalar tolerance = SK_Scalar1 / 200000;
-
-    return SkTAbs<SkScalar>(a - b) <= tolerance;
-}
-
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
     const SkScalar tolerance = SK_Scalar1 / 200000;
     return SkScalarAbs(a - b) <= tolerance;
@@ -58,7 +52,7 @@ template <typename T> void assert16(skiatest::Reporter* reporter, const T data[]
 static bool nearly_equal(const SkMatrix44& a, const SkMatrix44& b) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if (!nearly_equal_mscalar(a.get(i, j), b.get(i, j))) {
+            if (!SkScalarNearlyEqual(a.get(i, j), b.get(i, j))) {
                 SkDebugf("not equal %g %g\n", a.get(i, j), b.get(i, j));
                 return false;
             }
@@ -203,7 +197,7 @@ static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
     }
 
     mat.map2(src2, 1, dstA);
-    mat.mapMScalars(src4, dstB);
+    mat.mapScalars(src4, dstB);
 
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, dstA[i] == dstB[i]);
@@ -804,7 +798,7 @@ static void test_preserves_2d_axis_alignment(skiatest::Reporter* reporter) {
   test(true, reporter, transform);
 }
 
-// just want to exercise the various converters for MScalar
+// just want to exercise the various converters for Scalar
 static void test_toint(skiatest::Reporter* reporter) {
     SkMatrix44 mat;
     mat.setScale(3, 3, 3);
