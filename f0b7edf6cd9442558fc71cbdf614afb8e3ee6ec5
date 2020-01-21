@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c59aca32_57d827ae",
+        "filename": "samplecode/Sample3D.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-01-21T14:29:33Z",
+      "side": 1,
+      "message": "We never reach this line, due to the \u0027return\u0027 immediately before this.  Should we remove this line, or should we remove the line before it?",
+      "revId": "f0b7edf6cd9442558fc71cbdf614afb8e3ee6ec5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
