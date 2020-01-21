@@ -205,7 +205,7 @@
     "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/lib",
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/tsan:[START_DIR]/clang_linux/lib",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_linux/bin",
       "TSAN_OPTIONS": "report_signal_unsafe=0"
     },
