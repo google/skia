@@ -35,9 +35,9 @@ public:
     };
 
     SkBigPicture(const SkRect& cull,
-                 SkRecord*,            // We take ownership of the caller's ref.
-                 SnapshotArray*,       // We take exclusive ownership.
-                 SkBBoxHierarchy*,     // We take ownership of the caller's ref.
+                 sk_sp<SkRecord>,
+                 std::unique_ptr<SnapshotArray>,
+                 sk_sp<SkBBoxHierarchy>,
                  size_t approxBytesUsedBySubPictures);
 
 
