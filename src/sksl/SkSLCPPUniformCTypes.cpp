@@ -163,7 +163,7 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
 
     REGISTER(Layout::CType::kSkVector4, { "half4", "float4", "double4" },
         "${pdman}.set4fv(${uniform}, 1, ${var}.fData)",                            // to gpu
-        "SkVector4(SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN, SK_MScalarNaN)",   // default value
+        "SkVector4(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN)",           // default value
         "${oldVar} != (${newVar})"),                                               // dirty check
 
     REGISTER(Layout::CType::kSkPoint, { "half2", "float2", "double2" } ,
