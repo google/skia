@@ -439,54 +439,6 @@ DEF_SAMPLE( return new SamplePointLight3D(); )
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkSurface.h"
 
-static sk_sp<SkImage> make_bump(sk_sp<SkImage> src) {
-    src = src->makeRasterImage();
-
-    SkPixmap s;
-    SkAssertResult(src->peekPixels(&s));
-
-    SkImageInfo info = SkImageInfo::Make(src->width(), src->height(),
-                                         kR8G8_unorm_SkColorType, kOpaque_SkAlphaType);
-
-    size_t rb = info.minRowBytes();
-    auto data = SkData::MakeUninitialized(rb * info.height());
-    SkPixmap d = { info, data->writable_data(), rb };
-
-    const int W = src->width();
-    const int H = src->height();
-
-    for (int y = 0; y < H; ++y) {
-        int y1 = y == H-1 ? 0 : y + 1;
-        for (int x = 0; x < W; ++x) {
-            int x1 = x == W-1 ? 0 : x + 1;
-
-            auto lum = [](SkPMColor c) {
-                return SkGetPackedR32(c);
-                return (SkGetPackedR32(c) * 2 + SkGetPackedG32(c) * 5 + SkGetPackedB32(c)) >> 3;
-            };
-
-            int s00 = lum(*s.addr32(x,  y)),
-                s01 = lum(*s.addr32(x1, y)),
-                s10 = lum(*s.addr32(x, y1));
-
-            auto delta_lum_to_byte = [](int d) {
-                SkASSERT(d >= -255 && d <= 255);
-                d >>= 1;
-                if (d < 0) {
-                    d += 255;
-                }
-                SkASSERT(d >= 0 && d <= 255);
-                return d;
-            };
-
-            int dx = delta_lum_to_byte(s01 - s00);
-            int dy = delta_lum_to_byte(s10 - s00);
-            *d.writable_addr16(x, y) = (dx << 8) | dy;
-        }
-    }
-    return SkImage::MakeRasterData(info, data, rb);
-}
-
 class SampleBump3D : public Sample3DView {
     SkRRect fRR;
     LightPos fLight = {{200, 200, 800, 1}, 8};
@@ -503,38 +455,33 @@ class SampleBump3D : public Sample3DView {
         fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
         auto img = GetResourceAsImage("images/brickwork-texture.jpg");
         fImgShader = img->makeShader(SkMatrix::MakeScale(2, 2));
-        fBmpShader = make_bump(img)->makeShader(SkMatrix::MakeScale(2, 2));
+        img = GetResourceAsImage("images/brickwork_normal-map.jpg");
+        fBmpShader = img->makeShader(SkMatrix::MakeScale(2, 2));
 
         const char code[] = R"(
             in fragmentProcessor color_map;
-            in fragmentProcessor bump_map;
+            in fragmentProcessor normal_map;
 
             uniform float4x4 localToWorld;
             uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
-            float convert_bump_to_delta(float bump) {
-                if (bump > 0.5) {
-                    bump -= 1;
-                }
-                return bump * 6;
+            float3 convert_normal_sample(half4 c) {
+                float3 n = 2 * c.rgb - 1;
+                n.y = -n.y;
+                return n;
             }
 
             void main(float x, float y, inout half4 color) {
-                half4 bmp = sample(bump_map);
+                float3 norm = convert_normal_sample(sample(normal_map));
+                float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
 
                 float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
-
-                float3 plane_norm = (localToWorldAdjInv * float4(
-                     convert_bump_to_delta(bmp.r),
-                     convert_bump_to_delta(bmp.g),
-                     1, 0)).xyz;
-                plane_norm = normalize(plane_norm);
-
                 float3 light_dir = normalize(lightPos - plane_pos);
-                float ambient = 0.1;
+
+                float ambient = 0.2;
                 float dp = dot(plane_norm, light_dir);
-                float scale = min(ambient + max(dp, 0), 2);
+                float scale = min(ambient + max(dp, 0), 1);
 
                 color = sample(color_map) * half4(float4(scale, scale, scale, 1));
             }

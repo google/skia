@@ -978,6 +978,14 @@ DEF_TEST(M44, reporter) {
     m44.setColMajorf(f);
     REPORTER_ASSERT(reporter, eq(m44, m, 0));
 
+    {
+        SkM44 t = m.transpose();
+        REPORTER_ASSERT(reporter, t != m);
+        REPORTER_ASSERT(reporter, t.atColMajor(1) == m.atColMajor(4));
+        SkM44 tt = t.transpose();
+        REPORTER_ASSERT(reporter, tt == m);
+    }
+
     m.setRowMajor(f);
     m44.setRowMajorf(f);
     REPORTER_ASSERT(reporter, eq(m44, m, 0));
