@@ -803,27 +803,22 @@ void copy_src_data(char* dst, size_t bytesPerPixel, const SkTArray<size_t>& indi
     }
 }
 
-bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
+bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
                                                  SkISize dimensions,
-                                                 bool texturable,
+                                                 GrTexturable texturable,
                                                  GrRenderable renderable,
                                                  const BackendTextureData* data,
                                                  GrMipMapped mipMapped,
                                                  GrMtlTextureInfo* info) {
-    SkASSERT(texturable || renderable == GrRenderable::kYes);
-    if (!texturable) {
+    SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
+    if (texturable == GrTexturable::kNo) {
         SkASSERT(!data && mipMapped == GrMipMapped::kNo);
     }
 
-#ifdef SK_BUILD_FOR_IOS
-    // Compressed formats go through onCreateCompressedBackendTexture
-    SkASSERT(!GrMtlFormatIsCompressed(format));
-#endif
-
-    if (texturable && !fMtlCaps->isFormatTexturable(format)) {
+    if (texturable == GrTexturable::kNo && !fMtlCaps->isFormatTexturable(mtlFormat)) {
         return false;
     }
-    if (renderable == GrRenderable::kYes && !fMtlCaps->isFormatRenderable(format, 1)) {
+    if (renderable == GrRenderable::kYes && !fMtlCaps->isFormatRenderable(mtlFormat, 1)) {
         return false;
     }
 
@@ -832,13 +827,13 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     }
 
     MTLTextureDescriptor* desc =
-        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: mtlFormat
                                                            width: dimensions.width()
                                                           height: dimensions.height()
                                                        mipmapped: mipMapped == GrMipMapped::kYes];
     if (@available(macOS 10.11, iOS 9.0, *)) {
         desc.storageMode = MTLStorageModePrivate;
-        desc.usage = texturable ? MTLTextureUsageShaderRead : 0;
+        desc.usage = texturable == GrTexturable::kYes ? MTLTextureUsageShaderRead : 0;
         desc.usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
     }
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
@@ -850,8 +845,6 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     }
 
     // Create the transfer buffer
-    size_t bytesPerPixel = fMtlCaps->bytesPerPixel(format);
-
     NSUInteger options = 0;  // TODO: consider other options here
     if (@available(macOS 10.11, iOS 9.0, *)) {
 #ifdef SK_BUILD_FOR_MAC
@@ -871,21 +864,42 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat format,
     id<MTLBuffer> transferBuffer;
     size_t transferBufferSize;
 
-    SkASSERT(data->type() != BackendTextureData::Type::kCompressed);
-    if (data->type() == BackendTextureData::Type::kPixmaps) {
-        transferBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, dimensions,
-                                                              &individualMipOffsets, numMipLevels);
+    if (data->type() == BackendTextureData::Type::kCompressed ||
+        data->type() == BackendTextureData::Type::kPixmaps) {
+        SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+
+        if (compression == SkImage::CompressionType::kNone) {
+            size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
+
+            transferBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, dimensions,
+                                                                  &individualMipOffsets, numMipLevels);
+
+        } else {
+            transferBufferSize = GrCompressedDataSize(compression, dimensions,
+                                                      &individualMipOffsets, mipMapped);
+        }
+        SkASSERT(individualMipOffsets.count() == numMipLevels);
+
         transferBuffer = [fDevice newBufferWithLength: transferBufferSize
                                               options: options];
         if (nil == transferBuffer) {
             return false;
         }
         char* buffer = (char*)transferBuffer.contents;
-        copy_src_data(buffer, bytesPerPixel, individualMipOffsets, data->pixmaps(), numMipLevels,
-                      transferBufferSize);
+
+        if (data->type() == BackendTextureData::Type::kPixmaps) {
+            size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
+
+            copy_src_data(buffer, bytesPerPixel, individualMipOffsets, data->pixmaps(),
+                          numMipLevels, transferBufferSize);
+        } else {
+            SkASSERT(data->type() == BackendTextureData::Type::kCompressed);
+
+            memcpy(buffer, data->compressedData(), data->compressedSize());
+        }
     } else {
         SkASSERT(data->type() == BackendTextureData::Type::kColor);
-        auto colorType = mtl_format_to_backend_tex_clear_colortype(format);
+        auto colorType = mtl_format_to_backend_tex_clear_colortype(mtlFormat);
         if (colorType == GrColorType::kUnknown) {
             return false;
         }
@@ -950,10 +964,10 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const BackendTextureData* data,
                                                   GrMipMapped mipMapped,
                                                   GrProtected isProtected) {
-    // GrGpu::createBackendTexture should've ensured these conditions
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+
     GrMtlTextureInfo info;
-    if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, true,
+    if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, GrTexturable::kYes,
                                                  renderable, data, mipMapped, &info)) {
         return {};
     }
@@ -963,11 +977,20 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
 }
 
 GrBackendTexture GrMtlGpu::onCreateCompressedBackendTexture(SkISize dimensions,
-                                                            const GrBackendFormat&,
-                                                            const BackendTextureData*,
-                                                            GrMipMapped,
-                                                            GrProtected) {
-    return {};
+                                                            const GrBackendFormat& format,
+                                                            const BackendTextureData* data,
+                                                            GrMipMapped mipMapped,
+                                                            GrProtected isProtected) {
+    const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+
+    GrMtlTextureInfo info;
+    if (!this->createMtlTextureForBackendSurface(mtlFormat, dimensions, GrTexturable::kYes,
+                                                 GrRenderable::kNo, data, mipMapped, &info)) {
+        return {};
+    }
+
+    GrBackendTexture backendTex(dimensions.width(), dimensions.height(), mipMapped, info);
+    return backendTex;
 }
 
 void GrMtlGpu::deleteBackendTexture(const GrBackendTexture& tex) {

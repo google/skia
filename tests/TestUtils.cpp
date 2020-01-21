@@ -202,6 +202,7 @@ bool compare_pixels(int width, int height,
             }
         }
     }
+    SkDebugf("success\n");
     return true;
 }
 
