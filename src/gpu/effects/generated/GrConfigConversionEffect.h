@@ -11,6 +11,7 @@
 #ifndef GrConfigConversionEffect_DEFINED
 #define GrConfigConversionEffect_DEFINED
 #include "include/core/SkTypes.h"
+#include "include/core/SkMatrix44.h"
 
 #include "include/gpu/GrContext.h"
 #include "src/gpu/GrClip.h"

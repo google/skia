@@ -11,6 +11,7 @@
 #ifndef GrTwoPointConicalGradientLayout_DEFINED
 #define GrTwoPointConicalGradientLayout_DEFINED
 #include "include/core/SkTypes.h"
+#include "include/core/SkMatrix44.h"
 
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkTwoPointConicalGradient.h"

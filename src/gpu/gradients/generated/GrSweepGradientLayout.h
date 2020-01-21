@@ -11,6 +11,7 @@
 #ifndef GrSweepGradientLayout_DEFINED
 #define GrSweepGradientLayout_DEFINED
 #include "include/core/SkTypes.h"
+#include "include/core/SkMatrix44.h"
 
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkSweepGradient.h"
