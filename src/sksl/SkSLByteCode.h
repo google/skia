@@ -220,7 +220,7 @@ enum class TypeCategory {
 
 class SK_API ByteCode {
 public:
-    static constexpr int kVecWidth = 16;
+    static constexpr int kVecWidth = 8;
 
     ByteCode() = default;
 
