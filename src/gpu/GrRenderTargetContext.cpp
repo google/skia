@@ -1654,7 +1654,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                              GrPaint&& paint,
                                              const SkMatrix& viewMatrix,
                                              GrSurfaceProxyView view,
-                                             GrColorType srcColorType,
+                                             SkAlphaType alphaType,
                                              sk_sp<GrColorSpaceXform> csxf,
                                              GrSamplerState::Filter filter,
                                              std::unique_ptr<SkLatticeIter> iter,
@@ -1668,7 +1668,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     std::unique_ptr<GrDrawOp> op =
             GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(view),
-                                   srcColorType, std::move(csxf), filter, std::move(iter), dst);
+                                   alphaType, std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
 }
 

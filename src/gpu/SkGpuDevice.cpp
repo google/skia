@@ -1371,7 +1371,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->localToDevice(),
-                                           std::move(view), producer->colorType(), std::move(csxf),
+                                           std::move(view), producer->alphaType(), std::move(csxf),
                                            filter, std::move(iter), dst);
 }
 

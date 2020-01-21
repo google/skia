@@ -133,27 +133,27 @@ public:
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           GrSurfaceProxyView view,
-                                          GrColorType srcColorType,
+                                          SkAlphaType alphaType,
                                           sk_sp<GrColorSpaceXform> colorSpaceXForm,
                                           GrSamplerState::Filter filter,
                                           std::unique_ptr<SkLatticeIter> iter,
                                           const SkRect& dst) {
         SkASSERT(view.proxy());
         return Helper::FactoryHelper<NonAALatticeOp>(context, std::move(paint), viewMatrix,
-                                                     std::move(view), srcColorType,
+                                                     std::move(view), alphaType,
                                                      std::move(colorSpaceXForm), filter,
                                                      std::move(iter), dst);
     }
 
     NonAALatticeOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
                    const SkMatrix& viewMatrix, GrSurfaceProxyView view,
-                   GrColorType srcColorType, sk_sp<GrColorSpaceXform> colorSpaceXform,
+                   SkAlphaType alphaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                    GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
                    const SkRect& dst)
             : INHERITED(ClassID())
             , fHelper(helperArgs, GrAAType::kNone)
             , fView(std::move(view))
-            , fSrcColorType(srcColorType)
+            , fAlphaType(alphaType)
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fFilter(filter) {
         Patch& patch = fPatches.push_back();
@@ -195,7 +195,7 @@ public:
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
-        auto opaque = fPatches[0].fColor.isOpaque() && !GrColorTypeHasAlpha(fSrcColorType)
+        auto opaque = fPatches[0].fColor.isOpaque() && fAlphaType == kOpaque_SkAlphaType
                               ? GrProcessorAnalysisColor::Opaque::kYes
                               : GrProcessorAnalysisColor::Opaque::kNo;
         auto analysisColor = GrProcessorAnalysisColor(opaque);
@@ -328,7 +328,7 @@ private:
     Helper fHelper;
     SkSTArray<1, Patch, true> fPatches;
     GrSurfaceProxyView fView;
-    GrColorType fSrcColorType;
+    SkAlphaType fAlphaType;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     GrSamplerState::Filter fFilter;
     bool fWideColor;
@@ -343,14 +343,13 @@ std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
                                     GrPaint&& paint,
                                     const SkMatrix& viewMatrix,
                                     GrSurfaceProxyView view,
-                                    GrColorType srcColorType,
+                                    SkAlphaType alphaType,
                                     sk_sp<GrColorSpaceXform> colorSpaceXform,
                                     GrSamplerState::Filter filter,
                                     std::unique_ptr<SkLatticeIter> iter,
                                     const SkRect& dst) {
-    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view),
-                                srcColorType, std::move(colorSpaceXform), filter, std::move(iter),
-                                dst);
+    return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view), alphaType,
+                                std::move(colorSpaceXform), filter, std::move(iter), dst);
 }
 };
 
@@ -474,8 +473,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
             context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888));
 
     return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view),
-                                GrColorType::kRGBA_8888, std::move(csxf), filter, std::move(iter),
-                                dst);
+                                kPremul_SkAlphaType, std::move(csxf), filter, std::move(iter), dst);
 }
 
 #endif
