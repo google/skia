@@ -61,6 +61,10 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
 
     if (fRecord->count() == 0) {
         auto pic = fMiniRecorder->detachAsPicture(fBBH ? nullptr : &fCullRect);
+        if (auto bbh = static_cast<SkBBoxHierarchy_Base*>(fBBH.get())) {
+            SkRect bounds = pic->cullRect();  // actually the computed bounds, not fCullRect.
+            bbh->insert(&bounds, 1);
+        }
         fBBH.reset(nullptr);
         return pic;
     }
