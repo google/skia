@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
-#include "src/sksl/SkSLInterpreter.h"
+#include "src/sksl/SkSLByteCode.h"
 
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
@@ -2711,6 +2711,7 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
 
     float*  args[]  = { xx, yy, rr, gg, bb, aa };
     float** in_args = args;
+    int     in_count = 6;
 
     if (c->shaderConvention) {
         // our caller must have called seed_shader to set these
@@ -2722,14 +2723,15 @@ STAGE(interpreter, SkRasterPipeline_InterpreterCtx* c) {
         sk_unaligned_store(aa, F(c->paintColor.fA));
     } else {
         in_args += 2;   // skip x,y
+        in_count = 4;
         sk_unaligned_store(rr, r);
         sk_unaligned_store(gg, g);
         sk_unaligned_store(bb, b);
         sk_unaligned_store(aa, a);
     }
 
-    c->interpreter->setUniforms((float*) c->inputs);
-    SkAssertResult(c->interpreter->runStriped(c->fn, tail ? tail : N, (float**) in_args));
+    SkAssertResult(c->byteCode->runStriped(c->fn, tail ? tail : N, in_args, in_count,
+                                           nullptr, 0, (const float*)c->inputs, c->ninputs));
 
     r = sk_unaligned_load<F>(rr);
     g = sk_unaligned_load<F>(gg);

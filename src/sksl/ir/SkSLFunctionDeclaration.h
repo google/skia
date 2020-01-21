@@ -36,7 +36,7 @@ struct FunctionDeclaration : public Symbol {
         for (auto p : fParameters) {
             result += separator;
             separator = ", ";
-            result += p->fType.displayName();
+            result += p->fName;
         }
         result += ")";
         return result;
