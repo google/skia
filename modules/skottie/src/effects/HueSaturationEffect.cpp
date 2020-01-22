@@ -28,7 +28,7 @@ public:
                     new HueSaturationEffectAdapter(jprops, std::move(layer), abuilder));
     }
 
-    const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
+    const sk_sp<sksg::ExternalColorFilter>& node() const { return fColorFilter; }
 
 private:
     HueSaturationEffectAdapter(const skjson::ArrayValue& jprops,

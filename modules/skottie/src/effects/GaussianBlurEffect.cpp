@@ -27,7 +27,7 @@ public:
                                                                               abuilder));
     }
 
-    const sk_sp<sksg::RenderNode>& renderNode() const { return fImageFilterEffect; }
+    const sk_sp<sksg::RenderNode>& node() const { return fImageFilterEffect; }
 
 private:
     GaussianBlurEffectAdapter(const skjson::ArrayValue& jprops,

@@ -29,6 +29,11 @@ public:
     template <typename T>
     bool bind(const AnimationBuilder&, const skjson::ObjectValue*, T*);
 
+    template <typename T>
+    bool bind(const AnimationBuilder& abuilder, const skjson::ObjectValue* jobject, T& v) {
+        return this->bind<T>(abuilder, jobject, &v);
+    }
+
     bool isStatic() const { return fAnimators.empty(); }
 
 protected:

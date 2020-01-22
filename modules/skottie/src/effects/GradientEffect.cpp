@@ -28,7 +28,7 @@ public:
                                                                               abuilder));
     }
 
-    sk_sp<sksg::RenderNode> renderNode() const { return fShaderEffect; }
+    sk_sp<sksg::RenderNode> node() const { return fShaderEffect; }
 
 private:
     GradientRampEffectAdapter(const skjson::ArrayValue& jprops,

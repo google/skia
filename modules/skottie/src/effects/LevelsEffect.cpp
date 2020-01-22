@@ -43,7 +43,7 @@ public:
                                                                   abuilder));
     }
 
-    sk_sp<sksg::RenderNode> renderNode() const { return fEffect; }
+    sk_sp<sksg::RenderNode> node() const { return fEffect; }
 
 private:
     LevelsEffectAdapter(const skjson::ArrayValue& jprops,

@@ -738,6 +738,8 @@ def skottie_lib_srcs():
             "modules/skottie/src/effects/*.h",
             "modules/skottie/src/layers/*.cpp",
             "modules/skottie/src/layers/*.h",
+            "modules/skottie/src/layers/shapelayer/*.cpp",
+            "modules/skottie/src/layers/shapelayer/*.h",
             "modules/skottie/src/text/*.cpp",
             "modules/skottie/src/text/*.h",
         ],

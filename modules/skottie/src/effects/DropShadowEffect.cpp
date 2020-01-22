@@ -25,7 +25,7 @@ public:
         return sk_sp<DropShadowAdapter>(new DropShadowAdapter(jprops, std::move(layer), abuilder));
     }
 
-    const sk_sp<sksg::RenderNode>& renderNode() const { return fImageFilterEffect; }
+    const sk_sp<sksg::RenderNode>& node() const { return fImageFilterEffect; }
 
 private:
     DropShadowAdapter(const skjson::ArrayValue& jprops,
