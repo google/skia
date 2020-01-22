@@ -541,10 +541,12 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
     GrMipMapsStatus mipMapsStatus = (GrMipMapped::kYes == mipMapped)
             ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
 
+    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, colorType);
+
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
     // The promise API provides no way for the client to indicated that the texture is protected.
     return proxyProvider->createLazyProxy(
-            std::move(callback), backendFormat, desc, GrRenderable::kNo, 1, origin, mipMapped,
-            mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+            std::move(callback), backendFormat, desc, readSwizzle, GrRenderable::kNo, 1, origin,
+            mipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
+            SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 }

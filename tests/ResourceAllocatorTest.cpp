@@ -288,10 +288,11 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
     };
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
+    GrSwizzle readSwizzle = caps->getReadSwizzle(format, p.fColorType);
     return proxyProvider->createLazyProxy(
-            callback, format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin, GrMipMapped::kNo,
-            GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted, GrProtected::kNo,
-            GrSurfaceProxy::UseAllocator::kYes);
+            callback, format, desc, readSwizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
+            GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted,
+            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 }
 
 // Set up so there are two opsTasks that need to be flushed but the resource allocator thinks
