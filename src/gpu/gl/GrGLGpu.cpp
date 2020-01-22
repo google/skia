@@ -15,6 +15,7 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTraceEvent.h"
@@ -1112,8 +1113,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         size_t offset = 0;
         for (int level = 0; level < numMipLevels; ++level) {
 
-            size_t levelDataSize = GrCompressedDataSize(compressionType, dimensions,
-                                                        nullptr, GrMipMapped::kNo);
+            size_t levelDataSize = SkCompressedDataSize(compressionType, dimensions,
+                                                        nullptr, false);
 
             GL_CALL(CompressedTexSubImage2D(target,
                                             level,
@@ -1137,8 +1138,8 @@ bool GrGLGpu::uploadCompressedTexData(GrGLFormat format,
         size_t offset = 0;
 
         for (int level = 0; level < numMipLevels; ++level) {
-            size_t levelDataSize = GrCompressedDataSize(compressionType, dimensions,
-                                                        nullptr, GrMipMapped::kNo);
+            size_t levelDataSize = SkCompressedDataSize(compressionType, dimensions,
+                                                        nullptr, false);
 
             const char* rawLevelData = &((char*)data)[offset];
             GL_ALLOC_CALL(this->glInterface(), CompressedTexImage2D(target,
@@ -1471,7 +1472,8 @@ GrBackendTexture GrGLGpu::onCreateCompressedBackendTexture(SkISize dimensions,
         SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
         SkASSERT(compression != SkImage::CompressionType::kNone);
 
-        rawDataSize = GrCompressedDataSize(compression, dimensions, nullptr, mipMapped);
+        rawDataSize = SkCompressedDataSize(compression, dimensions, nullptr,
+                                           mipMapped == GrMipMapped::kYes);
 
         am.reset(rawDataSize);
 
