@@ -104,6 +104,7 @@ gm_sources = [
   "$_gm/convexpolyclip.cpp",
   "$_gm/convexpolyeffect.cpp",
   "$_gm/copy_to_4444.cpp",
+  "$_gm/crbug_224618.cpp",
   "$_gm/crbug_691386.cpp",
   "$_gm/crbug_788500.cpp",
   "$_gm/crbug_847759.cpp",
