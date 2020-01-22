@@ -9,9 +9,9 @@
 #define GrDrawOpAtlas_DEFINED
 
 #include <cmath>
+#include <vector>
 
 #include "include/core/SkSize.h"
-#include "include/private/SkTDArray.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
@@ -68,11 +68,15 @@ public:
     static const uint64_t kInvalidAtlasGeneration = 0;
 
     /**
-     * A function pointer for use as a callback during eviction. Whenever GrDrawOpAtlas evicts a
+     * An interface for eviction callbacks. Whenever GrDrawOpAtlas evicts a
      * specific AtlasID, it will call all of the registered listeners so they can process the
      * eviction.
      */
-    typedef void (*EvictionFunc)(GrDrawOpAtlas::AtlasID, void*);
+    class EvictionCallback {
+    public:
+        virtual ~EvictionCallback() = default;
+        virtual void evict(AtlasID id) = 0;
+    };
 
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
@@ -85,10 +89,8 @@ public:
      *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
      *                          direction
      *  @param allowMultitexturing Can the atlas use more than one texture.
-     *  @param func             An eviction function which will be called whenever the atlas has to
-     *                          evict data
-     *  @param data             User supplied data which will be passed into func whenever an
-     *                          eviction occurs
+     *  @param evictor          A pointer to an eviction callback class.
+     *
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
     static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
@@ -97,7 +99,7 @@ public:
                                                int width, int height,
                                                int plotWidth, int plotHeight,
                                                AllowMultitexturing allowMultitexturing,
-                                               GrDrawOpAtlas::EvictionFunc func, void* data);
+                                               EvictionCallback* evictor);
 
     /**
      * Packs a texture atlas index into the signed int16 texture coordinates.
@@ -151,7 +153,7 @@ public:
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    inline bool hasID(AtlasID id) {
+    bool hasID(AtlasID id) {
         if (kInvalidAtlasID == id) {
             return false;
         }
@@ -163,7 +165,7 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    inline void setLastUseToken(AtlasID id, GrDeferredUploadToken token) {
+    void setLastUseToken(AtlasID id, GrDeferredUploadToken token) {
         SkASSERT(this->hasID(id));
         uint32_t plotIdx = GetPlotIndexFromID(id);
         SkASSERT(plotIdx < fNumPlots);
@@ -172,12 +174,6 @@ public:
         Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
-    }
-
-    inline void registerEvictionCallback(EvictionFunc func, void* userData) {
-        EvictionData* data = fEvictionCallbacks.append();
-        data->fFunc = func;
-        data->fData = userData;
     }
 
     uint32_t numActivePages() { return fNumActivePages; }
@@ -420,12 +416,7 @@ private:
     // nextTokenToFlush() value at the end of the previous flush
     GrDeferredUploadToken fPrevFlushToken;
 
-    struct EvictionData {
-        EvictionFunc fFunc;
-        void* fData;
-    };
-
-    SkTDArray<EvictionData> fEvictionCallbacks;
+    std::vector<EvictionCallback*> fEvictionCallbacks;
 
     struct Page {
         // allocated array of Plots

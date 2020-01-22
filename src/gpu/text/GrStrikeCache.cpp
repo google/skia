@@ -33,16 +33,14 @@ void GrStrikeCache::freeAll() {
     fCache.reset();
 }
 
-void GrStrikeCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
-    GrStrikeCache* grStrikeCache = reinterpret_cast<GrStrikeCache*>(ptr);
-
-    grStrikeCache->fCache.mutate([grStrikeCache, id](sk_sp<GrTextStrike>* cacheSlot){
+void GrStrikeCache::evict(GrDrawOpAtlas::AtlasID id) {
+    fCache.mutate([this, id](sk_sp<GrTextStrike>* cacheSlot){
         GrTextStrike* strike = cacheSlot->get();
         strike->removeID(id);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
-        if (strike != grStrikeCache->fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
+        if (strike != fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
             strike->fIsAbandoned = true;
             return false;  // Remove this entry from the cache.
         }
