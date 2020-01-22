@@ -22,7 +22,9 @@ class GrRecordingContext;
 class ShapeData;
 class ShapeDataKey;
 
-class GrSmallPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
+class GrSmallPathRenderer : public GrPathRenderer,
+                            public GrOnFlushCallbackObject,
+                            public GrDrawOpAtlas::EvictionCallback {
 public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;
@@ -71,7 +73,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
-    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
+    void evict(GrDrawOpAtlas::AtlasID) override;
 
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
     ShapeCache fShapeCache;

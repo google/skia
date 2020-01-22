@@ -72,9 +72,12 @@ void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
     fMaxPages = maxPages;
 }
 
-void EvictionFunc(GrDrawOpAtlas::AtlasID atlasID, void*) {
-    SkASSERT(0); // The unit test shouldn't exercise this code path
-}
+class DummyEvict : public GrDrawOpAtlas::EvictionCallback {
+public:
+    void evict(GrDrawOpAtlas::AtlasID id) override {
+        SkASSERT(0); // The unit test shouldn't exercise this code path
+    }
+};
 
 static void check(skiatest::Reporter* r, GrDrawOpAtlas* atlas,
                   uint32_t expectedActive, uint32_t expectedMax, int expectedAlloced) {
@@ -142,6 +145,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                            GrRenderable::kNo);
 
+    DummyEvict evictor;
+
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
                                                 format,
@@ -149,7 +154,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                 kAtlasSize, kAtlasSize,
                                                 kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
-                                                EvictionFunc, nullptr);
+                                                &evictor);
     check(reporter, atlas.get(), 0, 4, 0);
 
     // Fill up the first level
