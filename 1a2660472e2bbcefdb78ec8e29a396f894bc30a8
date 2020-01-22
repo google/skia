@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "66bc4080_44de182c",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-22T15:04:42Z",
+      "side": 1,
+      "message": "Can I haz operator^() as outer product??",
+      "parentUuid": "6b5ac22f_e5f6ac42",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 71
+      },
+      "revId": "1a2660472e2bbcefdb78ec8e29a396f894bc30a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3f75fd72_85d2a2e0",
         "filename": "include/private/SkM44.h",
         "patchSetId": 11
