@@ -133,7 +133,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DefferredProxyConversionTest, reporter, ctxIn
     GrSurfaceDesc desc;
     desc.fWidth = 64;
     desc.fHeight = 64;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                  GrRenderable::kYes);

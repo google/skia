@@ -482,7 +482,6 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         GrSurfaceDesc desc;
         desc.fWidth = maskSpaceIBounds.width();
         desc.fHeight = maskSpaceIBounds.height();
-        desc.fConfig = kAlpha_8_GrPixelConfig;
 
         GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                GrRenderable::kNo);

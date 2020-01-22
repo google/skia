@@ -178,7 +178,6 @@ sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
     GrSurfaceDesc desc;
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
-    desc.fConfig = GrCompressionTypeToPixelConfig(compression);
 
     GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes)
                                                                 ? GrMipMapsStatus::kValid
@@ -207,7 +206,6 @@ sk_sp<GrTexture> GrMockGpu::onWrapBackendTexture(const GrBackendTexture& tex, Gr
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    desc.fConfig = texInfo.pixelConfig();
 
     GrMipMapsStatus mipMapsStatus = tex.hasMipMaps() ? GrMipMapsStatus::kValid
                                                      : GrMipMapsStatus::kNotAllocated;
@@ -235,7 +233,6 @@ sk_sp<GrTexture> GrMockGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    desc.fConfig = texInfo.pixelConfig();
 
     GrMipMapsStatus mipMapsStatus =
             tex.hasMipMaps() ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
@@ -257,7 +254,6 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
     GrSurfaceDesc desc;
     desc.fWidth = rt.width();
     desc.fHeight = rt.height();
-    desc.fConfig = info.pixelConfig();
 
     auto isProtected = GrProtected(rt.isProtected());
     return sk_sp<GrRenderTarget>(new GrMockRenderTarget(this, GrMockRenderTarget::kWrapped, desc,
@@ -275,7 +271,6 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    desc.fConfig = texInfo.pixelConfig();
 
     // The client gave us the texture ID but we supply the render target ID.
     GrMockRenderTargetInfo rtInfo(texInfo.colorType(), NextInternalRenderTargetID());

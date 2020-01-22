@@ -205,7 +205,6 @@ public:
                                                     int renderTargetSampleCnt,
                                                     GrProtected,
                                                     GrSurfaceOrigin,
-                                                    GrPixelConfig,
                                                     const GrCaps&,
                                                     UseAllocator);
 

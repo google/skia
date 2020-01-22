@@ -526,7 +526,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         GrSurfaceDesc desc;
         desc.fWidth = 32;
         desc.fHeight = 64;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
 
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kNo);
