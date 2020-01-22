@@ -24,7 +24,7 @@ class ExternalValue;
 class SK_API ByteCodeFunction {
 public:
     // all counts are of 32-bit values, so a float4 counts as 4 parameter or return slots
-    struct Parameter {
+    struct SK_API Parameter {
         int fSlotCount;
         bool fIsOutParameter;
     };

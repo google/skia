@@ -937,7 +937,7 @@ DEF_TEST(SkSLInterpreterInverse, r) {
         SkM44 m = {1, 2, 3, 4, 1, 2, 0, 3, 1, 0, 1, 4, 1, 3, 2, 0};
         m.getColMajor(args);
         SkAssertResult(m.invert(&m));
-        m.asColMajorf(expt);
+        m.getColMajor(expt);
         test(r, "float4x4 main(float4x4 m) { return inverse(m); }", 4, args, expt, false);
     }
 }

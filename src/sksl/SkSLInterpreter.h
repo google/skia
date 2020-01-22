@@ -174,7 +174,11 @@ public:
             int slot = 0;
             for (const auto& p : f->fParameters) {
                 if (p.fIsOutParameter) {
+                    printf("run copying out %d slots\n", p.fSlotCount);
                     memcpy(&args[slot], &stack[slot], p.fSlotCount * sizeof(Vector));
+                    for (int i = 0; i < p.fSlotCount; ++i) {
+                        printf("    %d: %f\n", i, args[slot].fFloat[0]);
+                    }
                 }
                 slot += p.fSlotCount;
             }
@@ -504,10 +508,12 @@ private:
                 c = in[2].fFloat,
                 d = in[3].fFloat;
         VectorF idet = VectorF(1) / (a*d - b*c);
+        printf("matrix in: %f, %f, %f, %f\n", a[0], b[0], c[0], d[0]);
         out[0].fFloat = d * idet;
         out[1].fFloat = -b * idet;
         out[2].fFloat = -c * idet;
         out[3].fFloat = a * idet;
+        printf("matrix out: %f, %f, %f, %f\n", out[0].fFloat[0], out[1].fFloat[0], out[2].fFloat[0], out[3].fFloat[0]);
     }
 
     static void Inverse3x3(Vector* in, Vector* out) {
