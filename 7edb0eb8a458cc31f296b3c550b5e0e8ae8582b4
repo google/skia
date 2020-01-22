@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e444dee2_0ed0b15c",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-22T12:56:46Z",
+      "side": 0,
+      "message": "Please keep this in; dirtyRect is an optional parameter that *may* be used to more smartly flush/redraw things. We just haven\u0027t done that yet.",
+      "range": {
+        "startLine": 745,
+        "startChar": 75,
+        "endLine": 745,
+        "endChar": 84
+      },
+      "revId": "7edb0eb8a458cc31f296b3c550b5e0e8ae8582b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e69e689_a86e640b",
+        "filename": "modules/canvaskit/canvaskit/example.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-22T12:56:46Z",
+      "side": 1,
+      "message": "Could you also add a small unit test to core.spec.js? Just to make sure the API doesn\u0027t get minified out and that drawOnce actually draws is sufficient.",
+      "range": {
+        "startLine": 236,
+        "startChar": 12,
+        "endLine": 236,
+        "endChar": 20
+      },
+      "revId": "c5620a853ba49fa440b111d1a49173d688dfd1a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e95b7c13_7d37ea75",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-22T12:56:46Z",
+      "side": 1,
+      "message": "As I see it now, drawOnce is synchronous, whereas requestAnimationFrame is async (using requestAnimationFrame). Is this an intentional difference? I think it\u0027s generally agreed upon to not draw much on the main thread to avoid jank in an app, and thus recommend to always use requestAnimationFrame. I could be wrong there, but what do you think?",
+      "revId": "c5620a853ba49fa440b111d1a49173d688dfd1a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
