@@ -348,8 +348,9 @@ bool SkImage_GpuBase::RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* re
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
+    const auto& caps = *ctx->priv().caps();
     auto fp = GrYUVtoRGBEffect::Make(proxies, yuvaIndices, yuvColorSpace,
-                                     GrSamplerState::Filter::kNearest);
+                                     GrSamplerState::Filter::kNearest, caps);
     if (colorSpaceXform) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
     }
