@@ -16,10 +16,10 @@
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
 
+#include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
 class GrOnFlushResourceProvider;
-class GrRectanizer;
 
 
 /**
@@ -357,7 +357,7 @@ private:
         const int fHeight;
         const int fX;
         const int fY;
-        GrRectanizer* fRects;
+        GrRectanizerSkyline fRectanizer;
         const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
         const GrColorType fColorType;
         const size_t fBytesPerPixel;
