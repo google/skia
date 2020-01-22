@@ -233,6 +233,31 @@ static bool is_simple_rect(const GrQuad& quad) {
 static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2, float y2,
                                const V4f& testX, const V4f& testY,
                                V4f* u, V4f* v, V4f* w) {
+    // The 32-bit calculations can have catastrophic cancellation if the device-space coordinates
+    // are really big, and this code needs to handle that because we evaluate barycentric coords
+    // pre-cropping to the render target bounds. This preserves some precision by shrinking the
+    // coordinate space if the bounds are large.
+    static constexpr float kCoordLimit = 1e7f; // Big but somewhat arbitrary, fixes crbug:10141204
+    float scaleX = std::max(std::max(x0, x1), x2) - std::min(std::min(x0, x1), x2);
+    float scaleY = std::max(std::max(y0, y1), y2) - std::min(std::min(y0, y1), y2);
+    if (scaleX > kCoordLimit) {
+        scaleX = kCoordLimit / scaleX;
+        x0 *= scaleX;
+        x1 *= scaleX;
+        x2 *= scaleX;
+    } else {
+        // Don't scale anything
+        scaleX = 1.f;
+    }
+    if (scaleY > kCoordLimit) {
+        scaleY = kCoordLimit / scaleY;
+        y0 *= scaleY;
+        y1 *= scaleY;
+        y2 *= scaleY;
+    } else {
+        scaleY = 1.f;
+    }
+
     // Modeled after SkPathOpsQuad::pointInTriangle() but uses float instead of double, is
     // vectorized and outputs normalized barycentric coordinates instead of inside/outside test
     float v0x = x2 - x0;
@@ -263,12 +288,13 @@ static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2,
         invDenom = sk_ieee_float_divide(1.f, invDenom);
     }
 
-    V4f v2x = testX - x0;
-    V4f v2y = testY - y0;
+    V4f v2x = (scaleX * testX) - x0;
+    V4f v2y = (scaleY * testY) - y0;
 
     V4f dot02 = v0x * v2x + v0y * v2y;
     V4f dot12 = v1x * v2x + v1y * v2y;
 
+    // These are relative to the vertices, so there's no need to undo the scale factor
     *u = (dot11 * dot02 - dot01 * dot12) * invDenom;
     *v = (dot00 * dot12 - dot01 * dot02) * invDenom;
     *w = 1.f - *u - *v;
