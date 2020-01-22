@@ -51,6 +51,7 @@ static DEFINE_string(gamut ,   "srgb", "The color gamut for any raster backend."
 static DEFINE_string(tf    ,   "srgb", "The transfer function for any raster backend.");
 static DEFINE_bool  (legacy,    false, "Use a null SkColorSpace instead of --gamut and --tf?");
 static DEFINE_bool  (skvm  ,    false, "Use SkVMBlitter when supported?");
+static DEFINE_bool  (dylib ,    false, "Use SkVM via dylib?");
 
 static DEFINE_int   (samples ,         0, "Samples per pixel in GPU backends.");
 static DEFINE_bool  (stencils,      true, "If false, avoid stencil buffers in GPU backends.");
@@ -370,6 +371,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
 }
 
 extern bool gUseSkVMBlitter;
+extern bool gSkVMJITViaDylib;
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
@@ -378,9 +380,8 @@ int main(int argc, char** argv) {
     if (FLAGS_cpuDetect) {
         SkGraphics::Init();
     }
-    if (FLAGS_skvm) {
-        gUseSkVMBlitter = true;
-    }
+    gUseSkVMBlitter  = FLAGS_skvm;
+    gSkVMJITViaDylib = FLAGS_dylib;
 
     initializeEventTracingForTools();
     ToolUtils::SetDefaultFontMgr();
