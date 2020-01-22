@@ -3765,41 +3765,6 @@ void GrGLGpu::insertManualFramebufferBarrier() {
     GL_CALL(MemoryBarrier(GR_GL_FRAMEBUFFER_BARRIER_BIT));
 }
 
-static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
-    switch (format) {
-        case GrGLFormat::kRGBA8:                return kRGBA_8888_GrPixelConfig;
-        case GrGLFormat::kRGB8:                 return kRGB_888_GrPixelConfig;
-        case GrGLFormat::kRG8:                  return kRG_88_GrPixelConfig;
-        case GrGLFormat::kBGRA8:                return kBGRA_8888_GrPixelConfig;
-        case GrGLFormat::kLUMINANCE8:           return kGray_8_GrPixelConfig;
-        case GrGLFormat::kSRGB8_ALPHA8:         return kSRGBA_8888_GrPixelConfig;
-        case GrGLFormat::kRGB10_A2:             return kRGBA_1010102_GrPixelConfig;
-        case GrGLFormat::kRGB565:               return kRGB_565_GrPixelConfig;
-        case GrGLFormat::kRGBA4:                return kRGBA_4444_GrPixelConfig;
-        case GrGLFormat::kRGBA16F:              return kRGBA_half_GrPixelConfig;
-        case GrGLFormat::kR16:                  return kAlpha_16_GrPixelConfig;
-        case GrGLFormat::kRG16:                 return kRG_1616_GrPixelConfig;
-        case GrGLFormat::kRGBA16:               return kRGBA_16161616_GrPixelConfig;
-        case GrGLFormat::kRG16F:                return kRG_half_GrPixelConfig;
-        case GrGLFormat::kUnknown:              return kUnknown_GrPixelConfig;
-
-        // Configs with multiple equivalent formats.
-
-        case GrGLFormat::kR16F:                 return kAlpha_half_GrPixelConfig;
-        case GrGLFormat::kLUMINANCE16F:         return kAlpha_half_GrPixelConfig;
-
-        case GrGLFormat::kALPHA8:               return kAlpha_8_GrPixelConfig;
-        case GrGLFormat::kR8:                   return kAlpha_8_GrPixelConfig;
-
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return kRGB_ETC1_GrPixelConfig;
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return kRGB_ETC1_GrPixelConfig;
-
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:  return kBC1_RGB8_UNORM_GrPixelConfig;
-        case GrGLFormat::kCOMPRESSED_RGBA8_BC1: return kBC1_RGBA8_UNORM_GrPixelConfig;
-    }
-    SkUNREACHABLE;
-}
-
 GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
