@@ -9,9 +9,11 @@
 #include "include/core/SkMallocPixelRef.h"
 #include "include/private/SkFloatBits.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/gradients/Sk4fLinearGradient.h"
 #include "src/shaders/gradients/SkGradientShaderPriv.h"
@@ -219,6 +221,7 @@ static void add_stop_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, SkPMC
     (ctx->fs[1])[stop] = Fs.fG;
     (ctx->fs[2])[stop] = Fs.fB;
     (ctx->fs[3])[stop] = Fs.fA;
+
     (ctx->bs[0])[stop] = Bs.fR;
     (ctx->bs[1])[stop] = Bs.fG;
     (ctx->bs[2])[stop] = Bs.fB;
@@ -410,6 +413,126 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     }
 
     p->extend(postPipeline);
+
+    return true;
+}
+
+bool SkGradientShaderBase::onProgram(skvm::Builder* p,
+                                     const SkMatrix& ctm, const SkMatrix* localM,
+                                     SkFilterQuality quality, SkColorSpace* dstCS,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                     skvm::F32 x, skvm::F32 y,
+                                     skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    SkMatrix inv;
+    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+        return false;
+    }
+    inv.postConcat(fPtsToUnit);
+    inv.normalizePerspective();
+
+    // Having tacked on fPtsToUnit at the end means we'll be left with t in x.
+    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+    skvm::F32 t = x;
+    if (!this->transformT(p, &t)) {  // Hook into subclasses for linear, radial, etc.
+        return false;
+    }
+
+    // Most tiling happens here, with kDecal also needing some work at the end.
+    switch(fTileMode) {
+        case SkTileMode::kDecal:                              break;
+        case SkTileMode::kClamp:                              break;
+        case SkTileMode::kRepeat: t = p->sub(t, p->floor(t)); break;
+        case SkTileMode::kMirror: {
+            // t = | (t-1) - 2*(floor( (t-1)*0.5 )) - 1 |
+            //       {-A-}      {--------B-------}
+            skvm::F32 A = p->sub(t, p->splat(1.0f)),
+                      B = p->floor( p->mul(A, p->splat(0.5f)));
+            t = p->abs(p->sub(p->sub(A, p->add(B,B)),
+                              p->splat(1.0f)));
+        } break;
+    }
+    skvm::F32 clamped_t = p->clamp(t, p->splat(0.0f), p->splat(1.0f));
+
+    // Transform our colors as we want them interpolated, in dst color space, possibly premul.
+    SkImageInfo base = SkImageInfo::Make(fColorCount,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType),
+                src  = base.makeColorSpace(fColorSpace),
+                dst  = base.makeColorSpace(sk_ref_sp(dstCS));
+    if (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
+        dst = dst.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    std::vector<float> rgba(4*fColorCount);
+    SkConvertPixels(dst,  rgba.data(), dst.minRowBytes(),
+                    src, fOrigColors4f, src.minRowBytes());
+
+    // Transform our colors into a scale factor f and bias b such that for
+    // any t between stops i and i+1, the color we want is mad(t, f[i], b[i]).
+    using F4 = skvx::Vec<4,float>;
+    struct FB { F4 f,b; };
+
+    // To handle clamps in search we add a conceptual stop at t=-inf,
+    // so the maximum number of stops is fColorCount+1.  The actual
+    // stop count may be less when stops have the same t value.
+    FB* fb = alloc->makeArray<FB>(fColorCount+1);
+    std::vector<float> stops;
+    stops.reserve(fColorCount+1);
+
+    float tl = this->getPos(0);
+    F4    cl = F4::Load(rgba.data());
+    fb[0] = { 0.0f, cl };
+    stops.push_back(-INFINITY);
+
+    for (int i = 1; i < fColorCount; i++) {
+        float th = this->getPos(i);
+        F4    ch = F4::Load(rgba.data() + 4*i);
+        if (tl < th) {
+            F4 f = (ch - cl) / (th - tl),
+               b = cl - f*tl;
+            fb[stops.size()] = {f,b};
+            stops.push_back(tl);
+        }
+        tl = th;
+        cl = ch;
+    }
+    fb[stops.size()] = { F4(0.0f), F4::Load(rgba.data() + 4*(fColorCount-1)) };
+    stops.push_back(tl);
+    skvm::Builder::Uniform fbs = uniforms->pushPtr(fb);
+
+    // Find the two colors we need to interpolate between.
+    skvm::I32 ix = p->splat(0);
+    for (int i = 1; i < (int)stops.size(); i++) {
+        // ix += (clamped_t >= stops[i]) ? +1 : 0 ~~>
+        // ix -= (clamped_t >= stops[i]) ? -1 : 0
+        ix = p->sub(ix, p->gte(clamped_t, p->uniformF(uniforms->pushF(stops[i]))));
+    }
+
+    // 4 scale factors and 4 biases per pixel.
+    ix = p->shl(ix, 3);            skvm::F32 Fr = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Fg = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Fb = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Fa = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Br = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Bg = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Bb = p->bit_cast(p->gather32(fbs, ix));
+    ix = p->add(ix, p->splat(1));  skvm::F32 Ba = p->bit_cast(p->gather32(fbs, ix));
+
+    *r = p->mad(clamped_t, Fr, Br);
+    *g = p->mad(clamped_t, Fg, Bg);
+    *b = p->mad(clamped_t, Fb, Bb);
+    *a = p->mad(clamped_t, Fa, Ba);
+
+    if (0 == (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)) {
+        p->premul(r,g,b,*a);
+    }
+
+    // Mask away any pixels that we tried to sample outside the bounds in kDecal.
+    if (fTileMode == SkTileMode::kDecal) {
+        skvm::I32 mask = p->eq(t, clamped_t);
+        *r = p->bit_cast(p->bit_and(mask, p->bit_cast(*r)));
+        *g = p->bit_cast(p->bit_and(mask, p->bit_cast(*g)));
+        *b = p->bit_cast(p->bit_and(mask, p->bit_cast(*b)));
+        *a = p->bit_cast(p->bit_and(mask, p->bit_cast(*a)));
+    }
 
     return true;
 }
