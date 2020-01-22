@@ -358,7 +358,7 @@ protected:
         if (fType == k3x3_Type) {
             m[7] = 0.0001f;
         }
-        SkMatrix44 m4(m);
+        SkM44 m4(m);
 
         for (int i = 0; i < loops; ++i) {
             canvas->save();

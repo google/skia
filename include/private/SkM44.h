@@ -8,9 +8,9 @@
 #ifndef SkM44_DEFINED
 #define SkM44_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-class SkMatrix;
 class SkMatrix44;
 
 struct SkV3 {
@@ -19,6 +19,7 @@ struct SkV3 {
     bool operator==(const SkV3& v) const {
         return x == v.x && y == v.y && z == v.z;
     }
+    bool operator!=(const SkV3& v) const { return !(*this == v); }
 
     static SkScalar Dot(const SkV3& a, const SkV3& b) { return a.x*b.x + a.y*b.y + a.z*b.z; }
     static SkV3   Cross(const SkV3& a, const SkV3& b) {
@@ -47,6 +48,14 @@ struct SkV4 {
     bool operator==(const SkV4& v) const {
         return x == v.x && y == v.y && z == v.z && w == v.w;
     }
+    bool operator!=(const SkV4& v) const { return !(*this == v); }
+
+    SkV4 operator-() const { return {-x, -y, -z, -w}; }
+    SkV4 operator+(const SkV4& v) const { return { x + v.x, y + v.y, z + v.z, w + v.w }; }
+    SkV4 operator-(const SkV4& v) const { return { x - v.x, y - v.y, z - v.z, w - v.w }; }
+
+    const float* vec() const { return &x; }
+    float* vec() { return &x; }
 };
 
 class SkM44 {
@@ -68,8 +77,17 @@ public:
     enum Uninitialized_Constructor {
         kUninitialized_Constructor
     };
-
     SkM44(Uninitialized_Constructor) {}
+
+    enum NaN_Constructor {
+        kNaN_Constructor
+    };
+    SkM44(NaN_Constructor)
+        : fMat{SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
+               SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
+               SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
+               SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN}
+    {}
 
     /**
      *  Parameters are treated as row-major.
