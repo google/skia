@@ -1137,4 +1137,7 @@
 #define GR_GL_ATOMIC_COUNTER_BARRIER_BIT                    0x1000
 #define GR_GL_ALL_BARRIER_BITS                              0xffffffff
 
+/** GL_NV_fence_sync */
+#define GR_GL_ALL_COMPLETED                                 0x84F2
+
 #endif
