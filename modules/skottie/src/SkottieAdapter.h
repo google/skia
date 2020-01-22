@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkottieAdapter_DEFINED
-#define SkottieAdapter_DEFINED
+#ifndef SkottieAdapter__DEFINED
+#define SkottieAdapter__DEFINED
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
@@ -56,131 +56,6 @@ namespace skottie {
     p_type f##p_name = p_default;                   \
   public:
 
-class RRectAdapter final : public SkNVRefCnt<RRectAdapter> {
-public:
-    explicit RRectAdapter(sk_sp<sksg::RRect>);
-    ~RRectAdapter();
-
-    ADAPTER_PROPERTY(Position, SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(Size    , SkSize  ,  SkSize::Make(0, 0))
-    ADAPTER_PROPERTY(Radius  , SkSize  ,  SkSize::Make(0, 0))
-
-private:
-    void apply();
-
-    sk_sp<sksg::RRect> fRRectNode;
-};
-
-class PolyStarAdapter final : public SkNVRefCnt<PolyStarAdapter> {
-public:
-    enum class Type {
-        kStar, kPoly,
-    };
-
-    PolyStarAdapter(sk_sp<sksg::Path>, Type);
-    ~PolyStarAdapter();
-
-    ADAPTER_PROPERTY(Position      , SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(PointCount    , SkScalar, 0)
-    ADAPTER_PROPERTY(InnerRadius   , SkScalar, 0)
-    ADAPTER_PROPERTY(OuterRadius   , SkScalar, 0)
-    ADAPTER_PROPERTY(InnerRoundness, SkScalar, 0)
-    ADAPTER_PROPERTY(OuterRoundness, SkScalar, 0)
-    ADAPTER_PROPERTY(Rotation      , SkScalar, 0)
-
-private:
-    void apply();
-
-    sk_sp<sksg::Path> fPathNode;
-    Type              fType;
-};
-
-class RepeaterAdapter final : public SkNVRefCnt<RepeaterAdapter> {
-public:
-    enum class Composite { kAbove, kBelow };
-
-    RepeaterAdapter(sk_sp<sksg::RenderNode>, Composite);
-    ~RepeaterAdapter();
-
-    // Repeater props
-    ADAPTER_PROPERTY(Count       , SkScalar, 0)
-    ADAPTER_PROPERTY(Offset      , SkScalar, 0)
-
-    // Transform props
-    ADAPTER_PROPERTY(AnchorPoint , SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(Position    , SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(Scale       , SkVector, SkPoint::Make(100, 100))
-    ADAPTER_PROPERTY(Rotation    , SkScalar, 0)
-    ADAPTER_PROPERTY(StartOpacity, SkScalar, 100)
-    ADAPTER_PROPERTY(EndOpacity  , SkScalar, 100)
-
-    const sk_sp<sksg::Group>& root() const { return fRoot; }
-
-private:
-    void apply();
-
-    const sk_sp<sksg::RenderNode> fRepeaterNode;
-    const Composite               fComposite;
-
-    sk_sp<sksg::Group>            fRoot;
-};
-
-class GradientAdapter : public SkRefCnt {
-public:
-    ADAPTER_PROPERTY(StartPoint, SkPoint        , SkPoint::Make(0, 0)   )
-    ADAPTER_PROPERTY(EndPoint  , SkPoint        , SkPoint::Make(0, 0)   )
-    ADAPTER_PROPERTY(Stops     , VectorValue    , VectorValue()         )
-
-protected:
-    GradientAdapter(sk_sp<sksg::Gradient>, size_t colorStopCount);
-
-    const SkPoint& startPoint() const { return fStartPoint; }
-    const SkPoint& endPoint()   const { return fEndPoint;   }
-
-    sk_sp<sksg::Gradient> fGradient;
-    size_t                fColorStopCount;
-
-    virtual void onApply() = 0;
-
-private:
-    void apply();
-};
-
-class LinearGradientAdapter final : public GradientAdapter {
-public:
-    LinearGradientAdapter(sk_sp<sksg::LinearGradient>, size_t stopCount);
-
-private:
-    void onApply() override;
-
-    using INHERITED = GradientAdapter;
-};
-
-class RadialGradientAdapter final : public GradientAdapter {
-public:
-    RadialGradientAdapter(sk_sp<sksg::RadialGradient>, size_t stopCount);
-
-private:
-    void onApply() override;
-
-    using INHERITED = GradientAdapter;
-};
-
-class TrimEffectAdapter final : public SkNVRefCnt<TrimEffectAdapter> {
-public:
-    explicit TrimEffectAdapter(sk_sp<sksg::TrimEffect>);
-    ~TrimEffectAdapter();
-
-    ADAPTER_PROPERTY(Start , SkScalar,   0)
-    ADAPTER_PROPERTY(End   , SkScalar, 100)
-    ADAPTER_PROPERTY(Offset, SkScalar,   0)
-
-private:
-    void apply();
-
-    sk_sp<sksg::TrimEffect> fTrimEffect;
-};
-
 } // namespace skottie
 
-#endif // SkottieAdapter_DEFINED
+#endif // SkottieAdapter__DEFINED

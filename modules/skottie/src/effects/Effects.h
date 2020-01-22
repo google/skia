@@ -77,7 +77,7 @@ private:
  */
 class MaskFilterEffectBase : public AnimatablePropertyContainer {
 public:
-    const sk_sp<sksg::MaskFilterEffect>& renderNode() const { return fMaskEffectNode; }
+    const sk_sp<sksg::MaskFilterEffect>& node() const { return fMaskEffectNode; }
 
 protected:
     MaskFilterEffectBase(sk_sp<sksg::RenderNode>, const SkSize&);
