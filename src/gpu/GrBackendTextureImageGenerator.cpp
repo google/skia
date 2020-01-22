@@ -160,6 +160,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     GrMipMapsStatus mipMapsStatus = fBackendTexture.hasMipMaps()
             ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
 
+    GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+
     // Must make copies of member variables to capture in the lambda since this image generator may
     // be deleted before we actually execute the lambda.
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
@@ -202,8 +204,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                 // unrelated to the whatever SkImage key may be assigned to the proxy.
                 return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
-            backendFormat, desc, GrRenderable::kNo, 1, fSurfaceOrigin, mipMapped, mipMapsStatus,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            backendFormat, desc, readSwizzle, GrRenderable::kNo, 1, fSurfaceOrigin, mipMapped,
+            mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return nullptr;
