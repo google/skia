@@ -69,7 +69,7 @@
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian10-GCC-loongson3a-Release-Docker/Release,target=/OUT",
       "gcr.io/skia-public/gcc-debian10-mips64el@sha256:c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540",
       "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
-      "cc=\"/usr/bin/mips64el-linux-gnuabi64-gcc-8\" cxx=\"/usr/bin/mips64el-linux-gnuabi64-g++-8\" extra_cflags=[\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-debian10-mips64el@sha256:c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540\"] extra_ldflags=[] is_debug=false target_cpu=\"loongson3a\" werror=true"
+      "cc=\"/usr/bin/mips64el-linux-gnuabi64-gcc-8\" cxx=\"/usr/bin/mips64el-linux-gnuabi64-g++-8\" extra_cflags=[\"-g1\",\"-DDUMMY_docker_image=gcr.io/skia-public/gcc-debian10-mips64el@sha256:c173a718d9f62f0cd1e5335713ebc4721d5dcf662fb02597744b71c53338a540\"] extra_ldflags=[] is_debug=false target_cpu=\"loongson3a\" werror=true"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
