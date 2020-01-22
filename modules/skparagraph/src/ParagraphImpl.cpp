@@ -1061,7 +1061,7 @@ void ParagraphImpl::computeEmptyMetrics() {
 
     auto typefaces = fontCollection()->findTypefaces(
       defaultTextStyle.getFontFamilies(), defaultTextStyle.getFontStyle());
-    auto typeface = typefaces.size() ? typefaces.front() : nullptr;
+    auto typeface = typefaces.empty() ? nullptr : typefaces.front();
 
     SkFont font(typeface, defaultTextStyle.getFontSize());
 

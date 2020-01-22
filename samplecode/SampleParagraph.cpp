@@ -1818,6 +1818,115 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView24 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph24"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(TextDirection::kRtl);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("Right_to_left:");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+        }
+        canvas->translate(0, 200);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("Right_to_left+");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+        }
+        canvas->translate(0, 200);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("Right_to_left.");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView25 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph25"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "Overflowing endorsement that has a large lengthy text and is a lot longer than expected";
+        ParagraphStyle paragraph_style;
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(594.0f);
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 200);
+        paragraph->layout(std::numeric_limits<SkScalar>::max());
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 200);
+        paragraph->layout(787.0f);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView26 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph26"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        //const char* text = "ERROR\nSECOND ERROR";
+        const char* text = "ERROR\nSECOND ERROR\nTHIRD ERRORRRRRRRRR\nFOURTH ERROR";
+        ParagraphStyle paragraph_style;
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(std::numeric_limits<SkScalar>::max());
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 300);
+        paragraph->layout(200);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1842,3 +1951,6 @@ DEF_SAMPLE(return new ParagraphView20();)
 DEF_SAMPLE(return new ParagraphView21();)
 DEF_SAMPLE(return new ParagraphView22();)
 DEF_SAMPLE(return new ParagraphView23();)
+DEF_SAMPLE(return new ParagraphView24();)
+DEF_SAMPLE(return new ParagraphView25();)
+DEF_SAMPLE(return new ParagraphView26();)

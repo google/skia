@@ -15,6 +15,9 @@ SkScalar littleRound(SkScalar a) {
 // Since we allow cluster clipping when they don't fit
 // we have to work with stretches - parts of clusters
 void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
+
+    reset();
+    fEndLine.metrics().clean();
     fWords.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     fClusters.startFrom(fEndLine.startCluster(), fEndLine.startPos());
     fClip.startFrom(fEndLine.startCluster(), fEndLine.startPos());
@@ -179,21 +182,25 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto maxLines = parent->paragraphStyle().getMaxLines();
     auto& ellipsisStr = parent->paragraphStyle().getEllipsis();
     auto align = parent->paragraphStyle().effective_align();
+    auto unlimitedLines = maxLines == std::numeric_limits<size_t>::max();
+    auto endlessLine = !SkScalarIsFinite(maxWidth);
+    auto hasEllipsis = !ellipsisStr.isEmpty();
 
     SkScalar softLineMaxIntrinsicWidth = 0;
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());
     auto end = span.end() - 1;
     auto start = span.begin();
     InternalLineMetrics maxRunMetrics;
-    auto needEllipsis = false;
-    auto endlessLine = maxLines == std::numeric_limits<size_t>::max();
+    bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {
 
-        reset();
-        auto exceededLines = !endlessLine && fLineNumber >= maxLines;
-        fEndLine.metrics().clean();
         lookAhead(maxWidth, end);
-        moveForward(exceededLines && !ellipsisStr.isEmpty());
+
+        auto lastLine = (hasEllipsis && unlimitedLines) || fLineNumber >= maxLines;
+        needEllipsis = hasEllipsis && !endlessLine && lastLine;
+
+        moveForward(needEllipsis);
+        needEllipsis &= fEndLine.endCluster() < end - 1; // Only if we have some text to ellipsize
 
         // Do not trim end spaces on the naturally last line of the left aligned text
         trimEndSpaces(align);
@@ -204,12 +211,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         SkScalar widthWithSpaces;
         std::tie(startLine, pos, widthWithSpaces) = trimStartSpaces(end);
 
-        needEllipsis =
-            fEndLine.endCluster() < end - 1 &&
-            SkScalarIsFinite(maxWidth) &&
-            !ellipsisStr.isEmpty();
-
-        if (needEllipsis && exceededLines && !fHardLineBreak) {
+        if (needEllipsis && !fHardLineBreak) {
             // This is what we need to do to preserve a space before the ellipsis
             fEndLine.restoreBreak();
             widthWithSpaces = fEndLine.withWithGhostSpaces();
@@ -221,12 +223,17 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
 
         // Deal with placeholder clusters == runs[@size==1]
+        Run* lastRun = nullptr;
         for (auto cluster = fEndLine.startCluster(); cluster <= fEndLine.endCluster(); ++cluster) {
-            if (cluster->run()->placeholder() != nullptr) {
-                SkASSERT(cluster->run()->size() == 1);
+            if (cluster->run() == lastRun) {
+                continue;
+            }
+            lastRun = cluster->run();
+            if (lastRun->placeholder() != nullptr) {
+                SkASSERT(lastRun->size() == 1);
                 // Update the placeholder metrics so we can get the placeholder positions later
                 // and the line metrics (to make sure the placeholder fits)
-                cluster->run()->updateMetrics(&fEndLine.metrics());
+                lastRun->updateMetrics(&fEndLine.metrics());
             }
         }
 
@@ -254,7 +261,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 SkVector::Make(0, fHeight),
                 SkVector::Make(fEndLine.width(), fEndLine.metrics().height()),
                 fEndLine.metrics(),
-                needEllipsis && exceededLines && !fHardLineBreak);
+                needEllipsis && !fHardLineBreak);
 
         parent->lines().back().setMaxRunMetrics(maxRunMetrics);
 
@@ -271,10 +278,15 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         fEndLine.startFrom(startLine, pos);
         parent->fMaxWidthWithTrailingSpaces = SkMaxScalar(parent->fMaxWidthWithTrailingSpaces, widthWithSpaces);
 
-        if (exceededLines) {
+        if (hasEllipsis && unlimitedLines) {
+            // There is one case when we need an ellipsis on a separate line
+            // after a line break when width is infinite
+            if (!fHardLineBreak) {
+                break;
+            }
+        } else if (lastLine) {
+            // There is nothing more to draw
             fHardLineBreak = false;
-            break;
-        } else if (endlessLine && needEllipsis) {
             break;
         }
 
