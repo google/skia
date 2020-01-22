@@ -160,6 +160,8 @@ bool SkDeferredDisplayListRecorder::init() {
         optionalTextureInfo = &kTextureInfo;
     }
 
+    GrSwizzle readSwizzle = caps->getReadSwizzle(fCharacterization.backendFormat(), grColorType);
+
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData](GrResourceProvider* resourceProvider) {
                 // The proxy backing the destination surface had better have been instantiated
@@ -170,6 +172,7 @@ bool SkDeferredDisplayListRecorder::init() {
             },
             fCharacterization.backendFormat(),
             desc,
+            readSwizzle,
             fCharacterization.sampleCount(),
             fCharacterization.origin(),
             surfaceFlags,
@@ -185,10 +188,8 @@ bool SkDeferredDisplayListRecorder::init() {
         return false;
     }
 
-    const GrSwizzle& readSwizzle = caps->getReadSwizzle(fCharacterization.backendFormat(),
-                                                        grColorType);
-    const GrSwizzle& outputSwizzle = caps->getOutputSwizzle(fCharacterization.backendFormat(),
-                                                            grColorType);
+    GrSwizzle outputSwizzle = caps->getOutputSwizzle(fCharacterization.backendFormat(),
+                                                     grColorType);
     SkASSERT(readSwizzle == proxy->textureSwizzle());
 
     GrSurfaceProxyView readView(proxy, fCharacterization.origin(), readSwizzle);
