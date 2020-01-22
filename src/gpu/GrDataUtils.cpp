@@ -302,6 +302,50 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
     }
 }
 
+static bool decompress_etc1(SkISize dimensions) {
+    int numXBlocks = num_ETC1_blocks_w(dimensions.width());
+    int numYBlocks = num_ETC1_blocks_w(dimensions.height());
+
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+
+        }
+    }
+
+    return true;
+}
+
+static bool decompress_bc1(SkISize dimensions, bool isOpaque) {
+    int numXBlocks = num_ETC1_blocks_w(dimensions.width());
+    int numYBlocks = num_ETC1_blocks_w(dimensions.height());
+
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+
+        }
+    }
+
+    return true;
+}
+
+bool GrDecompress(SkISize dimensions,
+                  SkImage::CompressionType compressionType,
+                  sk_sp<SkData> data,
+                  GrMipMapped mipMapped,
+                  SkBitmap* dst) {
+    using Type = SkImage::CompressionType;
+
+    switch (compressionType) {
+        case Type::kNone:            return false;
+        case Type::kETC2_RGB8_UNORM: return decompress_etc1(dimensions);
+        case Type::kBC1_RGB8_UNORM:  return decompress_bc1(dimensions, true);
+        case Type::kBC1_RGBA8_UNORM: return decompress_bc1(dimensions, false);
+    }
+
+    SkUNREACHABLE;
+}
+
+
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->count());
