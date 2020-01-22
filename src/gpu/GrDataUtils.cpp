@@ -302,6 +302,16 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
     }
 }
 
+bool GrDecompress(SkISize dimensions,
+                  SkImage::CompressionType compressionType,
+                  sk_sp<SkData> data,
+                  GrMipMapped mipMapped,
+                  SkBitmap* dst) {
+
+    return false;
+}
+
+
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
     SkASSERT(individualMipOffsets && !individualMipOffsets->count());
