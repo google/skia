@@ -133,7 +133,6 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
     GrSurfaceDesc desc;
     desc.fWidth = size;
     desc.fHeight = size;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                            GrRenderable::kNo);

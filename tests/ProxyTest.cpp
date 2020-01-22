@@ -122,14 +122,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
-
-                            auto config = GrColorTypeToPixelConfig(ct);
-                            SkASSERT(kUnknown_GrPixelConfig != config);
-
                             GrSurfaceDesc desc;
                             desc.fWidth = widthHeight;
                             desc.fHeight = widthHeight;
-                            desc.fConfig = config;
 
                             auto format = caps.getDefaultBackendFormat(ct, GrRenderable::kYes);
                             if (!format.isValid()) {
@@ -378,7 +373,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     GrSurfaceDesc desc;
                     desc.fWidth = width;
                     desc.fHeight = height;
-                    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     const GrBackendFormat format =
                             context->priv().caps()->getDefaultBackendFormat(

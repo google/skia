@@ -100,7 +100,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo) {
     static const size_t kRowBytes = sizeof(uint32_t) * kW;
 
     GrSurfaceDesc baseDesc;
-    baseDesc.fConfig = kRGBA_8888_GrPixelConfig;
     baseDesc.fWidth = kW;
     baseDesc.fHeight = kH;
 

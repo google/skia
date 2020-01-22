@@ -264,7 +264,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         GrSurfaceDesc dummyDesc;
         dummyDesc.fWidth = 34;
         dummyDesc.fHeight = 18;
-        dummyDesc.fConfig = kRGBA_8888_GrPixelConfig;
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
@@ -281,7 +280,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         GrSurfaceDesc dummyDesc;
         dummyDesc.fWidth = 16;
         dummyDesc.fHeight = 22;
-        dummyDesc.fConfig = kAlpha_8_GrPixelConfig;
         const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);

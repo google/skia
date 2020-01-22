@@ -38,7 +38,6 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
 
     sk_sp<GrTextureProxy> proxy;
     GrSurfaceDesc desc;
-    desc.fConfig = GrColorTypeToPixelConfig(imageInfo.colorType());
     desc.fWidth = imageInfo.width();
     desc.fHeight = imageInfo.height();
     proxy = context->priv().proxyProvider()->createProxy(format, desc, swizzle, renderable, 1,

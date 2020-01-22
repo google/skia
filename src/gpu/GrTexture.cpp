@@ -110,8 +110,6 @@ void GrTexturePriv::ComputeScratchKey(const GrCaps& caps,
     SkASSERT(sampleCnt > 0);
     SkASSERT(1 == sampleCnt || renderable == GrRenderable::kYes);
 
-    // make sure desc.fConfig fits in 5 bits
-    SkASSERT(sk_float_log2(kLast_GrPixelConfig) <= 5);
     SkASSERT(static_cast<uint32_t>(mipMapped) <= 1);
     SkASSERT(static_cast<uint32_t>(isProtected) <= 1);
     SkASSERT(static_cast<uint32_t>(renderable) <= 1);
