@@ -465,8 +465,17 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
                                  GrColorType surfaceColorType, GrColorType bufferColorType,
                                  GrGpuBuffer* transferBuffer, size_t bufferOffset,
                                  size_t rowBytes) {
+    if (surfaceColorType != bufferColorType) {
+        return false;
+    }
+
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    if (this->vkCaps().bytesPerPixel(texture->backendFormat()) != bpp) {
+        return false;
+    }
+
     // Vulkan only supports offsets that are both 4-byte aligned and aligned to a pixel.
-    if ((bufferOffset & 0x3) || (bufferOffset % GrColorTypeBytesPerPixel(bufferColorType))) {
+    if ((bufferOffset & 0x3) || (bufferOffset % bpp)) {
         return false;
     }
     GrVkTexture* vkTex = static_cast<GrVkTexture*>(texture);
@@ -487,7 +496,6 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
         SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
         SkASSERT(bounds.contains(subRect));
     )
-    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
 
     // Set up copy region
     VkBufferImageCopy region;
@@ -526,6 +534,9 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
     if (fProtectedContext == GrProtected::kYes) {
         return false;
     }
+    if (surfaceColorType != bufferColorType) {
+        return false;
+    }
 
     GrVkTransferBuffer* vkBuffer = static_cast<GrVkTransferBuffer*>(transferBuffer);
 
@@ -540,6 +551,11 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         srcImage = rt;
     } else {
         srcImage = static_cast<GrVkTexture*>(surface->asTexture());
+    }
+
+    if (this->vkCaps().bytesPerPixel(srcImage->imageFormat()) !=
+        GrColorTypeBytesPerPixel(surfaceColorType)) {
+        return false;
     }
 
     // Set up copy region
@@ -741,14 +757,13 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         return false;
     }
 
-    if (GrPixelConfigToColorType(tex->config()) != dataColorType) {
+    if (!this->vkCaps().isFormatTexturableAndUploadable(dataColorType, tex->backendFormat())) {
         return false;
     }
 
     // For RGB_888x src data we are uploading it first to an RGBA texture and then copying it to the
     // dst RGB texture. Thus we do not upload mip levels for that.
     if (dataColorType == GrColorType::kRGB_888x && tex->imageFormat() == VK_FORMAT_R8G8B8_UNORM) {
-        SkASSERT(tex->config() == kRGB_888_GrPixelConfig);
         // First check that we'll be able to do the copy to the to the R8G8B8 image in the end via a
         // blit or draw.
         if (!this->vkCaps().formatCanBeDstofBlit(VK_FORMAT_R8G8B8_UNORM, tex->isLinearTiled()) &&
@@ -2527,6 +2542,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                           false);
 
     size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
+    if (this->vkCaps().bytesPerPixel(image->imageFormat()) != bpp) {
+        return false;
+    }
     size_t tightRowBytes = bpp * width;
 
     VkBufferImageCopy region;

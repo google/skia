@@ -683,9 +683,6 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrCo
         return false;
     }
 
-    desc->fConfig = caps.getConfigFromBackendFormat(backendTex.getBackendFormat(), colorType);
-    SkASSERT(desc->fConfig != kUnknown_GrPixelConfig);
-
     return true;
 }
 
@@ -737,9 +734,6 @@ static bool check_compressed_backend_texture(const GrBackendTexture& backendTex,
         // Not supported in GL backend at this time.
         return false;
     }
-
-    desc->fConfig = caps.getConfigFromCompressedBackendFormat(backendTex.getBackendFormat());
-    SkASSERT(desc->fConfig != kUnknown_GrPixelConfig);
 
     return true;
 }
@@ -838,14 +832,10 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
-                                                                    grColorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     const auto size = SkISize::Make(backendRT.width(), backendRT.height());
     int sampleCount = this->glCaps().getRenderTargetSampleCount(backendRT.sampleCnt(), format);
 
-    return GrGLRenderTarget::MakeWrapped(this, size, format, config, sampleCount, rtIDs,
+    return GrGLRenderTarget::MakeWrapped(this, size, format, sampleCount, rtIDs,
                                          backendRT.stencilBits());
 }
 
@@ -868,8 +858,7 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     if (!this->createRenderTargetObjects(desc, sampleCount, &rtIDs)) {
         return nullptr;
     }
-    return GrGLRenderTarget::MakeWrapped(this, desc.fSize, desc.fFormat, desc.fConfig, sampleCount,
-                                         rtIDs, 0);
+    return GrGLRenderTarget::MakeWrapped(this, desc.fSize, desc.fFormat, sampleCount, rtIDs, 0);
 }
 
 static bool check_write_and_transfer_input(GrGLTexture* glTex) {
@@ -1328,7 +1317,6 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     texDesc.fSize = {desc.fWidth, desc.fHeight};
     texDesc.fTarget = GR_GL_TEXTURE_2D;
     texDesc.fFormat = format.asGLFormat();
-    texDesc.fConfig = desc.fConfig;
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     SkASSERT(texDesc.fFormat != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(texDesc.fFormat));
@@ -1424,7 +1412,6 @@ sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
     GrGLTexture::Desc desc;
     desc.fSize = dimensions;
     desc.fTarget = GR_GL_TEXTURE_2D;
-    desc.fConfig = this->glCaps().getConfigFromCompressedBackendFormat(format);
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fFormat = format.asGLFormat();
     desc.fID = this->createCompressedTexture2D(desc.fSize, desc.fFormat,
@@ -3771,41 +3758,6 @@ void GrGLGpu::insertManualFramebufferBarrier() {
     GL_CALL(MemoryBarrier(GR_GL_FRAMEBUFFER_BARRIER_BIT));
 }
 
-static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
-    switch (format) {
-        case GrGLFormat::kRGBA8:                return kRGBA_8888_GrPixelConfig;
-        case GrGLFormat::kRGB8:                 return kRGB_888_GrPixelConfig;
-        case GrGLFormat::kRG8:                  return kRG_88_GrPixelConfig;
-        case GrGLFormat::kBGRA8:                return kBGRA_8888_GrPixelConfig;
-        case GrGLFormat::kLUMINANCE8:           return kGray_8_GrPixelConfig;
-        case GrGLFormat::kSRGB8_ALPHA8:         return kSRGBA_8888_GrPixelConfig;
-        case GrGLFormat::kRGB10_A2:             return kRGBA_1010102_GrPixelConfig;
-        case GrGLFormat::kRGB565:               return kRGB_565_GrPixelConfig;
-        case GrGLFormat::kRGBA4:                return kRGBA_4444_GrPixelConfig;
-        case GrGLFormat::kRGBA16F:              return kRGBA_half_GrPixelConfig;
-        case GrGLFormat::kR16:                  return kAlpha_16_GrPixelConfig;
-        case GrGLFormat::kRG16:                 return kRG_1616_GrPixelConfig;
-        case GrGLFormat::kRGBA16:               return kRGBA_16161616_GrPixelConfig;
-        case GrGLFormat::kRG16F:                return kRG_half_GrPixelConfig;
-        case GrGLFormat::kUnknown:              return kUnknown_GrPixelConfig;
-
-        // Configs with multiple equivalent formats.
-
-        case GrGLFormat::kR16F:                 return kAlpha_half_GrPixelConfig;
-        case GrGLFormat::kLUMINANCE16F:         return kAlpha_half_GrPixelConfig;
-
-        case GrGLFormat::kALPHA8:               return kAlpha_8_GrPixelConfig;
-        case GrGLFormat::kR8:                   return kAlpha_8_GrPixelConfig;
-
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return kRGB_ETC1_GrPixelConfig;
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return kRGB_ETC1_GrPixelConfig;
-
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:  return kBC1_RGB8_UNORM_GrPixelConfig;
-        case GrGLFormat::kCOMPRESSED_RGBA8_BC1: return kBC1_RGBA8_UNORM_GrPixelConfig;
-    }
-    SkUNREACHABLE;
-}
-
 GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
@@ -3835,11 +3787,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     GrGLTextureInfo info;
     GrGLTextureParameters::SamplerOverriddenState initialState;
 
-    GrSurfaceDesc desc;
-    desc.fWidth = dimensions.width();
-    desc.fHeight = dimensions.height();
-    desc.fConfig = gl_format_to_pixel_config(glFormat);
-    if (desc.fConfig == kUnknown_GrPixelConfig) {
+    if (glFormat == GrGLFormat::kUnknown) {
         return {};
     }
 
@@ -3854,16 +3802,13 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
     if (data && data->type() == BackendTextureData::Type::kPixmaps) {
         SkTDArray<GrMipLevel> texels;
         GrColorType colorType = SkColorTypeToGrColorType(data->pixmap(0).colorType());
-        // Incorporate the color type into the config to make it "specific" if applicable.
-        desc.fConfig = this->caps()->getConfigFromBackendFormat(format, colorType);
-        SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
         texels.append(numMipLevels);
         for (int i = 0; i < numMipLevels; ++i) {
             texels[i] = {data->pixmap(i).addr(), data->pixmap(i).rowBytes()};
         }
-        if (!this->uploadTexData(glFormat, colorType, desc.fWidth, desc.fHeight, GR_GL_TEXTURE_2D,
-                                 0, 0, desc.fWidth, desc.fHeight, colorType, texels.begin(),
-                                 texels.count())) {
+        if (!this->uploadTexData(glFormat, colorType, dimensions.width(), dimensions.height(),
+                                 GR_GL_TEXTURE_2D, 0, 0, dimensions.width(), dimensions.height(),
+                                 colorType, texels.begin(), texels.count())) {
             GL_CALL(DeleteTextures(1, &info.fID));
             return {};
         }

@@ -270,8 +270,9 @@ sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc
     // to fall back to making a new texture.
     if (fGpu->caps()->reuseScratchTextures() || renderable == GrRenderable::kYes) {
         GrScratchKey key;
-        GrTexturePriv::ComputeScratchKey(desc.fConfig, {desc.fWidth, desc.fHeight}, renderable,
-                                         renderTargetSampleCnt, mipMapped, isProtected, &key);
+        GrTexturePriv::ComputeScratchKey(*this->caps(), format, {desc.fWidth, desc.fHeight},
+                                         renderable, renderTargetSampleCnt, mipMapped, isProtected,
+                                         &key);
         GrGpuResource* resource = fCache->findAndRefScratchResource(key);
         if (resource) {
             fGpu->stats()->incNumScratchTexturesReused();

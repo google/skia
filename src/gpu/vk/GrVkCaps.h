@@ -180,6 +180,8 @@ public:
     GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    uint64_t computeFormatKey(const GrBackendFormat&) const override;
+
     int getFragmentUniformBinding() const;
     int getFragmentUniformSet() const;
 

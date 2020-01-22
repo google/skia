@@ -176,6 +176,8 @@ public:
         return GrSwizzle();
     }
 
+    uint64_t computeFormatKey(const GrBackendFormat&) const override;
+
     GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
 
 #if GR_TEST_UTILS

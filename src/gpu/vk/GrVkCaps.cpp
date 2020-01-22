@@ -1775,6 +1775,21 @@ GrSwizzle GrVkCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType 
     return GrSwizzle::RGBA();
 }
 
+uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {
+    VkFormat vkFormat;
+    SkAssertResult(format.asVkFormat(&vkFormat));
+
+#ifdef SK_DEBUG
+    // We should never be trying to compute a key for an external format
+    const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
+    SkASSERT(ycbcrInfo);
+    SkASSERT(!ycbcrInfo->isValid() || ycbcrInfo->fExternalFormat == 0);
+#endif
+
+    // A VkFormat has a size of 64 bits.
+    return (uint64_t)vkFormat;
+}
+
 GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {

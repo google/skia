@@ -198,6 +198,15 @@ GrSwizzle GrDawnCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorTyp
     return get_swizzle(format, colorType, true);
 }
 
+uint64_t GrDawnCaps::computeFormatKey(const GrBackendFormat& format) const {
+    wgpu::TextureFormat dawnFormat;
+    SkAssertResult(format.asDawnFormat(&dawnFormat));
+
+    // Dawn max enum value should always fit in 32 bits.
+    SkASSERT(dawnFormat <= wgpu::WGPUTextureFormat_Force32);
+    return (uint64_t)dawnFormat;
+}
+
 bool GrDawnCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                    const GrBackendFormat& format) const {
     return true;

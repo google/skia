@@ -48,7 +48,8 @@ public:
         return GrTextureTypeHasRestrictedSampling(this->textureType());
     }
 
-    static void ComputeScratchKey(GrPixelConfig config,
+    static void ComputeScratchKey(const GrCaps& caps,
+                                  const GrBackendFormat& format,
                                   SkISize dimensions,
                                   GrRenderable,
                                   int sampleCnt,

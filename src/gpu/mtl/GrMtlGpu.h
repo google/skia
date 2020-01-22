@@ -203,7 +203,7 @@ private:
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
     // Function that fills texture levels with transparent black based on levelMask.
-    bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
+    bool clearTexture(GrMtlTexture*, size_t bbp, uint32_t levelMask);
     bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
                               GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
                               size_t imageBytes, size_t rowBytes);

@@ -40,14 +40,6 @@ public:
      */
     SkRect getBoundsRect() const { return SkRect::Make(this->dimensions()); }
 
-    /**
-     * Retrieves the pixel config specified when the surface was created.
-     * For render targets this can be kUnknown_GrPixelConfig
-     * if client asked us to render to a target that has a pixel
-     * config that isn't equivalent with one of our configs.
-     */
-    GrPixelConfig config() const { return fConfig; }
-
     virtual GrBackendFormat backendFormat() const = 0;
 
     SK_API void setRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
@@ -120,9 +112,8 @@ protected:
     // Provides access to methods that should be public within Skia code.
     friend class GrSurfacePriv;
 
-    GrSurface(GrGpu* gpu, const SkISize& dimensions, GrPixelConfig config, GrProtected isProtected)
+    GrSurface(GrGpu* gpu, const SkISize& dimensions, GrProtected isProtected)
             : INHERITED(gpu)
-            , fConfig(config)
             , fDimensions(dimensions)
             , fSurfaceFlags(GrInternalSurfaceFlags::kNone)
             , fIsProtected(isProtected) {}
@@ -148,7 +139,6 @@ private:
         fReleaseHelper.reset();
     }
 
-    GrPixelConfig              fConfig;
     SkISize                    fDimensions;
     GrInternalSurfaceFlags     fSurfaceFlags;
     GrProtected                fIsProtected;

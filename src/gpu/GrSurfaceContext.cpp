@@ -370,7 +370,9 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
             format = rgbaDefaultFormat;
             alphaType = kUnpremul_SkAlphaType;
         } else {
-            desc.fConfig =  dstProxy->config();
+            // This isn't actually used anywhere so just setting to unknown which should trigger
+            // asserts and failures if it is read.
+            desc.fConfig =  kUnknown_GrPixelConfig;
             colorType = this->colorInfo().colorType();
             format = dstProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {

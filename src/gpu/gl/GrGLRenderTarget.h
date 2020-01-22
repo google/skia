@@ -35,7 +35,6 @@ public:
     static sk_sp<GrGLRenderTarget> MakeWrapped(GrGLGpu*,
                                                const SkISize&,
                                                GrGLFormat,
-                                               GrPixelConfig,
                                                int sampleCount,
                                                const IDs&,
                                                int stencilBits);
@@ -64,7 +63,6 @@ protected:
     GrGLRenderTarget(GrGLGpu*,
                      const SkISize&,
                      GrGLFormat,
-                     GrPixelConfig,
                      int sampleCount,
                      const IDs&);
 
@@ -80,7 +78,6 @@ private:
     GrGLRenderTarget(GrGLGpu*,
                      const SkISize&,
                      GrGLFormat,
-                     GrPixelConfig,
                      int sampleCount,
                      const IDs&,
                      GrGLStencilAttachment*);

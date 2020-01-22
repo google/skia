@@ -17,6 +17,15 @@ GrProgramDesc GrMockCaps::makeDesc(const GrRenderTarget* rt,
     return desc;
 }
 
+uint64_t GrMockCaps::computeFormatKey(const GrBackendFormat& format) const {
+#ifdef SK_DEBUG
+    SkImage::CompressionType compression = format.asMockCompressionType();
+    SkASSERT(compression == SkImage::CompressionType::kNone);
+#endif
+    auto ct = format.asMockColorType();
+    return (uint64_t)ct;
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
     // TODO: need to add compressed formats to this list
@@ -72,4 +81,5 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
 
     return combos;
 }
+
 #endif
