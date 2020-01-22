@@ -13,7 +13,6 @@
 
 class SkArenaAlloc;
 class SkColorSpace;
-class SkMatrix;
 class SkPaint;
 class SkRasterPipeline;
 
