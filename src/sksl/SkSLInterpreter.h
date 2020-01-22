@@ -166,7 +166,9 @@ public:
         Vector* stack = fMemory + MEMORY_SIZE;
         int stackCount = f->fStackSlotCount + f->fParameterSlotCount;
         stack -= stackCount;
-        memcpy(stack, args, f->fParameterSlotCount * sizeof(Vector));
+        if (f->fParameterSlotCount) {
+            memcpy(stack, args, f->fParameterSlotCount * sizeof(Vector));
+        }
         Context context(fMemory, stack, condStack, maskStack, loopStack, continueStack);
         if (this->innerRun(f, context, 0, outResult)) {
             int slot = 0;
