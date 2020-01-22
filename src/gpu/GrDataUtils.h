@@ -14,6 +14,7 @@
 #include "src/gpu/GrSwizzle.h"
 
 class GrImageInfo;
+class SkBitmap;
 
 size_t GrCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
                             SkTArray<size_t>* individualMipOffsets, GrMipMapped);
@@ -50,5 +51,13 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f
  *   transparent pixmaps -> kBC1_RGBA8_UNORM
  */
 void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels);
+
+/*
+ * This method will decompress the bottommost level in 'data' into 'dst'.
+ */
+bool GrDecompress(sk_sp<SkData> data,
+                  SkISize dimensions,
+                  SkImage::CompressionType compressionType,
+                  SkBitmap* dst);
 
 #endif
