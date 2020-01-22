@@ -999,10 +999,8 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return GrBackendRenderTarget();
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
-
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
+    MTLPixelFormat format = this->mtlCaps().getFormatFromColorType(colorType);
+    if (format == MTLPixelFormatInvalid) {
         return GrBackendRenderTarget();
     }
 

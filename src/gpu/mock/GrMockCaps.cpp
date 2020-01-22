@@ -72,4 +72,12 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
 
     return combos;
 }
+
+uint64_t GrMockCaps::computeFormatKey(const GrBackendFormat& format) const {
+    SkImage::CompressionType compression = format.asMockCompressionType();
+    SkASSERT(compression == SkImage::CompressionType::kNone);
+
+    auto ct = format.asMockColorType();
+    return (uint64_t)ct;
+}
 #endif
