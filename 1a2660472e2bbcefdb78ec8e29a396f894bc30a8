@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b5ac22f_e5f6ac42",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-22T14:36:50Z",
+      "side": 1,
+      "message": "I didn\u0027t notice this when this was originally checked in, but isn\u0027t this like the canonical example of C++ operator overloading gone too far? ;)",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 71
+      },
+      "revId": "1a2660472e2bbcefdb78ec8e29a396f894bc30a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f75fd72_85d2a2e0",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-22T14:36:50Z",
+      "side": 1,
+      "message": "-",
+      "range": {
+        "startLine": 55,
+        "startChar": 80,
+        "endLine": 55,
+        "endChar": 81
+      },
+      "revId": "1a2660472e2bbcefdb78ec8e29a396f894bc30a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
