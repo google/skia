@@ -16,6 +16,24 @@
       "revId": "4aac0e652be66830831fd3291961f9f50c3fcfdc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "606e0ca9_5cdfd648",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-22T20:54:15Z",
+      "side": 0,
+      "message": "With this change since we don\u0027t key off of PixelConfig, we may use the same RGBA8 Surface to handle RGBA_8888 and BGRA_8888 if we use RGBA8 for BGRA, on some devices we won\u0027t if they have a BGRA format. So we can\u0027t claim that the proxy will or will not share a surface. However, that specific test was just meant to test different formats won\u0027t be shared so this is a way to check still check that.",
+      "parentUuid": "d7fbc4ae_d5861664",
+      "revId": "4aac0e652be66830831fd3291961f9f50c3fcfdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
