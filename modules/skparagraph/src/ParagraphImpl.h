@@ -119,7 +119,7 @@ public:
     size_t lineNumber() override { return fLines.size(); }
 
     TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
-                      ClusterRange clusters, ClusterRange clustersWithGhosts, SkScalar AddLineToParagraph,
+                      ClusterRange clusters, ClusterRange clustersWithGhosts, SkScalar widthWithSpaces,
                       InternalLineMetrics sizes);
 
     SkSpan<const char> text() const { return SkSpan<const char>(fText.c_str(), fText.size()); }
