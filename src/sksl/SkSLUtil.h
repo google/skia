@@ -17,12 +17,11 @@
 
 #ifndef SKSL_STANDALONE
 #include "include/core/SkTypes.h"
-#endif // SKSL_STANDALONE
-
 #if SK_SUPPORT_GPU
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrShaderCaps.h"
 #endif // SK_SUPPORT_GPU
+#endif // SKSL_STANDALONE
 
 namespace SkSL {
 
