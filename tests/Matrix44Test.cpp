@@ -1000,7 +1000,10 @@ DEF_TEST(M44_v3, reporter) {
 
     REPORTER_ASSERT(reporter, a.lengthSquared() == 1 + 4 + 9);
     REPORTER_ASSERT(reporter, b.length() == 3);
-    REPORTER_ASSERT(reporter, a * b == 1 + 4 + 6);
+    REPORTER_ASSERT(reporter, a.dot(b) == 1 + 4 + 6);
+    REPORTER_ASSERT(reporter, b.dot(a) == 1 + 4 + 6);
+    REPORTER_ASSERT(reporter, (a.cross(b) == SkV3{-2,  1, 0}));
+    REPORTER_ASSERT(reporter, (b.cross(a) == SkV3{ 2, -1, 0}));
 
     SkM44 m = {
         2, 0, 0, 3,

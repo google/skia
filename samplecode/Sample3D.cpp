@@ -166,7 +166,7 @@ static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
 static SkColorMatrix comput_planar_lighting(SkCanvas* canvas, SkV3 lightDir) {
     SkM44 l2w = canvas->experimental_getLocalToWorld();
     auto normal = normalize(l2w * SkV3{0, 0, 1});
-    float dot = -normal * lightDir;
+    float dot = -normal.dot(lightDir);
 
     SkColorMatrix cm;
     if (dot < 0) {
