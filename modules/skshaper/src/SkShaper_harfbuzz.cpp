@@ -150,14 +150,14 @@ unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
 
 hb_position_t skhb_glyph_h_advance(hb_font_t* hb_font,
                                    void* font_data,
-                                   hb_codepoint_t codepoint,
+                                   hb_codepoint_t hbGlyph,
                                    void* user_data) {
     SkFont& font = *reinterpret_cast<SkFont*>(font_data);
 
     SkScalar advance;
-    SkGlyphID glyph = SkTo<SkGlyphID>(codepoint);
+    SkGlyphID skGlyph = SkTo<SkGlyphID>(hbGlyph);
 
-    font.getWidths(&glyph, 1, &advance);
+    font.getWidths(&skGlyph, 1, &advance);
     if (!font.isSubpixel()) {
         advance = SkScalarRoundToInt(advance);
     }
@@ -205,18 +205,16 @@ void skhb_glyph_h_advances(hb_font_t* hb_font,
 // Unicode mark classes. Above, below, centered or left or right, etc.
 hb_bool_t skhb_glyph_extents(hb_font_t* hb_font,
                              void* font_data,
-                             hb_codepoint_t codepoint,
+                             hb_codepoint_t hbGlyph,
                              hb_glyph_extents_t* extents,
                              void* user_data) {
     SkFont& font = *reinterpret_cast<SkFont*>(font_data);
-
-    SkASSERT(codepoint < 0xFFFFu);
     SkASSERT(extents);
 
     SkRect sk_bounds;
-    SkGlyphID glyph = codepoint;
+    SkGlyphID skGlyph = SkTo<SkGlyphID>(hbGlyph);
 
-    font.getWidths(&glyph, 1, nullptr, &sk_bounds);
+    font.getWidths(&skGlyph, 1, nullptr, &sk_bounds);
     if (!font.isSubpixel()) {
         sk_bounds.set(sk_bounds.roundOut());
     }
