@@ -155,9 +155,9 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrContext* context
 
     TestEffect pickColor(r, "in int flag; uniform half4 gColors[2];", "color = gColors[flag];");
     pickColor["gColors"] =
-            std::array<float4, 2>{float4{1.0f, 0.0f, 0.0f, 1.0f}, float4{0.0f, 1.0f, 0.0f, 1.0f}};
+            std::array<float4, 2>{float4{1.0f, 0.0f, 0.0f, 0.498f}, float4{0.0f, 1.0f, 0.0f, 1.0f}};
     pickColor["flag"] = 0;
-    pickColor.test(r, surface, 0xFF0000FF);
+    pickColor.test(r, surface, 0x7F00007F);  // Tests that we clamp to valid premul
     pickColor["flag"] = 1;
     pickColor.test(r, surface, 0xFF00FF00);
 }
