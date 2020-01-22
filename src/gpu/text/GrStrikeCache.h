@@ -84,10 +84,10 @@ private:
  * GrStrikeCache manages strikes which are indexed by a SkStrike. These strikes can then be
  * used to generate individual Glyph Masks.
  */
-class GrStrikeCache {
+class GrStrikeCache final : public GrDrawOpAtlas::EvictionCallback {
 public:
     GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes);
-    ~GrStrikeCache();
+    ~GrStrikeCache() override;
 
     void setStrikeToPreserve(GrTextStrike* strike) { fPreserveStrike = strike; }
 
@@ -106,7 +106,7 @@ public:
 
     void freeAll();
 
-    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
+    void evict(GrDrawOpAtlas::AtlasID id) override;
 
 private:
     sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {
