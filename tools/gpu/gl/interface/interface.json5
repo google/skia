@@ -723,4 +723,13 @@
     ],
   },
 
+  {
+    "GL":    [{"ext": "GL_NV_fence"}],
+    "GLES":  [{"ext": "GL_NV_fence"}],
+    "WebGL": null,
+
+    "functions": [
+      "DeleteFences", "GenFences", "FinishFence", "SetFence",
+    ],
+  }
 ]
