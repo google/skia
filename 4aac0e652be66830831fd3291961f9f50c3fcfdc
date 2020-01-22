@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7fbc4ae_d5861664",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-22T20:44:24Z",
+      "side": 0,
+      "message": "Curious why the changes in this file to color types?",
+      "revId": "4aac0e652be66830831fd3291961f9f50c3fcfdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
