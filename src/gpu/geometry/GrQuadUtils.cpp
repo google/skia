@@ -274,6 +274,48 @@ static M4f inside_triangle(const V4f& u, const V4f& v, const V4f& w) {
     return ((u >= 0.f) & (u <= 1.f)) & ((v >= 0.f) & (v <= 1.f)) & ((w >= 0.f) & (w <= 1.f));
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkRect GrQuad::projectedBounds() const {
+    static const float kWEpsilon = 0.05f; // Matches SkPathPriv's clip perspective limit
+    V4f xs = this->x4f();
+    V4f ys = this->y4f();
+    V4f ws = this->w4f();
+    M4f clipW = ws < kWEpsilon;
+    if (any(clipW)) {
+        V4f x2d = xs / ws;
+        V4f y2d = ys / ws;
+        // Bounds of just the projected points in front of w = epsilon
+        SkRect frontBounds = {
+            min(if_then_else(clipW, SK_ScalarInfinity, x2d)),
+            min(if_then_else(clipW, SK_ScalarInfinity, y2d)),
+            max(if_then_else(clipW, SK_ScalarNegativeInfinity, x2d)),
+            max(if_then_else(clipW, SK_ScalarNegativeInfinity, y2d))
+        };
+        // Calculate clipped coordinates by following CCW edges, only keeping points where the w
+        // actually changes sign between the vertices.
+        V4f t = (kWEpsilon - ws) / (next_ccw(ws) - ws);
+        x2d = (t * next_ccw(xs) + (1.f - t) * xs) / kWEpsilon;
+        y2d = (t * next_ccw(ys) + (1.f - t) * ys) / kWEpsilon;
+        // True if (w < e) xor (ccw(w) < e), i.e. crosses the w = epsilon plane
+        clipW = clipW ^ (next_ccw(ws) < kWEpsilon);
+        return {
+            min(if_then_else(clipW, x2d, frontBounds.fLeft)),
+            min(if_then_else(clipW, y2d, frontBounds.fTop)),
+            max(if_then_else(clipW, x2d, frontBounds.fRight)),
+            max(if_then_else(clipW, y2d, frontBounds.fBottom))
+        };
+    } else {
+        // Nothing is behind the viewer, so the projection is straight forward and valid
+        ws = 1.f / ws;
+        V4f x2d = xs * ws;
+        V4f y2d = ys * ws;
+        return {min(x2d), min(y2d), max(x2d), max(y2d)};
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 namespace GrQuadUtils {
 
 void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, const GrQuad& quad,
