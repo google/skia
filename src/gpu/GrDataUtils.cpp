@@ -263,7 +263,7 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
 
 // Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
 void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
-    BC1Block* dstBlocks = (BC1Block*) dstPixels;
+    BC1Block* dstBlocks = reinterpret_cast<BC1Block*>(dstPixels);
     SkASSERT(pixmap.colorType() == SkColorType::kRGBA_8888_SkColorType);
 
     BC1Block block;
