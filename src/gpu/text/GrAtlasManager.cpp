@@ -161,7 +161,7 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
                 fProxyProvider, format, grColorType,
                 atlasDimensions.width(), atlasDimensions.height(),
                 plotDimensions.width(), plotDimensions.height(),
-                fAllowMultitexturing, &GrStrikeCache::HandleEviction, fGlyphCache);
+                fAllowMultitexturing, fGlyphCache);
         if (!fAtlases[index]) {
             return false;
         }

@@ -45,7 +45,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
                                                    GrColorType colorType, int width,
                                                    int height, int plotWidth, int plotHeight,
                                                    AllowMultitexturing allowMultitexturing,
-                                                   GrDrawOpAtlas::EvictionFunc func, void* data) {
+                                                   EvictionCallback* evictor) {
     if (!format.isValid()) {
         return nullptr;
     }
@@ -57,7 +57,7 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
         return nullptr;
     }
 
-    atlas->registerEvictionCallback(func, data);
+    atlas->fEvictionCallbacks.emplace_back(evictor);
     return atlas;
 }
 
@@ -237,9 +237,10 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
 }
 
 inline void GrDrawOpAtlas::processEviction(AtlasID id) {
-    for (int i = 0; i < fEvictionCallbacks.count(); i++) {
-        (*fEvictionCallbacks[i].fFunc)(id, fEvictionCallbacks[i].fData);
+    for (auto evictor : fEvictionCallbacks) {
+        evictor->evict(id);
     }
+
     ++fAtlasGeneration;
 }
 
