@@ -20,6 +20,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTextureAdjuster.h"
 #include "src/gpu/SkGr.h"
 #endif
@@ -280,6 +281,38 @@ sk_sp<SkImage> SkImage::MakeRasterData(const SkImageInfo& info, sk_sp<SkData> da
     }
 
     return sk_make_sp<SkImage_Raster>(info, std::move(data), rowBytes);
+}
+
+// TODO: this could be improved to decode and make use of the mipmap
+// levels potentially present in the compressed data.
+sk_sp<SkImage> SkImage::MakeRasterFromCompressed(sk_sp<SkData> data,
+                                                 int width, int height,
+                                                 CompressionType type) {
+    size_t expectedSize = GrCompressedFormatDataSize(type, { width, height }, GrMipMapped::kNo);
+    if (!data || data->size() < expectedSize) {
+        return nullptr;
+    }
+
+    SkAlphaType at = GrCompressionTypeIsOpaque(type) ? kOpaque_SkAlphaType
+                                                     : kPremul_SkAlphaType;
+
+    SkImageInfo ii = SkImageInfo::Make({ width, height }, kRGBA_8888_SkColorType, at);
+
+    if (!SkImage_Raster::ValidArgs(ii, ii.minRowBytes(), nullptr)) {
+        return nullptr;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(ii)) {
+        return nullptr;
+    }
+
+    if (!GrDecompress(std::move(data), { width, height }, type, &bitmap)) {
+        return nullptr;
+    }
+
+    bitmap.setImmutable();
+    return MakeFromBitmap(bitmap);
 }
 
 sk_sp<SkImage> SkImage::MakeFromRaster(const SkPixmap& pmap, RasterReleaseProc proc,
