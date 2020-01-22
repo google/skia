@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "310f7ef2_18efde6b",
+        "filename": "modules/canvaskit/canvaskit/example.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-01-22T21:52:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e69e689_a86e640b",
+      "range": {
+        "startLine": 236,
+        "startChar": 12,
+        "endLine": 236,
+        "endChar": 20
+      },
+      "revId": "c5620a853ba49fa440b111d1a49173d688dfd1a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e95b7c13_7d37ea75",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 1
@@ -39,6 +63,24 @@
       "revId": "c5620a853ba49fa440b111d1a49173d688dfd1a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25ae1a3f_ccda2892",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-01-22T21:52:51Z",
+      "side": 1,
+      "message": "I think this makes sense.  I\u0027ve changed this to use window.requestAnimationFrame in patchset 2.",
+      "parentUuid": "e95b7c13_7d37ea75",
+      "revId": "c5620a853ba49fa440b111d1a49173d688dfd1a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -22,6 +22,30 @@
       "revId": "7edb0eb8a458cc31f296b3c550b5e0e8ae8582b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd084f06_84d68fb3",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 7954
+      },
+      "writtenOn": "2020-01-22T21:52:51Z",
+      "side": 0,
+      "message": "Sure.  I\u0027ve also added dirtyRect to drawOnce.",
+      "parentUuid": "e444dee2_0ed0b15c",
+      "range": {
+        "startLine": 745,
+        "startChar": 75,
+        "endLine": 745,
+        "endChar": 84
+      },
+      "revId": "7edb0eb8a458cc31f296b3c550b5e0e8ae8582b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
