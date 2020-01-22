@@ -200,6 +200,9 @@ opts("hsw") {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
+    if (is_mac && is_debug) {
+      cflags += [ "-O1" ]  # Work around skia:9709
+    }
   }
 }
 
