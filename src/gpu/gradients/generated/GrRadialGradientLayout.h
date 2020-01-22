@@ -11,7 +11,7 @@
 #ifndef GrRadialGradientLayout_DEFINED
 #define GrRadialGradientLayout_DEFINED
 #include "include/core/SkTypes.h"
-#include "include/core/SkMatrix44.h"
+#include "include/private/SkM44.h"
 
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkRadialGradient.h"
