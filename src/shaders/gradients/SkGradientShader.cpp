@@ -12,6 +12,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/gradients/Sk4fLinearGradient.h"
 #include "src/shaders/gradients/SkGradientShaderPriv.h"
@@ -410,6 +411,110 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     }
 
     p->extend(postPipeline);
+
+    return true;
+}
+
+bool SkGradientShaderBase::onProgram(skvm::Builder* p,
+                                     const SkMatrix& ctm, const SkMatrix* localM,
+                                     SkFilterQuality quality, SkColorSpace* dstCS,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                     skvm::F32 x, skvm::F32 y,
+                                     skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    SkMatrix inv;
+    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+        return false;
+    }
+    inv.postConcat(fPtsToUnit);
+    inv.normalizePerspective();
+
+    // Having tacked on fPtsToUnit at the end means we'll be left with t in x.
+    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+    skvm::F32 t = x;
+    if (!this->transformT(p, &t)) {  // Hook into subclasses for linear, radial, etc.
+        return false;
+    }
+
+    // Most tiling happens here, with kDecal also needing some work at the end.
+    switch(fTileMode) {
+        case SkTileMode::kDecal:                              break;
+        case SkTileMode::kClamp:                              break;
+        case SkTileMode::kRepeat: t = p->sub(t, p->floor(t)); break;
+        case SkTileMode::kMirror: {
+            // t = | (t-1) - 2*(floor( (t-1)*0.5 )) - 1 |
+            //       {-A-}      {--------B-------}
+            skvm::F32 A = p->sub(t, p->splat(1.0f)),
+                      B = p->floor( p->mul(A, p->splat(0.5f)));
+            t = p->abs(p->sub(p->sub(A, p->add(B,B)),
+                              p->splat(1.0f)));
+        } break;
+    }
+    skvm::F32 clamped_t = p->clamp(t, p->splat(0.0f), p->splat(1.0f));
+
+    // Transform our colors as we want them interpolated, in dst color space, possibly premul.
+    SkImageInfo base = SkImageInfo::Make(fColorCount,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType),
+                src  = base.makeColorSpace(fColorSpace),
+                dst  = base.makeColorSpace(sk_ref_sp(dstCS));
+    if (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
+        dst = dst.makeAlphaType(kPremul_SkAlphaType);
+    }
+    SkSTArray<4*4, float> rgba;
+    rgba.resize(4*fColorCount);
+    SkConvertPixels(dst,  rgba.begin(), dst.minRowBytes(),
+                    src, fOrigColors4f, src.minRowBytes());
+
+    // Transform our colors into a bias B and scale factor F such that for
+    // any t between stops i and i+1, the color we want is mad(t, F[i], B[i]).
+    float* fb = alloc->makeArrayDefault<float>(8*fColorCount);
+    for (int i = 0; i < fColorCount-1; i++) {
+        // Scale Factors: (hi - lo) / (t_hi - t_lo)
+        for (int j = 0; j < 4; j++) {
+            fb[j+0] = (rgba[4*(i+1) + j] - rgba[4*i + j])
+                    / (this->getPos(i+1) - this->getPos(i));
+        }
+        // Biases: hi - F*t_lo
+        for (int j = 0; j < 4; j++) {
+            fb[j+4] = rgba[4*(i+1) + j] - fb[j+0]*this->getPos(i);
+        }
+    }
+    skvm::Builder::Uniform fbs = uniforms->pushPtr(fb);
+
+    // Find the two colors we need to interpolate between.
+    skvm::I32 ix = p->splat(0);
+    for (int i = 1; i < fColorCount; i++) {
+        // ix += (clamped_t >= stop[i]) ? +1 : 0 ~~>
+        // ix -= (clamped_t >= stop[i]) ? -1 : 0
+        ix = p->sub(ix, p->gte(clamped_t, p->uniformF(uniforms->pushF(this->getPos(i)))));
+    }
+
+    // 4 scale factors and 4 biases per pixel.
+    ix = p->shl(ix, 3);
+    skvm::F32 Fr = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Fg = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Fb = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Fa = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Br = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Bg = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Bb = p->bit_cast(p->gather32(fbs, ix)); ix = p->add(ix, p->splat(1));
+    skvm::F32 Ba = p->bit_cast(p->gather32(fbs, ix));
+
+    *r = p->mad(clamped_t, Fr, Br);
+    *g = p->mad(clamped_t, Fg, Bg);
+    *b = p->mad(clamped_t, Fb, Bb);
+    *a = p->mad(clamped_t, Fa, Ba);
+
+    if (0 == (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)) {
+        p->premul(r,g,b,*a);
+    }
+
+    // Mask away any pixels that we tried to sample outside the bounds in kDecal.
+    if (fTileMode == SkTileMode::kDecal) {
+        skvm::I32 mask = p->eq(t, clamped_t);
+        *r = p->bit_cast(p->bit_and(mask, p->bit_cast(*r)));
+        *g = p->bit_cast(p->bit_and(mask, p->bit_cast(*g)));
+        *b = p->bit_cast(p->bit_and(mask, p->bit_cast(*b)));
+        *a = p->bit_cast(p->bit_and(mask, p->bit_cast(*a)));
+    }
 
     return true;
 }
