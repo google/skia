@@ -169,6 +169,7 @@ public:
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&,
                                           const GrBackendFormat&,
                                           const GrSurfaceDesc&,
+                                          GrSwizzle readSwizzle,
                                           GrRenderable,
                                           int renderTargetSampleCnt,
                                           GrSurfaceOrigin,
@@ -184,6 +185,7 @@ public:
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrBackendFormat&,
                                                            const GrSurfaceDesc&,
+                                                           GrSwizzle readSwizzle,
                                                            int renderTargetSampleCnt,
                                                            GrSurfaceOrigin origin,
                                                            GrInternalSurfaceFlags,
@@ -201,6 +203,7 @@ public:
      */
     static sk_sp<GrTextureProxy> MakeFullyLazyProxy(LazyInstantiateCallback&&,
                                                     const GrBackendFormat&,
+                                                    GrSwizzle readSwizzle,
                                                     GrRenderable,
                                                     int renderTargetSampleCnt,
                                                     GrProtected,

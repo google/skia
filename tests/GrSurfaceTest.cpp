@@ -607,8 +607,10 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 } else {
                     budgeted = SkBudgeted::kNo;
                 }
+                GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(
+                        backendFormat, GrColorType::kRGBA_8888);
                 auto proxy = context->priv().proxyProvider()->createLazyProxy(
-                        singleUseLazyCB, backendFormat, desc, renderable, 1,
+                        singleUseLazyCB, backendFormat, desc, readSwizzle, renderable, 1,
                         GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,

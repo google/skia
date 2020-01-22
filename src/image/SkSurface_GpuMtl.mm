@@ -57,6 +57,8 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     texInfo.fMipMapped = GrMipMapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
+    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
+
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [layer, drawable, sampleCnt, config](GrResourceProvider* resourceProvider) {
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
@@ -86,6 +88,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             },
             backendFormat,
             desc,
+            readSwizzle,
             sampleCnt,
             origin,
             sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
@@ -98,7 +101,6 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
     GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
 
     SkASSERT(readSwizzle == proxy->textureSwizzle());
@@ -143,6 +145,8 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     texInfo.fMipMapped = GrMipMapped::kNo;
     texInfo.fTextureType = GrTextureType::k2D;
 
+    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
+
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [view, sampleCnt, config](GrResourceProvider* resourceProvider) {
                 MTKView* mtkView = (__bridge MTKView*)view;
@@ -171,6 +175,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
             },
             backendFormat,
             desc,
+            readSwizzle,
             sampleCnt,
             origin,
             sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
@@ -183,8 +188,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    const GrSwizzle& readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
-    const GrSwizzle& outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
+    GrSwizzle outputSwizzle = caps->getOutputSwizzle(backendFormat, grColorType);
 
     SkASSERT(readSwizzle == proxy->textureSwizzle());
 
