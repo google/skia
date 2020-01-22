@@ -664,30 +664,10 @@ bool SkImageShader::onProgram(skvm::Builder* p,
     inv     = state->invMatrix();
     quality = state->quality();
     tweak_quality_and_inv_matrix(&quality, &inv);
+    inv.normalizePerspective();
 
     // Apply matrix to convert dst coords to sample center coords.
-    inv.normalizePerspective();
-    if (inv.isIdentity()) {
-        // That was easy.
-    } else if (inv.isTranslate()) {
-        x = p->add(x, p->uniformF(uniforms->pushF(inv[2])));
-        y = p->add(y, p->uniformF(uniforms->pushF(inv[5])));
-    } else if (inv.isScaleTranslate()) {
-        x = p->mad(x, p->uniformF(uniforms->pushF(inv[0])), p->uniformF(uniforms->pushF(inv[2])));
-        y = p->mad(y, p->uniformF(uniforms->pushF(inv[4])), p->uniformF(uniforms->pushF(inv[5])));
-    } else {  // Affine or perspective.
-        auto dot = [&,x,y](int row) {
-            return p->mad(x, p->uniformF(uniforms->pushF(inv[3*row+0])),
-                   p->mad(y, p->uniformF(uniforms->pushF(inv[3*row+1])),
-                             p->uniformF(uniforms->pushF(inv[3*row+2]))));
-        };
-        x = dot(0);
-        y = dot(1);
-        if (inv.hasPerspective()) {
-            x = p->div(x, dot(2));
-            y = p->div(y, dot(2));
-        }
-    }
+    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
 
     // Bail out if sample() can't yet handle our image's color type.
     switch (pm.colorType()) {
