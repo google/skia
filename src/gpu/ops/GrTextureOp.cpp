@@ -31,7 +31,7 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/effects/generated/GrSaturateProcessor.h"
+#include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadBuffer.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
@@ -1083,7 +1083,7 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         paint.addColorFragmentProcessor(std::move(fp));
         if (saturate == GrTextureOp::Saturate::kYes) {
-            paint.addColorFragmentProcessor(GrSaturateProcessor::Make());
+            paint.addColorFragmentProcessor(GrClampFragmentProcessor::Make(false));
         }
 
         return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags,
