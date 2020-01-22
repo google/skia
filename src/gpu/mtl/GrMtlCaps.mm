@@ -1101,6 +1101,16 @@ GrSwizzle GrMtlCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType
     return GrSwizzle::RGBA();
 }
 
+uint64_t GrMtlCaps::computeFormatKey(const GrBackendFormat& format) const {
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    SkASSERT(mtlFormat != MTLPixelFormatInvalid);
+    // A MTLPixelFormat is an NSUInteger type which is documented to be 32 bits in 32 bit
+    // applications and 64 bits in 64 bit applications. So it should fit in an uint64_t, but adding
+    // the assert heere to make sure.
+    static_assert(sizeof(MTLPixelFormat) <= sizeof(uint64_t));
+    return (uint64_t)mtlFormat;
+}
+
 GrCaps::SupportedWrite GrMtlCaps::supportedWritePixelsColorType(
         GrColorType surfaceColorType, const GrBackendFormat& surfaceFormat,
         GrColorType srcColorType) const {

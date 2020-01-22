@@ -74,10 +74,8 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* d
     int h = texture->height();
     size_t rowBytes = GrColorTypeBytesPerPixel(colorType) * w;
 
-    GrColorType srcCT = GrPixelConfigToColorType(texture->config());
-
     GrCaps::SupportedRead supportedRead =
-            caps->supportedReadPixelsColorType(srcCT, texture->backendFormat(), colorType);
+            caps->supportedReadPixelsColorType(colorType, texture->backendFormat(), colorType);
     std::fill_n(tolerances, 4, 0);
     if (supportedRead.fColorType != colorType) {
         size_t tmpRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
