@@ -3613,7 +3613,6 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
         return false;
     }
 
-    constexpr SkScalar kW0PlaneDistance = 0.05f;
     SkHalfPlane plane {
         matrix[SkMatrix::kMPersp0],
         matrix[SkMatrix::kMPersp1],

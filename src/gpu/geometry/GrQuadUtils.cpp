@@ -10,6 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/geometry/GrQuad.h"
 
 using V4f = skvx::Vec<4, float>;
@@ -273,6 +274,47 @@ static bool barycentric_coords(float x0, float y0, float x1, float y1, float x2,
 static M4f inside_triangle(const V4f& u, const V4f& v, const V4f& w) {
     return ((u >= 0.f) & (u <= 1.f)) & ((v >= 0.f) & (v <= 1.f)) & ((w >= 0.f) & (w <= 1.f));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkRect GrQuad::projectedBounds() const {
+    V4f xs = this->x4f();
+    V4f ys = this->y4f();
+    V4f ws = this->w4f();
+    M4f clipW = ws < SkPathPriv::kW0PlaneDistance;
+    if (any(clipW)) {
+        V4f x2d = xs / ws;
+        V4f y2d = ys / ws;
+        // Bounds of just the projected points in front of w = epsilon
+        SkRect frontBounds = {
+            min(if_then_else(clipW, V4f(SK_ScalarInfinity), x2d)),
+            min(if_then_else(clipW, V4f(SK_ScalarInfinity), y2d)),
+            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), x2d)),
+            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), y2d))
+        };
+        // Calculate clipped coordinates by following CCW edges, only keeping points where the w
+        // actually changes sign between the vertices.
+        V4f t = (SkPathPriv::kW0PlaneDistance - ws) / (next_ccw(ws) - ws);
+        x2d = (t * next_ccw(xs) + (1.f - t) * xs) / SkPathPriv::kW0PlaneDistance;
+        y2d = (t * next_ccw(ys) + (1.f - t) * ys) / SkPathPriv::kW0PlaneDistance;
+        // True if (w < e) xor (ccw(w) < e), i.e. crosses the w = epsilon plane
+        clipW = clipW ^ (next_ccw(ws) < SkPathPriv::kW0PlaneDistance);
+        return {
+            min(if_then_else(clipW, x2d, V4f(frontBounds.fLeft))),
+            min(if_then_else(clipW, y2d, V4f(frontBounds.fTop))),
+            max(if_then_else(clipW, x2d, V4f(frontBounds.fRight))),
+            max(if_then_else(clipW, y2d, V4f(frontBounds.fBottom)))
+        };
+    } else {
+        // Nothing is behind the viewer, so the projection is straight forward and valid
+        ws = 1.f / ws;
+        V4f x2d = xs * ws;
+        V4f y2d = ys * ws;
+        return {min(x2d), min(y2d), max(x2d), max(y2d)};
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace GrQuadUtils {
 
@@ -672,7 +714,10 @@ void TessellationHelper::Vertices::asGrQuads(GrQuad* deviceOut, GrQuad::Type dev
 void TessellationHelper::Vertices::moveAlong(const EdgeVectors& edgeVectors,
                                              const V4f& signedEdgeDistances) {
     // This shouldn't be called if fInvSinTheta is close to infinity (cosTheta close to 1).
-    SkASSERT(all(abs(edgeVectors.fCosTheta) < 0.9f));
+    // FIXME (michaelludwig) - Temporarily allow NaNs on debug builds here, for crbug:224618's GM
+    // Once W clipping is implemented, shouldn't see NaNs unless it's actually time to fail.
+    SkASSERT(all(abs(edgeVectors.fCosTheta) < 0.9f) ||
+             any(edgeVectors.fCosTheta != edgeVectors.fCosTheta));
 
     // When the projected device quad is not degenerate, the vertex corners can move
     // cornerOutsetLen along their edge and their cw-rotated edge. The vertex's edge points

@@ -64,15 +64,17 @@ public:
     }
 
     SkRect bounds() const {
-        auto x = this->x4f();
-        auto y = this->y4f();
-        if (fType == Type::kPerspective) {
-            auto iw = this->iw4f();
-            x *= iw;
-            y *= iw;
+        if (fType == GrQuad::Type::kPerspective) {
+            return this->projectedBounds();
         }
-
-        return {min(x), min(y), max(x), max(y)};
+        // Calculate min/max directly on the 4 floats, instead of loading/unloading into SIMD. Since
+        // there's no horizontal min/max, it's not worth it. Defining non-perspective case in header
+        // also leads to substantial performance boost due to inlining.
+        auto min = [](const float c[4]) { return std::min(std::min(c[0], c[1]),
+                                                          std::min(c[2], c[3]));};
+        auto max = [](const float c[4]) { return std::max(std::max(c[0], c[1]),
+                                                          std::max(c[2], c[3]));};
+        return { min(fX), min(fY), max(fX), max(fY) };
     }
 
     bool isFinite() const {
@@ -148,6 +150,9 @@ private:
         ys.store(fY);
         ws.store(fW);
     }
+
+    // Defined in GrQuadUtils.cpp to share the coord clipping code
+    SkRect projectedBounds() const;
 
     float fX[4];
     float fY[4];
