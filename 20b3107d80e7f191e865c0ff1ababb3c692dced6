@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e15f8cd_0b07c7c5",
+        "filename": "tests/MallocPixelRefTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-01-22T15:45:43Z",
+      "side": 1,
+      "message": "Updated this test so that it can fail due to \"data too small\", as described in the comment, rather than unaligned pixels.",
+      "range": {
+        "startLine": 44,
+        "startChar": 47,
+        "endLine": 44,
+        "endChar": 68
+      },
+      "revId": "20b3107d80e7f191e865c0ff1ababb3c692dced6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
