@@ -9,6 +9,10 @@ Milestone 81
 <Insert new notes here- top is most recent.>
   * Added support for GL_NV_fence extension.
 
+  * Make SkImageInfo::validRowBytes require rowBytes to be pixel aligned. This
+    makes SkBitmap match the behavior of raster SkSurfaces in rejecting
+    non-aligned rowBytes.
+
   * Added support for BC1 RGBA compressed textures
 
   * Added CachingHint to SkImage::makeRasterImage

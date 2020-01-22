@@ -182,6 +182,10 @@ DEF_TEST(CanvasNewRasterTest, reporter) {
         addr = (const SkPMColor*)((const char*)addr + pmap.rowBytes());
     }
 
+    // unaligned rowBytes
+    REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr,
+                                                                    minRowBytes + 1));
+
     // now try a deliberately bad info
     info = info.makeWH(-1, info.height());
     REPORTER_ASSERT(reporter, nullptr == SkCanvas::MakeRasterDirect(info, baseAddr, minRowBytes));

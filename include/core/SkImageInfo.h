@@ -731,13 +731,19 @@ public:
         return SIZE_MAX == byteSize;
     }
 
-    /** Returns true if rowBytes is smaller than width times pixel size.
+    /** Returns true if rowBytes is valid for this SkImageInfo.
 
-        @param rowBytes  size of pixel row or larger
-        @return          true if rowBytes is large enough to contain pixel row
+        @param rowBytes  size of pixel row including padding
+        @return          true if rowBytes is large enough to contain pixel row and is properly
+                         aligned
     */
     bool validRowBytes(size_t rowBytes) const {
-        return rowBytes >= this->minRowBytes64();
+        if (rowBytes < this->minRowBytes64()) {
+            return false;
+        }
+        int shift = this->shiftPerPixel();
+        size_t alignedRowBytes = rowBytes >> shift << shift;
+        return alignedRowBytes == rowBytes;
     }
 
     /** Creates an empty SkImageInfo with kUnknown_SkColorType, kUnknown_SkAlphaType,

@@ -55,15 +55,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return true;
     }
 
-    int shift = info.shiftPerPixel();
-
-    uint64_t minRB = (uint64_t)info.width() << shift;
-    if (minRB > rowBytes) {
-        return false;
-    }
-
-    size_t alignedRowBytes = rowBytes >> shift << shift;
-    if (alignedRowBytes != rowBytes) {
+    if (!info.validRowBytes(rowBytes)) {
         return false;
     }
 
