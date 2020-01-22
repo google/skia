@@ -14,6 +14,7 @@
 #include "src/gpu/GrSwizzle.h"
 
 class GrImageInfo;
+class SkBitmap;
 
 size_t GrCompressedDataSize(SkImage::CompressionType, SkISize baseDimensions,
                             SkTArray<size_t>* individualMipOffsets, GrMipMapped);
