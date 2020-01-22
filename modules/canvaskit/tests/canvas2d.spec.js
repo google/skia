@@ -44,6 +44,12 @@ describe('CanvasKit\'s Canvas 2d Behavior', function() {
                     CanvasKit.Color(117, 33, 64, 1.0));
                 expect(parseColor('rgb(117,33, 64)')).toEqual(
                     CanvasKit.Color(117, 33, 64, 1.0));
+                expect(parseColor('rgb(117,33, 64, 32%)')).toEqual(
+                    CanvasKit.Color(117, 33, 64, 0.32));
+                expect(parseColor('rgb(117,33, 64, 0.001)')).toEqual(
+                    CanvasKit.Color(117, 33, 64, 0.001));
+                expect(parseColor('rgb(117,33,64,0)')).toEqual(
+                    CanvasKit.Color(117, 33, 64, 0.0));
                 done();
             }));
         });
