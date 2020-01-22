@@ -34,11 +34,11 @@ struct SkV3 {
     }
     friend SkV3 operator*(SkScalar s, const SkV3& v) { return v*s; }
 
-    SkScalar operator*(const SkV3& v) const { return   Dot(*this, v); }
-    SkV3     operator%(const SkV3& v) const { return Cross(*this, v); }
-
     SkScalar lengthSquared() const { return Dot(*this, *this); }
     SkScalar length() const { return SkScalarSqrt(Dot(*this, *this)); }
+
+    SkScalar dot(const SkV3& v) const { return Dot(*this, v); }
+    SkV3 cross(const SkV3& v) const { return Cross(*this, v); }
 };
 
 struct SkV4 {
