@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
  - Bug that sometimes resulted in 'Cannot perform Construct on a neutered ArrayBuffer'
+ - Bug with SkImage.readPixels (skbug.com/9788)
+
 
 ## [0.11.0] - 2020-01-10
 
