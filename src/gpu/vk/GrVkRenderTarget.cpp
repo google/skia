@@ -31,10 +31,10 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    sk_sp<GrVkImageLayout> msaaLayout,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
         , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kBorrowed)
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, sampleCnt, info.fProtected)
+        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, sampleCnt, info.fProtected)
         , fColorAttachmentView(colorAttachmentView)
         , fMSAAImage(new GrVkImage(msaaInfo, std::move(msaaLayout),
                                    GrBackendObjectOwnership::kOwned))
@@ -58,10 +58,10 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageView* colorAttachmentView,
                                    const GrVkImageView* resolveAttachmentView,
                                    GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
         , GrVkImage(info, std::move(layout), ownership)
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, sampleCnt, info.fProtected)
+        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, sampleCnt, info.fProtected)
         , fColorAttachmentView(colorAttachmentView)
         , fMSAAImage(
                   new GrVkImage(msaaInfo, std::move(msaaLayout), GrBackendObjectOwnership::kOwned))
@@ -79,9 +79,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    const GrVkImageInfo& info,
                                    sk_sp<GrVkImageLayout> layout,
                                    const GrVkImageView* colorAttachmentView)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
         , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kBorrowed)
-        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, 1, info.fProtected)
+        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, 1, info.fProtected)
         , fColorAttachmentView(colorAttachmentView)
         , fMSAAImage(nullptr)
         , fResolveAttachmentView(nullptr)
@@ -98,9 +98,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    sk_sp<GrVkImageLayout> layout,
                                    const GrVkImageView* colorAttachmentView,
                                    GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
         , GrVkImage(info, std::move(layout), ownership)
-        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, 1, info.fProtected)
+        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, 1, info.fProtected)
         , fColorAttachmentView(colorAttachmentView)
         , fMSAAImage(nullptr)
         , fResolveAttachmentView(nullptr)
@@ -114,9 +114,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    sk_sp<GrVkImageLayout> layout,
                                    const GrVkRenderPass* renderPass,
                                    VkCommandBuffer secondaryCommandBuffer)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, info.fProtected)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
         , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kBorrowed, true)
-        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, 1, info.fProtected)
+        , GrRenderTarget(gpu, {desc.fWidth, desc.fHeight}, 1, info.fProtected)
         , fColorAttachmentView(nullptr)
         , fMSAAImage(nullptr)
         , fResolveAttachmentView(nullptr)
