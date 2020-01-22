@@ -29,6 +29,8 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const final;
 
+    bool transformT(skvm::Builder*, skvm::F32* t) const final;
+
 
 private:
     SK_FLATTENABLE_HOOKS(SkLinearGradient)
