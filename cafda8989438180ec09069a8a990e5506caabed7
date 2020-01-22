@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3da84aee_72a052e2",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-22T19:47:42Z",
+      "side": 1,
+      "message": "We should probably centralize this somewhere.",
+      "range": {
+        "startLine": 280,
+        "startChar": 43,
+        "endLine": 280,
+        "endChar": 88
+      },
+      "revId": "cafda8989438180ec09069a8a990e5506caabed7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
