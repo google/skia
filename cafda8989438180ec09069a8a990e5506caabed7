@@ -22,6 +22,30 @@
       "revId": "cafda8989438180ec09069a8a990e5506caabed7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fafdcd94_6e43f915",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-22T22:21:54Z",
+      "side": 1,
+      "message": "Moved the limit into SkPathPriv\u0027s header.",
+      "parentUuid": "3da84aee_72a052e2",
+      "range": {
+        "startLine": 280,
+        "startChar": 43,
+        "endLine": 280,
+        "endChar": 88
+      },
+      "revId": "cafda8989438180ec09069a8a990e5506caabed7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
