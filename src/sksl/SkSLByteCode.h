@@ -21,7 +21,7 @@ namespace SkSL {
 class ByteCode;
 class ExternalValue;
 
-SK_API class ByteCodeFunction {
+class SK_API ByteCodeFunction {
 public:
     // all counts are of 32-bit values, so a float4 counts as 4 parameter or return slots
     struct Parameter {
