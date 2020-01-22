@@ -23,6 +23,8 @@ public:
     static const int kPathRefGenIDBitCnt = 32;
 #endif
 
+    static constexpr SkScalar kW0PlaneDistance = 0.05f;
+
     enum FirstDirection : int {
         kCW_FirstDirection,         // == SkPathDirection::kCW
         kCCW_FirstDirection,        // == SkPathDirection::kCCW
