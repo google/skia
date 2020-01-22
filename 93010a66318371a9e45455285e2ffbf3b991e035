@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "66293bab_2c7f8bcc",
+        "filename": "include/ports/SkTypeface_mac.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 10099
+      },
+      "writtenOn": "2020-01-22T07:56:41Z",
+      "side": 1,
+      "message": "Nice, I like how that doesn\u0027t need an API to get around sandbox issues with OS version.  TIL for dealing with Apple products!",
+      "parentUuid": "207dfe87_4c8d52b6",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 71
+      },
+      "revId": "93010a66318371a9e45455285e2ffbf3b991e035",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89fadf8e_f478d607",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "93010a66318371a9e45455285e2ffbf3b991e035",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49ec2298_c1b6021b",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 10099
+      },
+      "writtenOn": "2020-01-22T07:56:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89fadf8e_f478d607",
+      "range": {
+        "startLine": 473,
+        "startChar": 0,
+        "endLine": 474,
+        "endChar": 65
+      },
+      "revId": "93010a66318371a9e45455285e2ffbf3b991e035",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
