@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5be2517_0cad308d",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-22T20:26:12Z",
+      "side": 1,
+      "message": "Huh? I\u0027m clearly not qualified to review Javascript.",
+      "revId": "cae852dac71ede9f085f8b24759992e815e68980",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86579484_d5825706",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-22T20:26:12Z",
+      "side": 1,
+      "message": "Is this left-over from testing?",
+      "range": {
+        "startLine": 120,
+        "startChar": 16,
+        "endLine": 120,
+        "endChar": 25
+      },
+      "revId": "cae852dac71ede9f085f8b24759992e815e68980",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
