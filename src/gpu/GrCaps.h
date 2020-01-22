@@ -442,6 +442,8 @@ public:
      */
     virtual GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
+    virtual uint64_t computeFormatKey(const GrBackendFormat&) const = 0;
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
     /**

@@ -345,7 +345,8 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
     GrSurfaceDesc desc;
     desc.fWidth = 1;
     desc.fHeight = 1;
-    desc.fConfig = mipmapProxy->config();
+    // We don't read this config so setting kUnknown
+    desc.fConfig = kUnknown_GrPixelConfig;
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mipmapProxy->backendFormat(),
                                                                colorType);
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(

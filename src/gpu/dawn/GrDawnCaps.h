@@ -54,6 +54,8 @@ public:
 
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    uint64_t computeFormatKey(const GrBackendFormat&) const override;
+
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
 

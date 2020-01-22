@@ -255,7 +255,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     if (width == 0 || height == 0) {
         return false;
     }
-    if (GrPixelConfigToColorType(tex->config()) != dataColorType) {
+    if (!this->mtlCaps().isFormatTexturableAndUploadable(dataColorType, tex->backendFormat())) {
         return false;
     }
 
@@ -999,10 +999,8 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return GrBackendRenderTarget();
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
-
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
+    MTLPixelFormat format = this->mtlCaps().getFormatFromColorType(ct);
+    if (format == MTLPixelFormatInvalid) {
         return GrBackendRenderTarget();
     }
 
@@ -1170,8 +1168,7 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
                                   GrGpuBuffer* transferBuffer, size_t offset, size_t rowBytes) {
     SkASSERT(texture);
     SkASSERT(transferBuffer);
-    if (textureColorType != bufferColorType ||
-        GrPixelConfigToColorType(texture->config()) != bufferColorType) {
+    if (textureColorType != bufferColorType) {
         return false;
     }
 
@@ -1187,6 +1184,10 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
     if (offset % bpp) {
         return false;
     }
+    if (this->mtlCaps().bytesPerPixel(texture->backendFormat()) != bpp) {
+        return false;
+    }
+
     MTLOrigin origin = MTLOriginMake(left, top, 0);
 
     id<MTLBlitCommandEncoder> blitCmdEncoder = this->commandBuffer()->getBlitCommandEncoder();
@@ -1214,8 +1215,11 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
     }
 
     // Metal only supports offsets that are aligned to a pixel.
-    int bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
     if (offset % bpp) {
+        return false;
+    }
+    if (this->mtlCaps().bytesPerPixel(surface->backendFormat()) != bpp) {
         return false;
     }
 
@@ -1234,9 +1238,6 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int w
                                     GrColorType dstColorType, id<MTLBuffer> transferBuffer,
                                     size_t offset, size_t imageBytes, size_t rowBytes) {
     if (!check_max_blit_width(width)) {
-        return false;
-    }
-    if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
         return false;
     }
 

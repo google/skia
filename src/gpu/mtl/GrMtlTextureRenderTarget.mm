@@ -20,7 +20,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    id<MTLTexture> colorTexture,
                                                    id<MTLTexture> resolveTexture,
                                                    GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, resolveTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, resolveTexture) {
     this->registerWithCache(budgeted);
@@ -31,7 +31,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    const GrSurfaceDesc& desc,
                                                    id<MTLTexture> colorTexture,
                                                    GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, colorTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, colorTexture) {
     this->registerWithCache(budgeted);
@@ -44,7 +44,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    id<MTLTexture> resolveTexture,
                                                    GrMipMapsStatus mipMapsStatus,
                                                    GrWrapCacheable cacheable)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, resolveTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, sampleCnt, colorTexture, resolveTexture) {
     this->registerWithCacheWrapped(cacheable);
@@ -55,15 +55,15 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    id<MTLTexture> colorTexture,
                                                    GrMipMapsStatus mipMapsStatus,
                                                    GrWrapCacheable cacheable)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
         , GrMtlTexture(gpu, desc, colorTexture, mipMapsStatus)
         , GrMtlRenderTarget(gpu, desc, colorTexture) {
     this->registerWithCacheWrapped(cacheable);
 }
 
-id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, int sampleCnt) {
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
+id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, const GrSurfaceDesc& desc, MTLPixelFormat format,
+                                   int sampleCnt) {
+    if (!gpu->mtlCaps().isFormatRenderable(format, sampleCnt)) {
         return nullptr;
     }
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
@@ -99,7 +99,8 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
     }
 
     if (sampleCnt > 1) {
-        id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, sampleCnt);
+        id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, texture.pixelFormat,
+                                                          sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }
@@ -128,7 +129,8 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
                                             ? GrMipMapsStatus::kDirty
                                             : GrMipMapsStatus::kNotAllocated;
     if (sampleCnt > 1) {
-        id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, sampleCnt);
+        id<MTLTexture> colorTexture = create_msaa_texture(gpu, desc, texture.pixelFormat,
+                                                          sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }

@@ -4393,6 +4393,11 @@ GrSwizzle GrGLCaps::getOutputSwizzle(const GrBackendFormat& format, GrColorType 
     return GrSwizzle::RGBA();
 }
 
+uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {
+    auto glFormat = format.asGLFormat();
+    return (uint64_t)(glFormat);
+}
+
 GrProgramDesc GrGLCaps::makeDesc(const GrRenderTarget* rt, const GrProgramInfo& programInfo) const {
     GrProgramDesc desc;
     SkDEBUGCODE(bool result =) GrProgramDesc::Build(&desc, rt, programInfo, *this);
