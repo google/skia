@@ -234,6 +234,31 @@ bool SkShaderBase::onProgram(skvm::Builder*,
     return false;
 }
 
+void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
+                               skvm::F32* x, skvm::F32* y, skvm::Uniforms* uniforms) {
+    if (m.isIdentity()) {
+        // That was easy.
+    } else if (m.isTranslate()) {
+        *x = p->add(*x, p->uniformF(uniforms->pushF(m[2])));
+        *y = p->add(*y, p->uniformF(uniforms->pushF(m[5])));
+    } else if (m.isScaleTranslate()) {
+        *x = p->mad(*x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
+        *y = p->mad(*y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
+    } else {  // Affine or perspective.
+        auto dot = [&,X=*x,Y=*y](int row) {
+            return p->mad(X, p->uniformF(uniforms->pushF(m[3*row+0])),
+                   p->mad(Y, p->uniformF(uniforms->pushF(m[3*row+1])),
+                             p->uniformF(uniforms->pushF(m[3*row+2]))));
+        };
+        *x = dot(0);
+        *y = dot(1);
+        if (m.hasPerspective()) {
+            *x = p->div(*x, dot(2));
+            *y = p->div(*y, dot(2));
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkFlattenable> SkEmptyShader::CreateProc(SkReadBuffer&) {
