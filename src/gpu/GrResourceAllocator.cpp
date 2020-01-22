@@ -264,7 +264,7 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
     // First look in the free pool
     GrScratchKey key;
 
-    proxy->priv().computeScratchKey(&key);
+    proxy->priv().computeScratchKey(*fResourceProvider->caps(), &key);
 
     auto filter = [] (const GrSurface* s) {
         return true;
