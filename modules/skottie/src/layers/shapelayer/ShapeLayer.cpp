@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 
 #include "include/core/SkPath.h"
 #include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGeometryTransform.h"
@@ -32,156 +33,6 @@ namespace skottie {
 namespace internal {
 
 namespace {
-
-sk_sp<sksg::GeometryNode> AttachPathGeometry(const skjson::ObjectValue& jpath,
-                                             const AnimationBuilder* abuilder) {
-    return abuilder->attachPath(jpath["ks"]);
-}
-
-sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
-                                              const AnimationBuilder* abuilder) {
-    auto rect_node = sksg::RRect::Make();
-    rect_node->setDirection(ParseDefault(jrect["d"], -1) == 3 ? SkPathDirection::kCCW
-                                                              : SkPathDirection::kCW);
-    rect_node->setInitialPointIndex(2); // starting point: (Right, Top - radius.y)
-
-    auto adapter = sk_make_sp<RRectAdapter>(rect_node);
-
-    auto p_attached = abuilder->bindProperty<VectorValue>(jrect["p"],
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    auto s_attached = abuilder->bindProperty<VectorValue>(jrect["s"],
-        [adapter](const VectorValue& s) {
-            adapter->setSize(ValueTraits<VectorValue>::As<SkSize>(s));
-        });
-    auto r_attached = abuilder->bindProperty<ScalarValue>(jrect["r"],
-        [adapter](const ScalarValue& r) {
-            adapter->setRadius(SkSize::Make(r, r));
-        });
-
-    if (!p_attached && !s_attached && !r_attached) {
-        return nullptr;
-    }
-
-    return rect_node;
-}
-
-sk_sp<sksg::GeometryNode> AttachEllipseGeometry(const skjson::ObjectValue& jellipse,
-                                                const AnimationBuilder* abuilder) {
-    auto rect_node = sksg::RRect::Make();
-    rect_node->setDirection(ParseDefault(jellipse["d"], -1) == 3 ? SkPathDirection::kCCW
-                                                                 : SkPathDirection::kCW);
-    rect_node->setInitialPointIndex(1); // starting point: (Center, Top)
-
-    auto adapter = sk_make_sp<RRectAdapter>(rect_node);
-
-    auto p_attached = abuilder->bindProperty<VectorValue>(jellipse["p"],
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    auto s_attached = abuilder->bindProperty<VectorValue>(jellipse["s"],
-        [adapter](const VectorValue& s) {
-            const auto sz = ValueTraits<VectorValue>::As<SkSize>(s);
-            adapter->setSize(sz);
-            adapter->setRadius(SkSize::Make(sz.width() / 2, sz.height() / 2));
-        });
-
-    if (!p_attached && !s_attached) {
-        return nullptr;
-    }
-
-    return rect_node;
-}
-
-sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jstar,
-                                                 const AnimationBuilder* abuilder) {
-    static constexpr PolyStarAdapter::Type gTypes[] = {
-        PolyStarAdapter::Type::kStar, // "sy": 1
-        PolyStarAdapter::Type::kPoly, // "sy": 2
-    };
-
-    const auto type = ParseDefault<size_t>(jstar["sy"], 0) - 1;
-    if (type >= SK_ARRAY_COUNT(gTypes)) {
-        abuilder->log(Logger::Level::kError, &jstar, "Unknown polystar type.");
-        return nullptr;
-    }
-
-    auto path_node = sksg::Path::Make();
-    auto adapter = sk_make_sp<PolyStarAdapter>(path_node, gTypes[type]);
-
-    abuilder->bindProperty<VectorValue>(jstar["p"],
-        [adapter](const VectorValue& p) {
-            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["pt"],
-        [adapter](const ScalarValue& pt) {
-            adapter->setPointCount(pt);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["ir"],
-        [adapter](const ScalarValue& ir) {
-            adapter->setInnerRadius(ir);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["or"],
-        [adapter](const ScalarValue& otr) {
-            adapter->setOuterRadius(otr);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["is"],
-        [adapter](const ScalarValue& is) {
-            adapter->setInnerRoundness(is);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["os"],
-        [adapter](const ScalarValue& os) {
-            adapter->setOuterRoundness(os);
-        });
-    abuilder->bindProperty<ScalarValue>(jstar["r"],
-        [adapter](const ScalarValue& r) {
-            adapter->setRotation(r);
-        });
-
-    return path_node;
-}
-
-sk_sp<sksg::ShaderPaint> AttachGradient(const skjson::ObjectValue& jgrad,
-                                        const AnimationBuilder* abuilder) {
-    const skjson::ObjectValue* stops = jgrad["g"];
-    if (!stops)
-        return nullptr;
-
-    const auto stopCount = ParseDefault<int>((*stops)["p"], -1);
-    if (stopCount < 0)
-        return nullptr;
-
-    sk_sp<sksg::Gradient> gradient_node;
-    sk_sp<GradientAdapter> adapter;
-
-    if (ParseDefault<int>(jgrad["t"], 1) == 1) {
-        auto linear_node = sksg::LinearGradient::Make();
-        adapter = sk_make_sp<LinearGradientAdapter>(linear_node, stopCount);
-        gradient_node = std::move(linear_node);
-    } else {
-        auto radial_node = sksg::RadialGradient::Make();
-        adapter = sk_make_sp<RadialGradientAdapter>(radial_node, stopCount);
-
-        // TODO: highlight, angle
-        gradient_node = std::move(radial_node);
-    }
-
-    abuilder->bindProperty<VectorValue>((*stops)["k"],
-        [adapter](const VectorValue& stops) {
-            adapter->setStops(stops);
-        });
-    abuilder->bindProperty<VectorValue>(jgrad["s"],
-        [adapter](const VectorValue& s) {
-            adapter->setStartPoint(ValueTraits<VectorValue>::As<SkPoint>(s));
-        });
-    abuilder->bindProperty<VectorValue>(jgrad["e"],
-        [adapter](const VectorValue& e) {
-            adapter->setEndPoint(ValueTraits<VectorValue>::As<SkPoint>(e));
-        });
-
-    return sksg::ShaderPaint::Make(std::move(gradient_node));
-}
 
 sk_sp<sksg::PaintNode> AttachPaint(const skjson::ObjectValue& jpaint,
                                    const AnimationBuilder* abuilder,
@@ -233,203 +84,22 @@ sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke,
     return stroke_node;
 }
 
-sk_sp<sksg::PaintNode> AttachColorFill(const skjson::ObjectValue& jfill,
-                                       const AnimationBuilder* abuilder) {
-    return AttachPaint(jfill, abuilder, abuilder->attachColor(jfill, "c"));
-}
-
-sk_sp<sksg::PaintNode> AttachGradientFill(const skjson::ObjectValue& jfill,
-                                          const AnimationBuilder* abuilder) {
-    return AttachPaint(jfill, abuilder, AttachGradient(jfill, abuilder));
-}
-
-sk_sp<sksg::PaintNode> AttachColorStroke(const skjson::ObjectValue& jstroke,
-                                         const AnimationBuilder* abuilder) {
-    return AttachStroke(jstroke, abuilder, AttachPaint(jstroke, abuilder,
-                                                       abuilder->attachColor(jstroke, "c")));
-}
-
-sk_sp<sksg::PaintNode> AttachGradientStroke(const skjson::ObjectValue& jstroke,
-                                            const AnimationBuilder* abuilder) {
-    return AttachStroke(jstroke, abuilder, AttachPaint(jstroke, abuilder,
-                                                       AttachGradient(jstroke, abuilder)));
-}
-
-sk_sp<sksg::Merge> Merge(std::vector<sk_sp<sksg::GeometryNode>>&& geos, sksg::Merge::Mode mode) {
-    std::vector<sksg::Merge::Rec> merge_recs;
-    merge_recs.reserve(geos.size());
-
-    for (auto& geo : geos) {
-        merge_recs.push_back(
-            {std::move(geo), merge_recs.empty() ? sksg::Merge::Mode::kMerge : mode});
-    }
-
-    return sksg::Merge::Make(std::move(merge_recs));
-}
-
-std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
-        const skjson::ObjectValue& jmerge, const AnimationBuilder*,
-        std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
-    static constexpr sksg::Merge::Mode gModes[] = {
-        sksg::Merge::Mode::kMerge,      // "mm": 1
-        sksg::Merge::Mode::kUnion,      // "mm": 2
-        sksg::Merge::Mode::kDifference, // "mm": 3
-        sksg::Merge::Mode::kIntersect,  // "mm": 4
-        sksg::Merge::Mode::kXOR      ,  // "mm": 5
-    };
-
-    const auto mode = gModes[SkTMin<size_t>(ParseDefault<size_t>(jmerge["mm"], 1) - 1,
-                                            SK_ARRAY_COUNT(gModes) - 1)];
-
-    std::vector<sk_sp<sksg::GeometryNode>> merged;
-    merged.push_back(Merge(std::move(geos), mode));
-
-    return merged;
-}
-
-std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
-        const skjson::ObjectValue& jtrim, const AnimationBuilder* abuilder,
-        std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
-
-    enum class Mode {
-        kParallel, // "m": 1 (Trim Multiple Shapes: Simultaneously)
-        kSerial,   // "m": 2 (Trim Multiple Shapes: Individually)
-    } gModes[] = { Mode::kParallel, Mode::kSerial};
-
-    const auto mode = gModes[SkTMin<size_t>(ParseDefault<size_t>(jtrim["m"], 1) - 1,
-                                            SK_ARRAY_COUNT(gModes) - 1)];
-
-    std::vector<sk_sp<sksg::GeometryNode>> inputs;
-    if (mode == Mode::kSerial) {
-        inputs.push_back(Merge(std::move(geos), sksg::Merge::Mode::kMerge));
-    } else {
-        inputs = std::move(geos);
-    }
-
-    std::vector<sk_sp<sksg::GeometryNode>> trimmed;
-    trimmed.reserve(inputs.size());
-    for (const auto& i : inputs) {
-        auto trimEffect = sksg::TrimEffect::Make(i);
-        trimmed.push_back(trimEffect);
-
-        const auto adapter = sk_make_sp<TrimEffectAdapter>(std::move(trimEffect));
-        abuilder->bindProperty<ScalarValue>(jtrim["s"],
-            [adapter](const ScalarValue& s) {
-                adapter->setStart(s);
-            });
-        abuilder->bindProperty<ScalarValue>(jtrim["e"],
-            [adapter](const ScalarValue& e) {
-                adapter->setEnd(e);
-            });
-        abuilder->bindProperty<ScalarValue>(jtrim["o"],
-            [adapter](const ScalarValue& o) {
-                adapter->setOffset(o);
-            });
-    }
-
-    return trimmed;
-}
-
-std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
-        const skjson::ObjectValue& jtrim, const AnimationBuilder* abuilder,
-        std::vector<sk_sp<sksg::GeometryNode>>&& geos) {
-
-    std::vector<sk_sp<sksg::GeometryNode>> rounded;
-    rounded.reserve(geos.size());
-
-    for (auto& g : geos) {
-        const auto roundEffect = sksg::RoundEffect::Make(std::move(g));
-        rounded.push_back(roundEffect);
-
-        abuilder->bindProperty<ScalarValue>(jtrim["r"],
-            [roundEffect](const ScalarValue& r) {
-                roundEffect->setRadius(r);
-            });
-    }
-
-    return rounded;
-}
-
-std::vector<sk_sp<sksg::RenderNode>> AttachRepeaterDrawEffect(
-        const skjson::ObjectValue& jrepeater,
-        const AnimationBuilder* abuilder,
-        std::vector<sk_sp<sksg::RenderNode>>&& draws) {
-
-    std::vector<sk_sp<sksg::RenderNode>> repeater_draws;
-
-    if (const skjson::ObjectValue* jtransform = jrepeater["tr"]) {
-        sk_sp<sksg::RenderNode> repeater_node;
-        if (draws.size() > 1) {
-            repeater_node = sksg::Group::Make(std::move(draws));
-        } else {
-            repeater_node = std::move(draws[0]);
-        }
-
-        const auto repeater_composite = (ParseDefault(jrepeater["m"], 1) == 1)
-                ? RepeaterAdapter::Composite::kAbove
-                : RepeaterAdapter::Composite::kBelow;
-
-        auto adapter = sk_make_sp<RepeaterAdapter>(std::move(repeater_node),
-                                                   repeater_composite);
-
-        abuilder->bindProperty<ScalarValue>(jrepeater["c"],
-            [adapter](const ScalarValue& c) {
-                adapter->setCount(c);
-            });
-        abuilder->bindProperty<ScalarValue>(jrepeater["o"],
-            [adapter](const ScalarValue& o) {
-                adapter->setOffset(o);
-            });
-        abuilder->bindProperty<VectorValue>((*jtransform)["a"],
-            [adapter](const VectorValue& a) {
-                adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
-            });
-        abuilder->bindProperty<VectorValue>((*jtransform)["p"],
-            [adapter](const VectorValue& p) {
-                adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-            });
-        abuilder->bindProperty<VectorValue>((*jtransform)["s"],
-            [adapter](const VectorValue& s) {
-                adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
-            });
-        abuilder->bindProperty<ScalarValue>((*jtransform)["r"],
-            [adapter](const ScalarValue& r) {
-                adapter->setRotation(r);
-            });
-        abuilder->bindProperty<ScalarValue>((*jtransform)["so"],
-            [adapter](const ScalarValue& so) {
-                adapter->setStartOpacity(so);
-            });
-        abuilder->bindProperty<ScalarValue>((*jtransform)["eo"],
-            [adapter](const ScalarValue& eo) {
-                adapter->setEndOpacity(eo);
-            });
-
-        repeater_draws.reserve(1);
-        repeater_draws.push_back(adapter->root());
-    } else {
-        repeater_draws = std::move(draws);
-    }
-
-    return repeater_draws;
-}
-
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const skjson::ObjectValue&,
                                                         const AnimationBuilder*);
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
-    AttachPathGeometry,
-    AttachRRectGeometry,
-    AttachEllipseGeometry,
-    AttachPolystarGeometry,
+    ShapeBuilder::AttachPathGeometry,
+    ShapeBuilder::AttachRRectGeometry,
+    ShapeBuilder::AttachEllipseGeometry,
+    ShapeBuilder::AttachPolystarGeometry,
 };
 
 using PaintAttacherT = sk_sp<sksg::PaintNode> (*)(const skjson::ObjectValue&,
                                                   const AnimationBuilder*);
 static constexpr PaintAttacherT gPaintAttachers[] = {
-    AttachColorFill,
-    AttachColorStroke,
-    AttachGradientFill,
-    AttachGradientStroke,
+    ShapeBuilder::AttachColorFill,
+    ShapeBuilder::AttachColorStroke,
+    ShapeBuilder::AttachGradientFill,
+    ShapeBuilder::AttachGradientStroke,
 };
 
 using GeometryEffectAttacherT =
@@ -437,9 +107,9 @@ using GeometryEffectAttacherT =
                                                const AnimationBuilder*,
                                                std::vector<sk_sp<sksg::GeometryNode>>&&);
 static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
-    AttachMergeGeometryEffect,
-    AttachTrimGeometryEffect,
-    AttachRoundGeometryEffect,
+    ShapeBuilder::AttachMergeGeometryEffect,
+    ShapeBuilder::AttachTrimGeometryEffect,
+    ShapeBuilder::AttachRoundGeometryEffect,
 };
 
 using DrawEffectAttacherT =
@@ -448,7 +118,7 @@ using DrawEffectAttacherT =
                                              std::vector<sk_sp<sksg::RenderNode>>&&);
 
 static constexpr DrawEffectAttacherT gDrawEffectAttachers[] = {
-    AttachRepeaterDrawEffect,
+    ShapeBuilder::AttachRepeaterDrawEffect,
 };
 
 enum class ShapeType {
@@ -507,6 +177,34 @@ struct GeometryEffectRec {
 };
 
 } // namespace
+
+sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPathGeometry(const skjson::ObjectValue& jpath,
+                                                           const AnimationBuilder* abuilder) {
+    return abuilder->attachPath(jpath["ks"]);
+}
+
+sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorFill(const skjson::ObjectValue& jfill,
+                                                     const AnimationBuilder* abuilder) {
+    return AttachPaint(jfill, abuilder, abuilder->attachColor(jfill, "c"));
+}
+
+sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientFill(const skjson::ObjectValue& jfill,
+                                                        const AnimationBuilder* abuilder) {
+    return AttachPaint(jfill, abuilder, ShapeBuilder::AttachGradient(jfill, abuilder));
+}
+
+sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorStroke(const skjson::ObjectValue& jstroke,
+                                                       const AnimationBuilder* abuilder) {
+    return AttachStroke(jstroke, abuilder, AttachPaint(jstroke, abuilder,
+                                                       abuilder->attachColor(jstroke, "c")));
+}
+
+sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientStroke(const skjson::ObjectValue& jstroke,
+                                                          const AnimationBuilder* abuilder) {
+    return AttachStroke(jstroke, abuilder, AttachPaint(jstroke, abuilder,
+                                                       ShapeBuilder::AttachGradient(jstroke,
+                                                                                    abuilder)));
+}
 
 struct AnimationBuilder::AttachShapeContext {
     AttachShapeContext(std::vector<sk_sp<sksg::GeometryNode>>* geos,
@@ -637,7 +335,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 
             // If we still have multiple geos, reduce using 'merge'.
             auto geo = drawGeos.size() > 1
-                ? Merge(std::move(drawGeos), sksg::Merge::Mode::kMerge)
+                ? ShapeBuilder::MergeGeometry(std::move(drawGeos), sksg::Merge::Mode::kMerge)
                 : drawGeos[0];
 
             SkASSERT(geo);
