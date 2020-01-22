@@ -22,6 +22,30 @@
       "revId": "4803512ccaba65d09c266fc2b3d45a3aabdd21f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a34b975_98933122",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-22T16:58:22Z",
+      "side": 1,
+      "message": "I see your point. I think in the future we should be less conservative.",
+      "parentUuid": "01c7e600_0b47f67e",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 198,
+        "endChar": 81
+      },
+      "revId": "4803512ccaba65d09c266fc2b3d45a3aabdd21f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
