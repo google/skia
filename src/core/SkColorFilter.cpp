@@ -19,7 +19,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/sksl/SkSLInterpreter.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
@@ -421,20 +420,17 @@ public:
         ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = false;
 
-        SkAutoMutexExclusive ama(fInterpreterMutex);
-        if (!fInterpreter) {
+        SkAutoMutexExclusive ama(fByteCodeMutex);
+        if (!fByteCode) {
             auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
             if (!byteCode) {
                 SkDebugf("%s\n", errorText.c_str());
                 return false;
             }
-            fMain = byteCode->getFunction("main");
-            fInterpreter.reset(
-                           new SkSL::Interpreter<SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH>(
-                                                                          std::move(byteCode)));
+            fByteCode = std::move(byteCode);
         }
-        ctx->fn = fMain;
-        ctx->interpreter = fInterpreter.get();
+        ctx->byteCode = fByteCode.get();
+        ctx->fn = ctx->byteCode->getFunction("main");
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
     }
@@ -457,10 +453,8 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkData> fInputs;
 
-    mutable SkMutex fInterpreterMutex;
-    mutable std::unique_ptr<SkSL::Interpreter<SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH>>
-                                                                                       fInterpreter;
-    mutable const SkSL::ByteCodeFunction* fMain;
+    mutable SkMutex fByteCodeMutex;
+    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
 
     friend class SkColorFilter;
 

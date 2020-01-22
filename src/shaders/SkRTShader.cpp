@@ -14,8 +14,6 @@
 #include "src/shaders/SkRTShader.h"
 
 #include "src/sksl/SkSLByteCode.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLInterpreter.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrColorInfo.h"
@@ -47,19 +45,17 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     ctx->ninputs = fEffect->uniformSize() / 4;
     ctx->shaderConvention = true;
 
-    SkAutoMutexExclusive ama(fInterpreterMutex);
-    if (!fInterpreter) {
+    SkAutoMutexExclusive ama(fByteCodeMutex);
+    if (!fByteCode) {
         auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
         if (!byteCode) {
             SkDebugf("%s\n", errorText.c_str());
             return false;
         }
-        fMain = byteCode->getFunction("main");
-        fInterpreter.reset(new SkSL::Interpreter<SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH>(
-                                                                      std::move(byteCode)));
+        fByteCode = std::move(byteCode);
     }
-    ctx->fn = fMain;
-    ctx->interpreter = fInterpreter.get();
+    ctx->byteCode = fByteCode.get();
+    ctx->fn = ctx->byteCode->getFunction("main");
 
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
     rec.fPipeline->append_matrix(rec.fAlloc, inverse);

@@ -161,15 +161,12 @@ struct SkRasterPipeline_CallbackCtx {
 };
 
 namespace SkSL {
+class ByteCode;
 class ByteCodeFunction;
-
-template<int width>
-class Interpreter;
 }
 
 struct SkRasterPipeline_InterpreterCtx {
-    static constexpr int VECTOR_WIDTH = 8;
-    SkSL::Interpreter<VECTOR_WIDTH>* interpreter;
+    const SkSL::ByteCode*         byteCode;
     const SkSL::ByteCodeFunction* fn;
 
     SkColor4f   paintColor;

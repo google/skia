@@ -215,8 +215,8 @@ private:
 
     Position position(int offset);
 
-    std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>> fGPUIntrinsics;
-    std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>> fInterpreterIntrinsics;
+    std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>> fGPUIntrinsics;
+    std::map<StringFragment, std::pair<std::unique_ptr<ProgramElement>, bool>> fInterpreterIntrinsics;
     std::unique_ptr<ASTFile> fGpuIncludeSource;
     std::shared_ptr<SymbolTable> fGpuSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
@@ -227,7 +227,6 @@ private:
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
     std::shared_ptr<SymbolTable> fPipelineSymbolTable;
-    std::unique_ptr<ASTFile> fInterpreterIncludeSource;
     std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
     std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
 
