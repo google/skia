@@ -34,6 +34,24 @@
       "revId": "4aac0e652be66830831fd3291961f9f50c3fcfdc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7051922f_848197c4",
+        "filename": "tests/ResourceAllocatorTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-22T21:02:54Z",
+      "side": 0,
+      "message": "👍",
+      "parentUuid": "606e0ca9_5cdfd648",
+      "revId": "4aac0e652be66830831fd3291961f9f50c3fcfdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
