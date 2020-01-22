@@ -31,7 +31,10 @@ function colorToString(skcolor) {
 }
 
 function valueOrPercent(aStr) {
-  var a = parseFloat(aStr) || 1;
+  if (aStr === undefined) {
+    return 1; // default to opaque.
+  }
+  var a = parseFloat(aStr);
   if (aStr && aStr.indexOf('%') !== -1) {
     return a / 100;
   }
