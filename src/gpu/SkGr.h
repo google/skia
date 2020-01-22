@@ -126,10 +126,6 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
 // Misc Sk to Gr type conversions
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
-GrPixelConfig SkColorType2GrPixelConfig(const SkColorType);
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info);
-
-bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
 
 GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int imageHeight,
                                                        SkFilterQuality paintFilterQuality,
