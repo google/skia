@@ -75,8 +75,8 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
 
     GrMtlRenderTarget* mtlRT;
     if (sampleCnt > 1) {
-        MTLPixelFormat format;
-        if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
+        MTLPixelFormat format = texture.pixelFormat;
+        if (!gpu->mtlCaps().isFormatRenderable(format, sampleCnt)) {
             return nullptr;
         }
         MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
