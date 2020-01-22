@@ -714,6 +714,9 @@ def dm_flags(api, bot):
   if api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~Programs']) # skia:7849
 
+  if 'TecnoSpark3Pro' in bot and 'Debug' in bot:
+    match.extend(['~Programs']) # skia:9814
+
   if 'IntelIris640' in bot or 'IntelHD615' in bot or 'IntelHDGraphics615' in bot:
     match.append('~^SRGBReadWritePixels$') # skia:9225
 
