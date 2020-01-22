@@ -369,6 +369,36 @@ describe('Core canvas behavior', function() {
         });
     });
 
+    it('can draw once using drawOnce utility method', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface');
+            if (!surface) {
+                done();
+                return;
+            }
+
+            function drawFrame(canvas) {
+                const paint = new CanvasKit.SkPaint();
+                paint.setStrokeWidth(1.0);
+                paint.setAntiAlias(true);
+                paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+                paint.setStyle(CanvasKit.PaintStyle.Stroke);
+                const path = new CanvasKit.SkPath();
+                path.moveTo(20, 5);
+                path.lineTo(30, 20);
+                path.lineTo(40, 10);
+                canvas.drawPath(path, paint);
+
+                path.delete();
+                paint.delete();
+            }
+            surface.drawOnce(drawFrame);
+
+            reportSurface(surface, 'drawOnce', done);
+        }));
+    });
+
     it('can use DecodeCache APIs', function(done) {
         LoadCanvasKit.then(catchException(done, () => {
             const initialLimit = CanvasKit.getDecodeCacheLimitBytes();

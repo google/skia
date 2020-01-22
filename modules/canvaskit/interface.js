@@ -755,7 +755,25 @@ CanvasKit.onRuntimeInitialized = function() {
 
       callback(this._cached_canvas);
 
+      // We do not dispose() of the SkSurface here, as the client will typically
+      // call requestAnimationFrame again from within the supplied callback.
+      // For drawing a single frame, prefer drawOnce().
       this.flush();
+    }.bind(this));
+  }
+
+  CanvasKit.SkSurface.prototype.drawOnce = function(callback, dirtyRect) {
+    if (!this._cached_canvas) {
+      this._cached_canvas = this.getCanvas();
+    }
+    window.requestAnimationFrame(function() {
+      if (this._context !== undefined) {
+        CanvasKit.setCurrentContext(this._context);
+      }
+      callback(this._cached_canvas);
+
+      this.flush();
+      this.dispose();
     }.bind(this));
   }
 
