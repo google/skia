@@ -126,11 +126,10 @@ protected:
                     { indices[i][2], SkColorChannel::kR },
                     { -1, SkColorChannel::kA }
                 };
-
-                std::unique_ptr<GrFragmentProcessor> fp(
-                        GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
-                                               static_cast<SkYUVColorSpace>(space),
-                                               GrSamplerState::Filter::kNearest));
+                const auto& caps = *context->priv().caps();
+                std::unique_ptr<GrFragmentProcessor> fp(GrYUVtoRGBEffect::Make(
+                        proxies, yuvaIndices, static_cast<SkYUVColorSpace>(space),
+                        GrSamplerState::Filter::kNearest, caps));
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
@@ -244,9 +243,10 @@ protected:
 
             GrPaint grPaint;
             grPaint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
+            const auto& caps = *context->priv().caps();
             auto fp = GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
                                              static_cast<SkYUVColorSpace>(space),
-                                             GrSamplerState::Filter::kNearest);
+                                             GrSamplerState::Filter::kNearest, caps);
             if (fp) {
                 SkMatrix viewMatrix;
                 viewMatrix.setTranslate(x, y);
@@ -354,8 +354,10 @@ protected:
                 }
 
                 const SkRect* domainPtr = j > 0 ? &domain : nullptr;
-                std::unique_ptr<GrFragmentProcessor> fp(GrYUVtoRGBEffect::Make(proxies, yuvaIndices,
-                        kJPEG_SkYUVColorSpace, kFilters[i], SkMatrix::I(), domainPtr));
+                const auto& caps = *context->priv().caps();
+                std::unique_ptr<GrFragmentProcessor> fp(
+                        GrYUVtoRGBEffect::Make(proxies, yuvaIndices, kJPEG_SkYUVColorSpace,
+                                               kFilters[i], caps, SkMatrix::I(), domainPtr));
                 if (fp) {
                     GrPaint grPaint;
                     grPaint.addColorFragmentProcessor(std::move(fp));
