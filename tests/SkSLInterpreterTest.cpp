@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkM44.h"
+#include "include/core/SkMatrix44.h"
+#include "include/core/SkPoint3.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLExternalValue.h"
@@ -368,14 +369,12 @@ DEF_TEST(SkSLInterpreterMatrix, r) {
 
     // M*M
     {
-        SkM44 m;
-        m.setColMajor(in);
-        SkM44 m2;
-        float in2[16];
+        SkMatrix44 m;
+        m.setColMajorf(in);
+        SkMatrix44 m2;
         for (int i = 0; i < 16; ++i) {
-            in2[i] = (i + 4) % 16;
+            m2.set(i % 4, i / 4, (i + 4) % 16);
         }
-        m2.setColMajor(in2);
         m.setConcat(m, m2);
         // Rearrange the columns on the RHS so we detect left-hand/right-hand errors
         test(r, "float4x4 main(float4x4 m) { return m * float4x4(m[1], m[2], m[3], m[0]); }",
@@ -861,9 +860,9 @@ DEF_TEST(SkSLInterpreterMix, r) {
 
 DEF_TEST(SkSLInterpreterCross, r) {
     float args[] = { 1.0f, 4.0f, -6.0f, -2.0f, 7.0f, -3.0f };
-    SkV3 cross = SkV3::Cross({args[0], args[1], args[2]},
-                             {args[3], args[4], args[5]});
-    float expected[] = { cross.x, cross.y, cross.z };
+    SkPoint3 cross = SkPoint3::CrossProduct(SkPoint3::Make(args[0], args[1], args[2]),
+                                            SkPoint3::Make(args[3], args[4], args[5]));
+    float expected[] = { cross.fX, cross.fY, cross.fZ };
     test(r, "float3 main(float3 x, float3 y) { return cross(x, y); }", args, expected);
 }
 
@@ -886,11 +885,12 @@ DEF_TEST(SkSLInterpreterInverse, r) {
     }
     {
         float args[16], expt[16];
+        SkMatrix44 m;
         // just some crazy thing that is invertible
-        SkM44 m = {1, 2, 3, 4, 1, 2, 0, 3, 1, 0, 1, 4, 1, 3, 2, 0};
-        m.getColMajor(args);
+        m.set4x4(1, 2, 3, 4, 1, 2, 0, 3, 1, 0, 1, 4, 1, 3, 2, 0);
+        m.asColMajorf(args);
         SkAssertResult(m.invert(&m));
-        m.getColMajor(expt);
+        m.asColMajorf(expt);
         test(r, "float4x4 main(float4x4 m) { return inverse(m); }", args, expt, false);
     }
 }

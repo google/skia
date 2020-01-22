@@ -8,7 +8,6 @@
 #ifndef SkImageFilterTypes_DEFINED
 #define SkImageFilterTypes_DEFINED
 
-#include "include/core/SkMatrix.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 
