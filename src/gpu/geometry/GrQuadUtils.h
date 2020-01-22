@@ -44,6 +44,7 @@ namespace GrQuadUtils {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
         // by the requested edge distances. Use nullptr if there are no local coordinates to update.
+        // Requires w > 0 if type is perspective; use PerspTessHelper instead to handle all w's.
         void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
         // Calculates a new quadrilateral with edges parallel to the original except that they
@@ -122,6 +123,29 @@ namespace GrQuadUtils {
                        const skvx::Vec<4, float>& edgeDistances);
         };
 
+        // Tracks extra vertex if the clipped perspective quad is a pentagon, and the edge distance
+        // mask to apply for edges that were clipped by w = 0
+        struct PerspectiveClip {
+            // Edges completely behind the viewer are not moved, since edge distances are specified
+            // in screen space and that is not well defined when w < 0 (edges crossing w = 0 can
+            // still be moved).
+            skvx::Vec<4, float> fEdgeMask;
+
+            float fX, fY, fW; // corresponds to Vertices::fX, fY, fW
+            float fU, fV, fR; // corresponds to Vertices::fU, fV, fR. Shares fOriginal's fUVRCount
+            float fX2D, fY2D; // corresponds to EdgeVectors::fX2D, fY2D
+
+            float fDX, fDY;   // corresponds to EdgeVectors::* assuming it replaces fClipIndex
+            float fInvLength;
+            float fCosTheta;
+            float fInvSinTheta;
+
+            // The vertex index of the clipped point to be replaced by the extra vertex state when
+            // it comes time to compute the other quad in the clipped pentagon. This is negative if
+            // no extra vertex, otherwise it's 0-3.
+            int   fClipIndex;
+        };
+
         struct Vertices {
             // X, Y, and W coordinates in device space. If not perspective, w should be set to 1.f
             skvx::Vec<4, float> fX, fY, fW;
@@ -134,6 +158,10 @@ namespace GrQuadUtils {
 
             void asGrQuads(GrQuad* deviceOut, GrQuad::Type deviceType,
                            GrQuad* localOut, GrQuad::Type localType) const;
+
+            // Returns true if vertices were clipped, and updates 'clip' to store the extra vertex
+            // and edge mask to apply for the clipped edges.
+            bool clipPerspective(PerspectiveClip* clip);
 
             // Update the device and optional local coordinates by moving the corners along their
             // edge vectors such that the new edges have moved 'signedEdgeDistances' from their
@@ -160,18 +188,27 @@ namespace GrQuadUtils {
         OutsetRequest       fOutsetRequest;
         EdgeEquations       fEdgeEquations;
 
-        // Validity of Vertices/EdgeVectors (always true after first call to set()).
-        bool fVerticesValid      = false;
-        // Validity of outset request (true after calling getOutsetRequest() until next set() call
-        // or next inset/outset() with different edge distances).
-        bool fOutsetRequestValid = false;
-        // Validity of edge equations (true after calling getEdgeEquations() until next set() call).
-        bool fEdgeEquationsValid = false;
+        // Only computed if original's points were clipped with w < 0 (filled in by reset() if
+        // necessary).
+        PerspectiveClip     fPerspectiveClip;
+
+        // Validity of Vertices/EdgeVectors (always true after first call to reset()).
+        bool fVerticesValid        = false;
+        // Validity of outset request (true after calling getOutsetRequest() until next reset() call
+        // or next inset/outset() with different edge distances, or replaceVertex()).
+        bool fOutsetRequestValid   = false;
+        // Validity of edge equations (true after calling getEdgeEquations() until next reset() call
+        // or replaceVertex()).
+        bool fEdgeEquationsValid   = false;
+        // Whether or not an extra vertex is tracked (for the case where only 1 vertex is clipped
+        // with w < 0, and the clipped shape becomes a pentagon).
+        bool fPerspectiveClipValid = false;
 
         // The requested edge distances must be positive so that they can be reused between inset
         // and outset calls.
         const OutsetRequest& getOutsetRequest(const skvx::Vec<4, float>& edgeDistances);
         const EdgeEquations& getEdgeEquations();
+        const PerspectiveClip& getPerspectiveClip();
 
         // Outsets or insets 'vertices' by the given perpendicular 'signedEdgeDistances' (inset or
         // outset is determined implicitly by the sign of the distances).
@@ -180,7 +217,13 @@ namespace GrQuadUtils {
         // returns the number of effective vertices in the adjusted shape.
         int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
                                      Vertices* vertices);
+
+        // Rewrite fOriginal, fEdgeVectors to replace the clip's clipIndex with the new point
+        // and reset the validity of all dependent state.
+        void replaceVertex(const PerspectiveClip& clip);
     };
+
+
 
 }; // namespace GrQuadUtils
 

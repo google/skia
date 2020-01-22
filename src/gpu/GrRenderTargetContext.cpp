@@ -620,6 +620,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     // 5. kCropped applies when rect quad (currently)
     // 6. kNone always applies
     GrQuadAAFlags newFlags = *edgeFlags;
+    // constColor = nullptr;
 
     SkRect rtRect;
     if (stencilSettings) {
@@ -633,6 +634,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
     }
 
     SkRect drawBounds = deviceQuad->bounds();
+    SkDebugf("Draw bounds: [%.2f %.2f %.2f %.2f]\n", drawBounds.fLeft, drawBounds.fTop, drawBounds.fRight, drawBounds.fBottom);
     if (constColor) {
         // Don't bother updating local coordinates when the paint will ignore them anyways
         localQuad = nullptr;
@@ -653,12 +655,14 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
         // CropToRect requires the quads to be finite. If they are not finite and we have local
         // coordinates, the mapping from local space to device space is poorly defined so drop it
         if (!deviceQuad->isFinite()) {
+            // SkDebugf("Not finite\n");
             return QuadOptimization::kDiscarded;
         }
     }
 
     // If the quad is entirely off screen, it doesn't matter what the clip does
     if (!rtRect.intersects(drawBounds)) {
+        SkDebugf("draw bounds don't intersect: [%.2f %.2f %.2f %.2f]\n", drawBounds.fLeft, drawBounds.fTop, drawBounds.fRight, drawBounds.fBottom);
         return QuadOptimization::kDiscarded;
     }
 
@@ -683,6 +687,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
         // of the render target and the clip rect)
         SkRect clipBounds = rtRect;
         if (!clipBounds.intersect(clipRRect.rect()) || !clipBounds.intersects(drawBounds)) {
+            SkDebugf("draw bounds don't intersect2: [%.2f %.2f %.2f %.2f]\n", drawBounds.fLeft, drawBounds.fTop, drawBounds.fRight, drawBounds.fBottom);
             return QuadOptimization::kDiscarded;
         }
 
@@ -691,10 +696,18 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
             if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad)) {
                 if (constColor && deviceQuad->quadType() == GrQuad::Type::kAxisAligned) {
                     // Clear optimization is possible
+                    SkRect oldBounds = drawBounds;
                     drawBounds = deviceQuad->bounds();
                     if (drawBounds.contains(rtRect)) {
                         // Fullscreen clear
                         this->clear(nullptr, *constColor, CanClearFullscreen::kYes);
+                        SkDebugf("Full screen clear: \n");
+                        SkDebugf("  rt bounds: [%.2f %.2f %.2f %.2f]\n",
+                            rtRect.fLeft, rtRect.fTop, rtRect.fRight, rtRect.fBottom);
+                        SkDebugf("  draw bnds: [%.2f %.2f %.2f %.2f]\n",
+                            drawBounds.fLeft, drawBounds.fTop, drawBounds.fRight, drawBounds.fBottom);
+                        SkDebugf("  old bonds: [%.2f %.2f %.2f %.2f]\n",
+                            oldBounds.fLeft, oldBounds.fTop, oldBounds.fRight, oldBounds.fBottom);
                         return QuadOptimization::kSubmitted;
                     } else if (GrClip::IsPixelAligned(drawBounds) &&
                                drawBounds.width() > 256 && drawBounds.height() > 256) {
@@ -753,12 +766,13 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
 
     // One final check for discarding, since we may have gone here directly due to a complex clip
     if (!clipBounds.intersects(drawBounds)) {
+        SkDebugf("draw bounds don't intersect3: [%.2f %.2f %.2f %.2f]\n", drawBounds.fLeft, drawBounds.fTop, drawBounds.fRight, drawBounds.fBottom);
         return QuadOptimization::kDiscarded;
     }
 
     // Even if this were to return true, the crop rect does not exactly match the clip, so can not
     // report explicit-clip. Since these edges aren't visible, don't update the final edge flags.
-    GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad);
+    // GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad);
 
     return QuadOptimization::kCropped;
 }
@@ -789,12 +803,14 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
     GrQuad croppedLocalQuad = localQuad;
     QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, &edgeFlags,
                                                          &croppedDeviceQuad, &croppedLocalQuad);
+    // SkDebugf("draw quad: %d\n", (int) opt);
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
                                                                         : clip;
         GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
                              : this->chooseAAType(aa);
+         // SkDebugf("adding quad draw op\n");
         this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
                                                       croppedDeviceQuad, croppedLocalQuad, ss));
     }
@@ -2455,6 +2471,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
+    // SkDebugf("op bounds: [%.2f %.2f %.2f %.2f]\n", bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
     GrAppliedClip appliedClip;
     GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
@@ -2465,6 +2482,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
     }
 
     if (!clip.apply(fContext, this, usesHWAA, usesUserStencilBits, &appliedClip, &bounds)) {
+        // SkDebugf("clip rejection for draw op\n");
         fContext->priv().opMemoryPool()->release(std::move(op));
         return;
     }
@@ -2492,11 +2510,13 @@ void GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<GrDraw
         }
     }
 
+    // SkDebugf("setting clipped bounds: [%.2f %.2f %.2f %.2f]\n", bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
     op->setClippedBounds(bounds);
     auto opsTask = this->getOpsTask();
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
+    // SkDebugf("adding op to ops task\n");
     opsTask->addDrawOp(std::move(op), analysis, std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
 }
