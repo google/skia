@@ -1019,3 +1019,23 @@ DEF_TEST(M44_v3, reporter) {
         d2 = {11, 8, 7, 1};
     REPORTER_ASSERT(reporter, d == d2);
 }
+
+DEF_TEST(M44_v4, reporter) {
+    SkM44 m(2, 0, 0, 3,
+            0, 1, 0, 5,
+            0, 0, 3, 1,
+            0, 0, 0, 1);
+
+    SkV4 c0 = m.col(0),
+         c1 = m.col(1),
+         c2 = m.col(2),
+         c3 = m.col(3);
+
+    // implement matrix * vector using column vectors
+
+    SkV4 v = {1, 2, 3, 4};
+    SkV4 v1 = m * v;
+    SkV4 v2 = c0 * v.x + c1 * v.y + c2 * v.z + c3 * v.w;
+
+    REPORTER_ASSERT(reporter, v1 == v2);
+}
