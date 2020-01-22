@@ -136,7 +136,6 @@ static void test_compressed_color_init(GrContext* context,
                                        GrMipMapped mipMapped) {
     GrBackendTexture backendTex = create(context, color, mipMapped);
     if (!backendTex.isValid()) {
-        // errors here should be reported by the test_wrapping test
         return;
     }
 
