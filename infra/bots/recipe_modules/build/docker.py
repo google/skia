@@ -65,6 +65,10 @@ def compile_fn(api, checkout_root, out_dir):
   if os == 'Debian10' and compiler == 'GCC' and not extra_tokens:
     args['cc'] = 'gcc'
     args['cxx'] = 'g++'
+    # Newer GCC includes tons and tons of debugging symbols. This seems to
+    # negatively affect our bots (potentially only in combination with other
+    # bugs in Swarming or recipe code).
+    args['use_minimal_debug_symbols'] = True
     if target_arch == 'x86_64':
       image_name = 'gcc-debian10'
     elif target_arch == 'x86':

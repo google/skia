@@ -16,6 +16,8 @@ declare_args() {
 
   malloc = ""
   xcode_sysroot = ""
+
+  use_minimal_debug_symbols = is_android
 }
 
 if (is_ios && xcode_sysroot == "") {
@@ -471,7 +473,7 @@ config("extra_flags") {
 config("debug_symbols") {
   # It's annoying to wait for full debug symbols to push over
   # to Android devices.  -gline-tables-only is a lot slimmer.
-  if (is_android) {
+  if (use_minimal_debug_symbols) {
     cflags = [
       "-gline-tables-only",
       "-funwind-tables",  # Helps make in-process backtraces fuller.
