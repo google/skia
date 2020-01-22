@@ -154,6 +154,28 @@ public:
         return fMat[index];
     }
 
+    SkV4 row(int i) const {
+        SkASSERT(i >= 0 && i <= 3);
+        return {fMat[i*4 + 0], fMat[i*4 + 4], fMat[i*4 + 8], fMat[i*4 + 12]};
+    }
+    SkV4 col(int i) const {
+        SkASSERT(i >= 0 && i <= 3);
+        return {fMat[i*4 + 0], fMat[i*4 + 1], fMat[i*4 + 2], fMat[i*4 + 3]};
+    }
+
+    void setRow(int i, const SkV4& v) const {
+        SkASSERT(i >= 0 && i <= 3);
+        fMat[i*4 + 0]  = v.x;
+        fMat[i*4 + 4]  = v.y;
+        fMat[i*4 + 8]  = v.z;
+        fMat[i*4 + 12] = v.w;
+    }
+    void setCol(int i, const SkV4& v) const {
+        SkASSERT(i >= 0 && i <= 3);
+        memcpy(&fMat[i*4], v.vec(), sizeof(v));
+    }
+
+
     SkM44& setIdentity() {
         return this->setRowMajor(1, 0, 0, 0,
                                  0, 1, 0, 0,
