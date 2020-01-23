@@ -38,6 +38,7 @@ namespace {
         SkBlendMode         blendMode;
         Coverage            coverage;
         SkFilterQuality     quality;
+        bool                dither;
         SkMatrix            ctm;
 
         Params withCoverage(Coverage c) const {
@@ -54,8 +55,9 @@ namespace {
         uint8_t  colorType,
                  alphaType,
                  blendMode,
-                 coverage;
-        uint32_t padding{0};
+                 coverage,
+                 dither;
+        uint8_t padding[3] = {0,0,0};
         // Params::quality and Params::ctm are only passed to shader->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
@@ -66,7 +68,8 @@ namespace {
                 && this->colorType  == that.colorType
                 && this->alphaType  == that.alphaType
                 && this->blendMode  == that.blendMode
-                && this->coverage   == that.coverage;
+                && this->coverage   == that.coverage
+                && this->dither     == that.dither;
         }
 
         Key withCoverage(Coverage c) const {
@@ -78,11 +81,12 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%llx",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-Dither%d-CS%llx-Shader%llx",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
                               key.blendMode,
+                              key.dither,
                               key.colorSpace,
                               key.shader);
     }
@@ -150,6 +154,7 @@ namespace {
                 SkToU8(params.alphaType),
                 SkToU8(params.blendMode),
                 SkToU8(params.coverage),
+                SkToU8(params.dither),
             };
         }
 
@@ -307,6 +312,22 @@ namespace {
                 unpremul(&src.r, &src.g, &src.b, src.a);
             }
 
+            float dither = 0.0f;
+            switch (params.colorType) {
+                default:                        dither =      0.0f; break;
+                case kARGB_4444_SkColorType:    dither =   1/15.0f; break;
+                case   kRGB_565_SkColorType:    dither =   1/63.0f; break;
+                case    kGray_8_SkColorType:
+                case  kRGB_888x_SkColorType:
+                case kRGBA_8888_SkColorType:
+                case kBGRA_8888_SkColorType:    dither =  1/255.0f; break;
+                case kRGB_101010x_SkColorType:
+                case kRGBA_1010102_SkColorType: dither = 1/1023.0f; break;
+            }
+            if (params.dither && dither > 0) {
+                // TODO
+            }
+
             // Store back to the destination.
             switch (params.colorType) {
                 default: SkUNREACHABLE;
@@ -367,6 +388,8 @@ namespace {
             blendMode =  SkBlendMode::kSrc;
         }
 
+        bool dither = paint.isDither() && !as_SB(shader)->isConstant();
+
         // In general all the information we use to make decisions here need to
         // be reflected in Params and Key to make program caching sound, and it
         // might appear that shader->isOpaque() is a property of the shader's
@@ -386,6 +409,7 @@ namespace {
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paint.getFilterQuality(),
+            dither,
             ctm,
         };
     }
