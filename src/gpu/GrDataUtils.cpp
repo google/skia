@@ -85,6 +85,7 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
                                          tableIndex, pixelIndex);
 
             if (bestSoFar > score) {
+                SkDebugf("picking %d %d %d\n", r8, g8, b8);
                 bestSoFar = score;
                 bestTableIndex = tableIndex;
                 bestPixelIndex = pixelIndex;
