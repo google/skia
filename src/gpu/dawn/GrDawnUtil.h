@@ -13,7 +13,7 @@
 
 size_t GrDawnBytesPerPixel(wgpu::TextureFormat format);
 bool GrDawnFormatIsRenderable(wgpu::TextureFormat format);
-bool GrPixelConfigToDawnFormat(GrPixelConfig config, wgpu::TextureFormat* format);
+bool GrColorTypeToDawnFormat(GrColorType colorType, wgpu::TextureFormat* format);
 size_t GrDawnRoundRowBytes(size_t rowBytes);
 #if GR_TEST_UTILS
 const char* GrDawnFormatToStr(wgpu::TextureFormat format);

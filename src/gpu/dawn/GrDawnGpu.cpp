@@ -127,8 +127,8 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, 
     if (!texture) {
         return false;
     }
-    texture->upload(texels, mipLevelCount, SkIRect::MakeXYWH(left, top, width, height),
-                    this->getCopyEncoder());
+    texture->upload(srcColorType, texels, mipLevelCount,
+                    SkIRect::MakeXYWH(left, top, width, height), this->getCopyEncoder());
     return true;
 }
 
@@ -166,7 +166,7 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
         mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
 
     return GrDawnTexture::Make(this, { desc.fWidth, desc.fHeight },
-                                       desc.fConfig, format, renderable,
+                                       format, renderable,
                                        renderTargetSampleCnt, budgeted, mipLevelCount,
                                        mipMapsStatus);
 }
@@ -383,14 +383,13 @@ bool GrDawnGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width, int height,
                                                                       GrColorType colorType) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(colorType);
 
     if (width > this->caps()->maxTextureSize() || height > this->caps()->maxTextureSize()) {
         return GrBackendRenderTarget();
     }
 
     wgpu::TextureFormat format;
-    if (!GrPixelConfigToDawnFormat(config, &format)) {
+    if (!GrColorTypeToDawnFormat(colorType, &format)) {
         return GrBackendRenderTarget();
     }
 

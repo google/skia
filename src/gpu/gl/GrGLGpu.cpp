@@ -1602,7 +1602,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
 }
 
 GrGLuint GrGLGpu::createCompressedTexture2D(
-        const SkISize& dimensions,
+        SkISize dimensions,
         GrGLFormat format,
         GrMipMapped mipMapped,
         GrGLTextureParameters::SamplerOverriddenState* initialState,
@@ -1631,7 +1631,7 @@ GrGLuint GrGLGpu::createCompressedTexture2D(
     return id;
 }
 
-GrGLuint GrGLGpu::createTexture2D(const SkISize& dimensions,
+GrGLuint GrGLGpu::createTexture2D(SkISize dimensions,
                                   GrGLFormat format,
                                   GrRenderable renderable,
                                   GrGLTextureParameters::SamplerOverriddenState* initialState,

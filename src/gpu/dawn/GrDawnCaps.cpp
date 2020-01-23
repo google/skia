@@ -130,12 +130,8 @@ int GrDawnCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const 
 
 GrBackendFormat GrDawnCaps::onGetDefaultBackendFormat(GrColorType ct,
                                                       GrRenderable renderable) const {
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
-    if (config == kUnknown_GrPixelConfig) {
-        return GrBackendFormat();
-    }
     wgpu::TextureFormat format;
-    if (!GrPixelConfigToDawnFormat(config, &format)) {
+    if (!GrColorTypeToDawnFormat(ct, &format)) {
         return GrBackendFormat();
     }
     return GrBackendFormat::MakeDawn(format);
@@ -161,7 +157,9 @@ uint64_t GrDawnCaps::computeFormatKey(const GrBackendFormat& format) const {
     SkAssertResult(format.asDawnFormat(&dawnFormat));
 
     // Dawn max enum value should always fit in 32 bits.
-    SkASSERT(dawnFormat <= wgpu::WGPUTextureFormat_Force32);
+
+    // disabled: no member named 'WGPUTextureFormat_Force32' in namespace 'wgpu'
+    //SkASSERT(dawnFormat <= wgpu::WGPUTextureFormat_Force32);
     return (uint64_t)dawnFormat;
 }
 

@@ -12,7 +12,7 @@
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
-                                       const SkISize& dimensions,
+                                       SkISize dimensions,
                                        int sampleCnt,
                                        const GrDawnImageInfo& info)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
@@ -20,7 +20,7 @@ GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
         , fInfo(info) {}
 
 sk_sp<GrDawnRenderTarget> GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
-                                                          const SkISize& dimensions,
+                                                          SkISize dimensions,
                                                           int sampleCnt,
                                                           const GrDawnImageInfo& info) {
     sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info));
