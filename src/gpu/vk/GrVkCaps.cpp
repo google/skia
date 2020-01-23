@@ -8,6 +8,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetProxy.h"
@@ -1515,7 +1516,7 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
     SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
     if (compression != SkImage::CompressionType::kNone) {
-        return ct == (GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                              : GrColorType::kRGBA_8888);
     }
 
@@ -1643,7 +1644,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
 
     SkImage::CompressionType compression = GrVkFormatToCompressionType(vkFormat);
     if (compression != SkImage::CompressionType::kNone) {
-        return { GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+        return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888, 0 };
     }
 
