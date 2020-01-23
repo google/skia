@@ -15,6 +15,7 @@
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRectanizer.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -102,7 +103,7 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX
         , fHeight(height)
         , fX(offX)
         , fY(offY)
-        , fRectanizer(width, height)
+        , fRects(nullptr)
         , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
         , fColorType(colorType)
         , fBytesPerPixel(GrColorTypeBytesPerPixel(colorType))
@@ -119,12 +120,17 @@ GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX
 
 GrDrawOpAtlas::Plot::~Plot() {
     sk_free(fData);
+    delete fRects;
 }
 
 bool GrDrawOpAtlas::Plot::addSubImage(int width, int height, const void* image, SkIPoint16* loc) {
     SkASSERT(width <= fWidth && height <= fHeight);
 
-    if (!fRectanizer.addRect(width, height, loc)) {
+    if (!fRects) {
+        fRects = GrRectanizer::Factory(fWidth, fHeight);
+    }
+
+    if (!fRects->addRect(width, height, loc)) {
         return false;
     }
 
@@ -186,7 +192,9 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
 }
 
 void GrDrawOpAtlas::Plot::resetRects() {
-    fRectanizer.reset();
+    if (fRects) {
+        fRects->reset();
+    }
 
     fGenID++;
     fID = CreateId(fPageIndex, fPlotIndex, fGenID);
