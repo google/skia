@@ -56,11 +56,13 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
         c.fArguments[0]->fType.kind() != Type::Kind::kSampler_Kind) {
-        SkASSERT(c.fArguments.size() == 1);
+        SkASSERT(c.fArguments.size() == 2);
         SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
                  "fragmentProcessor?" == c.fArguments[0]->fType.name());
+        SkASSERT("float2" == c.fArguments[1]->fType.name());
         SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
-        int index = 0;
+        PipelineStageArgs::ChildCall childCall;
+        childCall.fIndex = 0;
         bool found = false;
         for (const auto& p : fProgram) {
             if (ProgramElement::kVar_Kind == p.fKind) {
@@ -70,7 +72,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
                         found = true;
                     } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
-                        ++index;
+                        ++childCall.fIndex;
                     }
                 }
             }
@@ -79,9 +81,17 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         SkASSERT(found);
+        OutputStream* oldOut = fOut;
+        StringStream buffer;
+        fOut = &buffer;
+        this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+        fOut = oldOut;
+        childCall.fCoords = buffer.str();
+        int callIndex = fArgs->fChildCalls.size();
+        fArgs->fChildCalls.push_back(childCall);
         this->write("%s");
         fArgs->fFormatArgs.push_back(
-                Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, index));
+                Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, callIndex));
         return;
     }
     if (c.fFunction.fBuiltin) {
