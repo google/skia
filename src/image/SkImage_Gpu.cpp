@@ -229,6 +229,19 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
 sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
                                            int width, int height, CompressionType type,
                                            GrMipMapped mipMapped, GrProtected isProtected) {
+    if (!context || !data) {
+        return nullptr;
+    }
+
+    GrBackendFormat beFormat = context->compressedBackendFormat(type);
+    if (!beFormat.isValid()) {
+        sk_sp<SkImage> tmp = MakeRasterFromCompressed(std::move(data), width, height, type);
+        if (!tmp) {
+            return nullptr;
+        }
+        return tmp->makeTextureImage(context, mipMapped);
+    }
+
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createCompressedTextureProxy(
             {width, height}, SkBudgeted::kYes, mipMapped, isProtected, type, std::move(data));

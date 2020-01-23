@@ -7,8 +7,6 @@
 
 #include "include/core/SkTypes.h" // IWYU pragma: keep
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
-
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -21,12 +19,26 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/image/SkImage_Base.h"
 #include "third_party/etc1/etc1.h"
 
 class GrContext;
 class GrRenderTargetContext;
+
+static sk_sp<SkColorFilter> make_color_filter() {
+    // rotate R, G and B
+    float colorMatrix[20] = {
+        0, 1, 0, 0, 0,
+        0, 0, 1, 0, 0,
+        1, 0, 0, 0, 0,
+        0, 0, 0, 1, 0
+    };
+    return SkColorFilters::Matrix(colorMatrix);
+}
 
 static SkPoint gen_pt(float angle, const SkVector& scale) {
     SkScalar s = SkScalarSin(angle);
@@ -97,7 +109,7 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
                                           SkColorType colorType,
                                           bool opaque,
                                           SkImage::CompressionType compression) {
-    size_t totalSize = GrCompressedDataSize(compression, dimensions, nullptr, GrMipMapped::kYes);
+    size_t totalSize = SkCompressedDataSize(compression, dimensions, nullptr, true);
 
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
     char* pixels = (char*) tmp->writable_data();
@@ -118,7 +130,7 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
     };
 
     for (int i = 0; i < numMipLevels; ++i) {
-        size_t levelSize = GrCompressedDataSize(compression, dimensions, nullptr, GrMipMapped::kNo);
+        size_t levelSize = SkCompressedDataSize(compression, dimensions, nullptr, false);
 
         SkBitmap bm = render_level(dimensions, kColors[i%7], colorType, opaque);
         if (compression == SkImage::CompressionType::kETC2_RGB8_UNORM) {
@@ -150,7 +162,7 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
 //  RGBA8 |                   | kBC1_RGBA8_UNORM |
 //         --------------------------------------
 //
-class CompressedTexturesGM : public skiagm::GpuGM {
+class CompressedTexturesGM : public skiagm::GM {
 public:
     CompressedTexturesGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -179,7 +191,9 @@ protected:
                                                    SkImage::CompressionType::kBC1_RGBA8_UNORM);
     }
 
-    void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
+        GrContext* context = canvas->getGrContext();
+
         this->drawCell(context, canvas, fOpaqueETC2Data,
                        SkImage::CompressionType::kETC2_RGB8_UNORM, { kPad, kPad });
 
@@ -195,15 +209,37 @@ private:
     void drawCell(GrContext* context, SkCanvas* canvas, sk_sp<SkData> data,
                   SkImage::CompressionType compression, SkIVector offset) {
 
-        sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, data,
-                                                           kTexWidth, kTexHeight,
-                                                           compression, GrMipMapped::kYes);
+        sk_sp<SkImage> image;
+        if (context) {
+            image = SkImage::MakeFromCompressed(context, std::move(data), kTexWidth, kTexHeight,
+                                                compression, GrMipMapped::kYes);
+        } else {
+            image = SkImage::MakeRasterFromCompressed(std::move(data), kTexWidth, kTexHeight,
+                                                      compression);
+        }
+        if (!image) {
+            return;
+        }
+
         SkISize dimensions{ kTexWidth, kTexHeight };
 
         int numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
 
         SkPaint paint;
         paint.setFilterQuality(kHigh_SkFilterQuality); // to force mipmapping
+
+        bool isCompressed = false;
+        if (image->isTextureBacked()) {
+            const GrCaps* caps = context->priv().caps();
+
+            GrTextureProxy* proxy = as_IB(image)->peekProxy();
+            isCompressed = caps->isFormatCompressed(proxy->backendFormat());
+        }
+
+        if (!isCompressed) {
+            // Make it obvious which drawImages used decompressed images
+            paint.setColorFilter(make_color_filter());
+        }
 
         for (int i = 0; i < numMipLevels; ++i) {
             SkRect r = SkRect::MakeXYWH(offset.fX, offset.fY,
@@ -237,4 +273,3 @@ private:
 
 DEF_GM(return new CompressedTexturesGM;)
 
-#endif

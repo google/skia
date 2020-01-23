@@ -10,6 +10,7 @@
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -89,7 +90,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             if (renderable == GrRenderable::kYes) {
                 return nullptr;
             }
-            auto size = GrCompressedDataSize(compression, dimensions, nullptr, GrMipMapped::kNo);
+            auto size = SkCompressedDataSize(compression, dimensions, nullptr, false);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
             GrFillInCompressedData(compression, dimensions, GrMipMapped::kNo,

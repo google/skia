@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrContextPriv.h"
@@ -717,8 +718,8 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* reg
                                                               individualMipOffsets,
                                                               numMipLevels);
     } else {
-        combinedBufferSize = GrCompressedDataSize(compression, dimensions,
-                                                  individualMipOffsets, mipMapped);
+        combinedBufferSize = SkCompressedDataSize(compression, dimensions, individualMipOffsets,
+                                                  mipMapped == GrMipMapped::kYes);
     }
     SkASSERT(individualMipOffsets->count() == numMipLevels);
 

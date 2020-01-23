@@ -13,6 +13,12 @@ Milestone 81
     makes SkBitmap match the behavior of raster SkSurfaces in rejecting
     non-aligned rowBytes.
 
+  * Added an SkImage::MakeRasterFromCompressed entry point. Also updated
+    SkImage::MakeFromCompressed to decompress the compressed image data if
+    the GPU doesn't support the specified compression type (i.e., macOS Metal
+    doesn't support BC1_RGB8_UNORM so such compressed images will always be
+    decompressed on that platform).
+
   * Added support for BC1 RGBA compressed textures
 
   * Added CachingHint to SkImage::makeRasterImage
