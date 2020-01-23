@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1695409_d17a8118",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "I don\u0027t think this is needed here anymore.",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 195,
+        "endChar": 60
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eb0ca64_3498878f",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 54,
+        "startChar": 34,
+        "endLine": 54,
+        "endChar": 37
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbb38510_1b0c62ba",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 82,
+        "startChar": 34,
+        "endLine": 82,
+        "endChar": 37
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35aa1a97_009c49bc",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "I like this name",
+      "range": {
+        "startLine": 99,
+        "startChar": 15,
+        "endLine": 99,
+        "endChar": 25
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30e4434f_b23e77c8",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "Does this need to be declared here, or could it be in an anon. space in the cpp file?",
+      "range": {
+        "startLine": 120,
+        "startChar": 8,
+        "endLine": 120,
+        "endChar": 20
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39961d2e_09429a90",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "Assuming \u0027false\u0027 is just from testing, do both branches work properly?",
+      "range": {
+        "startLine": 1081,
+        "startChar": 16,
+        "endLine": 1081,
+        "endChar": 21
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51d1d55e_3fd33185",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T19:21:15Z",
+      "side": 1,
+      "message": "This all gets to go away once GrBicubicEffect\u0027s public interface is updated to use the GrSamplerState\u0027s wrap modes and the new GrTextureEffect\u0027s domain capabilities automatically? Currently, it\u0027s still trying to use a domain explicitly, but in the non bicubic case, we get to just use the new GrTextureEffect, which is why it\u0027s just a single line w/o worrying about any domain mode vs wrap mode vs hardware support, right?",
+      "range": {
+        "startLine": 234,
+        "startChar": 7,
+        "endLine": 246,
+        "endChar": 12
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
