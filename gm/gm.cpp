@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "gm/gm_verifiers.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -142,6 +143,26 @@ bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 
 bool GM::runAsBench() const { return false; }
 void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+std::unique_ptr<GMVerifiers> GM::getVerifiers() const {
+    auto edgeRelax = std::unique_ptr<VerifierRelaxation>(new RelaxNearEdges);
+
+    std::unique_ptr<GMVerifiers> v(new GMVerifiers);
+
+    // auto maskMatch = std::unique_ptr<GMVerifier>(new CompareToMask)
+    // maskMatch->setRelaxation(std::move(edgeRelax));
+    // v->add(std::move(maskMatch));
+
+    // auto exactMatch = std::unique_ptr<GMVerifier>(new ExactPixelMatch);
+    // exactMatch->setRelaxation(std::move(edgeRelax));
+    // v->add(std::move(exactMatch));
+
+    auto fuzzyPixelMatch = std::unique_ptr<GMVerifier>(new CheckPixelColorNearby);
+    fuzzyPixelMatch->setRelaxation(std::move(edgeRelax));
+    v->add(std::move(fuzzyPixelMatch));
+
+    return v;
+}
 
 void GM::onOnceBeforeDraw() {}
 

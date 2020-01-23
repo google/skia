@@ -1802,6 +1802,16 @@ if (skia_enable_tools) {
       ]
     }
   }
+  test_app("dm-verify") {
+    sources = [
+      "dm/Verify.cpp",
+    ]
+    deps = [
+      ":gm",
+      ":hash_and_encode",
+      ":skia",
+    ]
+  }
 
   if (!is_win) {
     test_app("remote_demo") {

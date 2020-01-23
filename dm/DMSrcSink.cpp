@@ -6,6 +6,7 @@
  */
 
 #include "dm/DMSrcSink.h"
+#include "gm/gm_verifiers.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorSpace.h"
@@ -107,6 +108,11 @@ Name GMSrc::name() const {
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     gm->modifyGrContextOptions(options);
+}
+
+std::unique_ptr<skiagm::GMVerifiers> GMSrc::getVerifiers() const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    return gm->getVerifiers();
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
