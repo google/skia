@@ -187,30 +187,11 @@ void GrCCFiller::PathInfo::tessellateFan(
 
     SkASSERT(0 == fFanTessellationCount % 3);
     for (int i = 0; i < fFanTessellationCount; i += 3) {
-        int tessWinding = vertices[i].fWinding;
-        SkASSERT(tessWinding == vertices[i + 1].fWinding);
-        SkASSERT(tessWinding == vertices[i + 2].fWinding);
-
-        // Ensure this triangle's points actually wind in the same direction as tessWinding.
-        // CCPR shaders use the sign of wind to determine which direction to bloat, so even for
-        // "wound" triangles the winding sign and point ordering need to agree.
-        float ax = vertices[i].fPos.fX - vertices[i + 1].fPos.fX;
-        float ay = vertices[i].fPos.fY - vertices[i + 1].fPos.fY;
-        float bx = vertices[i].fPos.fX - vertices[i + 2].fPos.fX;
-        float by = vertices[i].fPos.fY - vertices[i + 2].fPos.fY;
-        float wind = ax*by - ay*bx;
-        if ((wind > 0) != (-tessWinding > 0)) { // Tessellator has opposite winding sense.
-            std::swap(vertices[i + 1].fPos, vertices[i + 2].fPos);
-        }
-
-        int weight = abs(tessWinding);
+        int weight = abs(vertices[i].fWinding);
         if (SkPathFillType::kEvenOdd == fan.getFillType()) {
-            SkASSERT(Algorithm::kCoverageCount != algorithm);  // Covg. count always uses winding.
-            if (weight != 1) {
-                // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.
-                SkASSERT(weight & 1);  // Even wind regions are empty and should have been omitted.
-                weight = 1;
-            }
+            // The tessellator doesn't wrap weights modulo 2 when we request even/odd fill type.
+            SkASSERT(weight & 1);
+            weight = 1;
         }
         if (weight > 1 && Algorithm::kCoverageCount == algorithm) {
             ++newTriangleCounts->fWeightedTriangles;
