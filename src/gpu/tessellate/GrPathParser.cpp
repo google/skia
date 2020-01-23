@@ -9,6 +9,7 @@
 
 #include "include/private/SkTArray.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrEagerVertexAllocator.h"
 
 static SkPoint lerp(const SkPoint& a, const SkPoint& b, float T) {
     SkASSERT(1 != T);  // The below does not guarantee lerp(a, b, 1) === b.
@@ -76,7 +77,19 @@ private:
     int fMidpointWeight;
 };
 
-int GrPathParser::EmitCenterWedgePatches(const SkPath& path, SkPoint* patchData) {
+constexpr int max_wedge_vertex_count(int numPathVerbs) {
+    // No initial moveTo, one wedge per verb, plus an implicit close at the end.
+    // Each wedge has 5 vertices.
+    return (numPathVerbs + 1) * 5;
+}
+
+int GrPathParser::EmitCenterWedgePatches(const SkPath& path, GrEagerVertexAllocator* vertexAlloc) {
+    int maxVertices = max_wedge_vertex_count(path.countVerbs());
+    auto* vertexData = vertexAlloc->lock<SkPoint>(maxVertices);
+    if (!vertexData) {
+        return 0;
+    }
+
     int vertexCount = 0;
     MidpointContourParser parser(path);
     while (parser.parseNextContour()) {
@@ -88,7 +101,7 @@ int GrPathParser::EmitCenterWedgePatches(const SkPath& path, SkPoint* patchData)
                 case SkPathVerb::kDone:
                     if (parser.startPoint() != lastPoint) {
                         lastPoint = write_line_as_cubic(
-                                patchData + vertexCount, lastPoint, parser.startPoint());
+                                vertexData + vertexCount, lastPoint, parser.startPoint());
                         break;
                     }  // fallthru
                 default:
@@ -99,29 +112,29 @@ int GrPathParser::EmitCenterWedgePatches(const SkPath& path, SkPoint* patchData)
                     continue;
 
                 case SkPathVerb::kLine:
-                    lastPoint = write_line_as_cubic(patchData + vertexCount, lastPoint,
+                    lastPoint = write_line_as_cubic(vertexData + vertexCount, lastPoint,
                                                     parser.atPoint(ptsIdx));
                     ++ptsIdx;
                     break;
                 case SkPathVerb::kQuad:
-                    lastPoint = write_quadratic_as_cubic(patchData + vertexCount, lastPoint,
+                    lastPoint = write_quadratic_as_cubic(vertexData + vertexCount, lastPoint,
                                                          parser.atPoint(ptsIdx),
                                                          parser.atPoint(ptsIdx + 1));
                     ptsIdx += 2;
                     break;
                 case SkPathVerb::kCubic:
-                    lastPoint = write_cubic(patchData + vertexCount, lastPoint,
+                    lastPoint = write_cubic(vertexData + vertexCount, lastPoint,
                                             parser.atPoint(ptsIdx), parser.atPoint(ptsIdx + 1),
                                             parser.atPoint(ptsIdx + 2));
                     ptsIdx += 3;
                     break;
             }
-            patchData[vertexCount + 4] = parser.midpoint();
+            vertexData[vertexCount + 4] = parser.midpoint();
             vertexCount += 5;
         }
     }
 
-    SkASSERT(vertexCount <= MaxWedgeVertices(path));
+    vertexAlloc->unlock(vertexCount);
     return vertexCount;
 }
 
@@ -147,8 +160,9 @@ static int emit_subpolygon(const SkPoint* points, int first, int last, SkPoint* 
 
 class InnerPolygonContourParser : public SkTPathContourParser<InnerPolygonContourParser> {
 public:
-    InnerPolygonContourParser(const SkPath& path) : SkTPathContourParser(path) {
-        fPolyPoints.reserve(GrPathParser::MaxInnerPolygonVertices(path));
+    InnerPolygonContourParser(const SkPath& path, int vertexReserveCount)
+            : SkTPathContourParser(path)
+            , fPolyPoints(vertexReserveCount) {
     }
 
     int emitInnerPolygon(SkPoint* vertexData) {
@@ -197,36 +211,51 @@ private:
     int fNumCurves;
 };
 
-int GrPathParser::EmitInnerPolygonTriangles(const SkPath& path, SkPoint* vertexData,
-                                            int* numCurves) {
-    *numCurves = 0;
-    int vertexCount = 0;
-    InnerPolygonContourParser parser(path);
-    while (parser.parseNextContour()) {
-        vertexCount += parser.emitInnerPolygon(vertexData + vertexCount);
-        *numCurves += parser.numCurves();
+constexpr int max_inner_poly_vertex_count(int numPathVerbs) {
+    // No initial moveTo, plus an implicit close at the end; n-2 trianles fill an n-gon.
+    // Each triangle has 3 vertices.
+    return (numPathVerbs - 1) * 3;
+}
+
+int GrPathParser::EmitInnerPolygonTriangles(const SkPath& path,
+                                            GrEagerVertexAllocator* vertexAlloc) {
+    int maxVertices = max_inner_poly_vertex_count(path.countVerbs());
+    InnerPolygonContourParser parser(path, maxVertices);
+    auto* vertexData = vertexAlloc->lock<SkPoint>(maxVertices);
+    if (!vertexData) {
+        return 0;
     }
 
-    SkASSERT(vertexCount <= MaxInnerPolygonVertices(path));
+    int vertexCount = 0;
+    while (parser.parseNextContour()) {
+        vertexCount += parser.emitInnerPolygon(vertexData + vertexCount);
+    }
+
+    vertexAlloc->unlock(vertexCount);
     return vertexCount;
 }
 
-int GrPathParser::EmitCubicInstances(const SkPath& path, SkPoint* vertexData) {
+int GrPathParser::EmitCubicInstances(const SkPath& path, GrEagerVertexAllocator* vertexAlloc) {
+    auto* instanceData = vertexAlloc->lock<std::array<SkPoint, 4>>(path.countVerbs());
+    if (!instanceData) {
+        return 0;
+    }
+
     int instanceCount = 0;
     SkPath::Iter iter(path, false);
     SkPath::Verb verb;
     SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         if (SkPath::kQuad_Verb == verb) {
-            write_quadratic_as_cubic(vertexData + (instanceCount * 4), pts[0], pts[1], pts[2]);
-            ++instanceCount;
+            write_quadratic_as_cubic(instanceData[instanceCount++].data(), pts[0], pts[1], pts[2]);
             continue;
         }
         if (SkPath::kCubic_Verb == verb) {
-            write_cubic(vertexData + (instanceCount * 4), pts[0], pts[1], pts[2], pts[3]);
-            ++instanceCount;
+            instanceData[instanceCount++] = {pts[0], pts[1], pts[2], pts[3]};
             continue;
         }
     }
+
+    vertexAlloc->unlock(instanceCount);
     return instanceCount;
 }
