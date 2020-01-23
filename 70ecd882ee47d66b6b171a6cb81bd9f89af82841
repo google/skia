@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b410e36d_8e2ed422",
+        "filename": "src/gpu/GrApproxVertexAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-23T17:21:43Z",
+      "side": 1,
+      "message": "Wow, I should learn to read, and/or get more sleep. You\u0027re absolutely right.\n\nI like \"dynamic\", to reflect its ephemeral nature and contrast it for the one that\u0027s static and meant to persist on the GPU and/or in caches. The fact that it yields up some of its storage is kind of a minor detail IMHO.\n\nTangentially, we could put \"Tess\" or \"Tessellator\" in all of the allocator names, to indicate their use now that they\u0027re no longer in the class. WDYT?",
+      "parentUuid": "4dd92d12_7ba5ed8d",
+      "revId": "70ecd882ee47d66b6b171a6cb81bd9f89af82841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "926135b3_e8802d6c",
         "filename": "src/gpu/ops/GrTessellatingPathRenderer.cpp",
         "patchSetId": 3
