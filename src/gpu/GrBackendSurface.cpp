@@ -313,7 +313,7 @@ SkString GrBackendFormat::toStr() const {
 #ifdef SK_DAWN
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
-                                   const GrDawnImageInfo& dawnInfo)
+                                   const GrDawnTextureInfo& dawnInfo)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
@@ -466,7 +466,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
 }
 
 #ifdef SK_DAWN
-bool GrBackendTexture::getDawnImageInfo(GrDawnImageInfo* outInfo) const {
+bool GrBackendTexture::getDawnTextureInfo(GrDawnTextureInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kDawn == fBackend) {
         *outInfo = fDawnInfo;
         return true;
@@ -663,7 +663,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
                                              int stencilBits,
-                                             const GrDawnImageInfo& dawnInfo)
+                                             const GrDawnRenderTargetInfo& dawnInfo)
         : fIsValid(true)
         , fFramebufferOnly(true)
         , fWidth(width)
@@ -816,7 +816,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
 }
 
 #ifdef SK_DAWN
-bool GrBackendRenderTarget::getDawnImageInfo(GrDawnImageInfo* outInfo) const {
+bool GrBackendRenderTarget::getDawnRenderTargetInfo(GrDawnRenderTargetInfo* outInfo) const {
     if (this->isValid() && GrBackendApi::kDawn == fBackend) {
         *outInfo = fDawnInfo;
         return true;
@@ -896,6 +896,13 @@ GrBackendFormat GrBackendRenderTarget::getBackendFormat() const {
             GrMtlTextureInfo mtlInfo;
             SkAssertResult(this->getMtlTextureInfo(&mtlInfo));
             return GrBackendFormat::MakeMtl(GrGetMTLPixelFormatFromMtlTextureInfo(mtlInfo));
+        }
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn: {
+            GrDawnRenderTargetInfo dawnInfo;
+            SkAssertResult(this->getDawnRenderTargetInfo(&dawnInfo));
+            return GrBackendFormat::MakeDawn(dawnInfo.fFormat);
         }
 #endif
         case GrBackendApi::kMock:
