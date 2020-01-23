@@ -19,11 +19,7 @@
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs,
-                 std::vector<SkSL::Compiler::GLSLFunction> functions)
-            : fGLSL(glsl)
-            , fFormatArgs(std::move(formatArgs))
-            , fFunctions(std::move(functions)) {}
+    GrGLSLSkSLFP(SkSL::PipelineStageArgs&& args) : fArgs(std::move(args)) {}
 
     SkSL::String expandFormatArgs(const SkSL::String& raw,
                                   const EmitArgs& args,
@@ -103,7 +99,7 @@ public:
             childNames.push_back(SkStringPrintf("_child%d", i));
             this->invokeChild(i, &childNames[i], args);
         }
-        for (const auto& f : fFunctions) {
+        for (const auto& f : fArgs.fFunctions) {
             fFunctionNames.emplace_back();
             SkSL::String body = this->expandFormatArgs(f.fBody.c_str(), args, f.fFormatArgs,
                                                        coords.c_str(), childNames);
@@ -114,7 +110,7 @@ public:
                                       body.c_str(),
                                       &fFunctionNames.back());
         }
-        fragBuilder->codeAppend(this->expandFormatArgs(fGLSL.c_str(), args, fFormatArgs,
+        fragBuilder->codeAppend(this->expandFormatArgs(fArgs.fCode.c_str(), args, fArgs.fFormatArgs,
                                                        coords.c_str(), childNames).c_str());
     }
 
@@ -159,9 +155,7 @@ public:
     }
 
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
-    const SkSL::String fGLSL;
-    std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
-    std::vector<SkSL::Compiler::GLSLFunction> fFunctions;
+    SkSL::PipelineStageArgs fArgs;
     std::vector<UniformHandle> fUniformHandles;
     std::vector<SkString> fFunctionNames;
 };
@@ -219,8 +213,7 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     // Note: This is actually SkSL (again) but with inline format specifiers.
     SkSL::PipelineStageArgs args;
     SkAssertResult(fEffect->toPipelineStage(fInputs.get(), fShaderCaps.get(), &args));
-    return new GrGLSLSkSLFP(std::move(args.fCode), std::move(args.fFormatArgs),
-                            std::move(args.fFunctions));
+    return new GrGLSLSkSLFP(std::move(args));
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

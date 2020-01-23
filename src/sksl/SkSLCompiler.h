@@ -243,7 +243,7 @@ private:
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 struct PipelineStageArgs {
     String fCode;
-    std::vector<Compiler::FormatArg>    fFormatArgs;
+    std::vector<Compiler::FormatArg> fFormatArgs;
     std::vector<Compiler::GLSLFunction> fFunctions;
 };
 #endif
