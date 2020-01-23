@@ -31,6 +31,7 @@ skia_gpu_sources = [
   "$_include/private/GrTypesPriv.h",
 
   "$_src/gpu/GrAppliedClip.h",
+  "$_src/gpu/GrApproxVertexAllocator.h",
   "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrAuditTrail.h",
   "$_src/gpu/GrAutoLocaleSetter.h",
