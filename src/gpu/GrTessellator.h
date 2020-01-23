@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrColor.h"
 
+class GrEagerVertexAllocator;
 class SkPath;
 struct SkRect;
 
@@ -22,17 +23,6 @@ struct SkRect;
 #define TESSELLATOR_WIREFRAME 0
 
 namespace GrTessellator {
-
-class VertexAllocator {
-public:
-    VertexAllocator(size_t stride) : fStride(stride) {}
-    virtual ~VertexAllocator() {}
-    virtual void* lock(int vertexCount) = 0;
-    virtual void unlock(int actualCount) = 0;
-    size_t stride() const { return fStride; }
-private:
-    size_t fStride;
-};
 
 struct WindingVertex {
     SkPoint fPos;
@@ -46,8 +36,12 @@ struct WindingVertex {
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    WindingVertex** verts);
 
+constexpr size_t GetVertexStride(bool antialias) {
+    return sizeof(SkPoint) + ((antialias) ? sizeof(float) : 0);
+}
+
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator*, bool antialias, bool *isLinear);
+                    GrEagerVertexAllocator*, bool antialias, bool *isLinear);
 }
 
 #endif
