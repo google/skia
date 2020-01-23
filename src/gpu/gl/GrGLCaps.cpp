@@ -6,6 +6,7 @@
  */
 
 #include "include/gpu/GrContextOptions.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 #include "src/gpu/GrProgramDesc.h"
@@ -3942,7 +3943,7 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
 
     SkImage::CompressionType compression = this->compressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
-        return { GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+        return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888,
                  offset_alignment_for_transfer_buffer(GR_GL_UNSIGNED_BYTE) };
     }
@@ -4268,7 +4269,7 @@ bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
     SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
     if (compression != SkImage::CompressionType::kNone) {
-        return ct == (GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                              : GrColorType::kRGBA_8888);
     }
 
