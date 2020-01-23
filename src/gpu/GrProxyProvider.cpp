@@ -140,8 +140,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
         return nullptr;
     }
     GrSurfaceDesc desc;
-    desc.fConfig = GrColorTypeToPixelConfig(colorType);
-    desc.fConfig = this->caps()->makeConfigSpecific(desc.fConfig, format);
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
 
@@ -285,15 +283,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         }
     }
 
-    GrPixelConfig config = GrColorTypeToPixelConfig(ct);
-    if (kUnknown_GrPixelConfig == config) {
-        return nullptr;
-    }
-
     GrSurfaceDesc desc;
     desc.fWidth = srcImage->width();
     desc.fHeight = srcImage->height();
-    desc.fConfig = config;
 
     GrSwizzle swizzle = this->caps()->getReadSwizzle(format, ct);
 
@@ -492,7 +484,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
     }
 
     GrSurfaceDesc desc;
-    desc.fConfig = GrCompressionTypeToPixelConfig(compressionType);
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
 
@@ -889,7 +880,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
                                                           int renderTargetSampleCnt,
                                                           GrProtected isProtected,
                                                           GrSurfaceOrigin origin,
-                                                          GrPixelConfig config,
                                                           const GrCaps& caps,
                                                           UseAllocator useAllocator) {
     if (!format.isValid()) {
@@ -901,7 +891,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
     GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
     desc.fWidth = -1;
     desc.fHeight = -1;
-    desc.fConfig = config;
 
     if (GrRenderable::kYes == renderable) {
         return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(

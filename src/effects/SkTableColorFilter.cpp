@@ -341,10 +341,6 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* 
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    if (kUnknown_GrPixelConfig == SkColorType2GrPixelConfig(bitmap.colorType())) {
-        return nullptr;
-    }
-
     sk_sp<SkImage> srcImage = SkImage::MakeFromBitmap(bitmap);
     if (!srcImage) {
         return nullptr;

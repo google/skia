@@ -151,7 +151,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fWidth = 10;
     desc.fHeight = 10;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     const GrBackendFormat format =
         context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
