@@ -1927,6 +1927,42 @@ private:
     typedef Sample INHERITED;
 };
 
+class ParagraphView27 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph27"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(TextDirection::kRtl);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(20);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("31 December 2021");
+            auto paragraph = builder.Build();
+            paragraph->layout(600);
+            paragraph->paint(canvas, 0, 0);
+        }
+        canvas->translate(0, 200);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("December 31 2021");
+            auto paragraph = builder.Build();
+            paragraph->layout(600);
+            paragraph->paint(canvas, 0, 0);
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1954,3 +1990,4 @@ DEF_SAMPLE(return new ParagraphView23();)
 DEF_SAMPLE(return new ParagraphView24();)
 DEF_SAMPLE(return new ParagraphView25();)
 DEF_SAMPLE(return new ParagraphView26();)
+DEF_SAMPLE(return new ParagraphView27();)
