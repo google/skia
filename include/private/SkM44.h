@@ -30,6 +30,9 @@ struct SkV3 {
     SkV3 operator+(const SkV3& v) const { return { x + v.x, y + v.y, z + v.z }; }
     SkV3 operator-(const SkV3& v) const { return { x - v.x, y - v.y, z - v.z }; }
 
+    SkV3 operator*(const SkV3& v) const {
+        return { x*v.x, y*v.y, z*v.z };
+    }
     friend SkV3 operator*(const SkV3& v, SkScalar s) {
         return { v.x*s, v.y*s, v.z*s };
     }
@@ -40,6 +43,9 @@ struct SkV3 {
 
     SkScalar dot(const SkV3& v) const { return Dot(*this, v); }
     SkV3 cross(const SkV3& v) const { return Cross(*this, v); }
+
+    const float* vec() const { return &x; }
+    float* vec() { return &x; }
 };
 
 struct SkV4 {
@@ -53,6 +59,14 @@ struct SkV4 {
     SkV4 operator-() const { return {-x, -y, -z, -w}; }
     SkV4 operator+(const SkV4& v) const { return { x + v.x, y + v.y, z + v.z, w + v.w }; }
     SkV4 operator-(const SkV4& v) const { return { x - v.x, y - v.y, z - v.z, w - v.w }; }
+
+    SkV4 operator*(const SkV4& v) const {
+        return { x*v.x, y*v.y, z*v.z, w*v.w };
+    }
+    friend SkV4 operator*(const SkV4& v, SkScalar s) {
+        return { v.x*s, v.y*s, v.z*s, v.w*s };
+    }
+    friend SkV4 operator*(SkScalar s, const SkV4& v) { return v*s; }
 
     const float* vec() const { return &x; }
     float* vec() { return &x; }
@@ -106,6 +120,23 @@ public:
     SkM44(const SkMatrix44&);
     SkM44& operator=(const SkMatrix44&);
 
+    static SkM44 Rows(const SkV4& r0, const SkV4& r1, const SkV4& r2, const SkV4& r3) {
+        SkM44 m(kUninitialized_Constructor);
+        m.setRow(0, r0);
+        m.setRow(1, r1);
+        m.setRow(2, r2);
+        m.setRow(3, r3);
+        return m;
+    }
+    static SkM44 Cols(const SkV4& c0, const SkV4& c1, const SkV4& c2, const SkV4& c3) {
+        SkM44 m(kUninitialized_Constructor);
+        m.setCol(0, c0);
+        m.setCol(1, c1);
+        m.setCol(2, c2);
+        m.setCol(3, c3);
+        return m;
+    }
+
     static SkM44 Translate(SkScalar x, SkScalar y, SkScalar z = 0) {
         return SkM44(1, 0, 0, x,
                      0, 1, 0, y,
@@ -152,6 +183,27 @@ public:
     SkScalar atColMajor(int index) const {
         SkASSERT(index >= 0 && index < 16);
         return fMat[index];
+    }
+
+    SkV4 row(int i) const {
+        SkASSERT(i >= 0 && i <= 3);
+        return {fMat[i + 0], fMat[i + 4], fMat[i + 8], fMat[i + 12]};
+    }
+    SkV4 col(int i) const {
+        SkASSERT(i >= 0 && i <= 3);
+        return {fMat[i*4 + 0], fMat[i*4 + 1], fMat[i*4 + 2], fMat[i*4 + 3]};
+    }
+
+    void setRow(int i, const SkV4& v) {
+        SkASSERT(i >= 0 && i <= 3);
+        fMat[i + 0]  = v.x;
+        fMat[i + 4]  = v.y;
+        fMat[i + 8]  = v.z;
+        fMat[i + 12] = v.w;
+    }
+    void setCol(int i, const SkV4& v) {
+        SkASSERT(i >= 0 && i <= 3);
+        memcpy(&fMat[i*4], v.vec(), sizeof(v));
     }
 
     SkM44& setIdentity() {
