@@ -995,6 +995,13 @@ static constexpr GrPixelConfig validate_sized_format(GrMTLPixelFormat grFormat, 
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                   const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+
+    SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        return ct == (GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                             : GrColorType::kRGBA_8888);
+    }
+
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -1132,6 +1139,12 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(srcBackendFormat);
+
+    SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        return { GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                        : GrColorType::kRGBA_8888, 0 };
+    }
 
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
