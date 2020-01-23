@@ -55,7 +55,7 @@ public:
 
         Pixel buffer size should be info height times computed rowBytes.
         Pixels are not initialized.
-        To access pixels after drawing, call flush() or peekPixels().
+        To access pixels after drawing, peekPixels() or readPixels().
 
         @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
                              of raster surface; width and height must be greater than zero
@@ -109,8 +109,7 @@ public:
         info contains SkColorType and SkAlphaType supported by raster surface;
         rowBytes is large enough to contain info width pixels of SkColorType, or is zero.
 
-        If rowBytes is not zero, subsequent images returned by makeImageSnapshot()
-        have the same rowBytes.
+        If rowBytes is zero, a suitable value will be chosen internally.
 
         @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
                              of raster surface; width and height must be greater than zero
