@@ -50,11 +50,12 @@ namespace {
     SK_BEGIN_REQUIRE_DENSE;
     struct Key {
         uint64_t colorSpace;
-        uint32_t shader;
+        uint64_t shader;
         uint8_t  colorType,
                  alphaType,
                  blendMode,
                  coverage;
+        uint32_t padding{0};
         // Params::quality and Params::ctm are only passed to shader->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
@@ -77,7 +78,7 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%x",
+        return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-CS%llx-Shader%llx",
                               key.colorType,
                               key.alphaType,
                               key.coverage,
@@ -106,7 +107,7 @@ namespace {
         // If Builder can't build this program, CacheKey() sets *ok to false.
         static Key CacheKey(const Params& params, skvm::Uniforms* uniforms, bool* ok) {
             SkASSERT(params.shader);
-            uint32_t shaderHash = 0;
+            uint64_t shaderHash = 0;
             {
                 const SkShaderBase* shader = as_SB(params.shader);
                 skvm::Builder p;
