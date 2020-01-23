@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c86e1fc0_9fb9492f",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-23T16:02:31Z",
+      "side": 1,
+      "message": "Should this be simplified to this-\u003eset44(...)?",
+      "range": {
+        "startLine": 114,
+        "startChar": 8,
+        "endLine": 117,
+        "endChar": 67
+      },
+      "revId": "6e780c9f9d93dd2f48c225404b18b0f03a1d6305",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
