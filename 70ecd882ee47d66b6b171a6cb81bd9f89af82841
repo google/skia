@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "88a23b48_2e1b09e3",
+        "filename": "src/gpu/GrApproxVertexAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T19:10:06Z",
+      "side": 1,
+      "message": "Renamed \"Approx\" to \"Eager\"",
+      "parentUuid": "ce731390_03c24036",
+      "revId": "70ecd882ee47d66b6b171a6cb81bd9f89af82841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "926135b3_e8802d6c",
         "filename": "src/gpu/ops/GrTessellatingPathRenderer.cpp",
         "patchSetId": 3
