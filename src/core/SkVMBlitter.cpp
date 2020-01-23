@@ -105,7 +105,10 @@ namespace {
     struct Builder : public skvm::Builder {
 
         // If Builder can't build this program, CacheKey() sets *ok to false.
-        static Key CacheKey(const Params& params, skvm::Uniforms* uniforms, bool* ok) {
+        static Key CacheKey(const Params& params,
+                            skvm::Uniforms* uniforms,
+                            SkArenaAlloc* alloc,
+                            bool* ok) {
             SkASSERT(params.shader);
             uint64_t shaderHash = 0;
             {
@@ -120,11 +123,10 @@ namespace {
                 y = p.add(y, p.splat(0.5f));
                 skvm::F32 r,g,b,a;
 
-                SkSTArenaAlloc<2*sizeof(void*)> tmp;
                 if (shader->program(&p,
                                     params.ctm, /*localM=*/nullptr,
                                     params.quality, params.colorSpace.get(),
-                                    uniforms,&tmp,
+                                    uniforms,alloc,
                                     x,y, &r,&g,&b,&a)) {
                     shaderHash = p.hash();
                 } else {
@@ -396,7 +398,7 @@ namespace {
             : fDevice(device)
             , fUniforms(kBlitterUniformsCount)
             , fParams(effective_params(device, paint, ctm))
-            , fKey(Builder::CacheKey(fParams, &fUniforms, ok))
+            , fKey(Builder::CacheKey(fParams, &fUniforms, &fAlloc, ok))
         {}
 
         ~Blitter() override {
