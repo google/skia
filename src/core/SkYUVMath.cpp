@@ -116,23 +116,23 @@ static void colormatrix_to_matrix44(const float src[20], SkM44* dst) {
 // input: ignore the bottom row
 // output: inject identity row/column for alpha
 static void matrix44_to_colormatrix(const SkM44& src, float dst[20]) {
-    dst[0] = src.atColMajor(0);
-    dst[1] = src.atColMajor(4);
-    dst[2] = src.atColMajor(8);
+    dst[0] = src.rc(0,0);
+    dst[1] = src.rc(0,1);
+    dst[2] = src.rc(0,2);
     dst[3] = 0;
-    dst[4] = src.atColMajor(12);    // tx
+    dst[4] = src.rc(0,3);    // tx
 
-    dst[5] = src.atColMajor(1);
-    dst[6] = src.atColMajor(5);
-    dst[7] = src.atColMajor(9);
+    dst[5] = src.rc(1,0);
+    dst[6] = src.rc(1,1);
+    dst[7] = src.rc(1,2);
     dst[8] = 0;
-    dst[9] = src.atColMajor(13);    // ty
+    dst[9] = src.rc(1,3);    // ty
 
-    dst[10] = src.atColMajor(2);
-    dst[11] = src.atColMajor(6);
-    dst[12] = src.atColMajor(10);
+    dst[10] = src.rc(2,0);
+    dst[11] = src.rc(2,1);
+    dst[12] = src.rc(2,2);
     dst[13] = 0;
-    dst[14] = src.atColMajor(14);   // tz
+    dst[14] = src.rc(2,3);   // tz
 
     dst[15] = dst[16] = dst[17] = dst[19] = 0;
     dst[18] = 1;

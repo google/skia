@@ -111,10 +111,10 @@ public:
           SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
           SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15)
     {
-        fMat[0] = m0; fMat[4] = m4; fMat[8]  = m8;  fMat[12] = m12;
-        fMat[1] = m1; fMat[5] = m5; fMat[9]  = m9;  fMat[13] = m13;
-        fMat[2] = m2; fMat[6] = m6; fMat[10] = m10; fMat[14] = m14;
-        fMat[3] = m3; fMat[7] = m7; fMat[11] = m11; fMat[15] = m15;
+        this->set44(m0, m4, m8,  m12,
+                    m1, m5, m9,  m13,
+                    m2, m6, m10, m14,
+                    m3, m7, m11, m15);
     }
 
     SkM44(const SkMatrix44&);
@@ -167,12 +167,12 @@ public:
     }
     SkM44& setRowMajor(const SkScalar v[]);
 
-    /* Parameters are treated as row-major.
+    /* Parameters in same order as constructor.
      */
-    SkM44& setRowMajor(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
-                       SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
-                       SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
-                       SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15) {
+    SkM44& set44(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
+                 SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
+                 SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
+                 SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15) {
         fMat[0] = m0; fMat[4] = m4; fMat[8]  = m8;  fMat[12] = m12;
         fMat[1] = m1; fMat[5] = m5; fMat[9]  = m9;  fMat[13] = m13;
         fMat[2] = m2; fMat[6] = m6; fMat[10] = m10; fMat[14] = m14;
@@ -180,9 +180,15 @@ public:
         return *this;
     }
 
-    SkScalar atColMajor(int index) const {
-        SkASSERT(index >= 0 && index < 16);
-        return fMat[index];
+    SkScalar rc(int r, int c) const {
+        SkASSERT(r >= 0 && r <= 3);
+        SkASSERT(c >= 0 && c <= 3);
+        return fMat[c*4 + r];
+    }
+    void setRC(int r, int c, SkScalar value) {
+        SkASSERT(r >= 0 && r <= 3);
+        SkASSERT(c >= 0 && c <= 3);
+        fMat[c*4 + r] = value;
     }
 
     SkV4 row(int i) const {
@@ -207,24 +213,24 @@ public:
     }
 
     SkM44& setIdentity() {
-        return this->setRowMajor(1, 0, 0, 0,
-                                 0, 1, 0, 0,
-                                 0, 0, 1, 0,
-                                 0, 0, 0, 1);
+        return this->set44(1, 0, 0, 0,
+                           0, 1, 0, 0,
+                           0, 0, 1, 0,
+                           0, 0, 0, 1);
     }
 
     SkM44& setTranslate(SkScalar x, SkScalar y, SkScalar z = 0) {
-        return this->setRowMajor(1, 0, 0, x,
-                                 0, 1, 0, y,
-                                 0, 0, 1, z,
-                                 0, 0, 0, 1);
+        return this->set44(1, 0, 0, x,
+                           0, 1, 0, y,
+                           0, 0, 1, z,
+                           0, 0, 0, 1);
     }
 
     SkM44& setScale(SkScalar x, SkScalar y, SkScalar z = 1) {
-        return this->setRowMajor(x, 0, 0, 0,
-                                 0, y, 0, 0,
-                                 0, 0, z, 0,
-                                 0, 0, 0, 1);
+        return this->set44(x, 0, 0, 0,
+                           0, y, 0, 0,
+                           0, 0, z, 0,
+                           0, 0, 0, 1);
     }
 
     SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
@@ -293,9 +299,6 @@ public:
     SkM44& preScale(SkScalar x, SkScalar y);
     SkM44& preConcat(const SkMatrix&);
 
-    const SkScalar* asColMajor() const { return fMat; }
-          SkScalar* asColMajor()       { return fMat; }
-
 private:
     /* Stored in column-major.
      *  Indices
@@ -307,6 +310,8 @@ private:
     SkScalar fMat[16];
 
     double determinant() const;
+
+    friend class SkMatrixPriv;
 };
 
 #endif
