@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2293d6af_325611d2",
+        "filename": "src/core/SkCompressedDataUtils.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-23T15:02:30Z",
+      "side": 1,
+      "message": "100",
+      "range": {
+        "startLine": 127,
+        "startChar": 20,
+        "endLine": 127,
+        "endChar": 29
+      },
+      "revId": "e1a801f9265a931f79c096be6d6de7ee81e72529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
