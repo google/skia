@@ -384,7 +384,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     GrSwizzle readSwizzle = this->caps()->getReadSwizzle(format, grCT);
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, format, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
+            [desc, format, baseLevel, mipmaps, mipMapped](GrResourceProvider* resourceProvider) {
                 const int mipLevelCount = mipmaps->countLevels() + 1;
                 std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
@@ -403,9 +403,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
                     SkASSERT(texels[i].fPixels);
                     SkASSERT(generatedMipLevel.fPixmap.colorType() == pixmap.colorType());
                 }
-                return LazyCallbackResult(resourceProvider->createTexture(
+                return LazyCallbackResult(resourceProvider->createTexture1(
                         desc, format, colorType, GrRenderable::kNo, 1, SkBudgeted::kYes,
-                        GrProtected::kNo, texels.get(), mipLevelCount));
+                        mipMapped, GrProtected::kNo, texels.get()));
             },
             format, desc, readSwizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
             GrMipMapped::kYes, GrMipMapsStatus::kValid, GrInternalSurfaceFlags::kNone,
@@ -427,15 +427,15 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     return proxy;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format,
-                                                   const GrSurfaceDesc& desc,
+sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrSurfaceDesc& desc,
+                                                   const GrBackendFormat& format,
                                                    GrSwizzle readSwizzle,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
                                                    GrSurfaceOrigin origin,
+                                                   SkBudgeted budgeted,
                                                    GrMipMapped mipMapped,
                                                    SkBackingFit fit,
-                                                   SkBudgeted budgeted,
                                                    GrProtected isProtected,
                                                    GrInternalSurfaceFlags surfaceFlags,
                                                    GrSurfaceProxy::UseAllocator useAllocator) {

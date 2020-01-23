@@ -269,9 +269,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kYes);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
-        proxies[0] = {proxyProvider->createProxy(format, dummyDesc, swizzle, GrRenderable::kYes, 1,
-                                                 kBottomLeft_GrSurfaceOrigin, mipMapped,
-                                                 SkBackingFit::kExact, SkBudgeted::kNo,
+        proxies[0] = {proxyProvider->createProxy(dummyDesc, format, swizzle, GrRenderable::kYes, 1,
+                                                 kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo,
+                                                 mipMapped, SkBackingFit::kExact,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
                       GrColorType::kRGBA_8888,
                       kPremul_SkAlphaType
@@ -286,9 +286,9 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                             GrRenderable::kNo);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
-        proxies[1] = {proxyProvider->createProxy(format, dummyDesc, swizzle, GrRenderable::kNo, 1,
-                                                 kTopLeft_GrSurfaceOrigin, mipMapped,
-                                                 SkBackingFit::kExact, SkBudgeted::kNo,
+        proxies[1] = {proxyProvider->createProxy(dummyDesc, format, swizzle, GrRenderable::kNo, 1,
+                                                 kTopLeft_GrSurfaceOrigin, SkBudgeted::kNo,
+                                                 mipMapped, SkBackingFit::kExact,
                                                  GrProtected::kNo, GrInternalSurfaceFlags::kNone),
                       GrColorType::kAlpha_8,
                       kPremul_SkAlphaType

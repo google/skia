@@ -168,8 +168,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 GrSwizzle swizzle = caps->getReadSwizzle(combo.fFormat, combo.fColorType);
 
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                        combo.fFormat, desc, swizzle, GrRenderable::kNo, 1, origin,
-                        GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
+                        desc, combo.fFormat, swizzle, GrRenderable::kNo, 1, origin,
+                        SkBudgeted::kNo, GrMipMapped::kYes, SkBackingFit::kExact, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
                                 "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
                                 GrColorTypeToStr(combo.fColorType),

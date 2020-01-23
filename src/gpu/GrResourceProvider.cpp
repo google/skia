@@ -13,6 +13,7 @@
 #include "include/private/GrSingleOwner.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
+#include "src/core/SkMipMap.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -43,30 +44,32 @@ GrResourceProvider::GrResourceProvider(GrGpu* gpu, GrResourceCache* cache, GrSin
     fCaps = sk_ref_sp(fGpu->caps());
 }
 
-sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrResourceProvider::createTexture1(const GrSurfaceDesc& desc,
                                                    const GrBackendFormat& format,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
                                                    SkBudgeted budgeted,
+                                                   GrMipMapped mipMapped,
                                                    GrProtected isProtected,
-                                                   const GrMipLevel texels[],
-                                                   int mipLevelCount) {
+                                                   const GrMipLevel texels[]) {
     ASSERT_SINGLE_OWNER
-
-    SkASSERT(mipLevelCount > 0);
 
     if (this->isAbandoned()) {
         return nullptr;
     }
 
-    GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(desc.fWidth, desc.fHeight) + 1;
+    }
+
     if (!fCaps->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, renderable,
                                       renderTargetSampleCnt, mipMapped)) {
         return nullptr;
     }
     // Current rule is that you can provide no level data, just the base, or all the levels.
-    bool hasPixels = mipLevelCount && texels[0].fPixels;
+    bool hasPixels = texels[0].fPixels;
     auto scratch = this->getExactScratch(desc, format, renderable, renderTargetSampleCnt, budgeted,
                                          mipMapped, isProtected);
     if (scratch) {
@@ -74,21 +77,20 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
             return scratch;
         }
         return this->writePixels(std::move(scratch), colorType, {desc.fWidth, desc.fHeight}, texels,
-                                 mipLevelCount);
+                                 numMipLevels);
     }
     SkAutoSTMalloc<14, GrMipLevel> tmpTexels;
     SkAutoSTArray<14, std::unique_ptr<char[]>> tmpDatas;
     GrColorType tempColorType = GrColorType::kUnknown;
     if (hasPixels) {
         tempColorType = this->prepareLevels(format, colorType, {desc.fWidth, desc.fHeight}, texels,
-                                            mipLevelCount, &tmpTexels, &tmpDatas);
+                                            numMipLevels, &tmpTexels, &tmpDatas);
         if (tempColorType == GrColorType::kUnknown) {
             return nullptr;
         }
     }
-    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted,
-                               isProtected, colorType, tempColorType, tmpTexels.get(),
-                               mipLevelCount);
+    return fGpu->createTexture2(desc, format, renderable, renderTargetSampleCnt, budgeted,
+                               mipMapped, isProtected, colorType, tempColorType, tmpTexels.get());
 }
 
 sk_sp<GrTexture> GrResourceProvider::getExactScratch(const GrSurfaceDesc& desc,
@@ -139,8 +141,8 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return this->writePixels(std::move(tex), colorType, {desc.fWidth, desc.fHeight}, &mipLevel,
                                  1);
     } else {
-        return this->createTexture(desc, format, colorType, renderable, renderTargetSampleCnt,
-                                   budgeted, isProtected, &mipLevel, 1);
+        return this->createTexture1(desc, format, colorType, renderable, renderTargetSampleCnt,
+                                   budgeted, GrMipMapped::kNo, isProtected, &mipLevel);
     }
 }
 
@@ -186,7 +188,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
         return tex;
     }
 
-    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, mipMapped, budgeted,
+    return fGpu->createTexture(desc, format, renderable, renderTargetSampleCnt, budgeted, mipMapped,
                                isProtected);
 }
 
@@ -251,7 +253,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(const GrSurfaceDesc& de
     }
 
     return fGpu->createTexture(copyDesc, format, renderable, renderTargetSampleCnt,
-                               GrMipMapped::kNo, SkBudgeted::kYes, isProtected);
+                               SkBudgeted::kYes, GrMipMapped::kNo, isProtected);
 }
 
 sk_sp<GrTexture> GrResourceProvider::refScratchTexture(const GrSurfaceDesc& desc,

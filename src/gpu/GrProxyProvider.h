@@ -80,15 +80,15 @@ public:
     /*
      * Create a GrSurfaceProxy without any data.
      */
-    sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&,
-                                      const GrSurfaceDesc&,
+    sk_sp<GrTextureProxy> createProxy(const GrSurfaceDesc&,
+                                      const GrBackendFormat&,
                                       GrSwizzle readSwizzle,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
                                       GrSurfaceOrigin,
+                                      SkBudgeted,
                                       GrMipMapped,
                                       SkBackingFit,
-                                      SkBudgeted,
                                       GrProtected,
                                       GrInternalSurfaceFlags = GrInternalSurfaceFlags::kNone,
                                       UseAllocator useAllocator = UseAllocator::kYes);

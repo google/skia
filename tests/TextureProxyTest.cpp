@@ -46,8 +46,8 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
     GrSwizzle swizzle = caps->getReadSwizzle(format, kColorType);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, swizzle, GrRenderable::kNo, 1, kBottomLeft_GrSurfaceOrigin,
-            GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+            desc, format, swizzle, GrRenderable::kNo, 1, kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted::kYes, GrMipMapped::kNo, fit, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -63,8 +63,8 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
     GrSwizzle swizzle = caps->getReadSwizzle(format, kColorType);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, swizzle, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,
-            GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+            desc, format, swizzle, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted::kYes, GrMipMapped::kNo, fit, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;

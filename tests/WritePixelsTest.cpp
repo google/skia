@@ -534,8 +534,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO, reporter, ctxInfo) {
         GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
         sk_sp<GrTextureProxy> temp = proxyProvider->createProxy(
-                format, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+                desc, format, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+                SkBudgeted::kYes, GrMipMapped::kNo, SkBackingFit::kApprox, GrProtected::kNo);
         temp->instantiate(context->priv().resourceProvider());
     }
 
