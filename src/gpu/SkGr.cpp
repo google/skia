@@ -231,67 +231,6 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorInfo& colorInfo) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
-    switch (type) {
-        case kUnknown_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kAlpha_8_SkColorType:
-            return kAlpha_8_GrPixelConfig;
-        case kRGB_565_SkColorType:
-            return kRGB_565_GrPixelConfig;
-        case kARGB_4444_SkColorType:
-            return kRGBA_4444_GrPixelConfig;
-        case kRGBA_8888_SkColorType:
-            return kRGBA_8888_GrPixelConfig;
-        case kRGB_888x_SkColorType:
-            return kRGB_888_GrPixelConfig;
-        case kBGRA_8888_SkColorType:
-            return kBGRA_8888_GrPixelConfig;
-        case kRGBA_1010102_SkColorType:
-            return kRGBA_1010102_GrPixelConfig;
-        case kRGB_101010x_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kGray_8_SkColorType:
-            return kGray_8_GrPixelConfig;
-        case kRGBA_F16Norm_SkColorType:
-            return kRGBA_half_Clamped_GrPixelConfig;
-        case kRGBA_F16_SkColorType:
-            return kRGBA_half_GrPixelConfig;
-        case kRGBA_F32_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kR8G8_unorm_SkColorType:
-            return kRG_88_GrPixelConfig;
-        case kR16G16_unorm_SkColorType:
-            return kRG_1616_GrPixelConfig;
-        case kA16_unorm_SkColorType:
-            return kAlpha_16_GrPixelConfig;
-        case kA16_float_SkColorType:
-            return kAlpha_half_GrPixelConfig;
-        case kR16G16_float_SkColorType:
-            return kRG_half_GrPixelConfig;
-        case kR16G16B16A16_unorm_SkColorType:
-            return kRGBA_16161616_GrPixelConfig;
-    }
-    SkUNREACHABLE;
-}
-
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
-    return SkColorType2GrPixelConfig(info.colorType());
-}
-
-bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
-    SkColorType ct = GrColorTypeToSkColorType(GrPixelConfigToColorType(config));
-    if (kUnknown_SkColorType != ct) {
-        if (ctOut) {
-            *ctOut = ct;
-        }
-        return true;
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 static inline bool blend_requires_shader(const SkBlendMode mode) {
     return SkBlendMode::kDst != mode;
 }
@@ -462,7 +401,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    // Conservative default, in case GrPixelConfigToColorType() fails.
     GrColorType ct = dstColorInfo.colorType();
     if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) &&
         grPaint->numColorFragmentProcessors() > 0) {

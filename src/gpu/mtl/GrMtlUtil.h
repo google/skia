@@ -32,11 +32,6 @@ class GrMtlGpu;
 class GrSurface;
 
 /**
- * Returns the Metal texture format for the given GrPixelConfig
- */
-bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
-
-/**
  * Returns a id<MTLTexture> to the MTLTexture pointed at by the const void*.
  */
 SK_ALWAYS_INLINE id<MTLTexture> GrGetMTLTexture(const void* mtlTexture)  {

@@ -48,48 +48,6 @@ bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
     return format.asDawnFormat(&dawnFormat);
 }
 
-GrPixelConfig GrDawnCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
-                                                       GrColorType colorType) const {
-    wgpu::TextureFormat dawnFormat;
-    if (!format.asDawnFormat(&dawnFormat)) {
-        return kUnknown_GrPixelConfig;
-    }
-    switch (colorType) {
-        case GrColorType::kUnknown:
-            return kUnknown_GrPixelConfig;
-        case GrColorType::kAlpha_8:
-            if (wgpu::TextureFormat::R8Unorm == dawnFormat) {
-                return kAlpha_8_as_Red_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGBA_8888:
-            if (wgpu::TextureFormat::RGBA8Unorm == dawnFormat) {
-                return kRGBA_8888_GrPixelConfig;
-            } else if (wgpu::TextureFormat::BGRA8Unorm == dawnFormat) {
-                // FIXME: This shouldn't be necessary, but on some platforms (Mac)
-                // Skia byte order is RGBA, while preferred swap format is BGRA.
-                return kBGRA_8888_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGB_888x:
-            break;
-        case GrColorType::kBGRA_8888:
-            if (wgpu::TextureFormat::BGRA8Unorm == dawnFormat) {
-                return kBGRA_8888_GrPixelConfig;
-            } else if (wgpu::TextureFormat::RGBA8Unorm == dawnFormat) {
-                return kRGBA_8888_GrPixelConfig;
-            }
-            break;
-        default:
-            break;
-    }
-    return kUnknown_GrPixelConfig;
-}
-
-GrPixelConfig GrDawnCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const {
-    return kUnknown_GrPixelConfig;
-}
-
 static GrSwizzle get_swizzle(const GrBackendFormat& format, GrColorType colorType,
                              bool forOutput) {
     switch (colorType) {
