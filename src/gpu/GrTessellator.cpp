@@ -8,6 +8,7 @@
 #include "src/gpu/GrTessellator.h"
 
 #include "src/gpu/GrDefaultGeoProcFactory.h"
+#include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 
@@ -2358,7 +2359,7 @@ namespace GrTessellator {
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator* vertexAllocator, bool antialias, bool* isLinear) {
+                    GrEagerVertexAllocator* vertexAllocator, bool antialias, bool* isLinear) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *isLinear = true;
@@ -2378,7 +2379,8 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
     int count = count64;
 
-    void* verts = vertexAllocator->lock(count);
+    size_t vertexStride = GetVertexStride(antialias);
+    void* verts = vertexAllocator->lock(vertexStride, count);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return 0;
@@ -2389,7 +2391,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     end = outer_mesh_to_triangles(outerMesh, true, end);
 
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
-                                       / vertexAllocator->stride());
+                                       / vertexStride);
     SkASSERT(actualCount <= count);
     vertexAllocator->unlock(actualCount);
     return actualCount;

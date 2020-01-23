@@ -67,15 +67,15 @@ private:
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
 
+    // The "path shader" draws the below path geometry.
+    GrStencilPathShader* fPathShader;
+
     // The "path vertex buffer" is made up of either inner polygon triangles (see
     // GrPathParser::EmitInnerPolygonTriangles) or cubic wedge patches (see
     // GrPathParser::EmitCenterWedgePatches).
     sk_sp<const GrBuffer> fPathVertexBuffer;
     int fBasePathVertex;
     int fPathVertexCount;
-
-    // The "path shader" draws the above path geometry.
-    GrStencilPathShader* fPathShader;
 
     // The cubic instance buffer defines standalone cubics to tessellate into the stencil buffer, in
     // addition to the above path geometry.

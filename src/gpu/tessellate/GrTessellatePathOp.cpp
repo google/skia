@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrTessellatePathOp.h"
 
+#include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
@@ -24,6 +25,10 @@ GrTessellatePathOp::FixedFunctionFlags GrTessellatePathOp::fixedFunctionFlags() 
 }
 
 void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
+    GrEagerDynamicVertexAllocator pathVertexAllocator(state, &fPathVertexBuffer, &fBasePathVertex);
+    GrEagerDynamicVertexAllocator cubicInstanceAllocator(state, &fCubicInstanceBuffer,
+                                                         &fBaseCubicInstance);
+
     // First see if we should split up inner polygon triangles and curves, and triangulate the inner
     // polygon(s) more efficiently. This causes greater CPU overhead due to the extra shaders and
     // draw calls, but the better triangulation can reduce the rasterizer load by a great deal on
@@ -33,39 +38,15 @@ void GrTessellatePathOp::onPrepare(GrOpFlushState* state) {
     // Raster-edge work is 1-dimensional, so we sum height and width rather than multiplying them.
     float rasterEdgeWork = (bounds.height() + bounds.width()) * scale * fPath.countVerbs();
     if (rasterEdgeWork > 1000 * 1000) {
-        int numCurves = 0;
-        int maxVertexCount = GrPathParser::MaxInnerPolygonVertices(fPath);
-        if (auto* triangleData = (SkPoint*)state->makeVertexSpace(
-                sizeof(SkPoint), maxVertexCount, &fPathVertexBuffer, &fBasePathVertex)) {
-            if ((fPathVertexCount =
-                     GrPathParser::EmitInnerPolygonTriangles(fPath, triangleData, &numCurves))) {
-                fPathShader = state->allocator()->make<GrStencilTriangleShader>(fViewMatrix);
-            } else {
-                fPathVertexBuffer.reset();
-            }
-            state->putBackVertices(maxVertexCount - fPathVertexCount, sizeof(SkPoint));
-        }
-        if (numCurves) {
-            if (auto* cubicData = (SkPoint*)state->makeVertexSpace(
-                    sizeof(SkPoint) * 4, numCurves, &fCubicInstanceBuffer, &fBaseCubicInstance)) {
-                fCubicInstanceCount = GrPathParser::EmitCubicInstances(fPath, cubicData);
-                SkASSERT(fCubicInstanceCount == numCurves);
-            }
-        }
+        fPathShader = state->allocator()->make<GrStencilTriangleShader>(fViewMatrix);
+        fPathVertexCount = GrPathParser::EmitInnerPolygonTriangles(fPath, &pathVertexAllocator);
+        fCubicInstanceCount = GrPathParser::EmitCubicInstances(fPath, &cubicInstanceAllocator);
         return;
     }
 
     // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
-    int maxVertexCount = GrPathParser::MaxWedgeVertices(fPath);
-    if (auto* patchData = (SkPoint*)state->makeVertexSpace(
-            sizeof(SkPoint), maxVertexCount, &fPathVertexBuffer, &fBasePathVertex)) {
-        if ((fPathVertexCount = GrPathParser::EmitCenterWedgePatches(fPath, patchData))) {
-            fPathShader = state->allocator()->make<GrStencilWedgeShader>(fViewMatrix);
-        } else {
-            fPathVertexBuffer.reset();
-        }
-        state->putBackVertices(maxVertexCount - fPathVertexCount, sizeof(SkPoint));
-    }
+    fPathShader = state->allocator()->make<GrStencilWedgeShader>(fViewMatrix);
+    fPathVertexCount = GrPathParser::EmitCenterWedgePatches(fPath, &pathVertexAllocator);
 }
 
 void GrTessellatePathOp::onExecute(GrOpFlushState* state, const SkRect& chainBounds) {
