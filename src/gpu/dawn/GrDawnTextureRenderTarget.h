@@ -23,7 +23,6 @@ class GrDawnTextureRenderTarget : public GrDawnTexture, public GrDawnRenderTarge
 public:
     GrDawnTextureRenderTarget(GrDawnGpu* gpu,
                               const SkISize& dimensions,
-                              GrPixelConfig config,
                               const wgpu::TextureView textureView,
                               int sampleCnt,
                               const GrDawnImageInfo& info,

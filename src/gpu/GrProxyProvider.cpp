@@ -134,9 +134,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
 
     if (this->caps()->isFormatCompressed(format)) {
         // TODO: Allow this to go to GrResourceProvider::createCompressedTexture() once we no longer
-        // rely on GrColorType to get to GrPixelConfig. Currently this will cause
-        // makeConfigSpecific() to assert because GrColorTypeToPixelConfig() never returns a
-        // compressed GrPixelConfig.
+        // rely on GrColorType to get a swizzle for the proxy.
         return nullptr;
     }
     GrSurfaceDesc desc;

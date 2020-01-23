@@ -1772,7 +1772,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // requires the src and dst be bindable to FBOs. However, we can't do this in the current
         // world since some devices (e.g. chromium & angle) require the formats in glBlitFramebuffer
         // to match. We don't have a way to really check this during resolve since we only actually
-        // have one GrPixelConfig and one GrBackendFormat that is shared by the GrGLRenderTarget.
+        // have GrBackendFormat that is shared by the GrGLRenderTarget.
         // Once we break those up into different surface we can revisit doing this change.
         if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
             info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
@@ -4136,137 +4136,6 @@ bool GrGLCaps::formatSupportsTexStorage(GrGLFormat format) const {
     return SkToBool(this->getFormatInfo(format).fFlags & FormatInfo::kUseTexStorage_Flag);
 }
 
-static GrPixelConfig validate_sized_format(GrGLFormat format,
-                                           GrColorType ct,
-                                           GrGLStandard standard) {
-    switch (ct) {
-        case GrColorType::kUnknown:
-            return kUnknown_GrPixelConfig;
-        case GrColorType::kAlpha_8:
-            if (format == GrGLFormat::kALPHA8) {
-                return kAlpha_8_as_Alpha_GrPixelConfig;
-            } else if (format == GrGLFormat::kR8) {
-                return kAlpha_8_as_Red_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kBGR_565:
-            if (format == GrGLFormat::kRGB565) {
-                return kRGB_565_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kABGR_4444:
-            if (format == GrGLFormat::kRGBA4) {
-                return kRGBA_4444_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGBA_8888:
-            if (format == GrGLFormat::kRGBA8) {
-                return kRGBA_8888_GrPixelConfig;
-            } else if (format == GrGLFormat::kCOMPRESSED_RGBA8_BC1) {
-                return kBC1_RGBA8_UNORM_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGBA_8888_SRGB:
-            if (format == GrGLFormat::kSRGB8_ALPHA8) {
-                return kSRGBA_8888_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGB_888x:
-            if (format == GrGLFormat::kRGB8) {
-                return kRGB_888_GrPixelConfig;
-            } else if (format == GrGLFormat::kRGBA8) {
-                return kRGB_888X_GrPixelConfig;
-            } else if (format == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
-                       format == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
-                return kRGB_ETC1_GrPixelConfig;
-            } else if (format == GrGLFormat::kCOMPRESSED_RGB8_BC1) {
-                return kBC1_RGB8_UNORM_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRG_88:
-            if (format == GrGLFormat::kRG8) {
-                return kRG_88_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kBGRA_8888:
-            if (format == GrGLFormat::kRGBA8) {
-                if (GR_IS_GR_GL(standard)) {
-                    return kBGRA_8888_GrPixelConfig;
-                }
-            } else if (format == GrGLFormat::kBGRA8) {
-                if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
-                    return kBGRA_8888_GrPixelConfig;
-                }
-            }
-            break;
-        case GrColorType::kRGBA_1010102:
-            if (format == GrGLFormat::kRGB10_A2) {
-                return kRGBA_1010102_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kGray_8:
-            if (format == GrGLFormat::kLUMINANCE8) {
-                return kGray_8_as_Lum_GrPixelConfig;
-            } else if (format == GrGLFormat::kR8) {
-                return kGray_8_as_Red_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kAlpha_F16:
-            if (format == GrGLFormat::kLUMINANCE16F) {
-                return kAlpha_half_as_Lum_GrPixelConfig;
-            } else if (format == GrGLFormat::kR16F) {
-                return kAlpha_half_as_Red_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGBA_F16:
-            if (format == GrGLFormat::kRGBA16F) {
-                return kRGBA_half_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGBA_F16_Clamped:
-            if (format == GrGLFormat::kRGBA16F) {
-                return kRGBA_half_Clamped_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kAlpha_16:
-            if (format == GrGLFormat::kR16) {
-                return kAlpha_16_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRG_1616:
-            if (format == GrGLFormat::kRG16) {
-                return kRG_1616_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRGBA_16161616:
-            if (format == GrGLFormat::kRGBA16) {
-                return kRGBA_16161616_GrPixelConfig;
-            }
-            break;
-        case GrColorType::kRG_F16:
-            if (format == GrGLFormat::kRG16F) {
-                return kRG_half_GrPixelConfig;
-            }
-            break;
-
-        // These have no equivalent config:
-        case GrColorType::kRGBA_F32:
-        case GrColorType::kAlpha_8xxx:
-        case GrColorType::kAlpha_F32xxx:
-        case GrColorType::kGray_8xxx:
-        case GrColorType::kRGB_888:
-        case GrColorType::kR_8:
-        case GrColorType::kR_16:
-        case GrColorType::kR_F16:
-        case GrColorType::kGray_F16:
-            break;
-    }
-
-    SkDebugf("GL format/colorType mismatch - glFormat: %d colorType: %d standard: %d\n",
-             format, ct, standard);
-    return kUnknown_GrPixelConfig;
-}
-
 bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                  const GrBackendFormat& format) const {
     GrGLFormat glFormat = format.asGLFormat();
@@ -4286,32 +4155,12 @@ bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     return false;
 }
 
-GrPixelConfig GrGLCaps::onGetConfigFromBackendFormat(const GrBackendFormat& format,
-                                                     GrColorType ct) const {
-    return validate_sized_format(format.asGLFormat(), ct, fStandard);
-}
-
-GrPixelConfig GrGLCaps::onGetConfigFromCompressedBackendFormat(const GrBackendFormat& f) const {
-    GrGLFormat glFormat = f.asGLFormat();
-
-    if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_ETC2 ||
-        glFormat == GrGLFormat::kCOMPRESSED_ETC1_RGB8) {
-        return kRGB_ETC1_GrPixelConfig;
-    } else if (glFormat == GrGLFormat::kCOMPRESSED_RGB8_BC1) {
-        return kBC1_RGB8_UNORM_GrPixelConfig;
-    } else if (glFormat == GrGLFormat::kCOMPRESSED_RGBA8_BC1) {
-        return kBC1_RGBA8_UNORM_GrPixelConfig;
-    }
-
-    return kUnknown_GrPixelConfig;
-}
-
 GrColorType GrGLCaps::getYUVAColorTypeFromBackendFormat(const GrBackendFormat& format,
                                                         bool isAlphaChannel) const {
     switch (format.asGLFormat()) {
-        case GrGLFormat::kLUMINANCE8: // <missing kAlpha_8_as_Lum>/kGray_8_as_Lum_GrPixelConfig
-        case GrGLFormat::kR8:         // kAlpha_8_as_Red_GrPixelConfig/kGray_8_as_Red_GrPixelConfig
-        case GrGLFormat::kALPHA8:     // kAlpha_8_as_Alpha_GrPixelConfig/<missing kGray_8_as_Alpha>
+        case GrGLFormat::kLUMINANCE8:
+        case GrGLFormat::kR8:
+        case GrGLFormat::kALPHA8:
                                         return isAlphaChannel ? GrColorType::kAlpha_8
                                                               : GrColorType::kGray_8;
         case GrGLFormat::kRG8:          return GrColorType::kRG_88;

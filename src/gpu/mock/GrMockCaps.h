@@ -194,28 +194,6 @@ private:
         return GrBackendFormat::MakeMock(ct, SkImage::CompressionType::kNone);
     }
 
-    GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
-                                               GrColorType) const override {
-        SkImage::CompressionType compression = format.asMockCompressionType();
-        if (compression != SkImage::CompressionType::kNone) {
-            // This emulates the behavior of the other backends which validate
-            // the format w/ the colorType
-            return kUnknown_GrPixelConfig;
-        }
-
-        return GrColorTypeToPixelConfig(format.asMockColorType());
-    }
-
-    GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat& f) const override {
-        SkImage::CompressionType compression = f.asMockCompressionType();
-        if (compression != SkImage::CompressionType::kNone) {
-            return GrCompressionTypeToPixelConfig(compression);
-        }
-
-        // This emulates the behavior of the other backends
-        return kUnknown_GrPixelConfig;
-    }
-
     bool onAreColorTypeAndFormatCompatible(GrColorType ct,
                                            const GrBackendFormat& format) const override {
         if (ct == GrColorType::kUnknown) {

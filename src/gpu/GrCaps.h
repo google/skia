@@ -398,20 +398,6 @@ public:
         return this->onAreColorTypeAndFormatCompatible(grCT, format);
     }
 
-    // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
-    // Returns kUnknown if a valid config could not be determined.
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
-                                             GrColorType grCT) const {
-        if (GrColorType::kUnknown == grCT) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        return this->onGetConfigFromBackendFormat(format, grCT);
-    }
-    GrPixelConfig getConfigFromCompressedBackendFormat(const GrBackendFormat& format) const {
-        return this->onGetConfigFromCompressedBackendFormat(format);
-    }
-
     /**
      * Special method only for YUVA images. Returns a colortype that matches the backend format or
      * kUnknown if a colortype could not be determined.
@@ -447,17 +433,6 @@ public:
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
     /**
-     * Given a possibly generic GrPixelConfig and a backend format return a specific
-     * GrPixelConfig.
-     */
-    GrPixelConfig makeConfigSpecific(GrPixelConfig config, const GrBackendFormat& format) const {
-        auto ct = GrPixelConfigToColorType(config);
-        auto result = this->getConfigFromBackendFormat(format, ct);
-        SkASSERT(config == result || AreConfigsCompatible(config, result));
-        return result;
-    }
-
-    /**
      * Adds fields to the key to represent the sampler that will be created for the passed
      * in parameters. Currently this extra keying is only needed when building a vulkan pipeline
      * with immutable samplers.
@@ -467,13 +442,6 @@ public:
                                     const GrBackendFormat&) const {}
 
     virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
-
-#ifdef SK_DEBUG
-    // This is just a debugging entry point until we're weaned off of GrPixelConfig. It
-    // should be used to verify that the pixel config from user-level code (the genericConfig)
-    // is compatible with a pixel config we've computed from scratch (the specificConfig).
-    static bool AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig specificConfig);
-#endif
 
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
@@ -580,16 +548,11 @@ private:
         return true;
     }
 
-    virtual GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
-                                                       GrColorType ct) const = 0;
-    virtual GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const = 0;
-
     virtual bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const = 0;
 
     virtual SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType,
                                                          const GrBackendFormat& srcFormat,
                                                          GrColorType dstColorType) const = 0;
-
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;
