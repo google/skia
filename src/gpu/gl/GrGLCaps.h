@@ -100,6 +100,12 @@ public:
         kChromium,  // CHROMIUM_pixel_transfer_buffer_object
     };
 
+    enum class FenceType {
+        kNone,
+        kSyncObject,
+        kNVFence
+    };
+
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
@@ -266,6 +272,9 @@ public:
 
     /// What type of transfer buffer is supported?
     TransferBufferType transferBufferType() const { return fTransferBufferType; }
+
+    /// How are GrFences implemented?
+    FenceType fenceType() const { return fFenceType; }
 
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
@@ -480,16 +489,17 @@ private:
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
                                                  GrColorType) const override;
 
-    GrGLStandard fStandard;
+    GrGLStandard fStandard = kNone_GrGLStandard;
 
     SkTArray<StencilFormat, true> fStencilFormats;
 
-    int fMaxFragmentUniformVectors;
+    int fMaxFragmentUniformVectors = 0;
 
-    MSFBOType           fMSFBOType;
-    InvalidateFBType    fInvalidateFBType;
-    MapBufferType       fMapBufferType;
-    TransferBufferType  fTransferBufferType;
+    MSFBOType           fMSFBOType          = kNone_MSFBOType;
+    InvalidateFBType    fInvalidateFBType   = kNone_InvalidateFBType;
+    MapBufferType       fMapBufferType      = kNone_MapBufferType;
+    TransferBufferType  fTransferBufferType = TransferBufferType::kNone;
+    FenceType           fFenceType          = FenceType::kNone;
 
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
@@ -530,9 +540,9 @@ private:
     bool fDetachStencilFromMSAABuffersBeforeReadPixels : 1;
     bool fDontSetBaseOrMaxLevelForExternalTextures : 1;
     bool fNeverDisableColorWrites : 1;
-    int fMaxInstancesPerDrawWithoutCrashing;
+    int fMaxInstancesPerDrawWithoutCrashing = 0;
 
-    uint32_t fBlitFramebufferFlags;
+    uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
 
     struct ReadPixelsFormat {
         ReadPixelsFormat() : fFormat(0), fType(0) {}
