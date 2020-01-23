@@ -234,7 +234,7 @@ static std::unique_ptr<GrRenderTargetContext> convolve_gaussian(GrRecordingConte
 
         mid = contentRect->makeInset(0, radius);
 
-        left  = {mid.left(), dstBounds.top(), mid.right(), mid.bottom()      };
+        left  = {mid.left(), dstBounds.top(), mid.right(), mid.top()         };
         right = {mid.left(), mid.bottom()   , mid.right(), dstBounds.bottom()};
 
         *contentRect = {top.right(), dstBounds.top(), bottom.left(), dstBounds.bottom()};
