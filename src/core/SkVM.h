@@ -319,7 +319,7 @@ namespace skvm {
         M(select) M(bytes) M(pack)            \
     // End of SKVM_OPS
 
-    enum class Op : uint8_t {
+    enum class Op : int {
     #define M(op) op,
         SKVM_OPS(M)
     #undef M
@@ -338,9 +338,11 @@ namespace skvm {
     class Builder {
     public:
         struct Instruction {
+            // Tightly packed for hashing:
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
+            // End tightly packed for hashing.
 
             // Not populated until done() has been called.
             int  death;         // Index of last live instruction taking this input; live if != 0.
@@ -539,11 +541,11 @@ namespace skvm {
 
         void dump(SkWStream* = nullptr) const;
 
-        uint32_t hash() const;
+        uint64_t hash() const;
 
     private:
         struct InstructionHash {
-            size_t operator()(const Instruction& inst) const;
+            uint32_t operator()(const Instruction& inst, uint32_t seed=0) const;
         };
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
@@ -562,7 +564,8 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
-        uint32_t                                      fHash{0};
+        uint32_t                                      fHashLo{0},
+                                                      fHashHi{0};
     };
 
     // Helper to streamline allocating and working with uniforms.

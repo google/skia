@@ -13,8 +13,8 @@
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkCpu.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
-#include <functional>  // std::hash
 
 bool gSkVMJITViaDylib{false};
 
@@ -446,39 +446,22 @@ namespace skvm {
         return {fProgram, fStrides, debug_name};
     }
 
-    // TODO: it's probably not important that we include post-Builder::done() fields like
-    // death, can_hoist, and used_in_loop in operator==() and InstructionHash::operator().
-    // They'll always have the same, initial values as set in Builder::push().
-
+    // We skip fields only written after Builder::done() (death, can_hoist, used_in_loop) here
+    // for equality and hashing.  They'll always have the same default values in Builder::push().
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
-        return a.op           == b.op
-            && a.x            == b.x
-            && a.y            == b.y
-            && a.z            == b.z
-            && a.immy         == b.immy
-            && a.immz         == b.immz
-            && a.death        == b.death
-            && a.can_hoist    == b.can_hoist
-            && a.used_in_loop == b.used_in_loop;
+        return a.op   == b.op
+            && a.x    == b.x
+            && a.y    == b.y
+            && a.z    == b.z
+            && a.immy == b.immy
+            && a.immz == b.immz;
     }
 
-    // TODO: replace with SkOpts::hash()?
-    size_t Builder::InstructionHash::operator()(const Instruction& inst) const {
-        auto hash = [](auto v) {
-            return std::hash<decltype(v)>{}(v);
-        };
-        return hash((uint8_t)inst.op)
-             ^ hash(inst.x)
-             ^ hash(inst.y)
-             ^ hash(inst.z)
-             ^ hash(inst.immy)
-             ^ hash(inst.immz)
-             ^ hash(inst.death)
-             ^ hash(inst.can_hoist)
-             ^ hash(inst.used_in_loop);
+    uint32_t Builder::InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
+        return SkOpts::hash(&inst, offsetof(Instruction, death), seed);
     }
 
-    uint32_t Builder::hash() const { return fHash; }
+    uint64_t Builder::hash() const { return (uint64_t)fHashLo | (uint64_t)fHashHi << 32; }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
@@ -486,9 +469,11 @@ namespace skvm {
         Instruction inst{op, x, y, z, immy, immz,
                          /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
 
-        // This InstructionHash{}() call should be free given we're about to use fIndex below.
-        fHash ^= InstructionHash{}(inst);
-        fHash = SkChecksum::CheapMix(fHash);  // Make sure instruction order matters.
+        // This first InstructionHash{}() call should be free given we're about to use fIndex below.
+        fHashLo ^= InstructionHash{}(inst, 0);    // Two hash streams with different seeds.
+        fHashHi ^= InstructionHash{}(inst, 1);
+        fHashLo = SkChecksum::CheapMix(fHashLo);  // Mix to make sure instruction order matters.
+        fHashHi = SkChecksum::CheapMix(fHashHi);
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
