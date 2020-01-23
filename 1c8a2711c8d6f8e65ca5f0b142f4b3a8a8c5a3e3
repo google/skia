@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "01a4785a_c268dd41",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T20:58:23Z",
+      "side": 1,
+      "message": "So what I don\u0027t like about the other approach is that, it is may more lines of code for me to parse the path and build a new one than it would be to just add a few ifs to the tessellator. Furthermore, I do prefer elegant handling of infinity if merited, and don\u0027t love unnecessary new memory traffic and mallocs.",
+      "parentUuid": "c4be5601_fb54a859",
+      "revId": "1c8a2711c8d6f8e65ca5f0b142f4b3a8a8c5a3e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "42c63c90_3bcad693",
         "filename": "src/gpu/GrTessellator.h",
         "patchSetId": 1
