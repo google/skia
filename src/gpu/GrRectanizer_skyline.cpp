@@ -6,7 +6,7 @@
  */
 
 #include "src/core/SkIPoint16.h"
-#include "src/gpu/GrRectanizerSkyline.h"
+#include "src/gpu/GrRectanizer_skyline.h"
 
 bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||
@@ -114,3 +114,8 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+GrRectanizer* GrRectanizer::Factory(int width, int height) {
+    return new GrRectanizerSkyline(width, height);
+}

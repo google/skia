@@ -5,21 +5,23 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrRectanizerSkyline_DEFINED
-#define GrRectanizerSkyline_DEFINED
+#ifndef GrRectanizer_skyline_DEFINED
+#define GrRectanizer_skyline_DEFINED
 
 #include "include/private/SkTDArray.h"
-#include "src/core/SkIPoint16.h"
+#include "src/gpu/GrRectanizer.h"
 
 // Pack rectangles and track the current silhouette
 // Based, in part, on Jukka Jylanki's work at http://clb.demon.fi
-class GrRectanizerSkyline {
+class GrRectanizerSkyline : public GrRectanizer {
 public:
-    GrRectanizerSkyline(int w, int h) : fWidth{w}, fHeight{h} {
+    GrRectanizerSkyline(int w, int h) : INHERITED(w, h) {
         this->reset();
     }
 
-    void reset() {
+    ~GrRectanizerSkyline() override { }
+
+    void reset() override {
         fAreaSoFar = 0;
         fSkyline.reset();
         SkylineSegment* seg = fSkyline.append(1);
@@ -28,10 +30,11 @@ public:
         seg->fWidth = this->width();
     }
 
-    bool addRect(int w, int h, SkIPoint16* loc);
+    bool addRect(int w, int h, SkIPoint16* loc) override;
 
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
+    float percentFull() const override {
+        return fAreaSoFar / ((float)this->width() * this->height());
+    }
 
 private:
     struct SkylineSegment {
@@ -39,6 +42,10 @@ private:
         int  fY;
         int  fWidth;
     };
+
+    SkTDArray<SkylineSegment> fSkyline;
+
+    int32_t fAreaSoFar;
 
     // Can a width x height rectangle fit in the free space represented by
     // the skyline segments >= 'skylineIndex'? If so, return true and fill in
@@ -49,10 +56,7 @@ private:
     // at x,y.
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
 
-    SkTDArray<SkylineSegment> fSkyline;
-    int32_t fAreaSoFar;
-    int fWidth;
-    int fHeight;
+    typedef GrRectanizer INHERITED;
 };
 
-#endif  // GrRectanizerSkyline_DEFINED
+#endif
