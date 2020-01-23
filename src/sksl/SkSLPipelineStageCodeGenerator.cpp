@@ -21,35 +21,9 @@ PipelineStageCodeGenerator::PipelineStageCodeGenerator(
                                                   OutputStream* out,
                                                   std::vector<Compiler::FormatArg>* outFormatArgs,
                                                   std::vector<Compiler::GLSLFunction>* outFunctions)
-: INHERITED(context, program, errors, out)
-, fName("Temp")
-, fFullName(String::printf("Gr%s", fName.c_str()))
-, fSectionAndParameterHelper(program, *errors)
-, fFormatArgs(outFormatArgs)
-, fFunctions(outFunctions) {}
-
-void PipelineStageCodeGenerator::writef(const char* s, va_list va) {
-    static constexpr int BUFFER_SIZE = 1024;
-    va_list copy;
-    va_copy(copy, va);
-    char buffer[BUFFER_SIZE];
-    int length = vsnprintf(buffer, BUFFER_SIZE, s, va);
-    if (length < BUFFER_SIZE) {
-        fOut->write(buffer, length);
-    } else {
-        std::unique_ptr<char[]> heap(new char[length + 1]);
-        vsprintf(heap.get(), s, copy);
-        fOut->write(heap.get(), length);
-    }
-    va_end(copy);
-}
-
-void PipelineStageCodeGenerator::writef(const char* s, ...) {
-    va_list va;
-    va_start(va, s);
-    this->writef(s, va);
-    va_end(va);
-}
+    : INHERITED(context, program, errors, out)
+    , fFormatArgs(outFormatArgs)
+    , fFunctions(outFunctions) {}
 
 void PipelineStageCodeGenerator::writeHeader() {
 }
@@ -236,7 +210,6 @@ static GrSLType glsltype(const Context& context, const Type& type) {
 
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    fCurrentFunction = &f.fDeclaration;
     fFunctionHeader = "";
     OutputStream* oldOut = fOut;
     StringStream buffer;
@@ -251,7 +224,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         fOut = oldOut;
         this->write(fFunctionHeader);
-        this->writef("%s", buffer.str().c_str());
+        this->write(buffer.str());
     } else {
         const FunctionDeclaration& decl = f.fDeclaration;
         Compiler::GLSLFunction result;
@@ -269,15 +242,6 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         result.fFormatArgs = std::move(*fFormatArgs);
         fFunctions->push_back(result);
     }
-}
-
-bool PipelineStageCodeGenerator::writeSection(const char* name, const char* prefix) {
-    const Section* s = fSectionAndParameterHelper.getSection(name);
-    if (s) {
-        this->writef("%s%s", prefix, s->fText.c_str());
-        return true;
-    }
-    return false;
 }
 
 void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
