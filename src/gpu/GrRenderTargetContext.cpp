@@ -181,14 +181,9 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     if (context->priv().abandoned()) {
         return nullptr;
     }
-    auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
     GrSurfaceDesc desc;
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
-    desc.fConfig = config;
 
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 

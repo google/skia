@@ -167,7 +167,6 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     auto context = GrContext::MakeMock(nullptr);
     SkASSERT(context);
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = kNumOps + 1;
     desc.fHeight = 1;
 

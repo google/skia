@@ -19,7 +19,6 @@ static std::unique_ptr<GrRenderTargetContext> new_RTC(GrContext* context) {
 
 sk_sp<GrSurfaceProxy> create_proxy(GrContext* context) {
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth  = 128;
     desc.fHeight = 128;
 

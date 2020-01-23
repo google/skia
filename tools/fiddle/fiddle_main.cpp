@@ -131,7 +131,6 @@ static bool setup_backend_objects(GrContext* context,
     backingDesc.fWidth = bm.width();
     backingDesc.fHeight = bm.height();
     // This config must match the SkColorType used in draw.cpp in the SkImage and Surface factories
-    backingDesc.fConfig = kRGBA_8888_GrPixelConfig;
     auto format = resourceProvider->caps()->getDefaultBackendFormat(
             SkColorTypeToGrColorType(kRGBA_8888_SkColorType), GrRenderable::kNo);
     auto renderableFormat = resourceProvider->caps()->getDefaultBackendFormat(

@@ -139,7 +139,7 @@ bool GrDrawOpAtlas::Plot::addSubImage(int width, int height, const void* image, 
     dataPtr += fBytesPerPixel * fWidth * loc->fY;
     dataPtr += fBytesPerPixel * loc->fX;
     // copy into the data buffer, swizzling as we go if this is ARGB data
-    if (4 == fBytesPerPixel && kSkia8888_GrPixelConfig == kBGRA_8888_GrPixelConfig) {
+    if (4 == fBytesPerPixel && kN32_SkColorType == kBGRA_8888_SkColorType) {
         for (int i = 0; i < height; ++i) {
             SkOpts::RGBA_to_BGRA((uint32_t*)dataPtr, (const uint32_t*)imagePtr, width);
             dataPtr += fBytesPerPixel * fWidth;
@@ -546,7 +546,6 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
     GrSurfaceDesc desc;
     desc.fWidth = fTextureWidth;
     desc.fHeight = fTextureHeight;
-    desc.fConfig = GrColorTypeToPixelConfig(fColorType);
 
     int numPlotsX = fTextureWidth/fPlotWidth;
     int numPlotsY = fTextureHeight/fPlotHeight;

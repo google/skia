@@ -165,16 +165,10 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
  * Describes a surface to be created.
  */
 struct GrSurfaceDesc {
-    GrSurfaceDesc() : fWidth(0), fHeight(0), fConfig(kUnknown_GrPixelConfig) {}
+    GrSurfaceDesc() : fWidth(0), fHeight(0) {}
 
     int                    fWidth;  //!< Width of the texture
     int                    fHeight; //!< Height of the texture
-
-    /**
-     * Format of source data of the texture. Not guaranteed to be the same as
-     * internal format used by 3D API.
-     */
-    GrPixelConfig          fConfig;
 };
 
 /** Ownership rules for external GPU resources imported into Skia. */

@@ -208,7 +208,6 @@ public:
                                                     int renderTargetSampleCnt,
                                                     GrProtected,
                                                     GrSurfaceOrigin,
-                                                    GrPixelConfig,
                                                     const GrCaps&,
                                                     UseAllocator);
 
@@ -252,7 +251,7 @@ public:
 #if GR_TEST_UTILS
     /*
      * Create a texture proxy that is backed by an instantiated GrSurface.
-     * TODO: Remove GrColorType. Currently used to infer a GrPixelConfig.
+     * TODO: Remove GrColorType. Currently used to infer a readSwizzle.
      */
     sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& dimensions,
                                                               GrColorType colorType,

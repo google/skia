@@ -345,8 +345,6 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
     GrSurfaceDesc desc;
     desc.fWidth = 1;
     desc.fHeight = 1;
-    // We don't read this config so setting kUnknown
-    desc.fConfig = kUnknown_GrPixelConfig;
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mipmapProxy->backendFormat(),
                                                                colorType);
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
@@ -387,7 +385,6 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
 
         GrBackendFormat format = context->defaultBackendFormat(
                 kRGBA_8888_SkColorType, GrRenderable::kYes);
-        GrPixelConfig config = kRGBA_8888_GrPixelConfig;
         GrColorType colorType = GrColorType::kRGBA_8888;
         SkAlphaType alphaType = kPremul_SkAlphaType;
 
@@ -397,7 +394,6 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         GrSurfaceDesc desc;
         desc.fWidth = 4;
         desc.fHeight = 4;
-        desc.fConfig = config;
 
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 

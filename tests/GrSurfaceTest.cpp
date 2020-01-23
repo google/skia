@@ -30,7 +30,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrSurfaceDesc desc;
     desc.fWidth = 256;
     desc.fHeight = 256;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     auto format = context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kYes);
     sk_sp<GrSurface> texRT1 =
@@ -98,12 +97,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             return rp->createCompressedTexture(dimensions, format, SkBudgeted::kNo,
                                                GrMipMapped::kNo, GrProtected::kNo, data.get());
         } else {
-            GrPixelConfig config = rp->caps()->getConfigFromBackendFormat(format, colorType);
-
             GrSurfaceDesc desc;
             desc.fWidth = dimensions.width();
             desc.fHeight = dimensions.height();
-            desc.fConfig = config;
             return rp->createTexture(desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo,
                                      GrProtected::kNo);
         }
@@ -131,13 +127,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             GrSurfaceDesc desc;
             desc.fWidth = kW;
             desc.fHeight = kH;
-
-            if (caps->isFormatCompressed(combo.fFormat)) {
-                desc.fConfig = caps->getConfigFromCompressedBackendFormat(combo.fFormat);
-            } else {
-                desc.fConfig = caps->getConfigFromBackendFormat(combo.fFormat, combo.fColorType);
-            }
-            SkASSERT(desc.fConfig != kUnknown_GrPixelConfig);
 
             // Check if 'isFormatTexturable' agrees with 'createTexture' and that the mipmap
             // support check is working
@@ -253,14 +242,6 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
 
             if (!caps->isFormatTexturableAndUploadable(combo.fColorType, combo.fFormat)) {
                 continue;
-            }
-
-            {
-                GrPixelConfig config = caps->getConfigFromBackendFormat(combo.fFormat,
-                                                                        combo.fColorType);
-                SkASSERT(config != kUnknown_GrPixelConfig);
-
-                desc.fConfig = config;
             }
 
             auto checkColor = [reporter](const GrCaps::TestFormatColorTypeCombination& combo,
@@ -506,7 +487,6 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
 
 static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable renderable) {
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = desc.fHeight = kSurfSize;
     auto format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
@@ -600,7 +580,6 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 GrSurfaceDesc desc;
                 desc.fWidth = w;
                 desc.fHeight = h;
-                desc.fConfig = kRGBA_8888_GrPixelConfig;
                 SkBudgeted budgeted;
                 if (texture->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
                     budgeted = SkBudgeted::kYes;

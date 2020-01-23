@@ -27,7 +27,6 @@ static sk_sp<GrTextureProxy> make_deferred(GrContext* context) {
     GrSurfaceDesc desc;
     desc.fWidth = kWidthHeight;
     desc.fHeight = kWidthHeight;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                  GrRenderable::kYes);

@@ -840,7 +840,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         GrSurfaceDesc surfDesc;
         surfDesc.fWidth = width;
         surfDesc.fHeight = height;
-        surfDesc.fConfig = kRGBA_8888_GrPixelConfig;
 
         VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                        VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
@@ -1122,7 +1121,6 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                                                 : GrMipMapsStatus::kNotAllocated;
 
     GrSurfaceDesc desc;
-    desc.fConfig = this->vkCaps().getConfigFromCompressedBackendFormat(format);
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
     auto tex = GrVkTexture::MakeNewTexture(this, budgeted, desc, imageDesc,
@@ -1237,14 +1235,9 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                                    colorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
-    surfDesc.fConfig = config;
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
@@ -1273,13 +1266,9 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    auto config = this->caps()->getConfigFromCompressedBackendFormat(beTex.getBackendFormat());
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = beTex.width();
     surfDesc.fHeight = beTex.height();
-    surfDesc.fConfig = config;
 
     sk_sp<GrVkImageLayout> layout = beTex.getGrVkImageLayout();
     SkASSERT(layout);
@@ -1313,15 +1302,9 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                                    colorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
     surfDesc.fWidth = backendTex.width();
     surfDesc.fHeight = backendTex.height();
-    surfDesc.fConfig = config;
     sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
@@ -1346,10 +1329,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
-                                                                    colorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     if (!check_image_info(this->vkCaps(), info, colorType, false)) {
         return nullptr;
     }
@@ -1365,7 +1344,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     GrSurfaceDesc desc;
     desc.fWidth = backendRT.width();
     desc.fHeight = backendRT.height();
-    desc.fConfig = config;
 
     sk_sp<GrVkImageLayout> layout = backendRT.getGrVkImageLayout();
 
@@ -1401,14 +1379,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(tex.getBackendFormat(),
-                                                                    grColorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc desc;
     desc.fWidth = tex.width();
     desc.fHeight = tex.height();
-    desc.fConfig = config;
 
     sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
     if (!sampleCnt) {
@@ -1438,16 +1411,9 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
         return nullptr;
     }
 
-    GrColorType grColorType = SkColorTypeToGrColorType(imageInfo.colorType());
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendFormat, grColorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
-
     GrSurfaceDesc desc;
     desc.fWidth = imageInfo.width();
     desc.fHeight = imageInfo.height();
-    desc.fConfig = config;
 
     return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, desc, vkInfo);
 }
@@ -2501,7 +2467,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         GrSurfaceDesc surfDesc;
         surfDesc.fWidth = width;
         surfDesc.fHeight = height;
-        surfDesc.fConfig = kRGBA_8888_GrPixelConfig;
 
         VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                                        VK_IMAGE_USAGE_SAMPLED_BIT |

@@ -75,14 +75,9 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
         SkBudgeted budgeted) {
-    auto config = context->priv().caps()->getConfigFromBackendFormat(format, colorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
     GrSurfaceDesc desc;
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
-    desc.fConfig = config;
 
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
@@ -365,14 +360,10 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         SkAlphaType alphaType;
         GrSwizzle tempReadSwizzle;
         if (canvas2DFastPath) {
-            desc.fConfig = kRGBA_8888_GrPixelConfig;
             colorType = GrColorType::kRGBA_8888;
             format = rgbaDefaultFormat;
             alphaType = kUnpremul_SkAlphaType;
         } else {
-            // This isn't actually used anywhere so just setting to unknown which should trigger
-            // asserts and failures if it is read.
-            desc.fConfig =  kUnknown_GrPixelConfig;
             colorType = this->colorInfo().colorType();
             format = dstProxy->backendFormat().makeTexture2D();
             if (!format.isValid()) {

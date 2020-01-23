@@ -1280,7 +1280,6 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
 
 GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fHeight = random->nextULessThan(90) + 10;
     desc.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;

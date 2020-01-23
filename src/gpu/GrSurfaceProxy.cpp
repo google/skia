@@ -309,10 +309,6 @@ sk_sp<GrTextureProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
     }
     auto format = src->backendFormat().makeTexture2D();
     SkASSERT(format.isValid());
-    auto config = context->priv().caps()->getConfigFromBackendFormat(format, srcColorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
 
     GrSurfaceOrigin origin = src->origin();
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {

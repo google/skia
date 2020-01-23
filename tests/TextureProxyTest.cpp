@@ -30,7 +30,6 @@ static GrSurfaceDesc make_desc() {
     GrSurfaceDesc desc;
     desc.fWidth = kSize.width();
     desc.fHeight = kSize.height();
-    desc.fConfig = GrColorTypeToPixelConfig(kColorType);
     return desc;
 }
 

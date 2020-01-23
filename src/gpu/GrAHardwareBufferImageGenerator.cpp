@@ -96,12 +96,6 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
                                                                              false);
 
     GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
-    GrPixelConfig pixelConfig = context->priv().caps()->getConfigFromBackendFormat(backendFormat,
-                                                                                   grColorType);
-
-    if (pixelConfig == kUnknown_GrPixelConfig) {
-        return nullptr;
-    }
 
     int width = this->getInfo().width();
     int height = this->getInfo().height();
@@ -109,7 +103,6 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
     GrSurfaceDesc desc;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fConfig = pixelConfig;
 
     GrTextureType textureType = GrTextureType::k2D;
     if (context->backend() == GrBackendApi::kOpenGL) {

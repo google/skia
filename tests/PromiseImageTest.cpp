@@ -421,7 +421,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     SkTArray<sk_sp<GrTexture>> textures;
     for (int i = 0; i < 5; ++i) {
         GrSurfaceDesc desc;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = desc.fHeight = 100;
         auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kNo);
