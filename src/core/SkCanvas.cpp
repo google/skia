@@ -1452,11 +1452,6 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
-#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
-    SkMatrix m;
-    m.setScale(sx, sy);
-    this->concat(m);
-#else
     if (sx != 1 || sy != 1) {
         this->checkForDeferredSave();
         fMCRec->fMatrix.preScale(sx, sy);
@@ -1469,7 +1464,6 @@ void SkCanvas::scale(SkScalar sx, SkScalar sy) {
 
         this->didScale(sx, sy);
     }
-#endif
 }
 
 void SkCanvas::rotate(SkScalar degrees) {

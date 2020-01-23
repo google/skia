@@ -2568,14 +2568,7 @@ protected:
     virtual void didConcat44(const SkScalar[]) {} // colMajor
     virtual void didConcat(const SkMatrix& ) {}
     virtual void didSetMatrix(const SkMatrix& ) {}
-#ifdef SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS
-    virtual void didTranslate(SkScalar dx, SkScalar dy) {
-        this->didConcat(SkMatrix::MakeTrans(dx, dy));
-    }
-#else
     virtual void didTranslate(SkScalar, SkScalar) {}
-#endif
-    // Called if SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS is not defined
     virtual void didScale(SkScalar, SkScalar) {}
 
     // NOTE: If you are adding a new onDraw virtual to SkCanvas, PLEASE add an override to
