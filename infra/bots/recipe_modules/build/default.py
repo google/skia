@@ -177,6 +177,8 @@ def compile_fn(api, checkout_root, out_dir):
     if 'SK_CPU_LIMIT' in extra_tokens[0]:
       extra_cflags.append('-DSKCMS_PORTABLE')
 
+  if 'SkVM' in extra_tokens:
+    extra_cflags.append('-DSK_USE_SKVM_BLITTER')
 
   if 'MSAN' in extra_tokens:
     extra_ldflags.append('-L' + clang_linux + '/msan')
