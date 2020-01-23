@@ -14,46 +14,6 @@
 #include <atomic>
 #include <cstring>
 
-#ifdef SK_SUPPORT_LEGACY_MSCALAR
-typedef SkScalar SkMScalar;
-
-static inline SkScalar SkFloatToMScalar(float x) {
-    return x;
-}
-static inline float SkMScalarToFloat(SkScalar x) {
-    return float(x);
-}
-static inline float SkDoubleToMScalar(double x) {
-    return SkScalar(x);
-}
-static inline double SkMScalarToDouble(SkScalar x) {
-    return x;
-}
-static inline float SkMScalarAbs(float x) {
-    return sk_float_abs(x);
-}
-
-static const SkScalar SK_MScalarPI = SK_ScalarPI;
-static const SkScalar SK_MScalarNaN = SK_ScalarNaN;
-
-#define SkMScalarFloor(x)           SkScalarFloor(x)
-#define SkMScalarCeil(x)            SkScalarCeil(x)
-#define SkMScalarRound(x)           SkScalarRound(x)
-
-#define SkMScalarFloorToInt(x)      SkScalarFloorToInt(x)
-#define SkMScalarCeilToInt(x)       SkScalarCeilToInt(x)
-#define SkMScalarRoundToInt(x)      SkScalarRoundToInt(x)
-
-#define SkIntToMScalar(n)       SkIntToScalar(n)
-
-#define SkMScalarToScalar(x)    (x)
-#define SkScalarToMScalar(x)    (x)
-
-static const SkScalar SK_MScalar1 = 1;
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 struct SkVector4 {
     SkScalar fData[4];
 
@@ -359,15 +319,6 @@ public:
     inline void mapScalars(SkScalar vec[4]) const {
         this->mapScalars(vec, vec);
     }
-
-#ifdef SK_SUPPORT_LEGACY_MSCALAR
-    inline void mapMScalars(const SkScalar src[4], SkScalar dst[4]) const {
-        this->mapScalars(src, dst);
-    }
-    inline void mapMScalars(SkScalar vec[4]) const {
-        this->mapMScalars(vec, vec);
-    }
-#endif
 
     friend SkVector4 operator*(const SkMatrix44& m, const SkVector4& src) {
         SkVector4 dst;
