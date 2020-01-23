@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "499366b0_7dac804f",
+        "filename": "src/gpu/GrApproxVertexAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-23T16:56:15Z",
+      "side": 1,
+      "message": "Could we keep the abstract base class (put in this class), and derive from it here? I find it weird and mildly fragile that StaticVertexAllocator derives from the dynamic one. We could call it GrTessellatorVertexAllocator if you find GrVertexAllocator too generic. While I\u0027m bikeshedding, could we also keep the old name (GrDynamicVertexAllocator)? GrApproxVertexAllocator sounds like it\u0027s allocating vertices whose values are approximate.",
+      "revId": "70ecd882ee47d66b6b171a6cb81bd9f89af82841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
