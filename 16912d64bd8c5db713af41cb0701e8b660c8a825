@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46ef7a69_314e8371",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 4117,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-23T20:12:29Z",
+      "side": 1,
+      "message": "why is the fence version never going to be nvFence by the waitSync can be?",
+      "range": {
+        "startLine": 4116,
+        "startChar": 15,
+        "endLine": 4117,
+        "endChar": 19
+      },
+      "revId": "16912d64bd8c5db713af41cb0701e8b660c8a825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
