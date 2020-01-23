@@ -2111,6 +2111,9 @@ DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
 }
 
 // Checked DIFF+
+// This test shows now 2 boxes for [36:40) range:
+// [36:38) for arabic text and [38:39) for the last space
+// that has default paragraph direction (LTR) and is placed at the end of the paragraph
 DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -2147,13 +2150,14 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
 
     RectHeightStyle rect_height_style = RectHeightStyle::kMax;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    // There are 39 codepoints: [0:39); asking for [36:40) would give the same as for [36:39)
     std::vector<TextBox> boxes = paragraph->getRectsForRange(36, 40, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorRED, boxes);
 
-    REPORTER_ASSERT(reporter, boxes.size() == 1ull);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.916f, EPSILON100));  // DIFF: 89.40625
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.268f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 115.893f, EPSILON100)); // DIFF: 121.87891
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.92f, EPSILON100));  // DIFF: 89.40625
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 110.16f, EPSILON100)); // DIFF: 121.87891
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
@@ -2198,10 +2202,10 @@ DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
             paragraph->getRectsForRange(36, 40, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorRED, boxes);
 
-    REPORTER_ASSERT(reporter, boxes.size() == 1ull); // DIFF
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.501f, EPSILON100));         // DIFF
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.268f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 593.479f, EPSILON100));         // DIFF
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.5f, EPSILON100));         // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 587.74f, EPSILON100));       // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
