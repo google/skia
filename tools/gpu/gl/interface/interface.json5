@@ -731,8 +731,5 @@
     "functions": [
       "DeleteFences", "FinishFence", "GenFences", "SetFence", "TestFence",
     ],
-    "optional": [
-      "DeleteFences", "FinishFence", "GenFences", "SetFence", "TestFence"
-    ]
   }
 ]
