@@ -1013,6 +1013,65 @@ static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
     return SkColorFilters::Matrix(kJPEGConversionMatrix);
 }
 
+sk_sp<SkImage> resize_on_gpu(GrContext* context,
+                             SkYUVColorSpace yuvColorSpace,
+                             const GrBackendTexture yuvaTextures[],
+                             const SkYUVAIndex yuvaIndices[4],
+                             int numTextures,
+                             SkISize imageSize) {
+    const GrCaps* caps = context->priv().caps();
+
+    GrBackendTexture shrunkTextures[4];
+
+    for (int i = 0; i < numTextures; ++i) {
+        GrColorType ct = caps->getYUVAColorTypeFromBackendFormat(yuvaTextures[i].getBackendFormat(),
+                                                                 true);
+
+        // Ignore all the 16bits/channel configs for now
+        if (ct == GrColorType::kAlpha_16 || ct == GrColorType::kRG_1616 ||
+            ct == GrColorType::kRG_F16 || ct == GrColorType::kRGBA_16161616 ||
+            ct == GrColorType::kR_16 || ct == GrColorType::kR_F16 ||
+            ct == GrColorType::kGray_F16 || ct == GrColorType::kAlpha_F16) {
+            return nullptr;
+        }
+
+        SkColorType skCT = GrColorTypeToSkColorType(ct);
+        if (skCT == kUnknown_SkColorType) {
+            return nullptr;
+        }
+
+        SkISize shrunkSize = { imageSize.width() / 2, imageSize.height() / 2 };
+
+        SkImageInfo ii = SkImageInfo::Make(shrunkSize.width(), shrunkSize.height(),
+                                           skCT, kOpaque_SkAlphaType);
+
+        sk_sp<SkImage> wrapped = SkImage::MakeFromAdoptedTexture(context, yuvaTextures[i],
+                                                                 kTopLeft_GrSurfaceOrigin, skCT);
+
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
+        if (!s) {
+            SkString str = yuvaTextures[i].getBackendFormat().toStr();
+            SkDebugf("failing on %s\n", str.c_str());
+            s = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii);
+            return nullptr;
+        }
+        SkCanvas* c = s->getCanvas();
+
+        c->drawImageRect(wrapped, SkRect::MakeWH(shrunkSize.width(), shrunkSize.height()), nullptr);
+
+        sk_sp<SkImage> smImage = s->makeImageSnapshot();
+
+        shrunkTextures[i] = smImage->getBackendTexture(true);
+    }
+
+    return SkImage::MakeFromYUVATextures(context,
+                                         yuvColorSpace,
+                                         shrunkTextures,
+                                         yuvaIndices,
+                                         imageSize,
+                                         kTopLeft_GrSurfaceOrigin);
+}
+
 namespace skiagm {
 
 // This GM creates an opaque and transparent bitmap, extracts the planes and then recombines
@@ -1131,6 +1190,15 @@ protected:
                             // know about the intended domain and the domain padding bleeds in
                             counterMod = 1;
                         }
+#if 1
+                        fImages[opaque][cs][format] = resize_on_gpu(
+                            context,
+                            (SkYUVColorSpace)cs,
+                            yuvaTextures,
+                            yuvaIndices,
+                            numTextures,
+                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() });
+#else
                         switch (counterMod) {
                         case 0:
                             fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
@@ -1161,6 +1229,7 @@ protected:
                                 kTopLeft_GrSurfaceOrigin, true);
                             break;
                         }
+#endif
                         ++counter;
                     } else {
                         fImages[opaque][cs][format] = make_yuv_gen_image(
@@ -1254,8 +1323,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
+//DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
+//DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:
