@@ -403,7 +403,6 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     std::unique_ptr<SkColor[]> colors;
     SkIRect subset;
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fWidth = random->nextRangeU(1, 1000);
     desc.fHeight = random->nextRangeU(1, 1000);
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin

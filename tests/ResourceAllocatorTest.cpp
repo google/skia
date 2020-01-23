@@ -33,12 +33,9 @@ struct ProxyParams {
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(p.fColorType);
-
     GrSurfaceDesc desc;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
-    desc.fConfig = config;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
     GrSwizzle swizzle = caps->getReadSwizzle(format, p.fColorType);
@@ -266,13 +263,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
 
 sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                 const ProxyParams& p) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(p.fColorType);
     const auto format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
 
     GrSurfaceDesc desc;
     desc.fWidth = p.fSize;
     desc.fHeight = p.fSize;
-    desc.fConfig = config;
 
     SkBackingFit fit = p.fFit;
     auto callback = [fit, desc, format, p](GrResourceProvider* resourceProvider) {

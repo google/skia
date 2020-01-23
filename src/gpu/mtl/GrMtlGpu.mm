@@ -550,7 +550,6 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                                                                 : GrMipMapsStatus::kNotAllocated;
 
     GrSurfaceDesc desc;
-    desc.fConfig = this->caps()->getConfigFromCompressedBackendFormat(format);
     desc.fWidth = dimensions.width();
     desc.fHeight = dimensions.height();
     auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
@@ -631,7 +630,7 @@ static id<MTLTexture> get_texture_from_backend(const GrBackendRenderTarget& back
 }
 
 static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> mtlTexture,
-                                     GrRenderable renderable, GrPixelConfig config) {
+                                     GrRenderable renderable) {
     if (@available(macOS 10.11, iOS 9.0, *)) {
         if (renderable == GrRenderable::kYes) {
             SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
@@ -639,7 +638,6 @@ static inline void init_surface_desc(GrSurfaceDesc* surfaceDesc, id<MTLTexture> 
     }
     surfaceDesc->fWidth = mtlTexture.width;
     surfaceDesc->fHeight = mtlTexture.height;
-    surfaceDesc->fConfig = config;
 }
 
 sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
@@ -651,12 +649,8 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                                    grColorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kNo, config);
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kNo);
 
     return GrMtlTexture::MakeWrappedTexture(this, surfDesc, mtlTexture, cacheable, ioType);
 }
@@ -684,12 +678,8 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
         return nullptr;
     }
 
-    GrPixelConfig config = caps.getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                           colorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes);
 
     sampleCnt = caps.getRenderTargetSampleCount(sampleCnt, format);
     SkASSERT(sampleCnt);
@@ -709,12 +699,8 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendRT.getBackendFormat(),
-                                                                    grColorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes);
 
     return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, backendRT.sampleCnt(),
                                                       mtlTexture);
@@ -732,12 +718,8 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
         return nullptr;
     }
 
-    GrPixelConfig config = this->caps()->getConfigFromBackendFormat(backendTex.getBackendFormat(),
-                                                                    grColorType);
-    SkASSERT(kUnknown_GrPixelConfig != config);
-
     GrSurfaceDesc surfDesc;
-    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes, config);
+    init_surface_desc(&surfDesc, mtlTexture, GrRenderable::kYes);
     sampleCnt = this->mtlCaps().getRenderTargetSampleCount(sampleCnt, format);
     if (!sampleCnt) {
         return nullptr;

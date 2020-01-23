@@ -131,16 +131,9 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrColorType grColorType = SkColorTypeToGrColorType(fCharacterization.colorType());
 
-    GrPixelConfig config = caps->getConfigFromBackendFormat(fCharacterization.backendFormat(),
-                                                            grColorType);
-    if (config == kUnknown_GrPixelConfig) {
-        return false;
-    }
-
     GrSurfaceDesc desc;
     desc.fWidth = fCharacterization.width();
     desc.fHeight = fCharacterization.height();
-    desc.fConfig = config;
 
     sk_sp<SkDeferredDisplayList::LazyProxyData> lazyProxyData = fLazyProxyData;
 

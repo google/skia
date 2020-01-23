@@ -57,7 +57,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     static const size_t kRowBytes[] = {0, X_SIZE, X_SIZE + 1, 2 * X_SIZE - 1};
     {
         GrSurfaceDesc desc;
-        desc.fConfig    = kAlpha_8_GrPixelConfig;    // it is a single channel texture
         desc.fWidth     = X_SIZE;
         desc.fHeight    = Y_SIZE;
 
