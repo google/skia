@@ -1012,10 +1012,49 @@ DEF_TEST(M44_v3, reporter) {
         0, 0, 0, 1
     };
 
-    SkV3 c = m * a,
-        c2 = {2, 2, 9};
-    REPORTER_ASSERT(reporter, c == c2);
-    SkV4 d = m.map(4, 3, 2, 1),
-        d2 = {11, 8, 7, 1};
-    REPORTER_ASSERT(reporter, d == d2);
+    SkV3 c = m * a;
+    REPORTER_ASSERT(reporter, (c == SkV3{2, 2, 9}));
+    SkV4 d = m.map(4, 3, 2, 1);
+    REPORTER_ASSERT(reporter, (d == SkV4{11, 8, 7, 1}));
+}
+
+DEF_TEST(M44_v4, reporter) {
+    SkM44 m( 1,  2,  3,  4,
+             5,  6,  7,  8,
+             9, 10, 11, 12,
+            13, 14, 15, 16);
+
+    SkV4 r0 = m.row(0),
+         r1 = m.row(1),
+         r2 = m.row(2),
+         r3 = m.row(3);
+
+    REPORTER_ASSERT(reporter, (r0 == SkV4{ 1,  2,  3,  4}));
+    REPORTER_ASSERT(reporter, (r1 == SkV4{ 5,  6,  7,  8}));
+    REPORTER_ASSERT(reporter, (r2 == SkV4{ 9, 10, 11, 12}));
+    REPORTER_ASSERT(reporter, (r3 == SkV4{13, 14, 15, 16}));
+
+    REPORTER_ASSERT(reporter, SkM44::Rows(r0, r1, r2, r3) == m);
+
+    SkV4 c0 = m.col(0),
+         c1 = m.col(1),
+         c2 = m.col(2),
+         c3 = m.col(3);
+
+    REPORTER_ASSERT(reporter, (c0 == SkV4{1, 5,  9, 13}));
+    REPORTER_ASSERT(reporter, (c1 == SkV4{2, 6, 10, 14}));
+    REPORTER_ASSERT(reporter, (c2 == SkV4{3, 7, 11, 15}));
+    REPORTER_ASSERT(reporter, (c3 == SkV4{4, 8, 12, 16}));
+
+    REPORTER_ASSERT(reporter, SkM44::Cols(c0, c1, c2, c3) == m);
+
+    // implement matrix * vector using column vectors
+    SkV4 v = {1, 2, 3, 4};
+    SkV4 v1 = m * v;
+    SkV4 v2 = c0 * v.x + c1 * v.y + c2 * v.z + c3 * v.w;
+    REPORTER_ASSERT(reporter, v1 == v2);
+
+    REPORTER_ASSERT(reporter, (c0 + r0 == SkV4{c0.x+r0.x, c0.y+r0.y, c0.z+r0.z, c0.w+r0.w}));
+    REPORTER_ASSERT(reporter, (c0 - r0 == SkV4{c0.x-r0.x, c0.y-r0.y, c0.z-r0.z, c0.w-r0.w}));
+    REPORTER_ASSERT(reporter, (c0 * r0 == SkV4{c0.x*r0.x, c0.y*r0.y, c0.z*r0.z, c0.w*r0.w}));
 }
