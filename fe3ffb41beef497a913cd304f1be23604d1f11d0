@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c0e34083_bcbc689b",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T21:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60a109e9_0e4ea9df",
+      "revId": "fe3ffb41beef497a913cd304f1be23604d1f11d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d373e1ea_25b89451",
         "filename": "src/gpu/GrTessellator.cpp",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2020-01-09T21:21:41Z",
       "side": 1,
       "message": "Technically, this isn\u0027t a clockwise check. It\u0027s a convexity check: we only clip convex ears, and since the polygon is monotone, it ensures that we always have an ear to clip.",
+      "revId": "fe3ffb41beef497a913cd304f1be23604d1f11d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb9a2127_c7110e09",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T21:46:52Z",
+      "side": 1,
+      "message": "I see. So is it not safe to assume monotone poly triangles will always be device-space clockwise?",
+      "parentUuid": "d373e1ea_25b89451",
       "revId": "fe3ffb41beef497a913cd304f1be23604d1f11d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -50,6 +86,24 @@
       "revId": "fe3ffb41beef497a913cd304f1be23604d1f11d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3b12bcd_7bd894dc",
+        "filename": "src/gpu/GrTessellator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T21:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47d114f5_2095ad5d",
+      "revId": "fe3ffb41beef497a913cd304f1be23604d1f11d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
