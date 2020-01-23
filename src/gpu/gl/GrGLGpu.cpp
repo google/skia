@@ -4076,16 +4076,41 @@ void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
 GrFence SK_WARN_UNUSED_RESULT GrGLGpu::insertFence() {
     SkASSERT(this->caps()->fenceSyncSupport());
     GrGLsync sync;
-    GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+    if (this->glCaps().fenceType() == GrGLCaps::FenceType::kNVFence) {
+        static_assert(sizeof(GrGLsync) >= sizeof(GrGLuint));
+        GrGLuint fence = 0;
+        GL_CALL(GenFences(1, &fence));
+        GL_CALL(SetFence(fence, GR_GL_ALL_COMPLETED));
+        sync = reinterpret_cast<GrGLsync>(static_cast<intptr_t>(fence));
+    } else {
+        GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+    }
     static_assert(sizeof(GrFence) >= sizeof(GrGLsync));
     return (GrFence)sync;
 }
 
 bool GrGLGpu::waitSync(GrGLsync sync, uint64_t timeout, bool flush) {
-    GrGLbitfield flags = flush ? GR_GL_SYNC_FLUSH_COMMANDS_BIT : 0;
-    GrGLenum result;
-    GL_CALL_RET(result, ClientWaitSync(sync, flags, timeout));
-    return (GR_GL_CONDITION_SATISFIED == result || GR_GL_ALREADY_SIGNALED == result);
+    if (this->glCaps().fenceType() == GrGLCaps::FenceType::kNVFence) {
+        GrGLuint nvFence = static_cast<GrGLuint>(reinterpret_cast<intptr_t>(sync));
+        if (!timeout) {
+            if (flush) {
+                GL_CALL(Flush);
+            }
+            GrGLboolean result;
+            GL_CALL_RET(result, TestFence(nvFence));
+            return result == GR_GL_TRUE;
+        }
+        // Ignore non-zero timeouts. GL_NV_fence has no timeout functionality.
+        // If this really becomes necessary we could poll TestFence().
+        // FinishFence always flushes so no need to check flush param.
+        GL_CALL(FinishFence(nvFence));
+        return true;
+    } else {
+        GrGLbitfield flags = flush ? GR_GL_SYNC_FLUSH_COMMANDS_BIT : 0;
+        GrGLenum result;
+        GL_CALL_RET(result, ClientWaitSync(sync, flags, timeout));
+        return (GR_GL_CONDITION_SATISFIED == result || GR_GL_ALREADY_SIGNALED == result);
+    }
 }
 
 bool GrGLGpu::waitFence(GrFence fence, uint64_t timeout) {
@@ -4134,7 +4159,12 @@ void GrGLGpu::checkFinishProcs() {
 }
 
 void GrGLGpu::deleteSync(GrGLsync sync) const {
-    GL_CALL(DeleteSync(sync));
+    if (this->glCaps().fenceType() == GrGLCaps::FenceType::kNVFence) {
+        GrGLuint nvFence = SkToUInt(reinterpret_cast<intptr_t>(sync));
+        GL_CALL(DeleteFences(1, &nvFence));
+    } else {
+        GL_CALL(DeleteSync(sync));
+    }
 }
 
 std::unique_ptr<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* texture) {

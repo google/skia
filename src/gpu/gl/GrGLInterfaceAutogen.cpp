@@ -747,7 +747,13 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_NV_fence"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_NV_fence")))) {
-        // all functions were marked optional or test_only
+        if (!fFunctions.fDeleteFences ||
+            !fFunctions.fFinishFence ||
+            !fFunctions.fGenFences ||
+            !fFunctions.fSetFence ||
+            !fFunctions.fTestFence) {
+            RETURN_FALSE_INTERFACE;
+        }
     }
 
 
