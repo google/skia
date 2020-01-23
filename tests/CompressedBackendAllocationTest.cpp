@@ -7,6 +7,7 @@
 
 #include "include/gpu/GrContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
@@ -37,7 +38,7 @@ sk_sp<SkImage> create_image(GrContext* context, const GrBackendTexture& backendT
 
     SkImage::CompressionType compression = caps->compressionType(backendTex.getBackendFormat());
 
-    SkAlphaType at = GrCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
+    SkAlphaType at = SkCompressionTypeIsOpaque(compression) ? kOpaque_SkAlphaType
                                                             : kPremul_SkAlphaType;
 
     return SkImage::MakeFromCompressedTexture(context,
@@ -168,7 +169,8 @@ static std::unique_ptr<const char[]> make_compressed_data(SkImage::CompressionTy
 
     SkTArray<size_t> mipMapOffsets(numMipLevels);
 
-    size_t dataSize = GrCompressedDataSize(compression, dimensions, &mipMapOffsets, mipMapped);
+    size_t dataSize = SkCompressedDataSize(compression, dimensions, &mipMapOffsets,
+                                           mipMapped == GrMipMapped::kYes);
     char* data = new char[dataSize];
 
     for (int level = 0; level < numMipLevels; ++level) {
@@ -205,7 +207,8 @@ static void test_compressed_data_init(GrContext* context,
 
     std::unique_ptr<const char[]> data(make_compressed_data(compression, expectedColors,
                                                             mipMapped));
-    size_t dataSize = GrCompressedDataSize(compression, { 32, 32 }, nullptr, mipMapped);
+    size_t dataSize = SkCompressedDataSize(compression, { 32, 32 }, nullptr,
+                                           mipMapped == GrMipMapped::kYes);
 
     GrBackendTexture backendTex = create(context, data.get(), dataSize, mipMapped);
     if (!backendTex.isValid()) {
