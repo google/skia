@@ -22,6 +22,30 @@
       "revId": "e1a801f9265a931f79c096be6d6de7ee81e72529",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80e5ed3e_dfed112f",
+        "filename": "src/core/SkCompressedDataUtils.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-23T15:31:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2293d6af_325611d2",
+      "range": {
+        "startLine": 127,
+        "startChar": 20,
+        "endLine": 127,
+        "endChar": 29
+      },
+      "revId": "e1a801f9265a931f79c096be6d6de7ee81e72529",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
