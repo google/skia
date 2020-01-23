@@ -26,12 +26,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
                    const GrGLInterface* glInterface) : INHERITED(contextOptions) {
     fStandard = ctxInfo.standard();
 
-    fStencilFormats.reset();
-    fMSFBOType = kNone_MSFBOType;
-    fInvalidateFBType = kNone_InvalidateFBType;
-    fMapBufferType = kNone_MapBufferType;
-    fTransferBufferType = TransferBufferType::kNone;
-    fMaxFragmentUniformVectors = 0;
     fPackFlipYSupport = false;
     fTextureUsageSupport = false;
     fImagingSupport = false;
@@ -69,9 +63,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fTiledRenderingSupport = false;
     fFBFetchRequiresEnablePerSample = false;
     fSRGBWriteControl = false;
-
-    fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
-    fMaxInstancesPerDrawWithoutCrashing = 0;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -647,21 +638,28 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     }
 
+    // We prefer GL sync objects but also support NV_fence_sync. The former can be
+    // used to implements GrFence and GrSemaphore. The latter only implements GrFence.
     // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
-    if (ctxInfo.hasExtension("GL_ARB_sync") || ctxInfo.hasExtension("GL_APPLE_sync")) {
-        fFenceSyncSupport = true;
-    } else if (GR_IS_GR_GL(standard)) {
-        fFenceSyncSupport = (version >= GR_GL_VER(3, 2));
-    } else if (GR_IS_GR_GL_ES(standard)) {
-        fFenceSyncSupport = (version >= GR_GL_VER(3, 0));
-    } else if (GR_IS_GR_WEBGL(standard)) {
+    if (GR_IS_GR_WEBGL(standard)) {
         // Only in WebGL 2.0
-        fFenceSyncSupport = version >= GR_GL_VER(2, 0);
+        fSemaphoreSupport = fFenceSyncSupport = version >= GR_GL_VER(2, 0);
+        fFenceType = FenceType::kSyncObject;
+    } else if (ctxInfo.hasExtension("GL_ARB_sync") || ctxInfo.hasExtension("GL_APPLE_sync")) {
+        fSemaphoreSupport = fFenceSyncSupport = true;
+        fFenceType = FenceType::kSyncObject;
+    } else if (GR_IS_GR_GL(standard) && version >= GR_GL_VER(3, 2)) {
+        fSemaphoreSupport = fFenceSyncSupport = true;
+        fFenceType = FenceType::kSyncObject;
+    } else if (GR_IS_GR_GL_ES(standard) && version >= GR_GL_VER(3, 0)) {
+        fSemaphoreSupport = fFenceSyncSupport = true;
+        fFenceType = FenceType::kSyncObject;
+    } else if (ctxInfo.hasExtension("GL_NV_fence")) {
+        // This extension can exist in GL and GL ES. We have it last because we prefer the
+        // standard GLsync object implementation which also supports GPU semaphore semantics.
+        fFenceSyncSupport = true;
+        fFenceType = FenceType::kNVFence;
     }
-
-    // The same objects (GL sync objects) are used to implement GPU/CPU fence syncs and GPU/GPU
-    // semaphores.
-    fSemaphoreSupport = fFenceSyncSupport;
 
     // Safely moving textures between contexts requires semaphores.
     fCrossContextTextureSupport = fSemaphoreSupport;
