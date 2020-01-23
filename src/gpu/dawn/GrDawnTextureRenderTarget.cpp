@@ -13,7 +13,7 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
-                                                     const SkISize& dimensions,
+                                                     SkISize dimensions,
                                                      wgpu::TextureView textureView,
                                                      int sampleCnt,
                                                      const GrDawnImageInfo& info,

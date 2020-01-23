@@ -161,7 +161,7 @@ uint64_t GrDawnCaps::computeFormatKey(const GrBackendFormat& format) const {
     SkAssertResult(format.asDawnFormat(&dawnFormat));
 
     // Dawn max enum value should always fit in 32 bits.
-    SkASSERT(dawnFormat <= wgpu::WGPUTextureFormat_Force32);
+//    SkASSERT(dawnFormat <= wgpu::WGPUTextureFormat_Force32);
     return (uint64_t)dawnFormat;
 }
 

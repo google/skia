@@ -15,8 +15,10 @@ class GrDawnGpu;
 
 class GrDawnRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*, const SkISize& dimensions,
-                                                 int sampleCnt, const GrDawnImageInfo&);
+    static sk_sp<GrDawnRenderTarget> MakeWrapped(GrDawnGpu*,
+                                                 SkISize dimensions,
+                                                 int sampleCnt,
+                                                 const GrDawnImageInfo&);
 
     ~GrDawnRenderTarget() override;
 
@@ -30,7 +32,7 @@ public:
 
 protected:
     GrDawnRenderTarget(GrDawnGpu* gpu,
-                       const SkISize& dimensions,
+                       SkISize dimensions,
                        int sampleCnt,
                        const GrDawnImageInfo& info);
 
