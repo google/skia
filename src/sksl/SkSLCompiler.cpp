@@ -1606,8 +1606,7 @@ bool Compiler::toPipelineStage(const Program& program, PipelineStageArgs* outArg
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, &outArgs->fFormatArgs,
-                                  &outArgs->fFunctions);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {

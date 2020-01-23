@@ -18,8 +18,7 @@ class PipelineStageCodeGenerator : public GLSLCodeGenerator {
 public:
     PipelineStageCodeGenerator(const Context* context, const Program* program,
                                ErrorReporter* errors, OutputStream* out,
-                               std::vector<Compiler::FormatArg>* outFormatArgs,
-                               std::vector<Compiler::GLSLFunction>* outFunctions);
+                               PipelineStageArgs* outArgs);
 
 private:
     void writeHeader() override;
@@ -44,8 +43,7 @@ private:
 
     void writeProgramElement(const ProgramElement& p) override;
 
-    std::vector<Compiler::FormatArg>* fFormatArgs;
-    std::vector<Compiler::GLSLFunction>* fFunctions;
+    PipelineStageArgs* fArgs;
 
     typedef GLSLCodeGenerator INHERITED;
 };

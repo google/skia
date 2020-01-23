@@ -19,11 +19,9 @@ PipelineStageCodeGenerator::PipelineStageCodeGenerator(
                                                   const Program* program,
                                                   ErrorReporter* errors,
                                                   OutputStream* out,
-                                                  std::vector<Compiler::FormatArg>* outFormatArgs,
-                                                  std::vector<Compiler::GLSLFunction>* outFunctions)
+                                                  PipelineStageArgs* outArgs)
     : INHERITED(context, program, errors, out)
-    , fFormatArgs(outFormatArgs)
-    , fFunctions(outFunctions) {}
+    , fArgs(outArgs) {}
 
 void PipelineStageCodeGenerator::writeHeader() {
 }
@@ -82,8 +80,8 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         SkASSERT(found);
         this->write("%s");
-        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor,
-                                                   index));
+        fArgs->fFormatArgs.push_back(
+                Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor, index));
         return;
     }
     if (c.fFunction.fBuiltin) {
@@ -99,8 +97,8 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 ++index;
             }
         }
-        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kFunctionName,
-                                                   index));
+        fArgs->fFormatArgs.push_back(
+                Compiler::FormatArg(Compiler::FormatArg::Kind::kFunctionName, index));
         this->write("(");
         const char* separator = "";
         for (const auto& arg : c.fArguments) {
@@ -120,19 +118,19 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
+            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
             break;
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
+            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
             break;
         case SK_MAIN_X_BUILTIN:
             this->write("%s");
-            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordX));
+            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordX));
             break;
         case SK_MAIN_Y_BUILTIN:
             this->write("%s");
-            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordY));
+            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoordY));
             break;
         default:
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
@@ -158,8 +156,8 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                     }
                 }
                 SkASSERT(found);
-                fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
-                                                           index));
+                fArgs->fFormatArgs.push_back(
+                        Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform, index));
             } else {
                 this->write(ref.fVariable.fName);
             }
@@ -216,8 +214,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fOut = &buffer;
     if (f.fDeclaration.fName == "main") {
         this->write("%s = %s;\n");
-        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
-        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
+        fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
+        fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
             this->writeLine();
@@ -239,8 +237,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         fOut = oldOut;
         result.fBody = buffer.str();
-        result.fFormatArgs = std::move(*fFormatArgs);
-        fFunctions->push_back(result);
+        result.fFormatArgs = std::move(fArgs->fFormatArgs);
+        fArgs->fFunctions.push_back(result);
     }
 }
 
