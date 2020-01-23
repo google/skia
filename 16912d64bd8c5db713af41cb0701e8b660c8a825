@@ -22,6 +22,30 @@
       "revId": "16912d64bd8c5db713af41cb0701e8b660c8a825",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73598d19_dd1dd49b",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 4117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-23T20:29:18Z",
+      "side": 1,
+      "message": "Good point. I\u0027m sure it can be and it should work as is.",
+      "parentUuid": "46ef7a69_314e8371",
+      "range": {
+        "startLine": 4116,
+        "startChar": 15,
+        "endLine": 4117,
+        "endChar": 19
+      },
+      "revId": "16912d64bd8c5db713af41cb0701e8b660c8a825",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
