@@ -44,7 +44,8 @@ private:
                                                      bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
 
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
+    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped,
+                                              bool copyOnlyForMips);
 
     sk_sp<GrTextureProxy> fOriginal;
     uint32_t fUniqueID;
