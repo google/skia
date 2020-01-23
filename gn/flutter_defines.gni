@@ -13,7 +13,6 @@ flutter_defines = [
   "SK_DISABLE_AAA",
 
   # API staging
-  "SK_SUPPORT_LEGACY_CANVAS_MATRIX_VIRTUALS",
 
   # Flutter doesn't deserialize anything.
   "SK_DISABLE_READBUFFER",
