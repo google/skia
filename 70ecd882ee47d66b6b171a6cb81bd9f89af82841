@@ -16,6 +16,47 @@
       "revId": "70ecd882ee47d66b6b171a6cb81bd9f89af82841",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dd92d12_7ba5ed8d",
+        "filename": "src/gpu/GrApproxVertexAllocator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T17:13:55Z",
+      "side": 1,
+      "message": "Maybe I\u0027m not quite following, but this is the abstract base class and the static allocator does derive from this one (and not GrApproxDynamicVertexAllocator).\n\nI don\u0027t love the \"approx\" name either. Ganesh has lots of vertex allocators, so I was trying to name it something that captures the fact that you overallocate during \"lock\", then shrink it back down to actualCount during unlock. Any brainstorming ideas on other names?",
+      "parentUuid": "499366b0_7dac804f",
+      "revId": "70ecd882ee47d66b6b171a6cb81bd9f89af82841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "926135b3_e8802d6c",
+        "filename": "src/gpu/ops/GrTessellatingPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-23T17:13:55Z",
+      "side": 1,
+      "message": "Here the static allocator derives from the abstract interface (not the dynamic allocator).",
+      "range": {
+        "startLine": 72,
+        "startChar": 37,
+        "endLine": 72,
+        "endChar": 60
+      },
+      "revId": "70ecd882ee47d66b6b171a6cb81bd9f89af82841",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
