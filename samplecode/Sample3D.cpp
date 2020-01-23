@@ -144,7 +144,7 @@ static bool front(const SkM44& m) {
      *  at the z-scale of the inverse (the transpose doesn't change the main diagonal, so
      *  no need to actually transpose).
      */
-    return m2.atColMajor(10) > 0;
+    return m2.rc(2,2) > 0;
 }
 
 const Face faces[] = {

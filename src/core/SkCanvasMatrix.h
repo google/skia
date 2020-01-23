@@ -23,16 +23,16 @@ public:
     operator SkMatrix() const { return this->asM33(); }
     // the legacy check was just for the 3x3 portion, so we only check those
     bool isScaleTranslate() const {
-        return this->atColMajor(1) == 0 && this->atColMajor(3) == 0 &&
-               this->atColMajor(4) == 0 && this->atColMajor(7) == 0 &&
-               this->atColMajor(15) == 1;
+        return this->rc(1,0) == 0 && this->rc(3,0) == 0 &&
+               this->rc(0,1) == 0 && this->rc(3,1) == 0 &&
+               this->rc(3,3) == 1;
     }
     bool rectStaysRect() const { return this->asM33().rectStaysRect(); }
 
-    float getScaleX() const { return this->atColMajor(0); }
-    float getScaleY() const { return this->atColMajor(5); }
-    float getTranslateX() const { return this->atColMajor(12); }
-    float getTranslateY() const { return this->atColMajor(13); }
+    float getScaleX() const     { return this->rc(0,0); }
+    float getScaleY() const     { return this->rc(1,1); }
+    float getTranslateX() const { return this->rc(0,3); }
+    float getTranslateY() const { return this->rc(1,3); }
 
     bool mapRect(SkRect* dst, const SkRect& src) { return this->asM33().mapRect(dst, src); }
 };

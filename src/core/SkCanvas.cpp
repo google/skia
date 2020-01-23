@@ -1516,7 +1516,7 @@ void SkCanvas::experimental_concat44(const SkMatrix44& m) {
 }
 
 void SkCanvas::experimental_concat44(const SkM44& m) {
-    this->experimental_concat44(m.asColMajor());
+    this->experimental_concat44(SkMatrixPriv::M44ColMajor(m));
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {

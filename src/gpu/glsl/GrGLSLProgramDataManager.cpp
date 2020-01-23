@@ -9,6 +9,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/private/SkM44.h"
+#include "src/core/SkMatrixPriv.h"
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {
@@ -26,5 +27,5 @@ void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matr
 }
 
 void GrGLSLProgramDataManager::setSkM44(UniformHandle u, const SkM44& matrix) const {
-    this->setMatrix4f(u, matrix.asColMajor());
+    this->setMatrix4f(u, SkMatrixPriv::M44ColMajor(matrix));
 }
