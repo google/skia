@@ -1013,6 +1013,98 @@ static sk_sp<SkColorFilter> yuv_to_rgb_colorfilter() {
     return SkColorFilters::Matrix(kJPEGConversionMatrix);
 }
 
+static SkColorType get_color_type(const GrBackendFormat& format) {
+    GrGLFormat glFormat = format.asGLFormat();
+    if (GrGLFormat::kUnknown == glFormat) {
+        return kUnknown_SkColorType;
+    }
+
+    switch (glFormat) {
+        case GrGLFormat::kLUMINANCE8:   // fall through
+        case GrGLFormat::kR8:           // fall through
+        case GrGLFormat::kALPHA8:       return kAlpha_8_SkColorType;
+        case GrGLFormat::kRG8:          return kR8G8_unorm_SkColorType;
+        case GrGLFormat::kRGBA8:        return kRGBA_8888_SkColorType;
+        case GrGLFormat::kRGB8:         return kRGB_888x_SkColorType;
+        case GrGLFormat::kBGRA8:        return kBGRA_8888_SkColorType;
+        case GrGLFormat::kRGB10_A2:     return kRGBA_1010102_SkColorType;
+        case GrGLFormat::kLUMINANCE16F: // fall through
+        case GrGLFormat::kR16F:         return kA16_float_SkColorType;
+        case GrGLFormat::kR16:          return kA16_unorm_SkColorType;
+        case GrGLFormat::kRG16:         return kR16G16_unorm_SkColorType;
+        case GrGLFormat::kRGBA16:       return kR16G16B16A16_unorm_SkColorType;
+        case GrGLFormat::kRG16F:        return kR16G16_float_SkColorType;
+        default:                        return kUnknown_SkColorType;
+    }
+
+    SkUNREACHABLE;
+}
+
+sk_sp<SkImage> resize_on_gpu(GrContext* context,
+                             YUVFormat yuvFormat,
+                             SkYUVColorSpace yuvColorSpace,
+                             bool opaque,
+                             const GrBackendTexture yuvaTextures[],
+                             const SkYUVAIndex yuvaIndices[4],
+                             int numTextures,
+                             SkISize imageSize) {
+    GrBackendTexture shrunkTextures[4];
+
+    for (int i = 0; i < numTextures; ++i) {
+        SkColorType ct = get_color_type(yuvaTextures[i].getBackendFormat());
+
+        // Ignore all the 16bits/channel configs for now
+        if (ct == kA16_unorm_SkColorType || ct == kA16_float_SkColorType ||
+            ct == kR16G16_unorm_SkColorType || ct == kR16G16_float_SkColorType ||
+            ct == kR16G16B16A16_unorm_SkColorType || ct == kRGBA_F16_SkColorType) {
+            return nullptr;
+        }
+
+        SkISize shrunkPlaneSize = { yuvaTextures[i].width() / 2, yuvaTextures[i].height() / 2 };
+
+        sk_sp<SkImage> wrapped = SkImage::MakeFromAdoptedTexture(context, yuvaTextures[i],
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 ct);
+
+        // TODO: right now this is being leaked. A real client would need to free it when
+        // done with it.
+        shrunkTextures[i] = context->createBackendTexture(shrunkPlaneSize.width(),
+                                                          shrunkPlaneSize.height(),
+                                                          yuvaTextures[i].getBackendFormat(),
+                                                          GrMipMapped::kNo,
+                                                          GrRenderable::kYes);
+        if (!shrunkTextures[i].isValid()) {
+            return nullptr;
+        }
+
+        sk_sp<SkSurface> s = SkSurface::MakeFromBackendTexture(context, shrunkTextures[i],
+                                                               kTopLeft_GrSurfaceOrigin, 0,
+                                                               ct, nullptr, nullptr);
+        if (!s) {
+            return nullptr;
+        }
+        SkCanvas* c = s->getCanvas();
+
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
+
+        c->drawImageRect(wrapped,
+                         SkRect::MakeWH(shrunkPlaneSize.width(), shrunkPlaneSize.height()),
+                         &paint);
+
+        s->flush();
+    }
+
+    SkISize shrunkImageSize = { imageSize.width() / 2, imageSize.height() / 2 };
+
+    return SkImage::MakeFromYUVATextures(context,
+                                         yuvColorSpace,
+                                         shrunkTextures,
+                                         yuvaIndices,
+                                         shrunkImageSize,
+                                         kTopLeft_GrSurfaceOrigin);
+}
+
 namespace skiagm {
 
 // This GM creates an opaque and transparent bitmap, extracts the planes and then recombines
@@ -1131,6 +1223,22 @@ protected:
                             // know about the intended domain and the domain padding bleeds in
                             counterMod = 1;
                         }
+#if 1
+                        if (format == kNV12_YUVFormat) {
+                            int foo = 0;
+                            ++foo;
+                        }
+
+                        fImages[opaque][cs][format] = resize_on_gpu(
+                            context,
+                            (YUVFormat) format,
+                            (SkYUVColorSpace)cs,
+                            opaque,
+                            yuvaTextures,
+                            yuvaIndices,
+                            numTextures,
+                            { fOriginalBMs[opaque].width(), fOriginalBMs[opaque].height() });
+#else
                         switch (counterMod) {
                         case 0:
                             fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
@@ -1161,6 +1269,7 @@ protected:
                                 kTopLeft_GrSurfaceOrigin, true);
                             break;
                         }
+#endif
                         ++counter;
                     } else {
                         fImages[opaque][cs][format] = make_yuv_gen_image(
@@ -1254,8 +1363,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
-DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
+//DEF_GM(return new WackyYUVFormatsGM(/* cs */ true,  /* domain */ false);)
+//DEF_GM(return new WackyYUVFormatsGM(/* cs */ false, /* domain */ true);)
 
 class YUVMakeColorSpaceGM : public GpuGM {
 public:
