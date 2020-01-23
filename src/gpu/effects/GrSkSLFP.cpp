@@ -206,6 +206,7 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
+    child->setSampledWithExplicitCoords(true);
     this->registerChildProcessor(std::move(child));
 }
 

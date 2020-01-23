@@ -36,10 +36,10 @@ SkSLSlide::SkSLSlide() {
 
     fSkSL =
 
-        "uniform half4 gColor;\n"
+        "in fragmentProcessor fp;\n"
         "\n"
         "void main(float x, float y, inout half4 color) {\n"
-        "    color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);\n"
+        "    color = sample(fp, float2(x, y));\n"
         "}\n";
 }
 
