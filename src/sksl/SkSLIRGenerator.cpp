@@ -1776,7 +1776,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fBuiltin) {
-        auto found = fIntrinsics->find(function.fName);
+        auto found = fIntrinsics->find(function.declaration());
         if (found != fIntrinsics->end() && !found->second.second) {
             found->second.second = true;
             const FunctionDeclaration* old = fCurrentFunction;
@@ -2186,7 +2186,7 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
         }
     }
     fErrors.error(base->fOffset, "type '" + base->fType.displayName() + "' does not have a "
-                                 "field named '" + field + "");
+                                 "field named '" + field + "'");
     return nullptr;
 }
 
