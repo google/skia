@@ -27,17 +27,17 @@ public:
         (void)weight;
         weightVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kFloat_GrSLType, "weight");
-        SkString _sample290("_sample290");
+        SkString _sample290;
         if (_outer.child1_index >= 0) {
-            this->invokeChild(_outer.child1_index, &_sample290, args);
+            _sample290 = this->invokeChild(_outer.child1_index, args);
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _sample290.c_str());
+            _sample290 = "half4(1)";
         }
-        SkString _sample358("_sample358");
+        SkString _sample358;
         if (_outer.child2_index >= 0) {
-            this->invokeChild(_outer.child2_index, &_sample358, args);
+            _sample358 = this->invokeChild(_outer.child2_index, args);
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _sample358.c_str());
+            _sample358 = "half4(1)";
         }
         fragBuilder->codeAppendf("%s = mix(%s ? %s : %s, %s ? %s : %s, half(%s));\n",
                                  args.fOutputColor, _outer.child1_index >= 0 ? "true" : "false",

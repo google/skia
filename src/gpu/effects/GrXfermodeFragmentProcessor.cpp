@@ -220,11 +220,9 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     }
 
     // declare outputColor and emit the code for each of the two children
-    SkString srcColor("xfer_src");
-    this->invokeChild(0, inputColor, &srcColor, args);
+    SkString srcColor = this->invokeChild(0, inputColor, args);
 
-    SkString dstColor("xfer_dst");
-    this->invokeChild(1, inputColor, &dstColor, args);
+    SkString dstColor = this->invokeChild(1, inputColor, args);
 
     // emit blend code
     SkBlendMode mode = cs.getMode();
@@ -438,8 +436,7 @@ public:
         SkBlendMode mode = args.fFp.cast<ComposeOneFragmentProcessor>().mode();
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
-        SkString childColor("child");
-        this->invokeChild(0, &childColor, args);
+        SkString childColor = this->invokeChild(0, args);
 
         // emit blend code
         fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
