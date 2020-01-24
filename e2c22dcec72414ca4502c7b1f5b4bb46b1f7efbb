@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "1ad50889_d008ba9b",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-01-24T18:54:25Z",
+      "side": 1,
+      "message": "I explicitly wanted to expose it as I contemplate utilities like a virtual-sphere, where I will be computing angles via dots and cross... which give me sin(angle) and cos(angle), not angle...\n\nAlso, as we all dreaded/assumed, sin(SK_ScalarPI) !\u003d 0 :( so forcing clients to only give us radians is a little mean.",
+      "parentUuid": "d410dd8b_8736bb91",
+      "range": {
+        "startLine": 251,
+        "startChar": 11,
+        "endLine": 251,
+        "endChar": 35
+      },
+      "revId": "e2c22dcec72414ca4502c7b1f5b4bb46b1f7efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "866640de_afa316a9",
         "filename": "include/private/SkM44.h",
         "patchSetId": 7
@@ -53,6 +77,30 @@
       "writtenOn": "2020-01-24T18:44:21Z",
       "side": 1,
       "message": "What about \"setRotateUnit\"?, \"about\" feels redundant since rotations are usually about something, and \"radians\" is duplicated with the parameter name. I\u0027m a little conflicted about dropping \"radians\" from the name, since it could help alleviate degrees vs. radians confusion. But at the same time, we should just be consistent and accept everything as radians, or everything as degrees.",
+      "range": {
+        "startLine": 259,
+        "startChar": 11,
+        "endLine": 259,
+        "endChar": 36
+      },
+      "revId": "e2c22dcec72414ca4502c7b1f5b4bb46b1f7efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b50c679_5e88b466",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-01-24T18:54:25Z",
+      "side": 1,
+      "message": "No problem, happy to remove \"About\".\n\nWould be fine to drop radians... except that SkCanvas::rotate() takes degrees :D",
+      "parentUuid": "866640de_afa316a9",
       "range": {
         "startLine": 259,
         "startChar": 11,
