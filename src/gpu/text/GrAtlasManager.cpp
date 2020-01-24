@@ -25,6 +25,7 @@ GrAtlasManager::~GrAtlasManager() = default;
 void GrAtlasManager::freeAll() {
     for (int i = 0; i < kMaskFormatCount; ++i) {
         fAtlases[i] = nullptr;
+        fAtlasGenerations[i]++;
     }
 }
 
@@ -161,7 +162,7 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
                 fProxyProvider, format, grColorType,
                 atlasDimensions.width(), atlasDimensions.height(),
                 plotDimensions.width(), plotDimensions.height(),
-                fAllowMultitexturing, fGlyphCache);
+                this, fAllowMultitexturing, fGlyphCache);
         if (!fAtlases[index]) {
             return false;
         }
