@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b607dd6c_bcd1e069",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T19:10:49Z",
+      "side": 1,
+      "message": "This matches up with code in writeProcessorFunction - the name of the second parameter is always \"_coords\", so here (and in other spots), we just directly refer to that if we don\u0027t have an override.\n\nIn this case, I moved the comment here, because this code is enforcing the constraint (rather than checking it): If the child is required to be called with explicit coords, and we didn\u0027t provide any, then we forward our own. That may be unnecessary, though - I\u0027m not sure we can hit this case.",
+      "parentUuid": "ba26b162_803a00fe",
+      "range": {
+        "startLine": 26,
+        "startChar": 2,
+        "endLine": 30,
+        "endChar": 5
+      },
+      "revId": "6b33187aa6ac64ce97783eedd2fcda204cd29718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d8362488_7c308312",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-24T18:43:53Z",
       "side": 1,
       "message": "can this not be true?",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "6b33187aa6ac64ce97783eedd2fcda204cd29718",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f66302d1_675f6763",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T19:10:49Z",
+      "side": 1,
+      "message": "Yes, I think so. writeProcessorFunction only puts a second parameter on the helper function for the child if !coordTransformApplyToLocalCoords(), and the common use-case is that we just sample our children at the same coords, so we end up calling the helper without the second argument.",
+      "parentUuid": "d8362488_7c308312",
       "range": {
         "startLine": 57,
         "startChar": 4,
