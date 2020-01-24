@@ -518,24 +518,27 @@ public:
      * Creates a texture directly in the backend API without wrapping it in a GrTexture.
      * Must be matched with a call to deleteBackendTexture().
      *
-     * numMipLevels must be 1 or be the number of levels for a complete MIP hierarchy with
-     * dimensions as the base size. Otherwise this will fail.
-     *
      * If data is null the texture is uninitialized.
      *
      * If data represents a color then all texture levels are cleared to that color.
      *
-     * If data represents pixmaps then it must have numMipLevels pixmaps and they must be sized
-     * correctly according to the MIP sizes implied by dimensions. They must all have the same color
-     * type and that color type must be compatible with the texture format.
+     * If data represents pixmaps then it must have a either one pixmap or, if mipmapping
+     * is specified, a complete MIP hierarchy of pixmaps. Additionally, if provided, the mip
+     * levels must be sized correctly according to the MIP sizes implied by dimensions. They
+     * must all have the same color type and that color type must be compatible with the
+     * texture format.
      */
     GrBackendTexture createBackendTexture(SkISize dimensions,
                                           const GrBackendFormat&,
                                           GrRenderable,
-                                          int numMipLevels,
+                                          GrMipMapped,
                                           GrProtected,
                                           const BackendTextureData*);
 
+    /**
+     * Same as the createBackendTexture case except compressed backend textures can
+     * never be renderable.
+     */
     GrBackendTexture createCompressedBackendTexture(SkISize dimensions,
                                                     const GrBackendFormat&,
                                                     GrMipMapped,
@@ -617,7 +620,7 @@ public:
     }
 
 protected:
-    static bool MipMapsAreCorrect(SkISize dimensions, const BackendTextureData*, int numMipLevels);
+    static bool MipMapsAreCorrect(SkISize dimensions, GrMipMapped, const BackendTextureData*);
     static bool CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType,
                                         GrMipMapped, const BackendTextureData*);
 
