@@ -29,13 +29,9 @@
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-#define ATLAS_TEXTURE_WIDTH 2048
-#define ATLAS_TEXTURE_HEIGHT 2048
-#define PLOT_WIDTH  512
-#define PLOT_HEIGHT 256
-
-#define NUM_PLOTS_X   (ATLAS_TEXTURE_WIDTH / PLOT_WIDTH)
-#define NUM_PLOTS_Y   (ATLAS_TEXTURE_HEIGHT / PLOT_HEIGHT)
+static const size_t kMaxAtlasTextureBytes = 2048 * 2048;
+static const size_t kPlotWidth = 512;
+static const size_t kPlotHeight = 256;
 
 #ifdef DF_PATH_TRACKING
 static int g_NumCachedShapes = 0;
@@ -895,13 +891,14 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!fAtlas) {
         const GrBackendFormat format = args.fContext->priv().caps()->getDefaultBackendFormat(
                 GrColorType::kAlpha_8, GrRenderable::kNo);
-        fAtlas = GrDrawOpAtlas::Make(args.fContext->priv().proxyProvider(),
-                                     format,
-                                     GrColorType::kAlpha_8,
-                                     ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                     PLOT_WIDTH, PLOT_HEIGHT,
-                                     GrDrawOpAtlas::AllowMultitexturing::kYes,
-                                     this);
+
+        GrDrawOpAtlasConfig atlasConfig(args.fContext->priv().caps()->maxTextureSize(),
+                                        kMaxAtlasTextureBytes);
+        SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
+        fAtlas = GrDrawOpAtlas::Make(args.fContext->priv().proxyProvider(), format,
+                                     GrColorType::kAlpha_8, size.width(), size.height(), kPlotWidth,
+                                     kPlotHeight, GrDrawOpAtlas::AllowMultitexturing::kYes,
+                                     (void*)this);
         if (!fAtlas) {
             return false;
         }
@@ -983,12 +980,13 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         gTestStruct.reset();
         const GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(
                 GrColorType::kAlpha_8, GrRenderable::kNo);
-        gTestStruct.fAtlas = GrDrawOpAtlas::Make(context->priv().proxyProvider(),
-                                                 format, GrColorType::kAlpha_8,
-                                                 ATLAS_TEXTURE_WIDTH, ATLAS_TEXTURE_HEIGHT,
-                                                 PLOT_WIDTH, PLOT_HEIGHT,
-                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
-                                                 &gTestStruct);
+        GrDrawOpAtlasConfig atlasConfig(context->priv().caps()->maxTextureSize(),
+                                        kMaxAtlasTextureBytes);
+        SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
+        gTestStruct.fAtlas =
+                GrDrawOpAtlas::Make(context->priv().proxyProvider(), format, GrColorType::kAlpha_8,
+                                    size.width(), size.height(), kPlotWidth, kPlotHeight,
+                                    GrDrawOpAtlas::AllowMultitexturing::kYes, &gTestStruct);
     }
 
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
