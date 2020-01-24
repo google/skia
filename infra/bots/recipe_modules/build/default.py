@@ -182,6 +182,8 @@ def compile_fn(api, checkout_root, out_dir):
 
   if 'MSAN' in extra_tokens:
     extra_ldflags.append('-L' + clang_linux + '/msan')
+  elif api.vars.is_linux:
+    extra_ldflags.append('-L' + clang_linux + '/lib')
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
