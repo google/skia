@@ -207,6 +207,8 @@ private:
 
     ByteCode::Register next(int slotCount);
 
+    void write(ByteCode::Instruction inst, int count);
+
     /**
      * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
      */
@@ -236,6 +238,11 @@ private:
                                 ByteCode::Register right, ByteCode::Instruction s,
                                 ByteCode::Instruction u, ByteCode::Instruction f,
                                 ByteCode::Register result);
+
+    void writeVectorBinaryInstruction(const Type& operandType, ByteCode::Register left,
+                                      ByteCode::Register right, ByteCode::Instruction s,
+                                      ByteCode::Instruction u, ByteCode::Instruction f,
+                                      ByteCode::Register result);
 
     void writeBinaryExpression(const BinaryExpression& expr, ByteCode::Register result);
 
