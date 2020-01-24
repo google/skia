@@ -2302,6 +2302,14 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
     if (this->glCaps().srgbWriteControl()) {
         this->flushFramebufferSRGB(this->caps()->isFormatSRGB(target->backendFormat()));
     }
+
+    if (this->glCaps().shouldQueryImplementationReadSupport(target->format())) {
+        GrGLint format;
+        GrGLint type;
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
+        this->glCaps().didQueryImplementationReadSupport(target->format(), format, type);
+    }
 }
 
 void GrGLGpu::flushFramebufferSRGB(bool enable) {
