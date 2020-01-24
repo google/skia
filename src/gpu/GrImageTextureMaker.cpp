@@ -8,6 +8,7 @@
 #include "src/gpu/GrImageTextureMaker.h"
 
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
@@ -113,8 +114,9 @@ std::unique_ptr<GrFragmentProcessor> GrYUVAImageTextureMaker::createFragmentProc
         domain = &constraintRect;
     }
 
-    auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices,
-                                     fImage->fYUVColorSpace, filter, textureMatrix, domain);
+    const auto& caps = *fImage->context()->priv().caps();
+    auto fp = GrYUVtoRGBEffect::Make(fImage->fProxies, fImage->fYUVAIndices, fImage->fYUVColorSpace,
+                                     filter, caps, textureMatrix, domain);
     if (fImage->fFromColorSpace) {
         fp = GrColorSpaceXformEffect::Make(std::move(fp), fImage->fFromColorSpace.get(),
                                            fImage->alphaType(), fImage->colorSpace());
