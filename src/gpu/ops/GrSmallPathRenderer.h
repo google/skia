@@ -24,7 +24,8 @@ class ShapeDataKey;
 
 class GrSmallPathRenderer : public GrPathRenderer,
                             public GrOnFlushCallbackObject,
-                            public GrDrawOpAtlas::EvictionCallback {
+                            public GrDrawOpAtlas::EvictionCallback,
+                            public GrDrawOpAtlas::GenerationCounter {
 public:
     GrSmallPathRenderer();
     ~GrSmallPathRenderer() override;

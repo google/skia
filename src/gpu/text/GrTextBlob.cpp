@@ -280,22 +280,6 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
     }
 }
 
-// GrStrikeCache may evict the strike a blob needs to generate texture coordinates.
-// If our strike has been abandoned in this way, we'll translate all our old glyphs
-// over to a new strike and carry on with that.
-void GrTextBlob::SubRun::updateStrikeIfNeeded(SkBulkGlyphMetricsAndImages* metricsAndImages,
-                                              GrStrikeCache* cache) {
-    if (this->strike()->isAbandoned()) {
-        sk_sp<GrTextStrike> newStrike = this->strikeSpec().findOrCreateGrStrike(cache);
-
-        // Take the glyphs from the old strike, and translate them a new strike.
-        for (size_t i = 0; i < fGlyphs.size(); i++) {
-            fGlyphs[i] = newStrike->getGlyph(fGlyphs[i]->fPackedID, metricsAndImages);
-        }
-
-        this->setStrike(newStrike);
-    }
-}
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
 bool GrTextBlob::SubRun::hasUseLCDText() const { return fFlags.useLCDText; }
@@ -812,8 +796,6 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
         fMetricsAndImages.init(strikeSpec);
     }
 
-    fSubRun->updateStrikeIfNeeded(fMetricsAndImages.get(), fGrStrikeCache);
-
     // Update the atlas information in the GrStrike.
     auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     GrTextStrike* grStrike = fSubRun->strike();
@@ -860,10 +842,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
     //  the atlas generation.
     fRegenerateTextureCoordinates =
             fRegenerateTextureCoordinates || fSubRun->fAtlasGeneration != currentAtlasGen;
-
-    // The true || ... is to fix chrome bug 1045016. This is a temporary fix.
-    // TODO: figure out why the atlas number is getting off track, and restore the check.
-    if (true || fSubRun->strike()->isAbandoned() || fRegenerateTextureCoordinates) {
+    if (fRegenerateTextureCoordinates) {
         return this->updateTextureCoordinatesMaybeStrike(begin, end);
     } else {
         // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.

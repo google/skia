@@ -27,26 +27,10 @@ GrStrikeCache::~GrStrikeCache() {
 }
 
 void GrStrikeCache::freeAll() {
-    fCache.foreach([](sk_sp<GrTextStrike>* strike){
-        (*strike)->fIsAbandoned = true;
-    });
     fCache.reset();
 }
 
-void GrStrikeCache::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
-    fCache.mutate([this, plotLocator](sk_sp<GrTextStrike>* cacheSlot){
-        GrTextStrike* strike = cacheSlot->get();
-        strike->removeID(plotLocator);
-
-        // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
-        // triggered the eviction
-        if (strike != fPreserveStrike && 0 == strike->fAtlasedGlyphs) {
-            strike->fIsAbandoned = true;
-            return false;  // Remove this entry from the cache.
-        }
-        return true;  // Keep this entry in the cache.
-    });
-}
+void GrStrikeCache::evict(GrDrawOpAtlas::PlotLocator) { }
 
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
 // A8, RGB565, or RGBA8888.
