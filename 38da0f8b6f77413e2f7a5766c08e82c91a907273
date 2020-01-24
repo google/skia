@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51f5a093_e80609e9",
+        "filename": "src/gpu/GrGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-24T15:49:05Z",
+      "side": 1,
+      "message": "nit: make the spacing with the \u0027/\u0027 consistent on this line",
+      "range": {
+        "startLine": 788,
+        "startChar": 50,
+        "endLine": 788,
+        "endChar": 53
+      },
+      "revId": "38da0f8b6f77413e2f7a5766c08e82c91a907273",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
