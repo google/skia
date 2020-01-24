@@ -19,7 +19,7 @@ Features:
  * Android offscreen layer visualization
  * Shared resource viewer
 
-![Debugger interface](/dev/tools/onlinedebugger.png)
+<img src="/dev/tools/onlinedebugger.png" style="display: inline-block;" />
 
 User Guide
 -----------
@@ -33,7 +33,7 @@ or capture one from an android device using the
 ### Command Playback and Filters
 
 Try playing back the commands within the current frame using the lower play button
-![play](/dev/tools/playcommands.png), (the one not
+<img src="/dev/tools/playcommands.png" style="display: inline-block;" />, (the one not
 in a circle) You should see the image built up one draw at a time.
 
 Many commands manipulate the matrix or clip but don't make any visible change when run. Try filtering
@@ -49,18 +49,18 @@ and `.` (period).
 > the entire filter and is only recognised when it occurs at the beginning.
 
 Any command can be expanded using the
-![expand](/dev/tools/expand.png) icon to see all of the
+<img src="/dev/tools/expand.png" style="display: inline-block;" /> icon to see all of the
 parameters that were recorded with that command.
 
 Commands can be disabled or enabled with the checkbox that becomes available after expanding the
 command's detail view.
 
 Jog the command playhead to the end of the list with the
-![end](/dev/tools/end.png) button.
+<img src="/dev/tools/end.png" style="display: inline-block;" /> button.
 
 ### Frame playback
 
-![frame playback](/dev/tools/frameplayback.png)
+<img src="/dev/tools/frameplayback.png" style="display: inline-block;" />
 
 The sample file contains multiple frames. Use the encircled play button to play back the frames.
 The current frame is indictated by the slider position, and the slider can be set manually. Frames
@@ -73,7 +73,7 @@ playhead is somewhere in the middle, say 155, the debugger will try to play ever
 
 ### Resources Tab
 
-![resources](/dev/tools/resources.png)
+<img src="/dev/tools/resources.png" style="display: inline-block;" />
 
 Any resources that were referenced by commands in the file appear here.
 As of Dec 2019, this only shows images.
@@ -91,7 +91,7 @@ of it with different generation ids in the process that recorded the SKP.
 
 ### Android Layers
 
-![layers](/dev/tools/layers.png)
+<img src="/dev/tools/layers.png" style="display: inline-block;" />
 
 When MSKPs are recorded in Android, Extra information about offscreen hardware layers is recorded.
 The sample google calendar mskp linked above contains this information. You will find two layers on
@@ -111,7 +111,7 @@ on the layer box.
 
 ### Crosshair and Breakpoints
 
-![crosshair](/dev/tools/crosshair.png)
+<img src="/dev/tools/crosshair.png" style="display: inline-block;" />
 
 Clicking any point in the main view will toggle a red crosshair for selecting pixels. the selected
 pixel's color is shown in several formats on the right pane. A zoomed view centered on the selected
@@ -124,10 +124,10 @@ in the viewer.
 
 ### GPU Op Bounds and Other settings
 
-![settings](/dev/tools/settings.png)
+<img src="/dev/tools/settings.png" style="display: inline-block;" />
 
 Each of the filtered commands from above has a colored number to its right
-![gpu op](/dev/tools/gpuop.png). This is the GPU
+<img src="/dev/tools/gpuop.png" style="display: inline-block;" />. This is the GPU
 operation id. When multiple commands share a GPU op id, this indicates that they were batched
 together when sent to the GPU. In the WASM debugger, this goes though WebGL.
 
@@ -147,7 +147,7 @@ much overdraw has occurred on a pixel. Overdraw meaning that the pixel was drawn
 
 ### Image fit and download buttons.
 
-![buttons](/dev/tools/settings.png)
+<img src="/dev/tools/settings.png" style="display: inline-block;" />
 
 These buttons resize the main view.
 they are, from left to right:
