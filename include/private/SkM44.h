@@ -233,6 +233,12 @@ public:
                            0, 0, 0, 1);
     }
 
+    SkM44& setRotateAboutUnitSinCos (SkV3 axis, SkScalar sinAngle, SkScalar cosAngle);
+    SkM44& setRotateAboutUnitRadians(SkV3 axis, SkScalar radians) {
+        return this->setRotateAboutUnitSinCos(axis, SkScalarSin(radians), SkScalarCos(radians));
+    }
+    SkM44& setRotateAboutRadians(SkV3 axis, SkScalar radians);
+
     SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
 
     SkM44& setConcat(const SkM44& a, const SkM44& b) {
