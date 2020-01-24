@@ -86,15 +86,10 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
+#if defined(SK_BUILD_FOR_MAC)
     bool timedout;
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
                                                                defaultOptions, &timedout);
-    if (timedout) {
-        // try again
-        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                    defaultOptions, &timedout);
-    }
 #else
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
