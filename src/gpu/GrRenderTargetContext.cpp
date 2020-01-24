@@ -45,6 +45,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
