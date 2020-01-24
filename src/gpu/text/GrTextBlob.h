@@ -357,8 +357,6 @@ public:
     void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
     void updateVerticesColorIfNeeded(GrColor newColor);
     void updateTexCoords(int begin, int end);
-    void updateStrikeIfNeeded(
-            SkBulkGlyphMetricsAndImages* metricsAndImages, GrStrikeCache* cache);
 
     // df properties
     void setUseLCDText(bool useLCDText);

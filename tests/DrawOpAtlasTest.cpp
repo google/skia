@@ -146,6 +146,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                            GrRenderable::kNo);
 
     DummyEvict evictor;
+    GrDrawOpAtlas::GenerationCounter counter;
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
@@ -153,6 +154,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                 GrColorType::kAlpha_8,
                                                 kAtlasSize, kAtlasSize,
                                                 kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
+                                                &counter,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
                                                 &evictor);
     check(reporter, atlas.get(), 0, 4, 0);
