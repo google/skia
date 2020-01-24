@@ -22,13 +22,11 @@ public:
     GrGLSLSkSLFP(SkSL::PipelineStageArgs&& args) : fArgs(std::move(args)) {}
 
     SkSL::String expandFormatArgs(const SkSL::String& raw,
-                                  const EmitArgs& args,
-                                  const std::vector<SkSL::Compiler::FormatArg> formatArgs,
-                                  const char* coordsName,
-                                  const std::vector<SkString>& childNames) {
+                                  EmitArgs& args,
+                                  std::vector<SkSL::Compiler::FormatArg>::const_iterator& fmtArg,
+                                  const char* coordsName) {
         SkSL::String result;
         int substringStartIndex = 0;
-        int formatArgIndex = 0;
         for (size_t i = 0; i < raw.length(); ++i) {
             char c = raw[i];
             if (c == '%') {
@@ -38,7 +36,7 @@ public:
                 c = raw[i];
                 switch (c) {
                     case 's': {
-                        const SkSL::Compiler::FormatArg& arg = formatArgs[formatArgIndex++];
+                        const SkSL::Compiler::FormatArg& arg = *fmtArg++;
                         switch (arg.fKind) {
                             case SkSL::Compiler::FormatArg::Kind::kInput:
                                 result += args.fInputColor;
@@ -58,9 +56,12 @@ public:
                                 result += args.fUniformHandler->getUniformCStr(
                                                                        fUniformHandles[arg.fIndex]);
                                 break;
-                            case SkSL::Compiler::FormatArg::Kind::kChildProcessor:
-                                result += childNames[arg.fIndex].c_str();
+                            case SkSL::Compiler::FormatArg::Kind::kChildProcessor: {
+                                SkSL::String coords = this->expandFormatArgs(arg.fCoords, args,
+                                                                             fmtArg, coordsName);
+                                result += this->invokeChild(arg.fIndex, args, coords).c_str();
                                 break;
+                            }
                             case SkSL::Compiler::FormatArg::Kind::kFunctionName:
                                 SkASSERT((int) fFunctionNames.size() > arg.fIndex);
                                 result += fFunctionNames[arg.fIndex].c_str();
@@ -94,14 +95,17 @@ public:
         SkString coords = args.fTransformedCoords.count()
             ? fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint)
             : SkString("sk_FragCoord");
-        std::vector<SkString> childNames;
+        // We need to ensure that we call invokeChild on each child FP at least once.
+        // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            childNames.push_back(this->invokeChild(i, args));
+            (void)this->invokeChild(i, args, SkSL::String("_coords"));
         }
         for (const auto& f : fArgs.fFunctions) {
             fFunctionNames.emplace_back();
-            SkSL::String body = this->expandFormatArgs(f.fBody.c_str(), args, f.fFormatArgs,
-                                                       coords.c_str(), childNames);
+            auto fmtArgIter = f.fFormatArgs.cbegin();
+            SkSL::String body =
+                    this->expandFormatArgs(f.fBody.c_str(), args, fmtArgIter, coords.c_str());
+            SkASSERT(fmtArgIter == f.fFormatArgs.cend());
             fragBuilder->emitFunction(f.fReturnType,
                                       f.fName.c_str(),
                                       f.fParameters.size(),
@@ -109,8 +113,10 @@ public:
                                       body.c_str(),
                                       &fFunctionNames.back());
         }
-        fragBuilder->codeAppend(this->expandFormatArgs(fArgs.fCode.c_str(), args, fArgs.fFormatArgs,
-                                                       coords.c_str(), childNames).c_str());
+        auto fmtArgIter = fArgs.fFormatArgs.cbegin();
+        fragBuilder->codeAppend(this->expandFormatArgs(fArgs.fCode.c_str(), args, fmtArgIter,
+                                                       coords.c_str()).c_str());
+        SkASSERT(fmtArgIter == fArgs.fFormatArgs.cend());
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
@@ -205,6 +211,7 @@ const char* GrSkSLFP::name() const {
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
+    child->setSampledWithExplicitCoords(true);
     this->registerChildProcessor(std::move(child));
 }
 
@@ -249,7 +256,7 @@ bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
     std::unique_ptr<GrSkSLFP> result(new GrSkSLFP(*this));
     for (int i = 0; i < this->numChildProcessors(); ++i) {
-        result->registerChildProcessor(this->childProcessor(i).clone());
+        result->addChild(this->childProcessor(i).clone());
     }
     return std::unique_ptr<GrFragmentProcessor>(result.release());
 }
