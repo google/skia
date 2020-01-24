@@ -8,36 +8,25 @@
 #ifndef GrStencilPathShader_DEFINED
 #define GrStencilPathShader_DEFINED
 
-#include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/tessellate/GrPathShader.h"
 
 // This is the base class for shaders that stencil path elements, namely, triangles, standalone
 // cubics, and wedges.
-class GrStencilPathShader : public GrGeometryProcessor {
+class GrStencilPathShader : public GrPathShader {
 public:
     GrStencilPathShader(ClassID classID, const SkMatrix& viewMatrix, GrPrimitiveType primitiveType,
                         int tessellationPatchVertexCount = 0)
-            : GrGeometryProcessor(classID)
-            , fViewMatrix(viewMatrix)
-            , fPrimitiveType(primitiveType)
-            , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
+            : GrPathShader(classID, viewMatrix, primitiveType, tessellationPatchVertexCount) {
         constexpr static Attribute kPointAttrib = {
                 "point", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         this->setVertexAttributes(&kPointAttrib, 1);
-        if (fTessellationPatchVertexCount) {
-            this->setWillUseTessellationShaders();
-        }
     }
-    GrPrimitiveType primitiveType() const { return fPrimitiveType; }
-    int tessellationPatchVertexCount() const { return fTessellationPatchVertexCount; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
-        b->add32(fViewMatrix.isIdentity());
-    }
-    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    const SkMatrix fViewMatrix;
-    const GrPrimitiveType fPrimitiveType;
-    const int fTessellationPatchVertexCount;
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
+        b->add32(this->viewMatrix().isIdentity());
+    }
+    GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     class Impl;
 };
