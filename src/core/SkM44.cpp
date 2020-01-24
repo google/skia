@@ -256,32 +256,6 @@ SkM44 SkM44::transpose() const {
     return trans;
 }
 
-SkM44& SkM44::setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngle) {
-    // Taken from "Essential Mathematics for Games and Interactive Applications"
-    //             James M. Van Verth and Lars M. Bishop -- third edition
-    SkScalar x = axis.x;
-    SkScalar y = axis.y;
-    SkScalar z = axis.z;
-    SkScalar c = cosAngle;
-    SkScalar s = sinAngle;
-    SkScalar t = 1 - c;
-
-    return this->set44(t*x*x + c,   t*x*y - s*z, t*x*z + s*y, 0,
-                       t*x*y + s*z, t*y*y + c,   t*y*z - s*x, 0,
-                       t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
-                       0,           0,           0,           1);
-}
-
-SkM44& SkM44::setRotate(SkV3 axis, SkScalar radians) {
-    SkScalar len = axis.length();
-    if (len > 0 && SkScalarIsFinite(len)) {
-        this->setRotateUnit(axis * (SK_Scalar1 / len), radians);
-    } else {
-        this->setIdentity();
-    }
-    return *this;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkM44::dump() const {
