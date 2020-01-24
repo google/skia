@@ -580,12 +580,13 @@ struct Poly {
     }
     typedef enum { kLeft_Side, kRight_Side } Side;
     struct MonotonePoly {
-        MonotonePoly(Edge* edge, Side side)
+        MonotonePoly(Edge* edge, Side side, int winding)
             : fSide(side)
             , fFirstEdge(nullptr)
             , fLastEdge(nullptr)
             , fPrev(nullptr)
-            , fNext(nullptr) {
+            , fNext(nullptr)
+            , fWinding(winding) {
             this->addEdge(edge);
         }
         Side          fSide;
@@ -593,6 +594,7 @@ struct Poly {
         Edge*         fLastEdge;
         MonotonePoly* fPrev;
         MonotonePoly* fNext;
+        int fWinding;
         void addEdge(Edge* edge) {
             if (fSide == kRight_Side) {
                 SkASSERT(!edge->fUsedInRightPoly);
@@ -630,14 +632,14 @@ struct Poly {
                 Vertex* curr = v;
                 Vertex* next = v->fNext;
                 if (count == 3) {
-                    return emit_triangle(prev, curr, next, emitCoverage, data);
+                    return this->emitTriangle(prev, curr, next, emitCoverage, data);
                 }
                 double ax = static_cast<double>(curr->fPoint.fX) - prev->fPoint.fX;
                 double ay = static_cast<double>(curr->fPoint.fY) - prev->fPoint.fY;
                 double bx = static_cast<double>(next->fPoint.fX) - curr->fPoint.fX;
                 double by = static_cast<double>(next->fPoint.fY) - curr->fPoint.fY;
                 if (ax * by - ay * bx >= 0.0) {
-                    data = emit_triangle(prev, curr, next, emitCoverage, data);
+                    data = this->emitTriangle(prev, curr, next, emitCoverage, data);
                     v->fPrev->fNext = v->fNext;
                     v->fNext->fPrev = v->fPrev;
                     count--;
@@ -651,6 +653,15 @@ struct Poly {
                 }
             }
             return data;
+        }
+        void* emitTriangle(Vertex* prev, Vertex* curr, Vertex* next, bool emitCoverage,
+                           void* data) const {
+            if (fWinding < 0) {
+                // Ensure our triangles always wind in the same direction as if the path had been
+                // triangulated as a simple fan (a la red book).
+                std::swap(prev, next);
+            }
+            return emit_triangle(next, curr, prev, emitCoverage, data);
         }
     };
     Poly* addEdge(Edge* e, Side side, SkArenaAlloc& alloc) {
@@ -671,7 +682,7 @@ struct Poly {
             fPartner = partner->fPartner = nullptr;
         }
         if (!fTail) {
-            fHead = fTail = alloc.make<MonotonePoly>(e, side);
+            fHead = fTail = alloc.make<MonotonePoly>(e, side, fWinding);
             fCount += 2;
         } else if (e->fBottom == fTail->fLastEdge->fBottom) {
             return poly;
@@ -686,7 +697,7 @@ struct Poly {
                 partner->addEdge(e, side, alloc);
                 poly = partner;
             } else {
-                MonotonePoly* m = alloc.make<MonotonePoly>(e, side);
+                MonotonePoly* m = alloc.make<MonotonePoly>(e, side, fWinding);
                 m->fPrev = fTail;
                 fTail->fNext = m;
                 fTail = m;
