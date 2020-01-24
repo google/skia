@@ -16,6 +16,24 @@
       "revId": "3ee282429ed7ec2cb3bca25c4ad592ec12072b0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a87d02d_ca317677",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-01-24T14:20:39Z",
+      "side": 1,
+      "message": "The specific test that was failing was inverse on Chromecast, but I guess I\u0027m just a bit gun-shy on demanding exact equality in floating point comparisons.",
+      "parentUuid": "d6debe11_3c8a1975",
+      "revId": "3ee282429ed7ec2cb3bca25c4ad592ec12072b0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
