@@ -116,10 +116,10 @@ private:
 
 class ShapeData {
 public:
-    ShapeDataKey           fKey;
-    GrDrawOpAtlas::AtlasID fID;
-    SkRect                 fBounds;
-    GrIRect16              fTextureCoords;
+    ShapeDataKey               fKey;
+    GrDrawOpAtlas::PlotLocator fPlotLocator;
+    SkRect                     fBounds;
+    GrIRect16                  fTextureCoords;
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeData);
 
     static inline const ShapeDataKey& GetKey(const ShapeData& data) {
@@ -134,14 +134,14 @@ public:
 
 
 // Callback to clear out internal path cache when eviction occurs
-void GrSmallPathRenderer::evict(GrDrawOpAtlas::AtlasID id) {
+void GrSmallPathRenderer::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
     // remove any paths that use this plot
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
     ShapeData* shapeData;
     while ((shapeData = iter.get())) {
         iter.next();
-        if (id == shapeData->fID) {
+        if (plotLocator == shapeData->fPlotLocator) {
             fShapeCache.remove(shapeData->fKey);
             fShapeList.remove(shapeData);
             delete shapeData;
@@ -437,7 +437,7 @@ private:
                 // check to see if df path is cached
                 ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));
                 shapeData = fShapeCache->find(key);
-                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fID)) {
+                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fPlotLocator)) {
                     // Remove the stale cache entry
                     if (shapeData) {
                         fShapeCache->remove(shapeData->fKey);
@@ -462,7 +462,7 @@ private:
                 // check to see if bitmap path is cached
                 ShapeDataKey key(args.fShape, args.fViewMatrix);
                 shapeData = fShapeCache->find(key);
-                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fID)) {
+                if (nullptr == shapeData || !fAtlas->hasID(shapeData->fPlotLocator)) {
                     // Remove the stale cache entry
                     if (shapeData) {
                         fShapeCache->remove(shapeData->fKey);
@@ -484,7 +484,8 @@ private:
             }
 
             auto uploadTarget = target->deferredUploadTarget();
-            fAtlas->setLastUseToken(shapeData->fID, uploadTarget->tokenTracker()->nextDrawToken());
+            fAtlas->setLastUseToken(
+                    shapeData->fPlotLocator, uploadTarget->tokenTracker()->nextDrawToken());
 
             this->writePathVertices(fAtlas, vertices, GrVertexColor(args.fColor, fWideColor),
                                     args.fViewMatrix, shapeData);
@@ -496,11 +497,11 @@ private:
 
     bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
                     int width, int height, const void* image,
-                    GrDrawOpAtlas::AtlasID* id, SkIPoint16* atlasLocation) const {
+                    GrDrawOpAtlas::PlotLocator* plotLocator, SkIPoint16* atlasLocation) const {
         auto resourceProvider = target->resourceProvider();
         auto uploadTarget = target->deferredUploadTarget();
 
-        GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, id,
+        GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, plotLocator,
                                                           uploadTarget, width, height,
                                                           image, atlasLocation);
         if (GrDrawOpAtlas::ErrorCode::kError == code) {
@@ -510,7 +511,7 @@ private:
         if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
             this->flush(target, flushInfo);
 
-            code = atlas->addToAtlas(resourceProvider, id, uploadTarget, width, height,
+            code = atlas->addToAtlas(resourceProvider, plotLocator, uploadTarget, width, height,
                                      image, atlasLocation);
         }
 
@@ -602,16 +603,16 @@ private:
 
         // add to atlas
         SkIPoint16 atlasLocation;
-        GrDrawOpAtlas::AtlasID id;
+        GrDrawOpAtlas::PlotLocator plotLocator;
 
         if (!this->addToAtlas(target, flushInfo, atlas,
-                              width, height, dfStorage.get(), &id, &atlasLocation)) {
+                              width, height, dfStorage.get(), &plotLocator, &atlasLocation)) {
             return false;
         }
 
         // add to cache
         shapeData->fKey.set(shape, dimension);
-        shapeData->fID = id;
+        shapeData->fPlotLocator = plotLocator;
 
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
@@ -621,7 +622,7 @@ private:
         shapeData->fBounds.fBottom /= scale;
 
         // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(id);
+        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
         SkASSERT(pageIndex < 4);
         uint16_t uBit = (pageIndex >> 1) & 0x1;
         uint16_t vBit = pageIndex & 0x1;
@@ -704,22 +705,22 @@ private:
 
         // add to atlas
         SkIPoint16 atlasLocation;
-        GrDrawOpAtlas::AtlasID id;
+        GrDrawOpAtlas::PlotLocator plotLocator;
 
-        if (!this->addToAtlas(target, flushInfo, atlas,
-                              dst.width(), dst.height(), dst.addr(), &id, &atlasLocation)) {
+        if (!this->addToAtlas(target, flushInfo, atlas, dst.width(), dst.height(),
+                dst.addr(), &plotLocator, &atlasLocation)) {
             return false;
         }
 
         // add to cache
         shapeData->fKey.set(shape, ctm);
-        shapeData->fID = id;
+        shapeData->fPlotLocator = plotLocator;
 
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
         // We pack the 2bit page index in the low bit of the u and v texture coords
-        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(id);
+        uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
         SkASSERT(pageIndex < 4);
         uint16_t uBit = (pageIndex >> 1) & 0x1;
         uint16_t vBit = pageIndex & 0x1;
@@ -925,14 +926,14 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
         fShapeCache.reset();
     }
 
-    void evict(GrDrawOpAtlas::AtlasID id) override {
+    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override {
         // remove any paths that use this plot
         ShapeDataList::Iter iter;
         iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
         ShapeData* shapeData;
         while ((shapeData = iter.get())) {
             iter.next();
-            if (id == shapeData->fID) {
+            if (plotLocator == shapeData->fPlotLocator) {
                 fShapeCache.remove(shapeData->fKey);
                 fShapeList.remove(shapeData);
                 delete shapeData;

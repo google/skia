@@ -33,10 +33,10 @@ void GrStrikeCache::freeAll() {
     fCache.reset();
 }
 
-void GrStrikeCache::evict(GrDrawOpAtlas::AtlasID id) {
-    fCache.mutate([this, id](sk_sp<GrTextStrike>* cacheSlot){
+void GrStrikeCache::evict(GrDrawOpAtlas::PlotLocator plotLocator) {
+    fCache.mutate([this, plotLocator](sk_sp<GrTextStrike>* cacheSlot){
         GrTextStrike* strike = cacheSlot->get();
-        strike->removeID(id);
+        strike->removeID(plotLocator);
 
         // clear out any empty strikes.  We will preserve the strike whose call to addToAtlas
         // triggered the eviction
@@ -158,10 +158,10 @@ static void get_packed_glyph_image(const SkGlyph* glyph, int width,
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
-    fCache.foreach([this, id](GrGlyph** glyph){
-        if ((*glyph)->fID == id) {
-            (*glyph)->fID = GrDrawOpAtlas::kInvalidAtlasID;
+void GrTextStrike::removeID(GrDrawOpAtlas::PlotLocator plotLocator) {
+    fCache.foreach([this, plotLocator](GrGlyph** glyph){
+        if ((*glyph)->fPlotLocator == plotLocator) {
+            (*glyph)->fPlotLocator = GrDrawOpAtlas::kInvalidPlotLocator;
             fAtlasedGlyphs--;
             SkASSERT(fAtlasedGlyphs >= 0);
         }
@@ -208,16 +208,16 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
             rowBytes, expectedMaskFormat, dataPtr, glyphCache->getMasks());
 
     GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-                                                resourceProvider, glyphCache, this,
-                                                &glyph->fID, target, expectedMaskFormat,
-                                                width, height,
-                                                storage.get(), &glyph->fAtlasLocation);
+            resourceProvider, glyphCache, this,
+            &glyph->fPlotLocator, target, expectedMaskFormat,
+            width, height,
+            storage.get(), &glyph->fAtlasLocation);
     if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         if (addPad) {
             glyph->fAtlasLocation.fX += 1;
             glyph->fAtlasLocation.fY += 1;
         }
-        SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
+        SkASSERT(GrDrawOpAtlas::kInvalidPlotLocator != glyph->fPlotLocator);
         fAtlasedGlyphs++;
     }
     return result;
