@@ -253,17 +253,8 @@ void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
 
         // We pack the 2bit page index in the low bit of the u and v texture coords
         uint32_t pageIndex = glyph->pageIndex();
-        SkASSERT(pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
-        uint16_t vBit = pageIndex & 0x1u;
-        u0 <<= 1u;
-        u0 |= uBit;
-        v0 <<= 1u;
-        v0 |= vBit;
-        u1 <<= 1u;
-        u1 |= uBit;
-        v1 <<= 1u;
-        v1 |= vBit;
+        std::tie(u0, v0) = GrDrawOpAtlas::PackIndexInTexCoords(u0, v0, pageIndex);
+        std::tie(u1, v1) = GrDrawOpAtlas::PackIndexInTexCoords(u1, v1, pageIndex);
 
         textureCoords[0] = u0;
         textureCoords[1] = v0;
