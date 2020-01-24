@@ -39,7 +39,7 @@ static SkPoint gen_pt(float angle, const SkVector& scale) {
 static SkPath make_gear(SkISize dimensions, int numTeeth) {
     SkVector outerRad{ dimensions.fWidth / 2.0f, dimensions.fHeight / 2.0f };
     SkVector innerRad{ dimensions.fWidth / 2.5f, dimensions.fHeight / 2.5f };
-    const float kAnglePerTooth = SK_ScalarPI / numTeeth;
+    const float kAnglePerTooth = 2.0f * SK_ScalarPI / (3 * numTeeth);
 
     float angle = 0.0f;
 
@@ -48,11 +48,11 @@ static SkPath make_gear(SkISize dimensions, int numTeeth) {
 
     tmp.moveTo(gen_pt(angle, outerRad));
 
-    for (int i = 0; i < numTeeth; ++i, angle += 2*kAnglePerTooth) {
+    for (int i = 0; i < numTeeth; ++i, angle += 3*kAnglePerTooth) {
         tmp.lineTo(gen_pt(angle+kAnglePerTooth, outerRad));
-        tmp.lineTo(gen_pt(angle+kAnglePerTooth, innerRad));
-        tmp.lineTo(gen_pt(angle+2*kAnglePerTooth, innerRad));
-        tmp.lineTo(gen_pt(angle+2*kAnglePerTooth, outerRad));
+        tmp.lineTo(gen_pt(angle+(1.5f*kAnglePerTooth), innerRad));
+        tmp.lineTo(gen_pt(angle+(2.5f*kAnglePerTooth), innerRad));
+        tmp.lineTo(gen_pt(angle+(3.0f*kAnglePerTooth), outerRad));
     }
 
     tmp.close();
@@ -96,7 +96,7 @@ SkBitmap render_level(SkISize dimensions, SkColor color, SkColorType colorType, 
 static sk_sp<SkData> make_compressed_data(SkISize dimensions,
                                           SkColorType colorType,
                                           bool opaque,
-                                          SkImage::CompressionType compression) {
+                                          SkImage::CompressionType compression, bool doit) {
     size_t totalSize = GrCompressedDataSize(compression, dimensions, nullptr, GrMipMapped::kYes);
 
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
@@ -120,6 +120,8 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
     for (int i = 0; i < numMipLevels; ++i) {
         size_t levelSize = GrCompressedDataSize(compression, dimensions, nullptr, GrMipMapped::kNo);
 
+        SkDebugf("level size %dx%d\n", dimensions.width(), dimensions.height());
+
         SkBitmap bm = render_level(dimensions, kColors[i%7], colorType, opaque);
         if (compression == SkImage::CompressionType::kETC2_RGB8_UNORM) {
             SkASSERT(bm.colorType() == kRGB_565_SkColorType);
@@ -131,7 +133,7 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
                 return nullptr;
             }
         } else {
-            GrTwoColorBC1Compress(bm.pixmap(), kColors[i%7], &pixels[offset]);
+            GrTwoColorBC1Compress(bm.pixmap(), kColors[i%7], &pixels[offset], doit && i == 3);
         }
 
         offset += levelSize;
@@ -139,6 +141,142 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
     }
 
     return tmp;
+}
+
+#include "include/core/SkStream.h"
+#include "src/gpu/gl/GrGLDefines.h"
+
+/*
+ * Get an int from a buffer
+ * This method is unsafe, the caller is responsible for performing a check
+ */
+static inline uint32_t get_uint(uint8_t* buffer, uint32_t i) {
+    uint32_t result;
+    memcpy(&result, &(buffer[i]), 4);
+    return result;
+}
+
+static sk_sp<SkData> load_ktx(const char* filename,
+                              SkISize* dimensions,
+                              GrMipMapped* mipMapped,
+                              SkImage::CompressionType* compressionType) {
+    SkFILEStream input(filename);
+    if (!input.isValid()) {
+        return nullptr;
+    }
+
+    constexpr int kKTXIdentifierSize = 12;
+    constexpr int kKTXHeaderSize = kKTXIdentifierSize + 13 * sizeof(uint32_t);
+    uint8_t header[kKTXHeaderSize];
+
+    if (input.read(header, kKTXHeaderSize) != kKTXHeaderSize) {
+        return nullptr;
+    }
+
+    static const uint8_t kExpectedIdentifier[kKTXIdentifierSize] = {
+        0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
+    };
+
+    if (memcmp(header, kExpectedIdentifier, kKTXIdentifierSize)) {
+        return nullptr;
+    }
+
+    uint32_t endianness = get_uint(header, 12);
+    if (endianness != 0x04030201) {
+        // TODO: need to swap rest of header and, if glTypeSize is > 1, all
+        // the texture data.
+        return nullptr;
+    }
+
+    uint32_t glType = get_uint(header, 16);
+    uint32_t glTypeSize = get_uint(header, 20);
+    uint32_t glFormat = get_uint(header, 24);
+    uint32_t glInternalFormat = get_uint(header, 28);
+    uint32_t glBaseInternalFormat = get_uint(header, 32);
+    uint32_t pixelWidth = get_uint(header, 36);
+    uint32_t pixelHeight = get_uint(header, 40);
+    uint32_t pixelDepth = get_uint(header, 44);
+    uint32_t numberOfArrayElements = get_uint(header, 48);
+    uint32_t numberOfFaces = get_uint(header, 52);
+    uint32_t numberOfMipmapLevels = get_uint(header, 56);
+    uint32_t bytesOfKeyValueData = get_uint(header, 60);
+
+    if (glType != 0 || glFormat != 0) {  // only care about compressed data for now
+        return nullptr;
+    }
+    SkASSERT(glTypeSize == 1); // required for compressed data
+
+                               // We only handle these four formats right now
+    switch (glInternalFormat) {
+        case GR_GL_COMPRESSED_ETC1_RGB8:
+        case GR_GL_COMPRESSED_RGB8_ETC2:
+            *compressionType = SkImage::CompressionType::kETC2_RGB8_UNORM;
+            break;
+        case GR_GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+            *compressionType = SkImage::CompressionType::kBC1_RGB8_UNORM;
+            break;
+        case GR_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+            *compressionType = SkImage::CompressionType::kBC1_RGBA8_UNORM;
+            break;
+        default:
+            return nullptr;
+    }
+
+    dimensions->fWidth = pixelWidth;
+    dimensions->fHeight = pixelHeight;
+
+    if (pixelDepth != 0) {
+        return nullptr; // pixel depth is always zero for 2D textures
+    }
+
+    if (numberOfFaces != 1) {
+        return nullptr; // we don't support cube maps right now
+    }
+
+    if (numberOfMipmapLevels == 1) {
+        *mipMapped = GrMipMapped::kNo;
+    } else {
+        int numRequiredMipLevels = SkMipMap::ComputeLevelCount(pixelWidth, pixelHeight)+1;
+        if (numberOfMipmapLevels != numRequiredMipLevels) {
+//            return nullptr;
+        }
+        *mipMapped = GrMipMapped::kYes;
+    }
+
+    if (bytesOfKeyValueData != 0) {
+        return nullptr;
+    }
+
+    SkTArray<size_t> individualMipOffsets(numberOfMipmapLevels);
+
+    size_t dataSize = GrCompressedDataSize(*compressionType,
+                                           { (int) pixelWidth, (int) pixelHeight },
+                                           &individualMipOffsets, *mipMapped);
+    //SkASSERT(individualMipOffsets.size() == numberOfMipmapLevels);
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(dataSize);
+
+    uint8_t* dest = (uint8_t*) data->writable_data();
+
+    size_t offset = 0;
+    for (unsigned i = 0; i < numberOfMipmapLevels; ++i) {
+        uint32_t imageSize;
+
+        if (input.read(&imageSize, 4) != 4) {
+            return nullptr;
+        }
+
+        SkASSERT(offset + imageSize <= dataSize);
+        SkASSERT(offset == individualMipOffsets[i]);
+
+        if (input.read(&dest[offset], imageSize) != imageSize) {
+            return nullptr;
+        }
+
+        offset += imageSize;
+    }
+
+    return data;
 }
 
 // Basic test of Ganesh's ETC1 and BC1 support
@@ -150,33 +288,108 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
 //  RGBA8 |                   | kBC1_RGBA8_UNORM |
 //         --------------------------------------
 //
+// The nonPowerOfTwo and nonMultipleOfFour cases exercise some compression edge cases.
 class CompressedTexturesGM : public skiagm::GpuGM {
 public:
-    CompressedTexturesGM() {
+    enum class Type {
+        kNormal,
+        kNonPowerOfTwo,
+        kNonMultipleOfFour
+    };
+
+    CompressedTexturesGM(Type type) : fType(type) {
         this->setBGColor(0xFFCCCCCC);
+
+        switch (fType) {
+            case Type::kNonPowerOfTwo:
+                // These dimensions force the top two mip levels to be 1x3 and 1x1
+                fImgDimensions.set(20, 60);
+                break;
+            case Type::kNonMultipleOfFour:
+                // These dimensions force the top three mip levels to be 1x7, 1x3 and 1x1
+                fImgDimensions.set(13, 61); // prime numbers - just bc
+                break;
+            default:
+                fImgDimensions.set(kBaseTexWidth, kBaseTexHeight);
+                break;
+        }
+
+        fImgDimensions.set(20, 60);
     }
 
 protected:
     SkString onShortName() override {
-        return SkString("compressed_textures");
+        SkString name("compressed_textures");
+
+        if (fType == Type::kNormal) {
+            name.append("2");
+        } else if (fType == Type::kNonPowerOfTwo) {
+            name.append("_npot");
+        } else if (fType == Type::kNonMultipleOfFour) {
+            name.append("_nmof");
+        }
+
+        return name;
     }
 
     SkISize onISize() override {
-        return SkISize::Make(2*kCellWidth + 3*kPad, 2*kTexHeight + 3*kPad);
+        return SkISize::Make(2*kCellWidth + 3*kPad, 2*kBaseTexHeight + 3*kPad);
     }
 
     void onOnceBeforeDraw() override {
-        fOpaqueETC2Data = make_compressed_data({ kTexWidth, kTexHeight },
-                                               kRGB_565_SkColorType, true,
+#if 0
+        fOpaqueETC2Data = make_compressed_data(fImgDimensions, kRGB_565_SkColorType, true,
                                                SkImage::CompressionType::kETC2_RGB8_UNORM);
+#else
+        {
+            SkISize dim;
+            GrMipMapped mipMapped = GrMipMapped::kNo;
+            SkImage::CompressionType compressionType = SkImage::CompressionType::kNone;
+            fOpaqueETC2Data = load_ktx("c:\\src\\bugs\\gear-20x60-etc1.ktx",
+                                       &dim,
+                                       &mipMapped,
+                                       &compressionType);
+            SkASSERT(fImgDimensions == dim);
+            SkASSERT(mipMapped == GrMipMapped::kYes);
+            SkASSERT(compressionType == SkImage::CompressionType::kETC2_RGB8_UNORM);
+        }
+#endif
 
-        fOpaqueBC1Data = make_compressed_data({ kTexWidth, kTexHeight },
-                                              kRGBA_8888_SkColorType, true,
-                                              SkImage::CompressionType::kBC1_RGB8_UNORM);
+#if 1
+        fOpaqueBC1Data = make_compressed_data(fImgDimensions, kRGBA_8888_SkColorType, true,
+                                              SkImage::CompressionType::kBC1_RGB8_UNORM, false);
+#else
+        {
+            SkISize dim2;
+            GrMipMapped mipMapped2 = GrMipMapped::kNo;
+            SkImage::CompressionType compressionType2 = SkImage::CompressionType::kNone;
+            fOpaqueBC1Data = load_ktx("c:\\src\\bugs\\gear-20x60-bc1.ktx",
+                                      &dim2,
+                                      &mipMapped2,
+                                      &compressionType2);
+            SkASSERT(fImgDimensions == dim2);
+            SkASSERT(mipMapped2 == GrMipMapped::kYes);
+            SkASSERT(compressionType2 == SkImage::CompressionType::kBC1_RGB8_UNORM);
+        }
+#endif
 
-        fTransparentBC1Data = make_compressed_data({ kTexWidth, kTexHeight },
-                                                   kRGBA_8888_SkColorType, false,
-                                                   SkImage::CompressionType::kBC1_RGBA8_UNORM);
+#if 1
+        fTransparentBC1Data = make_compressed_data(fImgDimensions, kRGBA_8888_SkColorType, false,
+                                                   SkImage::CompressionType::kBC1_RGBA8_UNORM, true);
+#else
+        {
+            SkISize dim;
+            GrMipMapped mipMapped = GrMipMapped::kNo;
+            SkImage::CompressionType compressionType = SkImage::CompressionType::kNone;
+            fTransparentBC1Data = load_ktx("c:\\src\\bugs\\gear-20x60-bc1a.ktx",
+                                           &dim,
+                                           &mipMapped,
+                                           &compressionType);
+            SkASSERT(fImgDimensions == dim);
+            SkASSERT(mipMapped == GrMipMapped::kYes);
+            SkASSERT(compressionType == SkImage::CompressionType::kBC1_RGBA8_UNORM);
+        }
+#endif
     }
 
     void onDraw(GrContext* context, GrRenderTargetContext*, SkCanvas* canvas) override {
@@ -188,7 +401,7 @@ protected:
 
         this->drawCell(context, canvas, fTransparentBC1Data,
                        SkImage::CompressionType::kBC1_RGBA8_UNORM,
-                       { 2*kPad + kCellWidth, 2*kPad + kTexHeight });
+                       { 2*kPad + kCellWidth, 2*kPad + kBaseTexHeight });
     }
 
 private:
@@ -196,36 +409,41 @@ private:
                   SkImage::CompressionType compression, SkIVector offset) {
 
         sk_sp<SkImage> image = SkImage::MakeFromCompressed(context, data,
-                                                           kTexWidth, kTexHeight,
+                                                           fImgDimensions.width(),
+                                                           fImgDimensions.height(),
                                                            compression, GrMipMapped::kYes);
-        SkISize dimensions{ kTexWidth, kTexHeight };
+        SkISize levelDimensions = fImgDimensions;
 
-        int numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        int numMipLevels = SkMipMap::ComputeLevelCount(levelDimensions.width(),
+                                                       levelDimensions.height()) + 1;
 
         SkPaint paint;
         paint.setFilterQuality(kHigh_SkFilterQuality); // to force mipmapping
 
         for (int i = 0; i < numMipLevels; ++i) {
             SkRect r = SkRect::MakeXYWH(offset.fX, offset.fY,
-                                        dimensions.width(), dimensions.height());
+                                        levelDimensions.width(), levelDimensions.height());
 
             canvas->drawImageRect(image, r, &paint);
 
             if (i == 0) {
-                offset.fX += dimensions.width();
+                offset.fX += levelDimensions.width()+2;
             } else {
-                offset.fY += dimensions.height();
+                offset.fY += levelDimensions.height()+2;
             }
 
-            dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+            levelDimensions = {SkTMax(1, levelDimensions.width()/2),
+                               SkTMax(1, levelDimensions.height()/2)};
         }
     }
 
     static const int kPad = 8;
-    static const int kTexWidth = 64;
-    static const int kCellWidth = 1.5f * kTexWidth;
-    static const int kTexHeight = 64;
+    static const int kBaseTexWidth = 64;
+    static const int kCellWidth = 1.5f * kBaseTexWidth;
+    static const int kBaseTexHeight = 64;
 
+    Type          fType;
+    SkISize       fImgDimensions;
     sk_sp<SkData> fOpaqueETC2Data;
     sk_sp<SkData> fOpaqueBC1Data;
     sk_sp<SkData> fTransparentBC1Data;
@@ -235,6 +453,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new CompressedTexturesGM;)
+DEF_GM(return new CompressedTexturesGM(CompressedTexturesGM::Type::kNormal);)
+DEF_GM(return new CompressedTexturesGM(CompressedTexturesGM::Type::kNonPowerOfTwo);)
+DEF_GM(return new CompressedTexturesGM(CompressedTexturesGM::Type::kNonMultipleOfFour);)
 
 #endif

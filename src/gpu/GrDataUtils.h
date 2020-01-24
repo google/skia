@@ -49,6 +49,6 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f
  *   opaque pixmaps      -> kBC1_RGB8_UNORM
  *   transparent pixmaps -> kBC1_RGBA8_UNORM
  */
-void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels);
+void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels, bool doit);
 
 #endif

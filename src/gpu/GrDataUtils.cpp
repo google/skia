@@ -105,25 +105,13 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
     block->fLow = SkBSwap32(low);
 }
 
-static int num_ETC1_blocks_w(int w) {
-    if (w < 4) {
-        w = 1;
-    } else {
-        SkASSERT((w & 3) == 0);
-        w >>= 2;
-    }
-    return w;
+static int num_4x4_blocks(int size) {
+    return ((size + 3) & ~3) >> 2;
 }
 
 static int num_ETC1_blocks(int w, int h) {
-    w = num_ETC1_blocks_w(w);
-
-    if (h < 4) {
-        h = 1;
-    } else {
-       SkASSERT((h & 3) == 0);
-       h >>= 2;
-    }
+    w = num_4x4_blocks(w);
+    h = num_4x4_blocks(h);
 
     return w * h;
 }
@@ -204,7 +192,7 @@ size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
         case SkImage::CompressionType::kETC2_RGB8_UNORM:
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
-            int numBlocksWidth = num_ETC1_blocks_w(width);
+            int numBlocksWidth = num_4x4_blocks(width);
 
             static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
             return numBlocksWidth * sizeof(ETC1Block);
@@ -220,8 +208,8 @@ SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimens
         case SkImage::CompressionType::kETC2_RGB8_UNORM:
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
-            int numBlocksWidth = num_ETC1_blocks_w(baseDimensions.width());
-            int numBlocksHeight = num_ETC1_blocks_w(baseDimensions.height());
+            int numBlocksWidth = num_4x4_blocks(baseDimensions.width());
+            int numBlocksHeight = num_4x4_blocks(baseDimensions.height());
 
             // Each BC1_RGB8_UNORM and ETC1 block has 16 pixels
             return { 4 * numBlocksWidth, 4 * numBlocksHeight };
@@ -262,7 +250,7 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
 }
 
 // Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
-void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
+void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels, bool doit) {
     BC1Block* dstBlocks = (BC1Block*) dstPixels;
     SkASSERT(pixmap.colorType() == SkColorType::kRGBA_8888_SkColorType);
 
@@ -271,16 +259,21 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
     // black -> fColor0, otherColor -> fColor1
     create_BC1_block(SK_ColorBLACK, otherColor, &block);
 
-    int numXBlocks = num_ETC1_blocks_w(pixmap.width());
-    int numYBlocks = num_ETC1_blocks_w(pixmap.height());
+    int numXBlocks = num_4x4_blocks(pixmap.width());
+    int numYBlocks = num_4x4_blocks(pixmap.height());
+
+    if (doit) {
+        int foo = 0;
+        foo++;
+    }
 
     for (int y = 0; y < numYBlocks; ++y) {
         for (int x = 0; x < numXBlocks; ++x) {
             int shift = 0;
             int offsetX = 4 * x, offsetY = 4 * y;
-            block.fIndices = 0;  // init all the pixels to color0
+            block.fIndices = 0;  // init all the pixels to color0 (i.e., opaque black)
             for (int i = 0; i < 4; ++i) {
-                for (int j = 0; j < 4; ++j) {
+                for (int j = 0; j < 4; ++j, shift += 2) {
                     if (offsetX + j >= pixmap.width() || offsetY + i >= pixmap.height()) {
                         // This can happen for the topmost levels of a mipmap
                         continue;
@@ -290,10 +283,13 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
                     if (tmp == SK_ColorTRANSPARENT) {
                         // For RGBA BC1 images color3 is set to transparent black
                         block.fIndices |= 3 << shift;
+                        if (doit) SkDebugf("%d %d -> transBlack\n", offsetX + j, offsetY + i);
                     } else if (tmp != SK_ColorBLACK) {
                         block.fIndices |= 1 << shift; // color1
+                        if (doit) SkDebugf("%d %d -> other\n", offsetX + j, offsetY + i);
+                    } else {
+                        if (doit) SkDebugf("%d %d -> opaqueBlack\n", offsetX + j, offsetY + i);
                     }
-                    shift += 2;
                 }
             }
 
