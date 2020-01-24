@@ -19,6 +19,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
                                                             const SkYUVAIndex yuvaIndices[4],
                                                             SkYUVColorSpace yuvColorSpace,
                                                             GrSamplerState::Filter filterMode,
+                                                            const GrCaps& caps,
                                                             const SkMatrix& localMatrix,
                                                             const SkRect* domain) {
     int numPlanes;
@@ -63,16 +64,18 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         } else if (domain) {
             planeDomain = *domain;
         }
-        planeFPs[i] =
-                GrTextureEffect::Make(proxies[i], kUnknown_SkAlphaType, *planeMatrix, planeFilter);
+
         if (domain) {
             SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
             if (planeFilter != GrSamplerState::Filter::kNearest) {
                 // Inset by half a pixel for bilerp, after scaling to the size of the plane
                 planeDomain.inset(0.5f, 0.5f);
             }
-            planeFPs[i] = GrDomainEffect::Make(std::move(planeFPs[i]), planeDomain,
-                                               GrTextureDomain::kClamp_Mode, false);
+            planeFPs[i] = GrTextureEffect::MakeSubset(proxies[i], kUnknown_SkAlphaType,
+                                                      *planeMatrix, planeFilter, planeDomain, caps);
+        } else {
+            planeFPs[i] = GrTextureEffect::Make(proxies[i], kUnknown_SkAlphaType, *planeMatrix,
+                                                planeFilter);
         }
     }
 
@@ -187,7 +190,6 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
 
         UniformHandle fColorSpaceMatrixVar;
         UniformHandle fColorSpaceTranslateVar;
-        GrTextureDomain::GLDomain fGLDomains[4];
     };
 
     return new GrGLSLYUVtoRGBEffect;
