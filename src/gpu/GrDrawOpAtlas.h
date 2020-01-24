@@ -158,10 +158,9 @@ public:
         }
 
         uint32_t plot = GetPlotIndexFromID(plotPath);
-        SkASSERT(plot < fNumPlots);
         uint32_t page = GetPageIndexFromID(plotPath);
-        SkASSERT(page < fNumActivePages);
-        return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(plotPath);
+        return plot <= fNumPlots && page <= fNumActivePages &&
+            fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(plotPath);
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
