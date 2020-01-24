@@ -199,6 +199,20 @@ public:
     bool formatSupportsTexStorage(GrGLFormat) const;
 
     /**
+     * Would it be useful to check GL_IMPLEMENTATION_READ_FORMAT and _TYPE for this format to
+     * detect more efficient glReadPixels arguments?
+     */
+    bool shouldQueryImplementationReadSupport(GrGLFormat format) const;
+
+    /**
+     * Let caps know the result of GL_IMPLEMENTATION_READ_FORMAT and _TYPE query for a format
+     * to update supported glReadPixels arguments.
+     */
+    void didQueryImplementationReadSupport(GrGLFormat format,
+                                           GrGLenum readFormat,
+                                           GrGLenum readType) const;
+
+    /**
      * Gets the internal format to use with glRenderbufferStorageMultisample...(). May be sized or
      * base depending upon the GL. Not applicable to compressed textures.
      */
@@ -463,6 +477,7 @@ private:
         bool fDisableLuminance16F = false;
         bool fDontDisableTexStorageOnAndroid = false;
         bool fDisallowDirectRG8ReadPixels = false;
+        bool fDisallowBGRA8ReadPixels = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -583,15 +598,25 @@ private:
             GrGLenum fExternalType = 0;
             GrGLenum fExternalTexImageFormat = 0;
             GrGLenum fExternalReadFormat = 0;
+            /**
+             * Must check whether GL_IMPLEMENTATION_COLOR_READ_FORMAT and _TYPE match
+             * fExternalReadFormat and fExternalType before using with glReadPixels.
+             */
+            bool fRequiresImplementationReadQuery = false;
         };
 
-        GrGLenum externalFormat(GrColorType externalColorType, ExternalFormatUsage usage) const {
+        GrGLenum externalFormat(GrColorType externalColorType, ExternalFormatUsage usage,
+                                bool haveQueriedImplementationReadFormat) const {
             for (int i = 0; i < fExternalIOFormatCount; ++i) {
                 if (fExternalIOFormats[i].fColorType == externalColorType) {
                     if (usage == kTexImage_ExternalFormatUsage) {
                         return fExternalIOFormats[i].fExternalTexImageFormat;
                     } else {
                         SkASSERT(usage == kReadPixels_ExternalFormatUsage);
+                        if (!haveQueriedImplementationReadFormat &&
+                            fExternalIOFormats[i].fRequiresImplementationReadQuery) {
+                            return 0;
+                        }
                         return fExternalIOFormats[i].fExternalReadFormat;
                     }
                 }
@@ -626,7 +651,8 @@ private:
                                 ExternalFormatUsage usage) const {
             for (int i = 0; i < fColorTypeInfoCount; ++i) {
                 if (fColorTypeInfos[i].fColorType == surfaceColorType) {
-                    return fColorTypeInfos[i].externalFormat(externalColorType, usage);
+                    return fColorTypeInfos[i].externalFormat(externalColorType, usage,
+                                                             fHaveQueriedImplementationReadSupport);
                 }
             }
             return 0;
@@ -675,6 +701,8 @@ private:
         GrColorType fDefaultColorType = GrColorType::kUnknown;
         // This value is only valid for regular formats. Compressed formats will be 0.
         GrGLenum fBytesPerPixel = 0;
+
+        bool fHaveQueriedImplementationReadSupport = false;
 
         enum {
             // This indicates that a stencil format has not yet been determined for the config.
