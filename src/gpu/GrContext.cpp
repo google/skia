@@ -380,13 +380,8 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
-    }
-
     return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
-                                      numMipLevels, isProtected, nullptr);
+                                      mipMapped, isProtected, nullptr);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -485,13 +480,9 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
         return GrBackendTexture();
     }
 
-    int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(width, height) + 1;
-    }
     GrGpu::BackendTextureData data(color);
     return fGpu->createBackendTexture({width, height}, backendFormat, renderable,
-                                      numMipLevels, isProtected, &data);
+                                      mipMapped, isProtected, &data);
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,
@@ -520,7 +511,7 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
                                       isProtected);
 }
 
-GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int numLevels,
+GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int numProvidedLevels,
                                                  GrRenderable renderable, GrProtected isProtected) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -532,7 +523,7 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
         return {};
     }
 
-    if (!srcData || !numLevels) {
+    if (!srcData || numProvidedLevels <= 0) {
         return {};
     }
 
@@ -540,11 +531,22 @@ GrBackendTexture GrContext::createBackendTexture(const SkPixmap srcData[], int n
     int baseHeight = srcData[0].height();
     SkColorType colorType = srcData[0].colorType();
 
+    GrMipMapped mipMapped = GrMipMapped::kNo;
+    int numExpectedLevels = 1;
+    if (numProvidedLevels > 1) {
+        numExpectedLevels = SkMipMap::ComputeLevelCount(baseWidth, baseHeight) + 1;
+        mipMapped = GrMipMapped::kYes;
+    }
+
+    if (numProvidedLevels != numExpectedLevels) {
+        return {};
+    }
+
     GrBackendFormat backendFormat = this->defaultBackendFormat(colorType, renderable);
 
     GrGpu::BackendTextureData data(srcData);
     return fGpu->createBackendTexture({baseWidth, baseHeight}, backendFormat, renderable,
-                                      numLevels, isProtected, &data);
+                                      mipMapped, isProtected, &data);
 }
 
 //////////////////////////////////////////////////////////////////////////////

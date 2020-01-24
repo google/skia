@@ -761,10 +761,12 @@ void GrGpu::Stats::dumpKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>*
 #endif // GR_GPU_STATS
 #endif // GR_TEST_UTILS
 
-bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data, int numLevels) {
-    if (numLevels != 1 &&
-        numLevels != SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1) {
-        return false;
+bool GrGpu::MipMapsAreCorrect(SkISize dimensions,
+                              GrMipMapped mipMapped,
+                              const BackendTextureData* data) {
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
     if (!data || data->type() == BackendTextureData::Type::kColor) {
@@ -772,7 +774,7 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data
     }
 
     if (data->type() == BackendTextureData::Type::kCompressed) {
-        return false;
+        return false;  // This should be going through CompressedDataIsCorrect
     }
 
     SkASSERT(data->type() == BackendTextureData::Type::kPixmaps);
@@ -782,9 +784,8 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions, const BackendTextureData* data
     }
 
     SkColorType colorType = data->pixmap(0).colorType();
-    for (int i = 1; i < numLevels; ++i) {
-        dimensions = {SkTMax(1, dimensions.width() /2),
-                      SkTMax(1, dimensions.height()/2)};
+    for (int i = 1; i < numMipLevels; ++i) {
+        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
         if (dimensions != data->pixmap(i).dimensions()) {
             return false;
         }
@@ -817,7 +818,7 @@ bool GrGpu::CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType
 GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
                                              const GrBackendFormat& format,
                                              GrRenderable renderable,
-                                             int numMipLevels,
+                                             GrMipMapped mipMapped,
                                              GrProtected isProtected,
                                              const BackendTextureData* data) {
     const GrCaps* caps = this->caps();
@@ -843,16 +844,15 @@ GrBackendTexture GrGpu::createBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (numMipLevels > 1 && !this->caps()->mipMapSupport()) {
+    if (mipMapped == GrMipMapped::kYes && !this->caps()->mipMapSupport()) {
         return {};
     }
 
-    if (!MipMapsAreCorrect(dimensions, data, numMipLevels)) {
+    if (!MipMapsAreCorrect(dimensions, mipMapped, data)) {
         return {};
     }
 
-    return this->onCreateBackendTexture(dimensions, format, renderable,
-                                        numMipLevels > 1 ? GrMipMapped::kYes : GrMipMapped::kNo,
+    return this->onCreateBackendTexture(dimensions, format, renderable, mipMapped,
                                         isProtected, data);
 }
 
