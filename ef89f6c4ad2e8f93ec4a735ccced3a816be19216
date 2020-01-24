@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c878aeef_a09bf46e",
+        "filename": "src/gpu/GrTextureProducer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "It\u0027s still needed for the bicubic effect code below. Moved it closer to where it\u0027s used.",
+      "parentUuid": "c1695409_d17a8118",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 195,
+        "endChar": 60
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6eb0ca64_3498878f",
         "filename": "src/gpu/effects/GrTextureEffect.h",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "250ba7ad_4c30af8b",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6eb0ca64_3498878f",
+      "range": {
+        "startLine": 54,
+        "startChar": 34,
+        "endLine": 54,
+        "endChar": 37
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "65492a21_f1101cda",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbb38510_1b0c62ba",
+      "range": {
+        "startLine": 82,
+        "startChar": 34,
+        "endLine": 82,
+        "endChar": 37
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35aa1a97_009c49bc",
         "filename": "src/gpu/effects/GrTextureEffect.h",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2020-01-23T19:21:15Z",
       "side": 1,
       "message": "I like this name",
+      "range": {
+        "startLine": 99,
+        "startChar": 15,
+        "endLine": 99,
+        "endChar": 25
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2dc9f589_0d84fd2b",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "35aa1a97_009c49bc",
       "range": {
         "startLine": 99,
         "startChar": 15,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "7e7f1e0f_061f0076",
+        "filename": "src/gpu/effects/GrTextureEffect.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "30e4434f_b23e77c8",
+      "range": {
+        "startLine": 120,
+        "startChar": 8,
+        "endLine": 120,
+        "endChar": 20
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39961d2e_09429a90",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 6
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "e0b43f57_33c66830",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "oops.. yep it works.",
+      "parentUuid": "39961d2e_09429a90",
+      "range": {
+        "startLine": 1081,
+        "startChar": 16,
+        "endLine": 1081,
+        "endChar": 21
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51d1d55e_3fd33185",
         "filename": "src/shaders/SkImageShader.cpp",
         "patchSetId": 6
@@ -160,6 +304,30 @@
       "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "601e2587_62dad775",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-24T14:29:36Z",
+      "side": 1,
+      "message": "Exactly. Once GrBicubic effect uses the child processor all this goes away and it relies on GrTextureEffect to determine how modes are implemented.",
+      "parentUuid": "51d1d55e_3fd33185",
+      "range": {
+        "startLine": 234,
+        "startChar": 7,
+        "endLine": 246,
+        "endChar": 12
+      },
+      "revId": "ef89f6c4ad2e8f93ec4a735ccced3a816be19216",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
