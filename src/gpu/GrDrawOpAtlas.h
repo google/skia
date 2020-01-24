@@ -91,6 +91,7 @@ public:
      *                          direction
      *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
      *                          direction
+     *  @param atlasGeneration  a pointer to the context's generation counter.
      *  @param allowMultitexturing Can the atlas use more than one texture.
      *  @param evictor          A pointer to an eviction callback class.
      *
@@ -101,6 +102,8 @@ public:
                                                GrColorType,
                                                int width, int height,
                                                int plotWidth, int plotHeight,
+                                               uint64_t* atlasGeneration,
+                                               uint64_t* plotCount,
                                                AllowMultitexturing allowMultitexturing,
                                                EvictionCallback* evictor);
 
@@ -132,7 +135,7 @@ public:
 
     const GrSurfaceProxyView* getViews() const { return fViews; }
 
-    uint64_t atlasGeneration() const { return fAtlasGeneration; }
+    uint64_t atlasGeneration() const { return *fAtlasGeneration; }
 
     bool hasID(PlotLocator plotLocator) {
         if (kInvalidPlotLocator == plotLocator) {
@@ -140,10 +143,10 @@ public:
         }
 
         uint32_t plot = GetPlotIndexFromID(plotLocator);
-        SkASSERT(plot < fNumPlots);
         uint32_t page = GetPageIndexFromID(plotLocator);
-        SkASSERT(page < fNumActivePages);
-        return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(plotLocator);
+        uint64_t plotGeneration = fPages[page].fPlotArray[plot]->genID();
+        uint64_t locatorGeneration = GetGenerationFromID(plotLocator);
+        return plot < fNumPlots && page < fNumActivePages && plotGeneration == locatorGeneration;
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
@@ -247,8 +250,8 @@ public:
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrColorType, int width,
-                  int height, int plotWidth, int plotHeight,
-                  AllowMultitexturing allowMultitexturing);
+                  int height, int plotWidth, int plotHeight, uint64_t* atlasGeneration,
+                  uint64_t* plotCount, AllowMultitexturing allowMultitexturing);
 
     /**
      * The backing GrTexture for a GrDrawOpAtlas is broken into a spatial grid of Plots. The Plots
@@ -296,7 +299,7 @@ private:
         void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     private:
-        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
+        Plot(int pageIndex, int plotIndex, uint64_t* plotCount, int offX, int offY,
              int width, int height, GrColorType colorType);
 
         ~Plot() override;
@@ -306,7 +309,7 @@ private:
          * the atlas
          */
         Plot* clone() const {
-            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight,
+            return new Plot(fPageIndex, fPlotIndex, fPlotCount, fX, fY, fWidth, fHeight,
                             fColorType);
         }
 
@@ -328,6 +331,7 @@ private:
             const uint32_t fPageIndex : 16;
             const uint32_t fPlotIndex : 16;
         };
+        uint64_t* const fPlotCount;
         uint64_t fGenID;
         GrDrawOpAtlas::PlotLocator fPlotLocator;
         unsigned char* fData;
@@ -376,7 +380,7 @@ private:
                       GrDeferredUploadTarget* target, int width, int height, const void* image,
                       SkIPoint16* loc);
 
-    bool createPages(GrProxyProvider*);
+    bool createPages(GrProxyProvider*, uint64_t* plotCount);
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
 
@@ -394,7 +398,7 @@ private:
     int                   fPlotHeight;
     unsigned int          fNumPlots;
 
-    uint64_t              fAtlasGeneration;
+    uint64_t*             fAtlasGeneration;
     // nextTokenToFlush() value at the end of the previous flush
     GrDeferredUploadToken fPrevFlushToken;
 
