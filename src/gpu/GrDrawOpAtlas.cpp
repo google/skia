@@ -39,14 +39,16 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
                                                    const GrBackendFormat& format,
                                                    GrColorType colorType, int width,
                                                    int height, int plotWidth, int plotHeight,
+                                                   GenerationCounter* generationCounter,
                                                    AllowMultitexturing allowMultitexturing,
                                                    EvictionCallback* evictor) {
     if (!format.isValid()) {
         return nullptr;
     }
 
-    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType, width,
-                                                           height, plotWidth, plotHeight,
+    std::unique_ptr<GrDrawOpAtlas> atlas(new GrDrawOpAtlas(proxyProvider, format, colorType,
+                                                           width, height, plotWidth, plotHeight,
+                                                           generationCounter,
                                                            allowMultitexturing));
     if (!atlas->getViews()[0].proxy()) {
         return nullptr;
@@ -61,14 +63,15 @@ static bool gDumpAtlasData = false;
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
-                          int width, int height, GrColorType colorType)
+GrDrawOpAtlas::Plot::Plot(int pageIndex, int plotIndex, GenerationCounter* generationCounter,
+        int offX, int offY, int width, int height, GrColorType colorType)
         : fLastUpload(GrDeferredUploadToken::AlreadyFlushedToken())
         , fLastUse(GrDeferredUploadToken::AlreadyFlushedToken())
         , fFlushesSinceLastUse(0)
         , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
-        , fGenID(genID)
+        , fGenerationCounter(generationCounter)
+        , fGenID(fGenerationCounter->next())
         , fPlotLocator(CreatePlotLocator(fPageIndex, fPlotIndex, fGenID))
         , fData(nullptr)
         , fWidth(width)
@@ -161,7 +164,7 @@ void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& 
 void GrDrawOpAtlas::Plot::resetRects() {
     fRectanizer.reset();
 
-    fGenID++;
+    fGenID = fGenerationCounter->next();
     fPlotLocator = CreatePlotLocator(fPageIndex, fPlotIndex, fGenID);
     fLastUpload = GrDeferredUploadToken::AlreadyFlushedToken();
     fLastUse = GrDeferredUploadToken::AlreadyFlushedToken();
@@ -177,16 +180,18 @@ void GrDrawOpAtlas::Plot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendFormat& format,
-                             GrColorType colorType, int width, int height,
-                             int plotWidth, int plotHeight, AllowMultitexturing allowMultitexturing)
+GrDrawOpAtlas::GrDrawOpAtlas(
+        GrProxyProvider* proxyProvider, const GrBackendFormat& format,
+        GrColorType colorType, int width, int height, int plotWidth, int plotHeight,
+        GenerationCounter* generationCounter, AllowMultitexturing allowMultitexturing)
         : fFormat(format)
         , fColorType(colorType)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fPlotWidth(plotWidth)
         , fPlotHeight(plotHeight)
-        , fAtlasGeneration(kInvalidAtlasGeneration + 1)
+        , fGenerationCounter(generationCounter)
+        , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(GrDeferredUploadToken::AlreadyFlushedToken())
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ? kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
@@ -198,7 +203,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
 
     fNumPlots = numPlotsX * numPlotsY;
 
-    this->createPages(proxyProvider);
+    this->createPages(proxyProvider, generationCounter);
 }
 
 inline void GrDrawOpAtlas::processEviction(PlotLocator plotLocator) {
@@ -206,7 +211,7 @@ inline void GrDrawOpAtlas::processEviction(PlotLocator plotLocator) {
         evictor->evict(plotLocator);
     }
 
-    ++fAtlasGeneration;
+    fAtlasGeneration = fGenerationCounter->next();
 }
 
 inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
@@ -517,7 +522,8 @@ void GrDrawOpAtlas::compact(GrDeferredUploadToken startTokenForNextFlush) {
     fPrevFlushToken = startTokenForNextFlush;
 }
 
-bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
+bool GrDrawOpAtlas::createPages(
+        GrProxyProvider* proxyProvider, GenerationCounter* generationCounter) {
     SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
 
     GrSurfaceDesc desc;
@@ -545,8 +551,8 @@ bool GrDrawOpAtlas::createPages(GrProxyProvider* proxyProvider) {
         for (int y = numPlotsY - 1, r = 0; y >= 0; --y, ++r) {
             for (int x = numPlotsX - 1, c = 0; x >= 0; --x, ++c) {
                 uint32_t plotIndex = r * numPlotsX + c;
-                currPlot->reset(new Plot(i, plotIndex, 1, x, y, fPlotWidth, fPlotHeight,
-                                         fColorType));
+                currPlot->reset(new Plot(
+                    i, plotIndex, generationCounter, x, y, fPlotWidth, fPlotHeight, fColorType));
 
                 // build LRU list
                 fPages[i].fPlotList.addToHead(currPlot->get());
