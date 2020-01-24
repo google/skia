@@ -40,6 +40,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputC
     if (fFunctionNames[childIndex].size() == 0) {
         fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 
+        const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
         TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
         TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
 
