@@ -27,11 +27,7 @@ GrPipeline::GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor> xferPr
     }
 
     fWindowRectsState = hardClip.windowRectsState();
-    if (!args.fUserStencil->isDisabled(fFlags & Flags::kHasStencilClip)) {
-        fFlags |= Flags::kStencilEnabled;
-    }
-
-    fUserStencilSettings = args.fUserStencil;
+    this->setUserStencil(args.fUserStencil);
 
     fXferProcessor = std::move(xferProcessor);
 
@@ -76,16 +72,13 @@ GrPipeline::GrPipeline(GrScissorTest scissorTest, sk_sp<const GrXferProcessor> x
                        const GrSwizzle& outputSwizzle, InputFlags inputFlags,
                        const GrUserStencilSettings* userStencil)
         : fWindowRectsState()
-        , fUserStencilSettings(userStencil)
         , fFlags((Flags)inputFlags)
         , fXferProcessor(std::move(xp))
         , fOutputSwizzle(outputSwizzle) {
     if (GrScissorTest::kEnabled == scissorTest) {
         fFlags |= Flags::kScissorEnabled;
     }
-    if (!userStencil->isDisabled(false)) {
-        fFlags |= Flags::kStencilEnabled;
-    }
+    this->setUserStencil(userStencil);
 }
 
 void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
