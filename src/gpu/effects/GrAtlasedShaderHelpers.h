@@ -15,7 +15,6 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
-                                     int numTextureSamplers,
                                      const char* inTexCoordsName,
                                      const char* atlasDimensionsInvName,
                                      GrGLSLVarying* uv,
@@ -24,35 +23,19 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
 
     // This extracts the texture index and texel coordinates from the same variable
-    // Packing structure: to store an index bit, texel coordinate [0,N] is mapped to [-1,-N-1]
-    args.fVertBuilder->codeAppendf("float2 unormTexCoords = float2(%s.x, %s.y);",
-                                   inTexCoordsName, inTexCoordsName);
-    if (numTextureSamplers < 2) {
-        if (args.fShaderCaps->integerSupport()) {
-            args.fVertBuilder->codeAppend("int texIdx = 0;");
-        } else {
-            args.fVertBuilder->codeAppend("float texIdx = 0;");
-        }
+    // Packing structure: texel coordinates are multiplied by 2 (or shifted left 1)
+    //                    texture index is stored as lower bits of both x and y
+    if (args.fShaderCaps->integerSupport()) {
+        args.fVertBuilder->codeAppendf("int2 signedCoords = int2(%s.x, %s.y);",
+                                       inTexCoordsName, inTexCoordsName);
+        args.fVertBuilder->codeAppend("int texIdx = 2*(signedCoords.x & 0x1) + (signedCoords.y & 0x1);");
+        args.fVertBuilder->codeAppend("float2 unormTexCoords = float2(signedCoords.x/2, signedCoords.y/2);");
     } else {
-        if (args.fShaderCaps->integerSupport()) {
-            args.fVertBuilder->codeAppend("int indexX = 0; int indexY = 0;");
-        } else {
-            args.fVertBuilder->codeAppend("float indexX = 0; float indexY = 0;");
-        }
-        // Could possibly do this with mix() but not clear it's worth it.
-        args.fVertBuilder->codeAppend("if (unormTexCoords.x < 0) {");
-        args.fVertBuilder->codeAppend("  unormTexCoords.x = -unormTexCoords.x-1;");
-        args.fVertBuilder->codeAppend("  indexX = 2;");
-        args.fVertBuilder->codeAppend("}");
-        args.fVertBuilder->codeAppend("if (unormTexCoords.y < 0) {");
-        args.fVertBuilder->codeAppend("  unormTexCoords.y = -unormTexCoords.y-1;");
-        args.fVertBuilder->codeAppend("  indexY = 1;");
-        args.fVertBuilder->codeAppend("}");
-        if (args.fShaderCaps->integerSupport()) {
-            args.fVertBuilder->codeAppend("int texIdx = indexX + indexY;");
-        } else {
-            args.fVertBuilder->codeAppend("float texIdx = indexX + indexY;");
-        }
+        args.fVertBuilder->codeAppendf("float2 indexTexCoords = float2(%s.x, %s.y);",
+                                       inTexCoordsName, inTexCoordsName);
+        args.fVertBuilder->codeAppend("float2 unormTexCoords = floor(0.5*indexTexCoords);");
+        args.fVertBuilder->codeAppend("float2 diff = indexTexCoords - 2.0*unormTexCoords;");
+        args.fVertBuilder->codeAppend("float texIdx = 2.0*diff.x + diff.y;");
     }
 
     // Multiply by 1/atlasDimensions to get normalized texture coordinates

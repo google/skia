@@ -624,20 +624,17 @@ private:
         shapeData->fBounds.fRight /= scale;
         shapeData->fBounds.fBottom /= scale;
 
-        // Pack the page index into the u and v texture coords
+        // We pack the 2bit page index in the low bit of the u and v texture coords
         uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(id);
         SkASSERT(pageIndex < 4);
-        int16_t left, top, right, bottom;
-        std::tie(left, top, right, bottom) =
-                std::make_tuple(atlasLocation.fX + SK_DistanceFieldPad,
-                                atlasLocation.fY + SK_DistanceFieldPad,
-                                atlasLocation.fX + SK_DistanceFieldPad + devPathBounds.width(),
-                                atlasLocation.fY + SK_DistanceFieldPad + devPathBounds.height());
-        std::tie(left, top) =
-                GrDrawOpAtlas::PackIndexInTexCoords(left, top, pageIndex);
-        std::tie(right, bottom) =
-                GrDrawOpAtlas::PackIndexInTexCoords(right, bottom, pageIndex);
-        shapeData->fTextureCoords.set(left, top, right, bottom);
+        uint16_t uBit = (pageIndex >> 1) & 0x1;
+        uint16_t vBit = pageIndex & 0x1;
+        shapeData->fTextureCoords.set((atlasLocation.fX+SK_DistanceFieldPad) << 1 | uBit,
+                                      (atlasLocation.fY+SK_DistanceFieldPad) << 1 | vBit,
+                                      (atlasLocation.fX+SK_DistanceFieldPad+
+                                       devPathBounds.width()) << 1 | uBit,
+                                      (atlasLocation.fY+SK_DistanceFieldPad+
+                                       devPathBounds.height()) << 1 | vBit);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
@@ -725,18 +722,14 @@ private:
         shapeData->fBounds = SkRect::Make(devPathBounds);
         shapeData->fBounds.offset(-translateX, -translateY);
 
-        // Pack the page index into the u and v texture coords
+        // We pack the 2bit page index in the low bit of the u and v texture coords
         uint16_t pageIndex = GrDrawOpAtlas::GetPageIndexFromID(id);
         SkASSERT(pageIndex < 4);
-        int16_t left, top, right, bottom;
-        std::tie(left, top, right, bottom) = std::make_tuple(atlasLocation.fX, atlasLocation.fY,
-                                                             atlasLocation.fX+width,
-                                                             atlasLocation.fY+height);
-        std::tie(left, top) =
-                GrDrawOpAtlas::PackIndexInTexCoords(left, top, pageIndex);
-        std::tie(right, bottom) =
-                GrDrawOpAtlas::PackIndexInTexCoords(right, bottom, pageIndex);
-        shapeData->fTextureCoords.set(left, top, right, bottom);
+        uint16_t uBit = (pageIndex >> 1) & 0x1;
+        uint16_t vBit = pageIndex & 0x1;
+        shapeData->fTextureCoords.set(atlasLocation.fX << 1 | uBit, atlasLocation.fY << 1 | vBit,
+                                      (atlasLocation.fX+width) << 1 | uBit,
+                                      (atlasLocation.fY+height) << 1 | vBit);
 
         fShapeCache->add(shapeData);
         fShapeList->addToTail(shapeData);
