@@ -33,7 +33,7 @@ void GrStrikeCache::freeAll() {
     fCache.reset();
 }
 
-void GrStrikeCache::evict(GrDrawOpAtlas::AtlasID id) {
+void GrStrikeCache::evict(GrDrawOpAtlas::PlotPath id) {
     fCache.mutate([this, id](sk_sp<GrTextStrike>* cacheSlot){
         GrTextStrike* strike = cacheSlot->get();
         strike->removeID(id);
@@ -158,10 +158,10 @@ static void get_packed_glyph_image(const SkGlyph* glyph, int width,
 GrTextStrike::GrTextStrike(const SkDescriptor& key)
     : fFontScalerKey(key) {}
 
-void GrTextStrike::removeID(GrDrawOpAtlas::AtlasID id) {
-    fCache.foreach([this, id](GrGlyph** glyph){
-        if ((*glyph)->fID == id) {
-            (*glyph)->fID = GrDrawOpAtlas::kInvalidAtlasID;
+void GrTextStrike::removeID(GrDrawOpAtlas::PlotPath plotPath) {
+    fCache.foreach([this, plotPath](GrGlyph** glyph){
+        if ((*glyph)->fPlotPath == plotPath) {
+            (*glyph)->fPlotPath = GrDrawOpAtlas::kInvalidPlotPath;
             fAtlasedGlyphs--;
             SkASSERT(fAtlasedGlyphs >= 0);
         }
@@ -208,16 +208,16 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
             rowBytes, expectedMaskFormat, dataPtr, glyphCache->getMasks());
 
     GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-                                                resourceProvider, glyphCache, this,
-                                                &glyph->fID, target, expectedMaskFormat,
-                                                width, height,
-                                                storage.get(), &glyph->fAtlasLocation);
+            resourceProvider, glyphCache, this,
+            &glyph->fPlotPath, target, expectedMaskFormat,
+            width, height,
+            storage.get(), &glyph->fAtlasLocation);
     if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {
         if (addPad) {
             glyph->fAtlasLocation.fX += 1;
             glyph->fAtlasLocation.fY += 1;
         }
-        SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != glyph->fID);
+        SkASSERT(GrDrawOpAtlas::kInvalidPlotPath != glyph->fPlotPath);
         fAtlasedGlyphs++;
     }
     return result;

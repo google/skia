@@ -60,22 +60,25 @@ public:
                                          // in BulkUseTokenUpdater
 
     /**
-     * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
-     * a specific piece of data.
+     * A PlotPath specifies the plot and is analogous to a directory path:
+     *    page/plot/plotGeneration
+     *
+     * In fact PlotPath is a portion of a glyph image location in the atlas fully specified by:
+     * format/atlasGeneration/page/plot/plotGeneration/(u,v)
      */
-    typedef uint64_t AtlasID;
-    static const uint32_t kInvalidAtlasID = 0;
+    typedef uint64_t PlotPath;
+    static const uint64_t kInvalidPlotPath = 0;
     static const uint64_t kInvalidAtlasGeneration = 0;
 
     /**
      * An interface for eviction callbacks. Whenever GrDrawOpAtlas evicts a
-     * specific AtlasID, it will call all of the registered listeners so they can process the
+     * specific PlotPath, it will call all of the registered listeners so they can process the
      * eviction.
      */
     class EvictionCallback {
     public:
         virtual ~EvictionCallback() = default;
-        virtual void evict(AtlasID id) = 0;
+        virtual void evict(PlotPath plotPath) = 0;
     };
 
     /**
@@ -141,7 +144,7 @@ public:
         kTryAgain
     };
 
-    ErrorCode addToAtlas(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*,
+    ErrorCode addToAtlas(GrResourceProvider*, PlotPath*, GrDeferredUploadTarget*,
                          int width, int height,
                          const void* image, SkIPoint16* loc);
 
@@ -149,23 +152,24 @@ public:
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    bool hasID(AtlasID id) {
-        if (kInvalidAtlasID == id) {
+    bool hasID(PlotPath plotPath) {
+        if (kInvalidPlotPath == plotPath) {
             return false;
         }
-        uint32_t plot = GetPlotIndexFromID(id);
+
+        uint32_t plot = GetPlotIndexFromID(plotPath);
         SkASSERT(plot < fNumPlots);
-        uint32_t page = GetPageIndexFromID(id);
+        uint32_t page = GetPageIndexFromID(plotPath);
         SkASSERT(page < fNumActivePages);
-        return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(id);
+        return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(plotPath);
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(AtlasID id, GrDeferredUploadToken token) {
-        SkASSERT(this->hasID(id));
-        uint32_t plotIdx = GetPlotIndexFromID(id);
+    void setLastUseToken(PlotPath plotPath, GrDeferredUploadToken token) {
+        SkASSERT(this->hasID(plotPath));
+        uint32_t plotIdx = GetPlotIndexFromID(plotPath);
         SkASSERT(plotIdx < fNumPlots);
-        uint32_t pageIdx = GetPageIndexFromID(id);
+        uint32_t pageIdx = GetPageIndexFromID(plotPath);
         SkASSERT(pageIdx < fNumActivePages);
         Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
@@ -189,9 +193,9 @@ public:
             memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
         }
 
-        bool add(AtlasID id) {
-            int index = GrDrawOpAtlas::GetPlotIndexFromID(id);
-            int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(id);
+        bool add(PlotPath plotPath) {
+            int index = GrDrawOpAtlas::GetPlotIndexFromID(plotPath);
+            int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(plotPath);
             if (this->find(pageIdx, index)) {
                 return false;
             }
@@ -246,8 +250,8 @@ public:
 
     void compact(GrDeferredUploadToken startTokenForNextFlush);
 
-    static uint32_t GetPageIndexFromID(AtlasID id) {
-        return id & 0xff;
+    static uint32_t GetPageIndexFromID(PlotPath plotPath) {
+        return plotPath & 0xff;
     }
 
     void instantiate(GrOnFlushResourceProvider*);
@@ -282,9 +286,9 @@ private:
          * if a particular subimage is still present in the atlas.
          */
         uint64_t genID() const { return fGenID; }
-        GrDrawOpAtlas::AtlasID id() const {
-            SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != fID);
-            return fID;
+        GrDrawOpAtlas::PlotPath plotPath() const {
+            SkASSERT(GrDrawOpAtlas::kInvalidPlotPath != fPlotPath);
+            return fPlotPath;
         }
         SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
 
@@ -324,8 +328,8 @@ private:
                             fColorType);
         }
 
-        static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
-                                               uint64_t generation) {
+        static GrDrawOpAtlas::PlotPath CreateId(uint32_t pageIdx, uint32_t plotIdx,
+                                                uint64_t generation) {
             SkASSERT(pageIdx < (1 << 8));
             SkASSERT(pageIdx < kMaxMultitexturePages);
             SkASSERT(plotIdx < (1 << 8));
@@ -343,7 +347,7 @@ private:
             const uint32_t fPlotIndex : 16;
         };
         uint64_t fGenID;
-        GrDrawOpAtlas::AtlasID fID;
+        GrDrawOpAtlas::PlotPath fPlotPath;
         unsigned char* fData;
         const int fWidth;
         const int fHeight;
@@ -363,16 +367,16 @@ private:
 
     typedef SkTInternalLList<Plot> PlotList;
 
-    static uint32_t GetPlotIndexFromID(AtlasID id) {
-        return (id >> 8) & 0xff;
+    static uint32_t GetPlotIndexFromID(PlotPath plotPath) {
+        return (plotPath >> 8) & 0xff;
     }
 
     // top 48 bits are reserved for the generation ID
-    static uint64_t GetGenerationFromID(AtlasID id) {
-        return (id >> 16) & 0xffffffffffff;
+    static uint64_t GetGenerationFromID(PlotPath plotPath) {
+        return (plotPath >> 16) & 0xffffffffffff;
     }
 
-    inline bool updatePlot(GrDeferredUploadTarget*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDeferredUploadTarget*, PlotPath*, Plot*);
 
     inline void makeMRU(Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
@@ -386,7 +390,7 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool uploadToPage(const GrCaps&, unsigned int pageIdx, AtlasID* id,
+    bool uploadToPage(const GrCaps&, unsigned int pageIdx, PlotPath* plotPath,
                       GrDeferredUploadTarget* target, int width, int height, const void* image,
                       SkIPoint16* loc);
 
@@ -394,9 +398,9 @@ private:
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
 
-    void processEviction(AtlasID);
+    void processEviction(PlotPath);
     inline void processEvictionAndResetRects(Plot* plot) {
-        this->processEviction(plot->id());
+        this->processEviction(plot->plotPath());
         plot->resetRects();
     }
 
