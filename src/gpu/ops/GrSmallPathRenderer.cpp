@@ -890,8 +890,9 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                         kMaxAtlasTextureBytes);
         SkISize size = atlasConfig.atlasDimensions(kA8_GrMaskFormat);
         fAtlas = GrDrawOpAtlas::Make(args.fContext->priv().proxyProvider(), format,
-                                     GrColorType::kAlpha_8, size.width(), size.height(), kPlotWidth,
-                                     kPlotHeight, GrDrawOpAtlas::AllowMultitexturing::kYes, this);
+                                     GrColorType::kAlpha_8, size.width(), size.height(),
+                                     kPlotWidth, kPlotHeight, &fAtlasGeneration, &fPlotCount,
+                                     GrDrawOpAtlas::AllowMultitexturing::kYes, this);
         if (!fAtlas) {
             return false;
         }
@@ -943,6 +944,8 @@ struct GrSmallPathRenderer::PathTestStruct : public GrDrawOpAtlas::EvictionCallb
 
     uint32_t fContextID;
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
+    uint64_t fAtlasGeneration{1};
+    uint64_t fPlotCount{1};
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 };
@@ -979,6 +982,7 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
         gTestStruct.fAtlas =
                 GrDrawOpAtlas::Make(context->priv().proxyProvider(), format, GrColorType::kAlpha_8,
                                     size.width(), size.height(), kPlotWidth, kPlotHeight,
+                                    &gTestStruct.fAtlasGeneration, &gTestStruct.fPlotCount,
                                     GrDrawOpAtlas::AllowMultitexturing::kYes, &gTestStruct);
     }
 

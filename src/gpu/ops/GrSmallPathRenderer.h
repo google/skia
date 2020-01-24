@@ -76,6 +76,8 @@ private:
     void evict(GrDrawOpAtlas::PlotLocator) override;
 
     std::unique_ptr<GrDrawOpAtlas> fAtlas;
+    uint64_t fAtlasGeneration{1};
+    uint64_t fPlotCount{1};
     ShapeCache fShapeCache;
     ShapeDataList fShapeList;
 

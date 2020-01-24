@@ -146,6 +146,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                            GrRenderable::kNo);
 
     DummyEvict evictor;
+    // Small leak because these are used during flush which is outside of this context.
+    uint64_t* atlasGeneration = new uint64_t {1};
+    uint64_t* plotCount = new uint64_t {1};
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
@@ -153,6 +156,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
                                                 GrColorType::kAlpha_8,
                                                 kAtlasSize, kAtlasSize,
                                                 kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
+                                                atlasGeneration,
+                                                plotCount,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
                                                 &evictor);
     check(reporter, atlas.get(), 0, 4, 0);
