@@ -25,7 +25,6 @@
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrTextureDomain.h"
 #include "tools/gpu/TestOps.h"
 
 #include <memory>
@@ -33,7 +32,7 @@
 
 namespace skiagm {
 /**
- * This GM directly exercises GrDomainEffect.
+ * This GM directly exercises GrTextureEffect::MakeTexelSubset.
  */
 class TextureDomainEffect : public GpuGM {
 public:
@@ -54,8 +53,8 @@ protected:
 
     SkISize onISize() override {
         const SkScalar canvasWidth =
-                kDrawPad + 2 * ((kTargetWidth + 2 * kDrawPad) * GrTextureDomain::kModeCount +
-                                kTestPad * GrTextureDomain::kModeCount);
+                kDrawPad + 2 * ((kTargetWidth + 2 * kDrawPad) * GrSamplerState::kWrapModeCount +
+                                kTestPad * GrSamplerState::kWrapModeCount);
         return SkISize::Make(SkScalarCeilToInt(canvasWidth), 800);
     }
 
@@ -117,20 +116,23 @@ protected:
         for (int tm = 0; tm < textureMatrices.count(); ++tm) {
             for (size_t d = 0; d < SK_ARRAY_COUNT(texelDomains); ++d) {
                 SkScalar x = kDrawPad + kTestPad;
-                for (int m = 0; m < GrTextureDomain::kModeCount; ++m) {
-                    GrTextureDomain::Mode mode = (GrTextureDomain::Mode) m;
+                for (int m = 0; m < GrSamplerState::kWrapModeCount; ++m) {
+                    auto wm = static_cast<GrSamplerState::WrapMode>(m);
                     if (fFilter != GrSamplerState::Filter::kNearest &&
-                        (mode == GrTextureDomain::kRepeat_Mode ||
-                         mode == GrTextureDomain::kMirrorRepeat_Mode)) {
+                        (wm == GrSamplerState::WrapMode::kRepeat ||
+                         wm == GrSamplerState::WrapMode::kMirrorRepeat)) {
                         // [Mirror] Repeat mode doesn't produce correct results with bilerp
                         // filtering
                         continue;
                     }
-                    auto fp1 = GrTextureEffect::Make(proxy, fBitmap.alphaType(),
-                                                     textureMatrices[tm], fFilter);
-                    fp1 = GrDomainEffect::Make(
-                            std::move(fp1), GrTextureDomain::MakeTexelDomain(texelDomains[d], mode),
-                            mode, fFilter);
+                    GrSamplerState sampler(wm, fFilter);
+                    const auto& caps = *context->priv().caps();
+                    auto fp1 = GrTextureEffect::MakeTexelSubset(proxy,
+                                                                fBitmap.alphaType(),
+                                                                textureMatrices[tm],
+                                                                sampler,
+                                                                texelDomains[d],
+                                                                caps);
                     if (!fp1) {
                         continue;
                     }
@@ -145,6 +147,7 @@ protected:
                     // Draw again with a translated local rect and compensating translate matrix.
                     drawRect = localRect.makeOffset(x, y);
                     static constexpr SkVector kT = {-100, 300};
+
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context,
                                                                   std::move(fp2),
                                                                   drawRect,
