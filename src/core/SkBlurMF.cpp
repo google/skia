@@ -28,7 +28,6 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrRRectBlurEffect.h"

@@ -33,15 +33,12 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
 
     SkRect localRect = inputProxy->getBoundsRect();
 
-    bool needsDomain = false;
     bool resizing = false;
     if (copyParams.fFilter != GrSamplerState::Filter::kNearest) {
-        bool resizing = localRect.width()  != dstRect.width() ||
-                        localRect.height() != dstRect.height();
-        needsDomain = resizing && inputProxy->isFunctionallyExact();
+        resizing = localRect.width() != dstRect.width() || localRect.height() != dstRect.height();
     }
 
-    if (copyParams.fFilter == GrSamplerState::Filter::kNearest && !needsDomain && !resizing &&
+    if (copyParams.fFilter == GrSamplerState::Filter::kNearest && !resizing &&
         dstWillRequireMipMaps) {
         sk_sp<GrTextureProxy> proxy = GrCopyBaseMipMapToTextureProxy(context, inputProxy.get(),
                                                                      colorType);
@@ -57,18 +54,13 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
         return nullptr;
     }
 
+    const auto& caps = *context->priv().caps();
     GrPaint paint;
 
-    auto fp = GrTextureEffect::Make(std::move(inputProxy), kUnknown_SkAlphaType, SkMatrix::I(),
-                                    copyParams.fFilter);
-    if (needsDomain) {
-        const SkRect domain = localRect.makeInset(0.5f, 0.5f);
-        // This would cause us to read values from outside the subset. Surely, the caller knows
-        // better!
-        SkASSERT(copyParams.fFilter != GrSamplerState::Filter::kMipMap);
-        fp = GrDomainEffect::Make(std::move(fp), domain, GrTextureDomain::kClamp_Mode,
-                                  copyParams.fFilter);
-    }
+    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, copyParams.fFilter);
+    auto boundsRect = SkIRect::MakeSize(inputProxy->dimensions());
+    auto fp = GrTextureEffect::MakeTexelSubset(std::move(inputProxy), kUnknown_SkAlphaType,
+                                               SkMatrix::I(), sampler, boundsRect, localRect, caps);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -199,21 +191,19 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
         const SkRect& domain,
         const GrSamplerState::Filter* filterOrNullForBicubic) {
     SkASSERT(kTightCopy_DomainMode != domainMode);
-    bool clampToBorderSupport = fContext->priv().caps()->clampToBorderSupport();
+    const auto& caps = *fContext->priv().caps();
     SkAlphaType srcAlphaType = this->alphaType();
     if (filterOrNullForBicubic) {
-        GrSamplerState::WrapMode wrapMode = fDomainNeedsDecal && clampToBorderSupport
+        GrSamplerState::WrapMode wrapMode = fDomainNeedsDecal
                                                     ? GrSamplerState::WrapMode::kClampToBorder
                                                     : GrSamplerState::WrapMode::kClamp;
         GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
-        auto fp =
-                GrTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix, samplerState);
-        if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
-            GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
-                                                               : GrTextureDomain::kClamp_Mode;
-            return GrDomainEffect::Make(std::move(fp), domain, wrapMode, *filterOrNullForBicubic);
+        if (kNoDomain_DomainMode == domainMode) {
+            return GrTextureEffect::Make(std::move(proxy), srcAlphaType, textureMatrix,
+                                         samplerState, caps);
         }
-        return fp;
+        return GrTextureEffect::MakeSubset(std::move(proxy), srcAlphaType, textureMatrix,
+                                           samplerState, domain, caps);
     } else {
         static const GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
@@ -221,6 +211,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                 GrSamplerState::WrapMode::kClampToBorder, GrSamplerState::WrapMode::kClampToBorder};
 
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
+        bool clampToBorderSupport = caps.clampToBorderSupport();
         if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
             GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
                                          : GrTextureDomain::kClamp_Mode;
