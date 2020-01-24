@@ -137,9 +137,9 @@ public:
     GrGLSLFragmentProcessor* childProcessor(int index) const { return fChildProcessors[index]; }
 
     // Invoke the child with the default input color (solid white)
-    inline void invokeChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs,
-                            SkSL::String skslCoords = "") {
-        this->invokeChild(childIndex, nullptr, outputColor, parentArgs, skslCoords);
+    inline SkString invokeChild(int childIndex, EmitArgs& parentArgs,
+                                SkSL::String skslCoords = "") {
+        return this->invokeChild(childIndex, nullptr, parentArgs, skslCoords);
     }
 
     /** Invokes a child proc in its own scope. Pass in the parent's EmitArgs and invokeChild will
@@ -150,8 +150,8 @@ public:
      *  nullptr as inputColor, since all fragment processors are required to work without an input
      *  color.
      */
-    void invokeChild(int childIndex, const char* inputColor, SkString* outputColor,
-                     EmitArgs& parentArgs, SkSL::String skslCoords = "");
+    SkString invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
+                         SkSL::String skslCoords = "");
 
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
@@ -185,12 +185,11 @@ protected:
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
 private:
-    void writeChildCall(GrGLSLFPFragmentBuilder* fragBuilder, int childIndex,
-                        TransformedCoordVars coordVars, const char* inputColor,
-                        const char* outputColor, EmitArgs& args,
-                        SkSL::String skslCoords);
+    SkString writeChildCall(GrGLSLFPFragmentBuilder* fragBuilder, int childIndex,
+                            const char* inputColor, const GrFragmentProcessor& childFP,
+                            SkSL::String skslCoords);
 
-    void internalInvokeChild(int, const char*, const char*, EmitArgs&, SkSL::String);
+    SkString internalInvokeChild(int, const char*, EmitArgs&, SkSL::String);
 
     // one per child; either not present or empty string if not yet emitted
     SkTArray<SkString> fFunctionNames;
