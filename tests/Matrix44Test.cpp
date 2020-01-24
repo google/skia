@@ -1058,3 +1058,57 @@ DEF_TEST(M44_v4, reporter) {
     REPORTER_ASSERT(reporter, (c0 - r0 == SkV4{c0.x-r0.x, c0.y-r0.y, c0.z-r0.z, c0.w-r0.w}));
     REPORTER_ASSERT(reporter, (c0 * r0 == SkV4{c0.x*r0.x, c0.y*r0.y, c0.z*r0.z, c0.w*r0.w}));
 }
+
+DEF_TEST(M44_rotate, reporter) {
+    const SkV3 x = {1, 0, 0},
+               y = {0, 1, 0},
+               z = {0, 0, 1};
+
+    // We have radians version of setRotateAbout methods, but even with our best approx
+    // for PI, sin(SK_ScalarPI) != 0, so to make the comparisons in the unittest clear,
+    // I'm using the variants that explicitly take the sin,cos values.
+
+    struct {
+        SkScalar sinAngle, cosAngle;
+        SkV3 aboutAxis;
+        SkV3 expectedX, expectedY, expectedZ;
+    } recs[] = {
+        { 0, 1,    x,   x, y, z},    // angle = 0
+        { 0, 1,    y,   x, y, z},    // angle = 0
+        { 0, 1,    z,   x, y, z},    // angle = 0
+
+        { 0,-1,    x,   x,-y,-z},    // angle = 180
+        { 0,-1,    y,  -x, y,-z},    // angle = 180
+        { 0,-1,    z,  -x,-y, z},    // angle = 180
+
+        // Skia coordinate system is right-handed
+
+        { 1, 0,    x,   x, z,-y},    // angle = 90
+        { 1, 0,    y,  -z, y, x},    // angle = 90
+        { 1, 0,    z,   y,-x, z},    // angle = 90
+
+        {-1, 0,    x,   x,-z, y},    // angle = -90
+        {-1, 0,    y,   z, y,-x},    // angle = -90
+        {-1, 0,    z,  -y, x, z},    // angle = -90
+    };
+
+    for (const auto& r : recs) {
+        SkM44 m(SkM44::kNaN_Constructor);
+        m.setRotateUnitSinCos(r.aboutAxis, r.sinAngle, r.cosAngle);
+
+        auto mx = m * x;
+        auto my = m * y;
+        auto mz = m * z;
+        REPORTER_ASSERT(reporter, mx == r.expectedX);
+        REPORTER_ASSERT(reporter, my == r.expectedY);
+        REPORTER_ASSERT(reporter, mz == r.expectedZ);
+
+        // flipping the axis-of-rotation should flip the results
+        mx = m * -x;
+        my = m * -y;
+        mz = m * -z;
+        REPORTER_ASSERT(reporter, mx == -r.expectedX);
+        REPORTER_ASSERT(reporter, my == -r.expectedY);
+        REPORTER_ASSERT(reporter, mz == -r.expectedZ);
+    }
+}
