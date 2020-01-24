@@ -63,7 +63,7 @@ private:
             const SkV4& vValue = _outer.v;
             if (vPrev != (vValue)) {
                 vPrev = vValue;
-                pdman.set4fv(vVar, 1, vValue.ptr());
+                pdman.set4fv(vVar, 1, vValue.vec());
             }
         }
     }
