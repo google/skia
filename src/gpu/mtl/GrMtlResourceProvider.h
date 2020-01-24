@@ -79,7 +79,6 @@ private:
         BufferSuballocator(id<MTLDevice> device, size_t size);
         ~BufferSuballocator() {
             fBuffer = nil;
-            fTotalSize = 0;
         }
 
         id<MTLBuffer> getAllocation(size_t size, size_t* offset);
@@ -88,10 +87,10 @@ private:
 
     private:
         id<MTLBuffer> fBuffer;
-        size_t        fTotalSize;
-        size_t        fHead SK_GUARDED_BY(fMutex);     // where we start allocating
-        size_t        fTail SK_GUARDED_BY(fMutex);     // where we start deallocating
+        const size_t  fTotalSize;
         SkSpinlock    fMutex;
+        size_t        fHead SK_GUARDED_BY(fMutex);  // where we start allocating
+        size_t        fTail SK_GUARDED_BY(fMutex);  // where we start deallocating
     };
     static constexpr size_t kBufferSuballocatorStartSize = 1024*1024;
 

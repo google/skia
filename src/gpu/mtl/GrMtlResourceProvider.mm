@@ -197,7 +197,6 @@ GrMtlResourceProvider::BufferSuballocator::BufferSuballocator(id<MTLDevice> devi
 
 id<MTLBuffer> GrMtlResourceProvider::BufferSuballocator::getAllocation(size_t size,
                                                                        size_t* offset) {
-    // capture current state locally (because fTail could be overwritten by the completion handler)
     size_t head, tail;
     SkAutoSpinlock lock(fMutex);
     head = fHead;
@@ -275,6 +274,8 @@ id<MTLBuffer> GrMtlResourceProvider::getDynamicBuffer(size_t size, size_t* offse
     // growth when they'll never fit anyway).
     if (fBufferSuballocator->size() < fBufferSuballocatorMaxSize &&
         size <= fBufferSuballocator->size()) {
+        // TODO: what happens when the old allocator is being accessed by the completionHandler?
+        // Do we need another mutex here?
         fBufferSuballocator.reset(new BufferSuballocator(fGpu->device(),
                                                          2*fBufferSuballocator->size()));
         id<MTLBuffer> buffer = fBufferSuballocator->getAllocation(size, offset);
