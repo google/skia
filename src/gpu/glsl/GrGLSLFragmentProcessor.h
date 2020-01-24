@@ -153,17 +153,6 @@ public:
     void invokeChild(int childIndex, const char* inputColor, SkString* outputColor,
                      EmitArgs& parentArgs, SkSL::String skslCoords = "");
 
-    // Use the parent's output color to hold child's output, and use the
-    // default input color of solid white
-    inline void invokeChild(int childIndex, EmitArgs& args, SkSL::String skslCoords = "") {
-        // null pointer cast required to disambiguate the function call
-        this->invokeChild(childIndex, (const char*) nullptr, args, skslCoords);
-    }
-
-    /** Variation that uses the parent's output color variable to hold the child's output.*/
-    void invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
-                     SkSL::String skslCoords = "");
-
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of
      * GLSLFPS. If initialized with an array color followed by coverage processors installed in a

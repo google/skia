@@ -244,9 +244,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-                    this->invokeChild(0, args);
+                    SkString temp("inColor");
+                    this->invokeChild(0, &temp, args);
+                    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
                     fragBuilder->codeAppendf("%s.rgb *= %s.rgb;", args.fOutputColor,
-                                                                args.fInputColor);
+                                                                  args.fInputColor);
                     fragBuilder->codeAppendf("%s *= %s.a;", args.fOutputColor, args.fInputColor);
                 }
             };
@@ -323,13 +325,13 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::RunInSeries(
                     SkString temp("out0");
                     this->invokeChild(0, args.fInputColor, &temp, args);
                     SkString input = temp;
-                    for (int i = 1; i < this->numChildProcessors() - 1; ++i) {
+                    for (int i = 1; i < this->numChildProcessors(); ++i) {
                         temp.printf("out%d", i);
                         this->invokeChild(i, input.c_str(), &temp, args);
                         input = temp;
                     }
-                    // Last guy writes to our output variable.
-                    this->invokeChild(this->numChildProcessors() - 1, input.c_str(), args);
+                    // Copy last output to our output variable
+                    args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, input.c_str());
                 }
             };
             return new GLFP;
