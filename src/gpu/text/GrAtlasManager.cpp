@@ -30,27 +30,27 @@ void GrAtlasManager::freeAll() {
 
 bool GrAtlasManager::hasGlyph(GrGlyph* glyph) {
     SkASSERT(glyph);
-    return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fID);
+    return this->getAtlas(glyph->fMaskFormat)->hasID(glyph->fPlotPath);
 }
 
 // add to texture atlas that matches this format
 GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
                                 GrResourceProvider* resourceProvider,
                                 GrStrikeCache* glyphCache,
-                                GrTextStrike* strike, GrDrawOpAtlas::AtlasID* id,
+                                GrTextStrike* strike, GrDrawOpAtlas::PlotPath* plotPath,
                                 GrDeferredUploadTarget* target, GrMaskFormat format,
                                 int width, int height, const void* image, SkIPoint16* loc) {
     glyphCache->setStrikeToPreserve(strike);
-    return this->getAtlas(format)->addToAtlas(resourceProvider, id, target, width, height,
-                                              image, loc);
+    return this->getAtlas(format)->addToAtlas(
+            resourceProvider, plotPath, target, width, height, image, loc);
 }
 
 void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpdater* updater,
                                                   GrGlyph* glyph,
                                                   GrDeferredUploadToken token) {
     SkASSERT(glyph);
-    if (updater->add(glyph->fID)) {
-        this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fID, token);
+    if (updater->add(glyph->fPlotPath)) {
+        this->getAtlas(glyph->fMaskFormat)->setLastUseToken(glyph->fPlotPath, token);
     }
 }
 
