@@ -64,10 +64,8 @@ private:
 class GLSLSampleCoordEffect : public GrGLSLFragmentProcessor {
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        SkString sample1("sample1");
-        SkString sample2("sample2");
-        this->invokeChild(0, &sample1, args, "float2(sk_FragCoord.x, sk_FragCoord.y)");
-        this->invokeChild(0, &sample2, args, "float2(sk_FragCoord.x, 512 - sk_FragCoord.y)");
+        SkString sample1 = this->invokeChild(0, args, "float2(sk_FragCoord.x, sk_FragCoord.y)");
+        SkString sample2 = this->invokeChild(0, args, "float2(sk_FragCoord.x, 512-sk_FragCoord.y)");
         fragBuilder->codeAppendf("%s = (%s + %s) / 2;\n", args.fOutputColor, sample1.c_str(),
                                  sample2.c_str());
     }

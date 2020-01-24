@@ -126,9 +126,7 @@ GrGLSLFragmentProcessor* GrYUVtoRGBEffect::onCreateGLSLInstance() const {
             SkString coords[4];
             fragBuilder->codeAppendf("half4 planes[%d];", numPlanes);
             for (int i = 0; i < numPlanes; ++i) {
-                SkString tempVar;
-                tempVar.printf("tmp%d", i);
-                this->invokeChild(i, &tempVar, args);
+                SkString tempVar = this->invokeChild(i, args);
                 fragBuilder->codeAppendf("planes[%d] = %s;", i, tempVar.c_str());
             }
 
