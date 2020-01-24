@@ -18,7 +18,7 @@ class GrDawnTexture : public GrTexture {
 public:
     static sk_sp<GrDawnTexture> Make(GrDawnGpu*, SkISize dimensions,
                                      wgpu::TextureFormat format, GrRenderable, int sampleCnt,
-                                     SkBudgeted, int mipLevels, GrMipMapsStatus);
+                                     SkBudgeted, GrMipMapped, GrMipMapsStatus);
 
     static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, SkISize dimensions,
                                             GrRenderable, int sampleCnt,

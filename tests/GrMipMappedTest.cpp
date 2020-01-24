@@ -348,8 +348,8 @@ static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(mipmapProxy->backendFormat(),
                                                                colorType);
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
-            mipmapProxy->backendFormat(), desc, swizzle, GrRenderable::kYes, 1,
-            kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
+            desc, mipmapProxy->backendFormat(), swizzle, GrRenderable::kYes, 1,
+            kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes, GrMipMapped::kNo, SkBackingFit::kApprox,
             GrProtected::kNo);
 
     auto rtc = GrRenderTargetContext::Make(
@@ -398,8 +398,8 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, desc, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
-                GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
+                desc, format, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
+                SkBudgeted::kYes, GrMipMapped::kYes, SkBackingFit::kExact, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

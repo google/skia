@@ -190,8 +190,8 @@ private:
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
+                                     GrMipMapped,
                                      GrProtected,
-                                     int mipLevelCount,
                                      uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
@@ -272,12 +272,12 @@ private:
     void resolveImage(GrSurface* dst, GrVkRenderTarget* src, const SkIRect& srcRect,
                       const SkIPoint& dstPoint);
 
-    bool createVkImageForBackendSurface(VkFormat,
-                                        SkISize dimensions,
+    bool createVkImageForBackendSurface(SkISize dimensions,
+                                        VkFormat,
+                                        GrVkImageInfo*,
                                         GrTexturable,
                                         GrRenderable,
                                         GrMipMapped,
-                                        GrVkImageInfo*,
                                         GrProtected,
                                         const BackendTextureData*);
 

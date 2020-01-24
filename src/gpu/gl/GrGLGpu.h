@@ -196,8 +196,8 @@ private:
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
+                                     GrMipMapped,
                                      GrProtected,
-                                     int mipLevelCount,
                                      uint32_t levelClearMask) override;
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
                                                const GrBackendFormat&,
@@ -234,8 +234,8 @@ private:
     GrGLuint createTexture2D(SkISize dimensions,
                              GrGLFormat,
                              GrRenderable,
-                             GrGLTextureParameters::SamplerOverriddenState*,
-                             int mipLevelCount);
+                             GrMipMapped,
+                             GrGLTextureParameters::SamplerOverriddenState*);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
                                        GrGLFormat,
