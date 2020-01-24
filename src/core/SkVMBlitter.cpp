@@ -94,8 +94,8 @@ namespace {
         // and tryAcquire()/release(), or...
         return nullptr;  // ... we could just not cache programs on those platforms.
     #else
-        thread_local static auto* cache = new SkLRUCache<Key, skvm::Program>{8};
-        return cache;
+        thread_local static SkLRUCache<Key, skvm::Program> cache{8};
+        return &cache;
     #endif
     }
 
