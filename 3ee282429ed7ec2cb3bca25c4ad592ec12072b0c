@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6debe11_3c8a1975",
+        "filename": "tests/SkSLInterpreterTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T14:17:24Z",
+      "side": 1,
+      "message": "Were there specific tests that needed this to be relaxed? Seems odd that we\u0027d need to switch the default, when most of the tests use small integral floats?",
+      "revId": "3ee282429ed7ec2cb3bca25c4ad592ec12072b0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
