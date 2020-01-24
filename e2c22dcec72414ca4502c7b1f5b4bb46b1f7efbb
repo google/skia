@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "818d571d_5e653a73",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-24T18:44:21Z",
+      "side": 1,
+      "message": "static SkM44 RotateX() {}, RotateY() {}, RotateZ(), and Rotate(V3f, float rad)? Or some combination of them?",
+      "revId": "e2c22dcec72414ca4502c7b1f5b4bb46b1f7efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d410dd8b_8736bb91",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-24T18:44:21Z",
+      "side": 1,
+      "message": "How often do we use this construct? Is it worth keeping it if it\u0027s not used often and can be misused?",
+      "range": {
+        "startLine": 251,
+        "startChar": 11,
+        "endLine": 251,
+        "endChar": 35
+      },
+      "revId": "e2c22dcec72414ca4502c7b1f5b4bb46b1f7efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "866640de_afa316a9",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-24T18:44:21Z",
+      "side": 1,
+      "message": "What about \"setRotateUnit\"?, \"about\" feels redundant since rotations are usually about something, and \"radians\" is duplicated with the parameter name. I\u0027m a little conflicted about dropping \"radians\" from the name, since it could help alleviate degrees vs. radians confusion. But at the same time, we should just be consistent and accept everything as radians, or everything as degrees.",
+      "range": {
+        "startLine": 259,
+        "startChar": 11,
+        "endLine": 259,
+        "endChar": 36
+      },
+      "revId": "e2c22dcec72414ca4502c7b1f5b4bb46b1f7efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75348dae_805cebfb",
+        "filename": "include/private/SkM44.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-01-24T18:44:21Z",
+      "side": 1,
+      "message": "Similarly, just \"setRotate\" here?",
+      "range": {
+        "startLine": 270,
+        "startChar": 11,
+        "endLine": 270,
+        "endChar": 32
+      },
+      "revId": "e2c22dcec72414ca4502c7b1f5b4bb46b1f7efbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
