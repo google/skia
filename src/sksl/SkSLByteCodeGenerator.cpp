@@ -271,38 +271,34 @@ ByteCode::Instruction ByteCodeGenerator::getStoreInstruction(ByteCodeGenerator::
     return ByteCode::Instruction::kNop;
 }
 
+#define VEC(inst) ((ByteCode::Instruction) ((uint16_t) inst + 1))
+
 class ByteCodeSimpleLValue : public ByteCodeGenerator::LValue {
 public:
     ByteCodeSimpleLValue(ByteCodeGenerator* generator, ByteCodeGenerator::Location location,
                          int count, ByteCode::Instruction load, ByteCode::Instruction store)
         : INHERITED(*generator)
         , fLocation(location)
-        , fCount(count)
+        , fCount((uint8_t) count)
         , fLoad(load)
         , fStore(store) {}
 
     void load(ByteCode::Register result) override {
-        for (int i = 0; i < fCount; ++i) {
-            ByteCodeGenerator::Location final = fLocation.offset(fGenerator, i);
-            fGenerator.write(fLoad);
-            fGenerator.write(result + i);
-            fGenerator.write(final);
-        }
+        fGenerator.write(fLoad, fCount);
+        fGenerator.write(result);
+        fGenerator.write(fLocation);
     }
 
     void store(ByteCode::Register src) override {
-        for (int i = 0; i < fCount; ++i) {
-            ByteCodeGenerator::Location final = fLocation.offset(fGenerator, i);
-            fGenerator.write(fStore);
-            fGenerator.write(final);
-            fGenerator.write(src + i);
-        }
+        fGenerator.write(fStore, fCount);
+        fGenerator.write(fLocation);
+        fGenerator.write(src);
     }
 
 private:
     ByteCodeGenerator::Location fLocation;
 
-    int fCount;
+    uint8_t fCount;
 
     ByteCode::Instruction fLoad;
 
@@ -425,6 +421,17 @@ static TypeCategory type_category(const Type& type) {
     }
 }
 
+void ByteCodeGenerator::write(ByteCode::Instruction inst, int count) {
+    SkASSERT(count <= 255);
+    if (count > 1) {
+        this->write(VEC(inst));
+        this->write((uint8_t) count);
+    }
+    else {
+        this->write(inst);
+    }
+}
+
 void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCode::Instruction s,
                                               ByteCode::Instruction u, ByteCode::Instruction f) {
     switch (type_category(type)) {
@@ -441,6 +448,26 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type, ByteCode::Instru
         default:
             SkASSERT(false);
     }
+}
+
+void ByteCodeGenerator::writeVectorBinaryInstruction(const Type& operandType,
+                                                     ByteCode::Register left,
+                                                     ByteCode::Register right,
+                                                     ByteCode::Instruction s,
+                                                     ByteCode::Instruction u,
+                                                     ByteCode::Instruction f,
+                                                     ByteCode::Register result) {
+    uint8_t count = (uint8_t) SlotCount(operandType);
+    if (count == 1) {
+        this->writeTypedInstruction(operandType, s, u, f);
+    }
+    else {
+        this->writeTypedInstruction(operandType, VEC(s), VEC(u), VEC(f));
+        this->write(count);
+    }
+    this->write(result);
+    this->write(left);
+    this->write(right);
 }
 
 void ByteCodeGenerator::writeBinaryInstruction(const Type& operandType,
@@ -497,11 +524,10 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->writeExpression(*b.fLeft, left);
         op = b.fOperator;
         if (!lVecOrMtx && rVecOrMtx) {
-            for (int i = 1; i < SlotCount(rType); ++i) {
-                this->write(ByteCode::Instruction::kCopy);
-                this->write(left + i);
-                this->write(left);
-            }
+            this->write(ByteCode::Instruction::kSplat);
+            this->write((uint8_t) (SlotCount(rType) - 1));
+            this->write(left + 1);
+            this->write(left);
         }
     }
     SkDEBUGCODE(TypeCategory tc = type_category(lType));
@@ -607,11 +633,10 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     ByteCode::Register right = this->next(SlotCount(*operandType));
     this->writeExpression(*b.fRight, right);
     if (lVecOrMtx && !rVecOrMtx) {
-        for (int i = 1; i < SlotCount(*operandType); ++i) {
-            this->write(ByteCode::Instruction::kCopy);
-            this->write(right + i);
-            this->write(right);
-        }
+        this->write(ByteCode::Instruction::kSplat);
+        this->write((uint8_t) (SlotCount(*operandType) - 1));
+        this->write(right + 1);
+        this->write(right);
     }
     switch (op) {
         case Token::Kind::EQEQ:
@@ -657,11 +682,11 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                          result);
             break;
         case Token::Kind::MINUS:
-            this->writeBinaryInstruction(*operandType, left, right,
-                                         ByteCode::Instruction::kSubtractI,
-                                         ByteCode::Instruction::kSubtractI,
-                                         ByteCode::Instruction::kSubtractF,
-                                         result);
+            this->writeVectorBinaryInstruction(*operandType, left, right,
+                                               ByteCode::Instruction::kSubtractI,
+                                               ByteCode::Instruction::kSubtractI,
+                                               ByteCode::Instruction::kSubtractF,
+                                               result);
             break;
         case Token::Kind::NEQ:
             this->writeBinaryInstruction(*operandType, left, right,
@@ -678,32 +703,32 @@ void ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
             }
             break;
         case Token::Kind::PERCENT:
-            this->writeBinaryInstruction(*operandType, left, right,
-                                         ByteCode::Instruction::kRemainderS,
-                                         ByteCode::Instruction::kRemainderU,
-                                         ByteCode::Instruction::kRemainderF,
-                                         result);
+            this->writeVectorBinaryInstruction(*operandType, left, right,
+                                               ByteCode::Instruction::kRemainderS,
+                                               ByteCode::Instruction::kRemainderU,
+                                               ByteCode::Instruction::kRemainderF,
+                                               result);
             break;
         case Token::Kind::PLUS:
-            this->writeBinaryInstruction(*operandType, left, right,
-                                         ByteCode::Instruction::kAddI,
-                                         ByteCode::Instruction::kAddI,
-                                         ByteCode::Instruction::kAddF,
-                                         result);
+            this->writeVectorBinaryInstruction(*operandType, left, right,
+                                               ByteCode::Instruction::kAddI,
+                                               ByteCode::Instruction::kAddI,
+                                               ByteCode::Instruction::kAddF,
+                                               result);
             break;
         case Token::Kind::SLASH:
-            this->writeBinaryInstruction(*operandType, left, right,
-                                         ByteCode::Instruction::kDivideS,
-                                         ByteCode::Instruction::kDivideU,
-                                         ByteCode::Instruction::kDivideF,
-                                         result);
+            this->writeVectorBinaryInstruction(*operandType, left, right,
+                                               ByteCode::Instruction::kDivideS,
+                                               ByteCode::Instruction::kDivideU,
+                                               ByteCode::Instruction::kDivideF,
+                                               result);
             break;
         case Token::Kind::STAR:
-            this->writeBinaryInstruction(*operandType, left, right,
-                                         ByteCode::Instruction::kMultiplyI,
-                                         ByteCode::Instruction::kMultiplyI,
-                                         ByteCode::Instruction::kMultiplyF,
-                                         result);
+            this->writeVectorBinaryInstruction(*operandType, left, right,
+                                               ByteCode::Instruction::kMultiplyI,
+                                               ByteCode::Instruction::kMultiplyI,
+                                               ByteCode::Instruction::kMultiplyF,
+                                               result);
             break;
         case Token::Kind::LOGICALXOR: {
             SkASSERT(tc == SkSL::TypeCategory::kBool);
@@ -784,11 +809,10 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c, ByteCode::Registe
         SkASSERT(SlotCount(c.fArguments[0]->fType) == 1);
         ByteCode::Register v = result;
         this->writeExpression(*c.fArguments[0], v);
-        for (int i = 1; i < c.fType.columns(); ++i) {
-            this->write(ByteCode::Instruction::kCopy);
-            this->write(v + i);
-            this->write(v);
-        }
+        this->write(ByteCode::Instruction::kSplat);
+        this->write((uint8_t) (c.fType.columns() - 1));
+        this->write(v + 1);
+        this->write(v);
         return;
     }
     ByteCode::Instruction inst;
@@ -894,15 +918,14 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c, Intrinsic intr
                 ByteCode::Register right = this->next(count);
                 this->writeExpression(*c.fArguments[1], right);
                 ByteCode::Register product = this->next(count);
-                for (int i = 0; i < count; ++i) {
-                    this->writeTypedInstruction(c.fType,
-                                                ByteCode::Instruction::kMultiplyI,
-                                                ByteCode::Instruction::kMultiplyI,
-                                                ByteCode::Instruction::kMultiplyF);
-                    this->write(product + i);
-                    this->write(left + i);
-                    this->write(right + i);
-                }
+                this->writeTypedInstruction(c.fType,
+                                            ByteCode::Instruction::kMultiplyIN,
+                                            ByteCode::Instruction::kMultiplyIN,
+                                            ByteCode::Instruction::kMultiplyFN);
+                this->write((uint8_t) count);
+                this->write(product);
+                this->write(left);
+                this->write(right);
                 ByteCode::Register total = product;
                 for (int i = 1; i < count; ++i) {
                     this->writeTypedInstruction(c.fType,
@@ -1132,12 +1155,10 @@ void ByteCodeGenerator::writeVariableExpression(const Expression& expr,
                                                 ByteCode::Register result) {
     ByteCodeGenerator::Location location = this->getLocation(expr);
     int count = SlotCount(expr.fType);
-    for (int i = 0; i < count; ++i) {
-        ByteCodeGenerator::Location final = location.offset(*this, i);
-        this->write(this->getLoadInstruction(location, this->getStorage(expr)));
-        this->write(result + i);
-        this->write(final);
-    }
+    ByteCode::Instruction load = this->getLoadInstruction(location, this->getStorage(expr));
+    this->write(load, count);
+    this->write(result);
+    this->write(location);
 }
 
 void ByteCodeGenerator::writeExpression(const Expression& expr, ByteCode::Register result) {
@@ -1303,12 +1324,10 @@ void ByteCodeGenerator::writeVarDeclarations(const VarDeclarations& v) {
         ByteCodeGenerator::Location location = this->getLocation(*decl.fVar);
         if (decl.fValue) {
             ByteCode::Register src = this->writeExpression(*decl.fValue);
-            for (int i = 0; i < SlotCount(decl.fVar->fType); ++i) {
-                ByteCodeGenerator::Location final = location.offset(*this, i);
-                this->write(ByteCode::Instruction::kStoreStackDirect);
-                this->write(final);
-                this->write(src + i);
-            }
+            uint8_t count = (uint8_t) SlotCount(decl.fVar->fType);
+            this->write(ByteCode::Instruction::kStoreStackDirect, count);
+            this->write(location);
+            this->write(src);
         }
     }
 }
