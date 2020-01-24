@@ -56,9 +56,6 @@ public:
     // remove any references to this plot
     void removeID(GrDrawOpAtlas::PlotLocator);
 
-    // If a TextStrike is abandoned by the cache, then the caller must get a new strike
-    bool isAbandoned() const { return fIsAbandoned; }
-
 private:
     struct HashTraits {
         // GetKey and Hash for the the hash table.
@@ -75,7 +72,6 @@ private:
     SkArenaAlloc fAlloc{512};
 
     int fAtlasedGlyphs{0};
-    bool fIsAbandoned{false};
 
     friend class GrStrikeCache;
 };
