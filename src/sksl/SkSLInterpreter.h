@@ -79,6 +79,58 @@ static T read(const uint8_t** ip) {
         NEXT();                                                                         \
     }
 
+#define MASKED_VECTOR_BINARY_OP(inst, src, result, op)                                             \
+    LABEL(inst) {                                                                                  \
+        ByteCode::Register target = read<ByteCode::Register>(&ip);                                 \
+        ByteCode::Register src1 = read<ByteCode::Register>(&ip);                                   \
+        ByteCode::Register src2 = read<ByteCode::Register>(&ip);                                   \
+        auto m = mask();                                                                           \
+        for (int i = 0; i < width; ++i) {                                                          \
+            if (m[i]) {                                                                            \
+                fRegisters[target.fIndex].result[i] = fRegisters[src1.fIndex].src[i] op            \
+                                                      fRegisters[src2.fIndex].src[i];              \
+            }                                                                                      \
+        }                                                                                          \
+        NEXT();                                                                                    \
+    }                                                                                              \
+    LABEL(inst ## N) {                                                                             \
+        uint8_t count = read<uint8_t>(&ip);                                                        \
+        ByteCode::Register target = read<ByteCode::Register>(&ip);                                 \
+        ByteCode::Register src1 = read<ByteCode::Register>(&ip);                                   \
+        ByteCode::Register src2 = read<ByteCode::Register>(&ip);                                   \
+        auto m = mask();                                                                           \
+        for (int i = 0; i < width; ++i) {                                                          \
+            if (m[i]) {                                                                            \
+                for (int j = 0; j < count; ++j) {                                                  \
+                    fRegisters[target.fIndex + j].result[i] = fRegisters[src1.fIndex + j].src[i]   \
+                                                            op fRegisters[src2.fIndex + j].src[i]; \
+                }                                                                                  \
+            }                                                                                      \
+        }                                                                                          \
+        NEXT();                                                                                    \
+    }
+
+#define VECTOR_BINARY_OP(inst, src, result, op)                                       \
+    LABEL(inst) {                                                                     \
+        ByteCode::Register target = read<ByteCode::Register>(&ip);                    \
+        ByteCode::Register src1 = read<ByteCode::Register>(&ip);                      \
+        ByteCode::Register src2 = read<ByteCode::Register>(&ip);                      \
+        fRegisters[target.fIndex].result = fRegisters[src1.fIndex].src op             \
+                                               fRegisters[src2.fIndex].src;           \
+        NEXT();                                                                       \
+    }                                                                                 \
+    LABEL(inst ## N) {                                                                \
+        uint8_t count = read<uint8_t>(&ip);                                           \
+        ByteCode::Register target = read<ByteCode::Register>(&ip);                    \
+        ByteCode::Register src1 = read<ByteCode::Register>(&ip);                      \
+        ByteCode::Register src2 = read<ByteCode::Register>(&ip);                      \
+        for (int i = 0; i < count; ++i) {                                             \
+            fRegisters[target.fIndex + i].result = fRegisters[src1.fIndex + i].src op \
+                                                   fRegisters[src2.fIndex + i].src;   \
+        }                                                                             \
+        NEXT();                                                                       \
+    }
+
 #define VECTOR_UNARY_FN(inst, fn)                                                       \
     LABEL(inst) {                                                                       \
         ByteCode::Register target = read<ByteCode::Register>(&ip);                      \
@@ -105,6 +157,21 @@ static T read(const uint8_t** ip) {
         break;                                                    \
     }
 
+#define DISASSEMBLE_VECTOR_UNARY(inst, name)                              \
+    case ByteCode::Instruction::inst: {                                   \
+        ByteCode::Register target = read<ByteCode::Register>(ip);         \
+        ByteCode::Register src = read<ByteCode::Register>(ip);            \
+        printf(name " $%d -> $%d\n", src.fIndex, target.fIndex);          \
+        break;                                                            \
+    }                                                                     \
+    case ByteCode::Instruction::inst ## N: {                              \
+        uint8_t count = read<uint8_t>(ip);                                \
+        ByteCode::Register target = read<ByteCode::Register>(ip);         \
+        ByteCode::Register src = read<ByteCode::Register>(ip);            \
+        printf(name "%d $%d -> $%d\n", count, src.fIndex, target.fIndex); \
+        break;                                                            \
+    }
+
 #define DISASSEMBLE_BINARY(inst, name)                                              \
     case ByteCode::Instruction::inst: {                                             \
         ByteCode::Register target = read<ByteCode::Register>(ip);                   \
@@ -112,6 +179,23 @@ static T read(const uint8_t** ip) {
         ByteCode::Register src2 = read<ByteCode::Register>(ip);                     \
         printf(name " $%d, $%d -> $%d\n", src1.fIndex, src2.fIndex, target.fIndex); \
         break;                                                                      \
+    }
+
+#define DISASSEMBLE_VECTOR_BINARY(inst, name)                                                \
+    case ByteCode::Instruction::inst: {                                                      \
+        ByteCode::Register target = read<ByteCode::Register>(ip);                            \
+        ByteCode::Register src1 = read<ByteCode::Register>(ip);                              \
+        ByteCode::Register src2 = read<ByteCode::Register>(ip);                              \
+        printf(name " $%d, $%d -> $%d\n", src1.fIndex, src2.fIndex, target.fIndex);          \
+        break;                                                                               \
+    }                                                                                        \
+    case ByteCode::Instruction::inst ## N: {                                                 \
+        uint8_t count = read<uint8_t>(ip);                                                   \
+        ByteCode::Register target = read<ByteCode::Register>(ip);                            \
+        ByteCode::Register src1 = read<ByteCode::Register>(ip);                              \
+        ByteCode::Register src2 = read<ByteCode::Register>(ip);                              \
+        printf(name "%d $%d, $%d -> $%d\n", count, src1.fIndex, src2.fIndex, target.fIndex); \
+        break;                                                                               \
     }
 
 /**
@@ -287,8 +371,8 @@ private:
     void disassemble(const uint8_t** ip) {
         ByteCode::Instruction inst = read<ByteCode::Instruction>(ip);
         switch (inst) {
-            DISASSEMBLE_BINARY(kAddF, "addF")
-            DISASSEMBLE_BINARY(kAddI, "addI")
+            DISASSEMBLE_VECTOR_BINARY(kAddF, "addF")
+            DISASSEMBLE_VECTOR_BINARY(kAddI, "addI")
             DISASSEMBLE_BINARY(kAnd, "and")
             DISASSEMBLE_BINARY(kCompareEQF, "compare eqF")
             DISASSEMBLE_BINARY(kCompareEQI, "compare eqI")
@@ -306,19 +390,19 @@ private:
             DISASSEMBLE_BINARY(kCompareLTEQF, "compare lteqF")
             DISASSEMBLE_BINARY(kCompareLTEQS, "compare lteqS")
             DISASSEMBLE_BINARY(kCompareLTEQU, "compare lteqU")
-            DISASSEMBLE_BINARY(kSubtractF, "subF")
-            DISASSEMBLE_BINARY(kSubtractI, "subI")
-            DISASSEMBLE_BINARY(kDivideF, "divF")
-            DISASSEMBLE_BINARY(kDivideS, "divS")
-            DISASSEMBLE_BINARY(kDivideU, "divU")
-            DISASSEMBLE_BINARY(kRemainderS, "remS")
-            DISASSEMBLE_BINARY(kRemainderU, "remU")
-            DISASSEMBLE_BINARY(kMultiplyF, "mulF")
-            DISASSEMBLE_BINARY(kMultiplyI, "mulI")
+            DISASSEMBLE_VECTOR_BINARY(kSubtractF, "subF")
+            DISASSEMBLE_VECTOR_BINARY(kSubtractI, "subI")
+            DISASSEMBLE_VECTOR_BINARY(kDivideF, "divF")
+            DISASSEMBLE_VECTOR_BINARY(kDivideS, "divS")
+            DISASSEMBLE_VECTOR_BINARY(kDivideU, "divU")
+            DISASSEMBLE_VECTOR_BINARY(kRemainderS, "remS")
+            DISASSEMBLE_VECTOR_BINARY(kRemainderU, "remU")
+            DISASSEMBLE_VECTOR_BINARY(kRemainderF, "remF")
+            DISASSEMBLE_VECTOR_BINARY(kMultiplyF, "mulF")
+            DISASSEMBLE_VECTOR_BINARY(kMultiplyI, "mulI")
             DISASSEMBLE_BINARY(kOr, "or")
             DISASSEMBLE_BINARY(kXor, "xor")
             DISASSEMBLE_0(kNop, "nop")
-            DISASSEMBLE_BINARY(kRemainderF, "remF")
             case ByteCode::Instruction::kBoundsCheck: {
                 ByteCode::Register r = read<ByteCode::Register>(ip);
                 int length = read<int>(ip);
@@ -367,25 +451,46 @@ private:
             DISASSEMBLE_UNARY(kInverse2x2, "inverse2x2")
             DISASSEMBLE_UNARY(kInverse3x3, "inverse3x3")
             DISASSEMBLE_UNARY(kInverse4x4, "inverse4x4")
-            DISASSEMBLE_UNARY(kLoad, "load")
+            DISASSEMBLE_VECTOR_UNARY(kLoad, "load")
             case ByteCode::Instruction::kLoadDirect: {
                 ByteCode::Register target = read<ByteCode::Register>(ip);
                 ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
                 printf("loadDirect @%d -> $%d\n", src.fAddress, target.fIndex);
                 break;
             }
-            DISASSEMBLE_UNARY(kLoadParameter, "loadParameter")
+            case ByteCode::Instruction::kLoadDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadDirect%d @%d -> $%d\n", count, src.fAddress, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kLoadParameter, "loadParameter")
             case ByteCode::Instruction::kLoadParameterDirect: {
                 ByteCode::Register target = read<ByteCode::Register>(ip);
                 ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
                 printf("loadParameterDirect &%d -> $%d\n", src.fAddress, target.fIndex);
                 break;
             }
-            DISASSEMBLE_UNARY(kLoadStack, "loadStack")
+            case ByteCode::Instruction::kLoadParameterDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadParameterDirect%d &%d -> $%d\n", count, src.fAddress, target.fIndex);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kLoadStack, "loadStack")
             case ByteCode::Instruction::kLoadStackDirect: {
                 ByteCode::Register target = read<ByteCode::Register>(ip);
                 ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
                 printf("loadStackDirect @%d -> $%d\n", src.fAddress, target.fIndex);
+                break;
+            }
+            case ByteCode::Instruction::kLoadStackDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Register target = read<ByteCode::Register>(ip);
+                ByteCode::Pointer src = read<ByteCode::Pointer>(ip);
+                printf("loadStackDirect%d @%d -> $%d\n", count, src.fAddress, target.fIndex);
                 break;
             }
             DISASSEMBLE_0(kLoopBegin, "loopBegin")
@@ -453,26 +558,54 @@ private:
             DISASSEMBLE_BINARY(kShiftRightU, "shiftRightU")
             DISASSEMBLE_UNARY(kSignedToFloat, "signedToFloat")
             DISASSEMBLE_UNARY(kSin, "sin")
+            case ByteCode::Instruction::kSplat: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("splat%d $%d -> @%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
             DISASSEMBLE_UNARY(kSqrt, "sqrt")
-            DISASSEMBLE_UNARY(kStore, "store")
+            DISASSEMBLE_VECTOR_UNARY(kStore, "store")
             case ByteCode::Instruction::kStoreDirect: {
                 ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
                 ByteCode::Register src = read<ByteCode::Register>(ip);
                 printf("store $%d -> @%d\n", src.fIndex, target.fAddress);
                 break;
             }
-            DISASSEMBLE_UNARY(kStoreParameter, "storeParameter")
+            case ByteCode::Instruction::kStoreDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("store%d $%d -> @%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kStoreParameter, "storeParameter")
             case ByteCode::Instruction::kStoreParameterDirect: {
                 ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
                 ByteCode::Register src = read<ByteCode::Register>(ip);
-                printf("storeParameter $%d -> &%d\n", src.fIndex, target.fAddress);
+                printf("storeParameterDirect $%d -> &%d\n", src.fIndex, target.fAddress);
                 break;
             }
-            DISASSEMBLE_UNARY(kStoreStack, "storeStack")
+            case ByteCode::Instruction::kStoreParameterDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("storeParameterDirect%d $%d -> &%d\n", count, src.fIndex, target.fAddress);
+                break;
+            }
+            DISASSEMBLE_VECTOR_UNARY(kStoreStack, "storeStack")
             case ByteCode::Instruction::kStoreStackDirect: {
                 ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
                 ByteCode::Register src = read<ByteCode::Register>(ip);
                 printf("storeStackDirect $%d -> @%d\n", src.fIndex, target.fAddress);
+                break;
+            }
+            case ByteCode::Instruction::kStoreStackDirectN: {
+                uint8_t count = read<uint8_t>(ip);
+                ByteCode::Pointer target = read<ByteCode::Pointer>(ip);
+                ByteCode::Register src = read<ByteCode::Register>(ip);
+                printf("storeStackDirect%d $%d -> @%d\n", count, src.fIndex, target.fAddress);
                 break;
             }
             DISASSEMBLE_UNARY(kTan, "tan")
@@ -594,7 +727,9 @@ private:
             &&kNop,
             &&kAbort,
             &&kAddF,
+            &&kAddFN,
             &&kAddI,
+            &&kAddIN,
             &&kAnd,
             &&kBoundsCheck,
             &&kBranch,
@@ -622,8 +757,11 @@ private:
             &&kCopy,
             &&kCos,
             &&kDivideF,
+            &&kDivideFN,
             &&kDivideS,
+            &&kDivideSN,
             &&kDivideU,
+            &&kDivideUN,
             &&kFloatToSigned,
             &&kFloatToUnsigned,
             &&kImmediate,
@@ -631,11 +769,17 @@ private:
             &&kInverse3x3,
             &&kInverse4x4,
             &&kLoad,
+            &&kLoadN,
             &&kLoadDirect,
+            &&kLoadDirectN,
             &&kLoadParameter,
+            &&kLoadParameterN,
             &&kLoadParameterDirect,
+            &&kLoadParameterDirectN,
             &&kLoadStack,
+            &&kLoadStackN,
             &&kLoadStackDirect,
+            &&kLoadStackDirectN,
             &&kLoopBegin,
             &&kLoopEnd,
             &&kLoopMask,
@@ -646,7 +790,9 @@ private:
             &&kMatrixMultiply,
             &&kMatrixToMatrix,
             &&kMultiplyF,
+            &&kMultiplyFN,
             &&kMultiplyI,
+            &&kMultiplyIN,
             &&kNegateF,
             &&kNegateS,
             &&kNot,
@@ -654,8 +800,11 @@ private:
             &&kPrint,
             &&kReadExternal,
             &&kRemainderF,
+            &&kRemainderFN,
             &&kRemainderS,
+            &&kRemainderSN,
             &&kRemainderU,
+            &&kRemainderUN,
             &&kReturn,
             &&kReturnValue,
             &&kScalarToMatrix,
@@ -665,15 +814,24 @@ private:
             &&kShiftRightU,
             &&kSignedToFloat,
             &&kSin,
+            &&kSplat,
             &&kSqrt,
             &&kStore,
+            &&kStoreN,
             &&kStoreDirect,
+            &&kStoreDirectN,
             &&kStoreParameter,
+            &&kStoreParameterN,
             &&kStoreParameterDirect,
+            &&kStoreParameterDirectN,
             &&kStoreStack,
+            &&kStoreStackN,
             &&kStoreStackDirect,
+            &&kStoreStackDirectN,
             &&kSubtractF,
+            &&kSubtractFN,
             &&kSubtractI,
+            &&kSubtractIN,
             &&kTan,
             &&kUnsignedToFloat,
             &&kWriteExternal,
@@ -710,8 +868,11 @@ private:
         CHECK_LABEL(kCopy);
         CHECK_LABEL(kCos);
         CHECK_LABEL(kDivideF);
+        CHECK_LABEL(kDivideFN);
         CHECK_LABEL(kDivideS);
+        CHECK_LABEL(kDivideSN);
         CHECK_LABEL(kDivideU);
+        CHECK_LABEL(kDivideUN);
         CHECK_LABEL(kFloatToSigned);
         CHECK_LABEL(kFloatToUnsigned);
         CHECK_LABEL(kImmediate);
@@ -719,11 +880,17 @@ private:
         CHECK_LABEL(kInverse3x3);
         CHECK_LABEL(kInverse4x4);
         CHECK_LABEL(kLoad);
+        CHECK_LABEL(kLoadN);
         CHECK_LABEL(kLoadDirect);
+        CHECK_LABEL(kLoadDirectN);
         CHECK_LABEL(kLoadParameter);
+        CHECK_LABEL(kLoadParameterN);
         CHECK_LABEL(kLoadParameterDirect);
+        CHECK_LABEL(kLoadParameterDirectN);
         CHECK_LABEL(kLoadStack);
+        CHECK_LABEL(kLoadStackN);
         CHECK_LABEL(kLoadStackDirect);
+        CHECK_LABEL(kLoadStackDirectN);
         CHECK_LABEL(kLoopBegin);
         CHECK_LABEL(kLoopEnd);
         CHECK_LABEL(kLoopMask);
@@ -734,7 +901,9 @@ private:
         CHECK_LABEL(kMatrixMultiply);
         CHECK_LABEL(kMatrixToMatrix);
         CHECK_LABEL(kMultiplyF);
+        CHECK_LABEL(kMultiplyFN);
         CHECK_LABEL(kMultiplyI);
+        CHECK_LABEL(kMultiplyIN);
         CHECK_LABEL(kNegateF);
         CHECK_LABEL(kNegateS);
         CHECK_LABEL(kNot);
@@ -742,8 +911,11 @@ private:
         CHECK_LABEL(kPrint);
         CHECK_LABEL(kReadExternal);
         CHECK_LABEL(kRemainderF);
+        CHECK_LABEL(kRemainderFN);
         CHECK_LABEL(kRemainderS);
+        CHECK_LABEL(kRemainderSN);
         CHECK_LABEL(kRemainderU);
+        CHECK_LABEL(kRemainderUN);
         CHECK_LABEL(kReturn);
         CHECK_LABEL(kReturnValue);
         CHECK_LABEL(kScalarToMatrix);
@@ -753,15 +925,24 @@ private:
         CHECK_LABEL(kShiftRightU);
         CHECK_LABEL(kSignedToFloat);
         CHECK_LABEL(kSin);
+        CHECK_LABEL(kSplat);
         CHECK_LABEL(kSqrt);
         CHECK_LABEL(kStore);
+        CHECK_LABEL(kStoreN);
         CHECK_LABEL(kStoreDirect);
+        CHECK_LABEL(kStoreDirectN);
         CHECK_LABEL(kStoreParameter);
+        CHECK_LABEL(kStoreParameterN);
         CHECK_LABEL(kStoreParameterDirect);
+        CHECK_LABEL(kStoreParameterDirectN);
         CHECK_LABEL(kStoreStack);
+        CHECK_LABEL(kStoreStackN);
         CHECK_LABEL(kStoreStackDirect);
+        CHECK_LABEL(kStoreStackDirectN);
         CHECK_LABEL(kSubtractF);
+        CHECK_LABEL(kSubtractFN);
         CHECK_LABEL(kSubtractI);
+        CHECK_LABEL(kSubtractIN);
         CHECK_LABEL(kTan);
         CHECK_LABEL(kUnsignedToFloat);
         CHECK_LABEL(kWriteExternal);
@@ -790,8 +971,8 @@ private:
             ByteCode::Instruction inst = read<ByteCode::Instruction>(&ip);
             switch (inst) {
 #endif
-                BINARY_OP(kAddF, fFloat, fFloat, +)
-                BINARY_OP(kAddI, fInt, fInt, +)
+                VECTOR_BINARY_OP(kAddF, fFloat, fFloat, +)
+                VECTOR_BINARY_OP(kAddI, fInt, fInt, +)
                 BINARY_OP(kAnd, fInt, fInt, &)
                 BINARY_OP(kCompareEQF, fFloat, fInt, ==)
                 BINARY_OP(kCompareEQI, fInt, fInt, ==)
@@ -809,15 +990,15 @@ private:
                 BINARY_OP(kCompareLTEQF, fFloat, fInt, <=)
                 BINARY_OP(kCompareLTEQS, fInt, fInt, <=)
                 BINARY_OP(kCompareLTEQU, fUInt, fUInt, <=)
-                BINARY_OP(kSubtractF, fFloat, fFloat, -)
-                BINARY_OP(kSubtractI, fInt, fInt, -)
-                BINARY_OP(kDivideF, fFloat, fFloat, /)
-                MASKED_BINARY_OP(kDivideS, fInt, fInt, /)
-                MASKED_BINARY_OP(kDivideU, fUInt, fUInt, /)
-                MASKED_BINARY_OP(kRemainderS, fInt, fInt, %)
-                MASKED_BINARY_OP(kRemainderU, fUInt, fUInt, %)
-                BINARY_OP(kMultiplyF, fFloat, fFloat, *)
-                BINARY_OP(kMultiplyI, fInt, fInt, *)
+                VECTOR_BINARY_OP(kSubtractF, fFloat, fFloat, -)
+                VECTOR_BINARY_OP(kSubtractI, fInt, fInt, -)
+                VECTOR_BINARY_OP(kDivideF, fFloat, fFloat, /)
+                MASKED_VECTOR_BINARY_OP(kDivideS, fInt, fInt, /)
+                MASKED_VECTOR_BINARY_OP(kDivideU, fUInt, fUInt, /)
+                MASKED_VECTOR_BINARY_OP(kRemainderS, fInt, fInt, %)
+                MASKED_VECTOR_BINARY_OP(kRemainderU, fUInt, fUInt, %)
+                VECTOR_BINARY_OP(kMultiplyF, fFloat, fFloat, *)
+                VECTOR_BINARY_OP(kMultiplyI, fInt, fInt, *)
                 BINARY_OP(kOr, fInt, fInt, |)
                 BINARY_OP(kXor, fInt, fInt, ^)
                 LABEL(kAbort)
@@ -952,10 +1133,34 @@ private:
                     }
                     NEXT();
                 }
+                LABEL(kLoadN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    VectorI m = mask();
+                    for (int i = 0; i < width; ++i) {
+                        if (m[i]) {
+                            for (int j = 0; j < count; ++j) {
+                                fRegisters[target.fIndex + j].fInt[i] =
+                                                fMemory[fRegisters[src.fIndex].fInt[i] + j].fInt[i];
+                            }
+                        }
+                    }
+                    NEXT();
+                }
                 LABEL(kLoadDirect) {
                     ByteCode::Register target = read<ByteCode::Register>(&ip);
                     ByteCode::Pointer src = read<ByteCode::Pointer>(&ip);
                     fRegisters[target.fIndex].fInt = fMemory[src.fAddress].fInt;
+                    NEXT();
+                }
+                LABEL(kLoadDirectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Pointer src = read<ByteCode::Pointer>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i].fInt = fMemory[src.fAddress + i].fInt;
+                    }
                     NEXT();
                 }
                 LABEL(kLoadParameter) {
@@ -971,11 +1176,37 @@ private:
                     }
                     NEXT();
                 }
+                LABEL(kLoadParameterN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    Vector* base = parameterBase();
+                    VectorI m = mask();
+                    for (int i = 0; i < width; ++i) {
+                        if (m[i]) {
+                            for (int j = 0; j < count; ++j) {
+                                fRegisters[target.fIndex + j].fInt[i] =
+                                                   base[fRegisters[src.fIndex].fInt[i] + j].fInt[i];
+                            }
+                        }
+                    }
+                    NEXT();
+                }
                 LABEL(kLoadParameterDirect) {
                     ByteCode::Register target = read<ByteCode::Register>(&ip);
                     ByteCode::Pointer src = read<ByteCode::Pointer>(&ip);
                     Vector* base = parameterBase();
                     fRegisters[target.fIndex].fInt = base[src.fAddress].fInt;
+                    NEXT();
+                }
+                LABEL(kLoadParameterDirectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Pointer src = read<ByteCode::Pointer>(&ip);
+                    Vector* base = parameterBase();
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i].fInt = base[src.fAddress + i].fInt;
+                    }
                     NEXT();
                 }
                 LABEL(kLoadStack) {
@@ -990,11 +1221,36 @@ private:
                     }
                     NEXT();
                 }
+                LABEL(kLoadStackN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    VectorI m = mask();
+                    for (int i = 0; i < width; ++i) {
+                        if (m[i]) {
+                            for (int j = 0; j < count; ++j) {
+                                fRegisters[target.fIndex + j].fInt[i] =
+                                         context.fStack[fRegisters[src.fIndex].fInt[i] + j].fInt[i];
+                            }
+                        }
+                    }
+                    NEXT();
+                }
                 LABEL(kLoadStackDirect) {
                     ByteCode::Register target = read<ByteCode::Register>(&ip);
                     ByteCode::Pointer src = read<ByteCode::Pointer>(&ip);
                     CHECK_STACK_BOUNDS(src.fAddress);
                     fRegisters[target.fIndex].fInt = context.fStack[src.fAddress].fInt;
+                    NEXT();
+                }
+                LABEL(kLoadStackDirectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Pointer src = read<ByteCode::Pointer>(&ip);
+                    CHECK_STACK_BOUNDS(src.fAddress);
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i].fInt = context.fStack[src.fAddress + i].fInt;
+                    }
                     NEXT();
                 }
                 LABEL(kLoopBegin) {
@@ -1145,6 +1401,17 @@ private:
                                                        fRegisters[src2.fIndex]);
                     NEXT();
                 }
+                LABEL(kRemainderFN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src1 = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src2 = read<ByteCode::Register>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i] = VecMod(fRegisters[src1.fIndex + i],
+                                                               fRegisters[src2.fIndex + i]);
+                    }
+                    NEXT();
+                }
                 LABEL(kReturn) {
                     if (context.fCallStack.empty()) {
                         return true;
@@ -1232,6 +1499,15 @@ private:
                     NEXT();
                 }
                 VECTOR_UNARY_FN(kSin, sinf)
+                LABEL(kSplat) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        fRegisters[target.fIndex + i] = fRegisters[src.fIndex];
+                    }
+                    NEXT();
+                }
                 LABEL(kSqrt) {
                     ByteCode::Register target = read<ByteCode::Register>(&ip);
                     ByteCode::Register src = read<ByteCode::Register>(&ip);
@@ -1250,12 +1526,39 @@ private:
                     }
                     NEXT();
                 }
+                LABEL(kStoreN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    VectorI m = mask();
+                    for (int i = 0; i < width; ++i) {
+                        if (m[i]) {
+                            for (int j = 0; j < count; ++j) {
+                                fMemory[fRegisters[target.fIndex].fInt[i] + j].fInt[i] =
+                                                                 fRegisters[src.fIndex + j].fInt[i];
+                            }
+                        }
+                    }
+                    NEXT();
+                }
                 LABEL(kStoreDirect) {
                     ByteCode::Pointer target = read<ByteCode::Pointer>(&ip);
                     ByteCode::Register src = read<ByteCode::Register>(&ip);
                     fMemory[target.fAddress] = skvx::if_then_else(mask(),
                                                                   fRegisters[src.fIndex].fFloat,
                                                                   fMemory[target.fAddress].fFloat);
+                    NEXT();
+                }
+                LABEL(kStoreDirectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Pointer target = read<ByteCode::Pointer>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        fMemory[target.fAddress + i] = skvx::if_then_else(
+                                                               mask(),
+                                                               fRegisters[src.fIndex + i].fFloat,
+                                                               fMemory[target.fAddress + i].fFloat);
+                    }
                     NEXT();
                 }
                 LABEL(kStoreParameter) {
@@ -1271,13 +1574,42 @@ private:
                     }
                     NEXT();
                 }
+                LABEL(kStoreParameterN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    Vector* base = parameterBase();
+                    VectorI m = mask();
+                    for (int i = 0; i < width; ++i) {
+                        if (m[i]) {
+                            for (int j = 0; j < count; ++j) {
+                                base[fRegisters[target.fIndex].fInt[i] + j].fInt[i] =
+                                                                 fRegisters[src.fIndex + j].fInt[i];
+                            }
+                        }
+                    }
+                    NEXT();
+                }
                 LABEL(kStoreParameterDirect) {
                     ByteCode::Pointer target = read<ByteCode::Pointer>(&ip);
                     ByteCode::Register src = read<ByteCode::Register>(&ip);
                     Vector* base = parameterBase();
-                    base[target.fAddress] = skvx::if_then_else(mask(),
-                                                               fRegisters[src.fIndex].fFloat,
-                                                               base[target.fAddress].fFloat);
+                    base[target.fAddress].fFloat = skvx::if_then_else(mask(),
+                                                                      fRegisters[src.fIndex].fFloat,
+                                                                      base[target.fAddress].fFloat);
+                    NEXT();
+                }
+                LABEL(kStoreParameterDirectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Pointer target = read<ByteCode::Pointer>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    Vector* base = parameterBase();
+                    for (int i = 0; i < count; ++i) {
+                        base[target.fAddress + i].fFloat = skvx::if_then_else(
+                                                                  mask(),
+                                                                  fRegisters[src.fIndex + i].fFloat,
+                                                                  base[target.fAddress + i].fFloat);
+                    }
                     NEXT();
                 }
                 LABEL(kStoreStack) {
@@ -1292,6 +1624,21 @@ private:
                     }
                     NEXT();
                 }
+                LABEL(kStoreStackN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Register target = read<ByteCode::Register>(&ip);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    VectorI m = mask();
+                    for (int i = 0; i < width; ++i) {
+                        if (m[i]) {
+                            for (int j = 0; j < count; ++j) {
+                                context.fStack[fRegisters[target.fIndex].fInt[i] + j].fInt[i] =
+                                                                 fRegisters[src.fIndex + j].fInt[i];
+                            }
+                        }
+                    }
+                    NEXT();
+                }
                 LABEL(kStoreStackDirect) {
                     ByteCode::Pointer target = read<ByteCode::Pointer>(&ip);
                     CHECK_STACK_BOUNDS(target.fAddress);
@@ -1300,6 +1647,19 @@ private:
                                                             mask(),
                                                             fRegisters[src.fIndex].fFloat,
                                                             context.fStack[target.fAddress].fFloat);
+                    NEXT();
+                }
+                LABEL(kStoreStackDirectN) {
+                    uint8_t count = read<uint8_t>(&ip);
+                    ByteCode::Pointer target = read<ByteCode::Pointer>(&ip);
+                    CHECK_STACK_BOUNDS(target.fAddress);
+                    ByteCode::Register src = read<ByteCode::Register>(&ip);
+                    for (int i = 0; i < count; ++i) {
+                        context.fStack[target.fAddress + i] = skvx::if_then_else(
+                                                        mask(),
+                                                        fRegisters[src.fIndex + i].fFloat,
+                                                        context.fStack[target.fAddress + i].fFloat);
+                    }
                     NEXT();
                 }
                 VECTOR_UNARY_FN(kTan, tanf)

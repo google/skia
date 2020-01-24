@@ -102,8 +102,12 @@ public:
         kAbort,
         // Register target, Register src1, Register src2
         kAddF,
+        // uint8_t count, Register target, Register src1, Register src2
+        kAddFN,
         // Register target, Register src1, Register src2
         kAddI,
+        // uint8_t count, Register target, Register src1, Register src2
+        kAddIN,
         // Register target, Register src1, Register src2
         kAnd,
         // Register index, int arrayLength
@@ -159,10 +163,16 @@ public:
         kCos,
         // Register target, Register src1, Register src2
         kDivideF,
+        // uint8_t count, Register target, Register src1, Register src2
+        kDivideFN,
         // Register target, Register src1, Register src2
         kDivideS,
+        // uint8_t count, Register target, Register src1, Register src2
+        kDivideSN,
         // Register target, Register src1, Register src2
         kDivideU,
+        // uint8_t count, Register target, Register src1, Register src2
+        kDivideUN,
         // Register target, Register src
         kFloatToSigned,
         // Register target, Register src
@@ -179,21 +189,33 @@ public:
         // Load the memory cell pointed to by srcPtr into a register
         // Register target, Register srcPtr
         kLoad,
+        // uint8_t count, Register target, Register srcPtr
+        kLoadN,
         // Load the memory cell pointed to by src into a register
         // Register target, Pointer src
         kLoadDirect,
+        // uint8_t count, Register target, Pointer src
+        kLoadDirectN,
         // Load the parameter slot pointed to by srcPtr into a register
         // Register target, Register srcPtr
         kLoadParameter,
+        // uint8_t count, Register target, Register srcPtr
+        kLoadParameterN,
         // Load the parameter slot pointed to by src into a register
         // Register target, Pointer src
         kLoadParameterDirect,
+        // uint8_t count, Register target, Pointer src
+        kLoadParameterDirectN,
         // Load the stack cell pointed to by srcPtr + sp into a register
         // Register target, Register srcPtr
         kLoadStack,
+        // uint8_t count, Register target, Register srcPtr
+        kLoadStackN,
         // Load the stack cell pointed to by src + sp into a register
         // Register target, Pointer src
         kLoadStackDirect,
+        // uint8_t count, Register target, Pointer src
+        kLoadStackDirectN,
         // Pushes a new loop onto the loop and continue stacks
         // no parameters
         kLoopBegin,
@@ -218,8 +240,12 @@ public:
         kMatrixToMatrix,
         // Register target, Register src1, Register src2
         kMultiplyF,
+        // uint8_t count, Register target, Register src1, Register src2
+        kMultiplyFN,
         // Register target, Register src1, Register src2
         kMultiplyI,
+        // uint8_t count, Register target, Register src1, Register src2
+        kMultiplyIN,
         // Register target, Register src
         kNegateF,
         // Register target, Register src
@@ -234,10 +260,16 @@ public:
         kReadExternal,
         // Register target, Register src1, Register src2
         kRemainderF,
+        // uint8_t count, Register target, Register src1, Register src2
+        kRemainderFN,
         // Register target, Register src1, Register src2
         kRemainderS,
+        // uint8_t count, Register target, Register src1, Register src2
+        kRemainderSN,
         // Register target, Register src1, Register src2
         kRemainderU,
+        // uint8_t count, Register target, Register src1, Register src2
+        kRemainderUN,
         // no parameters
         kReturn,
         // Register value
@@ -256,30 +288,49 @@ public:
         kSignedToFloat,
         // Register target, Register src,
         kSin,
+        // Duplicates the src to <count> targets
+        // uint8_t count, Register target, Register src
+        kSplat,
         // Register target, Register src,
         kSqrt,
         // Store to the memory cell pointed to by dstPtr
         // Register dstPtr, Register src
         kStore,
+        // uint8_t count, Register dstPtr, Register src
+        kStoreN,
         // Store to the memory cell pointed to by dst
         // Pointer dst, Register src
         kStoreDirect,
+        // uint8_t count, Pointer dst, Register src
+        kStoreDirectN,
         // Store to the parameter slot pointed to by dstPtr
         // Register dstPtr, Register src
         kStoreParameter,
+        // uint8_t count, Register dstPtr, Register src
+        kStoreParameterN,
         // Store to the parameter slot pointed to by dst
         // Pointer dst, Register src
         kStoreParameterDirect,
+        // uint8_t count, Pointer dst, Register src
+        kStoreParameterDirectN,
         // Stores a register into the stack cell pointed to by dst + sp
         // Register dst, Register src
         kStoreStack,
+        // uint8_t count, Register dst, Register src
+        kStoreStackN,
         // Stores a register into the stack cell pointed to by dstPtr + sp
         // Pointer dst, Register src
         kStoreStackDirect,
+        // uint8_t count, Pointer dst, Register src
+        kStoreStackDirectN,
         // Register target, Register src1, Register src2
         kSubtractF,
+        // uint8_t count, Register target, Register src1, Register src2
+        kSubtractFN,
         // Register target, Register src1, Register src2
         kSubtractI,
+        // uint8_t count, Register target, Register src1, Register src2
+        kSubtractIN,
         // Register target, Register src,
         kTan,
         // Register target, Register src,
