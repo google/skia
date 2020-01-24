@@ -36,12 +36,27 @@ struct WindingVertex {
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    WindingVertex** verts);
 
-constexpr size_t GetVertexStride(bool antialias) {
-    return sizeof(SkPoint) + ((antialias) ? sizeof(float) : 0);
+enum class Mode {
+    kNormal,
+
+    // Surround path edges with coverage ramps for antialiasing.
+    kAntialias,
+
+    // Tessellate only each contour's inner polygon. The inner polygons connect the endpoints of
+    // each verb. (i.e., they are the path that would result from collapsing all curves to single
+    // lines.)
+    //
+    // If the inner polygons are not simple (e.g., self intersection, double winding), then the
+    // tessellator aborts and returns 0.
+    kSimpleInnerPolygons
+};
+
+constexpr size_t GetVertexStride(Mode mode) {
+    return sizeof(SkPoint) + ((Mode::kAntialias == mode) ? sizeof(float) : 0);
 }
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    GrEagerVertexAllocator*, bool antialias, bool *isLinear);
+                    GrEagerVertexAllocator*, Mode, bool *isLinear);
 }
 
 #endif
