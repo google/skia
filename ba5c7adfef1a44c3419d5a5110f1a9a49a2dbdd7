@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ec75a47f_59261dc2",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T16:52:02Z",
+      "side": 0,
+      "message": "Never used, could end up declaring local variables.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 5
+      },
+      "revId": "ba5c7adfef1a44c3419d5a5110f1a9a49a2dbdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c694cab_6e6f4375",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T16:52:02Z",
+      "side": 0,
+      "message": "writeChildCall took all of EmitArgs, but *only* needed the child FP...",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 44
+      },
+      "revId": "ba5c7adfef1a44c3419d5a5110f1a9a49a2dbdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de8107fd_1b93a686",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T16:52:02Z",
+      "side": 0,
+      "message": "Another unused chunk of code (inputName was never referenced again).",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 0
+      },
+      "revId": "ba5c7adfef1a44c3419d5a5110f1a9a49a2dbdd7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
