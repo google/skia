@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c22c7c4_41b32d70",
+        "filename": "src/gpu/ops/GrSmallPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-24T18:58:11Z",
+      "side": 1,
+      "message": "I think there might be a bad merge here.",
+      "range": {
+        "startLine": 899,
+        "startChar": 37,
+        "endLine": 899,
+        "endChar": 44
+      },
+      "revId": "ecbdcf4f909dd1d9a84fdf3468b249015275518c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
