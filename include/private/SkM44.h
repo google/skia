@@ -233,6 +233,34 @@ public:
                            0, 0, 0, 1);
     }
 
+    /**
+     *  Set this matrix to rotate about the specified unit-length axis vector,
+     *  by an angle specified by its sin() and cos().
+     *
+     *  This does not attempt to verify that axis.length() == 1 or that the sin,cos values
+     *  are correct.
+     */
+    SkM44& setRotateAboutUnitSinCos (SkV3 axis, SkScalar sinAngle, SkScalar cosAngle);
+
+    /**
+     *  Set this matrix to rotate about the specified unit-length axis vector,
+     *  by an angle specified in radians.
+     *
+     *  This does not attempt to verify that axis.length() == 1.
+     */
+    SkM44& setRotateAboutUnitRadians(SkV3 axis, SkScalar radians) {
+        return this->setRotateAboutUnitSinCos(axis, SkScalarSin(radians), SkScalarCos(radians));
+    }
+
+    /**
+     *  Set this matrix to rotate about the specified axis vector,
+     *  by an angle specified in radians.
+     *
+     *  Note: axis is not assumed to be unit-length, so it will be normalized internally.
+     *        If axis is already unit-length, call setRotateAboutUnitRadians() instead.
+     */
+    SkM44& setRotateAboutRadians(SkV3 axis, SkScalar radians);
+
     SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
 
     SkM44& setConcat(const SkM44& a, const SkM44& b) {
