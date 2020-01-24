@@ -43,6 +43,7 @@
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/text/GrTextTarget.h"
 #include "src/image/SkImage_Base.h"
@@ -935,7 +936,6 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // the rest from the SkPaint.
     std::unique_ptr<GrFragmentProcessor> fp;
 
-    const auto& caps = *this->caps();
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
         SkRect domain;
@@ -955,8 +955,9 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
             fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir, srcAlphaType);
         } else {
-            fp = GrTextureEffect::MakeSubset(std::move(proxy), srcAlphaType, texMatrix,
-                                             samplerState, domain, caps);
+            fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState);
+            fp = GrDomainEffect::Make(std::move(fp), domain, GrTextureDomain::kClamp_Mode,
+                                      samplerState.filter());
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
@@ -964,7 +965,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
         fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, srcAlphaType);
     } else {
-        fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState, caps);
+        fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState);
     }
 
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),

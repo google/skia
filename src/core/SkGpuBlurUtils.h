@@ -10,6 +10,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/effects/GrTextureDomain.h"
 
 class GrContext;
 class GrTexture;

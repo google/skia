@@ -319,6 +319,191 @@ void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode mode,
+                                                          bool decalIsFiltered) {
+    return Make(std::move(fp), domain, mode, mode, decalIsFiltered);
+}
+
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode modeX,
+                                                          GrTextureDomain::Mode modeY,
+                                                          bool decalIsFiltered) {
+    if (modeX == GrTextureDomain::kIgnore_Mode && modeY == GrTextureDomain::kIgnore_Mode) {
+        return fp;
+    }
+    int count = 0;
+    GrCoordTransform* coordTransform = nullptr;
+    for (auto [transform, ignored] : GrFragmentProcessor::FPCoordTransformRange(*fp)) {
+        ++count;
+        coordTransform = &transform;
+    }
+    // If there are no coord transforms on the passed FP or it's children then there's no need to
+    // enforce a domain.
+    // We have a limitation that only one coord transform is support when overriding local coords.
+    // If that limit were relaxed we would need to add a coord transform for each descendent FP
+    // transform and possibly have multiple domain rects to account for different proxy
+    // normalization and y-reversals.
+    if (count != 1) {
+        return fp;
+    }
+    GrCoordTransform transformCopy = *coordTransform;
+    // Reset the child FP's coord transform.
+    *coordTransform = {};
+    // If both domain modes happen to be ignore, it would be faster to just drop the domain logic
+    // entirely and return the original FP. We'd need a GrMatrixProcessor if the matrix is not
+    // identity, though.
+    return std::unique_ptr<GrFragmentProcessor>(new GrDomainEffect(
+            std::move(fp), transformCopy, domain, modeX, modeY, decalIsFiltered));
+}
+
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode mode,
+                                                          GrSamplerState::Filter filter) {
+    bool filterIfDecal = filter != GrSamplerState::Filter::kNearest;
+    return Make(std::move(fp), domain, mode, filterIfDecal);
+}
+
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
+                                                          const SkRect& domain,
+                                                          GrTextureDomain::Mode modeX,
+                                                          GrTextureDomain::Mode modeY,
+                                                          GrSamplerState::Filter filter) {
+    bool filterIfDecal = filter != GrSamplerState::Filter::kNearest;
+    return Make(std::move(fp), domain, modeX, modeY, filterIfDecal);
+}
+GrFragmentProcessor::OptimizationFlags GrDomainEffect::Flags(GrFragmentProcessor* fp,
+                                                             GrTextureDomain::Mode modeX,
+                                                             GrTextureDomain::Mode modeY) {
+    auto fpFlags = GrFragmentProcessor::ProcessorOptimizationFlags(fp);
+    if (modeX == GrTextureDomain::kDecal_Mode || modeY == GrTextureDomain::kDecal_Mode) {
+        return fpFlags & ~kPreservesOpaqueInput_OptimizationFlag;
+    }
+    return fpFlags;
+}
+
+GrDomainEffect::GrDomainEffect(std::unique_ptr<GrFragmentProcessor> fp,
+                               const GrCoordTransform& coordTransform,
+                               const SkRect& domain,
+                               GrTextureDomain::Mode modeX,
+                               GrTextureDomain::Mode modeY,
+                               bool decalIsFiltered)
+        : INHERITED(kGrDomainEffect_ClassID, Flags(fp.get(), modeX, modeY))
+        , fCoordTransform(coordTransform)
+        , fDomain(domain, modeX, modeY)
+        , fDecalIsFiltered(decalIsFiltered) {
+    SkASSERT(fp);
+    fp->setSampledWithExplicitCoords(true);
+    this->registerChildProcessor(std::move(fp));
+    this->addCoordTransform(&fCoordTransform);
+    if (fDomain.modeX() != GrTextureDomain::kDecal_Mode &&
+        fDomain.modeY() != GrTextureDomain::kDecal_Mode) {
+        // Canonicalize this don't care value so we don't have to worry about it elsewhere.
+        fDecalIsFiltered = false;
+    }
+}
+
+GrDomainEffect::GrDomainEffect(const GrDomainEffect& that)
+        : INHERITED(kGrDomainEffect_ClassID, that.optimizationFlags())
+        , fCoordTransform(that.fCoordTransform)
+        , fDomain(that.fDomain)
+        , fDecalIsFiltered(that.fDecalIsFiltered) {
+    auto child = that.childProcessor(0).clone();
+    child->setSampledWithExplicitCoords(true);
+    this->registerChildProcessor(std::move(child));
+    this->addCoordTransform(&fCoordTransform);
+}
+
+void GrDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
+                                           GrProcessorKeyBuilder* b) const {
+    b->add32(GrTextureDomain::GLDomain::DomainKey(fDomain));
+}
+
+GrGLSLFragmentProcessor* GrDomainEffect::onCreateGLSLInstance() const {
+    class GLSLProcessor : public GrGLSLFragmentProcessor {
+    public:
+        void emitCode(EmitArgs& args) override {
+            const GrDomainEffect& de = args.fFp.cast<GrDomainEffect>();
+            const GrTextureDomain& domain = de.fDomain;
+
+            SkString coords2D =
+                    args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+
+            fGLDomain.sampleProcessor(domain, args.fInputColor, args.fOutputColor, coords2D, this,
+                                      args, 0);
+        }
+
+    protected:
+        void onSetData(const GrGLSLProgramDataManager& pdman,
+                       const GrFragmentProcessor& fp) override {
+            const GrDomainEffect& de = fp.cast<GrDomainEffect>();
+            const GrTextureDomain& domain = de.fDomain;
+            // TODO: Update GrCoordTransform to return a view instead of proxy
+            const GrSurfaceProxy* proxy = de.fCoordTransform.proxy();
+            // If we don't have a proxy the value of the origin doesn't matter
+            GrSurfaceOrigin origin = proxy ? proxy->origin() : kTopLeft_GrSurfaceOrigin;
+            fGLDomain.setData(pdman, domain, proxy, origin, de.fDecalIsFiltered);
+        }
+
+    private:
+        GrTextureDomain::GLDomain         fGLDomain;
+    };
+
+    return new GLSLProcessor;
+}
+
+bool GrDomainEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
+    auto& td = sBase.cast<GrDomainEffect>();
+    return fDomain == td.fDomain && fDecalIsFiltered == td.fDecalIsFiltered;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDomainEffect);
+
+#if GR_TEST_UTILS
+std::unique_ptr<GrFragmentProcessor> GrDomainEffect::TestCreate(GrProcessorTestData* d) {
+    do {
+        GrTextureDomain::Mode modeX =
+                (GrTextureDomain::Mode)d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
+        GrTextureDomain::Mode modeY =
+                (GrTextureDomain::Mode)d->fRandom->nextULessThan(GrTextureDomain::kModeCount);
+        auto child = GrProcessorUnitTest::MakeChildFP(d);
+        const auto* childPtr = child.get();
+        SkRect domain;
+        // We assert if the child's coord transform has a proxy and the domain rect is outside its
+        // bounds.
+        GrFragmentProcessor::CoordTransformIter ctIter(*child);
+        if (!ctIter) {
+            continue;
+        }
+        auto [transform, fp] = *ctIter;
+        if (auto proxy = transform.proxy()) {
+            auto [w, h] = proxy->backingStoreDimensions();
+            domain.fLeft   = d->fRandom->nextRangeScalar(0, w);
+            domain.fRight  = d->fRandom->nextRangeScalar(0, w);
+            domain.fTop    = d->fRandom->nextRangeScalar(0, h);
+            domain.fBottom = d->fRandom->nextRangeScalar(0, h);
+        } else {
+            domain.fLeft   = d->fRandom->nextRangeScalar(-100.f, 100.f);
+            domain.fRight  = d->fRandom->nextRangeScalar(-100.f, 100.f);
+            domain.fTop    = d->fRandom->nextRangeScalar(-100.f, 100.f);
+            domain.fBottom = d->fRandom->nextRangeScalar(-100.f, 100.f);
+        }
+        domain.sort();
+        bool filterIfDecal = d->fRandom->nextBool();
+        auto result = GrDomainEffect::Make(std::move(child), domain, modeX, modeY, filterIfDecal);
+        if (result && result.get() != childPtr) {
+            return result;
+        }
+    } while (true);
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::Make(
         sk_sp<GrSurfaceProxy> proxy, const SkIRect& subset, const SkIPoint& deviceSpaceOffset) {
     return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceTextureDecalFragmentProcessor(

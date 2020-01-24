@@ -10,9 +10,11 @@
 
 #include "include/core/SkTypes.h"
 
-#include "include/core/SkYUVAIndex.h"
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrTextureDomain.h"
+
+#include "include/core/SkYUVAIndex.h"
 
 class GrYUVtoRGBEffect : public GrFragmentProcessor {
 public:
@@ -24,7 +26,6 @@ public:
                                                      const SkYUVAIndex indices[4],
                                                      SkYUVColorSpace yuvColorSpace,
                                                      GrSamplerState::Filter filterMode,
-                                                     const GrCaps&,
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
                                                      const SkRect* domain = nullptr);
 #ifdef SK_DEBUG
