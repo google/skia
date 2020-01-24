@@ -115,7 +115,9 @@ private:
     class GLFP : public GrGLSLFragmentProcessor {
     public:
         void emitCode(EmitArgs& args) override {
-            this->invokeChild(0, args);
+            SkString temp("inColor");
+            this->invokeChild(0, &temp, args);
+            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
         }
 
     private:

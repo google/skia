@@ -17,14 +17,6 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor, EmitArgs& args,
-                                          SkSL::String skslCoords) {
-    while (childIndex >= (int) fFunctionNames.size()) {
-        fFunctionNames.emplace_back();
-    }
-    this->internalInvokeChild(childIndex, inputColor, args.fOutputColor, args, skslCoords);
-}
-
 void GrGLSLFragmentProcessor::writeChildCall(GrGLSLFPFragmentBuilder* fragBuilder, int childIndex,
                                              TransformedCoordVars coordVars, const char* inputColor,
                                              const char* outputColor, EmitArgs& args,
