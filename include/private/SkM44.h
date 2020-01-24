@@ -44,8 +44,8 @@ struct SkV3 {
     SkScalar dot(const SkV3& v) const { return Dot(*this, v); }
     SkV3 cross(const SkV3& v) const { return Cross(*this, v); }
 
-    const float* vec() const { return &x; }
-    float* vec() { return &x; }
+    const float* ptr() const { return &x; }
+    float* ptr() { return &x; }
 };
 
 struct SkV4 {
@@ -68,10 +68,18 @@ struct SkV4 {
     }
     friend SkV4 operator*(SkScalar s, const SkV4& v) { return v*s; }
 
-    const float* vec() const { return &x; }
-    float* vec() { return &x; }
+    const float* ptr() const { return &x; }
+    float* ptr() { return &x; }
 };
 
+/**
+ *  4x4 matrix used by SkCanvas and other parts of Skia.
+ *
+ *  Skia assumes a right-handed coordinate system:
+ *      +X goes to the right
+ *      +Y goes down
+ *      +Z goes into the screen (away from the viewer)
+ */
 class SkM44 {
 public:
     SkM44(const SkM44& src) = default;
@@ -151,6 +159,12 @@ public:
                      0, 0, 0, 1);
     }
 
+    static SkM44 Rotate(SkV3 axis, SkScalar radians) {
+        SkM44 m(kUninitialized_Constructor);
+        m.setRotate(axis, radians);
+        return m;
+    }
+
     bool operator==(const SkM44& other) const;
     bool operator!=(const SkM44& other) const {
         return !(other == *this);
@@ -209,7 +223,7 @@ public:
     }
     void setCol(int i, const SkV4& v) {
         SkASSERT(i >= 0 && i <= 3);
-        memcpy(&fMat[i*4], v.vec(), sizeof(v));
+        memcpy(&fMat[i*4], v.ptr(), sizeof(v));
     }
 
     SkM44& setIdentity() {
@@ -232,6 +246,34 @@ public:
                            0, 0, z, 0,
                            0, 0, 0, 1);
     }
+
+    /**
+     *  Set this matrix to rotate about the specified unit-length axis vector,
+     *  by an angle specified by its sin() and cos().
+     *
+     *  This does not attempt to verify that axis.length() == 1 or that the sin,cos values
+     *  are correct.
+     */
+    SkM44& setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngle);
+
+    /**
+     *  Set this matrix to rotate about the specified unit-length axis vector,
+     *  by an angle specified in radians.
+     *
+     *  This does not attempt to verify that axis.length() == 1.
+     */
+    SkM44& setRotateUnit(SkV3 axis, SkScalar radians) {
+        return this->setRotateUnitSinCos(axis, SkScalarSin(radians), SkScalarCos(radians));
+    }
+
+    /**
+     *  Set this matrix to rotate about the specified axis vector,
+     *  by an angle specified in radians.
+     *
+     *  Note: axis is not assumed to be unit-length, so it will be normalized internally.
+     *        If axis is already unit-length, call setRotateAboutUnitRadians() instead.
+     */
+    SkM44& setRotate(SkV3 axis, SkScalar radians);
 
     SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
 
@@ -262,7 +304,7 @@ public:
     SkV4 operator*(const SkV4& v) const {
         return this->map(v.x, v.y, v.z, v.w);
     }
-    SkV3 operator*(const SkV3& v) const {
+    SkV3 operator*(SkV3 v) const {
         auto v4 = this->map(v.x, v.y, v.z, 0);
         return {v4.x, v4.y, v4.z};
     }
