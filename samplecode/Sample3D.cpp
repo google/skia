@@ -15,6 +15,73 @@
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
 
+static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
+
+struct SkVec2 {
+    SkScalar x, y;
+
+    bool operator==(const SkVec2 v) const { return x == v.x && y == v.y; }
+    bool operator!=(const SkVec2 v) const { return !(*this == v); }
+
+    static SkScalar   Dot(SkVec2 a, SkVec2 b) { return a.x * b.x + a.y * b.y; }
+    static SkScalar Cross(SkVec2 a, SkVec2 b) { return a.x * b.y - a.y * b.x; }
+
+    SkVec2 operator-() const { return {-x, -y}; }
+    SkVec2 operator+(SkVec2 v) { return {x+v.x, y+v.y}; }
+    SkVec2 operator-(SkVec2 v) { return {x-v.x, y-v.y}; }
+
+    SkVec2 operator*(SkVec2 v) { return {x*v.x, y*v.y}; }
+    friend SkVec2 operator*(SkVec2 v, SkScalar s) { return {v.x*s, v.y*s}; }
+    friend SkVec2 operator*(SkScalar s, SkVec2 v) { return {v.x*s, v.y*s}; }
+
+    void operator+=(SkVec2 v) { *this = *this + v; }
+    void operator-=(SkVec2 v) { *this = *this - v; }
+    void operator*=(SkVec2 v) { *this = *this * v; }
+    void operator*=(SkScalar s) { *this = *this * s; }
+
+    SkScalar lengthSquared() const { return Dot(*this, *this); }
+    SkScalar length() const { return SkScalarSqrt(this->lengthSquared()); }
+
+    SkScalar   dot(SkVec2 v) const { return Dot(*this, v); }
+    SkScalar cross(SkVec2 v) const { return Cross(*this, v); }
+};
+
+static SkVec2 normalize(SkVec2 v) {
+    SkScalar len = v.length();
+    SkASSERT(len > 0);
+    return v * (1.0f / len);
+}
+
+struct VSphere {
+    SkVec2 fCenter;
+    SkScalar fRadius;
+
+    VSphere(SkVec2 center, SkScalar radius) : fCenter(center), fRadius(radius) {}
+
+    SkV3 computeUnitV3(SkVec2 v) {
+        v = (v - fCenter) * (1 / fRadius);
+        SkScalar len2 = v.lengthSquared();
+        if (len2 > 1) {
+            v = normalize(v);
+            len2 = 1;
+        }
+        SkScalar z = SkScalarSqrt(1 - len2);
+        return normalize({v.x, v.y, z});
+    }
+
+    SkM44 computeRotation(SkVec2 a, SkVec2 b) {
+        SkV3 u = this->computeUnitV3(a);
+        SkV3 v = this->computeUnitV3(b);
+        SkV3 axis = u.cross(v);
+        SkScalar sinValue = axis.length();
+        SkScalar cosValue = u.dot(v);
+        SkM44 m;
+        m.setRotateUnitSinCos(axis, sinValue, cosValue);
+        return m;
+    }
+};
+
+
 static SkMatrix44 inv(const SkMatrix44& m) {
     SkMatrix44 inverse;
     SkAssertResult(m.invert(&inverse));
@@ -160,8 +227,6 @@ const Face faces[] = {
 
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkColorMatrix.h"
-
-static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
 
 static SkColorMatrix comput_planar_lighting(SkCanvas* canvas, SkV3 lightDir) {
     SkM44 l2w = canvas->experimental_getLocalToWorld();
@@ -449,11 +514,16 @@ class SampleBump3D : public Sample3DView {
     SkRRect fRR;
     LightPos fLight = {{200, 200, 800, 1}, 8};
 
+    VSphere fSphere;
+
     sk_sp<SkShader> fBmpShader, fImgShader;
     sk_sp<SkRuntimeEffect> fEffect;
 
     SkM44 fWorldToClick,
           fClickToWorld;
+
+public:
+    SampleBump3D() : fSphere({200, 200}, 400) {}
 
     SkString name() override { return SkString("bump3d"); }
 
@@ -567,8 +637,20 @@ class SampleBump3D : public Sample3DView {
         }
 
         fLight.draw(canvas);
-        canvas->restore();
-        canvas->restore();
+        canvas->restore();  // camera
+
+        {
+            SkPaint paint;
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setColor(0x80FF0000);
+            canvas->drawCircle(fSphere.fCenter.x, fSphere.fCenter.y, fSphere.fRadius, paint);
+            canvas->drawLine(fSphere.fCenter.x, fSphere.fCenter.y - fSphere.fRadius,
+                             fSphere.fCenter.x, fSphere.fCenter.y + fSphere.fRadius, paint);
+            canvas->drawLine(fSphere.fCenter.x - fSphere.fRadius, fSphere.fCenter.y,
+                             fSphere.fCenter.x + fSphere.fRadius, fSphere.fCenter.y, paint);
+        }
+
+        canvas->restore();  // center the content in the window
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
@@ -586,4 +668,4 @@ class SampleBump3D : public Sample3DView {
         return true;
     }
 };
-DEF_SAMPLE( return new SampleBump3D(); )
+DEF_SAMPLE( return new SampleBump3D; )
