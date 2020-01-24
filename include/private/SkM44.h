@@ -72,6 +72,14 @@ struct SkV4 {
     float* vec() { return &x; }
 };
 
+/**
+ *  4x4 matrix used by SkCanvas and other parts of Skia.
+ *
+ *  Skia assumes a right-handed coordinate system:
+ *      +X goes to the right
+ *      +Y goes down
+ *      +Z goes into the screen (away from the viewer)
+ */
 class SkM44 {
 public:
     SkM44(const SkM44& src) = default;
@@ -232,6 +240,34 @@ public:
                            0, 0, z, 0,
                            0, 0, 0, 1);
     }
+
+    /**
+     *  Set this matrix to rotate about the specified unit-length axis vector,
+     *  by an angle specified by its sin() and cos().
+     *
+     *  This does not attempt to verify that axis.length() == 1 or that the sin,cos values
+     *  are correct.
+     */
+    SkM44& setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngle);
+
+    /**
+     *  Set this matrix to rotate about the specified unit-length axis vector,
+     *  by an angle specified in radians.
+     *
+     *  This does not attempt to verify that axis.length() == 1.
+     */
+    SkM44& setRotateUnit(SkV3 axis, SkScalar radians) {
+        return this->setRotateUnitSinCos(axis, SkScalarSin(radians), SkScalarCos(radians));
+    }
+
+    /**
+     *  Set this matrix to rotate about the specified axis vector,
+     *  by an angle specified in radians.
+     *
+     *  Note: axis is not assumed to be unit-length, so it will be normalized internally.
+     *        If axis is already unit-length, call setRotateAboutUnitRadians() instead.
+     */
+    SkM44& setRotate(SkV3 axis, SkScalar radians);
 
     SkM44& setConcat16(const SkM44& a, const SkScalar colMajor[16]);
 
