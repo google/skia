@@ -28,15 +28,15 @@ public:
         weightVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType, "weight");
         SkString _input1278 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample1278("_sample1278");
-        this->invokeChild(_outer.fp0_index, _input1278.c_str(), &_sample1278, args);
+        SkString _sample1278;
+        _sample1278 = this->invokeChild(_outer.fp0_index, _input1278.c_str(), args);
         fragBuilder->codeAppendf("half4 in0 = %s;", _sample1278.c_str());
         SkString _input1335 = SkStringPrintf("%s", args.fInputColor);
-        SkString _sample1335("_sample1335");
+        SkString _sample1335;
         if (_outer.fp1_index >= 0) {
-            this->invokeChild(_outer.fp1_index, _input1335.c_str(), &_sample1335, args);
+            _sample1335 = this->invokeChild(_outer.fp1_index, _input1335.c_str(), args);
         } else {
-            fragBuilder->codeAppendf("half4 %s;", _sample1335.c_str());
+            _sample1335 = "half4(1)";
         }
         fragBuilder->codeAppendf("\nhalf4 in1 = %s ? %s : %s;\n%s = mix(in0, in1, %s);\n",
                                  _outer.fp1_index >= 0 ? "true" : "false", _sample1335.c_str(),

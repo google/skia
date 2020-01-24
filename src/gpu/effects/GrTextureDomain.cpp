@@ -93,9 +93,7 @@ void GrTextureDomain::GLDomain::sampleProcessor(const GrTextureDomain& textureDo
                                                 GrGLSLFragmentProcessor::EmitArgs& args,
                                                 int childIndex) {
     auto appendProcessorSample = [parent, &args, childIndex, inColor](const char* coord) {
-        SkString outColor("childColor");
-        parent->invokeChild(childIndex, inColor, &outColor, args, coord);
-        return outColor;
+        return parent->invokeChild(childIndex, inColor, args, coord);
     };
     this->sample(args.fFragBuilder, args.fUniformHandler, textureDomain, outColor, inCoords,
                  appendProcessorSample);

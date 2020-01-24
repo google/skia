@@ -96,8 +96,7 @@ public:
             : SkString("sk_FragCoord");
         std::vector<SkString> childNames;
         for (int i = 0; i < this->numChildProcessors(); ++i) {
-            childNames.push_back(SkStringPrintf("_child%d", i));
-            this->invokeChild(i, &childNames[i], args);
+            childNames.push_back(this->invokeChild(i, args));
         }
         for (const auto& f : fArgs.fFunctions) {
             fFunctionNames.emplace_back();
