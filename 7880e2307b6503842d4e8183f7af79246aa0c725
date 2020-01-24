@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78764f16_f77a998f",
+        "filename": "tests/ProgramsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-24T15:26:53Z",
+      "side": 1,
+      "message": "Assuming my next CL to have invokeChild return a string containing the actual call works out, this kind of boilerplate won\u0027t be quite as bad:\n\nargs.fFragBuilder-\u003ecodeAppendf(\"%s \u003d %s;\", args.fOutputColor,\n                                           this-\u003einvokeChild(0, args).c_str());",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 88
+      },
+      "revId": "7880e2307b6503842d4e8183f7af79246aa0c725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
