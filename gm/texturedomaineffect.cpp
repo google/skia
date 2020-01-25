@@ -110,6 +110,13 @@ protected:
                               fBitmap.width() / 2 + 2, fBitmap.height() / 2 + 2),
         };
 
+        sk_sp<GrTextureProxy> subsetProxies[SK_ARRAY_COUNT(texelDomains)];
+        for (size_t d = 0; d < SK_ARRAY_COUNT(texelDomains); ++d) {
+            SkBitmap subset;
+            fBitmap.extractSubset(&subset, texelDomains[d]);
+            subsetProxies[d] = proxyProvider->createProxyFromBitmap(subset, mipMapped);
+        }
+
         SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);
 
         SkScalar y = kDrawPad + kTestPad;
@@ -136,23 +143,30 @@ protected:
                     if (!fp1) {
                         continue;
                     }
-                    auto fp2 = fp1->clone();
-                    SkASSERT(fp2);
                     auto drawRect = localRect.makeOffset(x, y);
-                    if (auto op = sk_gpu_test::test_ops::MakeRect(
-                                context, std::move(fp1), drawRect, localRect)) {
-                        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
-                    }
-                    x += localRect.width() + kTestPad;
-                    // Draw again with a translated local rect and compensating translate matrix.
-                    drawRect = localRect.makeOffset(x, y);
+                    // Throw a translate in the local matrix just to test having something other
+                    // than identity. Compensate with an offset local rect.
                     static constexpr SkVector kT = {-100, 300};
-
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context,
-                                                                  std::move(fp2),
+                                                                  std::move(fp1),
                                                                   drawRect,
                                                                   localRect.makeOffset(kT),
                                                                   SkMatrix::MakeTrans(-kT))) {
+                        renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
+                    }
+                    x += localRect.width() + kTestPad;
+
+                    SkMatrix subsetTextureMatrix = SkMatrix::Concat(
+                            SkMatrix::MakeTrans(-texelDomains[d].topLeft()), textureMatrices[tm]);
+
+                    // Now draw with a subsetted proxy using fixed function texture sampling rather
+                    // than a texture subset as a comparison.
+                    drawRect = localRect.makeOffset(x, y);
+                    auto fp2 = GrTextureEffect::Make(subsetProxies[d], fBitmap.alphaType(),
+                                                     subsetTextureMatrix,
+                                                     GrSamplerState(wm, fFilter), caps);
+                    if (auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(fp2), drawRect,
+                                                                  localRect)) {
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
                     x += localRect.width() + kTestPad;
