@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkM44.h"
@@ -14,26 +15,10 @@
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
 
-static SkM44 toM4(const SkMatrix44& m) {
-    float a[16];
-    m.asColMajorf(a);
-    SkM44 m4;
-    m4.setColMajor(a);
-    return m4;
-}
-
-static SkPoint3 toP3(SkV3 v) { return {v.x, v.y, v.z}; }
-
-static SkM44 Sk3Perspective(SkScalar near, SkScalar far, SkScalar angle) {
-    SkMatrix44 mx;
-    Sk3Perspective(&mx, near, far, angle);
-    return toM4(mx);
-}
-
-static SkM44 Sk3LookAt(SkV3 eye, SkV3 coa, SkV3 up) {
-    SkMatrix44 mx;
-    Sk3LookAt(&mx, toP3(eye), toP3(coa), toP3(up));
-    return toM4(mx);
+static SkMatrix44 inv(const SkMatrix44& m) {
+    SkMatrix44 inverse;
+    SkAssertResult(m.invert(&inverse));
+    return inverse;
 }
 
 static SkM44 inv(const SkM44& m) {
@@ -53,32 +38,35 @@ protected:
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 12;
 
-    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
-    SkV3    fCOA { 0, 0, 0 };
-    SkV3    fUp  { 0, 1, 0 };
+    SkPoint3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkPoint3    fCOA { 0, 0, 0 };
+    SkPoint3    fUp  { 0, 1, 0 };
 
-    SkM44  fRot;
-    SkV3   fTrans;
+    SkMatrix44  fRot;
+    SkPoint3    fTrans;
 
     void rotate(float x, float y, float z) {
-        SkM44 r;
+        SkMatrix44 r;
         if (x) {
-            r.setRotateUnit({1, 0, 0}, x);
+            r.setRotateAboutUnit(1, 0, 0, x);
         } else if (y) {
-            r.setRotateUnit({0, 1, 0}, y);
+            r.setRotateAboutUnit(0, 1, 0, y);
         } else {
-            r.setRotateUnit({0, 0, 1}, z);
+            r.setRotateAboutUnit(0, 0, 1, z);
         }
-        fRot = r * fRot;
+        fRot.postConcat(r);
     }
 
 public:
     void saveCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
-        SkM44  camera = Sk3Perspective(fNear, fFar, fAngle),
-               perspective = Sk3LookAt(fEye, fCOA, fUp);
+        SkMatrix44  camera,
+                    perspective,
+                    viewport;
 
-        SkM44 viewport = SkM44::Translate(area.centerX(), area.centerY(), 0) *
-                         SkM44::Scale(area.width()*0.5f, area.height()*0.5f, zscale);
+        Sk3Perspective(&perspective, fNear, fFar, fAngle);
+        Sk3LookAt(&camera, fEye, fCOA, fUp);
+        viewport.setScale(area.width()*0.5f, area.height()*0.5f, zscale)
+                .postTranslate(area.centerX(), area.centerY(), 0);
 
         // want "world" to be in our big coordinates (e.g. area), so apply this inverse
         // as part of our "camera".
@@ -95,8 +83,8 @@ public:
             case '-': this->rotate(0, 0,  delta); return true;
             case '+': this->rotate(0, 0, -delta); return true;
 
-            case 'i': fTrans.z += 0.1f; SkDebugf("z %g\n", fTrans.z); return true;
-            case 'k': fTrans.z -= 0.1f; SkDebugf("z %g\n", fTrans.z); return true;
+            case 'i': fTrans.fZ += 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
+            case 'k': fTrans.fZ -= 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
 
             case 'n': fNear += 0.1f; SkDebugf("near %g\n", fNear); return true;
             case 'N': fNear -= 0.1f; SkDebugf("near %g\n", fNear); return true;
@@ -108,12 +96,42 @@ public:
     }
 };
 
+static SkMatrix44 RX(SkScalar rad) {
+    SkScalar c = SkScalarCos(rad), s = SkScalarSin(rad);
+    SkMatrix44 m;
+    m.set3x3(1, 0, 0,
+             0, c, s,
+             0,-s, c);
+    return m;
+}
+
+static SkMatrix44 RY(SkScalar rad) {
+    SkScalar c = SkScalarCos(rad), s = SkScalarSin(rad);
+    SkMatrix44 m;
+    m.set3x3( c, 0,-s,
+              0, 1, 0,
+              s, 0, c);
+    return m;
+}
+
 struct Face {
     SkScalar fRx, fRy;
     SkColor  fColor;
 
-    SkM44 asM44(SkScalar scale) const {
-        return SkM44::Rotate({0,1,0}, fRy) * SkM44::Rotate({1,0,0}, fRx) * SkM44::Translate(0, 0, scale);
+    static SkMatrix44 T(SkScalar x, SkScalar y, SkScalar z) {
+        SkMatrix44 m;
+        m.setTranslate(x, y, z);
+        return m;
+    }
+
+    static SkMatrix44 R(SkScalar x, SkScalar y, SkScalar z, SkScalar rad) {
+        SkMatrix44 m;
+        m.setRotateAboutUnit(x, y, z, rad);
+        return m;
+    }
+
+    SkMatrix44 asM44(SkScalar scale) const {
+        return RY(fRy) * RX(fRx) * T(0, 0, scale);
     }
 };
 
@@ -219,8 +237,9 @@ class SampleRR3D : public Sample3DView {
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m) {
-        auto trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+    void drawContent(SkCanvas* canvas, const SkMatrix44& m) {
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
 
         canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
@@ -354,8 +373,9 @@ class SamplePointLight3D : public Sample3DView {
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m, SkColor color) {
-        auto trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+    void drawContent(SkCanvas* canvas, const SkMatrix44& m, SkColor color) {
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
 
         canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
@@ -487,8 +507,9 @@ class SampleBump3D : public Sample3DView {
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m, SkColor color) {
-        auto trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+    void drawContent(SkCanvas* canvas, const SkMatrix44& m, SkColor color) {
+        SkMatrix44 trans;
+        trans.setTranslate(200, 200, 0);   // center of the rotation
 
         canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
