@@ -8,16 +8,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMatrix44.h"
 #include "include/private/SkM44.h"
 #include "tools/timer/TimeUtils.h"
-
-static SkM44 rotate_axis_angle(SkScalar x, SkScalar y, SkScalar z, SkScalar radians) {
-    // SkM44 doesn't expose any rotation factories yet
-    SkMatrix44 m;
-    m.setRotateAboutUnit(x, y, z, radians);
-    return SkM44(m);
-}
 
 // Adapted from https://codepen.io/adamdupuis/pen/qLYzqB
 class CrBug224618GM : public skiagm::GM {
@@ -50,7 +42,7 @@ protected:
                    0.f, 0.f, -1.f / radius, 1.f};
         SkM44 zoom             = SkM44::Translate(0.f, 0.f, radius);
         SkM44 postZoom         = SkM44::Translate(0.f, 0.f, -radius - 1.f);
-        SkM44 rotateHorizontal = rotate_axis_angle(0.f, 1.f, 0.f, 2.356194490192345f);
+        SkM44 rotateHorizontal = SkM44::Rotate({0, 1, 0}, 2.356194490192345f);
 
         // w in degrees will need to be converted to radians
         SkV4 axisAngles[6] = {
@@ -70,7 +62,7 @@ protected:
             SkColorSetARGB(0xFF, 0x80, 0x00, 0x80)  // purple css
         };
         for (int i = 0; i < 6; ++i) {
-            SkM44 model = rotate_axis_angle(axisAngles[i].x, axisAngles[i].y, axisAngles[i].z,
+            SkM44 model = SkM44::Rotate({axisAngles[i].x, axisAngles[i].y, axisAngles[i].z},
                                             SkDegreesToRadians(axisAngles[i].w));
             model = SkM44::Translate(radius, radius) * proj *    // project and place content
                     zoom * rotateHorizontal * model * postZoom * // main model matrix

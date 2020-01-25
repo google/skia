@@ -14,6 +14,7 @@
 #include "samplecode/Sample.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkPathPriv.h"
+#include "tools/Resources.h"
 
 constexpr int W = 150;
 constexpr int H = 200;
@@ -423,38 +424,11 @@ class HalfPlaneView2 : public Sample {
 };
 DEF_SAMPLE( return new HalfPlaneView2(); )
 
-#include "include/core/SkMatrix44.h"
-#include "include/utils/Sk3D.h"
-#include "tools/Resources.h"
-
-static SkMatrix44 inv(const SkMatrix44& m) {
-    SkMatrix44 inverse;
+static SkM44 inv(const SkM44& m) {
+    SkM44 inverse;
     SkAssertResult(m.invert(&inverse));
     return inverse;
 }
-
-#if 0   // Jim's general half-planes math
-static void half_planes(const SkMatrix44& m44, SkScalar W, SkScalar H, SkHalfPlane planes[6]) {
-    float mx[16];
-    m44.asColMajorf(mx);
-
-    SkScalar a = mx[0], b = mx[4], /* c = mx[ 8], */ d = mx[12],
-             e = mx[1], f = mx[5], /* g = mx[ 9], */ h = mx[13],
-             i = mx[2], j = mx[6], /* k = mx[10], */ l = mx[14],
-             m = mx[3], n = mx[7], /* o = mx[11], */ p = mx[15];
-
-    a = 2*a/W - m;  b = 2*b/W - n;  d = 2*d/W - p;
-    e = 2*e/H - m;  f = 2*f/H - n;  h = 2*h/H - p;
-//    i = 2*i   - m;  j = 2*j   - n;  l = 2*l   - p;
-
-    planes[0] = { m - a, n - b, p - d }; // w - x
-    planes[1] = { m + a, n + b, p + d }; // w + x
-    planes[2] = { m - e, n - f, p - h }; // w - y
-    planes[3] = { m + e, n + f, p + h }; // w + y
-    planes[4] = { m - i, n - j, p - l }; // w - z
-    planes[5] = { m + i, n + j, p + l }; // w + z
-}
-#endif
 
 static SkHalfPlane half_plane_w0(const SkMatrix& m) {
     return { m[SkMatrix::kMPersp0], m[SkMatrix::kMPersp1], m[SkMatrix::kMPersp2] - 0.05f };
@@ -465,39 +439,35 @@ class SampleCameraView : public Sample {
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
 
-    SkPoint3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
-    SkPoint3    fCOA { 0, 0, 0 };
-    SkPoint3    fUp  { 0, 1, 0 };
+    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkV3    fCOA { 0, 0, 0 };
+    SkV3    fUp  { 0, 1, 0 };
 
-    SkMatrix44  fRot;
-    SkPoint3    fTrans;
+    SkM44  fRot;
+    SkV3   fTrans;
 
     void rotate(float x, float y, float z) {
-        SkMatrix44 r;
+        SkM44 r;
         if (x) {
-            r.setRotateAboutUnit(1, 0, 0, x);
+            r.setRotateUnit({1, 0, 0}, x);
         } else if (y) {
-            r.setRotateAboutUnit(0, 1, 0, y);
+            r.setRotateUnit({0, 1, 0}, y);
         } else {
-            r.setRotateAboutUnit(0, 0, 1, z);
+            r.setRotateUnit({0, 0, 1}, z);
         }
-        fRot.postConcat(r);
+        fRot = r * fRot;
     }
 
 public:
-    SkMatrix44 get44(const SkRect& r) const {
-        SkMatrix44  camera,
-                    perspective,
-                    translate,
-                    viewport;
-
+    SkM44 get44(const SkRect& r) const {
         SkScalar w = r.width();
         SkScalar h = r.height();
 
-        Sk3Perspective(&perspective, fNear, fFar, fAngle);
-        Sk3LookAt(&camera, fEye, fCOA, fUp);
-        translate.setTranslate(fTrans.fX, fTrans.fY, fTrans.fZ);
-        viewport.setScale(w*0.5f, h*0.5f, 1).postTranslate(r.centerX(), r.centerY(), 0);
+        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
+              perspective = Sk3Perspective(fNear, fFar, fAngle),
+              translate = SkM44::Translate(fTrans.x, fTrans.y, fTrans.z),
+              viewport = SkM44::Translate(r.centerX(), r.centerY(), 0) *
+                         SkM44::Scale(w*0.5f, h*0.5f, 1);
 
         return viewport * perspective * camera * translate * fRot * inv(viewport);
     }
@@ -512,8 +482,8 @@ public:
             case '-': this->rotate(0, 0,  delta); return true;
             case '+': this->rotate(0, 0, -delta); return true;
 
-            case 'i': fTrans.fZ += 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
-            case 'k': fTrans.fZ -= 0.1f; SkDebugf("z %g\n", fTrans.fZ); return true;
+            case 'i': fTrans.z += 0.1f; SkDebugf("z %g\n", fTrans.z); return true;
+            case 'k': fTrans.z -= 0.1f; SkDebugf("z %g\n", fTrans.z); return true;
 
             case 'n': fNear += 0.1f; SkDebugf("near %g\n", fNear); return true;
             case 'N': fNear -= 0.1f; SkDebugf("near %g\n", fNear); return true;
@@ -547,7 +517,7 @@ class HalfPlaneView3 : public SampleCameraView {
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkMatrix44 mx = this->get44({0, 0, 400, 400});
+        SkM44 mx = this->get44({0, 0, 400, 400});
 
         SkPaint paint;
         paint.setColor({0.75, 0.75, 0.75, 1});
@@ -567,7 +537,7 @@ class HalfPlaneView3 : public SampleCameraView {
 
         SkColor planeColor = SK_ColorBLUE;
         SkPath clippedPath, *path = &fPath;
-        if (SkPathPriv::PerspectiveClip(fPath, SkMatrix(mx), &clippedPath)) {
+        if (SkPathPriv::PerspectiveClip(fPath, mx.asM33(), &clippedPath)) {
             path = &clippedPath;
             planeColor = SK_ColorRED;
         }
@@ -576,7 +546,7 @@ class HalfPlaneView3 : public SampleCameraView {
         canvas->drawPath(*path, paint);
         canvas->restore();
 
-        SkHalfPlane hpw = half_plane_w0(SkMatrix(mx));
+        SkHalfPlane hpw = half_plane_w0(mx.asM33());
         draw_halfplane(canvas, hpw, planeColor);
     }
 };
