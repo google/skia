@@ -735,12 +735,26 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
-int SkCanvas::experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
+int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
     this->experimental_concat44(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     return n;
+}
+
+int SkCanvas::experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
+    SkScalar proj[16], cam[16];
+    projection.asColMajorf(proj);
+    camera.asColMajorf(cam);
+    return this->experimental_saveCamera(proj, cam);
+}
+
+int SkCanvas::experimental_saveCamera(const SkScalar projection[], const SkScalar camera[]) {
+    SkM44 proj, cam;
+    proj.setColMajor(projection);
+    cam.setColMajor(camera);
+    return this->experimental_saveCamera(proj, cam);
 }
 
 void SkCanvas::restore() {
