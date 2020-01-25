@@ -756,9 +756,7 @@ public:
     */
     int saveLayer(const SaveLayerRec& layerRec);
 
-    int experimental_saveCamera(const SkM44& projection, const SkM44& camera);
     int experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera);
-    int experimental_saveCamera(const SkScalar projection[16], const SkScalar camera[16]);
 
     /** Removes changes to SkMatrix and clip since SkCanvas state was
         last saved. The state is removed from the stack.
