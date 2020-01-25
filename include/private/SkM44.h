@@ -11,8 +11,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
 
-class SkMatrix44;
-
 struct SkV3 {
     float x, y, z;
 
@@ -124,9 +122,6 @@ public:
                     m2, m6, m10, m14,
                     m3, m7, m11, m15);
     }
-
-    SkM44(const SkMatrix44&);
-    SkM44& operator=(const SkMatrix44&);
 
     static SkM44 Rows(const SkV4& r0, const SkV4& r1, const SkV4& r2, const SkV4& r3) {
         SkM44 m(kUninitialized_Constructor);
@@ -355,5 +350,8 @@ private:
 
     friend class SkMatrixPriv;
 };
+
+SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up);
+SkM44 Sk3Perspective(float near, float far, float angle);
 
 #endif
