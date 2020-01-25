@@ -10,7 +10,6 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
-#include "include/core/SkMatrix44.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRRect.h"
@@ -735,12 +734,20 @@ void SkCanvas::doSave() {
     this->internalSave();
 }
 
-int SkCanvas::experimental_saveCamera(const SkMatrix44& projection, const SkMatrix44& camera) {
+int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
     // TODO: add a virtual for this, and update clients (e.g. chrome)
     int n = this->save();
     this->experimental_concat44(projection * camera);
     fCameraStack.push_back(CameraRec(fMCRec, camera));
     return n;
+}
+
+int SkCanvas::experimental_saveCamera(const SkScalar projection[16],
+                                      const SkScalar camera[16]) {
+    SkM44 proj, cam;
+    proj.setColMajor(projection);
+    cam.setColMajor(camera);
+    return this->experimental_saveCamera(proj, cam);
 }
 
 void SkCanvas::restore() {
@@ -1510,10 +1517,6 @@ void SkCanvas::experimental_concat44(const SkScalar m[16]) {
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
     this->didConcat44(m);
-}
-
-void SkCanvas::experimental_concat44(const SkMatrix44& m) {
-    this->experimental_concat44(m.values());
 }
 
 void SkCanvas::experimental_concat44(const SkM44& m) {

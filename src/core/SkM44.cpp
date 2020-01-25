@@ -6,20 +6,10 @@
  */
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMatrix44.h"
 #include "include/private/SkM44.h"
 #include "include/private/SkVx.h"
 
 typedef skvx::Vec<4, float> sk4f;
-
-SkM44::SkM44(const SkMatrix44& m) {
-    memcpy(fMat, m.fMat, 16 * sizeof(SkScalar));
-}
-
-SkM44& SkM44::operator=(const SkMatrix44& m) {
-    memcpy(fMat, m.fMat, 16 * sizeof(SkScalar));
-    return *this;
-}
 
 bool SkM44::operator==(const SkM44& other) const {
     if (this == &other) {
@@ -294,4 +284,34 @@ void SkM44::dump() const {
              fMat[1], fMat[5], fMat[9],  fMat[13],
              fMat[2], fMat[6], fMat[10], fMat[14],
              fMat[3], fMat[7], fMat[11], fMat[15]);
+}
+
+static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
+
+static SkV4 v4(SkV3 v, SkScalar w) { return {v.x, v.y, v.z, w}; }
+
+SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up) {
+    SkV3 f = normalize(center - eye);
+    SkV3 u = normalize(up);
+    SkV3 s = normalize(f.cross(u));
+
+    SkM44 m(SkM44::kUninitialized_Constructor);
+    (void)SkM44::Cols(v4(s, 0), v4(s.cross(f), 0), v4(-f, 0), v4(eye, 1)).invert(&m);
+    return m;
+}
+
+SkM44 Sk3Perspective(float near, float far, float angle) {
+    SkASSERT(far > near);
+
+    float denomInv = sk_ieee_float_divide(1, far - near);
+    float halfAngle = angle * 0.5f;
+    float cot = sk_float_cos(halfAngle) / sk_float_sin(halfAngle);
+
+    SkM44 m;
+    m.setRC(0, 0, cot);
+    m.setRC(1, 1, cot);
+    m.setRC(2, 2, (far + near) * denomInv);
+    m.setRC(2, 3, 2 * far * near * denomInv);
+    m.setRC(3, 2, -1);
+    return m;
 }
