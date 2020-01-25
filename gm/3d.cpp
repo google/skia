@@ -14,27 +14,25 @@ struct Info {
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
 
-    SkPoint3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
-    SkPoint3    fCOA { 0, 0, 0 };
-    SkPoint3    fUp  { 0, 1, 0 };
+    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkV3    fCOA { 0, 0, 0 };
+    SkV3    fUp  { 0, 1, 0 };
 };
 
-static SkMatrix44 inv(const SkMatrix44& m) {
-    SkMatrix44 inverse;
+static SkM44 inv(const SkM44& m) {
+    SkM44 inverse;
     m.invert(&inverse);
     return inverse;
 }
 
-static SkMatrix44 make_ctm(const Info& info, const SkMatrix44& model, SkSize size) {
-    SkMatrix44  camera,
-                perspective,
-                viewport;
+static SkM44 make_ctm(const Info& info, const SkM44& model, SkSize size) {
+    SkM44  camera, perspective, viewport;
 
     SkScalar w = size.width();
     SkScalar h = size.height();
 
-    Sk3Perspective(&perspective, info.fNear, info.fFar, info.fAngle);
-    Sk3LookAt(&camera, info.fEye, info.fCOA, info.fUp);
+    perspective = Sk3Perspective(info.fNear, info.fFar, info.fAngle);
+    camera = Sk3LookAt(info.fEye, info.fCOA, info.fUp);
     viewport.setScale(w*0.5f, h*0.5f, 1);//.postTranslate(r.centerX(), r.centerY(), 0);
 
     return viewport * perspective * camera * model * inv(viewport);
@@ -48,8 +46,7 @@ static void do_draw(SkCanvas* canvas, SkColor color) {
 
     Info info;
 
-    SkMatrix44 m;
-    m.setRotateDegreesAbout(0, 1, 0, 30);
+    SkM44 m = SkM44::Rotate({0, 1, 0}, SK_ScalarPI/6);
 
     canvas->experimental_concat44(make_ctm(info, m, {300, 300}));
 
