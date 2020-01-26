@@ -1847,6 +1847,18 @@ SkM44 SkCanvas::experimental_getLocalToCamera() const {
     }
 }
 
+void SkCanvas::experimental_getLocalToDevice(SkScalar colMajor[16]) const {
+    this->experimental_getLocalToDevice().getColMajor(colMajor);
+}
+
+void SkCanvas::experimental_getLocalToWorld(SkScalar colMajor[16]) const {
+    this->experimental_getLocalToWorld().getColMajor(colMajor);
+}
+
+void SkCanvas::experimental_getLocalToCamera(SkScalar colMajor[16]) const {
+    this->experimental_getLocalToCamera().getColMajor(colMajor);
+}
+
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {
     SkBaseDevice* dev = this->getTopDevice();
     return dev ? dev->accessRenderTargetContext() : nullptr;
