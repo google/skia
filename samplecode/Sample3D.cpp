@@ -14,6 +14,79 @@
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
 
+static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
+
+struct SkVec2 {
+    SkScalar x, y;
+
+    bool operator==(const SkVec2 v) const { return x == v.x && y == v.y; }
+    bool operator!=(const SkVec2 v) const { return !(*this == v); }
+
+    static SkScalar   Dot(SkVec2 a, SkVec2 b) { return a.x * b.x + a.y * b.y; }
+    static SkScalar Cross(SkVec2 a, SkVec2 b) { return a.x * b.y - a.y * b.x; }
+
+    SkVec2 operator-() const { return {-x, -y}; }
+    SkVec2 operator+(SkVec2 v) { return {x+v.x, y+v.y}; }
+    SkVec2 operator-(SkVec2 v) { return {x-v.x, y-v.y}; }
+
+    SkVec2 operator*(SkVec2 v) { return {x*v.x, y*v.y}; }
+    friend SkVec2 operator*(SkVec2 v, SkScalar s) { return {v.x*s, v.y*s}; }
+    friend SkVec2 operator*(SkScalar s, SkVec2 v) { return {v.x*s, v.y*s}; }
+
+    void operator+=(SkVec2 v) { *this = *this + v; }
+    void operator-=(SkVec2 v) { *this = *this - v; }
+    void operator*=(SkVec2 v) { *this = *this * v; }
+    void operator*=(SkScalar s) { *this = *this * s; }
+
+    SkScalar lengthSquared() const { return Dot(*this, *this); }
+    SkScalar length() const { return SkScalarSqrt(this->lengthSquared()); }
+
+    SkScalar   dot(SkVec2 v) const { return Dot(*this, v); }
+    SkScalar cross(SkVec2 v) const { return Cross(*this, v); }
+};
+
+static SkVec2 normalize(SkVec2 v) {
+    SkScalar len = v.length();
+    SkASSERT(len > 0);
+    return v * (1.0f / len);
+}
+
+struct VSphere {
+    SkVec2 fCenter;
+    SkScalar fRadius;
+
+    VSphere(SkVec2 center, SkScalar radius) : fCenter(center), fRadius(radius) {}
+
+    bool contains(SkVec2 v) const {
+        return (v - fCenter).length() <= fRadius;
+    }
+
+    SkV3 computeUnitV3(SkVec2 v) {
+        v = (v - fCenter) * (1 / fRadius);
+        SkScalar len2 = v.lengthSquared();
+        if (len2 > 1) {
+            v = normalize(v);
+            len2 = 1;
+        }
+        SkScalar z = SkScalarSqrt(1 - len2);
+        return {v.x, v.y, z};
+    }
+
+    SkM44 computeRotation(SkVec2 a, SkVec2 b) {
+        SkV3 u = this->computeUnitV3(a);
+        SkV3 v = this->computeUnitV3(b);
+        SkV3 axis = u.cross(v);
+        SkScalar sinValue = axis.length();
+        SkScalar cosValue = u.dot(v);
+
+        SkM44 m;
+        if (!SkScalarNearlyZero(sinValue)) {
+            m.setRotateUnitSinCos(axis * (1.0f / sinValue), sinValue, cosValue);
+        }
+        return m;
+    }
+};
+
 static SkM44 inv(const SkM44& m) {
     SkM44 inverse;
     SkAssertResult(m.invert(&inverse));
@@ -127,8 +200,6 @@ const Face faces[] = {
 
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkColorMatrix.h"
-
-static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
 
 static SkColorMatrix comput_planar_lighting(SkCanvas* canvas, SkV3 lightDir) {
     SkM44 l2w = canvas->experimental_getLocalToWorld();
@@ -414,11 +485,19 @@ class SampleBump3D : public Sample3DView {
     SkRRect fRR;
     LightPos fLight = {{200, 200, 800, 1}, 8};
 
+    VSphere fSphere;
+
     sk_sp<SkShader> fBmpShader, fImgShader;
     sk_sp<SkRuntimeEffect> fEffect;
 
     SkM44 fWorldToClick,
           fClickToWorld;
+
+    SkM44 fRotation,        // part of model
+          fClickRotation;  // temp during a click/drag
+
+public:
+    SampleBump3D() : fSphere({200 + 400, 200 + 300}, 400) {}
 
     SkString name() override { return SkString("bump3d"); }
 
@@ -527,27 +606,58 @@ class SampleBump3D : public Sample3DView {
 
         for (auto f : faces) {
             SkAutoCanvasRestore acr(canvas, true);
-            this->drawContent(canvas, f.asM44(200), f.fColor);
+            this->drawContent(canvas, fClickRotation * fRotation * f.asM44(200), f.fColor);
         }
 
         fLight.draw(canvas);
-        canvas->restore();
-        canvas->restore();
+        canvas->restore();  // camera
+        canvas->restore();  // center the content in the window
+
+        {
+            SkPaint paint;
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setColor(0x80FF0000);
+            canvas->drawCircle(fSphere.fCenter.x, fSphere.fCenter.y, fSphere.fRadius, paint);
+            canvas->drawLine(fSphere.fCenter.x, fSphere.fCenter.y - fSphere.fRadius,
+                             fSphere.fCenter.x, fSphere.fCenter.y + fSphere.fRadius, paint);
+            canvas->drawLine(fSphere.fCenter.x - fSphere.fRadius, fSphere.fCenter.y,
+                             fSphere.fCenter.x + fSphere.fRadius, fSphere.fCenter.y, paint);
+        }
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         auto L = fWorldToClick * fLight.fPos;
         SkPoint c = project(fClickToWorld, {x, y, L.z/L.w, 1});
         if (fLight.hitTest(c.fX, c.fY)) {
-            return new Click();
+            Click* c = new Click();
+            c->fMeta.setS32("type", 0);
+            return c;
+        }
+        if (fSphere.contains({x, y})) {
+            Click* c = new Click();
+            c->fMeta.setS32("type", 1);
+            return c;
         }
         return nullptr;
     }
     bool onClick(Click* click) override {
-        auto L = fWorldToClick * fLight.fPos;
-        SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
-        fLight.update(c.fX, c.fY);
+        if (click->fMeta.hasS32("type", 0)) {
+            auto L = fWorldToClick * fLight.fPos;
+            SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
+            fLight.update(c.fX, c.fY);
+            return true;
+        }
+        if (click->fMeta.hasS32("type", 1)) {
+            if (click->fState == skui::InputState::kUp) {
+                fRotation = fClickRotation * fRotation;
+                fClickRotation.setIdentity();
+            } else {
+                fClickRotation = fSphere.computeRotation({click->fOrig.fX, click->fOrig.fY},
+                                                          {click->fCurr.fX, click->fCurr.fY});
+            }
+            return true;
+        }
         return true;
     }
 };
-DEF_SAMPLE( return new SampleBump3D(); )
+DEF_SAMPLE( return new SampleBump3D; )
