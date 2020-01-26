@@ -88,14 +88,14 @@ namespace {
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
-    #if 0 || defined(SK_BUILD_FOR_IOS)
-        // iOS doesn't support thread_local on versions less than 9.0. pthread
-        // based fallbacks must be used there. We could also use an SkSpinlock
-        // and tryAcquire()/release(), or...
-        return nullptr;  // ... we could just not cache programs on those platforms.
-    #else
+    #if 1 && defined(SKVM_JIT)
         thread_local static SkLRUCache<Key, skvm::Program> cache{8};
         return &cache;
+    #else
+        // iOS in particular does not support thread_local until iOS 9.0.
+        // On the other hand, we'll never be able to JIT there anyway.
+        // It's probably fine to not cache any interpreted programs, anywhere.
+        return nullptr;
     #endif
     }
 
