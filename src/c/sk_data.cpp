@@ -25,7 +25,7 @@ const uint8_t* sk_data_get_bytes(const sk_data_t* cdata) {
     return AsData(cdata)->bytes();
 }
 
-sk_data_t* sk_data_new_empty() {
+sk_data_t* sk_data_new_empty(void) {
     return ToData(SkData::MakeEmpty().release());
 }
 

@@ -72,7 +72,7 @@ float sk_matrix_map_radius(sk_matrix_t *matrix, float radius) {
 
 // 3d view
 
-sk_3dview_t* sk_3dview_new() {
+sk_3dview_t* sk_3dview_new(void) {
     return To3DView(new Sk3DView());
 }
 
@@ -136,11 +136,11 @@ void sk_matrix44_destroy(sk_matrix44_t* matrix) {
     delete AsMatrix44(matrix);
 }
 
-sk_matrix44_t* sk_matrix44_new() {
+sk_matrix44_t* sk_matrix44_new(void) {
     return ToMatrix44(new SkMatrix44(SkMatrix44::Uninitialized_Constructor::kUninitialized_Constructor));
 }
 
-sk_matrix44_t* sk_matrix44_new_identity() {
+sk_matrix44_t* sk_matrix44_new_identity(void) {
     return ToMatrix44(new SkMatrix44(SkMatrix44::Identity_Constructor::kIdentity_Constructor));
 }
 
@@ -195,6 +195,10 @@ void sk_matrix44_set_col_major(sk_matrix44_t* matrix, float* dst) {
 
 void sk_matrix44_set_row_major(sk_matrix44_t* matrix, float* dst) {
     AsMatrix44(matrix)->setRowMajorf(dst);
+}
+
+void sk_matrix44_set_3x3_row_major(sk_matrix44_t* matrix, float* dst) {
+    AsMatrix44(matrix)->set3x3RowMajorf(dst);
 }
 
 void sk_matrix44_set_translate(sk_matrix44_t* matrix, float dx, float dy, float dz) {

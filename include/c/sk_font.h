@@ -14,7 +14,7 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
-SK_C_API sk_font_t* sk_font_new();
+SK_C_API sk_font_t* sk_font_new(void);
 SK_C_API sk_font_t* sk_font_new_with_values(sk_typeface_t* typeface, float size, float scaleX, float skewX);
 SK_C_API void sk_font_delete(sk_font_t* font);
 SK_C_API bool sk_font_is_force_auto_hinting(const sk_font_t* font);

@@ -24,7 +24,7 @@ void sk_pixmap_destructor(sk_pixmap_t* cpixmap) {
     delete AsPixmap(cpixmap);
 }
 
-sk_pixmap_t* sk_pixmap_new() {
+sk_pixmap_t* sk_pixmap_new(void) {
     return ToPixmap(new SkPixmap());
 }
 

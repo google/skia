@@ -612,11 +612,12 @@ typedef enum {
 } gr_pixelconfig_t;
 
 typedef enum {
-    BW_SK_MASK_FORMAT,             //!< 1bit per pixel mask (e.g. monochrome)
-    A8_SK_MASK_FORMAT,             //!< 8bits per pixel mask (e.g. antialiasing)
-    THREE_D_SK_MASK_FORMAT,        //!< 3 8bit per pixl planes: alpha, mul, add
-    ARGB32_SK_MASK_FORMAT,         //!< SkPMColor
-    LCD16_SK_MASK_FORMAT,          //!< 565 alpha for r/g/b
+    BW_SK_MASK_FORMAT,
+    A8_SK_MASK_FORMAT,
+    THREE_D_SK_MASK_FORMAT,
+    ARGB32_SK_MASK_FORMAT,
+    LCD16_SK_MASK_FORMAT,
+    SDF_SK_MASK_FORMAT,
 } sk_mask_format_t;
 
 typedef struct {
@@ -781,24 +782,7 @@ typedef enum {
 
 typedef struct sk_vertices_t sk_vertices_t;
 
-typedef enum {
-    SRGB_SK_NAMED_TRANSFER_FN,
-    TWO_DOT_TWO_SK_NAMED_TRANSFER_FN,
-    LINEAR_SK_NAMED_TRANSFER_FN,
-    REC2020_SK_NAMED_TRANSFER_FN,
-    PQ_SK_NAMED_TRANSFER_FN,
-    HLG_SK_NAMED_TRANSFER_FN,
-} sk_named_transfer_fn_t;
-
-typedef enum {
-    SRGB_SK_NAMED_GAMUT,
-    ADOBE_RGB_SK_NAMED_GAMUT,
-    DCIP3_D65_SK_NAMED_GAMUT,
-    REC2020_SK_NAMED_GAMUT,
-    XYZ_SK_NAMED_GAMUT,
-} sk_named_gamut_t;
-
-typedef struct {
+typedef struct sk_colorspace_transfer_fn_t {
     float fG;
     float fA;
     float fB;
@@ -808,7 +792,7 @@ typedef struct {
     float fF;
 } sk_colorspace_transfer_fn_t;
 
-typedef struct {
+typedef struct sk_colorspace_primaries_t {
     float fRX;
     float fRY;
     float fGX;
@@ -818,6 +802,20 @@ typedef struct {
     float fWX;
     float fWY;
 } sk_colorspace_primaries_t;
+
+typedef struct sk_colorspace_xyz_t {
+    float fM00;
+    float fM01;
+    float fM02;
+    float fM10;
+    float fM11;
+    float fM12;
+    float fM20;
+    float fM21;
+    float fM22;
+} sk_colorspace_xyz_t;
+
+typedef struct sk_colorspace_icc_profile_t sk_colorspace_icc_profile_t;
 
 typedef enum {
     NO_INVERT_SK_HIGH_CONTRAST_CONFIG_INVERT_STYLE,

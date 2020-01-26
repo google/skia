@@ -34,7 +34,7 @@
 
 #include "src/c/sk_types_priv.h"
 
-sk_imagefilter_croprect_t* sk_imagefilter_croprect_new() {
+sk_imagefilter_croprect_t* sk_imagefilter_croprect_new(void) {
     return (sk_imagefilter_croprect_t*) new SkImageFilter::CropRect();
 }
 
@@ -280,6 +280,8 @@ sk_imagefilter_t* sk_imagefilter_new_merge(
         filters,
         count,
         AsImageFilterCropRect(cropRect));
+
+    delete[] filters;
 
     return ToImageFilter(filter.release());
 }

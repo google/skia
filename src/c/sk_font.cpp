@@ -15,7 +15,7 @@
 
 #include "src/c/sk_types_priv.h"
 
-sk_font_t* sk_font_new() {
+sk_font_t* sk_font_new(void) {
     return ToFont(new SkFont());
 }
 

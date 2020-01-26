@@ -36,7 +36,7 @@ sk_colorfilter_t* sk_colorfilter_new_color_matrix(const float array[20]) {
     return ToColorFilter(SkColorFilters::Matrix(array).release());
 }
 
-sk_colorfilter_t* sk_colorfilter_new_luma_color() {
+sk_colorfilter_t* sk_colorfilter_new_luma_color(void) {
     return ToColorFilter(SkLumaColorFilter::Make().release());
 }
 

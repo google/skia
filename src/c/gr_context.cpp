@@ -80,7 +80,7 @@ gr_backend_t gr_context_get_backend(gr_context_t* context) {
 
 // GrGLInterface
 
-const gr_glinterface_t* gr_glinterface_create_native_interface() {
+const gr_glinterface_t* gr_glinterface_create_native_interface(void) {
     return SK_ONLY_GPU_RETURN(ToGrGLInterface(GrGLMakeNativeInterface().release()), nullptr);
 }
 

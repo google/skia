@@ -48,6 +48,7 @@ SK_C_API bool sk_bitmap_extract_subset(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, s
 SK_C_API bool sk_bitmap_extract_alpha(sk_bitmap_t* cbitmap, sk_bitmap_t* dst, const sk_paint_t* paint, sk_ipoint_t* offset);
 SK_C_API void sk_bitmap_notify_pixels_changed(sk_bitmap_t* cbitmap);
 SK_C_API void sk_bitmap_swap(sk_bitmap_t* cbitmap, sk_bitmap_t* cother);
+SK_C_API sk_shader_t* sk_bitmap_make_shader(sk_bitmap_t* cbitmap, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* cmatrix);
 
 SK_C_PLUS_PLUS_END_GUARD
 

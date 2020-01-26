@@ -13,7 +13,7 @@
 
 #include "src/c/sk_types_priv.h"
 
-sk_string_t* sk_string_new_empty() {
+sk_string_t* sk_string_new_empty(void) {
     return ToString(new SkString());
 }
 

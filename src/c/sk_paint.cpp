@@ -17,7 +17,7 @@
 
 #include "src/c/sk_types_priv.h"
 
-sk_paint_t* sk_paint_new() {
+sk_paint_t* sk_paint_new(void) {
     return ToPaint(new SkPaint());
 }
 

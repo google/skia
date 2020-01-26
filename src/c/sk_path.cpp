@@ -132,7 +132,7 @@ void sk_path_add_path_reverse (sk_path_t* cpath, sk_path_t* other) {
     AsPath (cpath)->reverseAddPath (AsPath (*other));
 }
 
-sk_path_t* sk_path_new() {
+sk_path_t* sk_path_new(void) {
     return ToPath(new SkPath());
 }
 
@@ -264,7 +264,7 @@ bool sk_pathop_tight_bounds(const sk_path_t* path, sk_rect_t* result) {
     return TightBounds(*AsPath(path), AsRect(result));
 }
 
-sk_opbuilder_t* sk_opbuilder_new() {
+sk_opbuilder_t* sk_opbuilder_new(void) {
     return ToOpBuilder(new SkOpBuilder());
 }
 
@@ -284,7 +284,7 @@ int sk_path_convert_conic_to_quads(const sk_point_t* p0, const sk_point_t* p1, c
     return SkPath::ConvertConicToQuads(*AsPoint(p0), *AsPoint(p1), *AsPoint(p2), w, AsPoint(pts), pow2);
 }
 
-sk_pathmeasure_t* sk_pathmeasure_new() {
+sk_pathmeasure_t* sk_pathmeasure_new(void) {
     return ToPathMeasure(new SkPathMeasure());
 }
 

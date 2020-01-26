@@ -25,6 +25,7 @@ SK_C_API void sk_picture_ref(sk_picture_t*);
 SK_C_API void sk_picture_unref(sk_picture_t*);
 SK_C_API uint32_t sk_picture_get_unique_id(sk_picture_t*);
 SK_C_API void sk_picture_get_cull_rect(sk_picture_t*, sk_rect_t*);
+SK_C_API sk_shader_t* sk_picture_make_shader(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile);
 
 SK_C_PLUS_PLUS_END_GUARD
 

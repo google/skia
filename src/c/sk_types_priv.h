@@ -108,8 +108,10 @@ DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
 DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
 DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 
+DEF_STRUCT_MAP(skcms_ICCProfile, sk_colorspace_icc_profile_t, ColorSpaceIccProfile)
 DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspace_primaries_t, ColorSpacePrimaries)
 DEF_STRUCT_MAP(skcms_TransferFunction, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
+DEF_STRUCT_MAP(skcms_Matrix3x3, sk_colorspace_xyz_t, ColorSpaceXyz)
 DEF_STRUCT_MAP(SkHighContrastConfig, sk_highcontrastconfig_t, HighContrastConfig)
 DEF_STRUCT_MAP(SkIPoint, sk_ipoint_t, IPoint)
 DEF_STRUCT_MAP(SkIRect, sk_irect_t, IRect)
@@ -154,46 +156,6 @@ DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 #include "include/encode/SkWebpEncoder.h"
 DEF_MAP(SkWebpEncoder::Options, sk_webpencoder_options_t, WebpEncoderOptions)
 
-static inline skcms_Matrix3x3 AsNamedGamut(sk_named_gamut_t gamut) {
-    switch (gamut)
-    {
-        case SRGB_SK_NAMED_GAMUT:
-            return SkNamedGamut::kSRGB;
-        case ADOBE_RGB_SK_NAMED_GAMUT:
-            return SkNamedGamut::kAdobeRGB;
-        case DCIP3_D65_SK_NAMED_GAMUT:
-            return SkNamedGamut::kDCIP3;
-        case REC2020_SK_NAMED_GAMUT:
-            return SkNamedGamut::kRec2020;
-        case XYZ_SK_NAMED_GAMUT:
-            return SkNamedGamut::kXYZ;
-        default:
-            SkDEBUGFAIL("An unknown sk_named_gamut_t was provided.");
-            return SkNamedGamut::kXYZ;
-    }
-}
-
-static inline skcms_TransferFunction AsNamedTransferFn(sk_named_transfer_fn_t transfer) {
-    switch (transfer)
-    {
-        case SRGB_SK_NAMED_TRANSFER_FN:
-            return SkNamedTransferFn::kSRGB;
-        case TWO_DOT_TWO_SK_NAMED_TRANSFER_FN:
-            return SkNamedTransferFn::k2Dot2;
-        case LINEAR_SK_NAMED_TRANSFER_FN:
-            return SkNamedTransferFn::kLinear;
-        case REC2020_SK_NAMED_TRANSFER_FN:
-            return SkNamedTransferFn::kRec2020;
-        case PQ_SK_NAMED_TRANSFER_FN:
-            return SkNamedTransferFn::kPQ;
-        case HLG_SK_NAMED_TRANSFER_FN:
-            return SkNamedTransferFn::kHLG;
-        default:
-            SkDEBUGFAIL("An unknown sk_named_transfer_fn_t was provided.");
-            return SkNamedTransferFn::kLinear;
-    }
-}
-
 #include "include/core/SkMatrix.h"
 static inline SkMatrix AsMatrix(const sk_matrix_t* matrix) {
     return SkMatrix::MakeAll(
@@ -235,7 +197,7 @@ static inline SkImageInfo AsImageInfo(const sk_imageinfo_t* info) {
         info->height,
         (SkColorType)info->colorType,
         (SkAlphaType)info->alphaType,
-        sk_ref_sp(AsColorSpace(info->colorspace))); 
+        sk_sp<SkColorSpace>(AsColorSpace(info->colorspace))); 
 }
 static inline sk_imageinfo_t ToImageInfo(const SkImageInfo info) {
     return {

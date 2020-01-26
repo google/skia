@@ -15,7 +15,7 @@
 #include "src/c/sk_types_priv.h"
 
 
-sk_region_t *sk_region_new() {
+sk_region_t *sk_region_new(void) {
     return ToRegion(new SkRegion());
 }
 
