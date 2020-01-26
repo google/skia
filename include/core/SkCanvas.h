@@ -2513,6 +2513,10 @@ public:
     SkM44 experimental_getLocalToWorld() const;  // up to but not including top-most camera
     SkM44 experimental_getLocalToCamera() const; // up to and including top-most camera
 
+    void experimental_getLocalToDevice(SkScalar colMajor[16]) const;
+    void experimental_getLocalToWorld(SkScalar colMajor[16]) const;
+    void experimental_getLocalToCamera(SkScalar colMajor[16]) const;
+
     ///////////////////////////////////////////////////////////////////////////
 
     // don't call
