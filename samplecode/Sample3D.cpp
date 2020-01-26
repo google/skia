@@ -26,10 +26,10 @@ struct SkVec2 {
     static SkScalar Cross(SkVec2 a, SkVec2 b) { return a.x * b.y - a.y * b.x; }
 
     SkVec2 operator-() const { return {-x, -y}; }
-    SkVec2 operator+(SkVec2 v) { return {x+v.x, y+v.y}; }
-    SkVec2 operator-(SkVec2 v) { return {x-v.x, y-v.y}; }
+    SkVec2 operator+(SkVec2 v) const { return {x+v.x, y+v.y}; }
+    SkVec2 operator-(SkVec2 v) const { return {x-v.x, y-v.y}; }
 
-    SkVec2 operator*(SkVec2 v) { return {x*v.x, y*v.y}; }
+    SkVec2 operator*(SkVec2 v) const { return {x*v.x, y*v.y}; }
     friend SkVec2 operator*(SkVec2 v, SkScalar s) { return {v.x*s, v.y*s}; }
     friend SkVec2 operator*(SkScalar s, SkVec2 v) { return {v.x*s, v.y*s}; }
 
@@ -52,7 +52,7 @@ static SkVec2 normalize(SkVec2 v) {
 }
 
 struct VSphere {
-    SkVec2 fCenter;
+    SkVec2   fCenter;
     SkScalar fRadius;
 
     VSphere(SkVec2 center, SkScalar radius) : fCenter(center), fRadius(radius) {}
@@ -61,7 +61,15 @@ struct VSphere {
         return (v - fCenter).length() <= fRadius;
     }
 
-    SkV3 computeUnitV3(SkVec2 v) {
+    SkVec2 pinLoc(SkVec2 p) const {
+        auto v = p - fCenter;
+        if (v.length() > fRadius) {
+            v *= (fRadius / v.length());
+        }
+        return fCenter + v;
+    }
+
+    SkV3 computeUnitV3(SkVec2 v) const {
         v = (v - fCenter) * (1 / fRadius);
         SkScalar len2 = v.lengthSquared();
         if (len2 > 1) {
@@ -481,9 +489,33 @@ DEF_SAMPLE( return new SamplePointLight3D(); )
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkSurface.h"
 
+struct LightOnSphere {
+    SkVec2   fLoc;
+    SkScalar fDistance;
+    SkScalar fRadius;
+
+    SkV3 computeWorldPos(const VSphere& s) const {
+        return s.computeUnitV3(fLoc) * fDistance;
+    }
+
+    void draw(SkCanvas* canvas) const {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorWHITE);
+        canvas->drawCircle(fLoc.x, fLoc.y, fRadius + 2, paint);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawCircle(fLoc.x, fLoc.y, fRadius, paint);
+    }
+};
+
 class SampleBump3D : public Sample3DView {
+    enum {
+        DX = 400,
+        DY = 300
+    };
+
     SkRRect fRR;
-    LightPos fLight = {{200, 200, 800, 1}, 8};
+    LightOnSphere fLight = {{200 + DX, 200 + DY}, 800, 12};
 
     VSphere fSphere;
 
@@ -497,7 +529,7 @@ class SampleBump3D : public Sample3DView {
           fClickRotation;  // temp during a click/drag
 
 public:
-    SampleBump3D() : fSphere({200 + 400, 200 + 300}, 400) {}
+    SampleBump3D() : fSphere({200 + DX, 200 + DY}, 400) {}
 
     SkString name() override { return SkString("bump3d"); }
 
@@ -545,8 +577,8 @@ public:
 
     bool onChar(SkUnichar uni) override {
         switch (uni) {
-            case 'Z': fLight.fPos.z += 10; return true;
-            case 'z': fLight.fPos.z -= 10; return true;
+            case 'Z': fLight.fDistance += 10; return true;
+            case 'z': fLight.fDistance -= 10; return true;
         }
         return this->Sample3DView::onChar(uni);
     }
@@ -574,7 +606,8 @@ public:
         } uni;
         uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
-        uni.fLightPos     = {fLight.fPos.x, fLight.fPos.y, fLight.fPos.z};
+        uni.fLightPos = fLight.computeWorldPos(fSphere);
+
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
         sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
 
@@ -598,7 +631,7 @@ public:
         SkM44 clickM = canvas->experimental_getLocalToDevice();
 
         canvas->save();
-        canvas->translate(400, 300);
+        canvas->translate(DX, DY);
 
         this->saveCamera(canvas, {0, 0, 400, 400}, 200);
 
@@ -609,14 +642,15 @@ public:
             this->drawContent(canvas, fClickRotation * fRotation * f.asM44(200), f.fColor);
         }
 
-        fLight.draw(canvas);
         canvas->restore();  // camera
         canvas->restore();  // center the content in the window
 
+        fLight.draw(canvas);
         {
             SkPaint paint;
+            paint.setAntiAlias(true);
             paint.setStyle(SkPaint::kStroke_Style);
-            paint.setColor(0x80FF0000);
+            paint.setColor(0x40FF0000);
             canvas->drawCircle(fSphere.fCenter.x, fSphere.fCenter.y, fSphere.fRadius, paint);
             canvas->drawLine(fSphere.fCenter.x, fSphere.fCenter.y - fSphere.fRadius,
                              fSphere.fCenter.x, fSphere.fCenter.y + fSphere.fRadius, paint);
@@ -626,9 +660,8 @@ public:
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        auto L = fWorldToClick * fLight.fPos;
-        SkPoint c = project(fClickToWorld, {x, y, L.z/L.w, 1});
-        if (fLight.hitTest(c.fX, c.fY)) {
+        SkVec2 p = fLight.fLoc - SkVec2{x, y};
+        if (p.length() <= fLight.fRadius) {
             Click* c = new Click();
             c->fMeta.setS32("type", 0);
             return c;
@@ -641,10 +674,13 @@ public:
         return nullptr;
     }
     bool onClick(Click* click) override {
+#if 0
+        auto L = fWorldToClick * fLight.fPos;
+        SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
+        fLight.update(c.fX, c.fY);
+#endif
         if (click->fMeta.hasS32("type", 0)) {
-            auto L = fWorldToClick * fLight.fPos;
-            SkPoint c = project(fClickToWorld, {click->fCurr.fX, click->fCurr.fY, L.z/L.w, 1});
-            fLight.update(c.fX, c.fY);
+            fLight.fLoc = fSphere.pinLoc({click->fCurr.fX, click->fCurr.fY});
             return true;
         }
         if (click->fMeta.hasS32("type", 1)) {
