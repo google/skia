@@ -16,7 +16,8 @@
 #include <dwrite.h>
 #include <d2d1.h>
 
-SkDWriteGeometrySink::SkDWriteGeometrySink(SkPath* path) : fRefCount(1), fPath(path) { }
+SkDWriteGeometrySink::SkDWriteGeometrySink(SkPath* path)
+    : fRefCount{1}, fPath{path}, fStarted{false}, fCurrent{0,0} {}
 
 SkDWriteGeometrySink::~SkDWriteGeometrySink() { }
 
@@ -67,15 +68,19 @@ SK_STDMETHODIMP_(void) SkDWriteGeometrySink::SetSegmentFlags(D2D1_PATH_SEGMENT v
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::BeginFigure(D2D1_POINT_2F startPoint, D2D1_FIGURE_BEGIN figureBegin) {
-    fPath->moveTo(startPoint.x, startPoint.y);
     if (figureBegin == D2D1_FIGURE_BEGIN_HOLLOW) {
         SkDEBUGFAIL("Invalid D2D1_FIGURE_BEGIN value.");
     }
+    fStarted = false;
+    fCurrent = *pt;
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddLines(const D2D1_POINT_2F *points, UINT pointsCount) {
     for (const D2D1_POINT_2F *end = &points[pointsCount]; points < end; ++points) {
-        fPath->lineTo(points->x, points->y);
+        if (fCurrent.x != points->x || fCurrent.y != points->y) {
+            this->goingTo(points);
+            fPath->lineTo(points->x, points->y);
+        }
     }
 }
 
@@ -112,30 +117,33 @@ static bool check_quadratic(const Cubic& cubic, Quadratic& reduction) {
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddBeziers(const D2D1_BEZIER_SEGMENT *beziers, UINT beziersCount) {
-    SkPoint lastPt;
-    fPath->getLastPt(&lastPt);
-    D2D1_POINT_2F prevPt = { SkScalarToFloat(lastPt.fX), SkScalarToFloat(lastPt.fY) };
-
     for (const D2D1_BEZIER_SEGMENT *end = &beziers[beziersCount]; beziers < end; ++beziers) {
-        Cubic cubic = { { prevPt.x, prevPt.y },
-                        { beziers->point1.x, beziers->point1.y },
-                        { beziers->point2.x, beziers->point2.y },
-                        { beziers->point3.x, beziers->point3.y }, };
-        Quadratic quadratic;
-        if (check_quadratic(cubic, quadratic)) {
-            fPath->quadTo(quadratic[1].x, quadratic[1].y,
-                          quadratic[2].x, quadratic[2].y);
-        } else {
-            fPath->cubicTo(beziers->point1.x, beziers->point1.y,
-                           beziers->point2.x, beziers->point2.y,
-                           beziers->point3.x, beziers->point3.y);
+        if (fCurrent.x != beziers->point1.x || fCurrent.y != beziers->point1.y ||
+            fCurrent.x != beziers->point2.x || fCurrent.y != beziers->point2.y ||
+            fCurrent.x != beziers->point3.x || fCurrent.y != beziers->point3.y)
+        {
+            Cubic cubic = { { fCurrent.x, fCurrent.y },
+                            { beziers->point1.x, beziers->point1.y },
+                            { beziers->point2.x, beziers->point2.y },
+                            { beziers->point3.x, beziers->point3.y }, };
+            this->goingTo(beziers->point3);
+            Quadratic quadratic;
+            if (check_quadratic(cubic, quadratic)) {
+                fPath->quadTo(quadratic[1].x, quadratic[1].y,
+                              quadratic[2].x, quadratic[2].y);
+            } else {
+                fPath->cubicTo(beziers->point1.x, beziers->point1.y,
+                               beziers->point2.x, beziers->point2.y,
+                               beziers->point3.x, beziers->point3.y);
+            }
         }
-        prevPt = beziers->point3;
     }
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::EndFigure(D2D1_FIGURE_END figureEnd) {
-    fPath->close();
+    if (fStarted) {
+        fPath->close();
+    }
 }
 
 SK_STDMETHODIMP SkDWriteGeometrySink::Close() {
