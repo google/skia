@@ -253,7 +253,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
-    canvas->translate(0, 2 * downSize.height());
+    canvas->translate(0, 4 * downSize.height());
     SkISize upSize = {static_cast<int>(kInner * 3.5), static_cast<int>(kInner * 4.6)};
     result = do_rescale_grid(canvas, surface.get(), srcRect, upSize, false, errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
