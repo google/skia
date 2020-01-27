@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52f29cfd_665a81d9",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-27T14:10:49Z",
+      "side": 1,
+      "message": "Are these continues changing anything? AFAICT it\u0027s just a stylistic change. Personally I prefer break as it refers to a more tightly enclosing control flow construct (the switch rather than the while).",
+      "range": {
+        "startLine": 841,
+        "startChar": 16,
+        "endLine": 841,
+        "endChar": 24
+      },
+      "revId": "20cb87145740d7b5d242f129db90d17a4b786001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
