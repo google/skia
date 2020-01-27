@@ -8,7 +8,6 @@
 #include "src/gpu/GrDataUtils.h"
 
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTLazy.h"
@@ -158,6 +157,46 @@ static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
     }
 }
 
+size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
+                            SkTArray<size_t>* individualMipOffsets, GrMipMapped mipMapped) {
+    SkASSERT(!individualMipOffsets || !individualMipOffsets->count());
+
+    int numMipLevels = 1;
+    if (mipMapped == GrMipMapped::kYes) {
+        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
+    size_t totalSize = 0;
+    switch (type) {
+        case SkImage::CompressionType::kNone:
+            break;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+            for (int i = 0; i < numMipLevels; ++i) {
+                int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
+
+                if (individualMipOffsets) {
+                    individualMipOffsets->push_back(totalSize);
+                }
+
+                static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
+                totalSize += numBlocks * sizeof(ETC1Block);
+
+                dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+            }
+            break;
+        }
+    }
+
+    return totalSize;
+}
+
+size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
+                                  SkISize dimensions, GrMipMapped mipMapped) {
+    return GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped);
+}
+
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:
@@ -191,6 +230,7 @@ SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimens
     SkUNREACHABLE;
 }
 
+
 // Fill in 'dest' with ETC1 blocks derived from 'colorf'
 static void fillin_ETC1_with_color(SkISize dimensions, const SkColor4f& colorf, char* dest) {
     SkColor color = colorf.toSkColor();
@@ -223,7 +263,7 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
 
 // Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
 void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
-    BC1Block* dstBlocks = reinterpret_cast<BC1Block*>(dstPixels);
+    BC1Block* dstBlocks = (BC1Block*) dstPixels;
     SkASSERT(pixmap.colorType() == SkColorType::kRGBA_8888_SkColorType);
 
     BC1Block block;
@@ -309,7 +349,7 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
     size_t offset = 0;
 
     for (int i = 0; i < numMipLevels; ++i) {
-        size_t levelSize = SkCompressedDataSize(type, dimensions, nullptr, false);
+        size_t levelSize = GrCompressedDataSize(type, dimensions, nullptr, GrMipMapped::kNo);
 
         if (SkImage::CompressionType::kETC2_RGB8_UNORM == type) {
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);

@@ -7,7 +7,6 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
-#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrDataUtils.h"
@@ -566,9 +565,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkASSERT(compressionType != SkImage::CompressionType::kNone);
 
     SkTArray<size_t> individualMipOffsets(numMipLevels);
-    SkDEBUGCODE(size_t combinedBufferSize =) SkCompressedDataSize(compressionType, dimensions,
-                                                                  &individualMipOffsets,
-                                                                  mipMapped == GrMipMapped::kYes);
+    SkDEBUGCODE(size_t combinedBufferSize =) GrCompressedDataSize(compressionType, dimensions,
+                                                                  &individualMipOffsets, mipMapped);
     SkASSERT(individualMipOffsets.count() == numMipLevels);
     SkASSERT(dataSize == combinedBufferSize);
 
@@ -590,7 +588,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkISize levelDimensions = dimensions;
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
         const size_t levelRowBytes = GrCompressedRowBytes(compressionType, levelDimensions.width());
-        size_t levelSize = SkCompressedDataSize(compressionType, levelDimensions, nullptr, false);
+        size_t levelSize = GrCompressedDataSize(compressionType, levelDimensions, nullptr,
+                                                GrMipMapped::kNo);
 
         // TODO: can this all be done in one go?
         [blitCmdEncoder copyFromBuffer: transferBuffer
