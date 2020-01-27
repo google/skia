@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "41f19e21_ade414d4",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-27T20:26:06Z",
+      "side": 1,
+      "message": "GrDawnRenderTarget no longer holds a Texture (only a TextureView), so there\u0027s no way to provide one. In order to make this work for bare RTs, GrDawnRenderTargetInfo would have to hold both a (possibly null in the case of framebufferOnly) Texture and a TextureView, which is the complexity from my other patch we were hoping to avoid.\n\nThis path *will* work for TextureRenderTargets, though, since they have a Texture and asTexture() will be valid via multiple inheritance.",
+      "parentUuid": "c3bf2b00_7aa73ccc",
+      "range": {
+        "startLine": 455,
+        "startChar": 4,
+        "endLine": 455,
+        "endChar": 65
+      },
+      "revId": "d9cd25cc8df183f6eca1d13c8eb05d7761db6421",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ddc4a35d_cc9b7ace",
         "filename": "src/gpu/dawn/GrDawnGpu.cpp",
         "patchSetId": 15
@@ -45,6 +69,30 @@
       "revId": "d9cd25cc8df183f6eca1d13c8eb05d7761db6421",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adb545f3_5c45797b",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-27T20:26:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ddc4a35d_cc9b7ace",
+      "range": {
+        "startLine": 495,
+        "startChar": 8,
+        "endLine": 495,
+        "endChar": 16
+      },
+      "revId": "d9cd25cc8df183f6eca1d13c8eb05d7761db6421",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
