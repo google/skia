@@ -8,7 +8,6 @@
 #include "tools/viewer/SkSLSlide.h"
 
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkPerlinNoiseShader.h"
 #include "src/core/SkEnumerate.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ImGuiLayer.h"
@@ -37,10 +36,10 @@ SkSLSlide::SkSLSlide() {
 
     fSkSL =
 
-        "in fragmentProcessor fp;\n"
+        "uniform half4 gColor;\n"
         "\n"
         "void main(float x, float y, inout half4 color) {\n"
-        "    color = sample(fp, float2(x, y));\n"
+        "    color = half4(half(x)*(1.0/255), half(y)*(1.0/255), gColor.b, 1);\n"
         "}\n";
 }
 
@@ -62,9 +61,6 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
 
     shader = GetResourceAsImage("images/mandrill_256.png")->makeShader();
     fShaders.push_back(std::make_pair("Mandrill", shader));
-
-    shader = SkPerlinNoiseShader::MakeImprovedNoise(0.025f, 0.025f, 3, 0.0f);
-    fShaders.push_back(std::make_pair("Perlin Noise", shader));
 
     this->rebuild();
 }

@@ -92,8 +92,8 @@ public:
                 , fIndex(index) {}
 
         Kind fKind;
+
         int fIndex;
-        String fCoords;
     };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
