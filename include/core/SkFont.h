@@ -432,9 +432,9 @@ public:
      */
     void getXPos(const SkGlyphID glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const;
 
-    /** Returns path corresponding to glyph outline.
-        If glyph has an outline, copies outline to path and returns true.
-        path returned may be empty.
+    /** Modifies path to be the outline of the glyph.
+        If the glyph has an outline, modifies path to be the glyph's outline and returns true.
+        The glyph outline may be empty. Degenerate contours in the glyph outline will be skipped.
         If glyph is described by a bitmap, returns false and ignores path parameter.
 
         @param glyphID  index of glyph

@@ -966,7 +966,6 @@ protected:
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
-    static void CTPathElement(void *info, const CGPathElement *element);
     template<bool APPLY_PREBLEND>
     static void RGBToA8(const CGRGBPixel* SK_RESTRICT cgPixels, size_t cgRowBytes,
                         const SkGlyph& glyph, const uint8_t* table8);
@@ -1499,6 +1498,77 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     }
 }
 
+namespace {
+class SkCTPathGeometrySink {
+    SkPath* fPath;
+    bool fStarted;
+    CGPoint fCurrent;
+
+    void goingTo(const CGPoint pt) {
+        if (!fStarted) {
+            fStarted = true;
+            fPath->moveTo(fCurrent.x, -fCurrent.y);
+        }
+        fCurrent = pt;
+    }
+
+    bool currentIsNot(const CGPoint pt) {
+        return fCurrent.x != pt.x || fCurrent.y != pt.y;
+    }
+
+public:
+    SkCTPathGeometrySink(SkPath* path) : fPath{path}, fStarted{false}, fCurrent{0,0} {}
+    static void ApplyElement(void *ctx, const CGPathElement *element) {
+        SkCTPathGeometrySink& self = *(SkCTPathGeometrySink*)ctx;
+        CGPoint* points = element->points;
+
+        switch (element->type) {
+            case kCGPathElementMoveToPoint:
+                self.fStarted = false;
+                self.fCurrent = points[0];
+                break;
+
+            case kCGPathElementAddLineToPoint:
+                if (self.currentIsNot(points[0])) {
+                    self.goingTo(points[0]);
+                    self.fPath->lineTo(points[0].x, -points[0].y);
+                }
+                break;
+
+            case kCGPathElementAddQuadCurveToPoint:
+                if (self.currentIsNot(points[0]) || self.currentIsNot(points[1])) {
+                    self.goingTo(points[1]);
+                    self.fPath->quadTo(points[0].x, -points[0].y,
+                                       points[1].x, -points[1].y);
+                }
+                break;
+
+            case kCGPathElementAddCurveToPoint:
+                if (self.currentIsNot(points[0]) ||
+                    self.currentIsNot(points[1]) ||
+                    self.currentIsNot(points[2]))
+                {
+                    self.goingTo(points[2]);
+                    self.fPath->cubicTo(points[0].x, -points[0].y,
+                                        points[1].x, -points[1].y,
+                                        points[2].x, -points[2].y);
+                }
+                break;
+
+            case kCGPathElementCloseSubpath:
+                if (self.fStarted) {
+                    self.fPath->close();
+                }
+                break;
+
+            default:
+                SkDEBUGFAIL("Unknown path element!");
+                break;
+            }
+    }
+};
+} // namespace
+
 /*
  *  Our subpixel resolution is only 2 bits in each direction, so a scale of 4
  *  seems sufficient, and possibly even correct, to allow the hinted outline
@@ -1547,7 +1617,8 @@ bool SkScalerContext_Mac::generatePath(SkGlyphID glyph, SkPath* path) {
         return false;
     }
 
-    CGPathApply(cgPath.get(), path, SkScalerContext_Mac::CTPathElement);
+    SkCTPathGeometrySink sink(path);
+    CGPathApply(cgPath.get(), &sink, SkCTPathGeometrySink::ApplyElement);
     if (fDoSubPosition) {
         SkMatrix m;
         m.setScale(SkScalarInvert(scaleX), SkScalarInvert(scaleY));
@@ -1608,41 +1679,6 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
         }
     }
 }
-
-void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element) {
-    SkPath* skPath = (SkPath*)info;
-
-    // Process the path element
-    switch (element->type) {
-        case kCGPathElementMoveToPoint:
-            skPath->moveTo(element->points[0].x, -element->points[0].y);
-            break;
-
-        case kCGPathElementAddLineToPoint:
-            skPath->lineTo(element->points[0].x, -element->points[0].y);
-            break;
-
-        case kCGPathElementAddQuadCurveToPoint:
-            skPath->quadTo(element->points[0].x, -element->points[0].y,
-                           element->points[1].x, -element->points[1].y);
-            break;
-
-        case kCGPathElementAddCurveToPoint:
-            skPath->cubicTo(element->points[0].x, -element->points[0].y,
-                            element->points[1].x, -element->points[1].y,
-                            element->points[2].x, -element->points[2].y);
-            break;
-
-        case kCGPathElementCloseSubpath:
-            skPath->close();
-            break;
-
-        default:
-            SkDEBUGFAIL("Unknown path element!");
-            break;
-        }
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

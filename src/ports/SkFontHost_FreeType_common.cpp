@@ -690,47 +690,81 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
 namespace {
 
-int move_proc(const FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->close();  // to close the previous contour (if any)
-    path->moveTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
-    return 0;
-}
+class SkFTGeometrySink {
+    SkPath* fPath;
+    bool fStarted;
+    FT_Vector fCurrent;
 
-int line_proc(const FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->lineTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
-    return 0;
-}
+    void goingTo(const FT_Vector* pt) {
+        if (!fStarted) {
+            fStarted = true;
+            fPath->moveTo(SkFDot6ToScalar(fCurrent.x), -SkFDot6ToScalar(fCurrent.y));
+        }
+        fCurrent = *pt;
+    }
 
-int quad_proc(const FT_Vector* pt0, const FT_Vector* pt1, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
-                 SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
-    return 0;
-}
+    bool currentIsNot(const FT_Vector* pt) {
+        return fCurrent.x != pt->x || fCurrent.y != pt->y;
+    }
 
-int cubic_proc(const FT_Vector* pt0, const FT_Vector* pt1, const FT_Vector* pt2, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
-                  SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
-                  SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
-    return 0;
-}
+    static int Move(const FT_Vector* pt, void* ctx) {
+        SkFTGeometrySink& self = *(SkFTGeometrySink*)ctx;
+        if (self.fStarted) {
+            self.fPath->close();
+            self.fStarted = false;
+        }
+        self.fCurrent = *pt;
+        return 0;
+    }
+
+    static int Line(const FT_Vector* pt, void* ctx) {
+        SkFTGeometrySink& self = *(SkFTGeometrySink*)ctx;
+        if (self.currentIsNot(pt)) {
+            self.goingTo(pt);
+            self.fPath->lineTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+        }
+        return 0;
+    }
+
+    static int Quad(const FT_Vector* pt0, const FT_Vector* pt1, void* ctx) {
+        SkFTGeometrySink& self = *(SkFTGeometrySink*)ctx;
+        if (self.currentIsNot(pt0) || self.currentIsNot(pt1)) {
+            self.goingTo(pt1);
+            self.fPath->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                               SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
+        }
+        return 0;
+    }
+
+    static int Cubic(const FT_Vector* pt0, const FT_Vector* pt1, const FT_Vector* pt2, void* ctx) {
+        SkFTGeometrySink& self = *(SkFTGeometrySink*)ctx;
+        if (self.currentIsNot(pt0) || self.currentIsNot(pt1) || self.currentIsNot(pt2)) {
+            self.goingTo(pt2);
+            self.fPath->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                                SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
+                                SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
+        }
+        return 0;
+    }
+
+public:
+    SkFTGeometrySink(SkPath* path) : fPath{path}, fStarted{false}, fCurrent{0,0} {}
+
+    static constexpr const FT_Outline_Funcs Funcs{
+        /*move_to =*/ SkFTGeometrySink::Move,
+        /*line_to =*/ SkFTGeometrySink::Line,
+        /*conic_to =*/ SkFTGeometrySink::Quad,
+        /*cubic_to =*/ SkFTGeometrySink::Cubic,
+        /*shift = */ 0,
+        /*delta =*/ 0,
+    };
+};
 
 }  // namespace
 
 bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path) {
-    FT_Outline_Funcs    funcs;
-
-    funcs.move_to   = move_proc;
-    funcs.line_to   = line_proc;
-    funcs.conic_to  = quad_proc;
-    funcs.cubic_to  = cubic_proc;
-    funcs.shift     = 0;
-    funcs.delta     = 0;
-
-    FT_Error err = FT_Outline_Decompose(&face->glyph->outline, &funcs, path);
+    SkFTGeometrySink sink{path};
+    FT_Error err = FT_Outline_Decompose(&face->glyph->outline, &SkFTGeometrySink::Funcs, &sink);
 
     if (err != 0) {
         path->reset();
