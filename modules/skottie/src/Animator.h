@@ -36,8 +36,12 @@ public:
 
     bool isStatic() const { return fAnimators.empty(); }
 
+    void addNestedContainer(sk_sp<AnimatablePropertyContainer>);
+
 protected:
     virtual void onSync() = 0;
+
+    void shrink_to_fit();
 
 private:
     void onTick(float) final;

@@ -9,6 +9,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkSize.h"
 #include "include/private/SkNx.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -93,10 +94,22 @@ SkColor4f ValueTraits<VectorValue>::As<SkColor4f>(const VectorValue& v) {
 template <>
 template <>
 SkPoint ValueTraits<VectorValue>::As<SkPoint>(const VectorValue& vec) {
-    // best effort to turn this into a point
-    const auto x = vec.size() > 0 ? vec[0] : 0,
-               y = vec.size() > 1 ? vec[1] : 0;
-    return SkPoint::Make(x, y);
+    // best effort to turn this into a 2D point
+    return SkPoint {
+        vec.size() > 0 ? vec[0] : 0,
+        vec.size() > 1 ? vec[1] : 0,
+    };
+}
+
+template <>
+template <>
+SkPoint3 ValueTraits<VectorValue>::As<SkPoint3>(const VectorValue& vec) {
+    // best effort to turn this into a 3D point
+    return SkPoint3 {
+        vec.size() > 0 ? vec[0] : 0,
+        vec.size() > 1 ? vec[1] : 0,
+        vec.size() > 2 ? vec[2] : 0,
+    };
 }
 
 template <>
