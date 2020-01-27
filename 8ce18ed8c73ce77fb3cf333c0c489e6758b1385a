@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "92a01812_1bbc390f",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-27T18:22:16Z",
+      "side": 1,
+      "message": "Right. There are 36 declarations.",
+      "parentUuid": "417ece55_45fd94ce",
+      "range": {
+        "startLine": 227,
+        "startChar": 5,
+        "endLine": 227,
+        "endChar": 20
+      },
+      "revId": "8ce18ed8c73ce77fb3cf333c0c489e6758b1385a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "469315c7_3c52df5b",
         "filename": "src/core/SkArenaAlloc.h",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-27T17:30:59Z",
       "side": 1,
       "message": "I don\u0027t think I follow where I should use ...StartingEmpty and where not.  What happens if you use SkArenaAlloc instead of StartingEmpty?",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 261,
+        "endChar": 0
+      },
+      "revId": "8ce18ed8c73ce77fb3cf333c0c489e6758b1385a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be10f2d3_63b4c2e9",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-27T18:22:16Z",
+      "side": 1,
+      "message": "StartingEmpty allows reset() to be called.",
+      "parentUuid": "469315c7_3c52df5b",
       "range": {
         "startLine": 249,
         "startChar": 0,
