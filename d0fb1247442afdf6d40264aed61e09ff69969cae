@@ -46,6 +46,30 @@
       "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bea6d0fa_fcad12bc",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-27T21:28:47Z",
+      "side": 1,
+      "message": "Yes, it\u0027s kneecapped here, although it doesn\u0027t seem to break much functionality (Chrome seems\nfine with it, as do most GMs).\n\nThe easy way to fix it would be to return a GrDawnTextureRenderTarget here, but that\u0027s not something the other backends do. Do you think that would be a problem?\n\nThe other way would be to store both a texture and view, as you say, in which case we might as\nwell go back to my other patch, but I thought we were trying to avoid that complexity/confusion?",
+      "parentUuid": "59dc9fed_20617d6a",
+      "range": {
+        "startLine": 250,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 78
+      },
+      "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
