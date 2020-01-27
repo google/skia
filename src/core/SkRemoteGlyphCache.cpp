@@ -340,7 +340,7 @@ private:
     std::vector<SkGlyph> fPathsToSend;
 
     // Alloc for storing bits and pieces of paths, Cleared after diffs are serialized.
-    SkArenaAlloc fPathAlloc{256};
+    SkArenaAllocStartingEmpty fPathAlloc{256};
 };
 
 SkStrikeServer::RemoteStrike::RemoteStrike(

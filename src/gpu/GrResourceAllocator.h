@@ -268,8 +268,7 @@ private:
 
     SkDEBUGCODE(bool             fAssigned = false;)
 
-    char                         fStorage[kInitialArenaSize];
-    SkArenaAlloc                 fIntervalAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
+    SkSTArenaAlloc<kInitialArenaSize> fIntervalAllocator;
     Interval*                    fFreeIntervalList = nullptr;
     bool                         fLazyInstantiationError = false;
 };

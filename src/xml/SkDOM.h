@@ -85,7 +85,7 @@ public:
     };
 
 private:
-    SkArenaAlloc                 fAlloc;
+    SkArenaAllocStartingEmpty    fAlloc;
     Node*                        fRoot;
     std::unique_ptr<SkDOMParser> fParser;
 

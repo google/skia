@@ -187,7 +187,7 @@ static char* dupstr(SkArenaAlloc* chunk, const char src[]) {
 
 class SkDOMParser : public SkXMLParser {
 public:
-    SkDOMParser(SkArenaAlloc* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
+    SkDOMParser(SkArenaAllocStartingEmpty* chunk) : SkXMLParser(&fParserError), fAlloc(chunk) {
         fAlloc->reset();
         fRoot = nullptr;
         fLevel = 0;
@@ -280,10 +280,10 @@ private:
         ++fLevel;
     }
 
-    SkTDArray<SkDOM::Node*> fParentStack;
-    SkArenaAlloc*           fAlloc;
-    SkDOM::Node*            fRoot;
-    bool                    fNeedToFlush;
+    SkTDArray<SkDOM::Node*>    fParentStack;
+    SkArenaAllocStartingEmpty* fAlloc;
+    SkDOM::Node*               fRoot;
+    bool                       fNeedToFlush;
 
     // state needed for flushAttributes()
     SkTDArray<SkDOM::Attr>  fAttrs;

@@ -27,7 +27,7 @@ public:
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
 
 private:
-    SkArenaAlloc fArena;
+    SkArenaAllocStartingEmpty fArena;
     SkTHashMap<int, SkPDFTagNode*> fNodeMap;
     SkPDFTagNode* fRoot = nullptr;
     SkTArray<SkTArray<SkPDFTagNode*>> fMarksPerPage;

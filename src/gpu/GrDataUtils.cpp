@@ -694,8 +694,7 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, SkColor4f
     SkRasterPipeline::StockStage store;
     GrSwizzle storeSwizzle = get_dst_swizzle_and_store(dstInfo.colorType(), &store, &doLumToAlpha,
                                                        &isNormalized, &dstIsSRGB);
-    char block[64];
-    SkArenaAlloc alloc(block, sizeof(block), 1024);
+    SkSTArenaAlloc<64> alloc{1024};
     SkRasterPipeline_<256> pipeline;
     pipeline.append_constant_color(&alloc, color);
     if (doLumToAlpha) {

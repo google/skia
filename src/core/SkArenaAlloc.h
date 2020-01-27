@@ -64,10 +64,7 @@
 class SkArenaAlloc {
 public:
     SkArenaAlloc(char* block, size_t blockSize, size_t firstHeapAllocation);
-
-    explicit SkArenaAlloc(size_t firstHeapAllocation)
-        : SkArenaAlloc(nullptr, 0, firstHeapAllocation)
-    {}
+    explicit SkArenaAlloc(size_t firstHeapAllocation);
 
     ~SkArenaAlloc();
 
@@ -133,8 +130,11 @@ public:
         return objStart;
     }
 
-    // Destroy all allocated objects, free any heap allocations.
-    void reset();
+protected:
+    // Destroy all allocated objects, free any heap allocations. Start over again with block and
+    // size. Hide reset so there can't be accidental slicing when passing a SkSTArenaAlloc around
+    // as a SkArenaAlloc.
+    void reset(char* block, size_t size);
 
 private:
     static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
@@ -213,8 +213,6 @@ private:
     char*          fDtorCursor;
     char*          fCursor;
     char*          fEnd;
-    char* const    fFirstBlock;
-    const uint32_t fFirstSize;
     const uint32_t fFirstHeapAllocationSize;
 
     // Use the Fibonacci sequence as the growth factor for block size. The size of the block
@@ -229,12 +227,36 @@ template <size_t InlineStorageSize>
 class SkSTArenaAlloc : public SkArenaAlloc {
 public:
     explicit SkSTArenaAlloc(size_t firstHeapAllocation = InlineStorageSize)
-        : INHERITED(fInlineStorage, InlineStorageSize, firstHeapAllocation) {}
+        : SkArenaAlloc(fInlineStorage, InlineStorageSize, firstHeapAllocation) { }
+
+    // This odd dtor allows the SkArenaAlloc dtor to be called before this dtor. Normally, the
+    // dtors are run as SkSTArenaAlloc first and then SkArenaAlloc, but by the time SkArenaAlloc
+    // is called, the memory block owned by SkSTArenaAlloc is already destroyed. Which means that
+    // using the method pointers stored in the fInlineStorage to be "uninitialized". Changing the
+    // order the pointers are valid when used.
+    ~SkSTArenaAlloc() {
+        SkArenaAlloc::reset(nullptr, 0);
+    }
+
+    void reset() {
+        SkArenaAlloc::reset(fInlineStorage, InlineStorageSize);
+    }
 
 private:
     char fInlineStorage[InlineStorageSize];
+};
 
-    using INHERITED = SkArenaAlloc;
+// Helper for creating empty allocs that need to call reset.
+class SkArenaAllocStartingEmpty : public SkArenaAlloc {
+public:
+    SkArenaAllocStartingEmpty(size_t firstHeapAllocation)
+    : SkArenaAlloc(firstHeapAllocation) { }
+
+    void reset() {
+        SkArenaAlloc::reset(nullptr, 0);
+    }
+
+private:
 };
 
 #endif  // SkArenaAlloc_DEFINED

@@ -94,7 +94,7 @@ private:
         TBase* get() const { return reinterpret_cast<TBase*>(const_cast<Header*>(this) + 1); }
     };
 
-    SkArenaAlloc fArena;
+    SkArenaAllocStartingEmpty fArena;
     Header* fHead = nullptr;
     Header* fTail = nullptr;
 };

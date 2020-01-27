@@ -300,7 +300,7 @@ private:
 
     // MDB TODO: 4096 for the first allocation of the clip space will be huge overkill.
     // Gather statistics to determine the correct size.
-    SkArenaAlloc fClipAllocator{4096};
+    SkArenaAllocStartingEmpty fClipAllocator{4096};
     SkDEBUGCODE(int fNumClips;)
 
     // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is

@@ -75,7 +75,7 @@ private:
     SkArenaAllocList<InlineUpload> fInlineUploads;
     SkArenaAllocList<Draw> fDraws;
     SkArenaAllocList<GrDeferredTextureUploadFn> fASAPUploads;
-    SkArenaAlloc fArena{1024 * 40};
+    SkArenaAllocStartingEmpty fArena{1024 * 40};
     sk_sp<GrContext> fGrContext;
     AtlasTexture fDistanceFieldAtlas;
 };
