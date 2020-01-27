@@ -7,6 +7,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 81
 
 <Insert new notes here- top is most recent.>
+  * Remove CGFontRef parameter from SkCreateTypefaceFromCTFont.
+
   * Added support for GL_NV_fence extension.
 
   * Make SkImageInfo::validRowBytes require rowBytes to be pixel aligned. This
