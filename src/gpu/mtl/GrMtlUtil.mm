@@ -86,15 +86,9 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
-    bool timedout;
+#if defined(SK_BUILD_FOR_MAC)
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                               defaultOptions, &timedout);
-    if (timedout) {
-        // try again
-        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                    defaultOptions, &timedout);
-    }
+                                                               defaultOptions);
 #else
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
@@ -111,11 +105,10 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 }
 
 id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
-                                         MTLCompileOptions* options, bool* timedout) {
-    dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
+                                         MTLCompileOptions* options) {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-    __block dispatch_semaphore_t semaphore = compilerSemaphore;
-    __block id<MTLLibrary> compiledLibrary;
+//    id<MTLLibrary> compiledLibrary = nil;
     [device newLibraryWithSource: mslCode
                          options: options
                completionHandler:
@@ -125,20 +118,19 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
                     mslCode,
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
-            compiledLibrary = library;
+//            compiledLibrary = library;
             dispatch_semaphore_signal(semaphore);
         }
     ];
 
-    // Wait 100 ms for the compiler
-    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
+    // Wait 1 ms for the compiler
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000))) {
         SkDebugf("Timeout compiling MSL shader\n");
-        *timedout = true;
         return nil;
+        //*** compiledLibrary gets unrefed here
     }
 
-    *timedout = false;
-    return compiledLibrary;
+    return nil;//compiledLibrary;
 }
 
 id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
