@@ -10,32 +10,34 @@
 
 #include "modules/skottie/src/Transform.h"
 
-#include "include/core/SkMatrix44.h"
-
 namespace skottie {
 namespace internal {
 
-class CameraAdapter final : public TransformAdapter3D {
+class CameraAdaper final : public TransformAdapter3D {
 public:
-    enum class Type {
+    CameraAdaper(const skjson::ObjectValue& jlayer,
+                 const skjson::ObjectValue& jtransform,
+                 const AnimationBuilder& abuilder,
+                 const SkSize& viewport_size);
+    ~CameraAdaper() override;
+
+    // Used in the absence of an explicit camera layer.
+    static sk_sp<sksg::Transform> DefaultCameraTransform(const SkSize& viewport_size);
+
+    SkMatrix44 totalMatrix() const override;
+
+private:
+    enum class CameraType {
         kOneNode, // implicitly facing forward (decreasing z), does not auto-orient
         kTwoNode, // explicitly facing a POI (the anchor point), auto-orients
     };
 
-    static sk_sp<CameraAdapter> MakeDefault(const SkSize& viewport_size);
+    SkPoint3 poi(const SkPoint3& pos) const;
 
-    CameraAdapter(const SkSize& viewport_size, Type);
-    ~CameraAdapter() override;
+    const SkSize     fViewportSize;
+    const CameraType fType;
 
-    ADAPTER_PROPERTY(Zoom, SkScalar, 0)
-
-private:
-    SkMatrix44 totalMatrix() const override;
-
-    SkPoint3 poi() const;
-
-    const SkSize fViewportSize;
-    const Type   fType;
+    ScalarValue fZoom = 0;
 
     using INHERITED = TransformAdapter3D;
 };
