@@ -206,6 +206,9 @@ static skiagm::DrawResult do_rescale_image_grid(SkCanvas* canvas, const char* im
 DEF_RESCALE_AND_READ_YUV_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(50, 5, 200, 150),
                             410, 376)
 
+DEF_RESCALE_AND_READ_YUV_GM(images / yellow_rose.webp, rose_no_scale,
+                            SkIRect::MakeXYWH(0, 0, 400, 300), 400, 300)
+
 DEF_RESCALE_AND_READ_GM(images/yellow_rose.webp, rose, SkIRect::MakeXYWH(100, 20, 100, 100),
                         410, 410)
 
