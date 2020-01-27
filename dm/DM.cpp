@@ -117,7 +117,7 @@ static DEFINE_bool(simpleCodec, false,
                    "Runs of a subset of the codec tests, "
                    "with no scaling or subsetting, always using the canvas color type.");
 
-static DEFINE_string2(match, m, nullptr,
+static DEFINE_string2(match, m, "CompressedBackendAllocationTest",
                "[~][^]substring[$] [...] of name to run.\n"
                "Multiple matches may be separated by spaces.\n"
                "~ causes a matching name to always be skipped\n"

@@ -3984,8 +3984,8 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
 
     SkImage::CompressionType compression = this->compressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
-        return { GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
-                                                        : GrColorType::kRGBA_8888,
+        return { /* GrCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                        : */ GrColorType::kRGBA_8888,
                  offset_alignment_for_transfer_buffer(GR_GL_UNSIGNED_BYTE) };
     }
 
