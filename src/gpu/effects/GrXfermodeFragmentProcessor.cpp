@@ -220,16 +220,17 @@ void GLComposeTwoFragmentProcessor::emitCode(EmitArgs& args) {
     }
 
     // declare outputColor and emit the code for each of the two children
-    SkString srcColor = this->invokeChild(0, inputColor, args);
-
-    SkString dstColor = this->invokeChild(1, inputColor, args);
+    fragBuilder->codeAppendf("half4 srcColor = %s;",
+                             this->invokeChild(0, inputColor, args).c_str());
+    fragBuilder->codeAppendf("half4 dstColor = %s;",
+                             this->invokeChild(1, inputColor, args).c_str());
 
     // emit blend code
     SkBlendMode mode = cs.getMode();
     fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
     GrGLSLBlend::AppendMode(fragBuilder,
-                            srcColor.c_str(),
-                            dstColor.c_str(),
+                            "srcColor",
+                            "dstColor",
                             args.fOutputColor,
                             mode);
 
@@ -436,15 +437,16 @@ public:
         SkBlendMode mode = args.fFp.cast<ComposeOneFragmentProcessor>().mode();
         ComposeOneFragmentProcessor::Child child =
             args.fFp.cast<ComposeOneFragmentProcessor>().child();
-        SkString childColor = this->invokeChild(0, args);
 
         // emit blend code
         fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
-        const char* childStr = childColor.c_str();
+        fragBuilder->codeAppendf("half4 childColor = %s;", this->invokeChild(0, args).c_str());
         if (ComposeOneFragmentProcessor::kDst_Child == child) {
-            GrGLSLBlend::AppendMode(fragBuilder, args.fInputColor, childStr, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, args.fInputColor, "childColor", args.fOutputColor,
+                                    mode);
         } else {
-            GrGLSLBlend::AppendMode(fragBuilder, childStr, args.fInputColor, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, "childColor", args.fInputColor, args.fOutputColor,
+                                    mode);
         }
     }
 
