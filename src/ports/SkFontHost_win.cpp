@@ -1322,26 +1322,55 @@ private:
     GDIPolygonCurvePointIter fPointIter;
 };
 
+namespace {
+struct sk_path_from_gdi_path_state {
+    sk_path_from_gdi_path_state(SkPath* path) : fPath(path) {}
+    SkPath* fPath;
+    bool fStarted = false;
+    POINTFX fCurrent;
+
+    void goingTo(POINTFX pt) {
+        if (!fStarted) {
+            fStarted = true;
+            fPath->moveTo( SkFixedToScalar(SkFIXEDToFixed(fCurrent.x)),
+                          -SkFixedToScalar(SkFIXEDToFixed(fCurrent.y)));
+        }
+        fCurrent = pt;
+    }
+
+    bool currentIsNot(POINTFX pt) {
+        return fCurrent.x.value != pt.x.value || fCurrent.x.fract != pt.x.fract ||
+               fCurrent.y.value != pt.y.value || fCurrent.y.fract != pt.y.fract;
+    }
+};
+}
+
 static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD total_size) {
     const uint8_t* cur_glyph = glyphbuf;
     const uint8_t* end_glyph = glyphbuf + total_size;
-
+    sk_path_from_gdi_path_state state(path);
     while (cur_glyph < end_glyph) {
         const TTPOLYGONHEADER* th = (TTPOLYGONHEADER*)cur_glyph;
 
         const uint8_t* end_poly = cur_glyph + th->cb;
         const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
 
-        path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
-                     SkFixedToScalar(-SkFIXEDToFixed(th->pfxStart.y)));
+        state.fStarted = false;
+        state.fCurrent = th->pfxStart;
 
         while (cur_poly < end_poly) {
             const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
+            const POINTFX* apfx = pc->apfx;
+            const WORD cpfx = pc->cpfx;
 
             if (pc->wType == TT_PRIM_LINE) {
-                for (uint16_t i = 0; i < pc->cpfx; i++) {
-                    path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pc->apfx[i].y)));
+                for (uint16_t i = 0; i < cpfx; i++) {
+                    POINTFX pnt_b = apfx[i];
+                    if (state.currentIsNot(pnt_b)) {
+                        state.goingTo(pnt_b);
+                        path->lineTo( SkFixedToScalar(SkFIXEDToFixed(pnt_b.x)),
+                                     -SkFixedToScalar(SkFIXEDToFixed(pnt_b.y)));
+                    }
                 }
             }
 
@@ -1357,17 +1386,40 @@ static void sk_path_from_gdi_path(SkPath* path, const uint8_t* glyphbuf, DWORD t
                                                             SkFIXEDToFixed(pnt_c.y)));
                     }
 
-                    path->quadTo(SkFixedToScalar( SkFIXEDToFixed(pnt_b.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_b.y)),
-                                 SkFixedToScalar( SkFIXEDToFixed(pnt_c.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_c.y)));
+
+                    if (state.currentIsNot(pnt_b) || state.currentIsNot(pnt_c)) {
+                        state.goingTo(pnt_c);
+                        path->quadTo( SkFixedToScalar(SkFIXEDToFixed(pnt_b.x)),
+                                     -SkFixedToScalar(SkFIXEDToFixed(pnt_b.y)),
+                                      SkFixedToScalar(SkFIXEDToFixed(pnt_c.x)),
+                                     -SkFixedToScalar(SkFIXEDToFixed(pnt_c.y)));
+                    }
+                }
+            }
+
+            if (pc->wType == TT_PRIM_CSPLINE) {
+                for (uint16_t w = 0; w < pc->cpfx - 2; w += 2) {
+                    if (state.currentIsNot(apfx[w + 0]) ||
+                        state.currentIsNot(apfx[w + 1]) ||
+                        state.currentIsNot(apfx[w + 2]))
+                    {
+                        state.goingTo(apfx[w + 2]);
+                        path->cubicTo( SkFixedToScalar(SkFIXEDToFixed(pc->apfx[w + 0].x)),
+                                      -SkFixedToScalar(SkFIXEDToFixed(pc->apfx[w + 0].y)),
+                                       SkFixedToScalar(SkFIXEDToFixed(pc->apfx[w + 1].x)),
+                                      -SkFixedToScalar(SkFIXEDToFixed(pc->apfx[w + 1].y)),
+                                       SkFixedToScalar(SkFIXEDToFixed(pc->apfx[w + 2].x)),
+                                      -SkFixedToScalar(SkFIXEDToFixed(pc->apfx[w + 2].y)));
+                    }
                 }
             }
             // Advance past this TTPOLYCURVE.
             cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * pc->cpfx;
         }
         cur_glyph += th->cb;
-        path->close();
+        if (state.fStarted) {
+            path->close();
+        }
     }
 }
 
@@ -1384,6 +1436,7 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
     const uint8_t* cur_glyph = glyphbuf;
     const uint8_t* end_glyph = glyphbuf + total_size;
 
+    sk_path_from_gdi_path_state state(path);
     POINTFX const * hintedPoint;
 
     while (cur_glyph < end_glyph) {
@@ -1393,30 +1446,36 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
         const uint8_t* cur_poly = cur_glyph + sizeof(TTPOLYGONHEADER);
 
         move_next_expected_hinted_point(hintedYs, hintedPoint);
-        path->moveTo(SkFixedToScalar( SkFIXEDToFixed(th->pfxStart.x)),
-                     SkFixedToScalar(-SkFIXEDToFixed(hintedPoint->y)));
+        state.fStarted = false;
+        state.fCurrent = {th->pfxStart.x, hintedPoint->y};
 
         while (cur_poly < end_poly) {
             const TTPOLYCURVE* pc = (const TTPOLYCURVE*)cur_poly;
+            const POINTFX* apfx = pc->apfx;
+            const WORD cpfx = pc->cpfx;
 
             if (pc->wType == TT_PRIM_LINE) {
-                for (uint16_t i = 0; i < pc->cpfx; i++) {
+                for (uint16_t i = 0; i < cpfx; i++) {
                     move_next_expected_hinted_point(hintedYs, hintedPoint);
-                    path->lineTo(SkFixedToScalar( SkFIXEDToFixed(pc->apfx[i].x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(hintedPoint->y)));
+                    POINTFX pnt_b = {apfx[i].x, hintedPoint->y};
+                    if (state.currentIsNot(pnt_b)) {
+                        state.goingTo(pnt_b);
+                        path->lineTo( SkFixedToScalar(SkFIXEDToFixed(pnt_b.x)),
+                                     -SkFixedToScalar(SkFIXEDToFixed(pnt_b.y)));
+                    }
                 }
             }
 
             if (pc->wType == TT_PRIM_QSPLINE) {
-                POINTFX currentPoint = pc->apfx[0];
+                POINTFX currentPoint = apfx[0];
                 move_next_expected_hinted_point(hintedYs, hintedPoint);
                 // only take the hinted y if it wasn't flipped
                 if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
                     currentPoint.y = hintedPoint->y;
                 }
-                for (uint16_t u = 0; u < pc->cpfx - 1; u++) { // Walk through points in spline
+                for (uint16_t u = 0; u < cpfx - 1; u++) { // Walk through points in spline
                     POINTFX pnt_b = currentPoint;//pc->apfx[u]; // B is always the current point
-                    POINTFX pnt_c = pc->apfx[u+1];
+                    POINTFX pnt_c = apfx[u+1];
                     move_next_expected_hinted_point(hintedYs, hintedPoint);
                     // only take the hinted y if it wasn't flipped
                     if (hintedYs.currentCurveType() == TT_PRIM_QSPLINE) {
@@ -1425,24 +1484,50 @@ static bool sk_path_from_gdi_paths(SkPath* path, const uint8_t* glyphbuf, DWORD 
                     currentPoint.x = pnt_c.x;
                     currentPoint.y = pnt_c.y;
 
-                    if (u < pc->cpfx - 2) {          // If not on last spline, compute C
+                    if (u < cpfx - 2) {          // If not on last spline, compute C
                         pnt_c.x = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.x),
                                                             SkFIXEDToFixed(pnt_c.x)));
                         pnt_c.y = SkFixedToFIXED(SkFixedAve(SkFIXEDToFixed(pnt_b.y),
                                                             SkFIXEDToFixed(pnt_c.y)));
                     }
 
-                    path->quadTo(SkFixedToScalar( SkFIXEDToFixed(pnt_b.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_b.y)),
-                                 SkFixedToScalar( SkFIXEDToFixed(pnt_c.x)),
-                                 SkFixedToScalar(-SkFIXEDToFixed(pnt_c.y)));
+                    if (state.currentIsNot(pnt_b) || state.currentIsNot(pnt_c)) {
+                        state.goingTo(pnt_c);
+                        path->quadTo( SkFixedToScalar(SkFIXEDToFixed(pnt_b.x)),
+                                     -SkFixedToScalar(SkFIXEDToFixed(pnt_b.y)),
+                                      SkFixedToScalar(SkFIXEDToFixed(pnt_c.x)),
+                                     -SkFixedToScalar(SkFIXEDToFixed(pnt_c.y)));
+                    }
                 }
             }
+
+            if (pc->wType == TT_PRIM_CSPLINE) {
+                for (uint16_t w = 0; w < cpfx - 2; w += 2) {
+                    move_next_expected_hinted_point(hintedYs, hintedPoint);
+                    move_next_expected_hinted_point(hintedYs, hintedPoint);
+                    move_next_expected_hinted_point(hintedYs, hintedPoint);
+                    if (state.currentIsNot(apfx[w + 0]) ||
+                        state.currentIsNot(apfx[w + 1]) ||
+                        state.currentIsNot(apfx[w + 2]))
+                    {
+                        state.goingTo(apfx[w + 2]);
+                        path->cubicTo( SkFixedToScalar(SkFIXEDToFixed(apfx[w + 0].x)),
+                                      -SkFixedToScalar(SkFIXEDToFixed(apfx[w + 0].y)),
+                                       SkFixedToScalar(SkFIXEDToFixed(apfx[w + 1].x)),
+                                      -SkFixedToScalar(SkFIXEDToFixed(apfx[w + 1].y)),
+                                       SkFixedToScalar(SkFIXEDToFixed(apfx[w + 2].x)),
+                                      -SkFixedToScalar(SkFIXEDToFixed(apfx[w + 2].y)));
+                    }
+                }
+            }
+
             // Advance past this TTPOLYCURVE.
-            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * pc->cpfx;
+            cur_poly += sizeof(WORD) * 2 + sizeof(POINTFX) * cpfx;
         }
         cur_glyph += th->cb;
-        path->close();
+        if (state.fStarted) {
+            path->close();
+        }
     }
     return true;
 }
