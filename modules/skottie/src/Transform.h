@@ -12,62 +12,91 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkMatrix44.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
+#include "modules/skottie/src/Adapter.h"
+
+namespace skjson {
+
+class ObjectValue;
+
+} // namespace skjson
 
 namespace skottie {
 namespace internal {
 
-class TransformAdapter2D final : public SkNVRefCnt<TransformAdapter2D> {
+class TransformAdapter2D final : public DiscardableAdapterBase<TransformAdapter2D,
+                                                               sksg::Matrix<SkMatrix>> {
 public:
-    explicit TransformAdapter2D(sk_sp<sksg::Matrix<SkMatrix>>);
-    ~TransformAdapter2D();
+    TransformAdapter2D(const AnimationBuilder&,
+                       const skjson::ObjectValue* janchor_point,
+                       const skjson::ObjectValue* jposition,
+                       const skjson::ObjectValue* jscale,
+                       const skjson::ObjectValue* jrotation,
+                       const skjson::ObjectValue* jskew,
+                       const skjson::ObjectValue* jskew_axis);
+    ~TransformAdapter2D() override;
 
-    ADAPTER_PROPERTY(AnchorPoint, SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(Position   , SkPoint , SkPoint::Make(0, 0))
-    ADAPTER_PROPERTY(Scale      , SkVector, SkPoint::Make(100, 100))
-    ADAPTER_PROPERTY(Rotation   , SkScalar, 0)
-    ADAPTER_PROPERTY(Skew       , SkScalar, 0)
-    ADAPTER_PROPERTY(SkewAxis   , SkScalar, 0)
+    // Accessors needed for public property APIs.
+    // TODO: introduce a separate public type.
+    SkPoint getAnchorPoint() const;
+    void    setAnchorPoint(const SkPoint&);
+
+    SkPoint getPosition() const;
+    void    setPosition(const SkPoint&);
+
+    SkVector getScale() const;
+    void     setScale(const SkVector&);
+
+    float getRotation() const  { return fRotation; }
+    void  setRotation(float r);
+
+    float getSkew() const   { return fSkew; }
+    void  setSkew(float sk);
+
+    float getSkewAxis() const    { return fSkewAxis; }
+    void  setSkewAxis(float sa );
 
     SkMatrix totalMatrix() const;
 
 private:
-    void apply();
+    void onSync() override;
 
-    sk_sp<sksg::Matrix<SkMatrix>> fMatrixNode;
+    VectorValue fAnchorPoint,
+                fPosition,
+                fScale    = { 100, 100 };
+    ScalarValue fRotation = 0,
+                fSkew     = 0,
+                fSkewAxis = 0;
+
+    using INHERITED = DiscardableAdapterBase<TransformAdapter2D, sksg::Matrix<SkMatrix>>;
 };
 
-class TransformAdapter3D : public SkRefCnt {
+class TransformAdapter3D : public DiscardableAdapterBase<TransformAdapter3D,
+                                                         sksg::Matrix<SkMatrix44>> {
 public:
-    TransformAdapter3D();
+    TransformAdapter3D(const skjson::ObjectValue&, const AnimationBuilder&);
     ~TransformAdapter3D() override;
 
-    struct Vec3 {
-        float fX, fY, fZ;
-
-        explicit Vec3(const VectorValue&);
-
-        bool operator==(const Vec3& other) const {
-            return fX == other.fX && fY == other.fY && fZ == other.fZ;
-        }
-        bool operator!=(const Vec3& other) const { return !(*this == other); }
-    };
-
-    ADAPTER_PROPERTY(AnchorPoint, Vec3, Vec3({  0,   0,   0}))
-    ADAPTER_PROPERTY(Position   , Vec3, Vec3({  0,   0,   0}))
-    ADAPTER_PROPERTY(Rotation   , Vec3, Vec3({  0,   0,   0}))
-    ADAPTER_PROPERTY(Scale      , Vec3, Vec3({100, 100, 100}))
-
-    sk_sp<sksg::Transform> refTransform() const;
-
-protected:
-    void apply();
-
-private:
     virtual SkMatrix44 totalMatrix() const;
 
-    sk_sp<sksg::Matrix<SkMatrix44>> fMatrixNode;
+protected:
+    SkPoint3  anchor_point() const;
+    SkPoint3  position() const;
+    SkVector3 rotation() const;
 
-    using INHERITED = SkRefCnt;
+private:
+    void onSync() final;
+
+    VectorValue fAnchorPoint,
+                fPosition,
+                fOrientation,
+                fScale = { 100, 100, 100 };
+    ScalarValue fRx = 0,
+                fRy = 0,
+                fRz = 0;
+
+    using INHERITED = DiscardableAdapterBase<TransformAdapter3D, sksg::Matrix<SkMatrix44>>;
 };
 
 } // namespace internal

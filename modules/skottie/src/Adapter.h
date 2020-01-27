@@ -18,7 +18,9 @@ class DiscardableAdapterBase : public AnimatablePropertyContainer {
 public:
     template <typename... Args>
     static sk_sp<AdapterT> Make(Args&&... args) {
-        return sk_sp<AdapterT>(new AdapterT(std::forward<Args>(args)...));
+        sk_sp<AdapterT> adapter(new AdapterT(std::forward<Args>(args)...));
+        adapter->shrink_to_fit();
+        return adapter;
     }
 
     const sk_sp<T>& node() const { return fNode; }
