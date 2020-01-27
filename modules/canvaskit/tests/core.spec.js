@@ -389,13 +389,17 @@ describe('Core canvas behavior', function() {
                 path.lineTo(30, 20);
                 path.lineTo(40, 10);
                 canvas.drawPath(path, paint);
-
                 path.delete();
                 paint.delete();
+                // surface hasn't been flushed yet (nor should we call flush
+                // ourselves), so reportSurface would likely be blank if we
+                // were to call it.
+                done();
             }
             surface.drawOnce(drawFrame);
-
-            reportSurface(surface, 'drawOnce', done);
+            // Reminder: drawOnce is async. In this test, we are just making
+            // sure the drawOnce function is there and doesn't crash, so we can
+            // just call done() when the frame is rendered.
         }));
     });
 
