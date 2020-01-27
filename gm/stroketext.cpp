@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
+#include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
 static void test_nulldev(SkCanvas* canvas) {
@@ -92,4 +93,33 @@ DEF_SIMPLE_GM(stroketext, canvas, 1200, 480) {
     canvas->translate(600, 0);
     font.setSize(kAboveThreshold_TextSize);
     draw_text_set(canvas, paint, font);
+}
+
+DEF_SIMPLE_GM_CAN_FAIL(stroketext_native, canvas, msg, 650, 210) {
+    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface("fonts/Stroking.ttf");
+    if (!typeface) {
+        return skiagm::DrawResult::kSkip;
+    }
+    SkPaint p;
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
+    p.setStrokeCap(SkPaint::kRound_Cap);
+    p.setStrokeJoin(SkPaint::kRound_Join);
+    p.setARGB(0xff, 0xbb, 0x00, 0x00);
+
+    SkFont font(typeface, 100);
+    /* Stroking.ttf is structured like:
+        nothing U+25CB ○ (nothing inside)
+        something U+25C9 ◉ (a tiny thing inside)
+        - off (point off / empty quad with implicit end) (before U+207B ⁻ / after U+208B ₋)
+        + on  (point on / empty line) (before U+207A ⁺ / after U+208A ₊)
+        0 off off (two implicit quads) (before U+2070 ⁰ / after U+2080 ₀)
+        1 off on  (quad with implicit close around) (before U+00B9 ¹ / after U+2081 ₁)
+        2 on  off (quad with implicit close) (before U+00B2 ² / after U+2082 ₂)
+        3 on  on  (empty line) (before U+00B3 ³ / after U+2083 ₃)
+    */
+    canvas->drawString("○◉  ⁻₋⁺₊", 10, 100, font, p);
+    canvas->drawString("⁰₀¹₁²₂³₃", 10, 200, font, p);
+    return skiagm::DrawResult::kOk;
 }
