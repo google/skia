@@ -16,7 +16,8 @@
 #include <dwrite.h>
 #include <d2d1.h>
 
-SkDWriteGeometrySink::SkDWriteGeometrySink(SkPath* path) : fRefCount(1), fPath(path) { }
+SkDWriteGeometrySink::SkDWriteGeometrySink(SkPath* path)
+    : fRefCount{1}, fPath{path}, fStarted{false}, fCurrent{0,0} {}
 
 SkDWriteGeometrySink::~SkDWriteGeometrySink() { }
 
@@ -67,15 +68,19 @@ SK_STDMETHODIMP_(void) SkDWriteGeometrySink::SetSegmentFlags(D2D1_PATH_SEGMENT v
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::BeginFigure(D2D1_POINT_2F startPoint, D2D1_FIGURE_BEGIN figureBegin) {
-    fPath->moveTo(startPoint.x, startPoint.y);
     if (figureBegin == D2D1_FIGURE_BEGIN_HOLLOW) {
         SkDEBUGFAIL("Invalid D2D1_FIGURE_BEGIN value.");
     }
+    fStarted = false;
+    fCurrent = startPoint;
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddLines(const D2D1_POINT_2F *points, UINT pointsCount) {
     for (const D2D1_POINT_2F *end = &points[pointsCount]; points < end; ++points) {
-        fPath->lineTo(points->x, points->y);
+        if (this->currentIsNot(*points)) {
+            this->goingTo(*points);
+            fPath->lineTo(points->x, points->y);
+        }
     }
 }
 
@@ -87,9 +92,9 @@ static bool approximately_equal(float a, float b) {
 typedef struct {
     float x;
     float y;
-} Cubic[4], Quadratic[3];
+} Cubic[4], Point;
 
-static bool check_quadratic(const Cubic& cubic, Quadratic& reduction) {
+static bool check_quadratic(const Cubic& cubic, Point& quadraticP1) {
     float dx10 = cubic[1].x - cubic[0].x;
     float dx23 = cubic[2].x - cubic[3].x;
     float midX = cubic[0].x + dx10 * 3 / 2;
@@ -104,38 +109,38 @@ static bool check_quadratic(const Cubic& cubic, Quadratic& reduction) {
     if (!approximately_equal(midY, (dy23 * 3 / 2) + cubic[3].y)) {
         return false;
     }
-    reduction[0] = cubic[0];
-    reduction[1].x = midX;
-    reduction[1].y = midY;
-    reduction[2] = cubic[3];
+    quadraticP1 = {midX, midY};
     return true;
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddBeziers(const D2D1_BEZIER_SEGMENT *beziers, UINT beziersCount) {
-    SkPoint lastPt;
-    fPath->getLastPt(&lastPt);
-    D2D1_POINT_2F prevPt = { SkScalarToFloat(lastPt.fX), SkScalarToFloat(lastPt.fY) };
-
     for (const D2D1_BEZIER_SEGMENT *end = &beziers[beziersCount]; beziers < end; ++beziers) {
-        Cubic cubic = { { prevPt.x, prevPt.y },
-                        { beziers->point1.x, beziers->point1.y },
-                        { beziers->point2.x, beziers->point2.y },
-                        { beziers->point3.x, beziers->point3.y }, };
-        Quadratic quadratic;
-        if (check_quadratic(cubic, quadratic)) {
-            fPath->quadTo(quadratic[1].x, quadratic[1].y,
-                          quadratic[2].x, quadratic[2].y);
-        } else {
-            fPath->cubicTo(beziers->point1.x, beziers->point1.y,
-                           beziers->point2.x, beziers->point2.y,
-                           beziers->point3.x, beziers->point3.y);
+        if (this->currentIsNot(beziers->point1) ||
+            this->currentIsNot(beziers->point2) ||
+            this->currentIsNot(beziers->point3))
+        {
+            Cubic cubic = { {        fCurrent.x,        fCurrent.y },
+                            { beziers->point1.x, beziers->point1.y },
+                            { beziers->point2.x, beziers->point2.y },
+                            { beziers->point3.x, beziers->point3.y }, };
+            this->goingTo(beziers->point3);
+            Point quadraticP1;
+            if (check_quadratic(cubic, quadraticP1)) {
+                fPath->quadTo(    quadraticP1.x,     quadraticP1.y,
+                              beziers->point3.x, beziers->point3.y);
+            } else {
+                fPath->cubicTo(beziers->point1.x, beziers->point1.y,
+                               beziers->point2.x, beziers->point2.y,
+                               beziers->point3.x, beziers->point3.y);
+            }
         }
-        prevPt = beziers->point3;
     }
 }
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::EndFigure(D2D1_FIGURE_END figureEnd) {
-    fPath->close();
+    if (fStarted) {
+        fPath->close();
+    }
 }
 
 SK_STDMETHODIMP SkDWriteGeometrySink::Close() {
