@@ -20,6 +20,20 @@ class SkDWriteGeometrySink : public IDWriteGeometrySink {
 private:
     LONG fRefCount;
     SkPath* fPath;
+    bool fStarted;
+    D2D1_POINT_2F fCurrent;
+
+    void goingTo(const D2D1_POINT_2F pt) {
+        if (!fStarted) {
+            fStarted = true;
+            fPath->moveTo(fCurrent.x, fCurrent.y);
+        }
+        fCurrent = pt;
+    }
+
+    bool currentIsNot(const D2D1_POINT_2F pt) {
+        return fCurrent.x != pt.x || fCurrent.y != pt.y;
+    }
 
 protected:
     explicit SkDWriteGeometrySink(SkPath* path);
