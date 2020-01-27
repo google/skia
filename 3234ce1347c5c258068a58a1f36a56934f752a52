@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11f50222_90804696",
+        "filename": "src/core/SkCompressedDataUtils.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-27T20:26:47Z",
+      "side": 1,
+      "message": "I just noticed this CL, and wanted to comment...\n\nI don\u0027t think we need separate compression types for BC1 with and without alpha. I just looked at the MS BC1 docs, but they appear to be missing a really critical piece of information: The presence or absence of alpha is encoded on a per-block basis. If the endpoints are in ascending order, then the block should be decoded as (c0, (c0+c1)/2, c1, transparent), otherwise it should be lerps of c0 and c1 at 1/3 and 2/3.\n\nThe older DXT1 docs actually have these details: https://docs.microsoft.com/en-us/windows/win32/direct3d9/opaque-and-1-bit-alpha-textures",
+      "revId": "3234ce1347c5c258068a58a1f36a56934f752a52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
