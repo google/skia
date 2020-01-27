@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/Camera.h"
 
-#include "include/utils/Sk3D.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGTransform.h"
@@ -17,31 +16,20 @@ namespace internal {
 
 namespace  {
 
-SkMatrix44 ComputeCameraMatrix(const SkPoint3& position,
-                               const SkPoint3& poi,
-                               const SkPoint3& rotation,
-                               const SkSize& viewport_size,
-                               float zoom) {
-    const auto pos = SkPoint3{ position.fX, position.fY, -position.fZ },
-                up = SkPoint3{           0,           1,            0 };
+SkM44 ComputeCameraMatrix(const SkV3& position,
+                          const SkV3& poi,
+                          const SkV3& rotation,
+                          const SkSize& viewport_size,
+                          float zoom) {
 
     // Initial camera vector.
-    SkMatrix44 cam_t;
-    Sk3LookAt(&cam_t, pos, poi, up);
-
-    // Rotation origin is camera position.
-    {
-        SkMatrix44 rot;
-        rot.setRotateDegreesAbout(1, 0, 0,  rotation.fX);
-        cam_t.postConcat(rot);
-        rot.setRotateDegreesAbout(0, 1, 0,  rotation.fY);
-        cam_t.postConcat(rot);
-        rot.setRotateDegreesAbout(0, 0, 1, -rotation.fZ);
-        cam_t.postConcat(rot);
-    }
-
-    // Flip world Z, as it is opposite of what Sk3D expects.
-    cam_t.preScale(1, 1, -1);
+    const auto cam_t = SkM44::Rotate({0, 0, 1}, SkDegreesToRadians(-rotation.z))
+                     * SkM44::Rotate({0, 1, 0}, SkDegreesToRadians( rotation.y))
+                     * SkM44::Rotate({1, 0, 0}, SkDegreesToRadians( rotation.x))
+                     * Sk3LookAt({ position.x, position.y, -position.z },
+                                 {      poi.x,      poi.y,       poi.z },
+                                 {          0,          1,           0 })
+                     * SkM44::Scale(1, 1, -1);
 
     // View parameters:
     //
@@ -52,16 +40,13 @@ SkMatrix44 ComputeCameraMatrix(const SkPoint3& position,
                view_distance = zoom,
                view_angle    = std::atan(sk_ieee_float_divide(view_size * 0.5f, view_distance));
 
-    SkMatrix44 persp_t;
-    Sk3Perspective(&persp_t, 0, view_distance, 2 * view_angle);
-    persp_t.postScale(view_size * 0.5f, view_size * 0.5f, 1);
+    const auto persp_t = SkM44::Scale(view_size * 0.5f, view_size * 0.5f, 1)
+                       * Sk3Perspective(0, view_distance, 2 * view_angle);
 
-    SkMatrix44 m;
-    m.setTranslate(viewport_size.width() * 0.5f, viewport_size.height() * 0.5f, 0);
-    m.preConcat(persp_t);
-    m.preConcat(cam_t);
-
-    return m;
+    return SkM44::Translate(viewport_size.width()  * 0.5f,
+                            viewport_size.height() * 0.5f,
+                            0)
+           * persp_t * cam_t;
 }
 
 } // namespace
@@ -82,7 +67,7 @@ CameraAdaper::CameraAdaper(const skjson::ObjectValue& jlayer,
 
 CameraAdaper::~CameraAdaper() = default;
 
-SkMatrix44 CameraAdaper::totalMatrix() const {
+SkM44 CameraAdaper::totalMatrix() const {
     // Camera parameters:
     //
     //   * location          -> position attribute
@@ -98,7 +83,7 @@ SkMatrix44 CameraAdaper::totalMatrix() const {
                                fZoom);
 }
 
-SkPoint3 CameraAdaper::poi(const SkPoint3& pos) const {
+SkV3 CameraAdaper::poi(const SkV3& pos) const {
     // AE supports two camera types:
     //
     //   - one-node camera: does not auto-orient, and starts off perpendicular
@@ -108,12 +93,12 @@ SkPoint3 CameraAdaper::poi(const SkPoint3& pos) const {
     //     and auto-orients to point in its direction.
 
     if (fType == CameraType::kOneNode) {
-        return { pos.fX, pos.fY, -pos.fZ - 1};
+        return { pos.x, pos.y, -pos.z - 1};
     }
 
     const auto ap = this->anchor_point();
 
-    return { ap.fX, ap.fY, -ap.fZ };
+    return { ap.x, ap.y, -ap.z };
 }
 
 sk_sp<sksg::Transform> CameraAdaper::DefaultCameraTransform(const SkSize& viewport_size) {
@@ -122,11 +107,11 @@ sk_sp<sksg::Transform> CameraAdaper::DefaultCameraTransform(const SkSize& viewpo
 
     static constexpr float kDefaultAEZoom = 879.13f;
 
-    const SkPoint3 pos = { center.fX, center.fY, -kDefaultAEZoom },
-                   poi = {    pos.fX,    pos.fY,     -pos.fZ - 1 },
-                   rot = {         0,         0,               0 };
+    const SkV3 pos = { center.fX, center.fY, -kDefaultAEZoom },
+               poi = {     pos.x,     pos.y,      -pos.z - 1 },
+               rot = {         0,         0,               0 };
 
-    return sksg::Matrix<SkMatrix44>::Make(
+    return sksg::Matrix<SkM44>::Make(
                 ComputeCameraMatrix(pos, poi, rot, viewport_size, kDefaultAEZoom));
 }
 

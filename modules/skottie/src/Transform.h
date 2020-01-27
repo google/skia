@@ -11,9 +11,8 @@
 #include "modules/skottie/src/SkottieAdapter.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkMatrix44.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkPoint3.h"
+#include "include/private/SkM44.h"
 #include "modules/skottie/src/Adapter.h"
 
 namespace skjson {
@@ -72,18 +71,17 @@ private:
     using INHERITED = DiscardableAdapterBase<TransformAdapter2D, sksg::Matrix<SkMatrix>>;
 };
 
-class TransformAdapter3D : public DiscardableAdapterBase<TransformAdapter3D,
-                                                         sksg::Matrix<SkMatrix44>> {
+class TransformAdapter3D : public DiscardableAdapterBase<TransformAdapter3D, sksg::Matrix<SkM44>> {
 public:
     TransformAdapter3D(const skjson::ObjectValue&, const AnimationBuilder&);
     ~TransformAdapter3D() override;
 
-    virtual SkMatrix44 totalMatrix() const;
+    virtual SkM44 totalMatrix() const;
 
 protected:
-    SkPoint3  anchor_point() const;
-    SkPoint3  position() const;
-    SkVector3 rotation() const;
+    SkV3 anchor_point() const;
+    SkV3 position() const;
+    SkV3 rotation() const;
 
 private:
     void onSync() final;
@@ -96,7 +94,7 @@ private:
                 fRy = 0,
                 fRz = 0;
 
-    using INHERITED = DiscardableAdapterBase<TransformAdapter3D, sksg::Matrix<SkMatrix44>>;
+    using INHERITED = DiscardableAdapterBase<TransformAdapter3D, sksg::Matrix<SkM44>>;
 };
 
 } // namespace internal

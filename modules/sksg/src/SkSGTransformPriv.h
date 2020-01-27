@@ -18,8 +18,8 @@ public:
 
     static bool Is44(const sk_sp<Transform>&t) { return t->is44(); }
 
-    template <typename T, typename = std::enable_if<std::is_same<T, SkMatrix  >::value ||
-                                                    std::is_same<T, SkMatrix44>::value >>
+    template <typename T, typename = std::enable_if<std::is_same<T, SkMatrix>::value ||
+                                                    std::is_same<T, SkM44   >::value >>
     static T As(const sk_sp<Transform>&);
 
 private:
@@ -32,8 +32,8 @@ inline SkMatrix TransformPriv::As<SkMatrix>(const sk_sp<Transform>& t) {
 }
 
 template <>
-inline SkMatrix44 TransformPriv::As<SkMatrix44>(const sk_sp<Transform>& t) {
-    return t->asMatrix44();
+inline SkM44 TransformPriv::As<SkM44>(const sk_sp<Transform>& t) {
+    return t->asM44();
 }
 
 } // namespace sksg
