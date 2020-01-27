@@ -165,9 +165,8 @@ private:
 
             fragBuilder->codeAppendf("half4 diffuseColor = %s;", args.fInputColor);
 
-            SkString dstNormalName = this->invokeChild(0, args);
-
-            fragBuilder->codeAppendf("float3 normal = %s.xyz;", dstNormalName.c_str());
+            fragBuilder->codeAppendf("half4 normalColor = %s;", this->invokeChild(0, args).c_str());
+            fragBuilder->codeAppendf("float3 normal = normalColor.xyz;");
 
             fragBuilder->codeAppend( "half3 result = half3(0.0);");
 
