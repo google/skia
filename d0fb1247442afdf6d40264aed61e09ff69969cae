@@ -22,6 +22,30 @@
       "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59dc9fed_20617d6a",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-27T20:44:50Z",
+      "side": 1,
+      "message": "Actually to be fully correct I don\u0027t think the proxy will be inconsistent with the surface cause in this case we make the surface first and then the proxy inherits the state from the surface. However, you are reducing the functionality of the RT returned from this call even if there is no actual reason to do it (i.e. it isn\u0027t a framebuffer surface).",
+      "parentUuid": "37af0d88_8fcb5229",
+      "range": {
+        "startLine": 250,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 78
+      },
+      "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
