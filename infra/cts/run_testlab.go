@@ -143,7 +143,7 @@ func getAvailableDevices() ([]*DeviceVersions, DeviceList, error) {
 	cmd.Stdout = &buf
 	cmd.Stderr = io.MultiWriter(os.Stdout, &errBuf)
 	if err := cmd.Run(); err != nil {
-		return nil, nil, skerr.Wrapf(err, "Error running: %s\nStdErr:%s", CMD_AVAILABLE_DEVICES, errBuf)
+		return nil, nil, skerr.Wrapf(err, "Error running: %s\nStdErr:%s", CMD_AVAILABLE_DEVICES, errBuf.String())
 	}
 
 	// Unmarshal the result.
@@ -262,7 +262,7 @@ func runTests(apk_path string, devices, ignoredDevices []*DeviceVersions, client
 		// Exit code 10 means triggering on Testlab succeeded, but but some of the
 		// runs on devices failed. We consider it a success for this script.
 		if exitCode != 10 {
-			return skerr.Wrapf(err, "Error running: %s\nStdErr:%s", cmdStr, errBuf)
+			return skerr.Wrapf(err, "Error running: %s\nStdErr:%s", cmdStr, errBuf.String())
 		}
 	}
 
