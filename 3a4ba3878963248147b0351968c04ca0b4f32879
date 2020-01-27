@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83515e2f_d67cae9e",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1999,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-27T20:30:45Z",
+      "side": 1,
+      "message": "If we do have an xform I don\u0027t think we set srcProxy anywhere.",
+      "range": {
+        "startLine": 1999,
+        "startChar": 8,
+        "endLine": 1999,
+        "endChar": 9
+      },
+      "revId": "3a4ba3878963248147b0351968c04ca0b4f32879",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

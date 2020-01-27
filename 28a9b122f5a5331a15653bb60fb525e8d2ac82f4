@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6c1fef2_46197970",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1997,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-27T20:30:45Z",
+      "side": 0,
+      "message": "do we not need to check for a failed srcProxy anymore?",
+      "range": {
+        "startLine": 1995,
+        "startChar": 4,
+        "endLine": 1997,
+        "endChar": 12
+      },
+      "revId": "28a9b122f5a5331a15653bb60fb525e8d2ac82f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
