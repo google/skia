@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/SkTo.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -47,7 +48,6 @@ static void validate_alpha_data(skiatest::Reporter* reporter, int w, int h, cons
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
     unsigned char alphaData[X_SIZE * Y_SIZE];
 
@@ -62,13 +62,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
+        unsigned char alphaDataCopy[X_SIZE * Y_SIZE];
+        memcpy(alphaDataCopy, alphaData, X_SIZE * Y_SIZE);
 
         const SkImageInfo ii = SkImageInfo::MakeA8(X_SIZE, Y_SIZE);
 
-        SkPixmap pixmap(ii, alphaData, ii.minRowBytes());
-        sk_sp<SkImage> alphaImg = SkImage::MakeRasterCopy(pixmap);
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                alphaImg, 1, SkBudgeted::kNo, SkBackingFit::kExact);
+        SkBitmap bitmap;
+        bitmap.installPixels(ii, alphaDataCopy, ii.minRowBytes());
+        bitmap.setImmutable();
+        GrBitmapTextureMaker maker(context, bitmap);
+        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
@@ -76,10 +79,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                   GrColorType::kAlpha_8);
+                                                                   grCT);
         GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
-        auto sContext = GrSurfaceContext::Make(context, std::move(view), GrColorType::kAlpha_8,
-                                               kPremul_SkAlphaType, nullptr);
+        auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
+                                               nullptr);
 
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 

@@ -440,7 +440,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, GrMipMapped mipMapp
     }
 
     if (const SkBitmap* bmp = as_IB(this)->onPeekBitmap()) {
-        GrBitmapTextureMaker maker(context, *bmp);
+        GrBitmapTextureMaker maker(context, *bmp, GrBitmapTextureMaker::Cached::kYes);
         return create_image_from_producer(context, &maker, this->uniqueID(), mipMapped);
     }
     return nullptr;
@@ -543,7 +543,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     // Turn the pixmap into a GrTextureProxy
     SkBitmap bmp;
     bmp.installPixels(*pixmap);
-    GrBitmapTextureMaker bitmapMaker(context, bmp, false, false);
+    GrBitmapTextureMaker bitmapMaker(context, bmp);
     GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
     auto [proxy, grCT] = bitmapMaker.refTextureProxy(mipMapped);
     if (!proxy) {

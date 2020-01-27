@@ -296,7 +296,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
         // Turn the pixmap into a GrTextureProxy
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
-        GrBitmapTextureMaker bitmapMaker(context, bmp, false, false);
+        GrBitmapTextureMaker bitmapMaker(context, bmp);
         GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
         std::tie(tempTextureProxies[i], proxyColorTypes[i]) =
                 bitmapMaker.refTextureProxy(mipMapped);
