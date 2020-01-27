@@ -690,31 +690,70 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
 namespace {
 
+struct GlyphPathCtx {
+    SkPath* path;
+    bool queuedMove;
+    bool queuedLine;
+    FT_Vector movePt;
+    FT_Vector linePt;
+};
+
 int move_proc(const FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->close();  // to close the previous contour (if any)
-    path->moveTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+    GlyphPathCtx* gp = (GlyphPathCtx*)ctx;
+    // If move still queued contour is empty or one implicit close line; don't move or close.
+    if (!gp->queuedMove) {
+        // A conic or cubic implicit point closed or an implicit close line is queued up.
+        gp->path->close(); // close the previous contour (if any)
+    }
+
+    gp->queuedMove = true;
+    gp->movePt = *pt;
+    gp->queuedLine = false;
     return 0;
 }
 
 int line_proc(const FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->lineTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+    GlyphPathCtx* gp = (GlyphPathCtx*)ctx;
+    if (gp->queuedLine) {
+        if (gp->queuedMove) {
+            gp->path->moveTo(SkFDot6ToScalar(gp->movePt.x), -SkFDot6ToScalar(gp->movePt.y));
+            gp->queuedMove = false;
+        }
+        gp->path->lineTo(SkFDot6ToScalar(gp->linePt.x), -SkFDot6ToScalar(gp->linePt.y));
+    }
+    gp->queuedLine = true;
+    gp->linePt = *pt;
     return 0;
 }
 
 int quad_proc(const FT_Vector* pt0, const FT_Vector* pt1, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
-                 SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
+    GlyphPathCtx* gp = (GlyphPathCtx*)ctx;
+    if (gp->queuedMove) {
+        gp->path->moveTo(SkFDot6ToScalar(gp->movePt.x), -SkFDot6ToScalar(gp->movePt.y));
+        gp->queuedMove = false;
+    }
+    if (gp->queuedLine) {
+        gp->path->lineTo(SkFDot6ToScalar(gp->linePt.x), -SkFDot6ToScalar(gp->linePt.y));
+        gp->queuedLine = false;
+    }
+    gp->path->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                     SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
     return 0;
 }
 
 int cubic_proc(const FT_Vector* pt0, const FT_Vector* pt1, const FT_Vector* pt2, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
-                  SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
-                  SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
+    GlyphPathCtx* gp = (GlyphPathCtx*)ctx;
+    if (gp->queuedMove) {
+        gp->path->moveTo(SkFDot6ToScalar(gp->movePt.x), -SkFDot6ToScalar(gp->movePt.y));
+        gp->queuedMove = false;
+    }
+    if (gp->queuedLine) {
+        gp->path->lineTo(SkFDot6ToScalar(gp->linePt.x), -SkFDot6ToScalar(gp->linePt.y));
+        gp->queuedLine = false;
+    }
+    gp->path->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                      SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
+                      SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
     return 0;
 }
 
@@ -730,7 +769,8 @@ bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path
     funcs.shift     = 0;
     funcs.delta     = 0;
 
-    FT_Error err = FT_Outline_Decompose(&face->glyph->outline, &funcs, path);
+    GlyphPathCtx ctx = GlyphPathCtx{path, false, false, {0,0}, {0,0}};
+    FT_Error err = FT_Outline_Decompose(&face->glyph->outline, &funcs, &ctx);
 
     if (err != 0) {
         path->reset();
