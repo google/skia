@@ -223,18 +223,22 @@ private:
     uint32_t       fFib0 {1}, fFib1 {1};
 };
 
+// A simple struct to allocate inline storage.
+template <size_t N>
+struct SkInlineStorage{
+    char storage[N];
+};
+
 // Helper for defining allocators with inline/reserved storage.
 // For argument declarations, stick to the base type (SkArenaAlloc).
+// Note: Having SkSTArenaAlloc use embedded inline storage makes the pointers that SkArenaAlloc
+// uses in that storage to become invalid during destruction. Use cleaver inheritance ordering
+// to reorder the destructors.
 template <size_t InlineStorageSize>
-class SkSTArenaAlloc : public SkArenaAlloc {
+class SkSTArenaAlloc : private SkInlineStorage<InlineStorageSize>, public SkArenaAlloc {
 public:
     explicit SkSTArenaAlloc(size_t firstHeapAllocation = InlineStorageSize)
-        : INHERITED(fInlineStorage, InlineStorageSize, firstHeapAllocation) {}
-
-private:
-    char fInlineStorage[InlineStorageSize];
-
-    using INHERITED = SkArenaAlloc;
+        : SkArenaAlloc{this->storage, InlineStorageSize, firstHeapAllocation} {}
 };
 
 #endif  // SkArenaAlloc_DEFINED
