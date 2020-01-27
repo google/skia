@@ -11,7 +11,6 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
-#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipMap.h"
 #include "src/gpu/GrAuditTrail.h"
@@ -294,8 +293,7 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
     // TODO: expand CompressedDataIsCorrect to work here too
     SkImage::CompressionType compressionType = this->caps()->compressionType(format);
 
-    if (dataSize < SkCompressedDataSize(compressionType, dimensions, nullptr,
-                                        mipMapped == GrMipMapped::kYes)) {
+    if (dataSize < GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped)) {
         return nullptr;
     }
     return this->onCreateCompressedTexture(dimensions, format, budgeted, mipMapped, isProtected,
@@ -811,8 +809,8 @@ bool GrGpu::CompressedDataIsCorrect(SkISize dimensions, SkImage::CompressionType
 
     SkASSERT(data->type() == BackendTextureData::Type::kCompressed);
 
-    size_t computedSize = SkCompressedDataSize(compressionType, dimensions,
-                                               nullptr, mipMapped == GrMipMapped::kYes);
+    size_t computedSize = GrCompressedDataSize(compressionType, dimensions,
+                                               nullptr, mipMapped);
 
     return computedSize == data->compressedSize();
 }
