@@ -24,7 +24,7 @@ public:
     // Used in the absence of an explicit camera layer.
     static sk_sp<sksg::Transform> DefaultCameraTransform(const SkSize& viewport_size);
 
-    SkMatrix44 totalMatrix() const override;
+    SkM44 totalMatrix() const override;
 
 private:
     enum class CameraType {
@@ -32,7 +32,7 @@ private:
         kTwoNode, // explicitly facing a POI (the anchor point), auto-orients
     };
 
-    SkPoint3 poi(const SkPoint3& pos) const;
+    SkV3 poi(const SkV3& pos) const;
 
     const SkSize     fViewportSize;
     const CameraType fType;
