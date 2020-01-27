@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37af0d88_8fcb5229",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-01-27T20:39:50Z",
+      "side": 1,
+      "message": "If you covert this to only use a texture view then you can no longer copy it right? In the proxy level it will not be flagged as framebuffer only (since it comes form a backend texture) so it make think it can attempt a copy to do some operation. But then that is going to fail down here when try to actually execute the GPU command.\n\nThis is why I was suggesting the GrDawnRenderTarget should hold a texture and/or a textureview.  The pure wrap GrBackendRenderTarget will creating a framebuffer only GrDawnRT that only has a view, but this case will be able to create one that does a wrap a texture.",
+      "range": {
+        "startLine": 250,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 78
+      },
+      "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
