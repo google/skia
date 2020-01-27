@@ -9,7 +9,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkM44.h"
-#include "include/utils/Sk3D.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
