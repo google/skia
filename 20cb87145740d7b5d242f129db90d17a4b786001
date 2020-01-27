@@ -22,6 +22,30 @@
       "revId": "20cb87145740d7b5d242f129db90d17a4b786001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1aafe607_9b89cf7f",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-01-27T17:18:38Z",
+      "side": 1,
+      "message": "I changed to \"continue\" so you can be sure the current iteration is finished and loop is moving on, without having to scroll down to the end of the switch and see if anything else is happening. However, it was just a thought and only a weak preference. I\u0027m fine either way.",
+      "parentUuid": "52f29cfd_665a81d9",
+      "range": {
+        "startLine": 841,
+        "startChar": 16,
+        "endLine": 841,
+        "endChar": 24
+      },
+      "revId": "20cb87145740d7b5d242f129db90d17a4b786001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
