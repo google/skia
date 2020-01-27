@@ -96,7 +96,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
     auto format =
             provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kYes);
     sk_sp<GrTexture> tex(provider->createTexture(desc, format, GrRenderable::kYes, sampleCount,
-                                                 GrMipMapped::kNo, budgeted, GrProtected::kNo));
+                                                 budgeted, GrMipMapped::kNo, GrProtected::kNo));
     if (!tex || !tex->asRenderTarget()) {
         return nullptr;
     }
@@ -1616,8 +1616,8 @@ static sk_sp<GrTexture> make_normal_texture(GrResourceProvider* provider,
     desc.fWidth = width;
     desc.fHeight = height;
     auto format = provider->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
-    return provider->createTexture(desc, format, renderable, sampleCnt, GrMipMapped::kNo,
-                                   SkBudgeted::kYes, GrProtected::kNo);
+    return provider->createTexture(desc, format, renderable, sampleCnt, SkBudgeted::kYes,
+                                   GrMipMapped::kNo, GrProtected::kNo);
 }
 
 static sk_sp<GrTextureProxy> make_mipmap_proxy(GrContext * context,

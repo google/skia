@@ -322,7 +322,7 @@ public:
                     desc.fHeight = kAtlasTileSize;
 
                     return resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1,
-                                                           GrMipMapped::kNo, SkBudgeted::kYes,
+                                                           SkBudgeted::kYes, GrMipMapped::kNo,
                                                            GrProtected::kNo);
                 },
                 format,

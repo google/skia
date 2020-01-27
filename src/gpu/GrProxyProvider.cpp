@@ -149,7 +149,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::testingOnly_createInstantiatedProxy(
                                                     isProtected);
     } else {
         tex = resourceProvider->createTexture(desc, format, renderable, renderTargetSampleCnt,
-                                              GrMipMapped::kNo, budgeted, isProtected);
+                                              budgeted, GrMipMapped::kNo, isProtected);
     }
     if (!tex) {
         return nullptr;
@@ -395,7 +395,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
                 }
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc, format, colorType, GrRenderable::kNo, 1, SkBudgeted::kYes,
-                        GrProtected::kNo, texels.get(), mipLevelCount));
+                        GrMipMapped::kYes, GrProtected::kNo, texels.get()));
             },
             format, desc, readSwizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
             GrMipMapped::kYes, GrMipMapsStatus::kValid, GrInternalSurfaceFlags::kNone,

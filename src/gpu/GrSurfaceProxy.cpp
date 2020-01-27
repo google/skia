@@ -141,8 +141,8 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
         surface = resourceProvider->createApproxTexture(desc, fFormat, renderable, sampleCnt,
                                                         fIsProtected);
     } else {
-        surface = resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, mipMapped,
-                                                  fBudgeted, fIsProtected);
+        surface = resourceProvider->createTexture(desc, fFormat, renderable, sampleCnt, fBudgeted,
+                                                  mipMapped, fIsProtected);
     }
     if (!surface) {
         return nullptr;
