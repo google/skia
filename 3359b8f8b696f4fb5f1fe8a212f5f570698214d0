@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2bdb2ee_fcba79b0",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-27T19:34:33Z",
+      "side": 1,
+      "message": "even maybe just std::array\u003cchar,N\u003e ?",
+      "revId": "3359b8f8b696f4fb5f1fe8a212f5f570698214d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c05549f4_50f1a7fe",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-27T19:34:33Z",
+      "side": 1,
+      "message": "Maybe better to describe it from how it\u0027s implemented, rather than how it\u0027s not?\n\n// Inheriting from the storage first means the storage will outlive the \n// SkArenaAlloc, letting ~SkArenaAlloc read it as it calls destructors.\n// (This is mostly only relevant for strict tools like MSAN.)\n\n?",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 30
+      },
+      "revId": "3359b8f8b696f4fb5f1fe8a212f5f570698214d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
