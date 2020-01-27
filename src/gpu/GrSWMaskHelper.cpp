@@ -8,6 +8,7 @@
 #include "src/gpu/GrSWMaskHelper.h"
 
 #include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -97,16 +98,13 @@ sk_sp<GrTextureProxy> GrSWMaskHelper::toTextureProxy(GrRecordingContext* context
     SkImageInfo ii = SkImageInfo::MakeA8(fPixels->width(), fPixels->height());
     size_t rowBytes = fPixels->rowBytes();
 
-    sk_sp<SkData> data = fPixels->detachPixelsAsData();
-    if (!data) {
-        return nullptr;
-    }
+    SkBitmap bitmap;
+    SkAssertResult(bitmap.installPixels(ii, fPixels->detachPixels(), rowBytes,
+                                        [](void* addr, void* context) { sk_free(addr); },
+                                        nullptr));
+    bitmap.setImmutable();
 
-    sk_sp<SkImage> img = SkImage::MakeRasterData(ii, std::move(data), rowBytes);
-    if (!img) {
-        return nullptr;
-    }
-
-    return context->priv().proxyProvider()->createTextureProxy(std::move(img), 1, SkBudgeted::kYes,
-                                                               fit);
+    GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kNo, fit);
+    auto [texture, ct] = maker.refTextureProxy(GrMipMapped::kNo);
+    return texture;
 }

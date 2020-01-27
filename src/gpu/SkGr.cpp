@@ -140,75 +140,19 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     const SkBitmap& bitmap,
                                                     GrSamplerState params,
                                                     SkScalar scaleAdjust[2]) {
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, scaleAdjust);
+    GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kYes);
+    return maker.refTextureProxyForParams(params, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
+sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrRecordingContext* context,
                                               const SkBitmap& bitmap,
                                               SkBackingFit fit) {
     if (!bitmap.peekPixels(nullptr)) {
         return nullptr;
     }
 
-    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
-    // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
-    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode cpyMode = proxyProvider->renderingDirectly() ? kNever_SkCopyPixelsMode
-                                                                  : kIfMutable_SkCopyPixelsMode;
-    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
-
-    if (!image) {
-        return nullptr;
-    }
-
-    return GrMakeCachedImageProxy(proxyProvider, std::move(image), fit);
-}
-
-static void create_unique_key_for_image(const SkImage* image, GrUniqueKey* result) {
-    if (!image) {
-        result->reset(); // will be invalid
-        return;
-    }
-
-    if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
-        if (!bm->isVolatile()) {
-            SkIPoint origin = bm->pixelRefOrigin();
-            SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bm->width(), bm->height());
-            GrMakeKeyFromImageID(result, bm->getGenerationID(), subset);
-        }
-        return;
-    }
-
-    GrMakeKeyFromImageID(result, image->uniqueID(), image->bounds());
-}
-
-sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
-                                             sk_sp<SkImage> srcImage,
-                                             SkBackingFit fit) {
-    sk_sp<GrTextureProxy> proxy;
-    GrUniqueKey originalKey;
-
-    create_unique_key_for_image(srcImage.get(), &originalKey);
-
-    if (originalKey.isValid()) {
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(
-                originalKey, SkColorTypeToGrColorType(srcImage->colorType()),
-                kTopLeft_GrSurfaceOrigin);
-    }
-    if (!proxy) {
-        proxy = proxyProvider->createTextureProxy(srcImage, 1, SkBudgeted::kYes, fit);
-        if (proxy && originalKey.isValid()) {
-            proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
-            const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap();
-            // When recording DDLs we do not want to install change listeners because doing
-            // so isn't threadsafe.
-            if (bm && proxyProvider->renderingDirectly()) {
-                GrInstallBitmapUniqueKeyInvalidator(originalKey, proxyProvider->contextID(),
-                                                    bm->pixelRef());
-            }
-        }
-    }
-
+    GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kYes, fit);
+    auto [proxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
     return proxy;
 }
 
