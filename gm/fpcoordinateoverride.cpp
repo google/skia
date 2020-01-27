@@ -18,6 +18,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrCoordTransform.h"
@@ -81,8 +82,8 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
 
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
-    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
-    sk_sp<GrTextureProxy> texture = proxyProvider->createProxyFromBitmap(bmp, GrMipMapped::kNo);
+    GrBitmapTextureMaker maker(ctx, bmp);
+    auto [texture, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
     std::unique_ptr<GrFragmentProcessor> imgFP =
             GrTextureEffect::Make(texture, bmp.alphaType(), SkMatrix());
     auto fp = std::unique_ptr<GrFragmentProcessor>(new SampleCoordEffect(std::move(imgFP)));
