@@ -850,7 +850,6 @@ func (b *builder) updateGoDeps(name string) string {
 			"--gerrit_project", "skia",
 			"--gerrit_url", "https://skia-review.googlesource.com",
 			"--repo", specs.PLACEHOLDER_REPO,
-			"--reviewers", "borenet@google.com",
 			"--revision", specs.PLACEHOLDER_REVISION,
 			"--patch_issue", specs.PLACEHOLDER_ISSUE,
 			"--patch_set", specs.PLACEHOLDER_PATCHSET,
