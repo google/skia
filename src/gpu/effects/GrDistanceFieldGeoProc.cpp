@@ -70,9 +70,8 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
-                                 dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName, &uv,
-                                 &texIdx, &st);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
+                                 &uv, &texIdx, &st);
 
         bool isUniformScale = (dfTexEffect.getFlags() & kUniformScale_DistanceFieldEffectMask) ==
                               kUniformScale_DistanceFieldEffectMask;
@@ -348,9 +347,8 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfPathEffect.numTextureSamplers(),
-                                 dfPathEffect.inTextureCoords().name(), atlasDimensionsInvName, &uv,
-                                 &texIdx, &st);
+        append_index_uv_varyings(args, dfPathEffect.inTextureCoords().name(),
+                                 atlasDimensionsInvName, &uv, &texIdx, &st);
 
         // setup pass through color
         varyingHandler->addPassThroughAttribute(dfPathEffect.inColor(), args.fOutputColor);
@@ -654,9 +652,8 @@ public:
         GrSLType texIdxType = args.fShaderCaps->integerSupport() ? kInt_GrSLType : kFloat_GrSLType;
         GrGLSLVarying texIdx(texIdxType);
         GrGLSLVarying st(kFloat2_GrSLType);
-        append_index_uv_varyings(args, dfTexEffect.numTextureSamplers(),
-                                 dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName, &uv,
-                                 &texIdx, &st);
+        append_index_uv_varyings(args, dfTexEffect.inTextureCoords().name(), atlasDimensionsInvName,
+                                 &uv, &texIdx, &st);
 
         GrGLSLVarying delta(kFloat_GrSLType);
         varyingHandler->addVarying("Delta", &delta);
