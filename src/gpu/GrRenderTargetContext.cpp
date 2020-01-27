@@ -1946,14 +1946,14 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     }
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
-    std::unique_ptr<GrRenderTargetContext> tempRTC;
     bool needsRescale = srcRect.size() != dstSize;
+    sk_sp<GrTextureProxy> srcProxy;
     if (needsRescale) {
         // We assume the caller wants kPremul. There is no way to indicate a preference.
         auto info = SkImageInfo::Make(dstSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                       dstColorSpace);
         // TODO: Incorporate the YUV conversion into last pass of rescaling.
-        tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
+        auto tempRTC = this->rescale(info, srcRect, rescaleGamma, rescaleQuality);
         if (!tempRTC) {
             callback(context, nullptr);
             return;
@@ -1961,40 +1961,43 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
         SkASSERT(SkColorSpace::Equals(tempRTC->colorInfo().colorSpace(), info.colorSpace()));
         SkASSERT(tempRTC->origin() == kTopLeft_GrSurfaceOrigin);
         x = y = 0;
+        srcProxy = tempRTC->asTextureProxyRef();
     } else {
+        srcProxy = this->asTextureProxyRef();
+        if (!srcProxy) {
+            srcProxy = GrSurfaceProxy::Copy(fContext, fReadView.proxy(),
+                                            this->colorInfo().colorType(), GrMipMapped::kNo,
+                                            srcRect, SkBackingFit::kApprox, SkBudgeted::kYes);
+            if (!srcProxy) {
+                // If we can't get a texture copy of the contents then give up.
+                callback(context, nullptr);
+                return;
+            }
+            x = y = 0;
+        }
         // We assume the caller wants kPremul. There is no way to indicate a preference.
         sk_sp<GrColorSpaceXform> xform = GrColorSpaceXform::Make(
                 this->colorInfo().colorSpace(), this->colorInfo().alphaType(), dstColorSpace.get(),
                 kPremul_SkAlphaType);
         if (xform) {
-            sk_sp<GrTextureProxy> texProxy = this->asTextureProxyRef();
-            // TODO: Do something if the input is not a texture already.
-            if (!texProxy) {
-                callback(context, nullptr);
-                return;
-            }
-            SkRect srcRectToDraw = SkRect::Make(srcRect);
-            tempRTC = GrRenderTargetContext::Make(
+            SkRect srcRectToDraw = SkRect::MakeXYWH(x, y, srcRect.width(), srcRect.height());
+            auto tempRTC = GrRenderTargetContext::Make(
                     direct, this->colorInfo().colorType(), dstColorSpace, SkBackingFit::kApprox,
                     dstSize, 1, GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
             if (!tempRTC) {
                 callback(context, nullptr);
                 return;
             }
-            tempRTC->drawTexture(GrNoClip(), std::move(texProxy), this->colorInfo().colorType(),
+            tempRTC->drawTexture(GrNoClip(), std::move(srcProxy), this->colorInfo().colorType(),
                                  this->colorInfo().alphaType(), GrSamplerState::Filter::kNearest,
                                  SkBlendMode::kSrc, SK_PMColor4fWHITE, srcRectToDraw,
-                                 SkRect::MakeWH(srcRect.width(), srcRect.height()), GrAA::kNo,
-                                 GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
-                                 SkMatrix::I(), std::move(xform));
+                                 SkRect::Make(srcRect.size()), GrAA::kNo, GrQuadAAFlags::kNone,
+                                 SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(),
+                                 std::move(xform));
+            srcProxy = tempRTC->asTextureProxyRef();
+            SkASSERT(srcProxy);
             x = y = 0;
         }
-    }
-    auto srcProxy = tempRTC ? tempRTC->asTextureProxyRef() : this->asTextureProxyRef();
-    // TODO: Do something if the input is not a texture already.
-    if (!srcProxy) {
-        callback(context, nullptr);
-        return;
     }
 
     auto yRTC = GrRenderTargetContext::MakeWithFallback(
