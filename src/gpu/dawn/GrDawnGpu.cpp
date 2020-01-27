@@ -153,8 +153,8 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
                                             GrRenderable renderable,
                                             int renderTargetSampleCnt,
                                             SkBudgeted budgeted,
+                                            GrMipMapped mipMapped,
                                             GrProtected,
-                                            int mipLevelCount,
                                             uint32_t levelClearMask) {
     SkASSERT(!levelClearMask);
     wgpu::TextureFormat format;
@@ -162,12 +162,13 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
         return nullptr;
     }
 
-    GrMipMapsStatus mipMapsStatus =
-        mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
+    GrMipMapsStatus mipMapsStatus = (mipMapped == GrMipMapped::kYes)
+                                                    ? GrMipMapsStatus::kDirty
+                                                    : GrMipMapsStatus::kNotAllocated;
 
     return GrDawnTexture::Make(this, { desc.fWidth, desc.fHeight },
                                        format, renderable,
-                                       renderTargetSampleCnt, budgeted, mipLevelCount,
+                                       renderTargetSampleCnt, budgeted, mipMapped,
                                        mipMapsStatus);
 }
 

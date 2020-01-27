@@ -79,15 +79,15 @@ public:
      * for the format and also describe the texel data. This will ensure any conversions that
      * need to get applied to the data before upload are applied.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createTexture1(const GrSurfaceDesc& desc,
                                    const GrBackendFormat& format,
                                    GrColorType colorType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
+                                   GrMipMapped mipMapped,
                                    GrProtected isProtected,
-                                   const GrMipLevel texels[],
-                                   int mipLevelCount);
+                                   const GrMipLevel texels[]);
 
     /**
      * Create a potentially loose fit texture with the provided data. The color type must be valid
@@ -113,7 +113,7 @@ public:
                                              SkBudgeted,
                                              GrMipMapped,
                                              GrProtected,
-                                             SkData* data);
+                                             SkData*);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrapped Backend Surfaces

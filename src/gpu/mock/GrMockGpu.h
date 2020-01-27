@@ -67,8 +67,8 @@ private:
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,
+                                     GrMipMapped,
                                      GrProtected,
-                                     int mipLevelCount,
                                      uint32_t levelClearMask) override;
 
     sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,

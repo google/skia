@@ -166,9 +166,9 @@ static bool setup_backend_objects(GrContext* context,
             texels[i].fRowBytes = 0;
         }
 
-        backingTexture = resourceProvider->createTexture(
+        backingTexture = resourceProvider->createTexture1(
                 backingDesc, format, GrColorType::kRGBA_8888, GrRenderable::kNo, 1, SkBudgeted::kNo,
-                GrProtected::kNo, texels.get(), mipLevelCount);
+                options.fMipMapping, GrProtected::kNo, texels.get());
         if (!backingTexture) {
             return false;
         }
@@ -192,9 +192,10 @@ static bool setup_backend_objects(GrContext* context,
         // We use this fact to initialize it with data but don't allow mipmaps
         GrMipLevel level0 = { data.get(), backingDesc.fWidth*sizeof(uint32_t) };
 
-        sk_sp<GrTexture> tmp = resourceProvider->createTexture(
+        sk_sp<GrTexture> tmp = resourceProvider->createTexture1(
                 backingDesc, renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
-                options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo, &level0, 1);
+                options.fOffScreenSampleCount, SkBudgeted::kNo, GrMipMapped::kNo,
+                GrProtected::kNo, &level0);
         if (!tmp || !tmp->asRenderTarget()) {
             return false;
         }
@@ -221,10 +222,10 @@ static bool setup_backend_objects(GrContext* context,
             texels[i].fRowBytes = 0;
         }
 
-        backingTextureRenderTarget = resourceProvider->createTexture(
+        backingTextureRenderTarget = resourceProvider->createTexture1(
                 backingDesc, renderableFormat, GrColorType::kRGBA_8888, GrRenderable::kYes,
-                options.fOffScreenSampleCount, SkBudgeted::kNo, GrProtected::kNo, texels.get(),
-                mipLevelCount);
+                options.fOffScreenSampleCount, SkBudgeted::kNo, options.fOffScreenMipMapping,
+                GrProtected::kNo, texels.get());
         if (!backingTextureRenderTarget || !backingTextureRenderTarget->asRenderTarget()) {
             return false;
         }
