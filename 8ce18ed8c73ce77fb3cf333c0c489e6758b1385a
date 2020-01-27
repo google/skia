@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "417ece55_45fd94ce",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-27T17:30:59Z",
+      "side": 1,
+      "message": "Maybe let\u0027s just remove SkSTArenaAlloc?  You can always simulate it in like, two lines, right?",
+      "range": {
+        "startLine": 227,
+        "startChar": 5,
+        "endLine": 227,
+        "endChar": 20
+      },
+      "revId": "8ce18ed8c73ce77fb3cf333c0c489e6758b1385a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "469315c7_3c52df5b",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-27T17:30:59Z",
+      "side": 1,
+      "message": "I don\u0027t think I follow where I should use ...StartingEmpty and where not.  What happens if you use SkArenaAlloc instead of StartingEmpty?",
+      "range": {
+        "startLine": 249,
+        "startChar": 0,
+        "endLine": 261,
+        "endChar": 0
+      },
+      "revId": "8ce18ed8c73ce77fb3cf333c0c489e6758b1385a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
