@@ -16,6 +16,7 @@
 #include "include/private/GrSingleOwner.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTraceEvent.h"
@@ -601,7 +602,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapCompressedBackendTexture(const GrBack
 
     SkImage::CompressionType compressionType = caps->compressionType(beTex.getBackendFormat());
 
-    GrSwizzle texSwizzle = GrCompressionTypeIsOpaque(compressionType) ? GrSwizzle::RGB1()
+    GrSwizzle texSwizzle = SkCompressionTypeIsOpaque(compressionType) ? GrSwizzle::RGB1()
                                                                       : GrSwizzle::RGBA();
 
     return sk_sp<GrTextureProxy>(

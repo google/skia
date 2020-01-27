@@ -777,12 +777,6 @@ enum class  GrMipMapsStatus {
 GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
- * Returns the data size for the given SkImage::CompressionType
- */
-size_t GrCompressedFormatDataSize(SkImage::CompressionType, SkISize dimensions,
-                                  GrMipMapped = GrMipMapped::kNo);
-
-/**
  * Like SkColorType this describes a layout of pixel data in CPU memory. It specifies the channels,
  * their type, and width. This exists so that the GPU backend can have private types that have no
  * analog in the public facing SkColorType enum and omit types not implemented in the GPU backend.
@@ -1141,17 +1135,6 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
         case GrColorType::kR_F16:            return 2;
         case GrColorType::kGray_F16:         return 2;
     }
-    SkUNREACHABLE;
-}
-
-static constexpr bool GrCompressionTypeIsOpaque(SkImage::CompressionType compression) {
-    switch (compression) {
-        case SkImage::CompressionType::kNone:            return true;
-        case SkImage::CompressionType::kETC2_RGB8_UNORM: return true;
-        case SkImage::CompressionType::kBC1_RGB8_UNORM:  return true;
-        case SkImage::CompressionType::kBC1_RGBA8_UNORM: return false;
-    }
-
     SkUNREACHABLE;
 }
 
