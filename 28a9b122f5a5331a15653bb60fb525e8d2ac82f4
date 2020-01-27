@@ -22,6 +22,30 @@
       "revId": "28a9b122f5a5331a15653bb60fb525e8d2ac82f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeb7b794_86b932bc",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1997,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-27T20:42:56Z",
+      "side": 0,
+      "message": "See update. I goofed and meant to remove the scoped variable texProxy and instead set srcProxy.",
+      "parentUuid": "f6c1fef2_46197970",
+      "range": {
+        "startLine": 1995,
+        "startChar": 4,
+        "endLine": 1997,
+        "endChar": 12
+      },
+      "revId": "28a9b122f5a5331a15653bb60fb525e8d2ac82f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
