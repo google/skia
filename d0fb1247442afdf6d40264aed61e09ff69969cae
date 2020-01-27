@@ -70,6 +70,30 @@
       "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3abf8344_313728d7",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-27T21:30:31Z",
+      "side": 1,
+      "message": "I\u0027m not sure we need this functionality at all anymore. I have a probe CL here to remove all callers in Chrome:\nhttps://chromium-review.googlesource.com/c/chromium/src/+/2023273",
+      "parentUuid": "bea6d0fa_fcad12bc",
+      "range": {
+        "startLine": 250,
+        "startChar": 2,
+        "endLine": 251,
+        "endChar": 78
+      },
+      "revId": "d0fb1247442afdf6d40264aed61e09ff69969cae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
