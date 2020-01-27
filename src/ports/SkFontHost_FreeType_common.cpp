@@ -690,49 +690,209 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
 namespace {
 
-int move_proc(const FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->close();  // to close the previous contour (if any)
-    path->moveTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
-    return 0;
-}
+struct SkFT_Outline_Sink {
+    virtual ~SkFT_Outline_Sink() {}
+    virtual bool move(const FT_Vector* to) = 0;
+    virtual bool line(const FT_Vector* to) = 0;
+    virtual bool quad(const FT_Vector* ctrl, const FT_Vector* to) = 0;
+    virtual bool cubic(const FT_Vector* ctrl1, const FT_Vector* ctrl2, const FT_Vector* to) = 0;
+    virtual bool close() = 0;
+};
 
-int line_proc(const FT_Vector* pt, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->lineTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
-    return 0;
-}
+bool SkFT_Outline_Apply(FT_Outline* outline, SkFT_Outline_Sink* sink) {
+    FT_Vector v_last;
+    FT_Vector v_control;
+    FT_Vector v_start;
 
-int quad_proc(const FT_Vector* pt0, const FT_Vector* pt1, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
-                 SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
-    return 0;
-}
+    FT_Vector* point;
+    FT_Vector* limit;
+    char* tags;
 
-int cubic_proc(const FT_Vector* pt0, const FT_Vector* pt1, const FT_Vector* pt2, void* ctx) {
-    SkPath* path = (SkPath*)ctx;
-    path->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
-                  SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
-                  SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
-    return 0;
+    FT_Int n;         /* index of contour in outline     */
+    FT_UInt first;    /* index of first point in contour */
+    FT_Int tag;       /* current point's state           */
+
+    if (!outline || !sink) {
+      return false;
+    }
+
+    first = 0;
+
+    for (n = 0; n < outline->n_contours; n++) {
+        FT_UInt last;  /* index of last point in contour */
+        last  = (FT_UInt)outline->contours[n];
+        limit = outline->points + last;
+
+        /* Skip single point contours. */
+        if ( last <= first ) {
+            first = last + 1;
+            continue;
+        }
+
+        v_start = outline->points[first];
+        v_last  = outline->points[last];
+
+        v_control = v_start;
+
+        point = outline->points + first;
+        tags  = outline->tags   + first;
+        tag   = FT_CURVE_TAG(tags[0]);
+
+        /* A contour cannot start with a cubic control point! */
+        if (tag == FT_CURVE_TAG_CUBIC) {
+            return false;
+        }
+        /* check first point to determine origin */
+        if (tag == FT_CURVE_TAG_CONIC) {
+            /* First point is conic control.  Yes, this happens. */
+            if (FT_CURVE_TAG(outline->tags[last]) == FT_CURVE_TAG_ON) {
+                /* start at last point if it is on the curve */
+                v_start = v_last;
+                limit--;
+            } else {
+                /* if both first and last points are conic, */
+                /* start at their middle                    */
+                v_start.x = (v_start.x + v_last.x) / 2;
+                v_start.y = (v_start.y + v_last.y) / 2;
+            }
+            point--;
+            tags--;
+        }
+
+        if (!sink->move(&v_start)) {
+            return false;
+        }
+
+        while (point < limit) {
+            point++;
+            tags++;
+
+            tag = FT_CURVE_TAG(tags[0]);
+            if (tag == FT_CURVE_TAG_ON) {
+                /* emit a single line_to */
+                FT_Vector vec;
+                vec.x = point->x;
+                vec.y = point->y;
+
+                if (!sink->line(&vec)) {
+                    return false;
+                }
+
+            } else if (tag == FT_CURVE_TAG_CONIC) {
+                /* consume conic arcs */
+                v_control.x = point->x;
+                v_control.y = point->y;
+
+                while (point < limit) {
+                    point++;
+                    tags++;
+
+                    tag = FT_CURVE_TAG(tags[0]);
+
+                    FT_Vector vec;
+                    vec = point[0];
+
+                    if (tag == FT_CURVE_TAG_ON) {
+                        if (!sink->quad(&v_control, &vec)) {
+                            return false;
+                        }
+                        goto NextSegment;
+                    }
+
+                    if (tag != FT_CURVE_TAG_CONIC) {
+                        return false;
+                    }
+
+                    FT_Vector v_middle;
+                    v_middle.x = (v_control.x + vec.x) / 2;
+                    v_middle.y = (v_control.y + vec.y) / 2;
+
+                    if (!sink->quad(&v_control, &v_middle)) {
+                        return false;
+                    }
+
+                    v_control = vec;
+                }
+
+                if (!sink->quad(&v_control, &v_start)) {
+                    return false;
+                }
+
+            } else if (tag == FT_CURVE_TAG_CUBIC) {
+                if (point + 1 > limit || FT_CURVE_TAG( tags[1] ) != FT_CURVE_TAG_CUBIC) {
+                    return false;
+                }
+
+                point += 2;
+                tags  += 2;
+
+                FT_Vector  vec1, vec2;
+                vec1 = point[-2];
+                vec2 = point[-1];
+
+                if (point <= limit) {
+                    FT_Vector  vec;
+                    vec = point[0];
+
+                    if (!sink->cubic(&vec1, &vec2, &vec)) {
+                        return false;
+                    }
+                } else {
+                    if (!sink->cubic(&vec1, &vec2, &v_start)) {
+                        return false;
+                    }
+                }
+            }
+        NextSegment:;
+        }
+
+        if (!sink->close()) {
+            return false;
+        }
+
+        first = last + 1;
+    }
+
+    return true;
 }
 
 }  // namespace
 
 bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path) {
-    FT_Outline_Funcs    funcs;
+    struct Sink : public SkFT_Outline_Sink {
+        Sink(SkPath* p) : path(p) {}
+        bool move(const FT_Vector* pt) override {
+            path->moveTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+            return true;
+        }
 
-    funcs.move_to   = move_proc;
-    funcs.line_to   = line_proc;
-    funcs.conic_to  = quad_proc;
-    funcs.cubic_to  = cubic_proc;
-    funcs.shift     = 0;
-    funcs.delta     = 0;
+        bool line(const FT_Vector* pt) override {
+            path->lineTo(SkFDot6ToScalar(pt->x), -SkFDot6ToScalar(pt->y));
+            return true;
+        }
 
-    FT_Error err = FT_Outline_Decompose(&face->glyph->outline, &funcs, path);
+        bool quad(const FT_Vector* pt0, const FT_Vector* pt1) override {
+            path->quadTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                        SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y));
+            return true;
+        }
 
-    if (err != 0) {
+        bool cubic(const FT_Vector* pt0, const FT_Vector* pt1, const FT_Vector* pt2) override {
+            path->cubicTo(SkFDot6ToScalar(pt0->x), -SkFDot6ToScalar(pt0->y),
+                        SkFDot6ToScalar(pt1->x), -SkFDot6ToScalar(pt1->y),
+                        SkFDot6ToScalar(pt2->x), -SkFDot6ToScalar(pt2->y));
+            return true;
+        }
+
+        bool close() override {
+            path->close();
+            return true;
+        }
+
+        SkPath* path;
+    } sink(path);
+
+    if (!SkFT_Outline_Apply(&face->glyph->outline, &sink)) {
         path->reset();
         return false;
     }
