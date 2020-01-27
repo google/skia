@@ -762,6 +762,8 @@ CanvasKit.onRuntimeInitialized = function() {
     }.bind(this));
   }
 
+  // drawOnce will dispose of the surface after drawing the frame using the provided
+  // callback.
   CanvasKit.SkSurface.prototype.drawOnce = function(callback, dirtyRect) {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
