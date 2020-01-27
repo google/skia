@@ -325,30 +325,15 @@ sk_sp<sksg::Transform> LayerBuilder::doAttachTransform(const AnimationBuilder& a
     auto parent_transform = this->getParentTransform(abuilder, cbuilder, ttype);
 
     if (this->isCamera()) {
-        // The presence of an anchor point property ('a') differentiates
-        // one-node vs. two-node cameras.
-        const auto camera_type = (*jtransform)["a"].is<skjson::NullValue>()
-                ? CameraAdapter::Type::kOneNode
-                : CameraAdapter::Type::kTwoNode;
-        auto camera_adapter = sk_make_sp<CameraAdapter>(cbuilder->fSize, camera_type);
-
-        abuilder.bindProperty<ScalarValue>(fJlayer["pe"],
-            [camera_adapter] (const ScalarValue& pe) {
-                // 'pe' (perspective?) corresponds to AE's "zoom" camera property.
-                camera_adapter->setZoom(pe);
-            });
-
         // parent_transform applies to the camera itself => it pre-composes inverted to the
         // camera/view/adapter transform.
         //
         //   T_camera' = T_camera x Inv(parent_transform)
         //
-        parent_transform = sksg::Transform::MakeInverse(std::move(parent_transform));
-
-        return abuilder.attachMatrix3D(*jtransform,
-                                       std::move(parent_transform),
-                                       std::move(camera_adapter),
-                                       true); // pre-compose parent
+        return abuilder.attachCamera(fJlayer,
+                                     *jtransform,
+                                     sksg::Transform::MakeInverse(std::move(parent_transform)),
+                                     cbuilder->fSize);
     }
 
     return this->is3D()
