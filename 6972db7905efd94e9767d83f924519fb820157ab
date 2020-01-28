@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b9d51879_2b7374c9",
+        "filename": "infra/canvaskit/docker/canvaskit-emsdk/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-28T15:41:51Z",
+      "side": 1,
+      "message": "Sure - of note, this docker image is not meant to be rebuilt frequently, only when we consciously roll forward the toolchain version.",
+      "parentUuid": "97389d2e_9727ce27",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 44
+      },
+      "revId": "6972db7905efd94e9767d83f924519fb820157ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0feb78c_bfcb2793",
         "filename": "infra/wasm-common/docker/emsdk-base/Dockerfile",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-28T15:09:06Z",
       "side": 1,
       "message": "This is going to work unpredictably if we don\u0027t pin a release tag or commit hash, and caching is going to compound that.  Somewhat unrelated, is this checkout needed by users of this image?  If not, we should use a multi-stage build and trim it.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 59
+      },
+      "revId": "6972db7905efd94e9767d83f924519fb820157ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da36310f_f7308f37",
+        "filename": "infra/wasm-common/docker/emsdk-base/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-28T15:41:51Z",
+      "side": 1,
+      "message": "The risk of that is small, because from the checkout we download the exact binary we need on lines 17 and 19. those binaries go into the checkout, so AFAIK, yes, we need them.",
+      "parentUuid": "f0feb78c_bfcb2793",
       "range": {
         "startLine": 10,
         "startChar": 0,
@@ -68,6 +116,30 @@
       "revId": "6972db7905efd94e9767d83f924519fb820157ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae469693_ca16ef15",
+        "filename": "infra/wasm-common/docker/emsdk-base/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-28T15:41:51Z",
+      "side": 1,
+      "message": "That seems a bit more invasive of a change than I want to make at the moment. Added a TODO",
+      "parentUuid": "41595fe7_04785dc0",
+      "range": {
+        "startLine": 17,
+        "startChar": 24,
+        "endLine": 17,
+        "endChar": 30
+      },
+      "revId": "6972db7905efd94e9767d83f924519fb820157ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
