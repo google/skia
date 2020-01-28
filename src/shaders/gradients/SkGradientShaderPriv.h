@@ -14,6 +14,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkColorSpace;
@@ -88,7 +89,9 @@ protected:
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
 
-    virtual bool transformT(skvm::Builder*, skvm::F32* t) const { return false; }
+    virtual bool transformT(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
+        return false;
+    }
 
     template <typename T, typename... Args>
     static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {

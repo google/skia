@@ -430,10 +430,9 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
     inv.postConcat(fPtsToUnit);
     inv.normalizePerspective();
 
-    // Having tacked on fPtsToUnit at the end means we'll be left with t in x.
     SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
-    skvm::F32 t = x;
-    if (!this->transformT(p, &t)) {  // Hook into subclasses for linear, radial, etc.
+    skvm::F32 t;
+    if (!this->transformT(p, x,y, &t)) {  // Hook into subclasses for linear, radial, etc.
         return false;
     }
 

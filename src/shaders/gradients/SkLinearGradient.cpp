@@ -75,7 +75,11 @@ void SkLinearGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline*,
     // No extra stage needed for linear gradients.
 }
 
-bool SkLinearGradient::transformT(skvm::Builder*, skvm::F32*) const { return true; }
+bool SkLinearGradient::transformT(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
+    // We've baked getting t in x into the matrix, so this is pretty trivial.
+    *t = x;
+    return true;
+}
 
 SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
     if (info) {

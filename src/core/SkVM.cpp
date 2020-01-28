@@ -162,6 +162,8 @@ namespace skvm {
                 case Op::max_f32: write(o, V{id}, "=", op, V{x}, V{y}      ); break;
                 case Op::mad_f32: write(o, V{id}, "=", op, V{x}, V{y}, V{z}); break;
 
+                case Op::sqrt_f32: write(o, V{id}, "=", op, V{x}); break;
+
                 case Op::add_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
                 case Op::sub_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
                 case Op::mul_f32_imm: write(o, V{id}, "=", op, V{x}, Splat{immy}); break;
@@ -284,6 +286,8 @@ namespace skvm {
                 case Op::min_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::max_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::mad_f32: write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
+
+                case Op::sqrt_f32: write(o, R{d}, "=", op, R{x}); break;
 
                 case Op::add_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
                 case Op::sub_f32_imm: write(o, R{d}, "=", op, R{x}, Splat{immy}); break;
@@ -618,6 +622,12 @@ namespace skvm {
         if (this->isImm(x.id, 1.0f)) { return this->add(y,z); }  // 1*y+z == y+z
         if (this->isImm(z.id, 0.0f)) { return this->mul(x,y); }  // x*y+0 == x*y
         return {this->push(Op::mad_f32, x.id, y.id, z.id)};
+    }
+
+    F32 Builder::sqrt(F32 x) {
+        float X;
+        if (this->allImm(x.id,&X)) { return this->splat(std::sqrt(X)); }
+        return {this->push(Op::sqrt_f32, x.id,NA,NA)};
     }
 
     F32 Builder::min(F32 x, F32 y) {
@@ -1111,9 +1121,10 @@ namespace skvm {
 
     void Assembler::vmovdqa(Ymm dst, Ymm src) { this->op(0x66,0x0f,0x6f, dst,src); }
 
-    void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(0,   0x0f,0x5b, dst,x); }
+    void Assembler::vcvtdq2ps (Ymm dst, Ymm x) { this->op(   0,0x0f,0x5b, dst,x); }
     void Assembler::vcvttps2dq(Ymm dst, Ymm x) { this->op(0xf3,0x0f,0x5b, dst,x); }
     void Assembler::vcvtps2dq (Ymm dst, Ymm x) { this->op(0x66,0x0f,0x5b, dst,x); }
+    void Assembler::vsqrtps   (Ymm dst, Ymm x) { this->op(   0,0x0f,0x51, dst,x); }
 
     Assembler::Label Assembler::here() {
         return { (int)this->size(), Label::NotYetSet, {} };
@@ -1777,6 +1788,8 @@ namespace skvm {
 
                     CASE(Op::mad_f32): r(d).f32 = r(x).f32 * r(y).f32 + r(z).f32; break;
 
+                    CASE(Op::sqrt_f32): r(d).f32 = sqrt(r(x).f32); break;
+
                     CASE(Op::add_i32): r(d).i32 = r(x).i32 + r(y).i32; break;
                     CASE(Op::sub_i32): r(d).i32 = r(x).i32 - r(y).i32; break;
                     CASE(Op::mul_i32): r(d).i32 = r(x).i32 * r(y).i32; break;
@@ -2349,6 +2362,7 @@ namespace skvm {
                                                                  a->vmovdqa    (dst(),r[x]);
                                                                  a->vfmadd132ps(dst(),r[z], r[y]); }
                                                                  break;
+                case Op::sqrt_f32: a->vsqrtps(dst(), r[x]); break;
 
                 case Op::add_f32_imm: a->vaddps(dst(), r[x], &constants[immy].label); break;
                 case Op::sub_f32_imm: a->vsubps(dst(), r[x], &constants[immy].label); break;
