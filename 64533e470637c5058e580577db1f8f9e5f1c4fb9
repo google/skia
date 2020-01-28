@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cf7d110_ce10a01e",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-28T20:22:22Z",
+      "side": 1,
+      "message": "Would AutoCF\u003cCFNumberRef\u003e work here too?",
+      "range": {
+        "startLine": 131,
+        "startChar": 4,
+        "endLine": 131,
+        "endChar": 15
+      },
+      "revId": "64533e470637c5058e580577db1f8f9e5f1c4fb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4527afa9_cf788fa3",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-28T20:22:22Z",
+      "side": 1,
+      "message": "does this need releasing?",
+      "range": {
+        "startLine": 206,
+        "startChar": 12,
+        "endLine": 206,
+        "endChar": 27
+      },
+      "revId": "64533e470637c5058e580577db1f8f9e5f1c4fb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
