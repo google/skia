@@ -1168,11 +1168,13 @@ DEF_TEST(SkVM_Assembler, r) {
         a.vcvttps2dq(A::ymm3, A::ymm2);
         a.vcvtdq2ps (A::ymm3, A::ymm2);
         a.vcvtps2dq (A::ymm3, A::ymm2);
+        a.vsqrtps   (A::ymm3, A::ymm2);
     },{
         0xc5,0xfd,0x6f,0xda,
         0xc5,0xfe,0x5b,0xda,
         0xc5,0xfc,0x5b,0xda,
         0xc5,0xfd,0x5b,0xda,
+        0xc5,0xfc,0x51,0xda,
     });
 
     test_asm(r, [&](A& a) {

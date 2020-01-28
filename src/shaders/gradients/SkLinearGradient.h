@@ -29,7 +29,7 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const final;
 
-    bool transformT(skvm::Builder*, skvm::F32* t) const final;
+    bool transformT(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::F32* t) const final;
 
 
 private:
