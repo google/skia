@@ -953,16 +953,18 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         }
         if (bicubic) {
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir, srcAlphaType);
+            GrSamplerState::WrapMode wm[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
+            fp = GrBicubicEffect::MakeSubset(std::move(proxy), srcAlphaType, texMatrix, wm, domain,
+                                             kDir, caps);
         } else {
             fp = GrTextureEffect::MakeSubset(std::move(proxy), srcAlphaType, texMatrix,
                                              samplerState, domain, caps);
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
-        GrSamplerState::WrapMode wrapMode[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
+        GrSamplerState::WrapMode wm[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, srcAlphaType);
+        fp = GrBicubicEffect::Make(std::move(proxy), srcAlphaType, texMatrix, wm, kDir, caps);
     } else {
         fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState, caps);
     }
