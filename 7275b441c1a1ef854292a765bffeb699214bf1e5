@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a22d9eb3_b517b5d1",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-01-28T19:31:55Z",
+      "side": 1,
+      "message": "Two things stand out to me about this:\n\n1) It\u0027s implemented on top of getYUVAColorTypeFromBackendFormat(). That seems odd given the description. More importantly, I thought getYUVAColorTypeFromBackendFormat was something we could and would want to get rid of when Greg\u0027s \"view\" work gets further along (just directly use swizzles w/out color type in the YUVA path). [+egdaniel@]\n\n2) [minor] it\u0027s not obvious from the name that it\u0027s only for surfaces. If we do want a notion of default color type for a format, wouldn\u0027t we want it to work equally well for SkImages?",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 389,
+        "endChar": 5
+      },
+      "revId": "7275b441c1a1ef854292a765bffeb699214bf1e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
