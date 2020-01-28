@@ -13,6 +13,7 @@
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/GrTextureProxy.h"
 
 class GrSurfaceProxyView {
 public:
@@ -68,7 +69,7 @@ public:
         *this = {};
     }
 
-    // This does not reset the origin or proxy, so the View can still be used to access those
+    // This does not reset the origin or swizzle, so the View can still be used to access those
     // properties associated with the detached proxy.
     sk_sp<GrSurfaceProxy> detachProxy() {
         return std::move(fProxy);
