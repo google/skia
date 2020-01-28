@@ -66,7 +66,7 @@ static const TestCase gTests[] = {
     { kRGBA_F16Norm_SkColorType,      kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
     { kRGBA_F16_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
     { kRGBA_F32_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kR8G8_unorm_SkColorType,        kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
+    { kR8G8_unorm_SkColorType,        kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   true  },
     { kR16G16_unorm_SkColorType,      kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
     { kR16G16_float_SkColorType,      kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
     { kR16G16B16A16_unorm_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, false },
