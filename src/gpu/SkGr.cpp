@@ -144,16 +144,21 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
     return maker.refTextureProxyForParams(params, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrRecordingContext* context,
-                                              const SkBitmap& bitmap,
-                                              SkBackingFit fit) {
+GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, const SkBitmap& bitmap,
+                                               SkBackingFit fit) {
     if (!bitmap.peekPixels(nullptr)) {
-        return nullptr;
+        return {};
     }
 
     GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kYes, fit);
     auto [proxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
-    return proxy;
+
+    if (!proxy) {
+        return {};
+    }
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    return GrSurfaceProxyView(std::move(proxy), origin, swizzle);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
