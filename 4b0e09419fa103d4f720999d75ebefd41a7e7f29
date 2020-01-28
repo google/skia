@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e3268ac8_7e185840",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-28T19:02:04Z",
+      "side": 1,
+      "message": "This doesn\u0027t change anything. I think it used to default to MAIN_MODULE\u003d1, but the default changed sometime between the older emscripten version and the new one, which I just updated this morning.",
+      "parentUuid": "ff2f12c5_b7c20119",
+      "range": {
+        "startLine": 69,
+        "startChar": 56,
+        "endLine": 69,
+        "endChar": 67
+      },
+      "revId": "4b0e09419fa103d4f720999d75ebefd41a7e7f29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c449ed4a_555f38f6",
         "filename": "modules/pathkit/compile.sh",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-28T18:56:57Z",
       "side": 1,
       "message": "Correct this comment, what does -g3 do?",
+      "range": {
+        "startLine": 62,
+        "startChar": 5,
+        "endLine": 62,
+        "endChar": 7
+      },
+      "revId": "4b0e09419fa103d4f720999d75ebefd41a7e7f29",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "705a8e17_8e32603b",
+        "filename": "modules/pathkit/compile.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-28T19:02:04Z",
+      "side": 1,
+      "message": "-g3 provides the same amount of debugging data, but no source maps (which weren\u0027t working well anyway)",
+      "parentUuid": "c449ed4a_555f38f6",
       "range": {
         "startLine": 62,
         "startChar": 5,
