@@ -31,7 +31,7 @@ DEF_SIMPLE_GM(skbug_9819, c, 256, 256) {
     auto grade = [&](int x, int y){
         SkBitmap bm;
         bm.allocPixels(SkImageInfo::Make(1,1,
-                                         kBGRA_8888_SkColorType,
+                                         kGray_8_SkColorType,
                                          kUnpremul_SkAlphaType,
                                          SkColorSpace::MakeSRGB()));
         if (!c->readPixels(bm, x,y)) {
@@ -40,23 +40,12 @@ DEF_SIMPLE_GM(skbug_9819, c, 256, 256) {
             return;
         }
 
-        SkColor pixel;
-        memcpy(&pixel, bm.getAddr(0,0), sizeof(pixel));
-
-        auto close = [](int x, int y) {
-            return x-y < 2
-                && y-x < 2;
-        };
-
-        if (close(SkColorGetR(pixel), SkColorGetR(yellow)) &&
-            close(SkColorGetG(pixel), SkColorGetG(yellow)) &&
-            close(SkColorGetB(pixel), SkColorGetB(yellow)) &&
-            close(SkColorGetA(pixel), SkColorGetA(yellow))) {
-
-            MarkGMGood(c, x+128,y);
-        } else {
-            MarkGMBad(c, x+128,y);
-        }
+        // We test only luma so that grayscale destinations are also correctly graded:
+        //    - yellow (good) is around 237
+        //    - cyan   (bad)  is around 202
+        uint8_t gray = *bm.getAddr8(0,0);
+        (abs(gray - 237) > 2 ? MarkGMBad
+                             : MarkGMGood)(c, x+128,y);
     };
 
     grade(64,  64);
