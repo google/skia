@@ -431,20 +431,32 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
     inv.normalizePerspective();
 
     SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
-    skvm::F32 t;
-    if (!this->transformT(p,uniforms, x,y, &t)) {  // Hook into subclasses for linear, radial, etc.
-        return false;
-    }
 
-    // Most tiling happens here, with kDecal doing its work at the end.
-    // Perhaps unexpectedly, all clamping is handled by our search, so
-    // we don't explicitly clamp t to [0,1].  That clamp would break
-    // hard stops right at 0 or 1 boundaries in kClamp mode.
-    // (kRepeat and kMirror always produce values in [0,1].)
+    skvm::I32 keep;
+    skvm::F32 t;
+    switch (this->transformT(p,uniforms, x,y, &t)) {
+        case MaskNeeded::None: keep = p->splat(~0); break;
+        case MaskNeeded::NaNs: keep = p->eq(t,t);   break;
+        default: return false;
+    }
+    t = p->bit_cast(p->bit_and(keep, p->bit_cast(t)));  //  if (!keep) t = 0
+
+    // Perhaps unexpectedly, clamping is handled naturally by our search, so we
+    // don't explicitly clamp t to [0,1].  That clamp would break hard stops
+    // right at 0 or 1 boundaries in kClamp mode.  (kRepeat and kMirror always
+    // produce values in [0,1].)
     switch(fTileMode) {
-        case SkTileMode::kDecal:  break;
-        case SkTileMode::kClamp:  break;
-        case SkTileMode::kRepeat: t = p->sub(t, p->floor(t)); break;
+        case SkTileMode::kClamp:
+            break;
+
+        case SkTileMode::kDecal:
+            keep = p->bit_and(keep, p->eq(t, p->clamp(t, p->splat(0.0f), p->splat(1.0f))));
+            break;
+
+        case SkTileMode::kRepeat:
+            t = p->sub(t, p->floor(t));
+            break;
+
         case SkTileMode::kMirror: {
             // t = | (t-1) - 2*(floor( (t-1)*0.5 )) - 1 |
             //       {-A-}      {--------B-------}
@@ -578,15 +590,10 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
         p->premul(r,g,b,*a);
     }
 
-    // Mask away any pixels that we tried to sample outside the bounds in kDecal.
-    if (fTileMode == SkTileMode::kDecal) {
-        skvm::I32 in_bounds = p->eq(t, p->clamp(t, p->splat(0.0f), p->splat(1.0f)));
-        *r = p->bit_cast(p->bit_and(in_bounds, p->bit_cast(*r)));
-        *g = p->bit_cast(p->bit_and(in_bounds, p->bit_cast(*g)));
-        *b = p->bit_cast(p->bit_and(in_bounds, p->bit_cast(*b)));
-        *a = p->bit_cast(p->bit_and(in_bounds, p->bit_cast(*a)));
-    }
-
+    *r = p->bit_cast(p->bit_and(keep, p->bit_cast(*r)));
+    *g = p->bit_cast(p->bit_and(keep, p->bit_cast(*g)));
+    *b = p->bit_cast(p->bit_and(keep, p->bit_cast(*b)));
+    *a = p->bit_cast(p->bit_and(keep, p->bit_cast(*a)));
     return true;
 }
 

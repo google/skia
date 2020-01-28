@@ -234,6 +234,34 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     }
 }
 
+SkGradientShaderBase::MaskNeeded
+SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                      skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
+    // See https://skia.org/dev/design/conical, and onAppendStages() above.
+
+    if (fType == Type::kRadial) {
+        // As if ordinary radial for [0,r2].
+        skvm::F32 r = p->sqrt(p->mad(x,x, p->mul(y,y)));
+
+        // Rescale to [r1,r2]
+        float denom = 1.0f / (fRadius2 - fRadius1),
+              scale = SkTMax(fRadius1, fRadius2) * denom,
+               bias =                  -fRadius1 * denom;
+        *t = p->mad(r, p->uniformF(uniforms->pushF(scale))
+                     , p->uniformF(uniforms->pushF(bias )));
+        return MaskNeeded::None;
+    }
+
+    if (fType == Type::kStrip) {
+        float r = fRadius1 / this->getCenterX1();
+        *t = p->add(x, p->sqrt(p->sub(p->splat(r*r),
+                                      p->mul(y,y))));
+        return MaskNeeded::NaNs;
+    }
+
+    return MaskNeeded::NotYetImplemented;
+}
+
 /////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
