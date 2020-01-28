@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "gm/verifiers/verifiers.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -142,6 +143,19 @@ bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 
 bool GM::runAsBench() const { return false; }
 void GM::modifyGrContextOptions(GrContextOptions* options) {}
+
+std::unique_ptr<verifiers::VerifierList> GM::getVerifiers() const {
+    using namespace verifiers;
+    std::unique_ptr<VerifierList> verifierList(new VerifierList);
+
+    // Default verifier performs a fuzzy pixel comparison in a small neighborhood, and weights
+    // errors near detected edges less.
+    auto fuzzyPixelMatch = std::unique_ptr<GMVerifier>(new CheckPixelColorNearby);
+    fuzzyPixelMatch->setRelaxation(std::unique_ptr<VerifierRelaxation>(new RelaxNearEdges));
+    verifierList->add(std::move(fuzzyPixelMatch));
+
+    return verifierList;
+}
 
 void GM::onOnceBeforeDraw() {}
 

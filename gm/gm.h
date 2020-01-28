@@ -17,11 +17,20 @@
 #include "tools/Registry.h"
 
 #include <memory>
+#include <vector>
+
+namespace skiagm {
+namespace verifiers {
+class VerifierList;
+}
+}
 
 class GrContext;
 class GrRenderTargetContext;
+class SkBitmap;
 class SkCanvas;
 class SkMetaData;
+class SkPixmap;
 struct GrContextOptions;
 
 #define DEF_GM(CODE) \
@@ -148,6 +157,8 @@ namespace skiagm {
 
         virtual void modifyGrContextOptions(GrContextOptions*);
 
+        virtual std::unique_ptr<verifiers::VerifierList> getVerifiers() const;
+
     protected:
         virtual void onOnceBeforeDraw();
         virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg);
@@ -176,6 +187,9 @@ namespace skiagm {
     class GpuGM : public GM {
     public:
         GpuGM(SkColor backgroundColor = SK_ColorWHITE) : GM(backgroundColor) {}
+
+        // By construction GpuGMs don't have verifiers (because they do not render on CPU).
+        std::unique_ptr<verifiers::VerifierList> getVerifiers() const override { return nullptr; }
     private:
         using GM::onDraw;
         DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;

@@ -24,6 +24,12 @@
 
 //#define TEST_VIA_SVG
 
+namespace skiagm {
+namespace verifiers {
+class VerifierList;
+}
+}
+
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -82,6 +88,14 @@ struct Src {
     virtual SkISize size(int) const { return this->size(); }
     // Force Tasks using this Src to run on the main thread?
     virtual bool serial() const { return false; }
+
+    virtual Error drawVerifierGoldenImage(SkBitmap* bmp) const {
+        return Error("Drawing of verifier golden image unimplemented by this source");
+    }
+
+    virtual std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const {
+        return nullptr;
+    }
 };
 
 struct Sink {
@@ -109,6 +123,9 @@ public:
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
+
+    Error drawVerifierGoldenImage(SkBitmap* bmp) const override;
+    std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const override;
 
 private:
     skiagm::GMFactory fFactory;
