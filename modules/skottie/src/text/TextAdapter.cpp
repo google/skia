@@ -188,6 +188,7 @@ void TextAdapter::reshape() {
         fText->fAscent,
         fText->fHAlign,
         fText->fVAlign,
+        fText->fResize,
         fAnimators.empty() ? Shaper::Flags::kNone : Shaper::Flags::kFragmentGlyphs,
     };
     const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
