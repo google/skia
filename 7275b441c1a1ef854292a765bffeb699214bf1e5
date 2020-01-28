@@ -22,6 +22,30 @@
       "revId": "7275b441c1a1ef854292a765bffeb699214bf1e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e567e5e_dbac3891",
+        "filename": "include/gpu/GrContext.h",
+        "patchSetId": 21
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-28T21:16:45Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "a22d9eb3_b517b5d1",
+      "range": {
+        "startLine": 379,
+        "startChar": 4,
+        "endLine": 389,
+        "endChar": 5
+      },
+      "revId": "7275b441c1a1ef854292a765bffeb699214bf1e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
