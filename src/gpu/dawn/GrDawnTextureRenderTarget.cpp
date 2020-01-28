@@ -16,11 +16,12 @@ GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
                                                      SkISize dimensions,
                                                      wgpu::TextureView textureView,
                                                      int sampleCnt,
-                                                     const GrDawnImageInfo& info,
+                                                     const GrDawnTextureInfo& textureInfo,
                                                      GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrDawnTexture(gpu, dimensions, textureView, info, mipMapsStatus)
-        , GrDawnRenderTarget(gpu, dimensions, sampleCnt, info) {}
+        , GrDawnTexture(gpu, dimensions, textureView, textureInfo, mipMapsStatus)
+        , GrDawnRenderTarget(gpu, dimensions, sampleCnt,
+                             GrDawnRenderTargetInfo(textureInfo)) {}
 
 bool GrDawnTextureRenderTarget::canAttemptStencilAttachment() const {
     return true;

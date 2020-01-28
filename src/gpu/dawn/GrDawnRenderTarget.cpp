@@ -14,7 +14,7 @@
 GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
                                        SkISize dimensions,
                                        int sampleCnt,
-                                       const GrDawnImageInfo& info)
+                                       const GrDawnRenderTargetInfo& info)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , GrRenderTarget(gpu, dimensions, sampleCnt, GrProtected::kNo)
         , fInfo(info) {}
@@ -22,7 +22,7 @@ GrDawnRenderTarget::GrDawnRenderTarget(GrDawnGpu* gpu,
 sk_sp<GrDawnRenderTarget> GrDawnRenderTarget::MakeWrapped(GrDawnGpu* gpu,
                                                           SkISize dimensions,
                                                           int sampleCnt,
-                                                          const GrDawnImageInfo& info) {
+                                                          const GrDawnRenderTargetInfo& info) {
     sk_sp<GrDawnRenderTarget> rt(new GrDawnRenderTarget(gpu, dimensions, sampleCnt, info));
     rt->registerWithCacheWrapped(GrWrapCacheable::kNo);
     return rt;
