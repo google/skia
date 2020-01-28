@@ -16,6 +16,24 @@
       "revId": "db0ff6279d8f7f4fa09e1a613d192cf2ad551827",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "926e6965_299641e7",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-28T16:05:36Z",
+      "side": 1,
+      "message": "I suppose the FreeType documentation doesn\u0027t explicitly state that it closes all contours (always provides the implicit closing segment), but it does do it and implies it does in the documentation about single points (which is oddly specific, I should write a better doc and propose it).\n\n1. If a font has a \u003cpath\u003e with (contours) like \u003c(on,on), (on, ...)\u003e then FreeType will report move, line, line, move. This will result in an SkPath with a moveTo, lineTo, close, and maybe a moveTo (depending on what follows). Dropping the final line is fine since any final line reported by FreeType is an implicit close (the SkPath close does the implicit line close already).\n\n2. Sure, a \u0027line\u0027 reported by FreeType just before a \u0027move\u0027 must be an implicit close, so instead of an SkPath lineTo a more idiomatic SkPath close is emitted.\n\nI\u0027ll have a test with a font with both of these cases in a bit to check this both here and on the other platforms before checking anything in.",
+      "parentUuid": "5e2a0aa5_a248a2e9",
+      "revId": "db0ff6279d8f7f4fa09e1a613d192cf2ad551827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
