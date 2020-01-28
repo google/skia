@@ -79,8 +79,7 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 /**
  * Replacement for newLibraryWithSource:options:error that has a timeout.
  */
-id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice>, NSString* mslCode,
-                                         MTLCompileOptions*, bool* timedout);
+id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice>, NSString* mslCode, MTLCompileOptions*);
 
 /**
  * Replacement for newRenderPipelineStateWithDescriptor:error that has a timeout.
