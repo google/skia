@@ -226,9 +226,10 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrContext* ctx,
                                       kAdopt_GrWrapOwnership, nullptr, nullptr);
 }
 
-sk_sp<SkImage> SkImage::MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
-                                           int width, int height, CompressionType type,
-                                           GrMipMapped mipMapped, GrProtected isProtected) {
+sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrContext* context, sk_sp<SkData> data,
+                                                  int width, int height, CompressionType type,
+                                                  GrMipMapped mipMapped,
+                                                  GrProtected isProtected) {
     if (!context || !data) {
         return nullptr;
     }

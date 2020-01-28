@@ -240,10 +240,10 @@ private:
 
         sk_sp<SkImage> image;
         if (context) {
-            image = SkImage::MakeFromCompressed(context, std::move(data),
-                                                fImgDimensions.width(),
-                                                fImgDimensions.height(),
-                                                compression, GrMipMapped::kYes);
+            image = SkImage::MakeTextureFromCompressed(context, std::move(data),
+                                                       fImgDimensions.width(),
+                                                       fImgDimensions.height(),
+                                                       compression, GrMipMapped::kYes);
         } else {
             image = SkImage::MakeRasterFromCompressed(std::move(data),
                                                       fImgDimensions.width(),

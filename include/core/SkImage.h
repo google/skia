@@ -273,12 +273,24 @@ public:
         @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
         @return            created SkImage, or nullptr
     */
+    static sk_sp<SkImage> MakeTextureFromCompressed(GrContext* context,
+                                                    sk_sp<SkData> data,
+                                                    int width, int height,
+                                                    CompressionType type,
+                                                    GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                    GrProtected isProtected = GrProtected::kNo);
+    /** To be deprecated. Use MakeTextureFromCompressed.
+     */
     static sk_sp<SkImage> MakeFromCompressed(GrContext* context,
                                              sk_sp<SkData> data,
                                              int width, int height,
                                              CompressionType type,
                                              GrMipMapped mipMapped = GrMipMapped::kNo,
-                                             GrProtected isProtected = GrProtected::kNo);
+                                             GrProtected isProtected = GrProtected::kNo) {
+        return MakeTextureFromCompressed(context, data, width, height, type,
+                                         mipMapped, isProtected);
+
+    }
 
     /** Creates a CPU-backed SkImage from compressed data.
 
