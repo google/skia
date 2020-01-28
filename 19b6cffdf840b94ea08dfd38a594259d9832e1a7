@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5403a90f_9510ebf1",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-28T16:57:45Z",
+      "side": 1,
+      "message": "There\u0027s no guarantee runGlyphs \u003c 10000, right?",
+      "range": {
+        "startLine": 206,
+        "startChar": 30,
+        "endLine": 206,
+        "endChar": 35
+      },
+      "revId": "19b6cffdf840b94ea08dfd38a594259d9832e1a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
