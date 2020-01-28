@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkSurface.drawOnce` for drawing a single frame (in addition to already existing
    `SkSurface.requestAnimationFrame` for animation logic).
 
+### Changed
+ - We now compile/ship with Emscripten v1.39.6.
+
 ## [0.12.0] - 2020-01-22
 
 ### Added
