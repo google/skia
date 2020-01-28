@@ -2094,25 +2094,23 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     }
 
     if (doSynchronousRead) {
-        const auto yInfo = yRTC->imageInfo();
-        const auto uInfo = uRTC->imageInfo();
-        const auto vInfo = vRTC->imageInfo();
-        size_t yRB = yInfo.minRowBytes();
-        size_t uRB = uInfo.minRowBytes();
-        size_t vRB = vInfo.minRowBytes();
-        std::unique_ptr<char[]> y(new char[yRB*yInfo.height()]);
-        std::unique_ptr<char[]> u(new char[uRB*uInfo.height()]);
-        std::unique_ptr<char[]> v(new char[vRB*vInfo.height()]);
-        if (!yRTC->readPixels(yInfo, y.get(), yRB, {0, 0}, direct) ||
-            !uRTC->readPixels(uInfo, u.get(), uRB, {0, 0}, direct) ||
-            !vRTC->readPixels(vInfo, v.get(), vRB, {0, 0}, direct)) {
+        GrImageInfo yInfo(GrColorType::kAlpha_8, kPremul_SkAlphaType, nullptr, dstSize);
+        GrImageInfo uvInfo = yInfo.makeWH(halfW, halfH);
+        size_t yRB  = yInfo.minRowBytes();
+        size_t uvRB = uvInfo.minRowBytes();
+        std::unique_ptr<char[]> y(new char[yRB * yInfo.height()]);
+        std::unique_ptr<char[]> u(new char[uvRB*uvInfo.height()]);
+        std::unique_ptr<char[]> v(new char[uvRB*uvInfo.height()]);
+        if (!yRTC->readPixels(yInfo,  y.get(), yRB,  {0, 0}, direct) ||
+            !uRTC->readPixels(uvInfo, u.get(), uvRB, {0, 0}, direct) ||
+            !vRTC->readPixels(uvInfo, v.get(), uvRB, {0, 0}, direct)) {
             callback(context, nullptr);
             return;
         }
         auto result = std::make_unique<AsyncReadResult>(direct->priv().contextID());
-        result->addCpuPlane(std::move(y), yRB);
-        result->addCpuPlane(std::move(u), uRB);
-        result->addCpuPlane(std::move(v), vRB);
+        result->addCpuPlane(std::move(y), yRB );
+        result->addCpuPlane(std::move(u), uvRB);
+        result->addCpuPlane(std::move(v), uvRB);
         callback(context, std::move(result));
         return;
     }
