@@ -297,7 +297,7 @@ sk_sp<SkImage> SkImage::MakeRasterFromCompressed(sk_sp<SkData> data,
     SkAlphaType at = SkCompressionTypeIsOpaque(type) ? kOpaque_SkAlphaType
                                                      : kPremul_SkAlphaType;
 
-    SkImageInfo ii = SkImageInfo::Make({ width, height }, kRGBA_8888_SkColorType, at);
+    SkImageInfo ii = SkImageInfo::MakeN32(width, height, at);
 
     if (!SkImage_Raster::ValidArgs(ii, ii.minRowBytes(), nullptr)) {
         return nullptr;

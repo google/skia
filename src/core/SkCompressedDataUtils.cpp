@@ -76,10 +76,15 @@ static bool decompress_bc1(SkISize dimensions, const uint8_t* srcData,
             int shift = 0;
             int offsetX = 4 * x, offsetY = 4 * y;
             for (int i = 0; i < 4; ++i) {
-                for (int j = 0; j < 4; ++j) {
+                for (int j = 0; j < 4; ++j, shift += 2) {
+                    if (offsetX + j >= dst->width() || offsetY + i >= dst->height()) {
+                        // This can happen for the topmost levels of a mipmap and for
+                        // non-multiple of 4 textures
+                        continue;
+                    }
+
                     int index = (curBlock->fIndices >> shift) & 0x3;
                     *dst->getAddr32(offsetX + j, offsetY + i) = colors[index];
-                    shift += 2;
                 }
             }
         }
