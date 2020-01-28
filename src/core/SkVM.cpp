@@ -730,6 +730,10 @@ namespace skvm {
     I32 Builder::bit_and(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&Y); }
+        if (this->isImm(y.id, 0)) { return this->splat(0); }   // (x & false) == false
+        if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & y) == false
+        if (this->isImm(y.id,~0)) { return x; }                // (x & true) == x
+        if (this->isImm(x.id,~0)) { return y; }                // (true & y) == y
     #if defined(SK_CPU_X86)
         int imm;
         if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_and_imm, x.id,NA,NA, imm)}; }
@@ -740,6 +744,10 @@ namespace skvm {
     I32 Builder::bit_or(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X|Y); }
+        if (this->isImm(y.id, 0)) { return x; }                 // (x | false) == x
+        if (this->isImm(x.id, 0)) { return y; }                 // (false | y) == y
+        if (this->isImm(y.id,~0)) { return this->splat(~0); }   // (x | true) == true
+        if (this->isImm(x.id,~0)) { return this->splat(~0); }   // (true | y) == true
     #if defined(SK_CPU_X86)
         int imm;
         if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_or_imm, x.id,NA,NA, imm)}; }
@@ -750,6 +758,8 @@ namespace skvm {
     I32 Builder::bit_xor(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X^Y); }
+        if (this->isImm(y.id, 0)) { return x; }   // (x ^ false) == x
+        if (this->isImm(x.id, 0)) { return y; }   // (false ^ y) == y
     #if defined(SK_CPU_X86)
         int imm;
         if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_xor_imm, x.id,NA,NA, imm)}; }
@@ -760,6 +770,9 @@ namespace skvm {
     I32 Builder::bit_clear(I32 x, I32 y) {
         int X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X&~Y); }
+        if (this->isImm(y.id, 0)) { return x; }                // (x & ~false) == x
+        if (this->isImm(y.id,~0)) { return this->splat(0); }   // (x & ~true) == false
+        if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & ~y) == false
     #if defined(SK_CPU_X86)
         int imm;
         if (this->allImm(y.id, &imm)) { return this->bit_and(x, this->splat(~imm)); }
@@ -770,6 +783,7 @@ namespace skvm {
     I32 Builder::select(I32 x, I32 y, I32 z) {
         int X,Y,Z;
         if (this->allImm(x.id,&X, y.id,&Y, z.id,&Z)) { return this->splat(X?Y:Z); }
+        // TODO: some cases to reduce to bit_and when y == 0 or z == 0?
         return {this->push(Op::select, x.id, y.id, z.id)};
     }
 
