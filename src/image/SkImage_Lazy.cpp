@@ -519,10 +519,9 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
     // 4. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (!proxy && this->getROPixels(&bitmap, chint)) {
-        GrBitmapTextureMaker bitmapMaker(ctx, bitmap, false, false);
-        GrColorType grCT;
-        std::tie(proxy, grCT) = bitmapMaker.refTextureProxy(willBeMipped ? GrMipMapped::kYes
-                                                                         : GrMipMapped::kNo);
+        GrBitmapTextureMaker bitmapMaker(ctx, bitmap);
+        std::tie(proxy, std::ignore) = bitmapMaker.refTextureProxy(willBeMipped ? GrMipMapped::kYes
+                                                                                : GrMipMapped::kNo);
         if (proxy && (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped())) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);

@@ -23,11 +23,11 @@
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrContext.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
@@ -67,41 +67,39 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkBitmap bmp[3];
         SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
-        bmp[0].allocPixels(yinfo);
+        fBitmaps[0].allocPixels(yinfo);
         SkImageInfo uinfo = SkImageInfo::MakeA8(USIZE, USIZE);
-        bmp[1].allocPixels(uinfo);
+        fBitmaps[1].allocPixels(uinfo);
         SkImageInfo vinfo = SkImageInfo::MakeA8(VSIZE, VSIZE);
-        bmp[2].allocPixels(vinfo);
+        fBitmaps[2].allocPixels(vinfo);
         unsigned char* pixels[3];
         for (int i = 0; i < 3; ++i) {
-            pixels[i] = (unsigned char*)bmp[i].getPixels();
+            pixels[i] = (unsigned char*)fBitmaps[i].getPixels();
         }
         int color[] = {0, 85, 170};
         const int limit[] = {255, 0, 255};
         const int invl[]  = {0, 255, 0};
         const int inc[]   = {1, -1, 1};
         for (int i = 0; i < 3; ++i) {
-            const size_t nbBytes = bmp[i].rowBytes() * bmp[i].height();
+            const size_t nbBytes = fBitmaps[i].rowBytes() * fBitmaps[i].height();
             for (size_t j = 0; j < nbBytes; ++j) {
                 pixels[i][j] = (unsigned char)color[i];
                 color[i] = (color[i] == limit[i]) ? invl[i] : color[i] + inc[i];
             }
         }
         for (int i = 0; i < 3; ++i) {
-            fImage[i] = SkImage::MakeFromBitmap(bmp[i]);
+            fBitmaps[i].setImmutable();
         }
     }
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[3];
 
         for (int i = 0; i < 3; ++i) {
-            proxies[i] = proxyProvider->createTextureProxy(fImage[i], 1, SkBudgeted::kYes,
-                                                           SkBackingFit::kExact);
+            GrBitmapTextureMaker maker(context, fBitmaps[i]);
+            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
             if (!proxies[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -109,8 +107,8 @@ protected:
         }
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
-            SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fImage[0]->width()),
-                                               SkIntToScalar(fImage[0]->height()));
+            SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBitmaps[0].width()),
+                                               SkIntToScalar(fBitmaps[0].height()));
             renderRect.outset(kDrawPad, kDrawPad);
 
             SkScalar y = kDrawPad + kTestPad + space * kColorSpaceOffset;
@@ -147,7 +145,7 @@ protected:
      }
 
 private:
-    sk_sp<SkImage> fImage[3];
+    SkBitmap fBitmaps[3];
 
     static constexpr SkScalar kDrawPad = 10.f;
     static constexpr SkScalar kTestPad = 10.f;
@@ -177,19 +175,18 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkBitmap bmp[2];
         SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
-        bmp[0].allocPixels(yinfo);
+        fBitmaps[0].allocPixels(yinfo);
         SkImageInfo uvinfo = SkImageInfo::MakeN32Premul(USIZE, USIZE);
-        bmp[1].allocPixels(uvinfo);
+        fBitmaps[1].allocPixels(uvinfo);
         int color[] = {0, 85, 170};
         const int limit[] = {255, 0, 255};
         const int invl[] = {0, 255, 0};
         const int inc[] = {1, -1, 1};
 
         {
-            unsigned char* pixels = (unsigned char*)bmp[0].getPixels();
-            const size_t nbBytes = bmp[0].rowBytes() * bmp[0].height();
+            unsigned char* pixels = (unsigned char*)fBitmaps[0].getPixels();
+            const size_t nbBytes = fBitmaps[0].rowBytes() * fBitmaps[0].height();
             for (size_t j = 0; j < nbBytes; ++j) {
                 pixels[j] = (unsigned char)color[0];
                 color[0] = (color[0] == limit[0]) ? invl[0] : color[0] + inc[0];
@@ -197,9 +194,9 @@ protected:
         }
 
         {
-            for (int y = 0; y < bmp[1].height(); ++y) {
-                uint32_t* pixels = bmp[1].getAddr32(0, y);
-                for (int j = 0; j < bmp[1].width(); ++j) {
+            for (int y = 0; y < fBitmaps[1].height(); ++y) {
+                uint32_t* pixels = fBitmaps[1].getAddr32(0, y);
+                for (int j = 0; j < fBitmaps[1].width(); ++j) {
                     pixels[j] = SkColorSetARGB(0, color[1], color[2], 0);
                     color[1] = (color[1] == limit[1]) ? invl[1] : color[1] + inc[1];
                     color[2] = (color[2] == limit[2]) ? invl[2] : color[2] + inc[2];
@@ -208,18 +205,17 @@ protected:
         }
 
         for (int i = 0; i < 2; ++i) {
-            fImage[i] = SkImage::MakeFromBitmap(bmp[i]);
+            fBitmaps[i].setImmutable();
         }
     }
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[2];
 
         for (int i = 0; i < 2; ++i) {
-            proxies[i] = proxyProvider->createTextureProxy(fImage[i], 1, SkBudgeted::kYes,
-                                                           SkBackingFit::kExact);
+            GrBitmapTextureMaker maker(context, fBitmaps[i]);
+            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
             if (!proxies[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -234,8 +230,8 @@ protected:
         };
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
-            SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fImage[0]->width()),
-                                               SkIntToScalar(fImage[0]->height()));
+            SkRect renderRect = SkRect::MakeWH(SkIntToScalar(fBitmaps[0].width()),
+                                               SkIntToScalar(fBitmaps[0].height()));
             renderRect.outset(kDrawPad, kDrawPad);
 
             SkScalar y = kDrawPad + kTestPad + space * kColorSpaceOffset;
@@ -260,7 +256,7 @@ protected:
     }
 
 private:
-    sk_sp<SkImage> fImage[2];
+    SkBitmap fBitmaps[2];
 
     static constexpr SkScalar kDrawPad = 10.f;
     static constexpr SkScalar kTestPad = 10.f;
@@ -292,32 +288,30 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkBitmap bmp[3];
         SkImageInfo yinfo = SkImageInfo::MakeA8(YSIZE, YSIZE);
-        bmp[0].allocPixels(yinfo);
+        fBitmaps[0].allocPixels(yinfo);
         SkImageInfo uinfo = SkImageInfo::MakeA8(USIZE, USIZE);
-        bmp[1].allocPixels(uinfo);
+        fBitmaps[1].allocPixels(uinfo);
         SkImageInfo vinfo = SkImageInfo::MakeA8(VSIZE, VSIZE);
-        bmp[2].allocPixels(vinfo);
+        fBitmaps[2].allocPixels(vinfo);
 
         int innerColor[] = {149, 43, 21};
         int outerColor[] = {128, 128, 128};
         for (int i = 0; i < 3; ++i) {
-            bmp[i].eraseColor(SkColorSetARGB(outerColor[i], 0, 0, 0));
+            fBitmaps[i].eraseColor(SkColorSetARGB(outerColor[i], 0, 0, 0));
             SkIRect innerRect = i == 0 ? SkIRect::MakeLTRB(2, 2, 6, 6) : SkIRect::MakeLTRB(1, 1, 3, 3);
-            bmp[i].erase(SkColorSetARGB(innerColor[i], 0, 0, 0), innerRect);
-            fImage[i] = SkImage::MakeFromBitmap(bmp[i]);
+            fBitmaps[i].erase(SkColorSetARGB(innerColor[i], 0, 0, 0), innerRect);
+            fBitmaps[i].setImmutable();
         }
     }
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
         sk_sp<GrTextureProxy> proxies[3];
 
         for (int i = 0; i < 3; ++i) {
-            proxies[i] = proxyProvider->createTextureProxy(fImage[i], 1, SkBudgeted::kYes,
-                                                           SkBackingFit::kExact);
+            GrBitmapTextureMaker maker(context, fBitmaps[i]);
+            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
             if (!proxies[i]) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -374,7 +368,7 @@ protected:
      }
 
 private:
-    sk_sp<SkImage> fImage[3];
+    SkBitmap fBitmaps[3];
 
     static constexpr SkScalar kDrawPad = 10.f;
     static constexpr SkScalar kTestPad = 10.f;

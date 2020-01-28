@@ -250,83 +250,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::findOrCreateProxyByUniqueKey(const GrUniq
     return result;
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImage,
-                                                          int sampleCnt,
-                                                          SkBudgeted budgeted,
-                                                          SkBackingFit fit,
-                                                          GrInternalSurfaceFlags surfaceFlags) {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(srcImage);
-
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    const SkImageInfo& info = srcImage->imageInfo();
-    GrColorType ct = SkColorTypeToGrColorType(info.colorType());
-
-    GrBackendFormat format = this->caps()->getDefaultBackendFormat(ct, GrRenderable::kNo);
-
-    if (!format.isValid()) {
-        SkBitmap copy8888;
-        if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
-            !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
-            return nullptr;
-        }
-        copy8888.setImmutable();
-        srcImage = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
-        ct = GrColorType::kRGBA_8888;
-        format = this->caps()->getDefaultBackendFormat(ct, GrRenderable::kNo);
-        if (!format.isValid()) {
-            return nullptr;
-        }
-    }
-
-    GrSurfaceDesc desc;
-    desc.fWidth = srcImage->width();
-    desc.fHeight = srcImage->height();
-
-    GrSwizzle swizzle = this->caps()->getReadSwizzle(format, ct);
-
-    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, format, sampleCnt, budgeted, srcImage, fit,
-             ct](GrResourceProvider* resourceProvider) {
-                SkPixmap pixMap;
-                SkAssertResult(srcImage->peekPixels(&pixMap));
-                GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
-
-                return LazyCallbackResult(resourceProvider->createTexture(
-                        desc, format, ct, GrRenderable::kNo, sampleCnt, budgeted, fit,
-                        GrProtected::kNo, mipLevel));
-            },
-            format, desc, swizzle, GrRenderable::kNo, sampleCnt, kTopLeft_GrSurfaceOrigin,
-            GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, surfaceFlags, fit, budgeted,
-            GrProtected::kNo, UseAllocator::kYes);
-
-    if (!proxy) {
-        return nullptr;
-    }
-
-    GrContext* direct = fImageContext->priv().asDirectContext();
-    if (direct) {
-        GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
-
-        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
-        // we're better off instantiating the proxy immediately here.
-        if (!proxy->priv().doLazyInstantiation(resourceProvider)) {
-            return nullptr;
-        }
-    }
-
-    SkASSERT(proxy->width() == desc.fWidth);
-    SkASSERT(proxy->height() == desc.fHeight);
-    return proxy;
-}
-
 sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bitmap,
-                                                             GrMipMapped mipMapped) {
+                                                             GrMipMapped mipMapped,
+                                                             SkBackingFit fit) {
     ASSERT_SINGLE_OWNER
-    SkASSERT(GrMipMapped::kNo == mipMapped || this->caps()->mipMapSupport());
+    SkASSERT(fit == SkBackingFit::kExact || mipMapped == GrMipMapped::kNo);
 
     if (this->isAbandoned()) {
         return nullptr;
@@ -343,56 +271,107 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
     // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
     // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode copyMode = this->renderingDirectly() ? kNever_SkCopyPixelsMode
-                                                          : kIfMutable_SkCopyPixelsMode;
-    sk_sp<SkImage> baseLevel = SkMakeImageFromRasterBitmap(bitmap, copyMode);
-    if (!baseLevel) {
-        return nullptr;
+    SkBitmap copyBitmap = bitmap;
+    if (!this->renderingDirectly() && !bitmap.isImmutable()) {
+        copyBitmap.allocPixels();
+        if (!bitmap.readPixels(copyBitmap.pixmap())) {
+            return nullptr;
+        }
+        copyBitmap.setImmutable();
     }
 
-    // If mips weren't requested (or this was too small to have any), then take the fast path
-    if (GrMipMapped::kNo == mipMapped ||
-        0 == SkMipMap::ComputeLevelCount(baseLevel->width(), baseLevel->height())) {
-        return this->createTextureProxy(std::move(baseLevel), 1, SkBudgeted::kYes,
-                                        SkBackingFit::kExact);
-    }
-
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
-
-    GrColorType grCT = SkColorTypeToGrColorType(bitmap.info().colorType());
+    GrColorType grCT = SkColorTypeToGrColorType(copyBitmap.info().colorType());
     GrBackendFormat format = this->caps()->getDefaultBackendFormat(grCT, GrRenderable::kNo);
     if (!format.isValid()) {
         return nullptr;
     }
 
-    SkPixmap pixmap;
-    SkAssertResult(baseLevel->peekPixels(&pixmap));
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
+    sk_sp<GrTextureProxy> proxy;
+    if (mipMapped == GrMipMapped::kNo ||
+        0 == SkMipMap::ComputeLevelCount(copyBitmap.width(), copyBitmap.height())) {
+        proxy = this->createNonMippedProxyFromBitmap(copyBitmap, fit, format, grCT);
+    } else {
+        proxy = this->createMippedProxyFromBitmap(copyBitmap, format, grCT);
+    }
+
+    if (!proxy) {
+        return nullptr;
+    }
+
+    GrContext* direct = fImageContext->priv().asDirectContext();
+    if (direct) {
+        GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
+
+        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
+        // we're better off instantiating the proxy immediately here.
+        if (!proxy->priv().doLazyInstantiation(resourceProvider)) {
+            return nullptr;
+        }
+    }
+    return proxy;
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBitmap& bitmap,
+                                                                      SkBackingFit fit,
+                                                                      const GrBackendFormat& format,
+                                                                      GrColorType colorType) {
+    GrSurfaceDesc desc;
+    desc.fWidth = bitmap.width();
+    desc.fHeight = bitmap.height();
+
+    GrSwizzle swizzle = this->caps()->getReadSwizzle(format, colorType);
+
+    sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
+            [desc, format, bitmap, fit, colorType]
+            (GrResourceProvider* resourceProvider) {
+                GrMipLevel mipLevel = { bitmap.getPixels(), bitmap.rowBytes() };
+
+                return LazyCallbackResult(resourceProvider->createTexture(
+                        desc, format, colorType, GrRenderable::kNo, 1, SkBudgeted::kYes, fit,
+                        GrProtected::kNo, mipLevel));
+            },
+            format, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+            GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, fit,
+            SkBudgeted::kYes, GrProtected::kNo, UseAllocator::kYes);
+
+    if (!proxy) {
+        return nullptr;
+    }
+    SkASSERT(proxy->width() == desc.fWidth);
+    SkASSERT(proxy->height() == desc.fHeight);
+    return proxy;
+}
+
+sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitmap& bitmap,
+                                                                   const GrBackendFormat& format,
+                                                                   GrColorType colorType) {
+    SkASSERT(this->caps()->mipMapSupport());
+
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bitmap.pixmap(), nullptr));
     if (!mipmaps) {
         return nullptr;
     }
 
-    GrSwizzle readSwizzle = this->caps()->getReadSwizzle(format, grCT);
+    GrSwizzle readSwizzle = this->caps()->getReadSwizzle(format, colorType);
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, format, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
+            [desc, format, bitmap, mipmaps](GrResourceProvider* resourceProvider) {
                 const int mipLevelCount = mipmaps->countLevels() + 1;
                 std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
-                SkPixmap pixmap;
-                SkAssertResult(baseLevel->peekPixels(&pixmap));
+                texels[0].fPixels = bitmap.getPixels();
+                texels[0].fRowBytes = bitmap.rowBytes();
 
-                texels[0].fPixels = pixmap.addr();
-                texels[0].fRowBytes = pixmap.rowBytes();
-
-                auto colorType = SkColorTypeToGrColorType(pixmap.colorType());
+                auto colorType = SkColorTypeToGrColorType(bitmap.colorType());
                 for (int i = 1; i < mipLevelCount; ++i) {
                     SkMipMap::Level generatedMipLevel;
                     mipmaps->getLevel(i - 1, &generatedMipLevel);
                     texels[i].fPixels = generatedMipLevel.fPixmap.addr();
                     texels[i].fRowBytes = generatedMipLevel.fPixmap.rowBytes();
                     SkASSERT(texels[i].fPixels);
-                    SkASSERT(generatedMipLevel.fPixmap.colorType() == pixmap.colorType());
+                    SkASSERT(generatedMipLevel.fPixmap.colorType() == bitmap.colorType());
                 }
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc, format, colorType, GrRenderable::kNo, 1, SkBudgeted::kYes,
@@ -406,15 +385,9 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         return nullptr;
     }
 
-    GrContext* direct = fImageContext->priv().asDirectContext();
-    if (direct) {
-        GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
-        // In order to reuse code we always create a lazy proxy. When we aren't in DDL mode however
-        // we're better off instantiating the proxy immediately here.
-        if (!proxy->priv().doLazyInstantiation(resourceProvider)) {
-            return nullptr;
-        }
-    }
+    SkASSERT(proxy->width() == desc.fWidth);
+    SkASSERT(proxy->height() == desc.fHeight);
+
     return proxy;
 }
 

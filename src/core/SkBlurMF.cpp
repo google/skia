@@ -759,15 +759,14 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         return false;
     }
 
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     std::unique_ptr<GrFragmentProcessor> fp;
 
     if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
         if (devRRect.isRect()) {
-            fp = GrRectBlurEffect::Make(proxyProvider, *context->priv().caps()->shaderCaps(),
+            fp = GrRectBlurEffect::Make(context, *context->priv().caps()->shaderCaps(),
                                         devRRect.rect(), xformedSigma);
         } else {
-            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, devRRect.rect(), xformedSigma);
+            fp = GrCircleBlurFragmentProcessor::Make(context, devRRect.rect(), xformedSigma);
         }
 
         if (!fp) {

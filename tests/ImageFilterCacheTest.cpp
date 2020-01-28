@@ -29,6 +29,7 @@ static SkBitmap create_bm() {
     SkBitmap bm;
     bm.allocPixels(ii);
     bm.eraseColor(SK_ColorTRANSPARENT);
+    bm.setImmutable();
     return bm;
 }
 
@@ -199,22 +200,24 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 
-static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
+static sk_sp<GrTextureProxy> create_proxy(GrRecordingContext* context) {
     SkBitmap srcBM = create_bm();
-    sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
-    return proxyProvider->createTextureProxy(srcImage, 1, SkBudgeted::kYes, SkBackingFit::kExact);
+    GrBitmapTextureMaker maker(context, srcBM);
+    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
+    return proxy;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context));
     if (!srcProxy) {
         return;
     }
@@ -255,7 +258,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
+    sk_sp<GrTextureProxy> srcProxy(create_proxy(context));
     if (!srcProxy) {
         return;
     }
