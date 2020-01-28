@@ -229,11 +229,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
             return;
         }
 
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
         sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeDeferredFromGpu(
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            std::move(proxy),
+                                                            std::move(view),
                                                             grCT,
                                                             nullptr));
 
@@ -260,11 +264,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         return;
     }
 
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
     sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeDeferredFromGpu(
                                                             context,
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
-                                                            proxy,
+                                                            view,
                                                             grCT,
                                                             nullptr));
 
@@ -274,7 +282,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
         sk_sp<SkSpecialImage> subSImg1(SkSpecialImage::MakeDeferredFromGpu(
                                                                context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
-                                                               std::move(proxy),
+                                                               std::move(view),
                                                                grCT,
                                                                nullptr));
         test_image(subSImg1, reporter, context, true);
