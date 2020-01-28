@@ -46,13 +46,13 @@ public:
     size_t fUnresolvedGlyphs;
 };
 
-
 uint32_t ParagraphCache::KeyHash::mix(uint32_t hash, uint32_t data) const {
     hash += data;
     hash += (hash << 10);
     hash ^= (hash >> 6);
     return hash;
 }
+
 uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const {
     uint32_t hash = 0;
     for (auto& ph : key.fPlaceholders) {

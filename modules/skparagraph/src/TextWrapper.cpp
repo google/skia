@@ -263,8 +263,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
                 fEndLine.metrics(),
                 needEllipsis && !fHardLineBreak);
 
-        parent->lines().back().setMaxRunMetrics(maxRunMetrics);
-
         softLineMaxIntrinsicWidth += widthWithSpaces;
         fMaxIntrinsicWidth = SkMaxScalar(fMaxIntrinsicWidth, softLineMaxIntrinsicWidth);
         if (fHardLineBreak) {
