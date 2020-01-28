@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 81
 
 <Insert new notes here- top is most recent.>
+  * Added GrContext::defaultColorType entry point. This makes it easier
+    for developers to wrap backend textures in SkSurfaces.
+
   * Added support for GL_NV_fence extension.
 
   * Make SkImageInfo::validRowBytes require rowBytes to be pixel aligned. This

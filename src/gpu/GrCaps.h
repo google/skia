@@ -405,6 +405,8 @@ public:
     virtual GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                           bool isAlphaChannel) const = 0;
 
+    SkColorType getDefaultColorType(const GrBackendFormat&) const;
+
     /** These are used when creating a new texture internally. */
     GrBackendFormat getDefaultBackendFormat(GrColorType, GrRenderable) const;
 
