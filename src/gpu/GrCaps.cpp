@@ -354,6 +354,11 @@ GrCaps::SupportedRead GrCaps::supportedReadPixelsColorType(GrColorType srcColorT
     return read;
 }
 
+SkColorType GrCaps::getDefaultColorType(const GrBackendFormat& format) const {
+    GrColorType grColorType = this->getYUVAColorTypeFromBackendFormat(format, true);
+    return GrColorTypeToSkColorType(grColorType);
+}
+
 GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType grColorType,
                                                 GrRenderable renderable) const {
     GrBackendFormat format = this->onGetDefaultBackendFormat(grColorType, renderable);
