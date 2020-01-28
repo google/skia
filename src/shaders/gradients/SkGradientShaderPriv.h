@@ -89,9 +89,8 @@ protected:
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
 
-    virtual bool transformT(skvm::Builder*, skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
-        return false;
-    }
+    virtual bool transformT(skvm::Builder*, skvm::Uniforms*,
+                            skvm::F32 x, skvm::F32 y, skvm::F32* t) const { return false; }
 
     template <typename T, typename... Args>
     static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {
