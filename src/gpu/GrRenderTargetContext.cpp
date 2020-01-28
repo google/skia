@@ -2026,6 +2026,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     SkRect dstRectY = SkRect::Make(dstSize);
     SkRect dstRectUV = SkRect::MakeWH(halfW, halfH);
 
+    bool doSynchronousRead = !this->caps()->transferFromSurfaceToBufferSupport();
+    PixelTransferResult yTransfer, uTransfer, vTransfer;
+
     // This matrix generates (r,g,b,a) = (0, 0, 0, y)
     float yM[20];
     std::fill_n(yM, 15, 0.f);
@@ -2038,11 +2041,13 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     yRTC->fillRectToRect(GrNoClip(), std::move(yPaint), GrAA::kNo, SkMatrix::I(),
                          dstRectY, dstRectY);
-    auto yTransfer = yRTC->transferPixels(GrColorType::kAlpha_8,
-                                          SkIRect::MakeWH(yRTC->width(), yRTC->height()));
-    if (!yTransfer.fTransferBuffer) {
-        callback(context, nullptr);
-        return;
+    if (!doSynchronousRead) {
+        yTransfer = yRTC->transferPixels(GrColorType::kAlpha_8,
+                                         SkIRect::MakeWH(yRTC->width(), yRTC->height()));
+        if (!yTransfer.fTransferBuffer) {
+            callback(context, nullptr);
+            return;
+        }
     }
 
     texMatrix.preScale(2.f, 2.f);
@@ -2058,11 +2063,13 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     uRTC->fillRectToRect(GrNoClip(), std::move(uPaint), GrAA::kNo, SkMatrix::I(),
                          dstRectUV, dstRectUV);
-    auto uTransfer = uRTC->transferPixels(GrColorType::kAlpha_8,
-                                          SkIRect::MakeWH(uRTC->width(), uRTC->height()));
-    if (!uTransfer.fTransferBuffer) {
-        callback(context, nullptr);
-        return;
+    if (!doSynchronousRead) {
+        uTransfer = uRTC->transferPixels(GrColorType::kAlpha_8,
+                                         SkIRect::MakeWH(uRTC->width(), uRTC->height()));
+        if (!uTransfer.fTransferBuffer) {
+            callback(context, nullptr);
+            return;
+        }
     }
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, v)
@@ -2077,10 +2084,36 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     vRTC->fillRectToRect(GrNoClip(), std::move(vPaint), GrAA::kNo, SkMatrix::I(),
                          dstRectUV, dstRectUV);
-    auto vTransfer = vRTC->transferPixels(GrColorType::kAlpha_8,
-                                          SkIRect::MakeWH(vRTC->width(), vRTC->height()));
-    if (!vTransfer.fTransferBuffer) {
-        callback(context, nullptr);
+    if (!doSynchronousRead) {
+        vTransfer = vRTC->transferPixels(GrColorType::kAlpha_8,
+                                         SkIRect::MakeWH(vRTC->width(), vRTC->height()));
+        if (!vTransfer.fTransferBuffer) {
+            callback(context, nullptr);
+            return;
+        }
+    }
+
+    if (doSynchronousRead) {
+        const auto yInfo = yRTC->imageInfo();
+        const auto uInfo = uRTC->imageInfo();
+        const auto vInfo = vRTC->imageInfo();
+        size_t yRB = yInfo.minRowBytes();
+        size_t uRB = uInfo.minRowBytes();
+        size_t vRB = vInfo.minRowBytes();
+        std::unique_ptr<char[]> y(new char[yRB*yInfo.height()]);
+        std::unique_ptr<char[]> u(new char[uRB*uInfo.height()]);
+        std::unique_ptr<char[]> v(new char[vRB*vInfo.height()]);
+        if (!yRTC->readPixels(yInfo, y.get(), yRB, {0, 0}, direct) ||
+            !uRTC->readPixels(uInfo, u.get(), uRB, {0, 0}, direct) ||
+            !vRTC->readPixels(vInfo, v.get(), vRB, {0, 0}, direct)) {
+            callback(context, nullptr);
+            return;
+        }
+        auto result = std::make_unique<AsyncReadResult>(direct->priv().contextID());
+        result->addCpuPlane(std::move(y), yRB);
+        result->addCpuPlane(std::move(u), uRB);
+        result->addCpuPlane(std::move(v), vRB);
+        callback(context, std::move(result));
         return;
     }
 
