@@ -59,10 +59,8 @@ if [[ $@ == *test* ]]; then
   RELEASE_CONF="-O2 --profiling -DPATHKIT_TESTING -DSK_RELEASE"
 elif [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
-  # -g4 creates source maps that can apparently let you see the C++ code
-  # in the browser's debugger.
   EXTRA_CFLAGS="\"-DSK_DEBUG\""
-  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g4 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g3 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
 WASM_CONF="-s WASM=1"

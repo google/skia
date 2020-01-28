@@ -66,7 +66,7 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
