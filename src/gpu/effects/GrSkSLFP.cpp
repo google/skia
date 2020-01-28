@@ -91,8 +91,9 @@ public:
             }
         }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        SkASSERT(args.fTransformedCoords.count() == 1);
-        SkString coords = fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
+        SkString coords = args.fTransformedCoords.count()
+            ? fragBuilder->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint)
+            : SkString("sk_FragCoord");
         std::vector<SkString> childNames;
         for (int i = 0; i < this->numChildProcessors(); ++i) {
             childNames.push_back(this->invokeChild(i, args));
@@ -179,8 +180,8 @@ GrSkSLFP::GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> 
     }
     if (matrix) {
         fCoordTransform = GrCoordTransform(*matrix);
+        this->addCoordTransform(&fCoordTransform);
     }
-    this->addCoordTransform(&fCoordTransform);
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
@@ -193,9 +194,10 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
     if (fInputSize) {
         memcpy(fInputs.get(), other.fInputs.get(), fInputSize);
     }
-    SkASSERT(other.numCoordTransforms() == 1);
-    fCoordTransform = other.fCoordTransform;
-    this->addCoordTransform(&fCoordTransform);
+    if (other.numCoordTransforms()) {
+        fCoordTransform = other.fCoordTransform;
+        this->addCoordTransform(&fCoordTransform);
+    }
 }
 
 const char* GrSkSLFP::name() const {
