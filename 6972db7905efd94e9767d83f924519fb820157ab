@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97389d2e_9727ce27",
+        "filename": "infra/canvaskit/docker/canvaskit-emsdk/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-01-28T15:09:06Z",
+      "side": 1,
+      "message": "This needs a group-wide discussion, but IMO the convention we should use going forward is:\n\n```\nARG base\u003dgcr.io/skia-public/emsdk-base\nFROM $base\n```\n\nIn automation we\u0027d use \"docker build --build-arg base\u003d\u003cwhatever\u003e\".  That reduces duplication of these version numbers and also allows us to reference the image by sha256 sum on the bots.",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 44
+      },
+      "revId": "6972db7905efd94e9767d83f924519fb820157ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0feb78c_bfcb2793",
+        "filename": "infra/wasm-common/docker/emsdk-base/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-01-28T15:09:06Z",
+      "side": 1,
+      "message": "This is going to work unpredictably if we don\u0027t pin a release tag or commit hash, and caching is going to compound that.  Somewhat unrelated, is this checkout needed by users of this image?  If not, we should use a multi-stage build and trim it.",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 59
+      },
+      "revId": "6972db7905efd94e9767d83f924519fb820157ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41595fe7_04785dc0",
+        "filename": "infra/wasm-common/docker/emsdk-base/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-01-28T15:09:06Z",
+      "side": 1,
+      "message": "Nit: use an ARG?",
+      "range": {
+        "startLine": 17,
+        "startChar": 24,
+        "endLine": 17,
+        "endChar": 30
+      },
+      "revId": "6972db7905efd94e9767d83f924519fb820157ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
