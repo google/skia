@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a021746d_53ac3bc8",
+        "filename": "src/core/SkSpecialSurface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-28T20:43:52Z",
+      "side": 1,
+      "message": "// Note: SkSpecialImages can only be snapShotted once - so this is destructive.",
+      "revId": "9db6e026a6bd3f84dd2302821d15acbdbfd14150",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
