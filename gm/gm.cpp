@@ -6,6 +6,7 @@
  */
 
 #include "gm/gm.h"
+#include "gm/verifiers/verifiers.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -30,7 +31,7 @@ using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];
 
-static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
+static void draw_failure_message(SkCanvas* canvas, const char format[], ...) {
     SkString failureMsg;
 
     va_list argp;
@@ -39,7 +40,7 @@ static void draw_failure_message(SkCanvas* canvas, const char format[], ...)  {
     va_end(argp);
 
     constexpr SkScalar kOffset = 5.0f;
-    canvas->drawColor(SkColorSetRGB(200,0,0));
+    canvas->drawColor(SkColorSetRGB(200, 0, 0));
     SkFont font;
     SkRect bounds;
     font.measureText(failureMsg.c_str(), failureMsg.size(), SkTextEncoding::kUTF8, &bounds);
@@ -52,7 +53,7 @@ static void draw_gpu_only_message(SkCanvas* canvas) {
     bmp.allocN32Pixels(128, 64);
     SkCanvas bmpCanvas(bmp);
     bmpCanvas.drawColor(SK_ColorWHITE);
-    SkFont  font(ToolUtils::create_portable_typeface(), 20);
+    SkFont font(ToolUtils::create_portable_typeface(), 20);
     SkPaint paint(SkColors::kRed);
     bmpCanvas.drawString("GPU Only", 20, 40, font, paint);
     SkMatrix localM;
@@ -113,7 +114,6 @@ DrawResult GM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 }
 void GM::onDraw(SkCanvas*) { SK_ABORT("Not implemented."); }
 
-
 SkISize SimpleGM::onISize() { return fSize; }
 SkString SimpleGM::onShortName() { return fName; }
 DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
@@ -143,6 +143,19 @@ bool GM::animate(double nanos) { return this->onAnimate(nanos); }
 bool GM::runAsBench() const { return false; }
 void GM::modifyGrContextOptions(GrContextOptions* options) {}
 
+std::unique_ptr<verifiers::VerifierList> GM::getVerifiers() const {
+    using namespace verifiers;
+    std::unique_ptr<VerifierList> verifierList(new VerifierList);
+
+    // Default verifier performs a fuzzy pixel comparison in a small neighborhood, and weights
+    // errors near detected edges less.
+    auto fuzzyPixelMatch = std::unique_ptr<GMVerifier>(new CheckPixelColorNearby);
+    fuzzyPixelMatch->setRelaxation(std::unique_ptr<VerifierRelaxation>(new RelaxNearEdges));
+    verifierList->add(std::move(fuzzyPixelMatch));
+
+    return verifierList;
+}
+
 void GM::onOnceBeforeDraw() {}
 
 bool GM::onAnimate(double /*nanos*/) { return false; }
@@ -163,7 +176,7 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 template GMRegistry* GMRegistry::gHead;
 
 DrawResult GpuGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* canvas,
-                          SkString* errorMsg) {
+                         SkString* errorMsg) {
     this->onDraw(ctx, rtc, canvas);
     return DrawResult::kOk;
 }
@@ -185,19 +198,19 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
     return this->onDraw(ctx, rtc, canvas, errorMsg);
 }
 
-template <typename Fn>
+template<typename Fn>
 static void mark(SkCanvas* canvas, SkScalar x, SkScalar y, Fn&& fn) {
     SkPaint alpha;
     alpha.setAlpha(0x50);
     canvas->saveLayer(nullptr, &alpha);
-        canvas->translate(x,y);
-        canvas->scale(2,2);
-        fn();
+    canvas->translate(x, y);
+    canvas->scale(2, 2);
+    fn();
     canvas->restore();
 }
 
 void MarkGMGood(SkCanvas* canvas, SkScalar x, SkScalar y) {
-    mark(canvas, x,y, [&]{
+    mark(canvas, x, y, [&] {
         // A green circle.
         canvas->drawCircle(0, 0, 12, SkPaint(SkColor4f::FromColor(SkColorSetRGB(27, 158, 119))));
 
@@ -214,18 +227,18 @@ void MarkGMGood(SkCanvas* canvas, SkScalar x, SkScalar y) {
 }
 
 void MarkGMBad(SkCanvas* canvas, SkScalar x, SkScalar y) {
-    mark(canvas, x,y, [&] {
+    mark(canvas, x, y, [&] {
         // A red circle.
-        canvas->drawCircle(0,0, 12, SkPaint(SkColor4f::FromColor(SkColorSetRGB(231, 41, 138))));
+        canvas->drawCircle(0, 0, 12, SkPaint(SkColor4f::FromColor(SkColorSetRGB(231, 41, 138))));
 
         // Cut out an 'X'.
         SkPaint paint(SkColors::kTransparent);
         paint.setBlendMode(SkBlendMode::kSrc);
         paint.setStrokeWidth(2);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawLine(-5,-5,
-                         +5,+5, paint);
-        canvas->drawLine(+5,-5,
-                         -5,+5, paint);
+        canvas->drawLine(-5, -5,
+                         +5, +5, paint);
+        canvas->drawLine(+5, -5,
+                         -5, +5, paint);
     });
 }
