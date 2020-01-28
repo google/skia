@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75452b6e_9bd67f3b",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1952,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-28T16:47:11Z",
+      "side": 1,
+      "message": "Hard to believe that msvc is worried about this double being passed to a float.",
+      "range": {
+        "startLine": 1952,
+        "startChar": 30,
+        "endLine": 1952,
+        "endChar": 36
+      },
+      "revId": "151645a6c5d3295cfbaefb9d0344f488a7204ab0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
