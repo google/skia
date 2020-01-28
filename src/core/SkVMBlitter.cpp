@@ -13,6 +13,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkVMBlitter.h"
 #include "src/shaders/SkColorFilterShader.h"
@@ -132,6 +133,11 @@ namespace {
                                     uniforms,alloc,
                                     x,y, &r,&g,&b,&a)) {
                     shaderHash = p.hash();
+                    // p.hash() folds in all instructions to produce r,g,b,a but does not know
+                    // precisely which value we'll treat as which channel.  Imagine the shader
+                    // called std::swap(*r,*b)... it draws differently, but p.hash() is unchanged.
+                    const int outputs[] = { r.id, g.id, b.id, a.id };
+                    shaderHash ^= SkOpts::hash(outputs, sizeof(outputs));
                 } else {
                     *ok = false;
                 }
