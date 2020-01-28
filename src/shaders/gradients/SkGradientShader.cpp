@@ -432,7 +432,7 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
 
     SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
     skvm::F32 t;
-    if (!this->transformT(p, x,y, &t)) {  // Hook into subclasses for linear, radial, etc.
+    if (!this->transformT(p,uniforms, x,y, &t)) {  // Hook into subclasses for linear, radial, etc.
         return false;
     }
 

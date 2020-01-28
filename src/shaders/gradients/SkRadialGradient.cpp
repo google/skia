@@ -63,7 +63,8 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
     p->append(SkRasterPipeline::xy_to_radius);
 }
 
-bool SkRadialGradient::transformT(skvm::Builder* p, skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
+bool SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
+                                  skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
     *t = p->sqrt(p->mad(x,x, p->mul(y,y)));
     return true;
 }
