@@ -295,6 +295,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       0,
       SkTextUtils::kLeft_Align,
       Shaper::VAlign::kTopBaseline,
+      Shaper::ResizePolicy::kNone,
       SkRect::MakeEmpty(),
       SK_ColorTRANSPARENT,
       SK_ColorTRANSPARENT,
@@ -440,6 +441,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 0,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
+                skottie::Shaper::ResizePolicy::kNone,
                 Shaper::Flags::kNone
             };
 
@@ -505,6 +507,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 0,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,
+                skottie::Shaper::ResizePolicy::kNone,
                 Shaper::Flags::kNone
             };
 
@@ -541,6 +544,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
          0,
         SkTextUtils::Align::kCenter_Align,
         Shaper::VAlign::kTop,
+        skottie::Shaper::ResizePolicy::kNone,
         Shaper::Flags::kNone
     };
 
@@ -635,6 +639,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
          0,
         SkTextUtils::Align::kCenter_Align,
         Shaper::VAlign::kTop,
+        Shaper::ResizePolicy::kNone,
         Shaper::Flags::kNone
     };
 

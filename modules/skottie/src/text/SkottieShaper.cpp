@@ -196,10 +196,6 @@ public:
         case Shaper::VAlign::kVisualBottom:
             v_offset = fBox.fBottom - extent_box().fBottom;
             break;
-        case Shaper::VAlign::kVisualResizeToFit:
-        case Shaper::VAlign::kVisualDownscaleToFit:
-            SkASSERT(false);
-            break;
         }
 
         if (v_offset) {
@@ -324,8 +320,6 @@ private:
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
                          SkSize* shaped_size = nullptr) {
-    SkASSERT(desc.fVAlign != Shaper::VAlign::kVisualResizeToFit);
-
     const auto& is_line_break = [](SkUnichar uch) {
         // TODO: other explicit breaks?
         return uch == '\r';
@@ -349,8 +343,6 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
                           const SkRect& box, const sk_sp<SkFontMgr>& fontmgr) {
-    SkASSERT(orig_desc.fVAlign == Shaper::VAlign::kVisualResizeToFit);
-
     Shaper::Result best_result;
 
     if (box.isEmpty() || orig_desc.fTextSize <= 0) {
@@ -402,35 +394,30 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    return (desc.fVAlign == VAlign::kVisualResizeToFit ||
-            desc.fVAlign == VAlign::kVisualDownscaleToFit) // makes no sense in point mode
+    return (desc.fResize == ResizePolicy::kVisualResizeToFit ||
+            desc.fResize == ResizePolicy::kVisualDownscaleToFit) // makes no sense in point mode
             ? Result()
             : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
 }
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    if (desc.fVAlign == VAlign::kVisualResizeToFit) {
+    switch(desc.fResize) {
+    case ResizePolicy::kNone:
+        return ShapeImpl(txt, desc, box, fontmgr);
+    case ResizePolicy::kVisualResizeToFit:
         return ShapeToFit(txt, desc, box, fontmgr);
-    }
-
-    if (desc.fVAlign == VAlign::kVisualDownscaleToFit) {
-        auto adjusted_desc = desc;
-        adjusted_desc.fVAlign = VAlign::kVisualCenter;
-
+    case ResizePolicy::kVisualDownscaleToFit: {
         SkSize size;
-        auto result = ShapeImpl(txt, adjusted_desc, box, fontmgr, &size);
+        auto result = ShapeImpl(txt, desc, box, fontmgr, &size);
 
-        if (size.width() <= box.width() && size.height() <= box.height()) {
-            return result;
-        }
-
-        adjusted_desc.fVAlign = VAlign::kVisualResizeToFit;
-
-        return ShapeToFit(txt, adjusted_desc, box, fontmgr);
+        return (size.width() <= box.width() && size.height() <= box.height())
+                ? result
+                : ShapeToFit(txt, desc, box, fontmgr);
+    }
     }
 
-    return ShapeImpl(txt, desc, box, fontmgr);
+    SkUNREACHABLE;
 }
 
 SkRect Shaper::Result::computeVisualBounds() const {
