@@ -341,12 +341,12 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrRecordingContext* 
     SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(context, bitmap);
-    if (!proxy) {
+    auto view = GrMakeCachedBitmapProxyView(context, bitmap);
+    if (!view.proxy()) {
         return nullptr;
     }
 
-    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(std::move(proxy)));
+    return std::unique_ptr<GrFragmentProcessor>(new ColorTableEffect(view.detachProxy()));
 }
 
 void ColorTableEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,

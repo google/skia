@@ -188,8 +188,8 @@ sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
  * Create a texture proxy from the provided bitmap and add it to the texture cache
  * using the key also extracted from 'bitmp'.
  */
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrRecordingContext*, const SkBitmap& bitmap,
-                                              SkBackingFit fit = SkBackingFit::kExact);
+GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitmap& bitmap,
+                                               SkBackingFit fit = SkBackingFit::kExact);
 
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()
