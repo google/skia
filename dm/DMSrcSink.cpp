@@ -6,6 +6,7 @@
  */
 
 #include "dm/DMSrcSink.h"
+#include "gm/verifiers/gmverifier.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorSpace.h"
@@ -106,6 +107,18 @@ Name GMSrc::name() const {
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     gm->modifyGrContextOptions(options);
+}
+
+Error GMSrc::drawVerifierGoldenImage(SkBitmap* bmp) const {
+    SkASSERT(bmp);
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    *bmp = skiagm::verifiers::GMVerifier::renderGoldBmp(gm.get());
+    return SkString();
+}
+
+std::unique_ptr<skiagm::verifiers::VerifierList> GMSrc::getVerifiers() const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    return gm->getVerifiers();
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
