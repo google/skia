@@ -860,7 +860,10 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int e
     //  the atlas generation.
     fRegenerateTextureCoordinates =
             fRegenerateTextureCoordinates || fSubRun->fAtlasGeneration != currentAtlasGen;
-    if (fSubRun->strike()->isAbandoned() || fRegenerateTextureCoordinates) {
+
+    // The true || ... is to fix chrome bug 1045016. This is a temporary fix.
+    // TODO: figure out why the atlas number is getting off track, and restore the check.
+    if (true || fSubRun->strike()->isAbandoned() || fRegenerateTextureCoordinates) {
         return this->updateTextureCoordinatesMaybeStrike(begin, end);
     } else {
         // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.
