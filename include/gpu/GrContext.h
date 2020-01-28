@@ -256,8 +256,7 @@ public:
      * use maxSurfaceSampleCountForColorType().
      */
     bool colorTypeSupportedAsSurface(SkColorType colorType) const {
-        if (kR8G8_unorm_SkColorType == colorType ||
-            kR16G16_unorm_SkColorType == colorType ||
+        if (kR16G16_unorm_SkColorType == colorType ||
             kA16_unorm_SkColorType == colorType ||
             kA16_float_SkColorType == colorType ||
             kR16G16_float_SkColorType == colorType ||
@@ -376,6 +375,18 @@ public:
     // the SkImage is not texture backed. For external format textures this will also return 0 as we
     // cannot determine the correct size.
     static size_t ComputeImageSize(sk_sp<SkImage> image, GrMipMapped, bool useNextPow2 = false);
+
+    /*
+     * Get the SkColorType to use when creating an SkSurface wrapping 'format'.
+     */
+    SkColorType defaultColorType(const GrBackendFormat& format) const {
+        SkColorType colorType = INHERITED::defaultColorType(format);
+        if (!this->colorTypeSupportedAsSurface(colorType)) {
+            return kUnknown_SkColorType;
+        }
+
+        return colorType;
+    }
 
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.

@@ -40,6 +40,20 @@ bool GrContext_Base::init(sk_sp<const GrCaps> caps) {
 const GrCaps* GrContext_Base::caps() const { return fCaps.get(); }
 sk_sp<const GrCaps> GrContext_Base::refCaps() const { return fCaps; }
 
+SkColorType GrContext_Base::defaultColorType(const GrBackendFormat& format) const {
+    const GrCaps* caps = this->caps();
+
+    SkColorType skColorType = caps->getDefaultColorType(format);
+
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
+
+    if (!caps->isFormatAsColorTypeRenderable(grColorType, format)) {
+        return kUnknown_SkColorType;
+    }
+
+    return skColorType;
+}
+
 GrBackendFormat GrContext_Base::defaultBackendFormat(SkColorType skColorType,
                                                      GrRenderable renderable) const {
     const GrCaps* caps = this->caps();

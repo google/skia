@@ -28,6 +28,8 @@ public:
      */
     SK_API GrBackendApi backend() const { return fBackend; }
 
+    SK_API SkColorType defaultColorType(const GrBackendFormat& format) const;
+
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
      * It is guaranteed that this backend format will be the one used by the GrContext
