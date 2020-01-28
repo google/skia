@@ -228,24 +228,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 
     std::unique_ptr<GrFragmentProcessor> inner;
     if (doBicubic) {
-        // If either domainX or domainY are un-ignored, a texture domain effect has to be used to
-        // implement the decal mode (while leaving non-decal axes alone). The wrap mode originally
-        // clamp-to-border is reset to clamp since the hw cannot implement it directly.
-        GrTextureDomain::Mode domainX = GrTextureDomain::kIgnore_Mode;
-        GrTextureDomain::Mode domainY = GrTextureDomain::kIgnore_Mode;
-        if (!caps.clampToBorderSupport()) {
-            if (wrapModes[0] == GrSamplerState::WrapMode::kClampToBorder) {
-                domainX = GrTextureDomain::kDecal_Mode;
-                wrapModes[0] = GrSamplerState::WrapMode::kClamp;
-            }
-            if (wrapModes[1] == GrSamplerState::WrapMode::kClampToBorder) {
-                domainY = GrTextureDomain::kDecal_Mode;
-                wrapModes[1] = GrSamplerState::WrapMode::kClamp;
-            }
-        }
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
-                                      kDir, srcAlphaType);
+        inner = GrBicubicEffect::Make(std::move(proxy), caps, lmInverse, wrapModes, kDir, srcAlphaType);
+
     } else {
         inner = GrTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse, samplerState,
                                       caps);

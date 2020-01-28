@@ -209,18 +209,15 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
         static const GrSamplerState::WrapMode kDecalDecal[] = {
                 GrSamplerState::WrapMode::kClampToBorder, GrSamplerState::WrapMode::kClampToBorder};
+        auto wm = fDomainNeedsDecal ? kDecalDecal : kClampClamp;
 
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        bool clampToBorderSupport = caps.clampToBorderSupport();
-        if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
-            GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
-                                         : GrTextureDomain::kClamp_Mode;
-            return GrBicubicEffect::Make(std::move(proxy), textureMatrix, kClampClamp, wrapMode,
-                                         wrapMode, kDir, srcAlphaType,
-                                         kDomain_DomainMode == domainMode ? &domain : nullptr);
+        const auto& caps = *fContext->priv().caps();
+        if (kDomain_DomainMode == domainMode) {
+            return GrBicubicEffect::Make(std::move(proxy), caps, textureMatrix, wm, kDir, srcAlphaType, &domain);
         } else {
-            return GrBicubicEffect::Make(std::move(proxy), textureMatrix,
-                                         fDomainNeedsDecal ? kDecalDecal : kClampClamp, kDir,
+            return GrBicubicEffect::Make(std::move(proxy), caps, textureMatrix,
+                                         wm, kDir,
                                          srcAlphaType);
         }
     }
