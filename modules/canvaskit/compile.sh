@@ -212,9 +212,10 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\",
+  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_DISABLE_EFFECT_DESERIALIZATION\",
+    \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${GN_SKP_FLAGS}
     ${EXTRA_CFLAGS}
@@ -275,12 +276,13 @@ ${EMCXX} \
     -Ithird_party/skcms \
     -Ithird_party/externals/icu/source/common/ \
     -DSK_DISABLE_AAA \
+    -DSK_FORCE_8_BYTE_ALIGNMENT \
     $WASM_GPU \
     $WASM_PATHOPS \
     $WASM_RT_SHADER \
     $WASM_SKP \
     $FONT_CFLAGS \
-    -std=c++14 \
+    -std=c++17 \
     --bind \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/helper.js \

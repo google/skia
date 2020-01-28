@@ -10,6 +10,9 @@ BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 HTML_SHELL=$BASE_DIR/shell.html
 BUILD_DIR=${BUILD_DIR:="out/pathkit"}
 mkdir -p $BUILD_DIR
+# sometimes the .a files keep old symbols around - cleaning them out makes sure
+# we get a fresh build.
+rm -f $BUILD_DIR/*.a
 
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
@@ -73,7 +76,7 @@ OUTPUT="-o $BUILD_DIR/pathkit.js"
 source $EMSDK/emsdk_env.sh
 EMCC=`which emcc`
 EMCXX=`which em++`
-
+EMAR=`which emar`
 
 # Turn off exiting while we check for ninja (which may not be on PATH)
 set +e
@@ -91,7 +94,9 @@ echo "Compiling bitcode"
 ./bin/gn gen ${BUILD_DIR} \
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
+  ar=\"${EMAR}\" \
   extra_cflags=[\"-DSK_DISABLE_READBUFFER=1\",\"-s\", \"WARN_UNALIGNED=1\",
+    \"-s\", \"MAIN_MODULE=1\",
     ${EXTRA_CFLAGS}
   ] \
   is_debug=false \
@@ -104,10 +109,8 @@ ${NINJA} -C ${BUILD_DIR} libpathkit.a
 
 echo "Generating WASM"
 
-${EMCXX} $RELEASE_CONF -std=c++14 \
+${EMCXX} $RELEASE_CONF -std=c++17 \
 -I. \
--Ithird_party/skcms \
--std=c++14 \
 --bind \
 --pre-js $BASE_DIR/helper.js \
 --pre-js $BASE_DIR/chaining.js \

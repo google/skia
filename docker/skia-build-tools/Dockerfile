@@ -11,6 +11,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   && groupadd -g 2000 skia \
   && useradd -u 2000 -g 2000 skia
 
+# TODO(kjlubick): Try a shallow clone of depot_tools
 RUN cd /tmp \
   && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
 
