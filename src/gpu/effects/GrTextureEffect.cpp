@@ -57,8 +57,8 @@ GrTextureEffect::Sampling::Sampling(GrSamplerState sampler, SkISize size, const 
     }
     if (!caps.npotTextureTileSupport()) {
         if (fHWSampler.wrapModeX() != GrSamplerState::WrapMode::kClamp && !SkIsPow2(size.width())) {
-            fHWSampler.setWrapModeX(GrSamplerState::WrapMode::kClamp);
             fShaderModes[0] = static_cast<ShaderMode>(fHWSampler.wrapModeX());
+            fHWSampler.setWrapModeX(GrSamplerState::WrapMode::kClamp);
             // We don't yet support shader based Mirror or Repeat with filtering.
             fHWSampler.setFilterMode(GrSamplerState::Filter::kNearest);
             fShaderSubset.fLeft  = 0;
@@ -66,8 +66,8 @@ GrTextureEffect::Sampling::Sampling(GrSamplerState sampler, SkISize size, const 
         }
         if (fHWSampler.wrapModeY() != GrSamplerState::WrapMode::kClamp &&
             !SkIsPow2(size.height())) {
-            fHWSampler.setWrapModeY(GrSamplerState::WrapMode::kClamp);
             fShaderModes[1] = static_cast<ShaderMode>(fHWSampler.wrapModeY());
+            fHWSampler.setWrapModeY(GrSamplerState::WrapMode::kClamp);
             fHWSampler.setFilterMode(GrSamplerState::Filter::kNearest);
             fShaderSubset.fTop    = 0;
             fShaderSubset.fBottom = size.height();
