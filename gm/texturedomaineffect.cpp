@@ -19,6 +19,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTargetContext.h"
@@ -87,12 +88,11 @@ protected:
 
     DrawResult onDraw(GrContext* context, GrRenderTargetContext* renderTargetContext,
                       SkCanvas* canvas, SkString* errorMsg) override {
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-        sk_sp<GrTextureProxy> proxy;
         GrMipMapped mipMapped = fFilter == GrSamplerState::Filter::kMipMap &&
                                 context->priv().caps()->mipMapSupport()
                 ? GrMipMapped::kYes : GrMipMapped::kNo;
-        proxy = proxyProvider->createProxyFromBitmap(fBitmap, mipMapped);
+        GrBitmapTextureMaker maker(context, fBitmap);
+        auto [proxy, grCT] = maker.refTextureProxy(mipMapped);
         if (!proxy) {
             *errorMsg = "Failed to create proxy.";
             return DrawResult::kFail;
@@ -114,7 +114,9 @@ protected:
         for (size_t d = 0; d < SK_ARRAY_COUNT(texelDomains); ++d) {
             SkBitmap subset;
             fBitmap.extractSubset(&subset, texelDomains[d]);
-            subsetProxies[d] = proxyProvider->createProxyFromBitmap(subset, mipMapped);
+            subset.setImmutable();
+            GrBitmapTextureMaker maker(context, subset);
+            std::tie(subsetProxies[d], std::ignore) = maker.refTextureProxy(mipMapped);
         }
 
         SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);

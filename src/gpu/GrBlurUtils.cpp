@@ -8,6 +8,7 @@
 #include "src/gpu/GrBlurUtils.h"
 
 #include "include/private/GrRecordingContext.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -145,13 +146,9 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
         }
         bm.setImmutable();
 
-        sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
-        if (!image) {
-            return false;
-        }
-
-        filteredMask = proxyProvider->createTextureProxy(std::move(image), 1, SkBudgeted::kYes,
-                                                         SkBackingFit::kApprox);
+        GrBitmapTextureMaker maker(context, bm, GrBitmapTextureMaker::Cached::kNo,
+                                   SkBackingFit::kApprox);
+        std::tie(filteredMask, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
         if (!filteredMask) {
             return false;
         }

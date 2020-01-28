@@ -17,6 +17,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContext.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"
@@ -52,6 +53,7 @@ static SkBitmap create_bm() {
                                    SkIntToScalar(kSmallerSize), SkIntToScalar(kSmallerSize)),
                   p);
 
+    bm.setImmutable();
     return bm;
 }
 
@@ -195,7 +197,6 @@ static void test_texture_backed(skiatest::Reporter* reporter,
 // Test out the SkSpecialImage::makeTextureImage entry point
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     SkBitmap bm = create_bm();
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
@@ -222,9 +223,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 
     {
         // gpu
-        sk_sp<SkImage> rasterImage = SkImage::MakeFromBitmap(bm);
-        sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(
-                rasterImage, 1, SkBudgeted::kNo, SkBackingFit::kExact);
+        GrBitmapTextureMaker maker(context, bm);
+        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
         if (!proxy) {
             return;
         }
@@ -234,7 +234,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
                                                             std::move(proxy),
-                                                            GrColorType::kRGBA_8888,
+                                                            grCT,
                                                             nullptr));
 
         {
@@ -253,12 +253,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     SkBitmap bm = create_bm();
-    sk_sp<SkImage> rasterImage = SkImage::MakeFromBitmap(bm);
-
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(rasterImage, 1, SkBudgeted::kNo,
-                                                                    SkBackingFit::kExact);
+    GrBitmapTextureMaker maker(context, bm);
+    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
     if (!proxy) {
         return;
     }
@@ -268,7 +265,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                             SkIRect::MakeWH(kFullSize, kFullSize),
                                                             kNeedNewImageUniqueID_SpecialImage,
                                                             proxy,
-                                                            GrColorType::kRGBA_8888,
+                                                            grCT,
                                                             nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
@@ -278,7 +275,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
                                                                context, subset,
                                                                kNeedNewImageUniqueID_SpecialImage,
                                                                std::move(proxy),
-                                                               GrColorType::kRGBA_8888,
+                                                               grCT,
                                                                nullptr));
         test_image(subSImg1, reporter, context, true);
     }

@@ -115,17 +115,17 @@ public:
 
     #if SK_SUPPORT_GPU
             SkImageInfo info = SkImageInfo::MakeA8(kBlockSize, 1);
-            SkPixmap permutationsPixmap(info, fLatticeSelector, info.minRowBytes());
-            fPermutationsImage = SkImage::MakeFromRaster(permutationsPixmap, nullptr, nullptr);
+            fPermutationsBitmap.installPixels(info, fLatticeSelector, info.minRowBytes());
+            fPermutationsBitmap.setImmutable();
 
             info = SkImageInfo::MakeN32Premul(kBlockSize, 4);
-            SkPixmap noisePixmap(info, fNoise[0][0], info.minRowBytes());
-            fNoiseImage = SkImage::MakeFromRaster(noisePixmap, nullptr, nullptr);
+            fNoiseBitmap.installPixels(info, fNoise[0][0], info.minRowBytes());
+            fNoiseBitmap.setImmutable();
 
             info = SkImageInfo::MakeA8(256, 1);
-            SkPixmap impPermutationsPixmap(info, improved_noise_permutations, info.minRowBytes());
-            fImprovedPermutationsImage = SkImage::MakeFromRaster(impPermutationsPixmap, nullptr,
-                                                                 nullptr);
+            fImprovedPermutationsBitmap.installPixels(info, improved_noise_permutations,
+                                                      info.minRowBytes());
+            fImprovedPermutationsBitmap.setImmutable();
 
             static uint8_t gradients[] = { 2, 2, 1, 0,
                                            0, 2, 1, 0,
@@ -144,8 +144,8 @@ public:
                                            0, 2, 1, 0,
                                            1, 0, 0, 0 };
             info = SkImageInfo::MakeN32Premul(16, 1);
-            SkPixmap gradPixmap(info, gradients, info.minRowBytes());
-            fGradientImage = SkImage::MakeFromRaster(gradPixmap, nullptr, nullptr);
+            fGradientBitmap.installPixels(info, gradients, info.minRowBytes());
+            fGradientBitmap.setImmutable();
     #endif
         }
 
@@ -155,10 +155,10 @@ public:
                 , fTileSize(that.fTileSize)
                 , fBaseFrequency(that.fBaseFrequency)
                 , fStitchDataInit(that.fStitchDataInit)
-                , fPermutationsImage(that.fPermutationsImage)
-                , fNoiseImage(that.fNoiseImage)
-                , fImprovedPermutationsImage(that.fImprovedPermutationsImage)
-                , fGradientImage(that.fGradientImage) {
+                , fPermutationsBitmap(that.fPermutationsBitmap)
+                , fNoiseBitmap(that.fNoiseBitmap)
+                , fImprovedPermutationsBitmap(that.fImprovedPermutationsBitmap)
+                , fGradientBitmap(that.fGradientBitmap) {
             memcpy(fLatticeSelector, that.fLatticeSelector, sizeof(fLatticeSelector));
             memcpy(fNoise, that.fNoise, sizeof(fNoise));
             memcpy(fGradient, that.fGradient, sizeof(fGradient));
@@ -176,10 +176,10 @@ public:
     private:
 
     #if SK_SUPPORT_GPU
-        sk_sp<SkImage> fPermutationsImage;
-        sk_sp<SkImage> fNoiseImage;
-        sk_sp<SkImage> fImprovedPermutationsImage;
-        sk_sp<SkImage> fGradientImage;
+        SkBitmap fPermutationsBitmap;
+        SkBitmap fNoiseBitmap;
+        SkBitmap fImprovedPermutationsBitmap;
+        SkBitmap fGradientBitmap;
     #endif
 
         inline int random()  {
@@ -304,15 +304,15 @@ public:
     public:
 
 #if SK_SUPPORT_GPU
-        const sk_sp<SkImage> getPermutationsImage() const { return fPermutationsImage; }
+        const SkBitmap& getPermutationsBitmap() const { return fPermutationsBitmap; }
 
-        const sk_sp<SkImage> getNoiseImage() const { return fNoiseImage; }
+        const SkBitmap& getNoiseBitmap() const { return fNoiseBitmap; }
 
-        const sk_sp<SkImage> getImprovedPermutationsImage() const {
-            return fImprovedPermutationsImage;
+        const SkBitmap& getImprovedPermutationsBitmap() const {
+            return fImprovedPermutationsBitmap;
         }
 
-        const sk_sp<SkImage> getGradientImage() const { return fGradientImage; }
+        const SkBitmap& getGradientBitmap() const { return fGradientBitmap; }
 #endif
     };
 
@@ -1417,20 +1417,19 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     m.setTranslateX(-localMatrix->getTranslateX() + SK_Scalar1);
     m.setTranslateY(-localMatrix->getTranslateY() + SK_Scalar1);
 
-    auto proxyProvider = args.fContext->priv().proxyProvider();
+    auto context = args.fContext;
     if (fType == kImprovedNoise_Type) {
         // Need to assert that the textures we'll create are power of 2 so a copy isn't needed.
         // We also know that we will not be using mipmaps. If things things weren't true we should
         // go through GrBitmapTextureMaker to handle needed copies.
-        const sk_sp<SkImage> permutationsImage = paintingData->getImprovedPermutationsImage();
-        SkASSERT(SkIsPow2(permutationsImage->width()) && SkIsPow2(permutationsImage->height()));
+        const SkBitmap& permutationsBitmap = paintingData->getImprovedPermutationsBitmap();
+        SkASSERT(SkIsPow2(permutationsBitmap.width()) && SkIsPow2(permutationsBitmap.height()));
         sk_sp<GrTextureProxy> permutationsTexture(
-                GrMakeCachedImageProxy(proxyProvider, std::move(permutationsImage)));
+                GrMakeCachedBitmapProxy(context, permutationsBitmap));
 
-        const sk_sp<SkImage> gradientImage = paintingData->getGradientImage();
-        SkASSERT(SkIsPow2(gradientImage->width()) && SkIsPow2(gradientImage->height()));
-        sk_sp<GrTextureProxy> gradientTexture(
-                GrMakeCachedImageProxy(proxyProvider, std::move(gradientImage)));
+        const SkBitmap& gradientBitmap = paintingData->getGradientBitmap();
+        SkASSERT(SkIsPow2(gradientBitmap.width()) && SkIsPow2(gradientBitmap.height()));
+        sk_sp<GrTextureProxy> gradientTexture(GrMakeCachedBitmapProxy(context, gradientBitmap));
         return GrImprovedPerlinNoiseEffect::Make(fNumOctaves, fSeed, std::move(paintingData),
                                                  std::move(permutationsTexture),
                                                  std::move(gradientTexture), m);
@@ -1455,15 +1454,13 @@ std::unique_ptr<GrFragmentProcessor> SkPerlinNoiseShaderImpl::asFragmentProcesso
     // Need to assert that the textures we'll create are power of 2 so that now copy is needed. We
     // also know that we will not be using mipmaps. If things things weren't true we should go
     // through GrBitmapTextureMaker to handle needed copies.
-    const sk_sp<SkImage> permutationsImage = paintingData->getPermutationsImage();
-    SkASSERT(SkIsPow2(permutationsImage->width()) && SkIsPow2(permutationsImage->height()));
-    sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedImageProxy(proxyProvider,
-                                                                     std::move(permutationsImage));
+    const SkBitmap& permutationsBitmap = paintingData->getPermutationsBitmap();
+    SkASSERT(SkIsPow2(permutationsBitmap.width()) && SkIsPow2(permutationsBitmap.height()));
+    sk_sp<GrTextureProxy> permutationsProxy = GrMakeCachedBitmapProxy(context, permutationsBitmap);
 
-    const sk_sp<SkImage> noiseImage = paintingData->getNoiseImage();
-    SkASSERT(SkIsPow2(noiseImage->width()) && SkIsPow2(noiseImage->height()));
-    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedImageProxy(proxyProvider,
-                                                              std::move(noiseImage));
+    const SkBitmap& noiseBitmap = paintingData->getNoiseBitmap();
+    SkASSERT(SkIsPow2(noiseBitmap.width()) && SkIsPow2(noiseBitmap.height()));
+    sk_sp<GrTextureProxy> noiseProxy = GrMakeCachedBitmapProxy(context, noiseBitmap);
 
     if (permutationsProxy && noiseProxy) {
         auto inner = GrPerlinNoise2Effect::Make(fType,

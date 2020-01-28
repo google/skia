@@ -87,7 +87,7 @@ private:
     // This is used as release callback for the YUV data that we capture in an SkImage when
     // uploading to a gpu. When the upload is complete and we release the SkImage this callback will
     // release the underlying data.
-    static void YUVGen_DataReleaseProc(const void*, void* data);
+    static void YUVGen_DataReleaseProc(void*, void* data);
 };
 
 #endif

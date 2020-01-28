@@ -27,10 +27,11 @@ static GrImageInfo get_image_info(GrRecordingContext* context, const SkBitmap& b
 }
 
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                                           bool useDecal, bool shouldUseUniqueKey)
+                                           Cached cached, SkBackingFit fit, bool useDecal)
         : INHERITED(context, get_image_info(context, bitmap), useDecal)
-        , fBitmap(bitmap) {
-    if (!bitmap.isVolatile() && shouldUseUniqueKey) {
+        , fBitmap(bitmap)
+        , fFit(fit) {
+    if (!bitmap.isVolatile() && cached == Cached::kYes) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
                                            bitmap.height());
@@ -65,11 +66,11 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 return nullptr;
             }
             copy8888.setImmutable();
-            proxy = proxyProvider->createProxyFromBitmap(copy8888, willBeMipped ? GrMipMapped::kYes
-                                                                                : GrMipMapped::kNo);
+            proxy = proxyProvider->createProxyFromBitmap(
+                    copy8888, willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo, fFit);
         } else {
-            proxy = proxyProvider->createProxyFromBitmap(fBitmap, willBeMipped ? GrMipMapped::kYes
-                                                                               : GrMipMapped::kNo);
+            proxy = proxyProvider->createProxyFromBitmap(
+                    fBitmap, willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo, fFit);
         }
         if (proxy) {
             if (fOriginalKey.isValid()) {

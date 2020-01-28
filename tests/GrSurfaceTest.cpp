@@ -11,6 +11,7 @@
 #include "include/gpu/GrTexture.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -420,10 +421,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
                 kSize * GrColorTypeBytesPerPixel(GrColorType::kRGBA_8888));
         REPORTER_ASSERT(reporter, gpuWriteResult == (ioType == kRW_GrIOType));
 
-        // Copies should not work with a read-only texture
-        auto copySrc =
-                proxyProvider->createTextureProxy(SkImage::MakeFromRaster(write, nullptr, nullptr),
-                                                  1, SkBudgeted::kYes, SkBackingFit::kExact);
+        SkBitmap copySrcBitmap;
+        copySrcBitmap.installPixels(write);
+        copySrcBitmap.setImmutable();
+
+        GrBitmapTextureMaker maker(context, copySrcBitmap);
+        auto [copySrc, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
+
         REPORTER_ASSERT(reporter, copySrc);
         auto copyResult = surfContext->testCopy(copySrc.get());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
