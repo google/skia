@@ -61,12 +61,17 @@ public:
         kVisualCenter,
         // extent box bottom -> text box bottom
         kVisualBottom,
+    };
+
+    enum class ResizePolicy : uint8_t {
+        // Use the specified text size.
+        kNone,
         // Resize the text such that the extent box fits (snuggly) in the text box,
         // both horizontally and vertically.
-        kVisualResizeToFit,
-        // Same kVisualResizeToFit if the text doesn't fit at the specified font size.
-        // Otherwise, same as kVisualCenter.
-        kVisualDownscaleToFit,
+        kScaleToFit,
+        // Same kScaleToFit if the text doesn't fit at the specified font size.
+        // Otherwise, same as kNone.
+        kDownscaleToFit,
     };
 
     enum Flags : uint32_t {
@@ -84,6 +89,7 @@ public:
                                   fAscent;
         SkTextUtils::Align        fHAlign;
         VAlign                    fVAlign;
+        ResizePolicy              fResize;
         uint32_t                  fFlags;
     };
 
