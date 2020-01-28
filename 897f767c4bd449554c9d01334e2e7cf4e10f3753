@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b86b3a1_efb80af2",
+        "filename": "src/gpu/GrTessellator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-28T20:10:44Z",
+      "side": 1,
+      "message": "\u003cbikeshed\u003e kEdgeAntialias? \u003c/bikeshed\u003e",
+      "revId": "897f767c4bd449554c9d01334e2e7cf4e10f3753",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
