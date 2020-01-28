@@ -54,7 +54,9 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
         return nullptr;
     }
 
-    atlas->fEvictionCallbacks.emplace_back(evictor);
+    if (evictor != nullptr) {
+        atlas->fEvictionCallbacks.emplace_back(evictor);
+    }
     return atlas;
 }
 
