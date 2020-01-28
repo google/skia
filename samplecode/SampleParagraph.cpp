@@ -1935,28 +1935,34 @@ protected:
         canvas->drawColor(SK_ColorWHITE);
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setTextDirection(TextDirection::kRtl);
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        paragraph_style.setEllipsis(u"\u2026");
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Google Sans")});
-        text_style.setFontSize(20);
-        {
+        text_style.setFontSize(24);
+
+        auto draw = [&](const char* text, SkScalar height) {
             ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            text_style.setHeightOverride(true);
+            text_style.setHeight(height);
             builder.pushStyle(text_style);
-            builder.addText("31 December 2021");
+            builder.addText(text);
             auto paragraph = builder.Build();
-            paragraph->layout(600);
+            paragraph->layout(153.33f);
+
+            SkDebugf("'%s': %f\n", text, paragraph->getHeight());
+            auto boxes1 = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto boxes2 = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kMax, RectWidthStyle::kTight);
+            if (boxes1.size() > 0 && boxes2.size() > 0) {
+                SkDebugf("Heights: %f %f\\b", boxes1[0].rect.height() , boxes2[0].rect.height());
+            }
             paragraph->paint(canvas, 0, 0);
-        }
-        canvas->translate(0, 200);
-        {
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
-            builder.pushStyle(text_style);
-            builder.addText("December 31 2021");
-            auto paragraph = builder.Build();
-            paragraph->layout(600);
-            paragraph->paint(canvas, 0, 0);
-        }
+            canvas->translate(0, 200);
+        };
+
+        //draw("Artist Name with long text in active media bar to test word truncation", 1.333f);
+        draw("provider with long text in active media bar to test word truncation inside the subtitle", 1);
     }
 
 private:

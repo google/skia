@@ -96,6 +96,7 @@ TextLine::TextLine(ParagraphImpl* master,
     for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
         auto& run = fMaster->run(runIndex);
         runLevels.emplace_back(run.fBidiLevel);
+        fMaxRunMetrics.add(InternalLineMetrics(run.fFontMetrics.fAscent, run.fFontMetrics.fDescent, run.fFontMetrics.fLeading));
     }
 
     std::vector<int32_t> logicalOrder(numRuns);
@@ -289,6 +290,12 @@ void TextLine::scanStyles(StyleType styleType, const RunStyleVisitor& visitor) {
         });
 }
 
+SkRect TextLine::extendHeight(const ClipContext& context) const {
+    SkRect result = context.clip;
+    result.fBottom += SkTMax(this->fMaxRunMetrics.height() - this->height(), 0.0f);
+    return result;
+}
+
 void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
 
     if (context.run->placeholder() != nullptr) {
@@ -308,7 +315,7 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
     context.run->copyTo(builder, SkToU32(context.pos), context.size, SkVector::Make(0, correctedBaseline));
     canvas->save();
     if (context.clippingNeeded) {
-        canvas->clipRect(context.clip);
+        canvas->clipRect(extendHeight(context));
     }
 
     canvas->translate(context.fTextShift, 0);
@@ -341,7 +348,7 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
         SkRect clip = context.clip;
         clip.offset(shadow.fOffset);
         if (context.clippingNeeded) {
-            canvas->clipRect(clip);
+            canvas->clipRect(extendHeight(context));
         }
         canvas->translate(context.fTextShift, 0);
         canvas->drawTextBlob(builder.make(), shadow.fOffset.x(), shadow.fOffset.y(), paint);
@@ -356,7 +363,7 @@ void TextLine::paintDecorations(SkCanvas* canvas, TextRange textRange, const Tex
     }
 
     canvas->save();
-    //canvas->clipRect(context.clip);
+
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
