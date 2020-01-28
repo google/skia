@@ -18,7 +18,11 @@ class GrImageContext : public GrContext_Base {
 public:
     ~GrImageContext() override;
 
-    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
+    SK_API SkColorType defaultColorType(const GrBackendFormat& format) const {
+        return INHERITED::defaultColorType(format);
+    }
+
+    SK_API GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
         return INHERITED::defaultBackendFormat(ct, renderable);
     }
 
