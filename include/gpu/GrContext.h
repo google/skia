@@ -256,12 +256,11 @@ public:
      * use maxSurfaceSampleCountForColorType().
      */
     bool colorTypeSupportedAsSurface(SkColorType colorType) const {
-        if (kR8G8_unorm_SkColorType == colorType ||
-            kR16G16_unorm_SkColorType == colorType ||
-            kA16_unorm_SkColorType == colorType ||
-            kA16_float_SkColorType == colorType ||
-            kR16G16_float_SkColorType == colorType ||
-            kR16G16B16A16_unorm_SkColorType == colorType ||
+        if ( kR16G16_unorm_SkColorType == colorType ||
+             kA16_unorm_SkColorType == colorType ||
+             kA16_float_SkColorType == colorType ||
+             kR16G16_float_SkColorType == colorType ||
+             kR16G16B16A16_unorm_SkColorType == colorType ||
             kGray_8_SkColorType == colorType) {
             return false;
         }
