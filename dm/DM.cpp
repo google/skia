@@ -52,6 +52,7 @@
 #endif
 
 extern bool gSkForceRasterPipelineBlitter;
+extern bool gUseSkVMBlitter;
 
 static DEFINE_string(src, "tests gm skp image", "Source types to test.");
 static DEFINE_bool(nameByHash, false,
@@ -84,6 +85,7 @@ static DEFINE_int(shard,  0, "Which shard do I run?");
 
 static DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_bool(skvm, false, "sets gUseSkVMBlitter");
 
 static DEFINE_string(bisect, "",
         "Pair of: SKP file to bisect, followed by an l/r bisect trail string (e.g., 'lrll'). The "
@@ -1412,9 +1414,8 @@ int main(int argc, char** argv) {
     ToolUtils::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
 
-    if (FLAGS_forceRasterPipeline) {
-        gSkForceRasterPipelineBlitter = true;
-    }
+    gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
+    gUseSkVMBlitter               = FLAGS_skvm;
 
     // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
     if (!FLAGS_writePath.isEmpty()) {
