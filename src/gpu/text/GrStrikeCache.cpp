@@ -18,8 +18,7 @@
 #include "src/gpu/text/GrStrikeCache.h"
 
 GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
-        : fPreserveStrike(nullptr)
-        , f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
+        : f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
                     GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
 
 GrStrikeCache::~GrStrikeCache() {
@@ -29,8 +28,6 @@ GrStrikeCache::~GrStrikeCache() {
 void GrStrikeCache::freeAll() {
     fCache.reset();
 }
-
-void GrStrikeCache::evict(GrDrawOpAtlas::PlotLocator) { }
 
 // expands each bit in a bitmask to 0 or ~0 of type INT_TYPE. Used to expand a BW glyph mask to
 // A8, RGB565, or RGBA8888.

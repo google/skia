@@ -40,7 +40,6 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addToAtlas(
                                 GrTextStrike* strike, GrDrawOpAtlas::PlotLocator* plotLocator,
                                 GrDeferredUploadTarget* target, GrMaskFormat format,
                                 int width, int height, const void* image, SkIPoint16* loc) {
-    glyphCache->setStrikeToPreserve(strike);
     return this->getAtlas(format)->addToAtlas(
             resourceProvider, plotLocator, target, width, height, image, loc);
 }
@@ -161,7 +160,7 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
                 fProxyProvider, format, grColorType,
                 atlasDimensions.width(), atlasDimensions.height(),
                 plotDimensions.width(), plotDimensions.height(),
-                this, fAllowMultitexturing, fGlyphCache);
+                this, fAllowMultitexturing, nullptr);
         if (!fAtlases[index]) {
             return false;
         }
