@@ -86,14 +86,12 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
+#if defined(SK_BUILD_FOR_MAC)
     bool timedout;
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
                                                                defaultOptions, &timedout);
     if (timedout) {
-        // try again
-        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                    defaultOptions, &timedout);
+        SkDebugf("Timeout compiling MSL shader\n");
     }
 #else
     NSError* error = nil;
@@ -112,61 +110,71 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 
 id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
                                          MTLCompileOptions* options, bool* timedout) {
-    dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t mutex = dispatch_semaphore_create(1);
 
-    __block dispatch_semaphore_t semaphore = compilerSemaphore;
-    __block id<MTLLibrary> compiledLibrary;
+    *timedout = false;
+    __block id<MTLLibrary> compiledLibrary = nil;
     [device newLibraryWithSource: mslCode
                          options: options
                completionHandler:
         ^(id<MTLLibrary> library, NSError* error) {
+            dispatch_semaphore_wait(mutex, DISPATCH_TIME_FOREVER);
+            if (!*timedout) {
+                compiledLibrary = library;
+            }
+            dispatch_semaphore_signal(mutex);
+            dispatch_semaphore_signal(semaphore);
             if (error) {
                 SkDebugf("Error compiling MSL shader: %s\n%s\n",
                     mslCode,
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
-            compiledLibrary = library;
-            dispatch_semaphore_signal(semaphore);
         }
     ];
 
-    // Wait 100 ms for the compiler
-    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
-        SkDebugf("Timeout compiling MSL shader\n");
+    // Wait 1s for the compiler
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000000UL))) {
+        dispatch_semaphore_wait(mutex, DISPATCH_TIME_FOREVER);
         *timedout = true;
+        dispatch_semaphore_signal(mutex);
         return nil;
     }
 
-    *timedout = false;
     return compiledLibrary;
 }
 
 id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
         id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, bool* timedout) {
-    dispatch_semaphore_t pipelineSemaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    dispatch_semaphore_t mutex = dispatch_semaphore_create(1);
 
-    __block dispatch_semaphore_t semaphore = pipelineSemaphore;
+    *timedout = false;
     __block id<MTLRenderPipelineState> pipelineState;
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler:
         ^(id<MTLRenderPipelineState> state, NSError* error) {
+            dispatch_semaphore_wait(mutex, DISPATCH_TIME_FOREVER);
+            if (!*timedout) {
+               pipelineState = state;
+            }
+            dispatch_semaphore_signal(mutex);
+            dispatch_semaphore_signal(semaphore);
             if (error) {
                 SkDebugf("Error creating pipeline: %s\n",
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
-            pipelineState = state;
-            dispatch_semaphore_signal(semaphore);
         }
      ];
 
-    // Wait 500 ms for pipeline creation
-    if (dispatch_semaphore_wait(pipelineSemaphore, dispatch_time(DISPATCH_TIME_NOW, 500000))) {
-        SkDebugf("Timeout creating pipeline.\n");
+    // Wait 1s for pipeline creation
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000000UL))) {
+        dispatch_semaphore_wait(mutex, DISPATCH_TIME_FOREVER);
         *timedout = true;
+        dispatch_semaphore_signal(mutex);
         return nil;
     }
 
-    *timedout = false;
     return pipelineState;
 }
 

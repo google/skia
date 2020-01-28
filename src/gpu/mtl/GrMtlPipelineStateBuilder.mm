@@ -516,14 +516,12 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     SkASSERT(pipelineDescriptor.vertexDescriptor);
     SkASSERT(pipelineDescriptor.colorAttachments[0]);
 
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
+#if defined(SK_BUILD_FOR_MAC)
     bool timedout;
     id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
                                                      fGpu->device(), pipelineDescriptor, &timedout);
     if (timedout) {
-        // try a second time
-        pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
-                                fGpu->device(), pipelineDescriptor, &timedout);
+        SkDebugf("Timeout creating pipeline.\n");
     }
     if (!pipelineState) {
         return nullptr;
