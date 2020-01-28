@@ -34,6 +34,8 @@ public:
     static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> = nullptr);
     #endif
+    // Returns nullptr if not supported
+    static std::unique_ptr<SkShaper> MakeCoreText();
 
     static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> = nullptr);
 
