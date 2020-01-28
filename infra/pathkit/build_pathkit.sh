@@ -9,7 +9,7 @@
 # is mounted at /OUT
 
 # For example:
-# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT gcr.io/skia-public/emsdk-base:1.38.47_v1 /SRC/infra/pathkit/build_pathkit.sh
+# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/dockerpathkit:/OUT gcr.io/skia-public/emsdk-base:1.39.6_v1 /SRC/infra/pathkit/build_pathkit.sh
 
 set +e
 set -x
