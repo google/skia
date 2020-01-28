@@ -24,6 +24,8 @@
 #include "src/shaders/SkColorShader.h"
 #include "src/utils/SkUTF.h"
 
+typedef std::unique_ptr<SkShaper> (*ShaperFactory)();
+
 static const char gText[] =
     "When in the Course of human events it becomes necessary for one people "
     "to dissolve the political bands which have connected them with another "
@@ -33,11 +35,14 @@ static const char gText[] =
     "declare the causes which impel them to the separation.";
 
 class TextBoxView : public Sample {
+    SkString fName;
 public:
-    TextBoxView() : fShaper(SkShaper::Make()) {}
+    TextBoxView(ShaperFactory fact, const char suffix[]) : fShaper(fact()) {
+        fName.printf("TextBox_%s", suffix);
+    }
 
 protected:
-    SkString name() override { return SkString("TextBox"); }
+    SkString name() override { return fName; }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -107,6 +112,7 @@ private:
     typedef Sample INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-DEF_SAMPLE( return new TextBoxView(); )
+DEF_SAMPLE( return new TextBoxView([](){ return SkShaper::Make(); }, "default"); );
+#ifdef SK_BUILD_FOR_MAC
+DEF_SAMPLE( return new TextBoxView(SkShaper::MakeCoreText, "coretext"); );
+#endif
