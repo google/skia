@@ -68,8 +68,9 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
                                              SkMatrix::MakeTrans(fTBias , 0)));
 }
 
-bool SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
-                                 skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
+SkGradientShaderBase::MaskNeeded
+SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
+                            skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
     skvm::F32 xabs = p->abs(x),
               yabs = p->abs(y),
              slope = p->div(p->min(xabs, yabs),
@@ -101,7 +102,7 @@ bool SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
         *t = p->mad(*t, p->uniformF(uniforms->pushF(fTScale))
                       , p->uniformF(uniforms->pushF(fTScale*fTBias)));
     }
-    return true;
+    return MaskNeeded::None;
 }
 
 /////////////////////////////////////////////////////////////////////
