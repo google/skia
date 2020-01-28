@@ -66,25 +66,48 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         }
     }
 
+    // Skia resizing extension "sk_rs":
+    static constexpr Shaper::ResizePolicy gResizeMap[] = {
+        Shaper::ResizePolicy::kNone,           // 'sk_rs': 0
+        Shaper::ResizePolicy::kScaleToFit,     // 'sk_rs': 1
+        Shaper::ResizePolicy::kDownscaleToFit, // 'sk_rs': 2
+    };
+    v->fResize = gResizeMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["sk_rs"], 0),
+                                           SK_ARRAY_COUNT(gResizeMap))];
+
     // In point mode, the text is baseline-aligned.
     v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
                                    : Shaper::VAlign::kTop;
 
     // Skia vertical alignment extension "sk_vj":
     static constexpr Shaper::VAlign gVAlignMap[] = {
-        Shaper::VAlign::kVisualTop,            // 'sk_vj': 0
-        Shaper::VAlign::kVisualCenter,         // 'sk_vj': 1
-        Shaper::VAlign::kVisualBottom,         // 'sk_vj': 2
-        Shaper::VAlign::kVisualResizeToFit,    // 'sk_vj': 3
-        Shaper::VAlign::kVisualDownscaleToFit, // 'sk_vj': 4
+        Shaper::VAlign::kVisualTop,    // 'sk_vj': 0
+        Shaper::VAlign::kVisualCenter, // 'sk_vj': 1
+        Shaper::VAlign::kVisualBottom, // 'sk_vj': 2
     };
     size_t sk_vj;
     if (Parse((*jtxt)["sk_vj"], &sk_vj)) {
         if (sk_vj < SK_ARRAY_COUNT(gVAlignMap)) {
             v->fVAlign = gVAlignMap[sk_vj];
         } else {
-            abuilder->log(Logger::Level::kWarning, nullptr,
-                          "Ignoring unknown 'sk_vj' value: %zu", sk_vj);
+            // Legacy sk_vj values.
+            // TODO: remove after clients update.
+            switch (sk_vj) {
+            case 3:
+                // 'sk_vj': 3 -> kVisualCenter/kScaleToFit
+                v->fVAlign = Shaper::VAlign::kVisualCenter;
+                v->fResize = Shaper::ResizePolicy::kScaleToFit;
+                break;
+            case 4:
+                // 'sk_vj': 4 -> kVisualCenter/kDownscaleToFit
+                v->fVAlign = Shaper::VAlign::kVisualCenter;
+                v->fResize = Shaper::ResizePolicy::kDownscaleToFit;
+                break;
+            default:
+                abuilder->log(Logger::Level::kWarning, nullptr,
+                              "Ignoring unknown 'sk_vj' value: %zu", sk_vj);
+                break;
+            }
         }
     }
 
