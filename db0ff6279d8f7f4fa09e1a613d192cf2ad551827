@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e2a0aa5_a248a2e9",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 10853
+      },
+      "writtenOn": "2020-01-28T15:03:25Z",
+      "side": 1,
+      "message": "I have two concerns:\n1. a sequence of MoveTo(x1, y1), LineTo(x2, y2), MoveTo(...) will be filtered out.  Note, MoveTo and LineTo are not on the same point.  This, in and of itself, may not be a problem (based on what we expect from FreeType glyph outlines), but isn\u0027t documented as something to be filtered by the note in FreeType\u0027s documentation.  Seems a bit risky.\n2. a sequence of MoveTo(x1, y1), LineTo(x2, y2), LineTo(x3, y3), MoveTo(...) will never emit the last LineTo.  MoveTo gets queued.  First LineTo gets queued.  Second LineTo causes queued MoveTo to be emitted and also emits queued LineTo, but then queues the second LineTo.  The following MoveTo wipes the last LineTo out.",
+      "revId": "db0ff6279d8f7f4fa09e1a613d192cf2ad551827",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
