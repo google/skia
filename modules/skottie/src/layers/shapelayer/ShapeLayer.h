@@ -9,6 +9,7 @@
 #define SkottieShapeLayer_DEFINED
 
 #include "include/private/SkNoncopyable.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/sksg/include/SkSGMerge.h"
 
 #include <vector>
@@ -47,8 +48,6 @@ public:
     static sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue&,
                                                             const AnimationBuilder*);
 
-    static sk_sp<sksg::PaintNode> AttachGradient(const skjson::ObjectValue&,
-                                                 const AnimationBuilder*);
     static sk_sp<sksg::PaintNode> AttachColorFill(const skjson::ObjectValue&,
                                                   const AnimationBuilder*);
     static sk_sp<sksg::PaintNode> AttachColorStroke(const skjson::ObjectValue&,
@@ -73,6 +72,16 @@ public:
             const skjson::ObjectValue&,
             const AnimationBuilder*,
             std::vector<sk_sp<sksg::RenderNode>>&&);
+
+private:
+    static sk_sp<sksg::PaintNode> AttachFill(const skjson::ObjectValue&,
+                                             const AnimationBuilder*,
+                                             sk_sp<sksg::PaintNode>,
+                                             sk_sp<AnimatablePropertyContainer> = nullptr);
+    static sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue&,
+                                               const AnimationBuilder*,
+                                               sk_sp<sksg::PaintNode>,
+                                               sk_sp<AnimatablePropertyContainer> = nullptr);
 };
 
 } // namespace internal

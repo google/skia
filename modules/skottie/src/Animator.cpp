@@ -25,8 +25,18 @@ void AnimatablePropertyContainer::onTick(float t) {
     this->onSync();
 }
 
-void AnimatablePropertyContainer::addNestedContainer(sk_sp<AnimatablePropertyContainer> nested) {
-    fAnimators.push_back(nested);
+void AnimatablePropertyContainer::attachDiscardableAdapter(
+        sk_sp<AnimatablePropertyContainer> child) {
+    if (!child) {
+        return;
+    }
+
+    if (child->isStatic()) {
+        child->tick(0);
+        return;
+    }
+
+    fAnimators.push_back(child);
 }
 
 void AnimatablePropertyContainer::shrink_to_fit() {

@@ -34,10 +34,7 @@ public:
         this->bind(abuilder, jscale_width  , fScaleWidth  );
         this->bind(abuilder, jscale_height , fScaleHeight );
 
-        if (!fTransformAdapter->isStatic()) {
-            // Connected animated transform addapters to the animator tree.
-            this->addNestedContainer(fTransformAdapter);
-        }
+        this->attachDiscardableAdapter(fTransformAdapter);
     }
 
 private:
