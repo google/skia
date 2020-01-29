@@ -63,11 +63,9 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
     p->append(SkRasterPipeline::xy_to_radius);
 }
 
-SkGradientShaderBase::MaskNeeded
-SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
-                             skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
-    *t = p->sqrt(p->mad(x,x, p->mul(y,y)));
-    return MaskNeeded::None;
+skvm::F32 SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
+                                       skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
+    return p->norm(x,y);
 }
 
 /////////////////////////////////////////////////////////////////////

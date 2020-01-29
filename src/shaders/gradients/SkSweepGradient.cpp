@@ -68,9 +68,9 @@ void SkSweepGradient::appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline
                                              SkMatrix::MakeTrans(fTBias , 0)));
 }
 
-SkGradientShaderBase::MaskNeeded
-SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
-                            skvm::F32 x, skvm::F32 y, skvm::F32* t) const {
+
+skvm::F32 SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                      skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
     skvm::F32 xabs = p->abs(x),
               yabs = p->abs(y),
              slope = p->div(p->min(xabs, yabs),
@@ -95,14 +95,14 @@ SkSweepGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
     phi = p->select(p->lt (x, p->splat(0.0f)), p->sub(p->splat(1/2.0f), phi), phi);
     phi = p->select(p->lt (y, p->splat(0.0f)), p->sub(p->splat(1/1.0f), phi), phi);
 
-    *t = p->bit_cast(p->bit_and(p->bit_cast(phi),   // t = phi if phi != NaN
-                                p->eq(phi, phi)));
+    skvm::F32 t = p->bit_cast(p->bit_and(p->bit_cast(phi),   // t = phi if phi != NaN
+                                         p->eq(phi, phi)));
 
     if (fTScale != 1.0f || fTBias != 0.0f) {
-        *t = p->mad(*t, p->uniformF(uniforms->pushF(fTScale))
-                      , p->uniformF(uniforms->pushF(fTScale*fTBias)));
+        t = p->mad(t, p->uniformF(uniforms->pushF(fTScale))
+                    , p->uniformF(uniforms->pushF(fTScale*fTBias)));
     }
-    return MaskNeeded::None;
+    return t;
 }
 
 /////////////////////////////////////////////////////////////////////

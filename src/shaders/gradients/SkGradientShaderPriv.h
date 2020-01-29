@@ -89,9 +89,9 @@ protected:
     virtual void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                                       SkRasterPipeline* postPipeline) const = 0;
 
-    enum class MaskNeeded { None, NaNs, Degens, NotYetImplemented };
-    virtual MaskNeeded transformT(skvm::Builder*, skvm::Uniforms*,
-                                  skvm::F32 x, skvm::F32 y, skvm::F32* t) const = 0;
+    // Produce t from (x,y), modifying mask if it should be anything other than ~0.
+    virtual skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
+                                 skvm::F32 x, skvm::F32 y, skvm::I32* mask) const = 0;
 
     template <typename T, typename... Args>
     static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {

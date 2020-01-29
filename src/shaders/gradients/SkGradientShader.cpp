@@ -432,14 +432,8 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
 
     SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
 
-    skvm::I32 keep;
-    skvm::F32 t;
-    switch (this->transformT(p,uniforms, x,y, &t)) {
-        case MaskNeeded::None: keep = p->splat(~0); break;
-        case MaskNeeded::NaNs: keep = p->eq(t,t);   break;
-        default: return false;
-    }
-    t = p->bit_cast(p->bit_and(keep, p->bit_cast(t)));  //  if (!keep) t = 0
+    skvm::I32 mask = p->splat(~0);
+    skvm::F32 t = this->transformT(p,uniforms, x,y, &mask);
 
     // Perhaps unexpectedly, clamping is handled naturally by our search, so we
     // don't explicitly clamp t to [0,1].  That clamp would break hard stops
@@ -450,7 +444,7 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
             break;
 
         case SkTileMode::kDecal:
-            keep = p->bit_and(keep, p->eq(t, p->clamp(t, p->splat(0.0f), p->splat(1.0f))));
+            mask = p->bit_and(mask, p->eq(t, p->clamp(t, p->splat(0.0f), p->splat(1.0f))));
             break;
 
         case SkTileMode::kRepeat:
@@ -590,10 +584,10 @@ bool SkGradientShaderBase::onProgram(skvm::Builder* p,
         p->premul(r,g,b,*a);
     }
 
-    *r = p->bit_cast(p->bit_and(keep, p->bit_cast(*r)));
-    *g = p->bit_cast(p->bit_and(keep, p->bit_cast(*g)));
-    *b = p->bit_cast(p->bit_and(keep, p->bit_cast(*b)));
-    *a = p->bit_cast(p->bit_and(keep, p->bit_cast(*a)));
+    *r = p->bit_cast(p->bit_and(mask, p->bit_cast(*r)));
+    *g = p->bit_cast(p->bit_and(mask, p->bit_cast(*g)));
+    *b = p->bit_cast(p->bit_and(mask, p->bit_cast(*b)));
+    *a = p->bit_cast(p->bit_and(mask, p->bit_cast(*a)));
     return true;
 }
 
