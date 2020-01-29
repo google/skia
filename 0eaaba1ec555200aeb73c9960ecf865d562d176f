@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e9ce94b_e2b35b34",
+        "filename": "include/ports/SkTypeface_mac.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-29T14:40:46Z",
+      "side": 1,
+      "message": "It would be even nicer if this were on the SkFontMgr_Mac directly somehow. But this is better than returning the bare pointer.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 68
+      },
+      "revId": "0eaaba1ec555200aeb73c9960ecf865d562d176f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f6b96b2_41963f36",
+        "filename": "modules/skshaper/src/SkShaper_coretext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-29T14:40:46Z",
+      "side": 1,
+      "message": "I don\u0027t think so. Internally create_from_CTFontRef will look in the SkTypefaceCache for any existing SkTypeface in the cache which has a CTFont which is CFEqual to this one and return the existing SkTypeface instead.",
+      "range": {
+        "startLine": 163,
+        "startChar": 4,
+        "endLine": 163,
+        "endChar": 81
+      },
+      "revId": "0eaaba1ec555200aeb73c9960ecf865d562d176f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
