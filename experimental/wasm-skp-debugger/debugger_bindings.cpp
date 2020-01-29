@@ -248,8 +248,8 @@ class SkpDebugPlayer {
     }
 
     // return a list of layer draw events that happened at the beginning of this frame.
-    std::vector<DebugLayerManager::DrawEventSummary> getLayerDrawEvents() {
-      return fLayerManager->summarizeEvents(fp);
+    std::vector<DebugLayerManager::LayerSummary> getLayerSummaries() {
+      return fLayerManager->summarizeLayers(fp);
     }
 
     // When set to a valid layer index, causes this class to playback the layer draw event at nodeId
@@ -445,7 +445,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("getImageResource",     &SkpDebugPlayer::getImageResource)
     .function("getImageCount",        &SkpDebugPlayer::getImageCount)
     .function("getImageInfo",         &SkpDebugPlayer::getImageInfo)
-    .function("getLayerDrawEvents",   &SkpDebugPlayer::getLayerDrawEvents)
+    .function("getLayerSummaries",    &SkpDebugPlayer::getLayerSummaries)
     .function("getSize",              &SkpDebugPlayer::getSize)
     .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers())
     .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo)
@@ -465,13 +465,13 @@ EMSCRIPTEN_BINDINGS(my_module) {
       .field("fBottom", &SkIRect::fBottom);
   // emscripten provided the following convenience function for binding vector<T>
   // https://emscripten.org/docs/api_reference/bind.h.html#_CPPv415register_vectorPKc
-  register_vector<DebugLayerManager::DrawEventSummary>("VectorDrawEventSummary");
-  value_object<DebugLayerManager::DrawEventSummary>("DebugLayerManager::DrawEventSummary")
-    .field("nodeId",       &DebugLayerManager::DrawEventSummary::nodeId)
-    .field("fullRedraw",   &DebugLayerManager::DrawEventSummary::fullRedraw)
-    .field("commandCount", &DebugLayerManager::DrawEventSummary::commandCount)
-    .field("layerWidth",   &DebugLayerManager::DrawEventSummary::layerWidth)
-    .field("layerHeight",  &DebugLayerManager::DrawEventSummary::layerHeight);
+  register_vector<DebugLayerManager::LayerSummary>("VectorLayerSummary");
+  value_object<DebugLayerManager::LayerSummary>("DebugLayerManager::LayerSummary")
+    .field("nodeId",            &DebugLayerManager::LayerSummary::nodeId)
+    .field("frameOfLastUpdate", &DebugLayerManager::LayerSummary::frameOfLastUpdate)
+    .field("fullRedraw",        &DebugLayerManager::LayerSummary::fullRedraw)
+    .field("layerWidth",        &DebugLayerManager::LayerSummary::layerWidth)
+    .field("layerHeight",       &DebugLayerManager::LayerSummary::layerHeight);
 
   // Symbols needed by cpu.js to perform surface creation and flushing.
   enum_<SkColorType>("ColorType")
