@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d13169a6_588ad7b1",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-29T19:44:20Z",
+      "side": 1,
+      "message": "I\u0027m a bit surprised we don\u0027t have width \u0026 height helper methods on the view",
+      "range": {
+        "startLine": 111,
+        "startChar": 70,
+        "endLine": 111,
+        "endChar": 85
+      },
+      "revId": "ee2c1bd635ace5a71b01e0e6ddd2ddf14a909292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca5f8d70_f01d94a3",
+        "filename": "src/core/SkGpuBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-29T19:44:20Z",
+      "side": 1,
+      "message": "rm \u0027 \u0027 ?",
+      "range": {
+        "startLine": 493,
+        "startChar": 23,
+        "endLine": 493,
+        "endChar": 24
+      },
+      "revId": "ee2c1bd635ace5a71b01e0e6ddd2ddf14a909292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b072a1f_bcfd43d8",
+        "filename": "src/core/SkGpuBlurUtils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-29T19:44:20Z",
+      "side": 1,
+      "message": "update ?",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 52
+      },
+      "revId": "ee2c1bd635ace5a71b01e0e6ddd2ddf14a909292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f188dc7_f525121d",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-01-29T19:44:20Z",
+      "side": 1,
+      "message": "I think this could go up a line",
+      "revId": "ee2c1bd635ace5a71b01e0e6ddd2ddf14a909292",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
