@@ -1143,9 +1143,15 @@ static constexpr size_t GrColorTypeBytesPerPixel(GrColorType ct) {
 static constexpr SkColorType GrCompressionTypeToSkColorType(SkImage::CompressionType compression) {
     switch (compression) {
         case SkImage::CompressionType::kNone:            return kUnknown_SkColorType;
+#ifdef SK_BUILD_FOR_IOS
+        // reading back to RGB_888X doesn't work on iOS
+        default:                                         return kRGBA_8888_SkColorType;
+#else
         case SkImage::CompressionType::kETC2_RGB8_UNORM: return kRGB_888x_SkColorType;
         case SkImage::CompressionType::kBC1_RGB8_UNORM:  return kRGB_888x_SkColorType;
         case SkImage::CompressionType::kBC1_RGBA8_UNORM: return kRGBA_8888_SkColorType;
+#endif
+
     }
 
     SkUNREACHABLE;
