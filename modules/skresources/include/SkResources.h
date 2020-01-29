@@ -25,7 +25,7 @@ namespace skresources {
 /**
  * Image asset proxy interface.
  */
-class SK_API ImageAsset : public SkRefCnt {
+class ImageAsset : public SkRefCnt {
 public:
     /**
      * Returns true if the image asset is animated.
@@ -74,7 +74,7 @@ private:
  * ResourceProvider is an interface that lets rich-content modules defer loading of external
  * resources (images, fonts, etc.) to embedding clients.
  */
-class SK_API ResourceProvider : public SkRefCnt {
+class ResourceProvider : public SkRefCnt {
 public:
     /**
      * Load a generic resource (currently only nested animations) specified by |path| + |name|,

@@ -1115,11 +1115,19 @@ group("modules") {
   deps = [
     "modules/particles",
     "modules/skottie",
+    "modules/skparagraph",
     "modules/skshaper",
   ]
-  if (target_cpu == "wasm") {
-    deps += [ "modules/skparagraph" ]
-  }
+}
+
+executable("cpu_modules") {
+  sources = [
+    "tools/cpu_modules.cpp",
+  ]
+  deps = [
+    ":modules",
+    ":skia",
+  ]
 }
 
 # Targets guarded by skia_enable_tools may use //third_party freely.
@@ -2470,16 +2478,6 @@ if (skia_enable_tools) {
         "//third_party/opencl",
       ]
     }
-  }
-
-  executable("cpu_modules") {
-    sources = [
-      "tools/cpu_modules.cpp",
-    ]
-    deps = [
-      ":skia",
-      "modules/particles",
-    ]
   }
 
   if (skia_use_icu && skia_use_harfbuzz) {

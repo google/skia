@@ -40,7 +40,7 @@ class PropertyObserver;
 /**
  * A Logger subclass can be used to receive Animation::Builder parsing errors and warnings.
  */
-class SK_API Logger : public SkRefCnt {
+class Logger : public SkRefCnt {
 public:
     enum class Level {
         kWarning,
@@ -53,13 +53,13 @@ public:
 /**
  * Interface for receiving AE composition markers at Animation build time.
  */
-class SK_API MarkerObserver : public SkRefCnt {
+class MarkerObserver : public SkRefCnt {
 public:
     // t0,t1 are in the Animation::seek() domain.
     virtual void onMarker(const char name[], float t0, float t1) = 0;
 };
 
-class SK_API Animation : public SkNVRefCnt<Animation> {
+class Animation : public SkNVRefCnt<Animation> {
 public:
 
     class Builder final {

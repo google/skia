@@ -9,7 +9,7 @@ config("public_config") {
   include_dirs = [ "include" ]
 }
 
-component("sksg") {
+static_library("sksg") {
   check_includes = false
   import("sksg.gni")
   public_configs = [ ":public_config" ]

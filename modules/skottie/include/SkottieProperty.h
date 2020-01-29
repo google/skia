@@ -70,7 +70,7 @@ namespace internal { class AnimationBuilder; }
  * and the internal scene-graph representation.
  */
 template <typename ValueT, typename NodeT>
-class SK_API PropertyHandle final {
+class PropertyHandle final {
 public:
     explicit PropertyHandle(sk_sp<NodeT> node) : fNode(std::move(node)) {}
     ~PropertyHandle();
@@ -106,7 +106,7 @@ using TransformPropertyHandle = PropertyHandle<TransformPropertyValue,
  * various properties of layer and shape nodes.  The |node_name| argument corresponds to the
  * name ("nm") node property.
  */
-class SK_API PropertyObserver : public SkRefCnt {
+class PropertyObserver : public SkRefCnt {
 public:
     template <typename T>
     using LazyHandle = std::function<std::unique_ptr<T>()>;

@@ -11,7 +11,7 @@ if (skia_enable_skottie) {
     include_dirs = [ "include" ]
   }
 
-  component("skottie") {
+  static_library("skottie") {
     check_includes = false
     import("skottie.gni")
     public_configs = [ ":public_config" ]
