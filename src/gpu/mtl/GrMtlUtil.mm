@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrSurface.h"
 #include "include/private/GrTypesPriv.h"
+#include "include/private/SkMutex.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
@@ -86,15 +87,9 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
-    bool timedout;
+#if defined(SK_BUILD_FOR_MAC)
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                               defaultOptions, &timedout);
-    if (timedout) {
-        // try again
-        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                    defaultOptions, &timedout);
-    }
+                                                               defaultOptions);
 #else
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
@@ -110,63 +105,90 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     return compiledLibrary;
 }
 
-id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
-                                         MTLCompileOptions* options, bool* timedout) {
-    dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
+@interface AtomicID : NSObject
+- (instancetype) initWithValue: (id)value;
+- (void)set: (id)value;
+- (id)get;
+@end
+@implementation AtomicID {
+    SkMutex fMutex;
+    id fValue;
+}
+- (instancetype)initWithValue: (id)value {
+    self = [super init];
+    if (self) {
+        fValue = value;
+    }
 
-    __block dispatch_semaphore_t semaphore = compilerSemaphore;
-    __block id<MTLLibrary> compiledLibrary;
+    return self;
+}
+- (void)set: (id)value {
+    fMutex.acquire();
+    fValue = value;
+    fMutex.release();
+}
+- (id)get {
+    id returnVal;
+    fMutex.acquire();
+    returnVal = fValue;
+    fMutex.release();
+    return returnVal;
+}
+@end
+
+id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
+                                         MTLCompileOptions* options) {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+    __block AtomicID* atomicID = [[AtomicID alloc] initWithValue:nil];
     [device newLibraryWithSource: mslCode
                          options: options
                completionHandler:
         ^(id<MTLLibrary> library, NSError* error) {
+            [atomicID set:library];
+            dispatch_semaphore_signal(semaphore);
             if (error) {
                 SkDebugf("Error compiling MSL shader: %s\n%s\n",
                     mslCode,
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
-            compiledLibrary = library;
-            dispatch_semaphore_signal(semaphore);
         }
     ];
 
-    // Wait 100 ms for the compiler
-    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
+    // Wait 1000 ms for the compiler
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000000UL))) {
         SkDebugf("Timeout compiling MSL shader\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
+    id<MTLLibrary> compiledLibrary = (id<MTLLibrary>)[atomicID get];
     return compiledLibrary;
 }
 
 id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
-        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, bool* timedout) {
-    dispatch_semaphore_t pipelineSemaphore = dispatch_semaphore_create(0);
+        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor) {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
-    __block dispatch_semaphore_t semaphore = pipelineSemaphore;
-    __block id<MTLRenderPipelineState> pipelineState;
+    __block AtomicID* atomicID = [[AtomicID alloc] initWithValue:nil];
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler:
         ^(id<MTLRenderPipelineState> state, NSError* error) {
+            [atomicID set:state];
+            dispatch_semaphore_signal(semaphore);
             if (error) {
                 SkDebugf("Error creating pipeline: %s\n",
                     [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
             }
-            pipelineState = state;
-            dispatch_semaphore_signal(semaphore);
         }
      ];
 
-    // Wait 500 ms for pipeline creation
-    if (dispatch_semaphore_wait(pipelineSemaphore, dispatch_time(DISPATCH_TIME_NOW, 500000))) {
+    // Wait 1000 ms for pipeline creation
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000000UL))) {
         SkDebugf("Timeout creating pipeline.\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
+    id<MTLRenderPipelineState> pipelineState = (id<MTLRenderPipelineState>)[atomicID get];
     return pipelineState;
 }
 
