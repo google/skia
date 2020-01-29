@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 
 class SkCanvas;
@@ -162,7 +163,9 @@ public:
 
         example: https://fiddle.skia.org/c/@Picture_serialize
     */
-    sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const;
+    sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr,
+        const SkTypeface::SerializeBehavior = SkTypeface::SerializeBehavior::kIncludeDataIfLocal
+    ) const;
 
     /** Writes picture to stream, using optional custom encoders.
 
@@ -176,7 +179,9 @@ public:
 
         example: https://fiddle.skia.org/c/@Picture_serialize_2
     */
-    void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const;
+    void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr,
+        const SkTypeface::SerializeBehavior = SkTypeface::SerializeBehavior::kIncludeDataIfLocal
+    ) const;
 
     /** Returns a placeholder SkPicture. Result does not draw, and contains only
         cull SkRect, a hint of its bounds. Result is immutable; it cannot be changed
@@ -238,7 +243,7 @@ private:
     template <typename> friend class SkMiniPicture;
 
     void serialize(SkWStream*, const SkSerialProcs*, class SkRefCntSet* typefaces,
-        bool textBlobsOnly=false) const;
+        const SkTypeface::SerializeBehavior, bool textBlobsOnly=false) const;
     static sk_sp<SkPicture> MakeFromStream(SkStream*, const SkDeserialProcs*,
                                            class SkTypefacePlayback*);
     friend class SkPictureData;

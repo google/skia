@@ -135,7 +135,8 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     procs.fImageCtx = &ctx;
 
     // Create the multi picture document used for recording frames.
-    sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs);
+    sk_sp<SkDocument> multipic = SkMakeMultiPictureDocument(&stream, &procs,
+        SkTypeface::SerializeBehavior::kDoIncludeData);
 
     static const int NUM_FRAMES = 12;
     static const int WIDTH = 256;
