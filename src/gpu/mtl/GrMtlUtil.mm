@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrSurface.h"
 #include "include/private/GrTypesPriv.h"
+#include "include/private/SkMutex.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
@@ -86,15 +87,9 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
 #endif
 
     MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
-    bool timedout;
+#if defined(SK_BUILD_FOR_MAC)
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                               defaultOptions, &timedout);
-    if (timedout) {
-        // try again
-        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                    defaultOptions, &timedout);
-    }
+                                                               defaultOptions);
 #else
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
@@ -110,64 +105,90 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     return compiledLibrary;
 }
 
-id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
-                                         MTLCompileOptions* options, bool* timedout) {
-    dispatch_semaphore_t compilerSemaphore = dispatch_semaphore_create(0);
+@interface AsyncMtlObject : NSObject
+- (instancetype) init;
+- (void)set: (id)object;
+- (id)get;
+@end
+@implementation AsyncMtlObject {
+    id fObject;
+    dispatch_semaphore_t fMutex;
+}
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        fObject = nil;
+        fMutex = dispatch_semaphore_create(1);
+    }
 
-    __block dispatch_semaphore_t semaphore = compilerSemaphore;
-    __block id<MTLLibrary> compiledLibrary;
+    return self;
+}
+- (void)set: (id)object {
+    dispatch_semaphore_wait(fMutex, DISPATCH_TIME_FOREVER);
+    fObject = object;
+    dispatch_semaphore_signal(fMutex);
+}
+- (id)get {
+    id object;
+    dispatch_semaphore_wait(fMutex, DISPATCH_TIME_FOREVER);
+    object = fObject;
+    dispatch_semaphore_signal(fMutex);
+    return object;
+}
+@end
+
+id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
+                                         MTLCompileOptions* options) {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block AsyncMtlObject* compiledLibrary = [[AsyncMtlObject alloc] init];
+    MTLNewLibraryCompletionHandler completionHandler =
+            ^(id<MTLLibrary> library, NSError* error) {
+                [compiledLibrary set: library];
+                dispatch_semaphore_signal(semaphore);
+                if (error) {
+                    SkDebugf("Error compiling MSL shader: %s\n%s\n",
+                        mslCode,
+                        [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+                }
+            };
+
     [device newLibraryWithSource: mslCode
                          options: options
-               completionHandler:
-        ^(id<MTLLibrary> library, NSError* error) {
-            if (error) {
-                SkDebugf("Error compiling MSL shader: %s\n%s\n",
-                    mslCode,
-                    [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-            }
-            compiledLibrary = library;
-            dispatch_semaphore_signal(semaphore);
-        }
-    ];
+               completionHandler: completionHandler];
 
-    // Wait 100 ms for the compiler
-    if (dispatch_semaphore_wait(compilerSemaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
+    // Wait 1000 ms for the compiler
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000000UL))) {
         SkDebugf("Timeout compiling MSL shader\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
-    return compiledLibrary;
+    return (id<MTLLibrary>)[compiledLibrary get];
 }
 
 id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
-        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, bool* timedout) {
-    dispatch_semaphore_t pipelineSemaphore = dispatch_semaphore_create(0);
+        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor) {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block AsyncMtlObject* pipelineState = [[AsyncMtlObject alloc] init];
+    MTLNewRenderPipelineStateCompletionHandler completionHandler =
+            ^(id<MTLRenderPipelineState> state, NSError* error) {
+                [pipelineState set: state];
+                dispatch_semaphore_signal(semaphore);
+                if (error) {
+                    SkDebugf("Error creating pipeline: %s\n",
+                        [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+                }
+            };
 
-    __block dispatch_semaphore_t semaphore = pipelineSemaphore;
-    __block id<MTLRenderPipelineState> pipelineState;
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
-                               completionHandler:
-        ^(id<MTLRenderPipelineState> state, NSError* error) {
-            if (error) {
-                SkDebugf("Error creating pipeline: %s\n",
-                    [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-            }
-            pipelineState = state;
-            dispatch_semaphore_signal(semaphore);
-        }
-     ];
+                               completionHandler: completionHandler];
 
-    // Wait 500 ms for pipeline creation
-    if (dispatch_semaphore_wait(pipelineSemaphore, dispatch_time(DISPATCH_TIME_NOW, 500000))) {
+    // Wait 1000 ms for pipeline creation
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 1000000UL))) {
         SkDebugf("Timeout creating pipeline.\n");
-        *timedout = true;
         return nil;
     }
 
-    *timedout = false;
-    return pipelineState;
+    return (id<MTLRenderPipelineState>)[pipelineState get];
 }
 
 id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
