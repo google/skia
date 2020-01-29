@@ -146,6 +146,26 @@ static void dump(CFDictionaryRef d) {
     }
 }
 
+static CTFontRef create_ctfont_from_font(const SkFont& font) {
+    auto typeface = font.getTypefaceOrDefault();
+    auto ctfont = SkTypeface_GetCTFontRef(typeface);
+    return CTFontCreateCopyWithAttributes(ctfont, font.getSize(), nullptr, nullptr);
+}
+
+static SkFont run_to_font(CTRunRef run, const SkFont& orig) {
+    CFDictionaryRef attr = CTRunGetAttributes(run);
+    CTFontRef ct = (CTFontRef)CFDictionaryGetValue(attr, kCTFontAttributeName);
+    if (!ct) {
+        SkDebugf("no ctfont in Run Attributes\n");
+        dump(attr);
+        return orig;
+    }
+    // Do I need to add a local cache, or allow the caller to manage this lookup?
+    SkFont font(orig);
+    font.setTypeface(SkMakeTypefaceFromCTFont(ct));
+    return font;
+}
+
 // kCTTrackingAttributeName not available until 10.12
 const CFStringRef kCTTracking_AttributeName = CFSTR("CTTracking");
 
@@ -167,16 +187,13 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     AutoCF<CFStringRef> textString = CFStringCreateWithBytes(nullptr, (const uint8_t*)utf8, utf8Bytes,
                                                      kCFStringEncodingUTF8, false);
 
-    auto typeface = font.getTypefaceOrDefault();
-    auto ctfont = SkTypeface_GetCTFontRef(typeface);
-    AutoCF<CTFontRef> ctfont2 = CTFontCreateCopyWithAttributes(ctfont, font.getSize(),
-                                                               nullptr, nullptr);
+    AutoCF<CTFontRef> ctfont = create_ctfont_from_font(font);
 
     AutoCF<CFMutableDictionaryRef> attr =
             CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks);
-    CFDictionaryAddValue(attr.get(), kCTFontAttributeName, ctfont2.get());
+    CFDictionaryAddValue(attr.get(), kCTFontAttributeName, ctfont.get());
     if (false) {
         // trying to see what these affect
         dict_add_double(attr.get(), kCTTracking_AttributeName, 1);
@@ -207,10 +224,6 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
         for (CFIndex j = 0; j < runCount; ++j) {
             CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(run_array, j);
             CFIndex runGlyphs = CTRunGetGlyphCount(run);
-            CFDictionaryRef runAttr = CTRunGetAttributes(run);
-            if (false) {
-                dump(runAttr);
-            }
 
             SkASSERT(sizeof(CGGlyph) == sizeof(uint16_t));
 
@@ -224,8 +237,9 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             CFRange range = CTRunGetStringRange(run);
 
+            SkFont run_font = run_to_font(run, font);
             infos.push_back({
-                font,   // need resolved font
+                run_font,
                 0,      // need fBidiLevel
                 {adv, 0},
                 (size_t)runGlyphs,
