@@ -304,6 +304,13 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
         bool convolveAlpha,
         SkScalar sigmaX,
         SkScalar sigmaY) {
+    // SkGpuBlurUtils is not as aggressive as it once was about avoiding texture domains.
+    // Check for a trivial case here where the domain can be avoided. TODO: Use GrTextureEffect
+    // here which includes this and more.
+    if (tileMode == GrTextureDomain::kClamp_Mode && !srcView.proxy()->isFullyLazy() &&
+        srcBounds.contains(SkIRect::MakeSize(srcView.proxy()->backingStoreDimensions()))) {
+        tileMode = GrTextureDomain::kIgnore_Mode;
+    }
     float kernel[MAX_KERNEL_SIZE];
 
     fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
