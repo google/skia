@@ -140,7 +140,7 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
 struct ParagraphCache::Entry {
 
     Entry(ParagraphCacheValue* value) : fValue(value) {}
-    ParagraphCacheValue* fValue;
+    std::unique_ptr<ParagraphCacheValue> fValue;
 };
 
 ParagraphCache::ParagraphCache()

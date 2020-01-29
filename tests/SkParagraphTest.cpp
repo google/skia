@@ -1,10 +1,11 @@
 // Copyright 2019 Google LLC.
-#include "src/core/SkFontMgrPriv.h"
 #include <sstream>
+#include <thread>
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
+#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaperJSONWriter.h"
@@ -5205,3 +5206,34 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
     relayout(3, false, 50, 30,  90, 950, SK_ColorBLUE);
     relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  90, 950, SK_ColorGREEN);
 }
+
+DEF_TEST(SkParagraph_MemoryLeak, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+
+    std::string text;
+    for (size_t i = 0; i < 10; i++)
+	{
+		SkPaint paint;
+		paint.setAntiAlias(true);
+		paint.setColor(SK_ColorBLACK);
+
+		TextStyle textStyle;
+		textStyle.setForegroundColor(paint);
+		textStyle.setFontFamilies({ SkString("Roboto") });
+
+		ParagraphStyle paragraphStyle;
+		paragraphStyle.setTextStyle(textStyle);
+
+		ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+		text += "Text ";
+		builder.addText(text.c_str());
+
+		auto paragraph = builder.Build();
+		paragraph->layout(100);
+
+		//used to add a delay so I can monitor memory usage
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+};
