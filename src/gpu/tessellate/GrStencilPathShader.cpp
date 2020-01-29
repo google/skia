@@ -40,7 +40,7 @@ class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
         args.fVaryingHandler->emitAttributes(shader);
 
         GrShaderVar vertexPos = (*shader.vertexAttributes().begin()).asShaderVar();
-        if (!shader.fViewMatrix.isIdentity()) {
+        if (!shader.viewMatrix().isIdentity()) {
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
@@ -63,8 +63,8 @@ class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  const CoordTransformRange& transformRange) override {
         const auto& shader = primProc.cast<GrStencilPathShader>();
-        if (!shader.fViewMatrix.isIdentity()) {
-            pdman.setSkMatrix(fViewMatrixUniform, shader.fViewMatrix);
+        if (!shader.viewMatrix().isIdentity()) {
+            pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
         }
     }
 
