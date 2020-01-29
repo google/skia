@@ -16,6 +16,24 @@
       "revId": "4e4a2b3a49f75d1ee487ccfaadad61c452149182",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97b88432_0b57890f",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-29T17:03:27Z",
+      "side": 1,
+      "message": "(Hadn\u0027t read your chat comments yet.)",
+      "parentUuid": "25c7ccfb_bea56302",
+      "revId": "4e4a2b3a49f75d1ee487ccfaadad61c452149182",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
