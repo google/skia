@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "680974e8_721c757a",
+        "filename": "tests/SkParagraphTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 5216,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: want spaces",
+      "range": {
+        "startLine": 5216,
+        "startChar": 0,
+        "endLine": 5216,
+        "endChar": 1
+      },
+      "revId": "dad9d35a1bd5ee1cde3ed3518beea03566e326cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
