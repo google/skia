@@ -1020,8 +1020,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     }
 
     SkASSERT(result->isTextureBacked());
-    sk_sp<GrTextureProxy> proxy = result->asTextureProxyRef(this->context());
-    if (!proxy) {
+    GrSurfaceProxyView view = result->asSurfaceProxyViewRef(this->context());
+    if (!view.proxy()) {
         return;
     }
 
@@ -1035,7 +1035,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     tmpUnfiltered.setImageFilter(nullptr);
 
-    auto fp = GrTextureEffect::Make(std::move(proxy), special->alphaType());
+    auto fp = GrTextureEffect::Make(view.detachProxy(), special->alphaType());
     fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
                                        fRenderTargetContext->colorInfo().colorSpace());
     if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
