@@ -223,13 +223,15 @@ SkPictureData* SkPicture::backport() const {
     return new SkPictureData(rec, info);
 }
 
-void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procs) const {
-    this->serialize(stream, procs, nullptr);
+void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procs,
+    const SkTypeface::SerializeBehavior typefaceBehavior) const {
+    this->serialize(stream, procs, nullptr, typefaceBehavior);
 }
 
-sk_sp<SkData> SkPicture::serialize(const SkSerialProcs* procs) const {
+sk_sp<SkData> SkPicture::serialize(const SkSerialProcs* procs,
+    const SkTypeface::SerializeBehavior typefaceBehavior) const {
     SkDynamicMemoryWStream stream;
-    this->serialize(&stream, procs, nullptr);
+    this->serialize(&stream, procs, nullptr, typefaceBehavior);
     return stream.detachAsData();
 }
 
@@ -262,7 +264,8 @@ static bool write_pad32(SkWStream* stream, const void* data, size_t size) {
 // SkPictureData::serialize makes a first pass on all subpictures, indicatewd by textBlobsOnly=true,
 // to fill typefaceSet.
 void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr,
-                          SkRefCntSet* typefaceSet, bool textBlobsOnly) const {
+        SkRefCntSet* typefaceSet, const SkTypeface::SerializeBehavior typefaceBehavior,
+        bool textBlobsOnly) const {
     SkSerialProcs procs;
     if (procsPtr) {
         procs = *procsPtr;
@@ -286,7 +289,7 @@ void SkPicture::serialize(SkWStream* stream, const SkSerialProcs* procsPtr,
     std::unique_ptr<SkPictureData> data(this->backport());
     if (data) {
         stream->write8(kPictureData_TrailingStreamByteAfterPictInfo);
-        data->serialize(stream, procs, typefaceSet, textBlobsOnly);
+        data->serialize(stream, procs, typefaceSet, typefaceBehavior, textBlobsOnly);
     } else {
         stream->write8(kFailure_TrailingStreamByteAfterPictInfo);
     }

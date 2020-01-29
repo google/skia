@@ -11,6 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkNWayCanvas.h"
@@ -49,13 +50,16 @@ static SkSize join(const SkTArray<SkSize>& sizes) {
 
 struct MultiPictureDocument final : public SkDocument {
     const SkSerialProcs fProcs;
+    const SkTypeface::SerializeBehavior fTypefaceBehavior;
     SkPictureRecorder fPictureRecorder;
     SkSize fCurrentPageSize;
     SkTArray<sk_sp<SkPicture>> fPages;
     SkTArray<SkSize> fSizes;
-    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs)
+    MultiPictureDocument(SkWStream* s, const SkSerialProcs* procs,
+        const SkTypeface::SerializeBehavior typefaceBehavior)
         : SkDocument(s)
         , fProcs(procs ? *procs : SkSerialProcs())
+        , fTypefaceBehavior(typefaceBehavior)
     {}
     ~MultiPictureDocument() override { this->close(); }
 
@@ -84,7 +88,7 @@ struct MultiPictureDocument final : public SkDocument {
             c->drawAnnotation(SkRect::MakeEmpty(), kEndPage, SkData::MakeWithCString("X"));
         }
         sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
-        p->serialize(wStream, &fProcs);
+        p->serialize(wStream, &fProcs, fTypefaceBehavior);
         fPages.reset();
         fSizes.reset();
         return;
@@ -96,8 +100,9 @@ struct MultiPictureDocument final : public SkDocument {
 };
 }
 
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs) {
-    return sk_make_sp<MultiPictureDocument>(wStream, procs);
+sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs,
+        const SkTypeface::SerializeBehavior typefaceBehavior) {
+    return sk_make_sp<MultiPictureDocument>(wStream, procs, typefaceBehavior);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,6 +11,7 @@
 #include "include/core/SkDocument.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkTypeface.h"
 
 struct SkDeserialProcs;
 struct SkSerialProcs;
@@ -19,7 +20,9 @@ class SkStreamSeekable;
 /**
  *  Writes into a file format that is similar to SkPicture::serialize()
  */
-SK_SPI sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst, const SkSerialProcs* = nullptr);
+SK_SPI sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* dst,
+  const SkSerialProcs* = nullptr,
+  const SkTypeface::SerializeBehavior = SkTypeface::SerializeBehavior::kIncludeDataIfLocal);
 
 struct SkDocumentPage {
     sk_sp<SkPicture> fPicture;

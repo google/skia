@@ -7,6 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 81
 
 <Insert new notes here- top is most recent.>
+
+  * SkPicture::serialize exposes an option to control when typeface data is included.
+
   * Added support for GL_NV_fence extension.
 
   * Make SkImageInfo::validRowBytes require rowBytes to be pixel aligned. This
