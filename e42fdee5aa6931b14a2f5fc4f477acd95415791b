@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ff4c09d_25038d0d",
+        "filename": "include/ports/SkTypeface_mac.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2020-01-29T19:23:34Z",
+      "side": 1,
+      "message": "In a subsequent change I can move Blink to the one below and remove this one as well.",
+      "revId": "e42fdee5aa6931b14a2f5fc4f477acd95415791b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
