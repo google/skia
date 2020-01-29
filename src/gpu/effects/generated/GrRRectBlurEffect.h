@@ -67,12 +67,12 @@ public:
             rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                            GrStyle::SimpleFill());
 
-            sk_sp<GrTextureProxy> srcProxy(rtc->asTextureProxyRef());
-            if (!srcProxy) {
+            GrSurfaceProxyView srcView = rtc->readSurfaceView();
+            if (!srcView.asTextureProxy()) {
                 return nullptr;
             }
             auto rtc2 = SkGpuBlurUtils::GaussianBlur(context,
-                                                     std::move(srcProxy),
+                                                     std::move(srcView),
                                                      rtc->colorInfo().colorType(),
                                                      rtc->colorInfo().alphaType(),
                                                      nullptr,
