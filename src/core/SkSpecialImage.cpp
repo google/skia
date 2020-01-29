@@ -52,8 +52,6 @@ public:
     virtual SkColorSpace* onGetColorSpace() const = 0;
 
 #if SK_SUPPORT_GPU
-    virtual sk_sp<GrTextureProxy> onAsTextureProxyRef(GrRecordingContext* context) const = 0;
-
     virtual GrSurfaceProxyView onAsSurfaceProxyViewRef(GrRecordingContext* context) const = 0;
 #endif
 
@@ -157,10 +155,6 @@ SkColorSpace* SkSpecialImage::getColorSpace() const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkSpecialImage::asTextureProxyRef(GrRecordingContext* context) const {
-    return as_SIB(this)->onAsTextureProxyRef(context);
-}
-
 GrSurfaceProxyView SkSpecialImage::asSurfaceProxyViewRef(GrRecordingContext* context) const {
     return as_SIB(this)->onAsSurfaceProxyViewRef(context);
 }
@@ -268,18 +262,6 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrRecordingContext* context) const override {
-        if (context) {
-            auto view = GrMakeCachedBitmapProxyView(context, fBitmap);
-            sk_sp<GrSurfaceProxy> proxy = view.detachProxy();
-            if (proxy->asTextureProxy()) {
-                GrSurfaceProxy* sProxy = proxy.release();
-                return sk_ref_sp<GrTextureProxy>(sProxy->asTextureProxy());
-            }
-        }
-        return nullptr;
-    }
-
     GrSurfaceProxyView onAsSurfaceProxyViewRef(GrRecordingContext* context) const override {
         if (context) {
             return GrMakeCachedBitmapProxyView(context, fBitmap);
@@ -441,10 +423,6 @@ public:
     }
 
     GrRecordingContext* onGetContext() const override { return fContext; }
-
-    sk_sp<GrTextureProxy> onAsTextureProxyRef(GrRecordingContext*) const override {
-        return fView.asTextureProxyRef();
-    }
 
     GrSurfaceProxyView onAsSurfaceProxyViewRef(GrRecordingContext* context) const override {
         return fView;

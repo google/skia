@@ -144,14 +144,6 @@ public:
 #if SK_SUPPORT_GPU
     /**
      * Regardless of how the underlying backing data is stored, returns the contents as a
-     * GrTextureProxy. The returned proxy represents the entire backing image, so texture
-     * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
-     * space (offset by subset().topLeft()).
-     */
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const;
-
-    /**
-     * Regardless of how the underlying backing data is stored, returns the contents as a
      * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
      * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
      * space (offset by subset().topLeft()).

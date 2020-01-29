@@ -122,10 +122,10 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 
-        sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
-        SkASSERT(inputProxy);
+        GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+        SkASSERT(inputView.asTextureProxy());
 
-        const auto isProtected = inputProxy->isProtected();
+        const auto isProtected = inputView.proxy()->isProtected();
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
@@ -137,7 +137,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
         SkRect srcRect = fSrcRect.makeOffset((1.f - invXZoom) * input->subset().x(),
                                              (1.f - invYZoom) * input->subset().y());
 
-        auto fp = GrMagnifierEffect::Make(std::move(inputProxy),
+        // TODO: Update generated fp file Make functions to take views instead of proxies
+        auto fp = GrMagnifierEffect::Make(inputView.detachProxy(),
                                           bounds,
                                           srcRect,
                                           invXZoom,
