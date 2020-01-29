@@ -46,6 +46,47 @@
       "revId": "20cb87145740d7b5d242f129db90d17a4b786001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4591d262_ccb3ef23",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-29T18:21:45Z",
+      "side": 1,
+      "message": "I think I\u0027d prefer break as well, for the same reason Brian mentioned.",
+      "parentUuid": "1aafe607_9b89cf7f",
+      "range": {
+        "startLine": 841,
+        "startChar": 16,
+        "endLine": 841,
+        "endChar": 24
+      },
+      "revId": "20cb87145740d7b5d242f129db90d17a4b786001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "758bc0cd_e589f979",
+        "filename": "src/gpu/GrTessellator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1327,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-01-29T18:21:45Z",
+      "side": 1,
+      "message": "Could we express this as \"bool removeCollinearVertices \u003d (Mode::kSimpleInnerPolygons !\u003d mode) instead?\n\nThen use if (removeCollinearVertices \u0026\u0026 ...) below?",
+      "revId": "20cb87145740d7b5d242f129db90d17a4b786001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
