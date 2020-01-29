@@ -27,7 +27,7 @@ namespace SkGpuBlurUtils {
   *
   * Note: one of sigmaX and sigmaY should be non-zero!
   * @param context         The GPU context
-  * @param srcProxy        The source to be blurred.
+  * @param srcView         The source to be blurred.
   * @param srcColorType    The colorType of srcProxy
   * @param srcAlphaType    The alphaType of srcProxy
   * @param colorSpace      Color space of the source (used for the renderTargetContext result,
@@ -42,7 +42,7 @@ namespace SkGpuBlurUtils {
   * @return                The renderTargetContext containing the blurred result.
   */
 std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
-                                                    sk_sp<GrTextureProxy> srcProxy,
+                                                    GrSurfaceProxyView srcView,
                                                     GrColorType srcColorType,
                                                     SkAlphaType srcAlphaType,
                                                     sk_sp<SkColorSpace> colorSpace,

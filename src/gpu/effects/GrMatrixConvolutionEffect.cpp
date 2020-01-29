@@ -294,7 +294,7 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
 // Static function to create a 2D convolution
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
-        sk_sp<GrTextureProxy> srcProxy,
+        GrSurfaceProxyView srcView,
         const SkIRect& srcBounds,
         const SkISize& kernelSize,
         SkScalar gain,
@@ -308,12 +308,8 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
 
     fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
 
-    GrSurfaceOrigin origin = srcProxy->origin();
-    GrSwizzle swizzle = srcProxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(srcProxy), origin, swizzle);
-
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(std::move(view), srcBounds, kernelSize, kernel,
+            new GrMatrixConvolutionEffect(std::move(srcView), srcBounds, kernelSize, kernel,
                                           gain, bias, kernelOffset, tileMode, convolveAlpha));
 }
 

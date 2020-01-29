@@ -60,12 +60,12 @@ public:
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const GrShape& shape) const override;
-    sk_sp<GrTextureProxy> filterMaskGPU(GrRecordingContext*,
-                                        sk_sp<GrTextureProxy> srcProxy,
-                                        GrColorType srcColorType,
-                                        SkAlphaType srcAlphaType,
-                                        const SkMatrix& ctm,
-                                        const SkIRect& maskRect) const override;
+    GrSurfaceProxyView filterMaskGPU(GrRecordingContext*,
+                                     GrSurfaceProxyView srcView,
+                                     GrColorType srcColorType,
+                                     SkAlphaType srcAlphaType,
+                                     const SkMatrix& ctm,
+                                     const SkIRect& maskRect) const override;
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
@@ -866,12 +866,12 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
     return true;
 }
 
-sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
-                                                          sk_sp<GrTextureProxy> srcProxy,
-                                                          GrColorType srcColorType,
-                                                          SkAlphaType srcAlphaType,
-                                                          const SkMatrix& ctm,
-                                                          const SkIRect& maskRect) const {
+GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
+                                                       GrSurfaceProxyView srcView,
+                                                       GrColorType srcColorType,
+                                                       SkAlphaType srcAlphaType,
+                                                       const SkMatrix& ctm,
+                                                       const SkIRect& maskRect) const {
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
@@ -882,7 +882,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(context,
-                                                            srcProxy,
+                                                            srcView,
                                                             srcColorType,
                                                             srcAlphaType,
                                                             nullptr,
@@ -891,15 +891,15 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
                                                             xformedSigma,
                                                             xformedSigma,
                                                             SkTileMode::kClamp);
-    if (!renderTargetContext) {
-        return nullptr;
+    if (!renderTargetContext || !renderTargetContext->asTextureProxy()) {
+        return {};
     }
 
     if (!isNormalBlur) {
         GrPaint paint;
         // Blend pathTexture over blurTexture.
         paint.addCoverageFragmentProcessor(
-                GrTextureEffect::Make(std::move(srcProxy), srcAlphaType));
+                GrTextureEffect::Make(srcView.detachProxy(), srcAlphaType));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);
@@ -919,7 +919,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
                                       SkRect::Make(clipRect));
     }
 
-    return renderTargetContext->asTextureProxyRef();
+    return renderTargetContext->readSurfaceView();
 }
 
 #endif // SK_SUPPORT_GPU

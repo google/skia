@@ -30,7 +30,7 @@ public:
                                               gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> srcProxy,
+    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(GrSurfaceProxyView srcView,
                                                              const SkIRect& srcBounds,
                                                              const SkISize& kernelSize,
                                                              SkScalar gain,

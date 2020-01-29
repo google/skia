@@ -215,7 +215,7 @@ static void fill_in_1D_gaussian_kernel(float* kernel, int width, float gaussianS
 }
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
-        sk_sp<GrSurfaceProxy> proxy,
+        GrSurfaceProxyView view,
         SkAlphaType alphaType,
         Direction direction,
         int radius,
@@ -224,8 +224,8 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         int bounds[2])
         : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID,
                     ModulateForSamplerOptFlags(alphaType, mode == GrTextureDomain::kDecal_Mode))
-        , fCoordTransform(proxy.get())
-        , fTextureSampler(std::move(proxy))
+        , fCoordTransform(view.proxy())
+        , fTextureSampler(std::move(view))
         , fRadius(radius)
         , fDirection(direction)
         , fMode(mode) {
@@ -333,7 +333,11 @@ std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::Tes
     int radius = d->fRandom->nextRangeU(1, kMaxKernelRadius);
     float sigma = radius / 3.f;
 
-    return GrGaussianConvolutionFragmentProcessor::Make(std::move(proxy), at, dir, radius, sigma,
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
+    return GrGaussianConvolutionFragmentProcessor::Make(std::move(view), at, dir, radius, sigma,
                                                         static_cast<GrTextureDomain::Mode>(modeIdx),
                                                         bounds);
 }
