@@ -188,7 +188,74 @@ void SkTextBlobBuilderRunHandler::beginLine() {
     fMaxRunDescent = 0;
     fMaxRunLeading = 0;
 }
+
+#import <ApplicationServices/ApplicationServices.h>
+#include <vector>
+#include "include/ports/SkTypeface_mac.h"
+
+static void do_tab(int tab) {
+    for (int i = 0; i < tab; ++i) {
+        SkDebugf("  ");
+    }
+}
+
+static void dump(CFTypeRef obj, int tab);
+
+static void dump_dict(CFDictionaryRef d, int tab) {
+    CFIndex count = CFDictionaryGetCount(d);
+    std::vector<const void*> keys(count);
+    std::vector<const void*> vals(count);
+
+    CFDictionaryGetKeysAndValues(d, keys.data(), vals.data());
+
+    for (CFIndex i = 0; i < count; ++i) {
+        CFStringRef kstr = (CFStringRef)keys[i];
+        const char* ckstr = CFStringGetCStringPtr(kstr, kCFStringEncodingUTF8);
+        do_tab(tab);
+        SkDebugf("dict: %s\n", ckstr);
+        dump((CFTypeRef)vals[i], tab + 1);
+    }
+}
+
+static void dump_array(CFArrayRef array, int tab) {
+    CFIndex count = CFArrayGetCount(array);
+    for (CFIndex i = 0; i < count; ++i) {
+        const void* value = CFArrayGetValueAtIndex(array, i);
+        do_tab(tab);
+        SkDebugf("[%d]\n", i);
+        dump((CFTypeRef)value, tab + 1);
+    }
+}
+
+static void dump(CFTypeRef obj, int tab) {
+    CFTypeID id = CFGetTypeID(obj);
+    CFStringRef str = CFCopyTypeIDDescription(id);
+
+    do_tab(tab);
+    if (id == CFDictionaryGetTypeID()) {
+        dump_dict((CFDictionaryRef)obj, tab);
+    } else if (id == CFArrayGetTypeID()) {
+        dump_array((CFArrayRef)obj, tab);
+    } else if (id == CFStringGetTypeID()) {
+        SkDebugf("%s\n", CFStringGetCStringPtr((CFStringRef)obj, kCFStringEncodingUTF8));
+    } else if (id == CFNumberGetTypeID()) {
+        double value;
+        CFNumberGetValue((CFNumberRef)obj, kCFNumberFloat64Type, &value);
+        SkDebugf("%g\n", value);
+    } else if (id == CFBooleanGetTypeID()) {
+        SkDebugf("%s\n", CFBooleanGetValue((CFBooleanRef)obj) ? "true" : "false");
+    } else {
+        SkDebugf("unknown %s\n", CFStringGetCStringPtr(str, kCFStringEncodingUTF8));
+    }
+}
+
 void SkTextBlobBuilderRunHandler::runInfo(const RunInfo& info) {
+    SkDebugf("\ndump runinfo\n");
+    CTFontRef ct = SkTypeface_GetCTFontRef(info.fFont.getTypeface());
+    CFShow(ct);
+    dump(CTFontCopyFeatures(ct), 0);
+
+
     SkFontMetrics metrics;
     info.fFont.getMetrics(&metrics);
     fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
