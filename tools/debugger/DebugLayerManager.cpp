@@ -17,6 +17,7 @@
 #include <memory>
 #include <vector>
 #include <tuple>
+#include <unordered_map>
 
 void DebugLayerManager::setCommand(int nodeId, int frame, int command) {
   auto* drawEvent = fDraws.find({frame, nodeId});
@@ -116,18 +117,42 @@ DebugLayerManager::DrawEventSummary DebugLayerManager::event(int nodeId, int fra
   auto* evt = fDraws.find({frame, nodeId});
   if (!evt) { return {}; }
   return {
-    true, nodeId, evt->fullRedraw, evt->debugCanvas->getSize(),
+    true, evt->debugCanvas->getSize(),
     evt->layerBounds.width(), evt->layerBounds.height()
   };
 }
 
-std::vector<DebugLayerManager::DrawEventSummary> DebugLayerManager::summarizeEvents(int frame) const {
-    std::vector<DrawEventSummary> result;
-  for (const auto& node : listNodesForFrame(frame)) {
-    auto summary = event(node, frame);
-    if (summary.found) {
-      result.push_back(summary);
+std::vector<DebugLayerManager::LayerSummary> DebugLayerManager::summarizeLayers(int frame) const {
+  // Find the last update on or before `frame` for every node
+  // key: nodeId, one entry for every layer
+  // value: summary of the layer.
+  std::unordered_map<int, LayerSummary> summaryMap;
+  for (const auto& key : keys) {
+    auto* evt = fDraws.find(key);
+    if (!evt) { continue; }
+    // -1 as a default value for the last update serves as a way of indicating that this layer
+    // is present in the animation, but doesn't have an update less than or equal to `frame`
+    int lastUpdate = (key.frame <= frame ? key.frame : -1);
+
+    // do we have an entry for this layer yet? is it later than the one we're looking at?
+    auto found = summaryMap.find(key.nodeId);
+    if (found != summaryMap.end()) {
+      LayerSummary& item = summaryMap[key.nodeId];
+      if (lastUpdate > item.frameOfLastUpdate) {
+        item.frameOfLastUpdate = key.frame;
+        item.fullRedraw = evt->fullRedraw;
+      }
+    } else {
+      // record first entry for this layer
+      summaryMap.insert({key.nodeId, {
+        key.nodeId, lastUpdate, evt->fullRedraw,
+        evt->layerBounds.width(), evt->layerBounds.height()
+      }});
     }
+  }
+  std::vector<LayerSummary> result;
+  for (auto it = summaryMap.begin(); it != summaryMap.end(); ++it) {
+    result.push_back(it->second);
   }
   return result;
 }
