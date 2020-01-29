@@ -39,7 +39,7 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
                       const SkMatrix& viewMatrix,
                       const SkIRect& maskRect,
                       GrPaint&& paint,
-                      sk_sp<GrTextureProxy> mask) {
+                      GrSurfaceProxyView mask) {
     SkMatrix inverse;
     if (!viewMatrix.invert(&inverse)) {
         return false;
@@ -49,7 +49,7 @@ static bool draw_mask(GrRenderTargetContext* renderTargetContext,
                                           -SkIntToScalar(maskRect.fTop));
     matrix.preConcat(viewMatrix);
     paint.addCoverageFragmentProcessor(
-            GrTextureEffect::Make(std::move(mask), kUnknown_SkAlphaType, matrix));
+            GrTextureEffect::Make(mask.detachProxy(), kUnknown_SkAlphaType, matrix));
 
     renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                                  SkRect::Make(maskRect), inverse);
@@ -74,7 +74,7 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
 
     auto proxyProvider = context->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> filteredMask;
+    GrSurfaceProxyView filteredMaskView;
 
     SkStrokeRec::InitStyle fillOrHairline = shape.style().isSimpleHairline()
                                                     ? SkStrokeRec::kHairline_InitStyle
@@ -82,12 +82,18 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
 
     if (key.isValid()) {
         // TODO: this cache look up is duplicated in draw_shape_with_mask_filter for gpu
-        filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8,
-                                                                   kTopLeft_GrSurfaceOrigin);
+        static const GrSurfaceOrigin kCacheOrigin = kTopLeft_GrSurfaceOrigin;
+        auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key, GrColorType::kAlpha_8,
+                                                                        kCacheOrigin);
+        if (filteredMask) {
+            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                    filteredMask->backendFormat(), GrColorType::kAlpha_8);
+            filteredMaskView = GrSurfaceProxyView(std::move(filteredMask), kCacheOrigin, swizzle);
+        }
     }
 
     SkIRect drawRect;
-    if (filteredMask) {
+    if (filteredMaskView.proxy()) {
         SkRect devBounds = shape.bounds();
         viewMatrix.mapRect(&devBounds);
 
@@ -148,11 +154,12 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
 
         GrBitmapTextureMaker maker(context, bm, GrBitmapTextureMaker::Cached::kNo,
                                    SkBackingFit::kApprox);
-        std::tie(filteredMask, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
+        auto [filteredMask, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
         if (!filteredMask) {
             return false;
         }
 
+        // TODO: refTextureProxy should return a view instead of a proxy
         SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMask->origin());
 
         drawRect = dstM.fBounds;
@@ -160,10 +167,14 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
         if (key.isValid()) {
             proxyProvider->assignUniqueKeyToProxy(key, filteredMask.get());
         }
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(filteredMask->backendFormat(),
+                                                                   grCT);
+        filteredMaskView = GrSurfaceProxyView(std::move(filteredMask), kTopLeft_GrSurfaceOrigin,
+                                              swizzle);
     }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix, drawRect, std::move(paint),
-                     std::move(filteredMask));
+                     std::move(filteredMaskView));
 }
 
 // Create a mask of 'shape' and return the resulting renderTargetContext
@@ -389,41 +400,48 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
             return;
         }
 
-        sk_sp<GrTextureProxy> filteredMask;
+        GrSurfaceProxyView filteredMaskView;
 
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         if (maskKey.isValid()) {
             // TODO: this cache look up is duplicated in sw_draw_with_mask_filter for raster
-            filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(
-                    maskKey, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin);
+            static const GrSurfaceOrigin kCacheOrigin = kTopLeft_GrSurfaceOrigin;
+            auto filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(
+                    maskKey, GrColorType::kAlpha_8, kCacheOrigin);
+            if (filteredMask) {
+                GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                        filteredMask->backendFormat(), GrColorType::kAlpha_8);
+                filteredMaskView = GrSurfaceProxyView(std::move(filteredMask), kCacheOrigin,
+                                                      swizzle);
+            }
         }
 
-        if (!filteredMask) {
+        if (!filteredMaskView.proxy()) {
             std::unique_ptr<GrRenderTargetContext> maskRTC(create_mask_GPU(
-                                                        context,
-                                                        maskRect,
-                                                        viewMatrix,
-                                                        *shape,
-                                                        renderTargetContext->numSamples()));
+                                                           context,
+                                                           maskRect,
+                                                           viewMatrix,
+                                                           *shape,
+                                                           renderTargetContext->numSamples()));
             if (maskRTC) {
-                filteredMask = maskFilter->filterMaskGPU(context,
-                                                         maskRTC->asTextureProxyRef(),
-                                                         maskRTC->colorInfo().colorType(),
-                                                         maskRTC->colorInfo().alphaType(),
-                                                         viewMatrix,
-                                                         maskRect);
-                SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMask->origin());
-
-                if (filteredMask && maskKey.isValid()) {
-                    proxyProvider->assignUniqueKeyToProxy(maskKey, filteredMask.get());
+                filteredMaskView = maskFilter->filterMaskGPU(context,
+                                                             maskRTC->readSurfaceView(),
+                                                             maskRTC->colorInfo().colorType(),
+                                                             maskRTC->colorInfo().alphaType(),
+                                                             viewMatrix,
+                                                             maskRect);
+                if (filteredMaskView.proxy() && maskKey.isValid()) {
+                    SkASSERT(filteredMaskView.asTextureProxy());
+                    proxyProvider->assignUniqueKeyToProxy(maskKey,
+                                                          filteredMaskView.asTextureProxy());
                 }
             }
         }
 
-        if (filteredMask) {
+        if (filteredMaskView.proxy()) {
             if (draw_mask(renderTargetContext, clip, viewMatrix, maskRect, std::move(paint),
-                          std::move(filteredMask))) {
+                          std::move(filteredMaskView))) {
                 // This path is completely drawn
                 return;
             }

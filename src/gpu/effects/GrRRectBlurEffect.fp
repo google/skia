@@ -65,22 +65,21 @@ uniform half blurRadius;
             rtc->drawRRect(GrNoClip(), std::move(paint), GrAA::kYes, SkMatrix::I(), rrectToDraw,
                            GrStyle::SimpleFill());
 
-            sk_sp<GrTextureProxy> srcProxy(rtc->asTextureProxyRef());
-            if (!srcProxy) {
+            GrSurfaceProxyView srcView = rtc->readSurfaceView();
+            if (!srcView.asTextureProxy()) {
                 return nullptr;
             }
-            auto rtc2 =
-                      SkGpuBlurUtils::GaussianBlur(context,
-                                                   std::move(srcProxy),
-                                                   rtc->colorInfo().colorType(),
-                                                   rtc->colorInfo().alphaType(),
-                                                   nullptr,
-                                                   SkIRect::MakeSize(dimensions),
-                                                   SkIRect::MakeSize(dimensions),
-                                                   xformedSigma,
-                                                   xformedSigma,
-                                                   SkTileMode::kClamp,
-                                                   SkBackingFit::kExact);
+            auto rtc2 = SkGpuBlurUtils::GaussianBlur(context,
+                                                     std::move(srcView),
+                                                     rtc->colorInfo().colorType(),
+                                                     rtc->colorInfo().alphaType(),
+                                                     nullptr,
+                                                     SkIRect::MakeSize(dimensions),
+                                                     SkIRect::MakeSize(dimensions),
+                                                     xformedSigma,
+                                                     xformedSigma,
+                                                     SkTileMode::kClamp,
+                                                     SkBackingFit::kExact);
             if (!rtc2) {
                 return nullptr;
             }

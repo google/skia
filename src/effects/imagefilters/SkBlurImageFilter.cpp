@@ -644,16 +644,17 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     auto context = ctx.getContext();
 
     GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
-    if (!inputView.asTextureProxy()) {
+    if (!inputView.proxy()) {
         return nullptr;
     }
+    SkASSERT(inputView.asTextureProxy());
 
     // TODO (michaelludwig) - The color space choice is odd, should it just be ctx.refColorSpace()?
     dstBounds.offset(input->subset().topLeft());
     inputBounds.offset(input->subset().topLeft());
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(
             context,
-            inputView.asTextureProxyRef(), // TODO: Move view once GaussianBlur updated to use view
+            std::move(inputView),
             SkColorTypeToGrColorType(input->colorType()),
             input->alphaType(),
             ctx.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
