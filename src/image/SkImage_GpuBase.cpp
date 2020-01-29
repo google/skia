@@ -182,6 +182,7 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
                                                                 this->colorType(),
                                                                 view.proxy()->backendFormat());
 
+    SkDebugf("SkImage_GpuBase::onReadPixels %s", GrColorTypeToStr(grColorType));
     auto sContext = GrSurfaceContext::Make(direct, std::move(view), grColorType,
                                            this->alphaType(), this->refColorSpace());
     if (!sContext) {
