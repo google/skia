@@ -57,6 +57,7 @@ skia_skottie_sources = [
   "$_src/layers/SolidLayer.cpp",
   "$_src/layers/TextLayer.cpp",
   "$_src/layers/shapelayer/Ellipse.cpp",
+  "$_src/layers/shapelayer/FillStroke.cpp",
   "$_src/layers/shapelayer/Gradient.cpp",
   "$_src/layers/shapelayer/MergePaths.cpp",
   "$_src/layers/shapelayer/Polystar.cpp",

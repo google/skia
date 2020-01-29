@@ -203,12 +203,22 @@ private:
 
 } // namespace
 
-sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradient(const skjson::ObjectValue& jgrad,
-                                                    const AnimationBuilder* abuilder) {
-    auto gradient = abuilder->attachDiscardableAdapter<GradientAdapter, sk_sp<sksg::Gradient>>
-            (jgrad, *abuilder);
+sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientFill(const skjson::ObjectValue& jgrad,
+                                                        const AnimationBuilder* abuilder) {
+    auto adapter = GradientAdapter::Make(jgrad, *abuilder);
 
-    return sksg::ShaderPaint::Make(std::move(gradient));
+    return adapter
+            ? AttachFill(jgrad, abuilder, sksg::ShaderPaint::Make(adapter->node()), adapter)
+            : nullptr;
+}
+
+sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientStroke(const skjson::ObjectValue& jgrad,
+                                                          const AnimationBuilder* abuilder) {
+    auto adapter = GradientAdapter::Make(jgrad, *abuilder);
+
+    return adapter
+            ? AttachStroke(jgrad, abuilder, sksg::ShaderPaint::Make(adapter->node()), adapter)
+            : nullptr;
 }
 
 } // namespace internal

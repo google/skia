@@ -13,7 +13,6 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGeometryTransform.h"
-#include "modules/sksg/include/SkSGGradient.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGMerge.h"
 #include "modules/sksg/include/SkSGPaint.h"
@@ -32,56 +31,6 @@ namespace skottie {
 namespace internal {
 
 namespace {
-
-sk_sp<sksg::PaintNode> AttachPaint(const skjson::ObjectValue& jpaint,
-                                   const AnimationBuilder* abuilder,
-                                   sk_sp<sksg::PaintNode> paint_node) {
-    if (paint_node) {
-        paint_node->setAntiAlias(true);
-
-        abuilder->bindProperty<ScalarValue>(jpaint["o"],
-            [paint_node](const ScalarValue& o) {
-                // BM opacity is [0..100]
-                paint_node->setOpacity(o * 0.01f);
-            });
-    }
-
-    return paint_node;
-}
-
-sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke,
-                                    const AnimationBuilder* abuilder,
-                                    sk_sp<sksg::PaintNode> stroke_node) {
-    if (!stroke_node)
-        return nullptr;
-
-    stroke_node->setStyle(SkPaint::kStroke_Style);
-
-    abuilder->bindProperty<ScalarValue>(jstroke["w"],
-        [stroke_node](const ScalarValue& w) {
-            stroke_node->setStrokeWidth(w);
-        });
-
-    stroke_node->setStrokeMiter(ParseDefault<SkScalar>(jstroke["ml"], 4.0f));
-
-    static constexpr SkPaint::Join gJoins[] = {
-        SkPaint::kMiter_Join,
-        SkPaint::kRound_Join,
-        SkPaint::kBevel_Join,
-    };
-    stroke_node->setStrokeJoin(gJoins[SkTMin<size_t>(ParseDefault<size_t>(jstroke["lj"], 1) - 1,
-                                                     SK_ARRAY_COUNT(gJoins) - 1)]);
-
-    static constexpr SkPaint::Cap gCaps[] = {
-        SkPaint::kButt_Cap,
-        SkPaint::kRound_Cap,
-        SkPaint::kSquare_Cap,
-    };
-    stroke_node->setStrokeCap(gCaps[SkTMin<size_t>(ParseDefault<size_t>(jstroke["lc"], 1) - 1,
-                                                   SK_ARRAY_COUNT(gCaps) - 1)]);
-
-    return stroke_node;
-}
 
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const skjson::ObjectValue&,
                                                         const AnimationBuilder*);
@@ -180,29 +129,6 @@ struct GeometryEffectRec {
 sk_sp<sksg::GeometryNode> ShapeBuilder::AttachPathGeometry(const skjson::ObjectValue& jpath,
                                                            const AnimationBuilder* abuilder) {
     return abuilder->attachPath(jpath["ks"]);
-}
-
-sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorFill(const skjson::ObjectValue& jfill,
-                                                     const AnimationBuilder* abuilder) {
-    return AttachPaint(jfill, abuilder, abuilder->attachColor(jfill, "c"));
-}
-
-sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientFill(const skjson::ObjectValue& jfill,
-                                                        const AnimationBuilder* abuilder) {
-    return AttachPaint(jfill, abuilder, ShapeBuilder::AttachGradient(jfill, abuilder));
-}
-
-sk_sp<sksg::PaintNode> ShapeBuilder::AttachColorStroke(const skjson::ObjectValue& jstroke,
-                                                       const AnimationBuilder* abuilder) {
-    return AttachStroke(jstroke, abuilder, AttachPaint(jstroke, abuilder,
-                                                       abuilder->attachColor(jstroke, "c")));
-}
-
-sk_sp<sksg::PaintNode> ShapeBuilder::AttachGradientStroke(const skjson::ObjectValue& jstroke,
-                                                          const AnimationBuilder* abuilder) {
-    return AttachStroke(jstroke, abuilder, AttachPaint(jstroke, abuilder,
-                                                       ShapeBuilder::AttachGradient(jstroke,
-                                                                                    abuilder)));
 }
 
 struct AnimationBuilder::AttachShapeContext {
