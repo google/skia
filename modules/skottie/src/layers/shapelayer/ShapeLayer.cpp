@@ -8,7 +8,6 @@
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 
 #include "include/core/SkPath.h"
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
