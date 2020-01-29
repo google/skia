@@ -30,9 +30,8 @@ protected:
     void appendGradientStages(SkArenaAlloc* alloc, SkRasterPipeline* tPipeline,
                               SkRasterPipeline* postPipeline) const override;
 
-    MaskNeeded transformT(skvm::Builder*, skvm::Uniforms*,
-                          skvm::F32 x, skvm::F32 y, skvm::F32* t) const final;
-
+    skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
+                         skvm::F32 x, skvm::F32 y, skvm::I32* mask) const final;
 private:
     SK_FLATTENABLE_HOOKS(SkSweepGradient)
 
