@@ -187,6 +187,12 @@ public:
     /// @}
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
+    void setUserStencil(const GrUserStencilSettings* stencil) {
+        fUserStencilSettings = stencil;
+        if (!fUserStencilSettings->isDisabled(fFlags & Flags::kHasStencilClip)) {
+            fFlags |= Flags::kStencilEnabled;
+        }
+    }
 
     bool isScissorEnabled() const {
         return SkToBool(fFlags & Flags::kScissorEnabled);
