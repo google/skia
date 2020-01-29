@@ -2120,9 +2120,12 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     this->handleDirtyContext();
 
     GrStencilAttachment* sb = target->renderTargetPriv().getStencilAttachment();
-    // this should only be called internally when we know we have a
-    // stencil buffer.
-    SkASSERT(sb);
+    if (!sb) {
+        // We should only get here if we marked a proxy as requiring a SB. However,
+        // the SB creation could later fail. Likely clipping is going to go awry now.
+        return;
+    }
+
     GrGLint stencilBitCount =  sb->bits();
 #if 0
     SkASSERT(stencilBitCount > 0);
