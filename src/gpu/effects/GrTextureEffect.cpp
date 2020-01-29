@@ -404,7 +404,8 @@ void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyB
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
     auto that = other.cast<GrTextureEffect>();
-    return fShaderModes[0] == that.fShaderModes[1] && fShaderModes[1] == that.fShaderModes[1] &&
+    return fShaderModes[0] == that.fShaderModes[0] &&
+           fShaderModes[1] == that.fShaderModes[1] &&
            fSubset == that.fSubset;
 }
 

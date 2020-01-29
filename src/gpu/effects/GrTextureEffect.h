@@ -119,7 +119,7 @@ private:
 
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
-    SkRect fSubset;
+    SkRect fSubset = SkRect::MakeEmpty();
     ShaderMode fShaderModes[2];
 
     inline GrTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&, const Sampling&);
