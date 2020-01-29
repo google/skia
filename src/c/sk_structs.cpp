@@ -63,6 +63,7 @@ static_assert (sizeof (sk_jpegencoder_options_t) == sizeof (SkJpegEncoder::Optio
 static_assert (sizeof (sk_webpencoder_options_t) == sizeof (SkWebpEncoder::Options), ASSERT_MSG(SkWebpEncoder::Options, sk_webpencoder_options_t));
 static_assert (sizeof (sk_textblob_builder_runbuffer_t) == sizeof (SkTextBlobBuilder::RunBuffer), ASSERT_MSG(SkTextBlobBuilder::RunBuffer, sk_textblob_builder_runbuffer_t));
 static_assert (sizeof (sk_rsxform_t) == sizeof (SkRSXform), ASSERT_MSG(SkRSXform, sk_rsxform_t));
+static_assert (sizeof (sk_color4f_t) == sizeof (SkColor4f), ASSERT_MSG(SkColor4f, sk_color4f_t));
 
 #if SK_SUPPORT_GPU
 static_assert (sizeof (gr_gl_framebufferinfo_t) == sizeof (GrGLFramebufferInfo), ASSERT_MSG(GrGLFramebufferInfo, gr_gl_framebufferinfo_t));

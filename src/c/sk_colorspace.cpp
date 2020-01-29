@@ -13,6 +13,8 @@
 
 #include "sk_types_priv.h"
 
+// sk_colorspace_t
+
 void sk_colorspace_unref(sk_colorspace_t* cColorSpace) {
     SkSafeUnref(AsColorSpace(cColorSpace));
 }
@@ -104,4 +106,19 @@ void sk_colorspace_transfer_fn_invert(const sk_colorspace_transfer_fn_t* transfe
 float sk_colorspace_transfer_fn_transform(const sk_colorspace_transfer_fn_t* transfer, float x) {
     SkColorSpaceTransferFn fn = *AsColorSpaceTransferFn(transfer);
     return fn(x);
+}
+
+
+// sk_color4f_t
+
+sk_color_t sk_color4f_to_color(const sk_color4f_t* color4f) {
+    return AsColor4f(color4f)->toSkColor();
+}
+
+void sk_color4f_from_color(sk_color_t color, sk_color4f_t* color4f) {
+    *color4f = ToColor4f(SkColor4f::FromColor(color));
+}
+
+void sk_color4f_pin(const sk_color4f_t* color4f, sk_color4f_t* pinned) {
+    *pinned = ToColor4f(AsColor4f(color4f)->pin());
 }

@@ -14,6 +14,8 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+// sk_colorspace_t
+
 SK_C_API void sk_colorspace_unref(sk_colorspace_t* cColorSpace);
 SK_C_API sk_colorspace_t* sk_colorspace_new_srgb(void);
 SK_C_API sk_colorspace_t* sk_colorspace_new_srgb_linear(void);
@@ -37,6 +39,12 @@ SK_C_API bool sk_colorspace_is_numerical_transfer_fn(const sk_colorspace_t* cCol
 SK_C_API bool sk_colorspaceprimaries_to_xyzd50(const sk_colorspaceprimaries_t* primaries, sk_matrix44_t* toXYZD50);
 SK_C_API void sk_colorspace_transfer_fn_invert(const sk_colorspace_transfer_fn_t* transfer, sk_colorspace_transfer_fn_t* inverted);
 SK_C_API float sk_colorspace_transfer_fn_transform(const sk_colorspace_transfer_fn_t* transfer, float x);
+
+// sk_color4f_t
+
+SK_C_API sk_color_t sk_color4f_to_color(const sk_color4f_t* color4f);
+SK_C_API void sk_color4f_from_color(sk_color_t color, sk_color4f_t* color4f);
+SK_C_API void sk_color4f_pin(const sk_color4f_t* color4f, sk_color4f_t* pinned);
 
 SK_C_PLUS_PLUS_END_GUARD
 
