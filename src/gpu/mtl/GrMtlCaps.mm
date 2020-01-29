@@ -9,6 +9,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -873,6 +874,17 @@ bool GrMtlCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                   const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+
+    SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+#ifdef SK_BUILD_FOR_IOS
+        return ct == GrColorType::kRGBA_8888;
+#else
+        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                             : GrColorType::kRGBA_8888);
+#endif
+    }
+
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -992,6 +1004,17 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         GrColorType dstColorType) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(srcBackendFormat);
 
+    SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+#ifdef SK_BUILD_FOR_IOS
+        // Reading back to kRGB_888x doesn't work on iOS
+        return { GrColorType::kRGBA_8888, 0 };
+#else
+        return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                        : GrColorType::kRGBA_8888, 0 };
+#endif
+    }
+
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
     size_t offsetAlignment = GrColorTypeBytesPerPixel(srcColorType);
@@ -1065,7 +1088,7 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kRGBA_8888_SRGB,   GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm_sRGB) },
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm)      },
 #ifdef SK_BUILD_FOR_IOS
-        { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8)       },
+        { GrColorType::kRGBA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8)       },
 #else
         { GrColorType::kRGBA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatBC1_RGBA)        },
 #endif

@@ -3985,9 +3985,15 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
 
     SkImage::CompressionType compression = this->compressionType(srcBackendFormat);
     if (compression != SkImage::CompressionType::kNone) {
+#ifdef SK_BUILD_FOR_IOS
+        // Metal on iOS doesn't readback to RGBX so we disable it for iOS GL too
+        return { GrColorType::kRGBA_8888,
+                 offset_alignment_for_transfer_buffer(GR_GL_UNSIGNED_BYTE) };
+#else
         return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                         : GrColorType::kRGBA_8888,
                  offset_alignment_for_transfer_buffer(GR_GL_UNSIGNED_BYTE) };
+#endif
     }
 
     // We first try to find a supported read pixels GrColorType that matches the requested
@@ -4225,8 +4231,13 @@ bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
 
     SkImage::CompressionType compression = GrGLFormatToCompressionType(glFormat);
     if (compression != SkImage::CompressionType::kNone) {
+#ifdef SK_BUILD_FOR_IOS
+        // Metal on iOS doesn't readback to RGBX so we disable it for iOS GL too
+        return ct == GrColorType::kRGBA_8888;
+#else
         return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
                                                              : GrColorType::kRGBA_8888);
+#endif
     }
 
     const auto& info = this->getFormatInfo(glFormat);
