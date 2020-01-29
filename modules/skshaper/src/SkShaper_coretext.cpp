@@ -274,7 +274,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                     buffer.point.fY,
                 };
                 if (buffer.offsets) {
-                    buffer.offsets[k] = {0, 0}; // ???
+                    buffer.offsets[k] = {0, 0}; // offset relative to the origin for this glyph
                 }
                 if (buffer.clusters) {
                     buffer.clusters[k] = indices[k];
