@@ -189,7 +189,7 @@ public:
         SkASSERT(pageIdx < fNumActivePages);
         Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
-        plot->setLastUseToken(token);
+        plot->fNoLongerNeededAfterDraw = token;
     }
 
     uint32_t numActivePages() { return fNumActivePages; }
@@ -259,7 +259,7 @@ public:
             if (pd.fPageIndex < fNumActivePages) {
                 Plot* plot = fPages[pd.fPageIndex].fPlotArray[pd.fPlotIndex].get();
                 this->makeMRU(plot, pd.fPageIndex);
-                plot->setLastUseToken(token);
+                plot->fNoLongerNeededAfterDraw = token;
             }
         }
     }
@@ -317,10 +317,8 @@ private:
          * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
          * has already flushed through the gpu then we can reuse the plot.
          */
-        GrDeferredUploadToken lastUploadToken() const { return fLastUpload; }
-        GrDeferredUploadToken lastUseToken() const { return fLastUse; }
-        void setLastUploadToken(GrDeferredUploadToken token) { fLastUpload = token; }
-        void setLastUseToken(GrDeferredUploadToken token) { fLastUse = token; }
+        GrDeferredUploadToken fUploadedAtDraw;
+        GrDeferredUploadToken fNoLongerNeededAfterDraw;
 
         void uploadToTexture(GrDeferredTextureUploadWritePixelsFn&, GrTextureProxy*);
         void resetRects();
@@ -353,8 +351,7 @@ private:
             return generation << 16 | plotIdx << 8 | pageIdx;
         }
 
-        GrDeferredUploadToken fLastUpload;
-        GrDeferredUploadToken fLastUse;
+
         // the number of flushes since this plot has been last used
         int                   fFlushesSinceLastUse;
 
@@ -445,7 +442,7 @@ private:
     };
     // proxies kept separate to make it easier to pass them up to client
     GrSurfaceProxyView fViews[kMaxMultitexturePages];
-    Page fPages[kMaxMultitexturePages];
+    std::array<Page, kMaxMultitexturePages> fPages;
     uint32_t fMaxPages;
 
     uint32_t fNumActivePages;
