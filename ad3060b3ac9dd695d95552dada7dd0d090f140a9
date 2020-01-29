@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b9d81b5_e5f9fa8e",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 13
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6225
+      },
+      "writtenOn": "2020-01-29T17:53:05Z",
+      "side": 1,
+      "message": "The main thread can time out between here the next line.\n\nI\u0027d advocate having AtomicBool be AtomicCompilerState, which has an atomic \"set library and error\" and atomic \"get library and error\" method, similar to\n\nhttps://source.chromium.org/chromium/chromium/src/+/master:components/viz/common/gpu/metal_api_proxy.mm;l\u003d24?q\u003dmtldeviceproxy\u0026ss\u003dchromium%2Fchromium%2Fsrc\u0026originalUrl\u003dhttps:%2F%2Fcs.chromium.org%2F\n\n(in that structure, we have both library and renderPipelineState, because the logic is the same for both)",
+      "revId": "ad3060b3ac9dd695d95552dada7dd0d090f140a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
