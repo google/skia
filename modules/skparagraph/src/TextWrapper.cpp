@@ -8,7 +8,7 @@ namespace textlayout {
 namespace {
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
-  return SkScalarRoundToScalar(a * 100.0)/100.0;
+  return SkScalarRoundToScalar(a * 1000.0)/1000.0;
 }
 }
 
