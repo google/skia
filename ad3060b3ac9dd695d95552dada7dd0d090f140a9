@@ -16,6 +16,24 @@
       "revId": "ad3060b3ac9dd695d95552dada7dd0d090f140a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcc51b43_7b1bf747",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 13
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-01-29T18:02:10Z",
+      "side": 1,
+      "message": "Ergh. I originally had a semaphore there acting as a mutex for both variables but in trying to lighten up the lock I missed that.",
+      "parentUuid": "9b9d81b5_e5f9fa8e",
+      "revId": "ad3060b3ac9dd695d95552dada7dd0d090f140a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
