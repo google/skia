@@ -427,12 +427,24 @@ namespace skvm {
         F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
         F32 sqrt(F32 x);
 
+        F32 negate(F32 x) {
+            return sub(splat(0.0f), x);
+        }
         F32 lerp(F32 lo, F32 hi, F32 t) {
             return mad(sub(hi,lo), t, lo);
         }
-
         F32 clamp(F32 x, F32 lo, F32 hi) {
             return max(lo, min(x, hi));
+        }
+        F32 abs(F32 x) {
+            return bit_cast(bit_and(bit_cast(x),
+                                    splat(0x7fffffff)));
+        }
+        F32 fract(F32 x) {
+            return sub(x, floor(x));
+        }
+        F32 norm(F32 x, F32 y) {
+            return sqrt(mad(x,x, mul(y,y)));
         }
 
         I32 eq (F32 x, F32 y);
@@ -446,15 +458,6 @@ namespace skvm {
         I32 trunc(F32 x);
         I32 round(F32 x);
         I32 bit_cast(F32 x) { return {x.id}; }
-
-        F32 abs(F32 x) {
-            return bit_cast(bit_and(bit_cast(x),
-                                    splat(0x7fffffff)));
-        }
-
-        F32 fract(F32 x) {
-            return sub(x, floor(x));
-        }
 
         // int math, comparisons, etc.
         I32 add(I32 x, I32 y);
