@@ -86,7 +86,7 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
                                          tableIndex, pixelIndex);
 
             if (bestSoFar > score) {
-                bestSoFar = score;
+              bestSoFar = score;
                 bestTableIndex = tableIndex;
                 bestPixelIndex = pixelIndex;
             }
