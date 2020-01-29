@@ -11,6 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkTypeface.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkPictureFlat.h"
 
@@ -84,7 +85,8 @@ public:
                                            SkTypefacePlayback*);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
-    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*, bool textBlobsOnly=false) const;
+    void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*,
+        const SkTypeface::SerializeBehavior typefaceBehavior, bool textBlobsOnly=false) const;
     void flatten(SkWriteBuffer&) const;
 
     const sk_sp<SkData>& opData() const { return fOpData; }
@@ -162,7 +164,8 @@ private:
     const SkPictInfo fInfo;
 
     static void WriteFactories(SkWStream* stream, const SkFactorySet& rec);
-    static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec, const SkSerialProcs&);
+    static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec, const SkSerialProcs&,
+        const SkTypeface::SerializeBehavior typefaceBehavior);
 
     void initForPlayback() const;
 };

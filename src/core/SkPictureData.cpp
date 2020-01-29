@@ -121,7 +121,7 @@ void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
 }
 
 void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
-                                   const SkSerialProcs& procs) {
+        const SkSerialProcs& procs, const SkTypeface::SerializeBehavior typefaceBehavior) {
     int count = rec.count();
 
     write_tag_size(stream, SK_PICT_TYPEFACE_TAG, count);
@@ -139,7 +139,7 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
                 continue;
             }
         }
-        array[i]->serialize(stream);
+        array[i]->serialize(stream, typefaceBehavior);
     }
 }
 
@@ -205,7 +205,9 @@ static SkSerialProcs skip_typeface_proc(const SkSerialProcs& procs) {
 // possible that is not relevant to collecting text blobs in topLevelTypeFaceSet
 // TODO(nifong): dedupe typefaces and all other shared resources in a faster and more readable way.
 void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
-                              SkRefCntSet* topLevelTypeFaceSet, bool textBlobsOnly) const {
+                              SkRefCntSet* topLevelTypeFaceSet,
+                              const SkTypeface::SerializeBehavior typefaceBehavior,
+                              bool textBlobsOnly) const {
     // This can happen at pretty much any time, so might as well do it first.
     write_tag_size(stream, SK_PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
@@ -232,7 +234,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
         size_t bytesWritten() const override { return fBytesWritten; }
     } devnull;
     for (const auto& pic : fPictures) {
-        pic->serialize(&devnull, nullptr, typefaceSet, /*textBlobsOnly=*/ true);
+        pic->serialize(&devnull, nullptr, typefaceSet, typefaceBehavior, /*textBlobsOnly=*/ true);
     }
     if (textBlobsOnly) { return; } // return early from dummy serialize
 
@@ -242,7 +244,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     // Pass the original typefaceproc (if any) now that we're ready to actually serialize the
     // typefaces. We skipped this proc before, when we were serializing paints, so that the
     // paints would just write indices into our typeface set.
-    WriteTypefaces(stream, *typefaceSet, procs);
+    WriteTypefaces(stream, *typefaceSet, procs, typefaceBehavior);
 
     // Write the buffer.
     write_tag_size(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
@@ -252,7 +254,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     if (!fPictures.empty()) {
         write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictures.count());
         for (const auto& pic : fPictures) {
-            pic->serialize(stream, &procs, typefaceSet, /*textBlobsOnly=*/ false);
+            pic->serialize(stream, &procs, typefaceSet, typefaceBehavior, /*textBlobsOnly=*/ false);
         }
     }
 
