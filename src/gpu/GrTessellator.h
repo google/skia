@@ -38,7 +38,17 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
 
 enum class Mode {
     kNormal,
-    kEdgeAntialias  // Surround path edges with coverage ramps for antialiasing.
+
+    // Surround path edges with coverage ramps for antialiasing.
+    kEdgeAntialias,
+
+    // Tessellate only each contour's inner polygon. The inner polygons connect the endpoints of
+    // each verb. (i.e., they are the path that would result from collapsing all curves to single
+    // lines.)
+    //
+    // If the inner polygons are not simple (e.g., self intersection, double winding), then the
+    // tessellator aborts and returns 0.
+    kSimpleInnerPolygons
 };
 
 constexpr size_t GetVertexStride(Mode mode) {
