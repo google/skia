@@ -53,7 +53,7 @@ uniform half blurRadius;
                 key, GrColorType::kAlpha_8, kBottomLeft_GrSurfaceOrigin));
         if (!mask) {
             auto rtc = GrRenderTargetContext::MakeWithFallback(
-                    context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox, dimensions);
+                    context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions);
             if (!rtc) {
                 return nullptr;
             }
