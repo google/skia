@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3ae8328_f8210eb4",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-29T17:46:58Z",
+      "side": 1,
+      "message": "This might be easier to follow if done as its own step.",
+      "range": {
+        "startLine": 145,
+        "startChar": 20,
+        "endLine": 145,
+        "endChar": 57
+      },
+      "revId": "dce71fb0a5c72ab6ed466bb22656fb0dee8b1b50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fc447a7_ba3a5d53",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-29T17:46:58Z",
+      "side": 1,
+      "message": "nit: space (see also end of for loop)",
+      "range": {
+        "startLine": 151,
+        "startChar": 7,
+        "endLine": 151,
+        "endChar": 8
+      },
+      "revId": "dce71fb0a5c72ab6ed466bb22656fb0dee8b1b50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db9cf074_95583f4d",
+        "filename": "tools/debugger/DebugLayerManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-29T17:46:58Z",
+      "side": 1,
+      "message": "nit: always use braces",
+      "range": {
+        "startLine": 151,
+        "startChar": 67,
+        "endLine": 151,
+        "endChar": 68
+      },
+      "revId": "dce71fb0a5c72ab6ed466bb22656fb0dee8b1b50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
