@@ -48,28 +48,30 @@ struct TestCase {
     SkColorType              fColorType;
     SkAlphaType              fAlphaType;
     SkColorTypeComponentFlag fComponents;
-    bool                     fCanMakeSurfaces;
+    bool                     fGpuCanMakeSurfaces;
+    bool                     fCpuCanMakeSurfaces;
 };
 
 static const TestCase gTests[] = {
-    { kAlpha_8_SkColorType,           kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, true  },
-    { kA16_unorm_SkColorType,         kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false },
-    { kA16_float_SkColorType,         kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false },
-    { kRGB_565_SkColorType,           kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true  },
-    { kARGB_4444_SkColorType,         kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRGBA_8888_SkColorType,         kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRGB_888x_SkColorType,          kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true  },
-    { kBGRA_8888_SkColorType,         kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRGBA_1010102_SkColorType,      kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRGB_101010x_SkColorType,       kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true  },
-    { kGray_8_SkColorType,            kOpaque_SkAlphaType, kGray_SkColorTypeComponentFlag,  true  },
-    { kRGBA_F16Norm_SkColorType,      kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRGBA_F16_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kRGBA_F32_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true  },
-    { kR8G8_unorm_SkColorType,        kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
-    { kR16G16_unorm_SkColorType,      kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
-    { kR16G16_float_SkColorType,      kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false },
-    { kR16G16B16A16_unorm_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, false },
+    { kAlpha_8_SkColorType,     kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, true,  true },
+    { kA16_unorm_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false, false},
+    { kA16_float_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorTypeComponentFlag, false, false},
+    { kRGB_565_SkColorType,     kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true,  true },
+    { kARGB_4444_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kRGBA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kRGB_888x_SkColorType,    kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true,  true },
+    { kBGRA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kRGBA_1010102_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kRGB_101010x_SkColorType, kOpaque_SkAlphaType, kRGB_SkColorTypeComponentFlags,  true,  true },
+    { kGray_8_SkColorType,      kOpaque_SkAlphaType, kGray_SkColorTypeComponentFlag,  true,  true },
+    { kRGBA_F16Norm_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kRGBA_F16_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kRGBA_F32_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, true,  true },
+    { kR8G8_unorm_SkColorType,  kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   true,  false},
+    { kR16G16_unorm_SkColorType,kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false, false},
+    { kR16G16_float_SkColorType,kOpaque_SkAlphaType, kRG_SkColorTypeComponentFlags,   false, false},
+    { kR16G16B16A16_unorm_SkColorType,
+                                kPremul_SkAlphaType, kRGBA_SkColorTypeComponentFlags, false, false},
 };
 
 static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
@@ -84,7 +86,7 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
     // Not all colorTypes can be drawn to
     {
         auto s = SkSurface::MakeRaster(nativeII);
-        REPORTER_ASSERT(reporter, SkToBool(s) == test.fCanMakeSurfaces);
+        REPORTER_ASSERT(reporter, SkToBool(s) == test.fCpuCanMakeSurfaces);
     }
 
     // opaque formats should make transparent black become opaque
@@ -177,7 +179,7 @@ static void gpu_tests(GrContext* context, skiatest::Reporter* reporter, const Te
                                                       kUnpremul_SkAlphaType);
 
     // We had better not be able to render to prohibited colorTypes
-    if (!test.fCanMakeSurfaces) {
+    if (!test.fGpuCanMakeSurfaces) {
         auto s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, nativeII);
         REPORTER_ASSERT(reporter, !SkToBool(s));
     }
