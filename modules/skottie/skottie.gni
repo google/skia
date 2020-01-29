@@ -23,7 +23,6 @@ skia_skottie_sources = [
   "$_src/Layer.cpp",
   "$_src/Layer.h",
   "$_src/Skottie.cpp",
-  "$_src/SkottieAdapter.h",
   "$_src/SkottieAnimator.cpp",
   "$_src/SkottieJson.cpp",
   "$_src/SkottieJson.h",
