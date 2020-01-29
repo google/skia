@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - We now compile/ship with Emscripten v1.39.6.
 
+### Fixed
+ - Support for .otf fonts (.woff and .woff2 still not supported).
+
 ## [0.12.0] - 2020-01-22
 
 ### Added
