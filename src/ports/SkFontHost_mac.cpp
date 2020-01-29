@@ -930,6 +930,14 @@ static sk_sp<SkTypeface> create_from_name(const char familyName[], const SkFontS
 /*  This function is visible on the outside. It first searches the cache, and if
  *  not found, returns a new entry (after adding it to the cache).
  */
+sk_sp<SkTypeface> SkMakeTypefaceFromCTFont(CTFontRef font) {
+    CFRetain(font);
+    return create_from_CTFontRef(SkUniqueCFRef<CTFontRef>(font),
+                                 nullptr,
+                                 OpszVariation(),
+                                 nullptr);
+}
+
 SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef font, CFTypeRef resource) {
     CFRetain(font);
     if (resource) {
