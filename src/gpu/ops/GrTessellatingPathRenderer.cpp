@@ -277,8 +277,8 @@ private:
         bool isLinear;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator, false,
-                                                   &isLinear);
+        int count = GrTessellator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
+                                                   GrTessellator::Mode::kNormal, &isLinear);
         if (count == 0) {
             return;
         }
@@ -306,8 +306,8 @@ private:
         int firstVertex;
         bool isLinear;
         GrEagerDynamicVertexAllocator allocator(target, &vertexBuffer, &firstVertex);
-        int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator, true,
-                                                   &isLinear);
+        int count = GrTessellator::PathToTriangles(path, tol, clipBounds, &allocator,
+                                                   GrTessellator::Mode::kEdgeAntialias, &isLinear);
         if (count == 0) {
             return;
         }
@@ -347,7 +347,11 @@ private:
         if (!gp) {
             return;
         }
-        SkASSERT(GrTessellator::GetVertexStride(fAntiAlias) == gp->vertexStride());
+#ifdef SK_DEBUG
+        auto mode = (fAntiAlias) ?
+                GrTessellator::Mode::kEdgeAntialias : GrTessellator::Mode::kNormal;
+        SkASSERT(GrTessellator::GetVertexStride(mode) == gp->vertexStride());
+#endif
         if (fAntiAlias) {
             this->drawAA(target, gp);
         } else {

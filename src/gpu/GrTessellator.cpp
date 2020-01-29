@@ -96,6 +96,8 @@
 
 namespace {
 
+using GrTessellator::Mode;
+
 const int kArenaChunkSize = 16 * 1024;
 const float kCosMiterAngle = 0.97f; // Corresponds to an angle of ~14 degrees.
 
@@ -1307,7 +1309,8 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
     return intersect_edge_pair(left, right, activeEdges, current, c, alloc);
 }
 
-void sanitize_contours(VertexList* contours, int contourCnt, bool approximate) {
+void sanitize_contours(VertexList* contours, int contourCnt, Mode mode) {
+    bool approximate = (Mode::kEdgeAntialias == mode);
     for (VertexList* contour = contours; contourCnt > 0; --contourCnt, ++contour) {
         SkASSERT(contour->fHead);
         Vertex* prev = contour->fTail;
@@ -2171,7 +2174,7 @@ void extract_boundaries(const VertexList& inMesh, VertexList* innerVertices,
 
 // This is a driver function that calls stages 2-5 in turn.
 
-void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
+void contours_to_mesh(VertexList* contours, int contourCnt, Mode mode,
                       VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
 #if LOGGING_ENABLED
     for (int i = 0; i < contourCnt; ++i) {
@@ -2183,7 +2186,7 @@ void contours_to_mesh(VertexList* contours, int contourCnt, bool antialias,
         }
     }
 #endif
-    sanitize_contours(contours, contourCnt, antialias);
+    sanitize_contours(contours, contourCnt, mode);
     build_edges(contours, contourCnt, mesh, c, alloc);
 }
 
@@ -2207,18 +2210,18 @@ void sort_mesh(VertexList* vertices, Comparator& c, SkArenaAlloc& alloc) {
 }
 
 Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fillType,
-                        const SkRect& pathBounds, bool antialias, VertexList* outerMesh,
+                        const SkRect& pathBounds, Mode mode, VertexList* outerMesh,
                         SkArenaAlloc& alloc) {
     Comparator c(pathBounds.width() > pathBounds.height() ? Comparator::Direction::kHorizontal
                                                           : Comparator::Direction::kVertical);
     VertexList mesh;
-    contours_to_mesh(contours, contourCnt, antialias, &mesh, c, alloc);
+    contours_to_mesh(contours, contourCnt, mode, &mesh, c, alloc);
     sort_mesh(&mesh, c, alloc);
     merge_coincident_vertices(&mesh, c, alloc);
     simplify(&mesh, c, alloc);
     TESS_LOG("\nsimplified mesh:\n");
     dump_mesh(mesh);
-    if (antialias) {
+    if (Mode::kEdgeAntialias == mode) {
         VertexList innerMesh;
         extract_boundaries(mesh, &innerMesh, outerMesh, fillType, c, alloc);
         sort_mesh(&innerMesh, c, alloc);
@@ -2261,7 +2264,8 @@ Poly* contours_to_polys(VertexList* contours, int contourCnt, SkPathFillType fil
 }
 
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
-void* polys_to_triangles(Poly* polys, SkPathFillType fillType, bool emitCoverage, void* data) {
+void* polys_to_triangles(Poly* polys, SkPathFillType fillType, Mode mode, void* data) {
+    bool emitCoverage = (Mode::kEdgeAntialias == mode);
     for (Poly* poly = polys; poly; poly = poly->fNext) {
         if (apply_fill_type(fillType, poly)) {
             data = poly->emit(emitCoverage, data);
@@ -2271,7 +2275,7 @@ void* polys_to_triangles(Poly* polys, SkPathFillType fillType, bool emitCoverage
 }
 
 Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    int contourCnt, SkArenaAlloc& alloc, bool antialias, bool* isLinear,
+                    int contourCnt, SkArenaAlloc& alloc, Mode mode, bool* isLinear,
                     VertexList* outerMesh) {
     SkPathFillType fillType = path.getFillType();
     if (SkPathFillType_IsInverse(fillType)) {
@@ -2281,7 +2285,7 @@ Poly* path_to_polys(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
 
     path_to_contours(path, tolerance, clipBounds, contours.get(), alloc, isLinear);
     return contours_to_polys(contours.get(), contourCnt, path.getFillType(), path.getBounds(),
-                             antialias, outerMesh, alloc);
+                             mode, outerMesh, alloc);
 }
 
 int get_contour_count(const SkPath& path, SkScalar tolerance) {
@@ -2359,7 +2363,7 @@ namespace GrTessellator {
 // Stage 6: Triangulate the monotone polygons into a vertex buffer.
 
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    GrEagerVertexAllocator* vertexAllocator, bool antialias, bool* isLinear) {
+                    GrEagerVertexAllocator* vertexAllocator, Mode mode, bool* isLinear) {
     int contourCnt = get_contour_count(path, tolerance);
     if (contourCnt <= 0) {
         *isLinear = true;
@@ -2367,11 +2371,12 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
     SkArenaAlloc alloc(kArenaChunkSize);
     VertexList outerMesh;
-    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, antialias,
+    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, mode,
                                 isLinear, &outerMesh);
-    SkPathFillType fillType = antialias ? SkPathFillType::kWinding : path.getFillType();
+    SkPathFillType fillType = (Mode::kEdgeAntialias == mode) ?
+            SkPathFillType::kWinding : path.getFillType();
     int64_t count64 = count_points(polys, fillType);
-    if (antialias) {
+    if (Mode::kEdgeAntialias == mode) {
         count64 += count_outer_mesh_points(outerMesh);
     }
     if (0 == count64 || count64 > SK_MaxS32) {
@@ -2379,7 +2384,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
     int count = count64;
 
-    size_t vertexStride = GetVertexStride(antialias);
+    size_t vertexStride = GetVertexStride(mode);
     void* verts = vertexAllocator->lock(vertexStride, count);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
@@ -2387,7 +2392,7 @@ int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBo
     }
 
     TESS_LOG("emitting %d verts\n", count);
-    void* end = polys_to_triangles(polys, fillType, antialias, verts);
+    void* end = polys_to_triangles(polys, fillType, mode, verts);
     end = outer_mesh_to_triangles(outerMesh, true, end);
 
     int actualCount = static_cast<int>((static_cast<uint8_t*>(end) - static_cast<uint8_t*>(verts))
@@ -2406,8 +2411,8 @@ int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBou
     }
     SkArenaAlloc alloc(kArenaChunkSize);
     bool isLinear;
-    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, false, &isLinear,
-                                nullptr);
+    Poly* polys = path_to_polys(path, tolerance, clipBounds, contourCnt, alloc, Mode::kNormal,
+                                &isLinear, nullptr);
     SkPathFillType fillType = path.getFillType();
     int64_t count64 = count_points(polys, fillType);
     if (0 == count64 || count64 > SK_MaxS32) {
