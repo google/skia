@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62a010fa_3eeaedd5",
+        "filename": "include/core/SkPicture.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-29T18:31:43Z",
+      "side": 1,
+      "message": "based on our discussion I think we should attempt to implement this behavior in your own custom Typeface serialproc.",
+      "revId": "a9363f0447862dc2d80383bf3a730717cade7577",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
