@@ -23,7 +23,7 @@ using ICUBiDi  = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close),
 
 SkScalar littleRound(SkScalar a) {
     // This rounding is done to match Flutter tests. Must be removed..
-  return SkScalarRoundToScalar(a * 100.0)/100.0;
+  return SkScalarRoundToScalar(a * 1000.0)/1000.0;
 }
 
 /** Replaces invalid utf-8 sequences with REPLACEMENT CHARACTER U+FFFD. */
@@ -124,7 +124,7 @@ int32_t ParagraphImpl::unresolvedGlyphs() {
 void ParagraphImpl::layout(SkScalar rawWidth) {
 
     // TODO: This rounding is done to match Flutter tests. Must be removed...
-    auto floorWidth = SkScalarFloorToScalar(rawWidth);
+    auto floorWidth = rawWidth;
     if (fState < kShaped) {
         // Layout marked as dirty for performance/testing reasons
         this->fRuns.reset();
