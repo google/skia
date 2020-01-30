@@ -78,7 +78,6 @@ public:
 
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
-    sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, const char prop_name[]) const;
     sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, sk_sp<sksg::Transform>) const;
     sk_sp<sksg::Transform> attachMatrix3D(const skjson::ObjectValue&, sk_sp<sksg::Transform>) const;
 
