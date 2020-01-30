@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bb5514f_ccf2bdb9",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-01-30T18:55:51Z",
+      "side": 1,
+      "message": "I might be new to C++ reviewing, but I thought we typically left align the #if and #endif parts",
+      "range": {
+        "startLine": 1172,
+        "startChar": 12,
+        "endLine": 1172,
+        "endChar": 16
+      },
+      "revId": "6af38422dccdbcfb5719e82c0d503f9fe723ba72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
