@@ -676,8 +676,6 @@
       "tmp/uninteresting_hashes.txt",
       "--writePath",
       "dm",
-      "--dont_write",
-      "pdf",
       "--randomProcessorTest",
       "--nocpu",
       "--config",

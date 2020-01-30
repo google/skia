@@ -802,8 +802,6 @@
       "/home/chronos/user/uninteresting_hashes.txt",
       "--writePath",
       "/home/chronos/user/dm_out",
-      "--dont_write",
-      "pdf",
       "--randomProcessorTest",
       "--nocpu",
       "--config",

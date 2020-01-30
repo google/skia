@@ -198,8 +198,6 @@
       "Debian9",
       "style",
       "default",
-      "--dont_write",
-      "pdf",
       "--nogpu",
       "--config",
       "8888",

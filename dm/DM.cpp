@@ -48,7 +48,12 @@
 #endif
 
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
-#include <binder/IPCThreadState.h>
+    #include <binder/IPCThreadState.h>
+#endif
+
+#if defined(SK_BUILD_FOR_MAC)
+    #include "include/utils/mac/SkCGUtils.h"
+    #include "src/utils/mac/SkUniqueCFRef.h"
 #endif
 
 extern bool gSkForceRasterPipelineBlitter;
@@ -94,8 +99,6 @@ static DEFINE_string(bisect, "",
         "are thrown out. This is useful for finding a reduced repo case for path drawing bugs.");
 
 static DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
-
-static DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
 
 static DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
 
@@ -144,6 +147,8 @@ static DEFINE_string(key, "",
                      "Space-separated key/value pairs to add to JSON identifying this builder.");
 static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
+
+static DEFINE_bool(rasterize_pdf, false, "Rasterize PDFs when possible.");
 
 
 #if defined(__MSVC_RUNTIME_CHECKS)
@@ -1162,15 +1167,56 @@ struct Task {
                                         FLAGS_readPath[0]));
                 }
 
-                if (!FLAGS_writePath.isEmpty()) {
-                    const char* ext = task.sink->fileExtension();
-                    if (ext && !FLAGS_dont_write.contains(ext)) {
-                        if (data->getLength()) {
-                            WriteToDisk(task, md5, ext, data, data->getLength(), nullptr, nullptr);
-                            SkASSERT(bitmap.drawsNothing());
-                        } else if (!bitmap.drawsNothing()) {
-                            WriteToDisk(task, md5, ext, nullptr, 0, &bitmap, hashAndEncode.get());
-                        }
+                // Tests sometimes use a nullptr ext to indicate no image should be uploaded.
+                const char* ext = task.sink->fileExtension();
+                if (ext && !FLAGS_writePath.isEmpty()) {
+                #if defined(SK_BUILD_FOR_MAC)
+                    if (FLAGS_rasterize_pdf && SkString("pdf").equals(ext)) {
+                        SkASSERT(data->getLength() > 0);
+
+                        sk_sp<SkData> blob = SkData::MakeFromStream(data, data->getLength());
+
+                        SkUniqueCFRef<CGDataProviderRef> provider{
+                            CGDataProviderCreateWithData(nullptr,
+                                                         blob->data(),
+                                                         blob->size(),
+                                                         nullptr)};
+
+                        SkUniqueCFRef<CGPDFDocumentRef> pdf{
+                            CGPDFDocumentCreateWithProvider(provider.get())};
+
+                        CGPDFPageRef page = CGPDFDocumentGetPage(pdf.get(), 1);
+
+                        CGRect bounds = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+                        const int w = (int)CGRectGetWidth (bounds),
+                                  h = (int)CGRectGetHeight(bounds);
+
+                        SkBitmap rasterized;
+                        rasterized.allocPixels(
+                                SkImageInfo::Make(w,h, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+                        rasterized.eraseColor(SK_ColorWHITE);
+
+                        SkUniqueCFRef<CGColorSpaceRef> cs{
+                            CGColorSpaceCreateDeviceRGB()};
+                        CGBitmapInfo info = kCGBitmapByteOrder32Big
+                                          | kCGImageAlphaPremultipliedLast;
+
+                        SkUniqueCFRef<CGContextRef> ctx{
+                            CGBitmapContextCreate(rasterized.getPixels(),
+                                                  w,h,8,rasterized.rowBytes(), cs.get(),info)};
+                        CGContextDrawPDFPage(ctx.get(), page);
+
+
+                        // Skip calling hashAndEncode->write(SkMD5*)... we want the .pdf's hash.
+                        hashAndEncode.reset(new HashAndEncode(rasterized));
+                        WriteToDisk(task, md5, "png", nullptr,0, &rasterized, hashAndEncode.get());
+                    } else
+                #endif
+                    if (data->getLength()) {
+                        WriteToDisk(task, md5, ext, data, data->getLength(), nullptr, nullptr);
+                        SkASSERT(bitmap.drawsNothing());
+                    } else if (!bitmap.drawsNothing()) {
+                        WriteToDisk(task, md5, ext, nullptr, 0, &bitmap, hashAndEncode.get());
                     }
                 }
 

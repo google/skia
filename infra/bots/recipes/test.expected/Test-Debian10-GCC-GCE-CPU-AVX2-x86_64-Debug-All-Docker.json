@@ -360,8 +360,6 @@
       "/SRC/tmp/uninteresting_hashes.txt",
       "--writePath",
       "/OUT",
-      "--dont_write",
-      "pdf",
       "--randomProcessorTest",
       "--nogpu",
       "--config",

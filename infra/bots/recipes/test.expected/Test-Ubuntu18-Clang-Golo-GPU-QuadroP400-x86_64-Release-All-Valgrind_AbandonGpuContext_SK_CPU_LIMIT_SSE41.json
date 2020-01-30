@@ -201,8 +201,6 @@
       "Ubuntu18",
       "style",
       "default",
-      "--dont_write",
-      "pdf",
       "--randomProcessorTest",
       "--nocpu",
       "--config",

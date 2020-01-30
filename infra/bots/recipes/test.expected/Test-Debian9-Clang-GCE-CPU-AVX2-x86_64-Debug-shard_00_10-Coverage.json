@@ -199,8 +199,6 @@
       "Debian9",
       "style",
       "default",
-      "--dont_write",
-      "pdf",
       "--randomProcessorTest",
       "--nogpu",
       "--shard",
