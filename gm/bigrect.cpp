@@ -79,7 +79,7 @@ DEF_SIMPLE_GM(bigrect, canvas, 325, 125) {
     static const SkScalar sizes[] = {SkIntToScalar(100), 5e10f, 1e6f};
 
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < 100; j++) {
             canvas->save();
             canvas->translate(SkIntToScalar(i*40+5), SkIntToScalar(j*40+5));
 
