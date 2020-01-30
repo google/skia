@@ -74,20 +74,29 @@ public:
     // debugger_bindings.cpp does know, which it why I'm having it set the frame via setFrame(int)
     sk_sp<SkImage> getLayerAsImage(const int nodeId, const int frame);
 
-    // Mean to be bindable by emscripted and returned to the javascript side
+    // Flat because it's meant to be bindable by emscripten and returned to the javascript side
     struct DrawEventSummary {
         // true when the drawEvent represents a valid result.
         bool found = false;
-        int nodeId;
-        bool fullRedraw;
         int commandCount;
         int layerWidth;
         int layerHeight;
     };
     // return the summary of a single event
     DrawEventSummary event(int nodeId, int frame) const;
-    // Return a list summarizing the layer draw events on the current frame.
-    std::vector<DrawEventSummary> summarizeEvents(int frame) const;
+
+    struct LayerSummary {
+        int nodeId;
+        // Last frame less than or equal to the given frame which has an update for this layer
+        // -1 if the layer has no updates satisfying that constraint.
+        int frameOfLastUpdate;
+        // Whether the last update was a full redraw.
+        bool fullRedraw;
+        int layerWidth;
+        int layerHeight;
+    };
+    // Return a list summarizing all layers, with info relevant to the current frame.
+    std::vector<LayerSummary> summarizeLayers(int frame) const;
 
     // Return the list of node ids which have DrawEvents on the given frame
     std::vector<int> listNodesForFrame(int frame) const;

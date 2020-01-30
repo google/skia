@@ -34,7 +34,7 @@ public:
 private:
     explicit GrDawnUniformHandler(GrGLSLProgramBuilder* program);
 
-    SamplerHandle addSampler(const GrSurfaceProxy*, const GrSamplerState&, const GrSwizzle&,
+    SamplerHandle addSampler(const GrSurfaceProxy*, GrSamplerState, const GrSwizzle&,
                              const char* name, const GrShaderCaps*) override;
     const char* samplerVariable(SamplerHandle handle) const override;
     GrSwizzle samplerSwizzle(SamplerHandle handle) const override;

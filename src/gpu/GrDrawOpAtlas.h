@@ -9,17 +9,17 @@
 #define GrDrawOpAtlas_DEFINED
 
 #include <cmath>
+#include <vector>
 
 #include "include/core/SkSize.h"
-#include "include/private/SkTDArray.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
 
+#include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
 class GrOnFlushResourceProvider;
-class GrRectanizer;
 
 
 /**
@@ -60,19 +60,40 @@ public:
                                          // in BulkUseTokenUpdater
 
     /**
-     * An AtlasID is an opaque handle which callers can use to determine if the atlas contains
-     * a specific piece of data.
+     * A PlotLocator specifies the plot and is analogous to a directory path:
+     *    page/plot/plotGeneration
+     *
+     * In fact PlotLocator is a portion of a glyph image location in the atlas fully specified by:
+     * format/atlasGeneration/page/plot/plotGeneration/(u,v)
      */
-    typedef uint64_t AtlasID;
-    static const uint32_t kInvalidAtlasID = 0;
+    typedef uint64_t PlotLocator;
+    static const uint64_t kInvalidPlotLocator = 0;
     static const uint64_t kInvalidAtlasGeneration = 0;
 
     /**
-     * A function pointer for use as a callback during eviction. Whenever GrDrawOpAtlas evicts a
-     * specific AtlasID, it will call all of the registered listeners so they can process the
+     * An interface for eviction callbacks. Whenever GrDrawOpAtlas evicts a
+     * specific PlotLocator, it will call all of the registered listeners so they can process the
      * eviction.
      */
-    typedef void (*EvictionFunc)(GrDrawOpAtlas::AtlasID, void*);
+    class EvictionCallback {
+    public:
+        virtual ~EvictionCallback() = default;
+        virtual void evict(PlotLocator plotLocator) = 0;
+    };
+
+    /**
+     * Keep track of generation number for Atlases and Plots.
+     */
+    class GenerationCounter {
+    public:
+        static constexpr uint64_t kInvalidGeneration = 0;
+        uint64_t next() {
+            return fGeneration++;
+        }
+
+    private:
+        uint64_t fGeneration{1};
+    };
 
     /**
      * Returns a GrDrawOpAtlas. This function can be called anywhere, but the returned atlas
@@ -84,11 +105,10 @@ public:
      *                          direction
      *  @param numPlotsY        The number of plots the atlas should be broken up into in the Y
      *                          direction
+     *  @param atlasGeneration  a pointer to the context's generation counter.
      *  @param allowMultitexturing Can the atlas use more than one texture.
-     *  @param func             An eviction function which will be called whenever the atlas has to
-     *                          evict data
-     *  @param data             User supplied data which will be passed into func whenever an
-     *                          eviction occurs
+     *  @param evictor          A pointer to an eviction callback class.
+     *
      *  @return                 An initialized GrDrawOpAtlas, or nullptr if creation fails
      */
     static std::unique_ptr<GrDrawOpAtlas> Make(GrProxyProvider*,
@@ -96,8 +116,9 @@ public:
                                                GrColorType,
                                                int width, int height,
                                                int plotWidth, int plotHeight,
+                                               GenerationCounter* generationCounter,
                                                AllowMultitexturing allowMultitexturing,
-                                               GrDrawOpAtlas::EvictionFunc func, void* data);
+                                               EvictionCallback* evictor);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns 'kSucceeded' and returns
@@ -121,7 +142,7 @@ public:
         kTryAgain
     };
 
-    ErrorCode addToAtlas(GrResourceProvider*, AtlasID*, GrDeferredUploadTarget*,
+    ErrorCode addToAtlas(GrResourceProvider*, PlotLocator*, GrDeferredUploadTarget*,
                          int width, int height,
                          const void* image, SkIPoint16* loc);
 
@@ -129,33 +150,28 @@ public:
 
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
 
-    inline bool hasID(AtlasID id) {
-        if (kInvalidAtlasID == id) {
+    bool hasID(PlotLocator plotLocator) {
+        if (kInvalidPlotLocator == plotLocator) {
             return false;
         }
-        uint32_t plot = GetPlotIndexFromID(id);
-        SkASSERT(plot < fNumPlots);
-        uint32_t page = GetPageIndexFromID(id);
-        SkASSERT(page < fNumActivePages);
-        return fPages[page].fPlotArray[plot]->genID() == GetGenerationFromID(id);
+
+        uint32_t plot = GetPlotIndexFromID(plotLocator);
+        uint32_t page = GetPageIndexFromID(plotLocator);
+        uint64_t plotGeneration = fPages[page].fPlotArray[plot]->genID();
+        uint64_t locatorGeneration = GetGenerationFromID(plotLocator);
+        return plot < fNumPlots && page < fNumActivePages && plotGeneration == locatorGeneration;
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    inline void setLastUseToken(AtlasID id, GrDeferredUploadToken token) {
-        SkASSERT(this->hasID(id));
-        uint32_t plotIdx = GetPlotIndexFromID(id);
+    void setLastUseToken(PlotLocator plotLocator, GrDeferredUploadToken token) {
+        SkASSERT(this->hasID(plotLocator));
+        uint32_t plotIdx = GetPlotIndexFromID(plotLocator);
         SkASSERT(plotIdx < fNumPlots);
-        uint32_t pageIdx = GetPageIndexFromID(id);
+        uint32_t pageIdx = GetPageIndexFromID(plotLocator);
         SkASSERT(pageIdx < fNumActivePages);
         Plot* plot = fPages[pageIdx].fPlotArray[plotIdx].get();
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
-    }
-
-    inline void registerEvictionCallback(EvictionFunc func, void* userData) {
-        EvictionData* data = fEvictionCallbacks.append();
-        data->fFunc = func;
-        data->fData = userData;
     }
 
     uint32_t numActivePages() { return fNumActivePages; }
@@ -175,9 +191,9 @@ public:
             memcpy(fPlotAlreadyUpdated, that.fPlotAlreadyUpdated, sizeof(fPlotAlreadyUpdated));
         }
 
-        bool add(AtlasID id) {
-            int index = GrDrawOpAtlas::GetPlotIndexFromID(id);
-            int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(id);
+        bool add(PlotLocator plotLocator) {
+            int index = GrDrawOpAtlas::GetPlotIndexFromID(plotLocator);
+            int pageIdx = GrDrawOpAtlas::GetPageIndexFromID(plotLocator);
             if (this->find(pageIdx, index)) {
                 return false;
             }
@@ -232,8 +248,8 @@ public:
 
     void compact(GrDeferredUploadToken startTokenForNextFlush);
 
-    static uint32_t GetPageIndexFromID(AtlasID id) {
-        return id & 0xff;
+    static uint32_t GetPageIndexFromID(PlotLocator plotLocator) {
+        return plotLocator & 0xff;
     }
 
     void instantiate(GrOnFlushResourceProvider*);
@@ -247,7 +263,7 @@ public:
 
 private:
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, GrColorType, int width,
-                  int height, int plotWidth, int plotHeight,
+                  int height, int plotWidth, int plotHeight, GenerationCounter* generationCounter,
                   AllowMultitexturing allowMultitexturing);
 
     /**
@@ -268,9 +284,9 @@ private:
          * if a particular subimage is still present in the atlas.
          */
         uint64_t genID() const { return fGenID; }
-        GrDrawOpAtlas::AtlasID id() const {
-            SkASSERT(GrDrawOpAtlas::kInvalidAtlasID != fID);
-            return fID;
+        GrDrawOpAtlas::PlotLocator plotLocator() const {
+            SkASSERT(GrDrawOpAtlas::kInvalidPlotLocator != fPlotLocator);
+            return fPlotLocator;
         }
         SkDEBUGCODE(size_t bpp() const { return fBytesPerPixel; })
 
@@ -296,8 +312,8 @@ private:
         void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     private:
-        Plot(int pageIndex, int plotIndex, uint64_t genID, int offX, int offY,
-             int width, int height, GrColorType colorType);
+        Plot(int pageIndex, int plotIndex, GenerationCounter* generationCounter,
+             int offX, int offY, int width, int height, GrColorType colorType);
 
         ~Plot() override;
 
@@ -306,12 +322,12 @@ private:
          * the atlas
          */
         Plot* clone() const {
-            return new Plot(fPageIndex, fPlotIndex, fGenID + 1, fX, fY, fWidth, fHeight,
-                            fColorType);
+            return new Plot(
+                fPageIndex, fPlotIndex, fGenerationCounter, fX, fY, fWidth, fHeight, fColorType);
         }
 
-        static GrDrawOpAtlas::AtlasID CreateId(uint32_t pageIdx, uint32_t plotIdx,
-                                               uint64_t generation) {
+        static GrDrawOpAtlas::PlotLocator CreatePlotLocator(
+                uint32_t pageIdx, uint32_t plotIdx, uint64_t generation) {
             SkASSERT(pageIdx < (1 << 8));
             SkASSERT(pageIdx < kMaxMultitexturePages);
             SkASSERT(plotIdx < (1 << 8));
@@ -328,14 +344,15 @@ private:
             const uint32_t fPageIndex : 16;
             const uint32_t fPlotIndex : 16;
         };
+        GenerationCounter* const fGenerationCounter;
         uint64_t fGenID;
-        GrDrawOpAtlas::AtlasID fID;
+        GrDrawOpAtlas::PlotLocator fPlotLocator;
         unsigned char* fData;
         const int fWidth;
         const int fHeight;
         const int fX;
         const int fY;
-        GrRectanizer* fRects;
+        GrRectanizerSkyline fRectanizer;
         const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
         const GrColorType fColorType;
         const size_t fBytesPerPixel;
@@ -349,16 +366,16 @@ private:
 
     typedef SkTInternalLList<Plot> PlotList;
 
-    static uint32_t GetPlotIndexFromID(AtlasID id) {
-        return (id >> 8) & 0xff;
+    static uint32_t GetPlotIndexFromID(PlotLocator plotLocator) {
+        return (plotLocator >> 8) & 0xff;
     }
 
     // top 48 bits are reserved for the generation ID
-    static uint64_t GetGenerationFromID(AtlasID id) {
-        return (id >> 16) & 0xffffffffffff;
+    static uint64_t GetGenerationFromID(PlotLocator plotLocator) {
+        return (plotLocator >> 16) & 0xffffffffffff;
     }
 
-    inline bool updatePlot(GrDeferredUploadTarget*, AtlasID*, Plot*);
+    inline bool updatePlot(GrDeferredUploadTarget*, PlotLocator*, Plot*);
 
     inline void makeMRU(Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
@@ -372,17 +389,17 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool uploadToPage(const GrCaps&, unsigned int pageIdx, AtlasID* id,
+    bool uploadToPage(const GrCaps&, unsigned int pageIdx, PlotLocator* plotLocator,
                       GrDeferredUploadTarget* target, int width, int height, const void* image,
                       SkIPoint16* loc);
 
-    bool createPages(GrProxyProvider*);
+    bool createPages(GrProxyProvider*, GenerationCounter*);
     bool activateNewPage(GrResourceProvider*);
     void deactivateLastPage();
 
-    void processEviction(AtlasID);
+    void processEviction(PlotLocator);
     inline void processEvictionAndResetRects(Plot* plot) {
-        this->processEviction(plot->id());
+        this->processEviction(plot->plotLocator());
         plot->resetRects();
     }
 
@@ -394,16 +411,13 @@ private:
     int                   fPlotHeight;
     unsigned int          fNumPlots;
 
-    uint64_t              fAtlasGeneration;
+    GenerationCounter* const fGenerationCounter;
+    uint64_t                 fAtlasGeneration;
+
     // nextTokenToFlush() value at the end of the previous flush
     GrDeferredUploadToken fPrevFlushToken;
 
-    struct EvictionData {
-        EvictionFunc fFunc;
-        void* fData;
-    };
-
-    SkTDArray<EvictionData> fEvictionCallbacks;
+    std::vector<EvictionCallback*> fEvictionCallbacks;
 
     struct Page {
         // allocated array of Plots

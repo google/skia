@@ -30,8 +30,7 @@
 #include "src/gpu/GrTexturePriv.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/GrTextureDomain.h"
-#include "src/gpu/effects/generated/GrSaturateProcessor.h"
+#include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadBuffer.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
@@ -549,10 +548,9 @@ private:
                 new(&fViewCountPairs[++p])ViewCountPair({set[q].fProxyView.detachProxy(), 0});
 
                 curProxy = fViewCountPairs[p].fProxy.get();
-                SkASSERT(curProxy->backendFormat().textureType() ==
-                         fViewCountPairs[0].fProxy->backendFormat().textureType());
+                SkASSERT(GrTextureProxy::ProxiesAreCompatibleAsDynamicState(
+                        curProxy, fViewCountPairs[0].fProxy.get()));
                 SkASSERT(fMetadata.fSwizzle == set[q].fProxyView.swizzle());
-                SkASSERT(curProxy->config() == fViewCountPairs[0].fProxy->config());
             } // else another quad referencing the same proxy
 
             SkMatrix ctm = viewMatrix;
@@ -1073,18 +1071,26 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
 
         GrSurfaceProxy* proxy = proxyView.proxy();
         std::unique_ptr<GrFragmentProcessor> fp;
-        fp = GrSimpleTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
         if (domain) {
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any
-            // normalization since GrTextureDomainEffect handles that and the origin.
+            // normalization since GrTextureEffect handles that and the origin.
             SkRect correctedDomain = normalize_domain(filter, {1.f, 1.f, 0.f}, domain);
-            fp = GrDomainEffect::Make(std::move(fp), correctedDomain, GrTextureDomain::kClamp_Mode,
-                                      filter);
+            const auto& caps = *context->priv().caps();
+            SkRect localRect;
+            if (localQuad.asRect(&localRect)) {
+                fp = GrTextureEffect::MakeSubset(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter,
+                                                 correctedDomain, localRect, caps);
+            } else {
+                fp = GrTextureEffect::MakeSubset(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter,
+                                                 correctedDomain, caps);
+            }
+        } else {
+            fp = GrTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         paint.addColorFragmentProcessor(std::move(fp));
         if (saturate == GrTextureOp::Saturate::kYes) {
-            paint.addColorFragmentProcessor(GrSaturateProcessor::Make());
+            paint.addColorFragmentProcessor(GrClampFragmentProcessor::Make(false));
         }
 
         return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags,
@@ -1281,7 +1287,6 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
 
 GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     GrSurfaceDesc desc;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
     desc.fHeight = random->nextULessThan(90) + 10;
     desc.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
@@ -1293,10 +1298,11 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
     const GrBackendFormat format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                             GrRenderable::kNo);
+    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
+            format, desc, swizzle, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
             GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);

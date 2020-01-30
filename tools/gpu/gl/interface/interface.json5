@@ -300,6 +300,11 @@
 
     "functions": [
       "StartTiling", "EndTiling",
+    ],
+    // https://github.com/flutter/flutter/issues/47164
+    // https://github.com/flutter/flutter/issues/47804
+    "optional": [
+      "StartTiling", "EndTiling",
     ]
   },
 
@@ -718,4 +723,13 @@
     ],
   },
 
+  {
+    "GL":    [{"ext": "GL_NV_fence"}],
+    "GLES":  [{"ext": "GL_NV_fence"}],
+    "WebGL": null,
+
+    "functions": [
+      "DeleteFences", "FinishFence", "GenFences", "SetFence", "TestFence",
+    ],
+  }
 ]

@@ -63,6 +63,11 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
     p->append(SkRasterPipeline::xy_to_radius);
 }
 
+skvm::F32 SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
+                                       skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
+    return p->norm(x,y);
+}
+
 /////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

@@ -40,7 +40,7 @@ protected:
                                                           AllowedTexGenType genType) = 0;
 
 private:
-    sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+    sk_sp<GrTextureProxy> onRefTextureProxyForParams(GrSamplerState,
                                                      bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
 

@@ -15,6 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #endif
 
 class GrRecordingContext;
@@ -86,7 +87,7 @@ public:
     static sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext*,
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
-                                                     sk_sp<GrTextureProxy>,
+                                                     GrSurfaceProxyView,
                                                      GrColorType,
                                                      sk_sp<SkColorSpace>,
                                                      const SkSurfaceProps* = nullptr,
@@ -143,11 +144,11 @@ public:
 #if SK_SUPPORT_GPU
     /**
      * Regardless of how the underlying backing data is stored, returns the contents as a
-     * GrTextureProxy. The returned proxy represents the entire backing image, so texture
+     * GrSurfaceProxyView. The returned view's proxy represents the entire backing image, so texture
      * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
      * space (offset by subset().topLeft()).
      */
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const;
+    GrSurfaceProxyView asSurfaceProxyViewRef(GrRecordingContext*) const;
 #endif
 
     /**

@@ -32,6 +32,7 @@
  *  https://crbug.com/413332 .
  */
 SK_API extern SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef, CFTypeRef = NULL);
+SK_API extern sk_sp<SkTypeface> SkMakeTypefaceFromCTFont(CTFontRef);
 
 /**
  *  Returns the platform-specific CTFontRef handle for a

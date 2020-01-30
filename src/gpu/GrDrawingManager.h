@@ -37,12 +37,6 @@ public:
 
     void freeGpuResources();
 
-    std::unique_ptr<GrRenderTargetContext> makeRenderTargetContext(sk_sp<GrSurfaceProxy>,
-                                                                   GrColorType,
-                                                                   sk_sp<SkColorSpace>,
-                                                                   const SkSurfaceProps*,
-                                                                   bool managedOpsTask = true);
-
     // A managed opsTask is controlled by the drawing manager (i.e., sorted & flushed with the
     // others). An unmanaged one is created and used by the onFlushCallback.
     sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView, bool managedOpsTask);

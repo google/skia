@@ -11,6 +11,7 @@
 #ifndef GrLinearGradientLayout_DEFINED
 #define GrLinearGradientLayout_DEFINED
 #include "include/core/SkTypes.h"
+#include "include/private/SkM44.h"
 
 #include "src/gpu/gradients/GrGradientShader.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
@@ -25,10 +26,10 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LinearGradientLayout"; }
     GrCoordTransform fCoordTransform0;
-    SkMatrix44 gradientMatrix;
+    SkMatrix gradientMatrix;
 
 private:
-    GrLinearGradientLayout(SkMatrix44 gradientMatrix)
+    GrLinearGradientLayout(SkMatrix gradientMatrix)
             : INHERITED(kGrLinearGradientLayout_ClassID,
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
             , fCoordTransform0(gradientMatrix)

@@ -18,6 +18,7 @@
 #if SK_SUPPORT_GPU
 #include "include/private/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/GrImageTextureMaker.h"
@@ -238,7 +239,7 @@ bool SkImage_Lazy::onIsValid(GrContext* context) const {
 
 #if SK_SUPPORT_GPU
 sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrRecordingContext* context,
-                                                      const GrSamplerState& params,
+                                                      GrSamplerState params,
                                                       SkScalar scaleAdjust[2]) const {
     if (!context) {
         return nullptr;
@@ -518,8 +519,9 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
     // 4. Ask the generator to return RGB(A) data, which the GPU can convert
     SkBitmap bitmap;
     if (!proxy && this->getROPixels(&bitmap, chint)) {
-        proxy = proxyProvider->createProxyFromBitmap(bitmap, willBeMipped ? GrMipMapped::kYes
-                                                                          : GrMipMapped::kNo);
+        GrBitmapTextureMaker bitmapMaker(ctx, bitmap);
+        std::tie(proxy, std::ignore) = bitmapMaker.refTextureProxy(willBeMipped ? GrMipMapped::kYes
+                                                                                : GrMipMapped::kNo);
         if (proxy && (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped())) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
@@ -540,7 +542,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
         *fUniqueKeyInvalidatedMessages.append() =
                 new GrUniqueKeyInvalidatedMessage(key, ctx->priv().contextID());
         GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
-        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get(), srcColorType)) {
+        if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(
+                ctx, proxy.get(), kTopLeft_GrSurfaceOrigin, srcColorType)) {
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
         }
@@ -553,6 +556,15 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(
     SK_HISTOGRAM_ENUMERATION("LockTexturePath", kFailure_LockTexturePath,
                              kLockTexturePathCount);
     return nullptr;
+}
+
+GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const {
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
+    GrBackendFormat format = caps->getDefaultBackendFormat(ct, GrRenderable::kNo);
+    if (!format.isValid()) {
+        ct = GrColorType::kRGBA_8888;
+    }
+    return ct;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

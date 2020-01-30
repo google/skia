@@ -9,7 +9,6 @@
 
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkShaderMaskFilter.h"
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"
@@ -23,15 +22,32 @@ namespace  {
 
 class VenetianBlindsAdapter final : public MaskFilterEffectBase {
 public:
-    VenetianBlindsAdapter(sk_sp<sksg::RenderNode> layer, const SkSize& ls)
-        : INHERITED(std::move(layer), ls) {}
-
-    ADAPTER_PROPERTY(Completion, float, 0)
-    ADAPTER_PROPERTY(Direction , float, 0)
-    ADAPTER_PROPERTY(Width     , float, 0)
-    ADAPTER_PROPERTY(Feather   , float, 0)
+    static sk_sp<VenetianBlindsAdapter> Make(const skjson::ArrayValue& jprops,
+                                             sk_sp<sksg::RenderNode> layer,
+                                             const SkSize& layer_size,
+                                             const AnimationBuilder* abuilder) {
+        return sk_sp<VenetianBlindsAdapter>(
+                    new VenetianBlindsAdapter(jprops, std::move(layer), layer_size, abuilder));
+    }
 
 private:
+    VenetianBlindsAdapter(const skjson::ArrayValue& jprops,
+                          sk_sp<sksg::RenderNode> layer, const SkSize& ls,
+                          const AnimationBuilder* abuilder)
+        : INHERITED(std::move(layer), ls) {
+        enum : size_t {
+            kCompletion_Index = 0,
+            kDirection_Index  = 1,
+            kWidth_Index      = 2,
+            kFeather_Index    = 3,
+        };
+
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kCompletion_Index), &fCompletion);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kDirection_Index ), &fDirection );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kWidth_Index     ), &fWidth     );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kFeather_Index   ), &fFeather   );
+    }
+
     MaskInfo onMakeMask() const override {
         if (fCompletion >= 100) {
             // The layer is fully disabled.
@@ -130,6 +146,11 @@ private:
         };
     }
 
+    float fCompletion = 0,
+          fDirection  = 0,
+          fWidth      = 0,
+          fFeather    = 0;
+
     using INHERITED = MaskFilterEffectBase;
 };
 
@@ -137,33 +158,10 @@ private:
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachVenetianBlindsEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kCompletion_Index = 0,
-        kDirection_Index  = 1,
-        kWidth_Index      = 2,
-        kFeather_Index    = 3,
-    };
-
-    auto adapter = sk_make_sp<VenetianBlindsAdapter>(std::move(layer), fLayerSize);
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
-        [adapter](const ScalarValue& c) {
-            adapter->setCompletion(c);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDirection_Index),
-        [adapter](const ScalarValue& d) {
-            adapter->setDirection(d);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWidth_Index),
-        [adapter](const ScalarValue& w) {
-            adapter->setWidth(w);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
-        [adapter](const ScalarValue& f) {
-            adapter->setFeather(f);
-        });
-
-    return adapter->root();
+    return fBuilder->attachDiscardableAdapter<VenetianBlindsAdapter>(jprops,
+                                                                     std::move(layer),
+                                                                     fLayerSize,
+                                                                     fBuilder);
 }
 
 } // namespace internal

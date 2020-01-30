@@ -54,95 +54,19 @@ namespace SkSL {
 
 class ByteCodeGenerator : public CodeGenerator {
 public:
-    class LValue {
-    public:
-        LValue(ByteCodeGenerator& generator)
-            : fGenerator(generator) {}
-
-        virtual ~LValue() {}
-
-        /**
-         * Stack before call: ... lvalue
-         * Stack after call: ... lvalue load
-         */
-        virtual void load() = 0;
-
-        /**
-         * Stack before call: ... lvalue value
-         * Stack after call: ...
-         */
-        virtual void store(bool discard) = 0;
-
-    protected:
-        ByteCodeGenerator& fGenerator;
-    };
-
-    ByteCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      ByteCode* output);
+    ByteCodeGenerator(const Program* program, ErrorReporter* errors, ByteCode* output);
 
     bool generateCode() override;
 
-    void write8(uint8_t b);
-
-    void write16(uint16_t b);
-
-    void write32(uint32_t b);
-
-    void write(ByteCodeInstruction inst, int count = kUnusedStackCount);
-
-    /**
-     * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
-     */
-    void writeTypedInstruction(const Type& type, ByteCodeInstruction s, ByteCodeInstruction u,
-                               ByteCodeInstruction f, int count, bool writeCount = true);
-
-    static int SlotCount(const Type& type);
-
 private:
-    static constexpr int kUnusedStackCount = INT32_MAX;
-    static int StackUsage(ByteCodeInstruction, int count);
-
-    // reserves 16 bits in the output code, to be filled in later with an address once we determine
-    // it
-    class DeferredLocation {
-    public:
-        DeferredLocation(ByteCodeGenerator* generator)
-            : fGenerator(*generator)
-            , fOffset(generator->fCode->size()) {
-            generator->write16(0);
-        }
-
-#ifdef SK_DEBUG
-        ~DeferredLocation() {
-            SkASSERT(fSet);
-        }
-#endif
-
-        void set() {
-            int target = fGenerator.fCode->size();
-            SkASSERT(target <= 65535);
-            (*fGenerator.fCode)[fOffset] = target;
-            (*fGenerator.fCode)[fOffset + 1] = target >> 8;
-#ifdef SK_DEBUG
-            fSet = true;
-#endif
-        }
-
-    private:
-        ByteCodeGenerator& fGenerator;
-        size_t fOffset;
-#ifdef SK_DEBUG
-        bool fSet = false;
-#endif
-    };
-
     // Intrinsics which do not simply map to a single opcode
     enum class SpecialIntrinsic {
         kDot,
+        kInverse,
     };
 
     struct Intrinsic {
-        Intrinsic(ByteCodeInstruction instruction)
+        Intrinsic(ByteCode::Instruction instruction)
             : fIsSpecial(false)
             , fValue(instruction) {}
 
@@ -153,200 +77,256 @@ private:
         bool fIsSpecial;
 
         union Value {
-            Value(ByteCodeInstruction instruction)
+            Value(ByteCode::Instruction instruction)
                 : fInstruction(instruction) {}
 
             Value(SpecialIntrinsic special)
                 : fSpecial(special) {}
 
-            ByteCodeInstruction fInstruction;
+            ByteCode::Instruction fInstruction;
             SpecialIntrinsic fSpecial;
         } fValue;
     };
 
+    class LValue {
+    public:
+        LValue(ByteCodeGenerator& generator)
+            : fGenerator(generator) {}
 
-    // Similar to Variable::Storage, but locals and parameters are grouped together, and globals
-    // are further subidivided into uniforms and other (writable) globals.
-    enum class Storage {
-        kLocal,    // include parameters
-        kGlobal,   // non-uniform globals
-        kUniform,  // uniform globals
+        virtual ~LValue() {}
+
+        virtual void load(ByteCode::Register result) = 0;
+
+        virtual void store(ByteCode::Register src) = 0;
+
+    protected:
+        ByteCodeGenerator& fGenerator;
     };
 
     struct Location {
-        int     fSlot;
-        Storage fStorage;
+        enum {
+            kPointer_Kind,
+            kRegister_Kind
+        } fKind;
 
-        // Not really invalid, but a "safe" placeholder to be more explicit at call-sites
-        static Location MakeInvalid() { return { 0, Storage::kLocal }; }
+        union {
+            ByteCode::Pointer fPointer;
+            ByteCode::Register fRegister;
+        };
 
-        Location makeOnStack() { return { -1, fStorage }; }
-        bool isOnStack() const { return fSlot < 0; }
+        Location(ByteCode::Pointer p)
+            : fKind(kPointer_Kind)
+            , fPointer(p) {}
 
-        Location operator+(int offset) {
-            SkASSERT(fSlot >= 0);
-            return { fSlot + offset, fStorage };
+        Location(ByteCode::Register r)
+            : fKind(kRegister_Kind)
+            , fRegister(r) {}
+
+        /**
+         * Returns this location offset by 'offset' bytes. For pointers, this is a compile-time
+         * operation, while for registers there will be CPU instructions output to handle the
+         * runtime calculation of the address.
+         */
+        Location offset(ByteCodeGenerator& generator, int offset) {
+            if (!offset) {
+                return *this;
+            }
+            if (fKind == kPointer_Kind) {
+                return Location(fPointer + offset);
+            }
+            ByteCode::Register a = generator.next(1);
+            generator.write(ByteCode::Instruction::kImmediate);
+            generator.write(a);
+            generator.write(ByteCode::Immediate{offset});
+            ByteCode::Register result = generator.next(1);
+            generator.write(ByteCode::Instruction::kAddI);
+            generator.write(result);
+            generator.write(fRegister);
+            generator.write(a);
+            return result;
         }
 
-        ByteCodeInstruction selectLoad(ByteCodeInstruction local,
-                                       ByteCodeInstruction global,
-                                       ByteCodeInstruction uniform) const {
-            switch (fStorage) {
-                case Storage::kLocal:   return local;
-                case Storage::kGlobal:  return global;
-                case Storage::kUniform: return uniform;
+        /**
+         * Returns this location offset by the number of bytes stored in the 'offset' register. This
+         * will output the necessary CPU instructions to perform the math and return a new register
+         * location.
+         */
+        Location offset(ByteCodeGenerator& generator, ByteCode::Register offset) {
+            ByteCode::Register current;
+            switch (fKind) {
+                case kPointer_Kind:
+                    current = generator.next(1);
+                    generator.write(ByteCode::Instruction::kImmediate);
+                    generator.write(current);
+                    generator.write(ByteCode::Immediate{fPointer.fAddress});
+                    break;
+                case kRegister_Kind:
+                    current = fRegister;
             }
-            SkUNREACHABLE;
-        }
-
-        ByteCodeInstruction selectStore(ByteCodeInstruction local,
-                                        ByteCodeInstruction global) const {
-            switch (fStorage) {
-                case Storage::kLocal:   return local;
-                case Storage::kGlobal:  return global;
-                case Storage::kUniform: ABORT("Trying to store to a uniform"); break;
-            }
-            return local;
+            ByteCode::Register result = generator.next(1);
+            generator.write(ByteCode::Instruction::kAddI);
+            generator.write(result);
+            generator.write(current);
+            generator.write(offset);
+            return result;
         }
     };
 
+    // reserves 16 bits in the output code, to be filled in later with an address once we determine
+    // it
+    class DeferredLocation {
+    public:
+        explicit DeferredLocation(ByteCodeGenerator* generator)
+            : fGenerator(*generator)
+            , fOffset(generator->fCode->size()) {
+            generator->write(ByteCode::Pointer{65535});
+        }
+
+        void set() {
+            SkASSERT(fGenerator.fCode->size() <= ByteCode::kPointerMax);
+            static_assert(sizeof(ByteCode::Pointer) == 2,
+                          "failed assumption that ByteCode::Pointer is uint16_t");
+            void* dst = &(*fGenerator.fCode)[fOffset];
+            // ensure that the placeholder value 65535 hasn't been modified yet
+            SkASSERT(((uint8_t*) dst)[0] == 255 && ((uint8_t*) dst)[1] == 255);
+            ByteCode::Pointer target{(uint16_t) fGenerator.fCode->size()};
+            memcpy(dst, &target, sizeof(target));
+        }
+
+    private:
+        ByteCodeGenerator& fGenerator;
+        size_t fOffset;
+    };
+
+    template<typename T>
+    void write(T value) {
+        size_t n = fCode->size();
+        fCode->resize(n + sizeof(value));
+        memcpy(fCode->data() + n, &value, sizeof(value));
+    }
+
+    ByteCode::Register next(int slotCount);
+
+    void write(ByteCode::Instruction inst, int count);
+
     /**
-     * Returns the local slot into which var should be stored, allocating a new slot if it has not
-     * already been assigned one. Compound variables (e.g. vectors) will consume more than one local
-     * slot, with the getLocation return value indicating where the first element should be stored.
+     * Based on 'type', writes the s (signed), u (unsigned), or f (float) instruction.
      */
+    void writeTypedInstruction(const Type& type, ByteCode::Instruction s, ByteCode::Instruction u,
+                               ByteCode::Instruction f);
+
+    ByteCode::Instruction getLoadInstruction(Location location, Variable::Storage storage);
+
+    ByteCode::Instruction getStoreInstruction(Location location, Variable::Storage storage);
+
+    static int SlotCount(const Type& type);
+
     Location getLocation(const Variable& var);
 
-    /**
-     * As above, but computes the (possibly dynamic) address of an expression involving indexing &
-     * field access. If the address is known, it's returned. If not, -1 is returned, and the
-     * location will be left on the top of the stack.
-     */
     Location getLocation(const Expression& expr);
 
-    void gatherUniforms(const Type& type, const String& name);
+    Variable::Storage getStorage(const Expression& expr);
 
-    std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
-
-    void writeVarDeclarations(const VarDeclarations& decl);
-
-    void writeVariableExpression(const Expression& expr);
-
-    void writeExpression(const Expression& expr, bool discard = false);
-
-    /**
-     * Pushes whatever values are required by the lvalue onto the stack, and returns an LValue
-     * permitting loads and stores to it.
-     */
     std::unique_ptr<LValue> getLValue(const Expression& expr);
 
-    void writeIntrinsicCall(const FunctionCall& c);
+    void writeFunction(const FunctionDefinition& f);
 
-    void writeFunctionCall(const FunctionCall& c);
+    // For compound values, the result argument specifies the first component. Subsequent components
+    // will be in subsequent registers.
 
-    void writeConstructor(const Constructor& c);
+    void writeBinaryInstruction(const Type& operandType, ByteCode::Register left,
+                                ByteCode::Register right, ByteCode::Instruction s,
+                                ByteCode::Instruction u, ByteCode::Instruction f,
+                                ByteCode::Register result);
 
-    void writeExternalFunctionCall(const ExternalFunctionCall& c);
+    void writeVectorBinaryInstruction(const Type& operandType, ByteCode::Register left,
+                                      ByteCode::Register right, ByteCode::Instruction s,
+                                      ByteCode::Instruction u, ByteCode::Instruction f,
+                                      ByteCode::Register result);
 
-    void writeExternalValue(const ExternalValueReference& r);
+    void writeBinaryExpression(const BinaryExpression& expr, ByteCode::Register result);
 
-    void writeSwizzle(const Swizzle& swizzle);
+    void writeConstructor(const Constructor& c, ByteCode::Register result);
 
-    bool writeBinaryExpression(const BinaryExpression& b, bool discard);
+    void writeExternalFunctionCall(const ExternalFunctionCall& f, ByteCode::Register result);
 
-    void writeTernaryExpression(const TernaryExpression& t);
+    void writeExternalValue(const ExternalValueReference& e, ByteCode::Register result);
 
-    void writeNullLiteral(const NullLiteral& n);
+    void writeIntrinsicCall(const FunctionCall& c, Intrinsic intrinsic, ByteCode::Register result);
 
-    bool writePrefixExpression(const PrefixExpression& p, bool discard);
+    void writeFunctionCall(const FunctionCall& c, ByteCode::Register result);
 
-    bool writePostfixExpression(const PostfixExpression& p, bool discard);
+    void incOrDec(Token::Kind op, Expression& operand, bool prefix, ByteCode::Register result);
 
-    void writeBoolLiteral(const BoolLiteral& b);
+    void writePostfixExpression(const PostfixExpression& p, ByteCode::Register result);
 
-    void writeIntLiteral(const IntLiteral& i);
+    void writePrefixExpression(const PrefixExpression& p, ByteCode::Register result);
 
-    void writeFloatLiteral(const FloatLiteral& f);
+    void writeSwizzle(const Swizzle& s, ByteCode::Register result);
 
-    void writeStatement(const Statement& s);
+    void writeTernaryExpression(const TernaryExpression& t, ByteCode::Register result);
+
+    void writeVariableExpression(const Expression& e, ByteCode::Register result);
+
+    void writeExpression(const Expression& expr, ByteCode::Register result);
+
+    ByteCode::Register writeExpression(const Expression& expr);
 
     void writeBlock(const Block& b);
 
-    void writeBreakStatement(const BreakStatement& b);
-
-    void writeContinueStatement(const ContinueStatement& c);
-
-    void writeIfStatement(const IfStatement& stmt);
+    void writeDoStatement(const DoStatement& d);
 
     void writeForStatement(const ForStatement& f);
 
+    void writeIfStatement(const IfStatement& i);
+
+    void writeReturn(const ReturnStatement& r);
+
+    void writeVarDeclarations(const VarDeclarations& v);
+
     void writeWhileStatement(const WhileStatement& w);
 
-    void writeDoStatement(const DoStatement& d);
+    void writeStatement(const Statement& s);
 
-    void writeSwitchStatement(const SwitchStatement& s);
-
-    void writeReturnStatement(const ReturnStatement& r);
-
-    // updates the current set of breaks to branch to the current location
-    void setBreakTargets();
-
-    // updates the current set of continues to branch to the current location
-    void setContinueTargets();
-
-    void enterLoop() {
-        fLoopCount++;
-        fMaxLoopCount = std::max(fMaxLoopCount, fLoopCount);
-    }
-
-    void exitLoop() {
-        SkASSERT(fLoopCount > 0);
-        fLoopCount--;
-    }
-
-    void enterCondition() {
-        fConditionCount++;
-        fMaxConditionCount = std::max(fMaxConditionCount, fConditionCount);
-    }
-
-    void exitCondition() {
-        SkASSERT(fConditionCount > 0);
-        fConditionCount--;
-    }
-
-    const Context& fContext;
+    void gatherUniforms(const Type& type, const String& name);
 
     ByteCode* fOutput;
 
+    int fNextRegister = 0;
+
     const FunctionDefinition* fFunction;
+
+    std::vector<const FunctionDefinition*> fFunctions;
 
     std::vector<uint8_t>* fCode;
 
     std::vector<const Variable*> fLocals;
 
-    std::stack<std::vector<DeferredLocation>> fContinueTargets;
-
-    std::stack<std::vector<DeferredLocation>> fBreakTargets;
-
-    std::vector<const FunctionDefinition*> fFunctions;
-
     int fParameterCount;
-    int fStackCount;
-    int fMaxStackCount;
 
-    int fLoopCount;
-    int fMaxLoopCount;
     int fConditionCount;
-    int fMaxConditionCount;
 
     const std::unordered_map<String, Intrinsic> fIntrinsics;
 
     friend class DeferredLocation;
-    friend class ByteCodeExpressionLValue;
+    friend class ByteCodeExternalValueLValue;
+    friend class ByteCodeSimpleLValue;
     friend class ByteCodeSwizzleLValue;
 
     typedef CodeGenerator INHERITED;
 };
+
+template<>
+inline void ByteCodeGenerator::write(ByteCodeGenerator::Location loc) {
+    switch (loc.fKind) {
+        case ByteCodeGenerator::Location::kPointer_Kind:
+            this->write(loc.fPointer);
+            break;
+        case ByteCodeGenerator::Location::kRegister_Kind:
+            this->write(loc.fRegister);
+            break;
+    }
+}
 
 }
 

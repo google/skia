@@ -21,8 +21,8 @@
 #include "src/gpu/GrTextureMaker.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
 #include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrShape.h"
 #include "src/image/SkImage_Base.h"
 
@@ -225,9 +225,12 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
                              constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
                              ctm, std::move(textureXform));
     } else {
-        rtc->drawTexture(clip, std::move(proxy), srcColorInfo.colorType(), srcColorInfo.alphaType(),
-                         filter, paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags,
-                         constraint, ctm, std::move(textureXform));
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+        rtc->drawTexture(clip, std::move(view), srcColorInfo.alphaType(), filter,
+                         paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags, constraint,
+                         ctm, std::move(textureXform));
     }
 }
 
@@ -241,13 +244,14 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
     if (attemptDrawTexture && can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto proxy = producer->refTextureProxyForParams(GrSamplerState::ClampNearest(), nullptr);
+        auto [proxy, ct] = producer->refTextureProxy(GrMipMapped::kNo);
         if (!proxy) {
             return;
         }
 
         draw_texture(rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint,
-                     std::move(proxy), producer->colorInfo());
+                     std::move(proxy),
+                     {ct, producer->alphaType(), sk_ref_sp(producer->colorSpace())});
         return;
     }
 
@@ -403,7 +407,14 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
-        GrColorInfo colorInfo(image->imageInfo().colorInfo());
+        GrColorInfo colorInfo;
+        if (fContext->priv().caps()->isFormatSRGB(proxy->backendFormat())) {
+            SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
+            colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, image->imageInfo().alphaType(),
+                                    image->imageInfo().refColorSpace());
+        } else {
+            colorInfo = GrColorInfo(image->imageInfo().colorInfo());
+        }
 
         if (attemptDrawTexture && can_use_draw_texture(paint)) {
             draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
@@ -444,7 +455,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         return;
     }
     if (as_IB(image)->getROPixels(&bm)) {
-        GrBitmapTextureMaker maker(fContext.get(), bm, useDecal);
+        GrBitmapTextureMaker maker(fContext.get(), bm, GrBitmapTextureMaker::Cached::kYes,
+                                   SkBackingFit::kExact, useDecal);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
                               attemptDrawTexture);
@@ -529,7 +541,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             uint32_t uniqueID;
             proxy = image->refPinnedTextureProxy(this->context(), &uniqueID);
             if (!proxy) {
-                proxy = image->asTextureProxyRef(this->context(), GrSamplerState::ClampBilerp(),
+                proxy = image->asTextureProxyRef(this->context(), GrSamplerState::Filter::kBilerp,
                                                  nullptr);
             }
         }
@@ -568,6 +580,7 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             (!GrTextureProxy::ProxiesAreCompatibleAsDynamicState(
                     textures[i].fProxyView.proxy(),
                     textures[base].fProxyView.proxy()) ||
+             textures[i].fProxyView.swizzle() != textures[base].fProxyView.swizzle() ||
              set[i].fImage->alphaType() != set[base].fImage->alphaType() ||
              !SkColorSpace::Equals(set[i].fImage->colorSpace(), set[base].fImage->colorSpace()))) {
             draw(i);

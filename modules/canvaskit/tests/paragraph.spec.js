@@ -51,6 +51,8 @@ describe('CanvasKit\'s Path Behavior', function() {
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
             const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+            expect(fontMgr.countFamilies()).toEqual(1);
+            expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
             const wrapTo = 200;
 
@@ -89,7 +91,7 @@ describe('CanvasKit\'s Path Behavior', function() {
             expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(21.377, 3);
             expect(paragraph.getHeight()).toEqual(240);
             expect(paragraph.getIdeographicBaseline()).toBeCloseTo(27.236, 3);
-            expect(paragraph.getLongestLine()).toBeCloseTo(142.129, 3);
+            expect(paragraph.getLongestLine()).toBeCloseTo(193.820, 3);
             expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(1444.250, 3);
             expect(paragraph.getMaxWidth()).toEqual(200);
             expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(172.360, 3);
@@ -218,9 +220,9 @@ describe('CanvasKit\'s Path Behavior', function() {
             const canvas = surface.getCanvas();
 
             const fontMgr = CanvasKit.SkFontMgr.FromData([notoSerifFontBuffer, emojiFontBuffer]);
-            if (fontMgr.dumpFamilies) {
-                fontMgr.dumpFamilies();
-            }
+            expect(fontMgr.countFamilies()).toEqual(2);
+            expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+            expect(fontMgr.getFamilyName(1)).toEqual('Noto Color Emoji');
 
             const wrapTo = 450;
 

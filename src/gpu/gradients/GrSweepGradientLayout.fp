@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-in half4x4 gradientMatrix;
+in half3x3 gradientMatrix;
 
 layout(tracked) in uniform half bias;
 layout(tracked) in uniform half scale;

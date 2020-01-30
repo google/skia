@@ -49,10 +49,6 @@ def dm_flags(api, bot):
         (config[0] == '~' and config[1:] in configs)):
       blacklisted.extend([config, src, options, name])
 
-  # We've been spending lots of time writing out and especially uploading
-  # .pdfs, but not doing anything further with them.  skia:6821
-  args.extend(['--dont_write', 'pdf'])
-
   # This enables non-deterministic random seeding of the GPU FP optimization
   # test.
   # Not Android due to:
@@ -107,11 +103,18 @@ def dm_flags(api, bot):
 
     if 'BonusConfigs' in bot:
       configs = [
-        'pdf',
         'g8', '565',
         'pic-8888', 'serialize-8888',
         'f16', 'srgb', 'esrgb', 'narrow', 'enarrow',
         'p3', 'ep3', 'rec2020', 'erec2020']
+
+    if 'PDF' in bot:
+      configs = [ 'pdf' ]
+      args.append('--rasterize_pdf')  # Works only on Mac.
+      # Take ~forever to rasterize:
+      blacklist('pdf gm _ lattice2')
+      blacklist('pdf gm _ hairmodes')
+      blacklist('pdf gm _ longpathdash')
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
@@ -219,6 +222,10 @@ def dm_flags(api, bot):
       # skbug.com/9235
       blacklist('_ test _ Programs')
 
+    if 'Metal' in bot and 'MacBook10.1-' in bot:
+      # skbug.com/9817
+      blacklist('_ test _ Programs')
+
     # skbug.com/9033 - these devices run out of memory on this test
     # when opList splitting reduction is enabled
     if 'GPU' in bot and ('Nexus7' in bot or
@@ -309,6 +316,11 @@ def dm_flags(api, bot):
       configs = [c for c in configs if c == 'gl' or c == 'gles']
       args.extend(['--pr', 'ccpr', '--cc', 'true', '--cachePathMasks', 'false'])
 
+    # Test GPU tessellation path renderer.
+    if 'GpuTess' in bot:
+      configs = [gl_prefix + 'msaa4']
+      args.extend(['--pr', 'gtess'])
+
     # Test non-nvpr on NVIDIA.
     if 'NonNVPR' in bot:
       configs = ['gl', 'glmsaa4']
@@ -386,6 +398,13 @@ def dm_flags(api, bot):
     remove_from_args('skp')
   else:
     remove_from_args('lottie')
+
+  if 'PDF' in bot:
+    # (Just GMs for now.)
+    remove_from_args('tests')
+    remove_from_args('image')
+    remove_from_args('colorImage')
+    remove_from_args('svg')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -546,6 +565,7 @@ def dm_flags(api, bot):
   bad_serialize_gms.append('readpixels')
   bad_serialize_gms.append('draw_image_set_rect_to_rect')
   bad_serialize_gms.append('compositor_quads_shader')
+  bad_serialize_gms.append('wacky_yuv_formats_qtr')
 
   # This GM forces a path to be convex. That property doesn't survive
   # serialization.
@@ -607,7 +627,7 @@ def dm_flags(api, bot):
       blacklist('_ image _ .%s' % raw_ext)
 
   # Blacklist memory intensive tests on 32-bit bots.
-  if ('Win8' in bot or 'Win2016' in bot) and 'x86-' in bot:
+  if 'Win8' in bot and 'x86-' in bot:
     blacklist('_ image f16 _')
     blacklist('_ image _ abnormal.wbmp')
     blacklist('_ image _ interlaced1.png')
@@ -708,6 +728,9 @@ def dm_flags(api, bot):
 
   if api.vars.is_linux and 'IntelIris640' in bot:
     match.extend(['~Programs']) # skia:7849
+
+  if 'TecnoSpark3Pro' in bot and 'Debug' in bot:
+    match.extend(['~Programs']) # skia:9814
 
   if 'IntelIris640' in bot or 'IntelHD615' in bot or 'IntelHDGraphics615' in bot:
     match.append('~^SRGBReadWritePixels$') # skia:9225
@@ -1030,6 +1053,7 @@ TEST_BUILDERS = [
   'Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All-Metal',
   ('Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All'
    '-NativeFonts'),
+  'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Debug-All-PDF',
   'Test-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All',
   'Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal',
   ('Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All'
@@ -1043,6 +1067,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
   'Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-GpuTess',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-NonNVPR',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
@@ -1053,10 +1078,11 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
   'Test-Win10-MSVC-LenovoYogaC630-GPU-Adreno630-arm64-Debug-All-ANGLE',
-  'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
-  'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
+  'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
+  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-Metal',
   'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
 ]
 

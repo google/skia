@@ -84,7 +84,7 @@ private:
     // Only called if GrShaderCaps(:textureSwizzleAppliedInShader() == true.
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
 
-    virtual SamplerHandle addSampler(const GrSurfaceProxy*, const GrSamplerState&, const GrSwizzle&,
+    virtual SamplerHandle addSampler(const GrSurfaceProxy*, GrSamplerState, const GrSwizzle&,
                                      const char* name, const GrShaderCaps*) = 0;
 
     virtual UniformHandle internalAddUniformArray(uint32_t visibility,

@@ -14,6 +14,7 @@
 #include "src/core/SkColorFilter_Matrix.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 static uint16_t ComputeFlags(const float matrix[20]) {
@@ -85,18 +86,8 @@ bool SkColorFilter_Matrix::onProgram(skvm::Builder* p,
                                      skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
-        // Unpremul.
-        skvm::F32 invA = p->div(p->splat(1.0f), *a),
-                  inf  = p->bit_cast(p->splat(0x7f800000));
+        p->unpremul(r,g,b,*a);
 
-        // If *a is 0, so are *r,*g,*b, so set invA to 0 to avoid 0*inf=NaN (instead 0*0 = 0).
-        invA = p->bit_cast(p->bit_and(p->lt(invA, inf),
-                                      p->bit_cast(invA)));
-        *r = p->mul(*r, invA);
-        *g = p->mul(*g, invA);
-        *b = p->mul(*b, invA);
-
-        // Apply matrix.
         skvm::Builder::Uniform u = uniforms->pushF(fMatrix, 20);
         auto m = [&](int i) { return p->uniformF(u.ptr, u.offset + 4*i); };
 
@@ -113,11 +104,7 @@ bool SkColorFilter_Matrix::onProgram(skvm::Builder* p,
         *b = rgba[2];
         *a = rgba[3];
 
-        // Premul.
-        *r = p->mul(*r, *a);
-        *g = p->mul(*g, *a);
-        *b = p->mul(*b, *a);
-
+        p->premul(r,g,b,*a);
         return true;
     }
     return false;

@@ -149,6 +149,8 @@ protected:
 
     void writePrecisionModifier();
 
+    String typeName(const Type& type);
+
     void writeType(const Type& type);
 
     void writeExtension(const Extension& ext);

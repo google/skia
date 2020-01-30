@@ -33,16 +33,14 @@ struct ProxyParams {
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(p.fColorType);
-
     GrSurfaceDesc desc;
     desc.fWidth  = p.fSize;
     desc.fHeight = p.fSize;
-    desc.fConfig = config;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, p.fColorType);
 
-    return proxyProvider->createProxy(format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin,
+    return proxyProvider->createProxy(format, desc, swizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
                                       GrMipMapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
 }
 
@@ -147,7 +145,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
     bool kConditionallyShare = resourceProvider->caps()->reuseScratchTextures();
 
     const GrColorType kRGBA = GrColorType::kRGBA_8888;
-    const GrColorType kBGRA = GrColorType::kBGRA_8888;
+    const GrColorType kAlpha = GrColorType::kAlpha_8;
 
     const SkBackingFit kE = SkBackingFit::kExact;
     const SkBackingFit kA = SkBackingFit::kApprox;
@@ -198,7 +196,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         // Two non-overlapping intervals w/ different MSAA sample counts should not share
         { { 64,    kRT, kRGBA, kA, k2, kTL, kNotB },{ 64,    kRT, kRGBA, kA, k4,kTL, kNotB}, k2 == k4 },
         // Two non-overlapping intervals w/ different configs should not share
-        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kBGRA, kA, 1, kTL, kNotB }, kDontShare },
+        { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kAlpha, kA, 1, kTL, kNotB }, kDontShare },
         // Two non-overlapping intervals w/ different RT classifications should never share
         { { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
         { { 64, kNotRT, kRGBA, kA, 1, kTL, kNotB }, { 64,    kRT, kRGBA, kA, 1, kTL, kNotB }, kDontShare },
@@ -265,13 +263,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
 
 sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                 const ProxyParams& p) {
-    GrPixelConfig config = GrColorTypeToPixelConfig(p.fColorType);
     const auto format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
 
     GrSurfaceDesc desc;
     desc.fWidth = p.fSize;
     desc.fHeight = p.fSize;
-    desc.fConfig = config;
 
     SkBackingFit fit = p.fFit;
     auto callback = [fit, desc, format, p](GrResourceProvider* resourceProvider) {
@@ -287,10 +283,11 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
         return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
     };
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
+    GrSwizzle readSwizzle = caps->getReadSwizzle(format, p.fColorType);
     return proxyProvider->createLazyProxy(
-            callback, format, desc, p.fRenderable, p.fSampleCnt, p.fOrigin, GrMipMapped::kNo,
-            GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted, GrProtected::kNo,
-            GrSurfaceProxy::UseAllocator::kYes);
+            callback, format, desc, readSwizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
+            GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted,
+            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 }
 
 // Set up so there are two opsTasks that need to be flushed but the resource allocator thinks

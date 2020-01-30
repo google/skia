@@ -13,7 +13,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrRectanizer_skyline.h"
+#include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -53,34 +53,32 @@ sk_sp<GrTextureProxy> GrCCAtlas::MakeLazyAtlasProxy(const LazyInstantiateAtlasCa
                                                     CoverageType coverageType,
                                                     const GrCaps& caps,
                                                     GrSurfaceProxy::UseAllocator useAllocator) {
-    GrPixelConfig pixelConfig;
     int sampleCount;
 
     auto colorType = CoverageTypeToColorType(coverageType);
     GrBackendFormat format = caps.getDefaultBackendFormat(colorType, GrRenderable::kYes);
     switch (coverageType) {
         case CoverageType::kFP16_CoverageCount:
-            pixelConfig = kAlpha_half_GrPixelConfig;
             sampleCount = 1;
             break;
         case CoverageType::kA8_Multisample:
             SkASSERT(caps.internalMultisampleCount(format) > 1);
-            pixelConfig = kAlpha_8_GrPixelConfig;
             sampleCount = (caps.mixedSamplesSupport()) ? 1 : caps.internalMultisampleCount(format);
             break;
         case CoverageType::kA8_LiteralCoverage:
-            pixelConfig = kAlpha_8_GrPixelConfig;
             sampleCount = 1;
             break;
     }
 
-    auto instantiate = [cb = std::move(callback), pixelConfig, format,
-                        sampleCount](GrResourceProvider* rp) {
-        return cb(rp, pixelConfig, format, sampleCount);
+    auto instantiate = [cb = std::move(callback), format, sampleCount](GrResourceProvider* rp) {
+        return cb(rp, format, sampleCount);
     };
+
+    GrSwizzle readSwizzle = caps.getReadSwizzle(format, colorType);
+
     sk_sp<GrTextureProxy> proxy = GrProxyProvider::MakeFullyLazyProxy(
-            std::move(instantiate), format, GrRenderable::kYes, sampleCount, GrProtected::kNo,
-            kTextureOrigin, pixelConfig, caps, useAllocator);
+            std::move(instantiate), format, readSwizzle, GrRenderable::kYes, sampleCount,
+            GrProtected::kNo, kTextureOrigin, caps, useAllocator);
 
     return proxy;
 }
@@ -113,13 +111,12 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
     fTopNode = std::make_unique<Node>(nullptr, 0, 0, fWidth, fHeight);
 
     fTextureProxy = MakeLazyAtlasProxy(
-            [this](GrResourceProvider* resourceProvider, GrPixelConfig pixelConfig,
-                   const GrBackendFormat& format, int sampleCount) {
+            [this](GrResourceProvider* resourceProvider,const GrBackendFormat& format,
+                   int sampleCount) {
                 if (!fBackingTexture) {
                     GrSurfaceDesc desc;
                     desc.fWidth = fWidth;
                     desc.fHeight = fHeight;
-                    desc.fConfig = pixelConfig;
                     fBackingTexture = resourceProvider->createTexture(
                             desc, format, GrRenderable::kYes, sampleCount, GrMipMapped::kNo,
                             SkBudgeted::kYes, GrProtected::kNo);
@@ -231,7 +228,7 @@ std::unique_ptr<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
 #ifdef SK_DEBUG
         auto backingRT = backingTexture->asRenderTarget();
         SkASSERT(backingRT);
-        SkASSERT(backingRT->config() == fTextureProxy->config());
+        SkASSERT(backingRT->backendFormat() == fTextureProxy->backendFormat());
         SkASSERT(backingRT->numSamples() == fTextureProxy->asRenderTargetProxy()->numSamples());
         SkASSERT(backingRT->width() == fWidth);
         SkASSERT(backingRT->height() == fHeight);

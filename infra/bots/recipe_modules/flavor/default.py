@@ -139,8 +139,15 @@ class DefaultFlavor(object):
         env['VULKAN_SDK'] = str(slave_dir.join('linux_vulkan_sdk'))
         path.append(slave_dir.join('linux_vulkan_sdk', 'bin'))
         ld_library_path.append(slave_dir.join('linux_vulkan_sdk', 'lib'))
-        env['VK_LAYER_PATH'] = str(slave_dir.join(
-            'linux_vulkan_sdk', 'etc', 'explicit_layer.d'))
+        # Enable layers for Debug only to avoid affecting perf results on
+        # Release.
+        # ASAN reports leaks in the Vulkan SDK when the debug layer is enabled.
+        # TSAN runs out of memory.
+        if (self.m.vars.builder_cfg.get('configuration', '') != 'Release' and
+            'ASAN' not in extra_tokens and
+            'TSAN' not in extra_tokens):
+          env['VK_LAYER_PATH'] = str(slave_dir.join(
+              'linux_vulkan_sdk', 'etc', 'vulkan', 'explicit_layer.d'))
 
       if 'OpenCL' in extra_tokens:
         ld_library_path.append(slave_dir.join('opencl_ocl_icd_linux'))

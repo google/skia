@@ -46,7 +46,7 @@ public:
         fragBuilder->codeAppend("half d = length(shadowParams.xy);");
         fragBuilder->codeAppend("float2 uv = float2(shadowParams.z * (1.0 - d), 0.5);");
         fragBuilder->codeAppend("half factor = ");
-        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv", kFloat2_GrSLType);
+        fragBuilder->appendTextureLookup(args.fTexSamplers[0], "uv");
         fragBuilder->codeAppend(".a;");
         fragBuilder->codeAppendf("%s = half4(factor);", args.fOutputCoverage);
     }
@@ -70,7 +70,7 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
     this->setVertexAttributes(&fInPosition, 3);
 
     SkASSERT(lutView.proxy());
-    fLUTTextureSampler.reset(GrSamplerState::ClampBilerp(), lutView.proxy()->backendFormat(),
+    fLUTTextureSampler.reset(GrSamplerState::Filter::kBilerp, lutView.proxy()->backendFormat(),
                              lutView.swizzle());
     this->setTextureSamplerCnt(1);
 }

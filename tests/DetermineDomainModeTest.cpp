@@ -133,7 +133,6 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
     GrSurfaceDesc desc;
     desc.fWidth = size;
     desc.fHeight = size;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                            GrRenderable::kNo);
@@ -148,8 +147,11 @@ static sk_sp<GrTextureProxy> create_proxy(GrContext* ctx,
               (isPowerOfTwo || isExact) ? RectInfo::kHard : RectInfo::kBad,
               name);
 
-    return proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                                      GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
+
+    return proxyProvider->createProxy(format, desc, swizzle, GrRenderable::kNo, 1,
+                                      kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
+                                      SkBudgeted::kYes, GrProtected::kNo);
 }
 
 static RectInfo::EdgeType compute_inset_edgetype(RectInfo::EdgeType previous,

@@ -43,80 +43,6 @@ GrTextBlob::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
         , fOrigin(origin) {}
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
-// Hold data to draw the different types of sub run. SubRuns are produced knowing all the
-// glyphs that are included in them.
-class GrTextBlob::SubRun {
-public:
-    // SubRun for masks
-    SubRun(SubRunType type,
-           GrTextBlob* textBlob,
-           const SkStrikeSpec& strikeSpec,
-           GrMaskFormat format,
-           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
-           sk_sp<GrTextStrike>&& grStrike);
-
-    // SubRun for paths
-    SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
-
-    void appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables);
-
-    // TODO when this object is more internal, drop the privacy
-    void resetBulkUseToken();
-    GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
-    void setStrike(sk_sp<GrTextStrike> strike);
-    GrTextStrike* strike() const;
-
-    GrMaskFormat maskFormat() const;
-
-    size_t vertexStride() const;
-    size_t colorOffset() const;
-    size_t texCoordOffset() const;
-    char* quadStart(size_t index) const;
-
-    const SkRect& vertexBounds() const;
-    void joinGlyphBounds(const SkRect& glyphBounds);
-
-    bool drawAsDistanceFields() const;
-    bool drawAsPaths() const;
-    bool needsTransform() const;
-
-    void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
-    void updateVerticesColorIfNeeded(GrColor newColor);
-    void updateTexCoord(size_t index);
-
-    // df properties
-    void setUseLCDText(bool useLCDText);
-    bool hasUseLCDText() const;
-    void setAntiAliased(bool antiAliased);
-    bool isAntiAliased() const;
-
-    const SkStrikeSpec& strikeSpec() const;
-
-    SubRun* fNextSubRun{nullptr};
-    const SubRunType fType;
-    GrTextBlob* const fBlob;
-    const GrMaskFormat fMaskFormat;
-    const SkSpan<GrGlyph*> fGlyphs;
-    const SkSpan<char> fVertexData;
-    const SkStrikeSpec fStrikeSpec;
-    sk_sp<GrTextStrike> fStrike;
-    struct {
-        bool useLCDText:1;
-        bool antiAliased:1;
-    } fFlags{false, false};
-    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
-    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
-    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
-    GrColor fCurrentColor;
-    SkPoint fCurrentOrigin;
-    SkMatrix fCurrentMatrix;
-    std::vector<PathGlyph> fPaths;
-
-private:
-    bool hasW() const;
-
-};  // SubRun
-
 GrTextBlob::SubRun::SubRun(SubRunType type, GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec,
                            GrMaskFormat format,
                            const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
@@ -224,8 +150,11 @@ size_t GrTextBlob::SubRun::texCoordOffset() const {
 }
 
 char* GrTextBlob::SubRun::quadStart(size_t index) const {
-    return SkTAddOffset<char>(
-            fVertexData.data(), index * kVerticesPerGlyph * this->vertexStride());
+    return SkTAddOffset<char>(fVertexData.data(), this->quadOffset(index));
+}
+
+size_t GrTextBlob::SubRun::quadOffset(size_t index) const {
+    return index * kVerticesPerGlyph * this->vertexStride();
 }
 
 const SkRect& GrTextBlob::SubRun::vertexBounds() const { return fVertexBounds; }
@@ -298,55 +227,59 @@ void GrTextBlob::SubRun::updateVerticesColorIfNeeded(GrColor newColor) {
     }
 }
 
-void GrTextBlob::SubRun::updateTexCoord(size_t index) {
-    GrGlyph* glyph = this->fGlyphs[index];
-    SkASSERT(glyph != nullptr);
-
-    int width = glyph->fBounds.width();
-    int height = glyph->fBounds.height();
-    uint16_t u0, v0, u1, v1;
-    if (this->drawAsDistanceFields()) {
-        u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
-        v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
-        u1 = u0 + width - 2 * SK_DistanceFieldInset;
-        v1 = v0 + height - 2 * SK_DistanceFieldInset;
-    } else {
-        u0 = glyph->fAtlasLocation.fX;
-        v0 = glyph->fAtlasLocation.fY;
-        u1 = u0 + width;
-        v1 = v0 + height;
-    }
-
-    // We pack the 2bit page index in the low bit of the u and v texture coords
-    uint32_t pageIndex = glyph->pageIndex();
-    SkASSERT(pageIndex < 4);
-    uint16_t uBit = (pageIndex >> 1u) & 0x1u;
-    uint16_t vBit = pageIndex & 0x1u;
-    u0 <<= 1u;
-    u0 |= uBit;
-    v0 <<= 1u;
-    v0 |= vBit;
-    u1 <<= 1u;
-    u1 |= uBit;
-    v1 <<= 1u;
-    v1 |= vBit;
-
-    char* vertex = this->quadStart(index);
-    size_t vertexStride = this->vertexStride();
-    size_t texCoordOffset = this->texCoordOffset();
+void GrTextBlob::SubRun::updateTexCoords(int begin, int end) {
+    const size_t vertexStride = this->vertexStride();
+    const size_t texCoordOffset = this->texCoordOffset();
+    char* vertex = this->quadStart(begin);
     uint16_t* textureCoords = reinterpret_cast<uint16_t*>(vertex + texCoordOffset);
-    textureCoords[0] = u0;
-    textureCoords[1] = v0;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u0;
-    textureCoords[1] = v1;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u1;
-    textureCoords[1] = v0;
-    textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
-    textureCoords[0] = u1;
-    textureCoords[1] = v1;
+    for (int i = begin; i < end; i++) {
+        GrGlyph* glyph = this->fGlyphs[i];
+        SkASSERT(glyph != nullptr);
+
+        int width = glyph->fBounds.width();
+        int height = glyph->fBounds.height();
+        uint16_t u0, v0, u1, v1;
+        if (this->drawAsDistanceFields()) {
+            u0 = glyph->fAtlasLocation.fX + SK_DistanceFieldInset;
+            v0 = glyph->fAtlasLocation.fY + SK_DistanceFieldInset;
+            u1 = u0 + width - 2 * SK_DistanceFieldInset;
+            v1 = v0 + height - 2 * SK_DistanceFieldInset;
+        } else {
+            u0 = glyph->fAtlasLocation.fX;
+            v0 = glyph->fAtlasLocation.fY;
+            u1 = u0 + width;
+            v1 = v0 + height;
+        }
+
+        // We pack the 2bit page index in the low bit of the u and v texture coords
+        uint32_t pageIndex = glyph->pageIndex();
+        SkASSERT(pageIndex < 4);
+        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
+        uint16_t vBit = pageIndex & 0x1u;
+        u0 <<= 1u;
+        u0 |= uBit;
+        v0 <<= 1u;
+        v0 |= vBit;
+        u1 <<= 1u;
+        u1 |= uBit;
+        v1 <<= 1u;
+        v1 |= vBit;
+
+        textureCoords[0] = u0;
+        textureCoords[1] = v0;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+        textureCoords[0] = u0;
+        textureCoords[1] = v1;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+        textureCoords[0] = u1;
+        textureCoords[1] = v0;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+        textureCoords[0] = u1;
+        textureCoords[1] = v1;
+        textureCoords = SkTAddOffset<uint16_t>(textureCoords, vertexStride);
+    }
 }
+
 
 void GrTextBlob::SubRun::setUseLCDText(bool useLCDText) { fFlags.useLCDText = useLCDText; }
 bool GrTextBlob::SubRun::hasUseLCDText() const { return fFlags.useLCDText; }
@@ -499,18 +432,19 @@ bool GrTextBlob::mustRegenerate(const SkPaint& paint, bool anyRunHasSubpixelPosi
 
         // We can update the positions in the text blob without regenerating the whole
         // blob, but only for integer translations.
-        // This cool bit of math will determine the necessary translation to apply to the
-        // already generated vertex coordinates to move them to the correct position.
-        // Figure out the translation in view space given a translation in source space.
-        SkScalar transX = drawMatrix.getTranslateX() +
-                          drawMatrix.getScaleX() * (drawOrigin.x() - fInitialOrigin.x()) +
-                          drawMatrix.getSkewX() * (drawOrigin.y() - fInitialOrigin.y()) -
-                          fInitialMatrix.getTranslateX();
-        SkScalar transY = drawMatrix.getTranslateY() +
-                          drawMatrix.getSkewY() * (drawOrigin.x() - fInitialOrigin.x()) +
-                          drawMatrix.getScaleY() * (drawOrigin.y() - fInitialOrigin.y()) -
-                          fInitialMatrix.getTranslateY();
-        if (!SkScalarIsInt(transX) || !SkScalarIsInt(transY)) {
+        // Calculate the translation in source space to a translation in device space by mapping
+        // (0, 0) through both the initial matrix and the draw matrix; take the difference.
+        SkMatrix initialMatrix{fInitialMatrix};
+        initialMatrix.preTranslate(fInitialOrigin.x(), fInitialOrigin.y());
+        SkPoint initialDeviceOrigin{0, 0};
+        initialMatrix.mapPoints(&initialDeviceOrigin, 1);
+        SkMatrix completeDrawMatrix{drawMatrix};
+        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+        SkPoint drawDeviceOrigin{0, 0};
+        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
+        SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
+
+        if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
             return true;
         }
     } else if (this->hasDistanceField()) {
@@ -548,17 +482,13 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                              || style.applies()
                              || runPaint.getMaskFilter();
 
-            // The origin for the blob may have changed, so figure out the delta.
-            SkVector originShift = drawOrigin - fInitialOrigin;
 
             for (const auto& pathGlyph : subRun->fPaths) {
                 SkMatrix ctm{drawMatrix};
+                ctm.preTranslate(drawOrigin.x(), drawOrigin.y());
                 SkMatrix pathMatrix = SkMatrix::MakeScale(
                         subRun->fStrikeSpec.strikeToSourceRatio());
-                // Shift the original glyph location in source space to the position of the new
-                // blob.
-                pathMatrix.postTranslate(originShift.x() + pathGlyph.fOrigin.x(),
-                                         originShift.y() + pathGlyph.fOrigin.y());
+                pathMatrix.postTranslate(pathGlyph.fOrigin.x(), pathGlyph.fOrigin.y());
 
                 // TmpPath must be in the same scope as GrShape shape below.
                 SkTLazy<SkPath> tmpPath;
@@ -846,9 +776,6 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 // -- GrTextBlob::VertexRegenerator ----------------------------------------------------------------
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
-                                                 const SkMatrix& drawMatrix,
-                                                 SkPoint drawOrigin,
-                                                 GrColor color,
                                                  GrDeferredUploadTarget* uploadTarget,
                                                  GrStrikeCache* grStrikeCache,
                                                  GrAtlasManager* fullAtlasManager)
@@ -856,133 +783,76 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
         , fUploadTarget(uploadTarget)
         , fGrStrikeCache(grStrikeCache)
         , fFullAtlasManager(fullAtlasManager)
-        , fSubRun(subRun){
-    // Because the GrStrikeCache may evict the strike a blob depends on using for
-    // generating its texture coords, we have to track whether or not the strike has
-    // been abandoned.  If it hasn't been abandoned, then we can use the GrGlyph*s as is
-    // otherwise we have to get the new strike, and use that to get the correct glyphs.
-    // Because we do not have the packed ids, and thus can't look up our glyphs in the
-    // new strike, we instead keep our ref to the old strike and use the packed ids from
-    // it.  These ids will still be valid as long as we hold the ref.  When we are done
-    // updating our cache of the GrGlyph*s, we drop our ref on the old strike
-    fActions.regenTextureCoordinates = fSubRun->strike()->isAbandoned();
-    fActions.regenStrike = fSubRun->strike()->isAbandoned();
+        , fSubRun(subRun) { }
 
-    fSubRun->updateVerticesColorIfNeeded(color);
-    fSubRun->translateVerticesIfNeeded(drawMatrix, drawOrigin);
-}
+std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
+        const int begin, const int end) {
+    fSubRun->resetBulkUseToken();
 
-bool GrTextBlob::VertexRegenerator::doRegen(GrTextBlob::VertexRegenerator::Result* result) {
-    SkASSERT(!fActions.regenStrike || fActions.regenTextureCoordinates);
-    if (fActions.regenTextureCoordinates) {
-        fSubRun->resetBulkUseToken();
+    const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
-        const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
-
-        if (!fMetricsAndImages.isValid()
+    if (!fMetricsAndImages.isValid()
             || fMetricsAndImages->descriptor() != strikeSpec.descriptor()) {
-            fMetricsAndImages.init(strikeSpec);
-        }
-
-        if (fActions.regenStrike) {
-            // Take the glyphs from the old strike, and translate them a new strike.
-            sk_sp<GrTextStrike> newStrike = strikeSpec.findOrCreateGrStrike(fGrStrikeCache);
-
-            // Start this batch at the start of the subRun plus any glyphs that were previously
-            // processed.
-            SkSpan<GrGlyph*> glyphs = fSubRun->fGlyphs.last(fSubRun->fGlyphs.size() - fCurrGlyph);
-
-            // Convert old glyphs to newStrike.
-            for (auto& glyph : glyphs) {
-                SkPackedGlyphID id = glyph->fPackedID;
-                glyph = newStrike->getGlyph(id, fMetricsAndImages.get());
-                SkASSERT(id == glyph->fPackedID);
-            }
-
-            fSubRun->setStrike(newStrike);
-        }
+        fMetricsAndImages.init(strikeSpec);
     }
 
+    // Update the atlas information in the GrStrike.
+    auto code = GrDrawOpAtlas::ErrorCode::kSucceeded;
     GrTextStrike* grStrike = fSubRun->strike();
-    auto vertexStride = fSubRun->vertexStride();
-    char* currVertex = fSubRun->fVertexData.data() + fCurrGlyph * kVerticesPerGlyph * vertexStride;
-    result->fFirstVertex = currVertex;
+    auto tokenTracker = fUploadTarget->tokenTracker();
+    int i = begin;
+    for (; i < end; i++) {
+        GrGlyph* glyph = fSubRun->fGlyphs[i];
+        SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
 
-    for (; fCurrGlyph < (int)fSubRun->fGlyphs.size(); fCurrGlyph++) {
-        if (fActions.regenTextureCoordinates) {
-            GrGlyph* glyph = fSubRun->fGlyphs[fCurrGlyph];
-            SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
-
-            if (!fFullAtlasManager->hasGlyph(glyph)) {
-                GrDrawOpAtlas::ErrorCode code = grStrike->addGlyphToAtlas(
-                        fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
-                        fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
-                if (GrDrawOpAtlas::ErrorCode::kError == code) {
-                    // Something horrible has happened - drop the op
-                    return false;
-                }
-                else if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
-                    // If fCurrGlyph == 0, then no glyphs from this SubRun were put into the atlas,
-                    // otherwise at least one glyph made it into the atlas, and this run needs
-                    // special handling because of the atlas flush in the middle of it.
-                    fBrokenRun = fCurrGlyph > 0;
-                    result->fFinished = false;
-                    return true;
-                }
+        if (!fFullAtlasManager->hasGlyph(glyph)) {
+            code = grStrike->addGlyphToAtlas(
+                    fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
+                    fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
+            if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
+                break;
             }
-            auto tokenTracker = fUploadTarget->tokenTracker();
-            fFullAtlasManager->addGlyphToBulkAndSetUseToken(fSubRun->bulkUseToken(), glyph,
-                                                            tokenTracker->nextDrawToken());
         }
-
-        if (fActions.regenTextureCoordinates) {
-            fSubRun->updateTexCoord(fCurrGlyph);
-        }
-
-        currVertex += vertexStride * GrAtlasTextOp::kVerticesPerGlyph;
-        ++result->fGlyphsRegenerated;
+        fFullAtlasManager->addGlyphToBulkAndSetUseToken(
+                fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
     }
+    int glyphsPlacedInAtlas = i - begin;
 
-    if (fActions.regenTextureCoordinates) {
+    // Update the quads with the new atlas coordinates.
+    fSubRun->updateTexCoords(begin, begin + glyphsPlacedInAtlas);
+
+    if (code == GrDrawOpAtlas::ErrorCode::kSucceeded) {
+        // If we reach here with begin > 0, some earlier call to regenerate() exhausted the atlas
+        // before it could place all its glyphs and returned kTryAgain. Invalidate texture
+        // coordinates, forcing them to be regenerated, minding the atlas flush between.
         fSubRun->fAtlasGeneration =
-                fBrokenRun ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                           : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
-    } else {
-        // For the non-texCoords case we need to ensure that we update the associated use tokens
-        fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                           fUploadTarget->tokenTracker()->nextDrawToken(),
-                                           fSubRun->maskFormat());
+                begin > 0 ? GrDrawOpAtlas::kInvalidAtlasGeneration
+                          : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     }
-    return true;
+
+    return {code != GrDrawOpAtlas::ErrorCode::kError, glyphsPlacedInAtlas};
 }
 
-bool GrTextBlob::VertexRegenerator::regenerate(GrTextBlob::VertexRegenerator::Result* result) {
+std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int end) {
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
-    fActions.regenTextureCoordinates |= fSubRun->fAtlasGeneration != currentAtlasGen;
 
-    if (fActions.regenStrike
-       |fActions.regenTextureCoordinates) {
-            return this->doRegen(result);
+    // TODO: figure out why this needs to latch true instead of maintaining the invariant with
+    //  the atlas generation.
+    fRegenerateTextureCoordinates =
+            fRegenerateTextureCoordinates || fSubRun->fAtlasGeneration != currentAtlasGen;
+    if (fRegenerateTextureCoordinates) {
+        return this->updateTextureCoordinatesMaybeStrike(begin, end);
     } else {
-        auto vertexStride = fSubRun->vertexStride();
-        result->fFinished = true;
-        result->fGlyphsRegenerated = fSubRun->fGlyphs.size() - fCurrGlyph;
-        result->fFirstVertex = fSubRun->fVertexData.data() +
-                fCurrGlyph * kVerticesPerGlyph * vertexStride;
-        fCurrGlyph = fSubRun->fGlyphs.size();
-
-        // set use tokens for all of the glyphs in our subrun.  This is only valid if we
-        // have a valid atlas generation
-        fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
-                                           fUploadTarget->tokenTracker()->nextDrawToken(),
-                                           fSubRun->maskFormat());
-        return true;
+        // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.
+        if (end == (int)fSubRun->fGlyphs.size()) {
+            // Set use tokens for all of the glyphs in our SubRun.  This is only valid if we
+            // have a valid atlas generation
+            fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
+                                               fUploadTarget->tokenTracker()->nextDrawToken(),
+                                               fSubRun->maskFormat());
+        }
+        return {true, end - begin};
     }
-    SK_ABORT("Should not get here");
 }
-
-
-
-

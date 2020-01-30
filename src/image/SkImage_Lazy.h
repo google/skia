@@ -43,7 +43,7 @@ public:
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*,
-                                            const GrSamplerState&,
+                                            GrSamplerState,
                                             SkScalar scaleAdjust[2]) const override;
     sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo*, SkYUVAIndex[4],
                                   SkYUVColorSpace*, const void* planes[4]) override;
@@ -67,6 +67,12 @@ public:
                                            SkImage::CachingHint,
                                            bool willBeMipped,
                                            GrTextureMaker::AllowedTexGenType genType) const;
+
+    // Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
+    // may be different from the color type on the image in the case where we need up upload CPU
+    // data to a texture but the GPU doesn't support the format of CPU data. In this case we convert
+    // the data to RGBA_8888 unorm on the CPU then upload that.
+    GrColorType colorTypeOfLockTextureProxy(const GrCaps* caps) const;
 
     void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) const;
 #endif

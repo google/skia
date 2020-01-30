@@ -84,9 +84,9 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 
     {
-        auto rtc = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kApprox, kBigSize/2 + 1, kBigSize/2 + 1,
-                GrColorType::kRGBA_8888, nullptr);
+        auto rtc = GrRenderTargetContext::Make(
+            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
+            {kBigSize/2 + 1, kBigSize/2 + 1});
 
         rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
@@ -103,8 +103,8 @@ static void run_test(GrContext* ctx, skiatest::Reporter* reporter) {
     }
 
     {
-        auto rtc = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, kBigSize, kBigSize, GrColorType::kRGBA_8888, nullptr);
+        auto rtc = GrRenderTargetContext::Make(
+            ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {kBigSize, kBigSize});
 
         rtc->clear(nullptr, { 0, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 

@@ -66,12 +66,8 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
 
 #ifdef SK_ENABLE_VK_LAYERS
 const char* kDebugLayerNames[] = {
-    // elements of VK_LAYER_LUNARG_standard_validation
-    "VK_LAYER_GOOGLE_threading",
-    "VK_LAYER_LUNARG_parameter_validation",
-    "VK_LAYER_LUNARG_object_tracker",
-    "VK_LAYER_LUNARG_core_validation",
-    "VK_LAYER_GOOGLE_unique_objects",
+    // single merged layer
+    "VK_LAYER_KHRONOS_validation",
     // not included in standard_validation
     //"VK_LAYER_LUNARG_api_dump",
     //"VK_LAYER_LUNARG_vktrace",

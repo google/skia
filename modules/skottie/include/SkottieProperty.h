@@ -32,19 +32,20 @@ using ColorPropertyValue   = SkColor;
 using OpacityPropertyValue = float;
 
 struct TextPropertyValue {
-    sk_sp<SkTypeface>  fTypeface;
-    SkString           fText;
-    float              fTextSize    = 0,
-                       fStrokeWidth = 0,
-                       fLineHeight  = 0,
-                       fAscent      = 0;
-    SkTextUtils::Align fHAlign      = SkTextUtils::kLeft_Align;
-    Shaper::VAlign     fVAlign      = Shaper::VAlign::kTop;
-    SkRect             fBox         = SkRect::MakeEmpty();
-    SkColor            fFillColor   = SK_ColorTRANSPARENT,
-                       fStrokeColor = SK_ColorTRANSPARENT;
-    bool               fHasFill     = false,
-                       fHasStroke   = false;
+    sk_sp<SkTypeface>    fTypeface;
+    SkString             fText;
+    float                fTextSize    = 0,
+                         fStrokeWidth = 0,
+                         fLineHeight  = 0,
+                         fAscent      = 0;
+    SkTextUtils::Align   fHAlign      = SkTextUtils::kLeft_Align;
+    Shaper::VAlign       fVAlign      = Shaper::VAlign::kTop;
+    Shaper::ResizePolicy fResize      = Shaper::ResizePolicy::kNone;
+    SkRect               fBox         = SkRect::MakeEmpty();
+    SkColor              fFillColor   = SK_ColorTRANSPARENT,
+                         fStrokeColor = SK_ColorTRANSPARENT;
+    bool                 fHasFill     = false,
+                         fHasStroke   = false;
 
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;
@@ -81,13 +82,21 @@ private:
     const sk_sp<NodeT> fNode;
 };
 
-namespace internal { class TextAdapter; }
+namespace internal {
+
+class TextAdapter;
 class TransformAdapter2D;
 
-using ColorPropertyHandle     = PropertyHandle<ColorPropertyValue    , sksg::Color         >;
-using OpacityPropertyHandle   = PropertyHandle<OpacityPropertyValue  , sksg::OpacityEffect >;
-using TextPropertyHandle      = PropertyHandle<TextPropertyValue     , internal::TextAdapter >;
-using TransformPropertyHandle = PropertyHandle<TransformPropertyValue, TransformAdapter2D  >;
+} // namespace internal
+
+using ColorPropertyHandle     = PropertyHandle<ColorPropertyValue,
+                                               sksg::Color>;
+using OpacityPropertyHandle   = PropertyHandle<OpacityPropertyValue,
+                                               sksg::OpacityEffect>;
+using TextPropertyHandle      = PropertyHandle<TextPropertyValue,
+                                               internal::TextAdapter>;
+using TransformPropertyHandle = PropertyHandle<TransformPropertyValue,
+                                               internal::TransformAdapter2D>;
 
 /**
  * A PropertyObserver can be used to track and manipulate certain properties of "interesting"

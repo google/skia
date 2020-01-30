@@ -88,7 +88,7 @@ public:
      * guaranteed to match the uniqueID of the underlying GrRenderTarget - beware!
      */
     GrSurfaceProxy::UniqueID uniqueID() const {
-        return fRenderTargetContext->fSurfaceProxy->uniqueID();
+        return fRenderTargetContext->asSurfaceProxy()->uniqueID();
     }
 
     uint32_t testingOnly_getOpsTaskID();

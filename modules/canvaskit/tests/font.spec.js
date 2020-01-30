@@ -1,4 +1,4 @@
-describe('CanvasKit\'s Path Behavior', function() {
+describe('CanvasKit\'s Font Behavior', function() {
     let container = document.createElement('div');
     document.body.appendChild(container);
     const CANVAS_WIDTH = 600;
@@ -250,6 +250,102 @@ describe('CanvasKit\'s Path Behavior', function() {
             }
             fontMgr.delete();
             done();
+        }));
+    });
+
+    it('can load fonts of a variety of types', function(done) {
+        let otfFontBuffer = null;
+        const otfFontLoaded = fetch('/assets/Roboto-Regular.otf').then(
+            (response) => response.arrayBuffer()).then(
+            (buffer) => {
+                otfFontBuffer = buffer;
+            });
+
+        let woffFontBuffer = null;
+        const woffFontLoaded = fetch('/assets/Roboto-Regular.woff').then(
+            (response) => response.arrayBuffer()).then(
+            (buffer) => {
+                woffFontBuffer = buffer;
+            });
+
+        let woff2FontBuffer = null;
+        const woff2FontLoaded = fetch('/assets/Roboto-Regular.woff2').then(
+            (response) => response.arrayBuffer()).then(
+            (buffer) => {
+                woff2FontBuffer = buffer;
+            });
+
+        let ttcFontBuffer = null;
+        const ttcFontLoaded = fetch('/assets/test.ttc').then(
+            (response) => response.arrayBuffer()).then(
+            (buffer) => {
+                ttcFontBuffer = buffer;
+            });
+
+        Promise.all([LoadCanvasKit, otfFontLoaded, bungeeFontLoaded, woffFontLoaded, woff2FontLoaded]).then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface')
+            if (!surface) {
+                done();
+                return;
+            }
+            const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+            const canvas = surface.getCanvas();
+            const fontPaint = new CanvasKit.SkPaint();
+            fontPaint.setAntiAlias(true);
+            fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+            const inputs = [{
+                type: '.ttf font',
+                buffer: bungeeFontBuffer,
+                y: 60,
+            },{
+                type: '.otf font',
+                buffer: otfFontBuffer,
+                y: 90,
+            },{
+                // Not currently supported by Skia
+                type: '.woff font',
+                buffer: woffFontBuffer,
+                y: 120,
+            },{
+                // Not currently supported by Skia
+                type: '.woff2 font',
+                buffer: woff2FontBuffer,
+                y: 150,
+            }];
+
+            const defaultFont = new CanvasKit.SkFont(null, 24);
+            canvas.drawText(`The following should be ${inputs.length + 1} lines of text:`, 5, 30, fontPaint, defaultFont);
+
+            for (const fontType of inputs) {
+                const typeface = fontMgr.MakeTypefaceFromData(fontType.buffer);
+                const font = new CanvasKit.SkFont(typeface, 24);
+
+                if (font && typeface) {
+                    canvas.drawText(fontType.type + ' loaded', 5, fontType.y, fontPaint, font);
+                } else {
+                    canvas.drawText(fontType.type + ' *not* loaded', 5, fontType.y, fontPaint, defaultFont);
+                }
+                font && font.delete();
+                typeface && typeface.delete();
+            }
+
+            // The only ttc font I could find was 14 MB big, so I'm using the smaller test font,
+            // which doesn't have very many glyphs in it, so we just check that we got a non-zero
+            // typeface for it. I was able to load NotoSansCJK-Regular.ttc just fine in a manual test.
+            const typeface = fontMgr.MakeTypefaceFromData(ttcFontBuffer);
+            expect(typeface).toBeTruthy('.ttc font');
+            if (typeface) {
+                canvas.drawText('.ttc loaded', 5, 180, fontPaint, defaultFont);
+                typeface.delete();
+            } else {
+                canvas.drawText('.ttc *not* loaded', 5, 180, fontPaint, defaultFont);
+            }
+
+            defaultFont.delete();
+            fontPaint.delete();
+            fontMgr.delete();
+            reportSurface(surface, 'various_font_formats', done);
         }));
     });
 

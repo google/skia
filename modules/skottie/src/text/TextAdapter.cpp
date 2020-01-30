@@ -60,38 +60,27 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
         return nullptr;
     }
 
-    std::vector<sk_sp<TextAnimator>> animators;
+    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr), std::move(logger)));
+    adapter->bind(*abuilder, jd, &adapter->fText.fCurrentValue);
+
     if (const skjson::ArrayValue* janimators = (*jt)["a"]) {
-        animators.reserve(janimators->size());
+        adapter->fAnimators.reserve(janimators->size());
 
         for (const skjson::ObjectValue* janimator : *janimators) {
-            if (auto animator = TextAnimator::Make(janimator, abuilder)) {
-                animators.push_back(std::move(animator));
+            if (auto animator = TextAnimator::Make(janimator, abuilder, adapter.get())) {
+                adapter->fAnimators.push_back(std::move(animator));
             }
         }
     }
-
-    auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
-                                                      std::move(logger),
-                                                      std::move(animators)));
-    auto* raw_adapter = adapter.get();
-
-    abuilder->bindProperty<TextValue>(*jd,
-        [raw_adapter] (const TextValue& txt) {
-            raw_adapter->setText(txt);
-        });
 
     abuilder->dispatchTextProperty(adapter);
 
     return adapter;
 }
 
-TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr,
-                         sk_sp<Logger> logger,
-                         std::vector<sk_sp<TextAnimator>>&& animators)
+TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
-    , fAnimators(std::move(animators))
     , fLogger(std::move(logger)) {}
 
 TextAdapter::~TextAdapter() = default;
@@ -114,17 +103,17 @@ void TextAdapter::addFragment(const Shaper::Fragment& frag) {
                                                                        frag.fPos.y()));
 
     std::vector<sk_sp<sksg::RenderNode>> draws;
-    draws.reserve(static_cast<size_t>(fText.fHasFill) + static_cast<size_t>(fText.fHasStroke));
+    draws.reserve(static_cast<size_t>(fText->fHasFill) + static_cast<size_t>(fText->fHasStroke));
 
-    SkASSERT(fText.fHasFill || fText.fHasStroke);
+    SkASSERT(fText->fHasFill || fText->fHasStroke);
 
-    if (fText.fHasFill) {
-        rec.fFillColorNode = sksg::Color::Make(fText.fFillColor);
+    if (fText->fHasFill) {
+        rec.fFillColorNode = sksg::Color::Make(fText->fFillColor);
         rec.fFillColorNode->setAntiAlias(true);
         draws.push_back(sksg::Draw::Make(blob_node, rec.fFillColorNode));
     }
-    if (fText.fHasStroke) {
-        rec.fStrokeColorNode = sksg::Color::Make(fText.fStrokeColor);
+    if (fText->fHasStroke) {
+        rec.fStrokeColorNode = sksg::Color::Make(fText->fStrokeColor);
         rec.fStrokeColorNode->setAntiAlias(true);
         rec.fStrokeColorNode->setStyle(SkPaint::kStroke_Style);
         draws.push_back(sksg::Draw::Make(blob_node, rec.fStrokeColorNode));
@@ -187,28 +176,27 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
 }
 
 void TextAdapter::setText(const TextValue& txt) {
-    if (txt != fText) {
-        fText = txt;
-        fTextDirty = true;
-    }
+    fText.fCurrentValue = txt;
+    this->onSync();
 }
 
 void TextAdapter::reshape() {
     const Shaper::TextDesc text_desc = {
-        fText.fTypeface,
-        fText.fTextSize,
-        fText.fLineHeight,
-        fText.fAscent,
-        fText.fHAlign,
-        fText.fVAlign,
+        fText->fTypeface,
+        fText->fTextSize,
+        fText->fLineHeight,
+        fText->fAscent,
+        fText->fHAlign,
+        fText->fVAlign,
+        fText->fResize,
         fAnimators.empty() ? Shaper::Flags::kNone : Shaper::Flags::kFragmentGlyphs,
     };
-    const auto shape_result = Shaper::Shape(fText.fText, text_desc, fText.fBox, fFontMgr);
+    const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
 
     if (fLogger && shape_result.fMissingGlyphCount > 0) {
         const auto msg = SkStringPrintf("Missing %zu glyphs for '%s'.",
                                         shape_result.fMissingGlyphCount,
-                                        fText.fText.c_str());
+                                        fText->fText.c_str());
         fLogger->log(Logger::Level::kWarning, msg.c_str());
 
         // This may trigger repeatedly when the text is animating.
@@ -251,13 +239,12 @@ void TextAdapter::reshape() {
 }
 
 void TextAdapter::onSync() {
-    if (!fText.fHasFill && !fText.fHasStroke) {
+    if (!fText->fHasFill && !fText->fHasStroke) {
         return;
     }
 
-    if (fTextDirty) {
+    if (fText.hasChanged()) {
         this->reshape();
-        fTextDirty = false;
     }
 
     if (fFragments.empty()) {
@@ -265,9 +252,9 @@ void TextAdapter::onSync() {
     }
 
     // Seed props from the current text value.
-    TextAnimator::AnimatedProps seed_props;
-    seed_props.fill_color   = fText.fFillColor;
-    seed_props.stroke_color = fText.fStrokeColor;
+    TextAnimator::ResolvedProps seed_props;
+    seed_props.fill_color   = fText->fFillColor;
+    seed_props.stroke_color = fText->fStrokeColor;
 
     TextAnimator::ModulatorBuffer buf;
     buf.resize(fFragments.size(), { seed_props, 0 });
@@ -299,7 +286,7 @@ void TextAdapter::onSync() {
     }
 }
 
-void TextAdapter::pushPropsToFragment(const TextAnimator::AnimatedProps& props,
+void TextAdapter::pushPropsToFragment(const TextAnimator::ResolvedProps& props,
                                       const FragmentRec& rec) const {
     // TODO: share this with TransformAdapter2D?
     auto t = SkMatrix::MakeTrans(rec.fOrigin.x() + props.position.x(),
@@ -347,7 +334,7 @@ void TextAdapter::adjustLineTracking(const TextAnimator::ModulatorBuffer& buf,
         return 0.0f;
     };
 
-    const auto align_offset = total_tracking * align_factor(fText.fHAlign);
+    const auto align_offset = total_tracking * align_factor(fText->fHAlign);
 
     float tracking_acc = 0;
     for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {

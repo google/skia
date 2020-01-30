@@ -19,8 +19,8 @@ void GrCCClipPath::init(
     SkASSERT(!this->isInitialized());
 
     fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
-            [this](GrResourceProvider* resourceProvider, GrPixelConfig,
-                   const GrBackendFormat& format, int sampleCount) {
+            [this](GrResourceProvider* resourceProvider, const GrBackendFormat& format,
+                   int sampleCount) {
                 SkASSERT(fHasAtlas);
                 SkASSERT(!fHasAtlasTransform);
 

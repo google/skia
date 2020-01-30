@@ -11,6 +11,7 @@
 #ifndef GrConstColorProcessor_DEFINED
 #define GrConstColorProcessor_DEFINED
 #include "include/core/SkTypes.h"
+#include "include/private/SkM44.h"
 
 #include "src/gpu/GrCoordTransform.h"
 #include "src/gpu/GrFragmentProcessor.h"

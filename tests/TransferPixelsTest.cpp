@@ -74,10 +74,8 @@ bool read_pixels_from_texture(GrTexture* texture, GrColorType colorType, char* d
     int h = texture->height();
     size_t rowBytes = GrColorTypeBytesPerPixel(colorType) * w;
 
-    GrColorType srcCT = GrPixelConfigToColorType(texture->config());
-
     GrCaps::SupportedRead supportedRead =
-            caps->supportedReadPixelsColorType(srcCT, texture->backendFormat(), colorType);
+            caps->supportedReadPixelsColorType(colorType, texture->backendFormat(), colorType);
     std::fill_n(tolerances, 4, 0);
     if (supportedRead.fColorType != colorType) {
         size_t tmpRowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * w;
@@ -119,7 +117,6 @@ void basic_transfer_to_test(skiatest::Reporter* reporter, GrContext* context, Gr
     GrSurfaceDesc desc;
     desc.fWidth = kTextureWidth;
     desc.fHeight = kTextureHeight;
-    desc.fConfig = GrColorTypeToPixelConfig(colorType);
 
     sk_sp<GrTexture> tex =
             resourceProvider->createTexture(desc, backendFormat, renderable, 1, GrMipMapped::kNo,
@@ -275,7 +272,6 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrSurfaceDesc desc;
     desc.fWidth = kTextureWidth;
     desc.fHeight = kTextureHeight;
-    desc.fConfig = GrColorTypeToPixelConfig(colorType);
 
     auto format = context->priv().caps()->getDefaultBackendFormat(colorType, renderable);
     if (!format.isValid()) {
@@ -417,8 +413,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
-    if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest, reporter, ctxInfo) {
+    if (!ctxInfo.grContext()->priv().caps()->transferFromBufferToTextureSupport()) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
@@ -448,8 +444,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTest, reporter, ctxInfo) {
 }
 
 // TODO(bsalomon): Metal
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTest, reporter, ctxInfo) {
-    if (!ctxInfo.grContext()->priv().caps()->transferBufferSupport()) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest, reporter, ctxInfo) {
+    if (!ctxInfo.grContext()->priv().caps()->transferFromSurfaceToBufferSupport()) {
         return;
     }
     for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {

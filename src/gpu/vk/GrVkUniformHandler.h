@@ -78,7 +78,7 @@ private:
     }
 
     SamplerHandle addSampler(const GrSurfaceProxy*,
-                             const GrSamplerState&,
+                             GrSamplerState,
                              const GrSwizzle&,
                              const char* name,
                              const GrShaderCaps*) override;

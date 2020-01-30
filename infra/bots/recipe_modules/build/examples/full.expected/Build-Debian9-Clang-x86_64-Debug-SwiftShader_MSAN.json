@@ -35,9 +35,9 @@
   {
     "cmd": [
       "cmake",
-      "-DBUILD_TESTS=OFF",
-      "-DWARNINGS_AS_ERRORS=0",
-      "-DMSAN=ON",
+      "-DSWIFTSHADER_BUILD_TESTS=OFF",
+      "-DSWIFTSHADER_WARNINGS_AS_ERRORS=0",
+      "-DSWIFTSHADER_MSAN=ON",
       "-DCMAKE_C_FLAGS=-fsanitize=memory -stdlib=libc++ -L[START_DIR]/clang_linux/msan/lib -lc++abi -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
       "-DCMAKE_CXX_FLAGS=-fsanitize=memory -stdlib=libc++ -L[START_DIR]/clang_linux/msan/lib -lc++abi -I[START_DIR]/clang_linux/msan/include -I[START_DIR]/clang_linux/msan/include/c++/v1",
       "[START_DIR]/cache/work/skia/third_party/externals/swiftshader",

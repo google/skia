@@ -48,10 +48,16 @@
 #endif
 
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
-#include <binder/IPCThreadState.h>
+    #include <binder/IPCThreadState.h>
+#endif
+
+#if defined(SK_BUILD_FOR_MAC)
+    #include "include/utils/mac/SkCGUtils.h"
+    #include "src/utils/mac/SkUniqueCFRef.h"
 #endif
 
 extern bool gSkForceRasterPipelineBlitter;
+extern bool gUseSkVMBlitter;
 
 static DEFINE_string(src, "tests gm skp image", "Source types to test.");
 static DEFINE_bool(nameByHash, false,
@@ -84,6 +90,7 @@ static DEFINE_int(shard,  0, "Which shard do I run?");
 
 static DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_bool(skvm, false, "sets gUseSkVMBlitter");
 
 static DEFINE_string(bisect, "",
         "Pair of: SKP file to bisect, followed by an l/r bisect trail string (e.g., 'lrll'). The "
@@ -92,8 +99,6 @@ static DEFINE_string(bisect, "",
         "are thrown out. This is useful for finding a reduced repo case for path drawing bugs.");
 
 static DEFINE_bool(ignoreSigInt, false, "ignore SIGINT signals during test execution");
-
-static DEFINE_string(dont_write, "", "File extensions to skip writing to --writePath.");  // See skia:6821
 
 static DEFINE_bool(checkF16, false, "Ensure that F16Norm pixels are clamped.");
 
@@ -142,6 +147,8 @@ static DEFINE_string(key, "",
                      "Space-separated key/value pairs to add to JSON identifying this builder.");
 static DEFINE_string(properties, "",
                      "Space-separated key/value pairs to add to JSON identifying this run.");
+
+static DEFINE_bool(rasterize_pdf, false, "Rasterize PDFs when possible.");
 
 
 #if defined(__MSVC_RUNTIME_CHECKS)
@@ -970,7 +977,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50),
                srgb = SkColorSpace::MakeSRGB(),
          srgbLinear = SkColorSpace::MakeSRGBLinear(),
-                 p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+                 p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
 
         SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
         SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
@@ -1160,15 +1167,56 @@ struct Task {
                                         FLAGS_readPath[0]));
                 }
 
-                if (!FLAGS_writePath.isEmpty()) {
-                    const char* ext = task.sink->fileExtension();
-                    if (ext && !FLAGS_dont_write.contains(ext)) {
-                        if (data->getLength()) {
-                            WriteToDisk(task, md5, ext, data, data->getLength(), nullptr, nullptr);
-                            SkASSERT(bitmap.drawsNothing());
-                        } else if (!bitmap.drawsNothing()) {
-                            WriteToDisk(task, md5, ext, nullptr, 0, &bitmap, hashAndEncode.get());
-                        }
+                // Tests sometimes use a nullptr ext to indicate no image should be uploaded.
+                const char* ext = task.sink->fileExtension();
+                if (ext && !FLAGS_writePath.isEmpty()) {
+                #if defined(SK_BUILD_FOR_MAC)
+                    if (FLAGS_rasterize_pdf && SkString("pdf").equals(ext)) {
+                        SkASSERT(data->getLength() > 0);
+
+                        sk_sp<SkData> blob = SkData::MakeFromStream(data, data->getLength());
+
+                        SkUniqueCFRef<CGDataProviderRef> provider{
+                            CGDataProviderCreateWithData(nullptr,
+                                                         blob->data(),
+                                                         blob->size(),
+                                                         nullptr)};
+
+                        SkUniqueCFRef<CGPDFDocumentRef> pdf{
+                            CGPDFDocumentCreateWithProvider(provider.get())};
+
+                        CGPDFPageRef page = CGPDFDocumentGetPage(pdf.get(), 1);
+
+                        CGRect bounds = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+                        const int w = (int)CGRectGetWidth (bounds),
+                                  h = (int)CGRectGetHeight(bounds);
+
+                        SkBitmap rasterized;
+                        rasterized.allocPixels(
+                                SkImageInfo::Make(w,h, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
+                        rasterized.eraseColor(SK_ColorWHITE);
+
+                        SkUniqueCFRef<CGColorSpaceRef> cs{
+                            CGColorSpaceCreateDeviceRGB()};
+                        CGBitmapInfo info = kCGBitmapByteOrder32Big
+                                          | kCGImageAlphaPremultipliedLast;
+
+                        SkUniqueCFRef<CGContextRef> ctx{
+                            CGBitmapContextCreate(rasterized.getPixels(),
+                                                  w,h,8,rasterized.rowBytes(), cs.get(),info)};
+                        CGContextDrawPDFPage(ctx.get(), page);
+
+
+                        // Skip calling hashAndEncode->write(SkMD5*)... we want the .pdf's hash.
+                        hashAndEncode.reset(new HashAndEncode(rasterized));
+                        WriteToDisk(task, md5, "png", nullptr,0, &rasterized, hashAndEncode.get());
+                    } else
+                #endif
+                    if (data->getLength()) {
+                        WriteToDisk(task, md5, ext, data, data->getLength(), nullptr, nullptr);
+                        SkASSERT(bitmap.drawsNothing());
+                    } else if (!bitmap.drawsNothing()) {
+                        WriteToDisk(task, md5, ext, nullptr, 0, &bitmap, hashAndEncode.get());
                     }
                 }
 
@@ -1207,12 +1255,12 @@ struct Task {
                 return true;
             };
 
-            if (eq(gamut, SkNamedGamut::kSRGB    )) { return SkString("sRGB"); }
-            if (eq(gamut, SkNamedGamut::kAdobeRGB)) { return SkString("Adobe"); }
-            if (eq(gamut, SkNamedGamut::kDCIP3   )) { return SkString("P3"); }
-            if (eq(gamut, SkNamedGamut::kRec2020 )) { return SkString("2020"); }
-            if (eq(gamut, SkNamedGamut::kXYZ     )) { return SkString("XYZ"); }
-            if (eq(gamut,     gNarrow_toXYZD50   )) { return SkString("narrow"); }
+            if (eq(gamut, SkNamedGamut::kSRGB     )) { return SkString("sRGB"); }
+            if (eq(gamut, SkNamedGamut::kAdobeRGB )) { return SkString("Adobe"); }
+            if (eq(gamut, SkNamedGamut::kDisplayP3)) { return SkString("P3"); }
+            if (eq(gamut, SkNamedGamut::kRec2020  )) { return SkString("2020"); }
+            if (eq(gamut, SkNamedGamut::kXYZ      )) { return SkString("XYZ"); }
+            if (eq(gamut,     gNarrow_toXYZD50    )) { return SkString("narrow"); }
             return SkString("other");
         }
         return SkString("non-XYZ");
@@ -1412,9 +1460,8 @@ int main(int argc, char** argv) {
     ToolUtils::SetDefaultFontMgr();
     SetAnalyticAAFromCommonFlags();
 
-    if (FLAGS_forceRasterPipeline) {
-        gSkForceRasterPipelineBlitter = true;
-    }
+    gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
+    gUseSkVMBlitter               = FLAGS_skvm;
 
     // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
     if (!FLAGS_writePath.isEmpty()) {

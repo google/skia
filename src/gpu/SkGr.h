@@ -126,10 +126,6 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext*,
 // Misc Sk to Gr type conversions
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo&);
-GrPixelConfig SkColorType2GrPixelConfig(const SkColorType);
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info);
-
-bool GrPixelConfigToColorType(GrPixelConfig, SkColorType*);
 
 GrSamplerState::Filter GrSkFilterQualityToGrFilterMode(int imageWidth, int imageHeight,
                                                        SkFilterQuality paintFilterQuality,
@@ -178,7 +174,7 @@ static_assert((int)kIDA_GrBlendCoeff == (int)SkBlendModeCoeff::kIDA);
  */
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
                                                     const SkBitmap&,
-                                                    const GrSamplerState&,
+                                                    GrSamplerState,
                                                     SkScalar scaleAdjust[2]);
 
 /**
@@ -186,21 +182,15 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
  */
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                      GrSurfaceProxy* baseProxy,
+                                                     GrSurfaceOrigin origin,
                                                      GrColorType srcColorType);
 
 /*
- * Create a texture proxy from the provided bitmap by wrapping it in an image and calling
- * GrMakeCachedImageProxy.
+ * Create a texture proxy from the provided bitmap and add it to the texture cache
+ * using the key also extracted from 'bitmp'.
  */
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider*, const SkBitmap& bitmap,
-                                              SkBackingFit fit = SkBackingFit::kExact);
-
-/*
- * Create a texture proxy from the provided 'srcImage' and add it to the texture cache
- * using the key also extracted from 'srcImage'.
- */
-sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider*, sk_sp<SkImage> srcImage,
-                                             SkBackingFit fit = SkBackingFit::kExact);
+GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext*, const SkBitmap& bitmap,
+                                               SkBackingFit fit = SkBackingFit::kExact);
 
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()

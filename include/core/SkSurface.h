@@ -55,7 +55,7 @@ public:
 
         Pixel buffer size should be info height times computed rowBytes.
         Pixels are not initialized.
-        To access pixels after drawing, call flush() or peekPixels().
+        To access pixels after drawing, peekPixels() or readPixels().
 
         @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
                              of raster surface; width and height must be greater than zero
@@ -109,8 +109,7 @@ public:
         info contains SkColorType and SkAlphaType supported by raster surface;
         rowBytes is large enough to contain info width pixels of SkColorType, or is zero.
 
-        If rowBytes is not zero, subsequent images returned by makeImageSnapshot()
-        have the same rowBytes.
+        If rowBytes is zero, a suitable value will be chosen internally.
 
         @param imageInfo     width, height, SkColorType, SkAlphaType, SkColorSpace,
                              of raster surface; width and height must be greater than zero
@@ -318,8 +317,7 @@ public:
 #endif
 
 #ifdef SK_METAL
-    /** Private.
-        Creates SkSurface from CAMetalLayer.
+    /** Creates SkSurface from CAMetalLayer.
         Returned SkSurface takes a reference on the CAMetalLayer. The ref on the layer will be
         released when the SkSurface is destroyed.
 
@@ -354,6 +352,38 @@ public:
                                                  const SkSurfaceProps* surfaceProps,
                                                  GrMTLHandle* drawable);
 
+    /** Creates SkSurface from MTKView.
+        Returned SkSurface takes a reference on the MTKView. The ref on the layer will be
+        released when the SkSurface is destroyed.
+
+        Only available when Metal API is enabled.
+
+        Will grab the current drawable from the layer and use its texture as a backendRT to
+        create a renderable surface.
+
+        @param context         GPU context
+        @param layer           GrMTLHandle (expected to be a MTKView*)
+        @param origin          one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorType       one of:
+                               kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
+                               kARGB_4444_SkColorType, kRGBA_8888_SkColorType,
+                               kRGB_888x_SkColorType, kBGRA_8888_SkColorType,
+                               kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
+                               kGray_8_SkColorType, kRGBA_F16_SkColorType
+        @param colorSpace      range of colors; may be nullptr
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @return                created SkSurface, or nullptr
+     */
+    static sk_sp<SkSurface> MakeFromMTKView(GrContext* context,
+                                            GrMTLHandle mtkView,
+                                            GrSurfaceOrigin origin,
+                                            int sampleCnt,
+                                            SkColorType colorType,
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            const SkSurfaceProps* surfaceProps)
+                                            API_AVAILABLE(macos(10.11), ios(9.0));
 #endif
 
     /** Returns SkSurface on GPU indicated by context. Allocates memory for

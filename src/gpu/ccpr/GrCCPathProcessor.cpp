@@ -84,7 +84,7 @@ GrCCPathProcessor::GrCCPathProcessor(CoverageMode coverageMode, const GrTexture*
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
         , fCoverageMode(coverageMode)
-        , fAtlasAccess(GrSamplerState::ClampNearest(), atlasTexture->backendFormat(), swizzle)
+        , fAtlasAccess(GrSamplerState::Filter::kNearest, atlasTexture->backendFormat(), swizzle)
         , fAtlasDimensions(atlasTexture->dimensions())
         , fAtlasOrigin(atlasOrigin) {
     // TODO: Can we just assert that atlas has GrCCAtlas::kTextureOrigin and remove fAtlasOrigin?
@@ -231,8 +231,7 @@ void GrCCPathProcessor::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Look up coverage in the atlas.
     f->codeAppendf("half coverage = ");
-    f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str(),
-                           kFloat2_GrSLType);
+    f->appendTextureLookup(args.fTexSamplers[0], SkStringPrintf("%s.xy", texcoord.fsIn()).c_str());
     f->codeAppendf(".a;");
 
     if (isCoverageCount) {

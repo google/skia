@@ -1657,7 +1657,6 @@ protected:
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(this->width());
-
         paragraph->paint(canvas, 0, 0);
     }
 
@@ -1674,27 +1673,302 @@ protected:
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
-        const char* text = "0";
+        const char* text =  "Manage your google account";
         ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(1);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Google Sans Display")});
-        text_style.setFontSize(160);
-        //text_style.setHeightOverride(true);
-        //text_style.setHeight(1.75);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(50);
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(94);
-
+        paragraph->layout(this->width());
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     typedef Sample INHERITED;
 };
+
+class ParagraphView21 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph21"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "Referral Code";
+        ParagraphStyle paragraph_style;
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(0);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView22 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph22"); }
+
+    bool onChar(SkUnichar uni) override {
+            switch (uni) {
+                case 'l':
+                    direction = true;
+                    return true;
+                case 'r':
+                    direction = false;
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorWHITE);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(direction ? TextDirection::kLtr : TextDirection::kRtl);
+        auto collection = getFontCollection();
+        ParagraphBuilderImpl builder(paragraph_style, collection);
+        collection->getParagraphCache()->reset();
+        collection->getParagraphCache()->turnOn(false);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(12);
+        builder.pushStyle(text_style);
+        builder.addText("I have got a ");
+        text_style.setFontStyle(SkFontStyle::Bold());
+        builder.pushStyle(text_style);
+        builder.addText("lovely bunch");
+        text_style.setFontStyle(SkFontStyle::Normal());
+        builder.pushStyle(text_style);
+        builder.addText(" of coconuts.");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->width());
+        paragraph->paint(canvas, 0, 0);
+        collection->getParagraphCache()->turnOn(true);
+    }
+
+private:
+    typedef Sample INHERITED;
+    bool direction;
+};
+
+class ParagraphView23 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph23"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "Text with shadow";
+        ParagraphStyle paragraph_style;
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+
+        auto draw = [&](SkScalar h, SkScalar v, SkScalar b) {
+            text_style.resetShadows();
+            text_style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(h, v), b));
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(300);
+            paragraph->paint(canvas, 0, 0);
+
+            auto rect = SkRect::MakeXYWH(0, 0, paragraph->getMaxWidth(), paragraph->getHeight());
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(1);
+            canvas->drawRect(rect, paint);
+        };
+
+        draw(10, 10, 5);
+        canvas->translate(0, 100);
+
+        draw(10, -10, 5);
+        canvas->translate(0, 100);
+
+        draw(-10, -10, 5);
+        canvas->translate(0, 100);
+
+        draw(-10, 10, 5);
+        canvas->translate(0, 100);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView24 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph24"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextDirection(TextDirection::kRtl);
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("Right_to_left:");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+        }
+        canvas->translate(0, 200);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("Right_to_left+");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+        }
+        canvas->translate(0, 200);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            builder.pushStyle(text_style);
+            builder.addText("Right_to_left.");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView25 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph25"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        const char* text =  "Overflowing endorsement that has a large lengthy text and is a lot longer than expected";
+        ParagraphStyle paragraph_style;
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(594.0f);
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 200);
+        paragraph->layout(std::numeric_limits<SkScalar>::max());
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 200);
+        paragraph->layout(787.0f);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView26 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph26"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        //const char* text = "ERROR\nSECOND ERROR";
+        const char* text = "ERROR\nSECOND ERROR\nTHIRD ERRORRRRRRRRR\nFOURTH ERROR";
+        ParagraphStyle paragraph_style;
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(20);
+        builder.pushStyle(text_style);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(std::numeric_limits<SkScalar>::max());
+        paragraph->paint(canvas, 0, 0);
+        canvas->translate(0, 300);
+        paragraph->layout(200);
+        paragraph->paint(canvas, 0, 0);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
+class ParagraphView27 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph27"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
+        paragraph_style.setEllipsis(u"\u2026");
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontSize(24);
+
+        auto draw = [&](const char* text, SkScalar height) {
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            text_style.setHeightOverride(true);
+            text_style.setHeight(height);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(153.33f);
+
+            SkDebugf("'%s': %f\n", text, paragraph->getHeight());
+            auto boxes1 = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto boxes2 = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kMax, RectWidthStyle::kTight);
+            if (boxes1.size() > 0 && boxes2.size() > 0) {
+                SkDebugf("Heights: %f %f\\b", boxes1[0].rect.height() , boxes2[0].rect.height());
+            }
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, 200);
+        };
+
+        //draw("Artist Name with long text in active media bar to test word truncation", 1.333f);
+        draw("provider with long text in active media bar to test word truncation inside the subtitle", 1);
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_SAMPLE(return new ParagraphView1();)
@@ -1716,3 +1990,10 @@ DEF_SAMPLE(return new ParagraphView17();)
 DEF_SAMPLE(return new ParagraphView18();)
 DEF_SAMPLE(return new ParagraphView19();)
 DEF_SAMPLE(return new ParagraphView20();)
+DEF_SAMPLE(return new ParagraphView21();)
+DEF_SAMPLE(return new ParagraphView22();)
+DEF_SAMPLE(return new ParagraphView23();)
+DEF_SAMPLE(return new ParagraphView24();)
+DEF_SAMPLE(return new ParagraphView25();)
+DEF_SAMPLE(return new ParagraphView26();)
+DEF_SAMPLE(return new ParagraphView27();)

@@ -24,6 +24,8 @@
 #include "src/gpu/text/GrTextContext.h"
 #include "src/gpu/text/GrTextTarget.h"
 
+#include <limits>
+
 class GrAtlasManager;
 class GrAtlasTextOp;
 struct GrDistanceFieldAdjustTable;
@@ -295,32 +297,14 @@ public:
      * SkGlyphCache.
      */
     VertexRegenerator(GrResourceProvider*, GrTextBlob::SubRun* subRun,
-                      const SkMatrix& drawMatrix, SkPoint drawOrigin, GrColor color,
                       GrDeferredUploadTarget*, GrStrikeCache*, GrAtlasManager*);
 
-    struct Result {
-        /**
-         * Was regenerate() able to draw all the glyphs from the sub run? If not flush all glyph
-         * draws and call regenerate() again.
-         */
-        bool fFinished = true;
-
-        /**
-         * How many glyphs were regenerated. Will be equal to the sub run's glyph count if
-         * fType is kFinished.
-         */
-        int fGlyphsRegenerated = 0;
-
-        /**
-         * Pointer where the caller finds the first regenerated vertex.
-         */
-        const char* fFirstVertex;
-    };
-
-    bool regenerate(Result*);
+    // Return {success, number of glyphs regenerated}
+    std::tuple<bool, int> regenerate(int begin, int end);
 
 private:
-    bool doRegen(Result* result);
+    // Return {success, number of glyphs regenerated}
+    std::tuple<bool, int> updateTextureCoordinatesMaybeStrike(int begin, int end);
 
     GrResourceProvider* fResourceProvider;
     GrDeferredUploadTarget* fUploadTarget;
@@ -328,23 +312,83 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
-    struct {
-        bool regenTextureCoordinates:1;
-        bool regenStrike:1;
-    } fActions = {false, false};
-    int fCurrGlyph = 0;
-
-    // fBrokenRun indicates if the atlas became full at any glyph other than the first glyph of
-    // the SubRun.
-    //
-    // Notes:
-    // This controls the setting of the fAtlasGeneration on the SubRun. This state is used through
-    // multiple calls of VertexRegenerator::regenerate() to indicate if the texture coordinates
-    // need to be updated. fBrokenRun being true indicates that the the SubRun->fAtlasGeneration
-    // must be set to invalid to indicate that the texture coordinates need to be regenerated.
-    // Otherwise, the atlas could not take the first glyph of the SubRun, the code flushes the
-    // atlas, and the subRun uses the next generation of the atlas.
-    bool fBrokenRun = false;
+    bool fRegenerateTextureCoordinates{false};
 };
+
+// -- GrTextBlob::SubRun ---------------------------------------------------------------------------
+// Hold data to draw the different types of sub run. SubRuns are produced knowing all the
+// glyphs that are included in them.
+class GrTextBlob::SubRun {
+public:
+    // SubRun for masks
+    SubRun(SubRunType type,
+           GrTextBlob* textBlob,
+           const SkStrikeSpec& strikeSpec,
+           GrMaskFormat format,
+           const SkSpan<GrGlyph*>& glyphs, const SkSpan<char>& vertexData,
+           sk_sp<GrTextStrike>&& grStrike);
+
+    // SubRun for paths
+    SubRun(GrTextBlob* textBlob, const SkStrikeSpec& strikeSpec);
+
+    void appendGlyphs(const SkZip<SkGlyphVariant, SkPoint>& drawables);
+
+    // TODO when this object is more internal, drop the privacy
+    void resetBulkUseToken();
+    GrDrawOpAtlas::BulkUseTokenUpdater* bulkUseToken();
+    void setStrike(sk_sp<GrTextStrike> strike);
+    GrTextStrike* strike() const;
+
+    GrMaskFormat maskFormat() const;
+
+    size_t vertexStride() const;
+    size_t colorOffset() const;
+    size_t texCoordOffset() const;
+    char* quadStart(size_t index) const;
+    size_t quadOffset(size_t index) const;
+
+    const SkRect& vertexBounds() const;
+    void joinGlyphBounds(const SkRect& glyphBounds);
+
+    bool drawAsDistanceFields() const;
+    bool drawAsPaths() const;
+    bool needsTransform() const;
+
+    void translateVerticesIfNeeded(const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    void updateVerticesColorIfNeeded(GrColor newColor);
+    void updateTexCoords(int begin, int end);
+
+    // df properties
+    void setUseLCDText(bool useLCDText);
+    bool hasUseLCDText() const;
+    void setAntiAliased(bool antiAliased);
+    bool isAntiAliased() const;
+
+    const SkStrikeSpec& strikeSpec() const;
+
+    SubRun* fNextSubRun{nullptr};
+    const SubRunType fType;
+    GrTextBlob* const fBlob;
+    const GrMaskFormat fMaskFormat;
+    const SkSpan<GrGlyph*> fGlyphs;
+    const SkSpan<char> fVertexData;
+    const SkStrikeSpec fStrikeSpec;
+    sk_sp<GrTextStrike> fStrike;
+    struct {
+        bool useLCDText:1;
+        bool antiAliased:1;
+    } fFlags{false, false};
+    GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
+    SkRect fVertexBounds = SkRectPriv::MakeLargestInverted();
+    uint64_t fAtlasGeneration{GrDrawOpAtlas::kInvalidAtlasGeneration};
+    GrColor fCurrentColor;
+    SkPoint fCurrentOrigin;
+    SkMatrix fCurrentMatrix;
+    std::vector<PathGlyph> fPaths;
+
+private:
+    bool hasW() const;
+
+};  // SubRun
 
 #endif  // GrTextBlob_DEFINED

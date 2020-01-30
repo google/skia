@@ -5,6 +5,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - `SkSurface.drawOnce` for drawing a single frame (in addition to already existing
+   `SkSurface.requestAnimationFrame` for animation logic).
+
+### Changed
+ - We now compile/ship with Emscripten v1.39.6.
+
+### Fixed
+ - Support for .otf fonts (.woff and .woff2 still not supported).
+
+## [0.12.0] - 2020-01-22
+
+### Added
+ - `SkFontMgr.countFamilies` and `SkFontMgr.getFamilyName` to expose the parsed font names.
+
+### Changed
+ - SKP serialization/deserialization now available (can be disabled with the 'no_skp').
+   `SkPicture.DEBUGONLY_saveAsFile` renamed to `SkPicture.saveAsFile` and
+   `CanvasKit.MakeSkPicture` is now exposed. SKP support is not shipped to npm builds.
+   `force_serialize_skp` has been removed since it opt-out, not opt-in.
+
+### Fixed
+ - Bug that sometimes resulted in 'Cannot perform Construct on a neutered ArrayBuffer'
+ - Bug with SkImage.readPixels (skbug.com/9788)
+ - Bug with transparent colors in Canvas2d mode (skbug.com/9800)
+
+## [0.11.0] - 2020-01-10
+
+### Added
+ - A "Core" build that removes Fonts, the Skottie animation player, the Particles demo,
+   and PathOps is available in `bin/core/`. It is about half the size of the "CoreWithFonts"
+   build.
+ - Experimental Runtime shader available for custom builds.
+ - WebP support.
+ - `SkAnimatedImage.getCurrentFrame` which returns an SkImage.
 
 ### Fixed
  - `CanvasKit.SaveLayerInitWithPrevious` and `CanvasKit.SaveLayerF16ColorType` constants.
@@ -12,9 +47,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - Small tweaks to compilation settings to reduce code size and linkage time.
+ - JS functions are no longer provided when the underlying c++ calls have been compiled out.
 
 ### Removed
-- `SkShader.Empty`
+ - `SkShader.Empty`
+ - Support for Type 1 Fonts. These are ancient and removing them saves about 135k
+   of code size.
+
+### Breaking
+ - In an effort to reduce code size for most clients, npm now contains two CanvasKit builds.
+   In `bin/` there is the "CoreWithFonts" build that contains most functionality from 0.10.0.
+   However, we no longer ship the Skottie animation player, nor the Particles demo. Further,
+   PathOps are removed from this build `MakePathFromOp`, `SkPath.op` and `SkPath.simplify`.
+   Clients who need any of those features are encouraged to create a custom build using
+   `compile.sh`.
+ - `SkPicture.DEBUGONLY_saveAsFile` was accidentally included in release builds. It has been
+   removed. Clients who need this in a release build (e.g. to file a bug report that only
+   reproduces in release) should do a custom build with the `force_serialize_skp` flag given.
+
+### Deprecated
+ - `SkCanvas.drawAnimatedImage` will be renamed soon. Calls can be replaced with `SkCanvas.drawImage`
+   and `SkAnimatedImage.getCurrentFrame`.
 
 ## [0.10.0] - 2019-12-09
 

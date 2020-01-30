@@ -183,9 +183,10 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
         GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
 
-        auto ccbuff = ctx->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
-                                                                  this->width(), this->height(),
-                                                                  GrColorType::kAlpha_F16, nullptr);
+        int width = this->width();
+        int height = this->height();
+        auto ccbuff = GrRenderTargetContext::Make(
+                ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
         SkASSERT(ccbuff);
         ccbuff->clear(nullptr, SK_PMColor4fTRANSPARENT,
                       GrRenderTargetContext::CanClearFullscreen::kYes);
@@ -193,9 +194,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 
         // Visualize coverage count in main canvas.
         GrPaint paint;
-        paint.addColorFragmentProcessor(
-                GrSimpleTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()),
-                                            ccbuff->colorInfo().alphaType(), SkMatrix::I()));
+        paint.addColorFragmentProcessor(GrTextureEffect::Make(sk_ref_sp(ccbuff->asTextureProxy()),
+                                                              ccbuff->colorInfo().alphaType()));
         paint.addColorFragmentProcessor(
                 std::make_unique<VisualizeCoverageCountFP>());
         paint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);

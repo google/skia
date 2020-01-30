@@ -40,11 +40,12 @@ protected:
     sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
 
 private:
-    sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+    sk_sp<GrTextureProxy> onRefTextureProxyForParams(GrSamplerState,
                                                      bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
 
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
+    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped,
+                                              bool copyOnlyForMips);
 
     sk_sp<GrTextureProxy> fOriginal;
     uint32_t fUniqueID;

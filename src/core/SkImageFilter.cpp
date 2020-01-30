@@ -575,18 +575,10 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    auto renderTargetContext =
-            context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
-                                                            bounds.width(),
-                                                            bounds.height(),
-                                                            SkColorTypeToGrColorType(colorType),
-                                                            sk_ref_sp(colorSpace),
-                                                            1,
-                                                            GrMipMapped::kNo,
-                                                            kBottomLeft_GrSurfaceOrigin,
-                                                            nullptr,
-                                                            SkBudgeted::kYes,
-                                                            isProtected);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, SkColorTypeToGrColorType(colorType), sk_ref_sp(colorSpace),
+            SkBackingFit::kApprox, bounds.size(), 1, GrMipMapped::kNo, isProtected,
+            kBottomLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -600,7 +592,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* context
 
     return SkSpecialImage::MakeDeferredFromGpu(
             context, dstIRect, kNeedNewImageUniqueID_SpecialImage,
-            renderTargetContext->asTextureProxyRef(), renderTargetContext->colorInfo().colorType(),
+            renderTargetContext->readSurfaceView(), renderTargetContext->colorInfo().colorType(),
             renderTargetContext->colorInfo().refColorSpace());
 }
 

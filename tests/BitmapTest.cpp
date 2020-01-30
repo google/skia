@@ -92,6 +92,42 @@ static void test_allocpixels(skiatest::Reporter* reporter) {
     bool success = bm.setInfo(info, info.minRowBytes() - 1);   // invalid for 32bit
     REPORTER_ASSERT(reporter, !success);
     REPORTER_ASSERT(reporter, bm.isNull());
+
+    for (SkColorType ct : {
+        kAlpha_8_SkColorType,
+        kRGB_565_SkColorType,
+        kARGB_4444_SkColorType,
+        kRGBA_8888_SkColorType,
+        kBGRA_8888_SkColorType,
+        kRGB_888x_SkColorType,
+        kRGBA_1010102_SkColorType,
+        kRGB_101010x_SkColorType,
+        kGray_8_SkColorType,
+        kRGBA_F16Norm_SkColorType,
+        kRGBA_F16_SkColorType,
+        kRGBA_F32_SkColorType,
+        kR8G8_unorm_SkColorType,
+        kA16_unorm_SkColorType,
+        kR16G16_unorm_SkColorType,
+        kA16_float_SkColorType,
+        kR16G16_float_SkColorType,
+        kR16G16B16A16_unorm_SkColorType,
+    }) {
+        SkImageInfo imageInfo = info.makeColorType(ct);
+        for (int rowBytesPadding = 1; rowBytesPadding <= 17; rowBytesPadding++) {
+            bm.reset();
+            success = bm.setInfo(imageInfo, imageInfo.minRowBytes() + rowBytesPadding);
+            if (rowBytesPadding % imageInfo.bytesPerPixel() == 0) {
+                REPORTER_ASSERT(reporter, success);
+                success = bm.tryAllocPixels();
+                REPORTER_ASSERT(reporter, success);
+            } else {
+                // Not pixel aligned.
+                REPORTER_ASSERT(reporter, !success);
+                REPORTER_ASSERT(reporter, bm.isNull());
+            }
+        }
+    }
 }
 
 static void test_bigwidth(skiatest::Reporter* reporter) {

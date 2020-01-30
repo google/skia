@@ -57,6 +57,8 @@
 #include <thread>
 
 extern bool gSkForceRasterPipelineBlitter;
+extern bool gUseSkVMBlitter;
+extern bool gSkVMJITViaDylib;
 
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
@@ -128,6 +130,7 @@ static DEFINE_string(benchType,  "",
         "piping, playback, skcodec, etc.");
 
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_bool(skvm, false, "sets gUseSkVMBlitter and gSkVMJITViaDylib");
 
 static DEFINE_bool2(pre_log, p, false,
                     "Log before running each test. May be incomprehensible when threading");
@@ -1226,9 +1229,8 @@ int main(int argc, char** argv) {
 
     SetAnalyticAAFromCommonFlags();
 
-    if (FLAGS_forceRasterPipeline) {
-        gSkForceRasterPipelineBlitter = true;
-    }
+    if (FLAGS_forceRasterPipeline) { gSkForceRasterPipelineBlitter = true; }
+    if (FLAGS_skvm) { gUseSkVMBlitter = gSkVMJITViaDylib = true; }
 
     int runs = 0;
     BenchmarkStream benchStream;

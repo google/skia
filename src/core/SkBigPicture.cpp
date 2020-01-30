@@ -13,15 +13,15 @@
 #include "src/core/SkTraceEvent.h"
 
 SkBigPicture::SkBigPicture(const SkRect& cull,
-                           SkRecord* record,
-                           SnapshotArray* drawablePicts,
-                           SkBBoxHierarchy* bbh,
+                           sk_sp<SkRecord> record,
+                           std::unique_ptr<SnapshotArray> drawablePicts,
+                           sk_sp<SkBBoxHierarchy> bbh,
                            size_t approxBytesUsedBySubPictures)
     : fCullRect(cull)
     , fApproxBytesUsedBySubPictures(approxBytesUsedBySubPictures)
-    , fRecord(record)               // Take ownership of caller's ref.
-    , fDrawablePicts(drawablePicts) // Take ownership.
-    , fBBH(bbh)                     // Take ownership of caller's ref.
+    , fRecord(std::move(record))
+    , fDrawablePicts(std::move(drawablePicts))
+    , fBBH(std::move(bbh))
 {}
 
 void SkBigPicture::playback(SkCanvas* canvas, AbortCallback* callback) const {
@@ -57,7 +57,7 @@ SkRect SkBigPicture::cullRect()            const { return fCullRect; }
 int    SkBigPicture::approximateOpCount()   const { return fRecord->count(); }
 size_t SkBigPicture::approximateBytesUsed() const {
     size_t bytes = sizeof(*this) + fRecord->bytesUsed() + fApproxBytesUsedBySubPictures;
-    if (fBBH) { bytes += fBBH->bytesUsed(); }
+    if (fBBH) { bytes += static_cast<const SkBBoxHierarchy_Base*>(fBBH.get())->bytesUsed(); }
     return bytes;
 }
 

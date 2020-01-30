@@ -20,6 +20,7 @@ declare_args() {
   skia_enable_fontmgr_win_gdi = is_win
   skia_enable_gpu = true
   skia_enable_pdf = true
+  skia_enable_skottie = !(is_win && is_component_build)
   skia_enable_sksl_interpreter = is_skia_dev_build
   skia_enable_skvm_jit =
       is_skia_dev_build && ((target_cpu == "x64" && (is_linux || is_mac)) ||
@@ -60,8 +61,6 @@ declare_args() {
   skia_use_x11 = is_linux
   skia_use_xps = true
   skia_use_zlib = true
-
-  skia_vtune_path = ""
 
   if (is_ios) {
     skia_ios_identity = ".*Google.*"

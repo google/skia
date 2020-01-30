@@ -28,7 +28,7 @@ void SkRecordDraw(const SkRecord& record,
         SkRect query = canvas->getLocalClipBounds();
 
         SkTDArray<int> ops;
-        bbh->search(query, &ops);
+        static_cast<const SkBBoxHierarchy_Base*>(bbh)->search(query, &ops);
 
         SkRecords::Draw draw(canvas, drawablePicts, drawables, drawableCount);
         for (int i = 0; i < ops.count(); i++) {
@@ -93,8 +93,10 @@ template <> void Draw::draw(const DrawBehind& r) {
 }
 
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
+DRAW(Concat44, experimental_concat44(r.matrix));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
+DRAW(Scale, scale(r.sx, r.sy));
 
 DRAW(ClipPath, clipPath(r.path, r.opAA.op(), r.opAA.aa()));
 DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()));
@@ -246,7 +248,9 @@ private:
     template <typename T> void updateCTM(const T&) {}
     void updateCTM(const Restore& op)   { fCTM = op.matrix; }
     void updateCTM(const SetMatrix& op) { fCTM = op.matrix; }
+    void updateCTM(const Concat44& op)  { fCTM.preConcat(op.matrix.asM33()); }
     void updateCTM(const Concat& op)    { fCTM.preConcat(op.matrix); }
+    void updateCTM(const Scale& op)     { fCTM.preScale(op.sx, op.sy); }
     void updateCTM(const Translate& op) { fCTM.preTranslate(op.dx, op.dy); }
 
     // The bounds of these ops must be calculated when we hit the Restore
@@ -258,6 +262,8 @@ private:
 
     void trackBounds(const SetMatrix&)         { this->pushControl(); }
     void trackBounds(const Concat&)            { this->pushControl(); }
+    void trackBounds(const Concat44&)          { this->pushControl(); }
+    void trackBounds(const Scale&)             { this->pushControl(); }
     void trackBounds(const Translate&)         { this->pushControl(); }
     void trackBounds(const ClipRect&)          { this->pushControl(); }
     void trackBounds(const ClipRRect&)         { this->pushControl(); }

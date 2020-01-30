@@ -18,6 +18,7 @@
 
 class  SkArenaAlloc;
 class  SkCanvas;
+class  SkMatrix;
 class  SkPaint;
 struct SkRect;
 

@@ -1,10 +1,11 @@
 // Copyright 2019 Google LLC.
-#include "src/core/SkFontMgrPriv.h"
 #include <sstream>
+#include <thread>
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
+#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaperJSONWriter.h"
@@ -2111,6 +2112,9 @@ DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
 }
 
 // Checked DIFF+
+// This test shows now 2 boxes for [36:40) range:
+// [36:38) for arabic text and [38:39) for the last space
+// that has default paragraph direction (LTR) and is placed at the end of the paragraph
 DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -2147,13 +2151,14 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
 
     RectHeightStyle rect_height_style = RectHeightStyle::kMax;
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    // There are 39 codepoints: [0:39); asking for [36:40) would give the same as for [36:39)
     std::vector<TextBox> boxes = paragraph->getRectsForRange(36, 40, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorRED, boxes);
 
-    REPORTER_ASSERT(reporter, boxes.size() == 1ull);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.916f, EPSILON100));  // DIFF: 89.40625
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.268f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 115.893f, EPSILON100)); // DIFF: 121.87891
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.92f, EPSILON100));  // DIFF: 89.40625
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 110.16f, EPSILON100)); // DIFF: 121.87891
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
@@ -2198,10 +2203,10 @@ DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
             paragraph->getRectsForRange(36, 40, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorRED, boxes);
 
-    REPORTER_ASSERT(reporter, boxes.size() == 1ull); // DIFF
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.501f, EPSILON100));         // DIFF
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.268f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 593.479f, EPSILON100));         // DIFF
+    REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.5f, EPSILON100));         // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 587.74f, EPSILON100));       // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
@@ -4970,34 +4975,31 @@ DEF_TEST(SkParagraph_Bidi2, reporter) {
     std::u16string abcDEFghiJKLmno = u"\u202Dabc\u202EDEF\u202Dghi\u202EJKL\u202Dmno";
 
     ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-
     TextStyle text_style;
     text_style.setFontFamilies({ SkString("sans-serif")});
     text_style.setFontSize(40);
-    text_style.setColor(SK_ColorBLACK);
 
-    text_style.setColor(SK_ColorYELLOW);
-    text_style.setFontSize(40);
-    text_style.setFontStyle(SkFontStyle(SkFontStyle::kThin_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant));
-    builder.pushStyle(text_style);
-    builder.addText(abcD);
-
-    text_style.setColor(SK_ColorRED);
-    text_style.setFontSize(50);
-    text_style.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant));
-    builder.pushStyle(text_style);
-    builder.addText(EFgh);
-
-    text_style.setColor(SK_ColorMAGENTA);
-    text_style.setFontSize(60);
-    text_style.setFontStyle(SkFontStyle(SkFontStyle::kExtraBold_Weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant));
-    builder.pushStyle(text_style);
-    builder.addText(iJKLmno);
-
-    auto paragraph = builder.Build();
-    paragraph->layout(360);
-    paragraph->paint(canvas.get(), 0, 0);
+    {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(abcD);
+        builder.pushStyle(text_style);
+        builder.addText(EFgh);
+        builder.pushStyle(text_style);
+        builder.addText(iJKLmno);
+        auto paragraph = builder.Build();
+        paragraph->layout(360);
+        paragraph->paint(canvas.get(), 0, 0);
+    }
+    canvas.get()->translate(0, 400);
+    {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(abcDEFghiJKLmno);
+        auto paragraph = builder.Build();
+        paragraph->layout(360);
+        paragraph->paint(canvas.get(), 0, 0);
+    }
 }
 
 DEF_TEST(SkParagraph_NewlineOnly, reporter) {
@@ -5204,3 +5206,34 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
     relayout(3, false, 50, 30,  90, 950, SK_ColorBLUE);
     relayout(std::numeric_limits<size_t>::max(), false, 50, 200,  90, 950, SK_ColorGREEN);
 }
+
+DEF_TEST(SkParagraph_MemoryLeak, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+
+    std::string text;
+    for (size_t i = 0; i < 10; i++)
+	{
+		SkPaint paint;
+		paint.setAntiAlias(true);
+		paint.setColor(SK_ColorBLACK);
+
+		TextStyle textStyle;
+		textStyle.setForegroundColor(paint);
+		textStyle.setFontFamilies({ SkString("Roboto") });
+
+		ParagraphStyle paragraphStyle;
+		paragraphStyle.setTextStyle(textStyle);
+
+		ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+		text += "Text ";
+		builder.addText(text.c_str());
+
+		auto paragraph = builder.Build();
+		paragraph->layout(100);
+
+		//used to add a delay so I can monitor memory usage
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+};

@@ -30,7 +30,6 @@ static GrSurfaceDesc make_desc() {
     GrSurfaceDesc desc;
     desc.fWidth = kSize.width();
     desc.fHeight = kSize.height();
-    desc.fConfig = GrColorTypeToPixelConfig(kColorType);
     return desc;
 }
 
@@ -43,10 +42,11 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter, GrContex
 
     const GrSurfaceDesc desc = make_desc();
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kNo);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, kColorType);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, GrRenderable::kNo, 1, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
-            SkBudgeted::kYes, GrProtected::kNo);
+            format, desc, swizzle, GrRenderable::kNo, 1, kBottomLeft_GrSurfaceOrigin,
+            GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -59,10 +59,11 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter, GrCont
     const GrSurfaceDesc desc = make_desc();
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, kColorType);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
-            SkBudgeted::kYes, GrProtected::kNo);
+            format, desc, swizzle, GrRenderable::kYes, 1, kBottomLeft_GrSurfaceOrigin,
+            GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;

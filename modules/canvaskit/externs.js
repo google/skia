@@ -53,6 +53,7 @@ var CanvasKit = {
 	MakePathFromSVGString: function() {},
 	MakeRadialGradientShader: function() {},
 	MakeRenderTarget: function() {},
+	MakeSkPicture: function() {},
 	MakeSWCanvasSurface: function() {},
 	MakeManagedAnimation: function() {},
 	MakeParticles: function() {},
@@ -84,6 +85,7 @@ var CanvasKit = {
 	_MakeManagedAnimation: function() {},
 	_MakeParticles: function() {},
 	_MakeSkDashPathEffect: function() {},
+	_MakeSkPicture: function() {},
 	_MakeSkVertices: function() {},
 	_MakeTwoPointConicalGradientShader: function() {},
 	_decodeAnimatedImage: function() {},
@@ -124,7 +126,7 @@ var CanvasKit = {
 		_getRectsForRange: function() {},
 	},
 
-	_SkRuntimeEffect: {
+	SkRuntimeEffect: {
 		// public API (from C++ bindings)
 		Make: function() {},
 
@@ -253,6 +255,7 @@ var CanvasKit = {
 		FromData: function() {},
 		RefDefault: function() {},
 		countFamilies: function() {},
+		getFamilyName: function() {},
 
 		// private API
 		_makeTypefaceFromData: function() {},
@@ -381,7 +384,7 @@ var CanvasKit = {
 	},
 
 	SkPicture: {
-		DEBUGONLY_serialize: function() {},
+		serialize: function() {},
 	},
 
 	SkPictureRecorder: {
@@ -768,11 +771,12 @@ CanvasKit.SkPath.prototype.stroke = function() {};
 CanvasKit.SkPath.prototype.transform = function() {};
 CanvasKit.SkPath.prototype.trim = function() {};
 
-CanvasKit.SkPicture.prototype.DEBUGONLY_saveAsFile = function() {};
+CanvasKit.SkPicture.prototype.saveAsFile = function() {};
 
 CanvasKit.SkSurface.prototype.dispose = function() {};
 CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.requestAnimationFrame = function() {};
+CanvasKit.SkSurface.prototype.drawOnce = function() {};
 CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function() {};
 
 /** @return {CanvasKit.SkVertices} */
@@ -802,7 +806,7 @@ CanvasKit.SkColorBuilder.prototype.delete = function() {};
 CanvasKit.SkColorBuilder.prototype.push = function() {};
 CanvasKit.SkColorBuilder.prototype.set = function() {};
 
-CanvasKit._SkRuntimeEffect.prototype.makeShader = function() {};
+CanvasKit.SkRuntimeEffect.prototype.makeShader = function() {};
 
 // Define StrokeOpts object
 var StrokeOpts = {};

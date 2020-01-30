@@ -54,10 +54,7 @@ public:
     int countGlyphs() const { return fCache.count(); }
 
     // remove any references to this plot
-    void removeID(GrDrawOpAtlas::AtlasID);
-
-    // If a TextStrike is abandoned by the cache, then the caller must get a new strike
-    bool isAbandoned() const { return fIsAbandoned; }
+    void removeID(GrDrawOpAtlas::PlotLocator);
 
 private:
     struct HashTraits {
@@ -75,7 +72,6 @@ private:
     SkArenaAlloc fAlloc{512};
 
     int fAtlasedGlyphs{0};
-    bool fIsAbandoned{false};
 
     friend class GrStrikeCache;
 };
@@ -84,10 +80,10 @@ private:
  * GrStrikeCache manages strikes which are indexed by a SkStrike. These strikes can then be
  * used to generate individual Glyph Masks.
  */
-class GrStrikeCache {
+class GrStrikeCache final : public GrDrawOpAtlas::EvictionCallback {
 public:
     GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes);
-    ~GrStrikeCache();
+    ~GrStrikeCache() override;
 
     void setStrikeToPreserve(GrTextStrike* strike) { fPreserveStrike = strike; }
 
@@ -106,7 +102,7 @@ public:
 
     void freeAll();
 
-    static void HandleEviction(GrDrawOpAtlas::AtlasID, void*);
+    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override;
 
 private:
     sk_sp<GrTextStrike> generateStrike(const SkDescriptor& desc) {

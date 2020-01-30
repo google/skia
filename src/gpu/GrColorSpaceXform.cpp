@@ -65,8 +65,7 @@ public:
         fColorSpaceHelper.emitCode(uniformHandler, csxe.colorXform());
 
         if (this->numChildProcessors()) {
-            SkString childColor("src_color");
-            this->invokeChild(0, &childColor, args);
+            SkString childColor = this->invokeChild(0, args);
 
             SkString xformedColor;
             fragBuilder->appendColorGamutXform(&xformedColor, childColor.c_str(), &fColorSpaceHelper);

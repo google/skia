@@ -8,6 +8,7 @@
 #include "modules/skottie/src/text/RangeSelector.h"
 
 #include "include/core/SkCubicMap.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 
@@ -229,7 +230,8 @@ static constexpr ShapeInfo gShapeInfo[] = {
 } // namespace
 
 sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
-                                         const AnimationBuilder* abuilder) {
+                                         const AnimationBuilder* abuilder,
+                                         AnimatablePropertyContainer* acontainer) {
     if (!jrange) {
         return nullptr;
     }
@@ -280,39 +282,17 @@ sk_sp<RangeSelector> RangeSelector::Make(const skjson::ObjectValue* jrange,
                               ParseEnum<Domain>(gDomainMap, (*jrange)["b" ], abuilder, "domain"),
                               ParseEnum<Mode>  (gModeMap  , (*jrange)["m" ], abuilder, "mode"  ),
                               ParseEnum<Shape> (gShapeMap , (*jrange)["sh"], abuilder, "shape" )));
-    auto* raw_selector = selector.get();
 
-    abuilder->bindProperty<ScalarValue>((*jrange)["s"],
-        [raw_selector](const ScalarValue& s) {
-            raw_selector->fStart = s;
-        });
-    abuilder->bindProperty<ScalarValue>((*jrange)["e"],
-        [raw_selector](const ScalarValue& e) {
-            raw_selector->fEnd = e;
-        });
-    abuilder->bindProperty<ScalarValue>((*jrange)["o"],
-        [raw_selector](const ScalarValue& o) {
-            raw_selector->fOffset = o;
-        });
-    abuilder->bindProperty<ScalarValue>((*jrange)["a"],
-        [raw_selector](const ScalarValue& a) {
-            raw_selector->fAmount = a;
-        });
-    abuilder->bindProperty<ScalarValue>((*jrange)["ne"],
-        [raw_selector](const ScalarValue& ne) {
-            raw_selector->fEaseLo = ne;
-        });
-    abuilder->bindProperty<ScalarValue>((*jrange)["xe"],
-        [raw_selector](const ScalarValue& xe) {
-            raw_selector->fEaseHi = xe;
-        });
+    acontainer->bind(*abuilder, (*jrange)["s" ], &selector->fStart );
+    acontainer->bind(*abuilder, (*jrange)["e" ], &selector->fEnd   );
+    acontainer->bind(*abuilder, (*jrange)["o" ], &selector->fOffset);
+    acontainer->bind(*abuilder, (*jrange)["a" ], &selector->fAmount);
+    acontainer->bind(*abuilder, (*jrange)["ne"], &selector->fEaseLo);
+    acontainer->bind(*abuilder, (*jrange)["xe"], &selector->fEaseHi);
 
     // Optional square "smoothness" prop.
     if (selector->fShape == Shape::kSquare) {
-        abuilder->bindProperty<ScalarValue>((*jrange)["sm"],
-            [selector](const ScalarValue& sm) {
-                selector->fSmoothness = sm;
-            });
+        acontainer->bind(*abuilder, (*jrange)["sm" ], &selector->fSmoothness);
     }
 
     return selector;

@@ -32,7 +32,7 @@ public:
     Animator(const Animator&) = delete;
     Animator& operator=(const Animator&) = delete;
 
-    void tick(float t);
+    void tick(float t) { this->onTick(t); }
 
 protected:
     Animator();

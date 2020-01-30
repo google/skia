@@ -29,6 +29,7 @@ static SkBitmap create_bm() {
     SkBitmap bm;
     bm.allocPixels(ii);
     bm.eraseColor(SK_ColorTRANSPARENT);
+    bm.setImmutable();
     return bm;
 }
 
@@ -199,30 +200,38 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 
 #include "include/gpu/GrContext.h"
 #include "include/gpu/GrTexture.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxy.h"
 
-static sk_sp<GrTextureProxy> create_proxy(GrProxyProvider* proxyProvider) {
+static GrSurfaceProxyView create_proxy_view(GrRecordingContext* context) {
     SkBitmap srcBM = create_bm();
-    sk_sp<SkImage> srcImage(SkImage::MakeFromBitmap(srcBM));
-    return proxyProvider->createTextureProxy(srcImage, 1, SkBudgeted::kYes, SkBackingFit::kExact);
+    GrBitmapTextureMaker maker(context, srcBM);
+    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
+
+    if (!proxy) {
+        return {};
+    }
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    return {std::move(proxy), origin, swizzle};
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
-    if (!srcProxy) {
+    GrSurfaceProxyView srcView = create_proxy_view(context);
+    if (!srcView.proxy()) {
         return;
     }
 
-    if (!srcProxy->instantiate(context->priv().resourceProvider())) {
+    if (!srcView.proxy()->instantiate(context->priv().resourceProvider())) {
         return;
     }
-    GrTexture* tex = srcProxy->peekTexture();
+    GrTexture* tex = srcView.proxy()->peekTexture();
 
     GrBackendTexture backendTex = tex->getBackendTexture();
 
@@ -255,8 +264,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ct
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
 
-    sk_sp<GrTextureProxy> srcProxy(create_proxy(context->priv().proxyProvider()));
-    if (!srcProxy) {
+    GrSurfaceProxyView srcView = create_proxy_view(context);
+    if (!srcView.proxy()) {
         return;
     }
 
@@ -265,7 +274,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     sk_sp<SkSpecialImage> fullImg(SkSpecialImage::MakeDeferredFromGpu(
                                                               context, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
-                                                              srcProxy,
+                                                              srcView,
                                                               GrColorType::kRGBA_8888, nullptr));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
@@ -273,7 +282,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked, reporter, ctxInfo
     sk_sp<SkSpecialImage> subsetImg(SkSpecialImage::MakeDeferredFromGpu(
                                                                 context, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
-                                                                srcProxy,
+                                                                std::move(srcView),
                                                                 GrColorType::kRGBA_8888, nullptr));
 
     test_find_existing(reporter, fullImg, subsetImg);

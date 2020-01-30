@@ -29,7 +29,6 @@ public:
 
 private:
     SkBitmap    fBitmap;
-    size_t      fRowBytes;
     bool        fWeOwnThePixels;
 
     typedef SkSurface_Base INHERITED;
@@ -55,15 +54,7 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return true;
     }
 
-    int shift = info.shiftPerPixel();
-
-    uint64_t minRB = (uint64_t)info.width() << shift;
-    if (minRB > rowBytes) {
-        return false;
-    }
-
-    size_t alignedRowBytes = rowBytes >> shift << shift;
-    if (alignedRowBytes != rowBytes) {
+    if (!info.validRowBytes(rowBytes)) {
         return false;
     }
 
@@ -82,7 +73,6 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t
     : INHERITED(info, props)
 {
     fBitmap.installPixels(info, pixels, rb, releaseProc, context);
-    fRowBytes = 0;              // don't need to track the rowbytes
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
@@ -91,7 +81,6 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef> pr
     : INHERITED(pr->width(), pr->height(), props)
 {
     fBitmap.setInfo(info, pr->rowBytes());
-    fRowBytes = pr->rowBytes(); // we track this, so that subsequent re-allocs will match
     fBitmap.setPixelRef(std::move(pr), 0, 0);
     fWeOwnThePixels = true;
 }
@@ -159,7 +148,6 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
             SkASSERT(prev.rowBytes() == fBitmap.rowBytes());
             memcpy(fBitmap.getPixels(), prev.getPixels(), fBitmap.computeByteSize());
         }
-        SkASSERT(fBitmap.rowBytes() == fRowBytes);  // be sure we always use the same value
 
         // Now fBitmap is a deep copy of itself (and therefore different from
         // what is being used by the image. Next we update the canvas to use

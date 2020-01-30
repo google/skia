@@ -139,10 +139,10 @@ static sk_sp<SkImage> make_reference_image(GrContext* context,
     }
 
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                  GrColorType::kRGBA_8888);
+                                                               GrColorType::kRGBA_8888);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
-                                   std::move(view), nullptr);
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, std::move(view),
+                                   ii.colorType(), kOpaque_SkAlphaType, nullptr);
 }
 
 // Here we're converting from a matrix that is intended for UVs to a matrix that is intended

@@ -19,54 +19,49 @@ public:
     enum class WrapMode : uint8_t { kClamp, kRepeat, kMirrorRepeat, kClampToBorder,
                                     kLast = kClampToBorder };
 
-    static const int kFilterCount = static_cast<int>(Filter::kLast) + 1;
-    static const int kWrapModeCount = static_cast<int>(WrapMode::kLast) + 1;
+    static constexpr int kFilterCount = static_cast<int>(Filter::kLast) + 1;
+    static constexpr int kWrapModeCount = static_cast<int>(WrapMode::kLast) + 1;
 
-    static constexpr GrSamplerState ClampNearest() { return GrSamplerState(); }
-    static constexpr GrSamplerState ClampBilerp() {
-        return GrSamplerState(WrapMode::kClamp, Filter::kBilerp);
-    }
-
-    constexpr GrSamplerState() : GrSamplerState(WrapMode::kClamp, Filter::kNearest) {}
+    constexpr GrSamplerState() = default;
 
     constexpr GrSamplerState(WrapMode wrapXAndY, Filter filter)
             : fWrapModes{wrapXAndY, wrapXAndY}, fFilter(filter) {}
 
+    constexpr GrSamplerState(WrapMode wrapX, WrapMode wrapY, Filter filter)
+            : fWrapModes{wrapX, wrapY}, fFilter(filter) {}
+
     constexpr GrSamplerState(const WrapMode wrapModes[2], Filter filter)
             : fWrapModes{wrapModes[0], wrapModes[1]}, fFilter(filter) {}
 
+    constexpr /*explicit*/ GrSamplerState(Filter filter) : fFilter(filter) {}
+
     constexpr GrSamplerState(const GrSamplerState&) = default;
 
-    GrSamplerState& operator=(const GrSamplerState& that) {
-        fWrapModes[0] = that.fWrapModes[0];
-        fWrapModes[1] = that.fWrapModes[1];
-        fFilter = that.fFilter;
-        return *this;
-    }
+    constexpr GrSamplerState& operator=(const GrSamplerState&) = default;
 
-    Filter filter() const { return fFilter; }
+    constexpr Filter filter() const { return fFilter; }
 
-    void setFilterMode(Filter filterMode) { fFilter = filterMode; }
+    constexpr void setFilterMode(Filter filterMode) { fFilter = filterMode; }
 
-    void setWrapModeX(const WrapMode wrap) { fWrapModes[0] = wrap; }
-    void setWrapModeY(const WrapMode wrap) { fWrapModes[1] = wrap; }
+    constexpr void setWrapModeX(const WrapMode wrap) { fWrapModes[0] = wrap; }
+    constexpr void setWrapModeY(const WrapMode wrap) { fWrapModes[1] = wrap; }
 
-    WrapMode wrapModeX() const { return fWrapModes[0]; }
-    WrapMode wrapModeY() const { return fWrapModes[1]; }
+    constexpr WrapMode wrapModeX() const { return fWrapModes[0]; }
+    constexpr WrapMode wrapModeY() const { return fWrapModes[1]; }
 
-    bool isRepeated() const {
+    constexpr bool isRepeated() const {
         return (WrapMode::kClamp != fWrapModes[0] && WrapMode::kClampToBorder != fWrapModes[0]) ||
                (WrapMode::kClamp != fWrapModes[1] && WrapMode::kClampToBorder != fWrapModes[1]);
     }
 
-    bool operator==(const GrSamplerState& that) const {
+    constexpr bool operator==(GrSamplerState that) const {
         return fWrapModes[0] == that.fWrapModes[0] && fWrapModes[1] == that.fWrapModes[1] &&
                fFilter == that.fFilter;
     }
 
-    bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
+    constexpr bool operator!=(const GrSamplerState& that) const { return !(*this == that); }
 
-    static uint8_t GenerateKey(const GrSamplerState& samplerState) {
+    constexpr static uint8_t GenerateKey(GrSamplerState samplerState) {
         const int kTileModeXShift = 2;
         const int kTileModeYShift = 4;
 
@@ -83,8 +78,8 @@ public:
     }
 
 private:
-    WrapMode fWrapModes[2];
-    Filter fFilter;
+    WrapMode fWrapModes[2] = {WrapMode::kClamp, WrapMode::kClamp};
+    Filter fFilter = GrSamplerState::Filter::kNearest;
 };
 
 #endif

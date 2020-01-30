@@ -34,19 +34,21 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context,
     if (!format.isValid()) {
         return nullptr;
     }
+    GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
 
     sk_sp<GrTextureProxy> proxy;
     GrSurfaceDesc desc;
-    desc.fConfig = GrColorTypeToPixelConfig(imageInfo.colorType());
     desc.fWidth = imageInfo.width();
     desc.fHeight = imageInfo.height();
-    proxy = context->priv().proxyProvider()->createProxy(format, desc, renderable, 1, origin,
-                                                         GrMipMapped::kNo, SkBackingFit::kExact,
-                                                         SkBudgeted::kYes, GrProtected::kNo);
+    proxy = context->priv().proxyProvider()->createProxy(format, desc, swizzle, renderable, 1,
+                                                         origin, GrMipMapped::kNo,
+                                                         SkBackingFit::kExact, SkBudgeted::kYes,
+                                                         GrProtected::kNo);
     if (!proxy) {
         return nullptr;
     }
-    auto sContext = GrSurfaceContext::Make(context, proxy, imageInfo.colorType(),
+    GrSurfaceProxyView view(proxy, origin, swizzle);
+    auto sContext = GrSurfaceContext::Make(context, std::move(view), imageInfo.colorType(),
                                            imageInfo.alphaType(), imageInfo.refColorSpace());
     if (!sContext) {
         return nullptr;
@@ -87,7 +89,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
     SkPMColor4f analysisColor = { 0, 0, 0, 1 }; // opaque black
 
     SkDEBUGCODE(auto analysis =) processors.finalize(analysisColor,
-                                                     GrProcessorAnalysisCoverage::kNone,
+                                                     GrProcessorAnalysisCoverage::kSingleChannel,
                                                      &appliedClip, stencil, false,
                                                      *caps, GrClampType::kAuto, &analysisColor);
     SkASSERT(!analysis.requiresDstTexture());

@@ -80,6 +80,13 @@ public:
                                                               const GrSwizzle&);
 
     /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then ensures
+     *  the output is a valid premul color by clamping RGB to [0, A].
+     */
+    static std::unique_ptr<GrFragmentProcessor> ClampPremulOutput(
+            std::unique_ptr<GrFragmentProcessor>);
+
+    /**
      * Returns a fragment processor that runs the passed in array of fragment processors in a
      * series. The original input is passed to the first, the first's output is passed to the
      * second, etc. The output of the returned processor is the output of the last processor of the
@@ -475,13 +482,11 @@ public:
     /**
      * This copy constructor is used by GrFragmentProcessor::clone() implementations.
      */
-    explicit TextureSampler(const TextureSampler& that)
-            : fView(that.fView)
-            , fSamplerState(that.fSamplerState) {}
+    explicit TextureSampler(const TextureSampler&) = default;
 
-    TextureSampler(GrSurfaceProxyView, const GrSamplerState& = GrSamplerState::ClampNearest());
+    TextureSampler(GrSurfaceProxyView, GrSamplerState = {});
     // TODO: Remove this ctor once all uses have been updated to pass in a GrSurfaceProxyView
-    TextureSampler(sk_sp<GrSurfaceProxy>, const GrSamplerState& = GrSamplerState::ClampNearest());
+    TextureSampler(sk_sp<GrSurfaceProxy>, GrSamplerState = {});
 
     TextureSampler& operator=(const TextureSampler&) = delete;
 
@@ -500,16 +505,17 @@ public:
     }
 
     const GrSurfaceProxyView& view() const { return fView; }
-    const GrSamplerState& samplerState() const { return fSamplerState; }
+    GrSamplerState samplerState() const { return fSamplerState; }
 
     bool isInitialized() const { return SkToBool(this->proxy()); }
 
-#if GR_TEST_UTILS
-    void set(GrSurfaceProxyView, const GrSamplerState&);
-#endif
-private:
     GrSurfaceProxy* proxy() const { return fView.proxy(); }
 
+#if GR_TEST_UTILS
+    void set(GrSurfaceProxyView, GrSamplerState);
+#endif
+
+private:
     GrSurfaceProxyView    fView;
     GrSamplerState        fSamplerState;
 };

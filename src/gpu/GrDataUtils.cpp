@@ -8,6 +8,7 @@
 #include "src/gpu/GrDataUtils.h"
 
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkTLazy.h"
@@ -105,25 +106,13 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
     block->fLow = SkBSwap32(low);
 }
 
-static int num_ETC1_blocks_w(int w) {
-    if (w < 4) {
-        w = 1;
-    } else {
-        SkASSERT((w & 3) == 0);
-        w >>= 2;
-    }
-    return w;
+static int num_4x4_blocks(int size) {
+    return ((size + 3) & ~3) >> 2;
 }
 
 static int num_ETC1_blocks(int w, int h) {
-    w = num_ETC1_blocks_w(w);
-
-    if (h < 4) {
-        h = 1;
-    } else {
-       SkASSERT((h & 3) == 0);
-       h >>= 2;
-    }
+    w = num_4x4_blocks(w);
+    h = num_4x4_blocks(h);
 
     return w * h;
 }
@@ -134,67 +123,58 @@ struct BC1Block {
     uint32_t fIndices;
 };
 
-// Create a BC1 compressed block that is filled with 'col'
-static void create_BC1_block(SkColor col, BC1Block* block) {
+static uint16_t to565(SkColor col) {
     int r5 = SkMulDiv255Round(31, SkColorGetR(col));
     int g6 = SkMulDiv255Round(63, SkColorGetG(col));
     int b5 = SkMulDiv255Round(31, SkColorGetB(col));
 
-    uint16_t c565 = (r5 << 11) | (g6 << 5) | b5;
-    block->fColor0 = c565;
-    block->fColor1 = c565;
-    // This sets all 16 pixels to just use 'fColor0'
-    block->fIndices = 0;
+    return (r5 << 11) | (g6 << 5) | b5;
 }
 
-size_t GrCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
-                            SkTArray<size_t>* individualMipOffsets, GrMipMapped mipMapped) {
-    SkASSERT(!individualMipOffsets || !individualMipOffsets->count());
-
-    int numMipLevels = 1;
-    if (mipMapped == GrMipMapped::kYes) {
-        numMipLevels = SkMipMap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+// Create a BC1 compressed block that has two colors but is initialized to 'col0'
+static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
+    block->fColor0 = to565(col0);
+    block->fColor1 = to565(col1);
+    if (col0 == SK_ColorTRANSPARENT) {
+        // This sets all 16 pixels to just use color3 (under the assumption
+        // that this is a kBC1_RGBA8_UNORM texture. Note that in this case
+        // fColor0 will be opaque black.
+        block->fIndices = 0xFFFFFFFF;
+    } else {
+        // This sets all 16 pixels to just use 'fColor0'
+        block->fIndices = 0;
     }
-
-    size_t totalSize = 0;
-    switch (type) {
-        case SkImage::CompressionType::kNone:
-            break;
-        case SkImage::CompressionType::kETC1:
-        case SkImage::CompressionType::kBC1_RGB8_UNORM: {
-            for (int i = 0; i < numMipLevels; ++i) {
-                int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
-
-                if (individualMipOffsets) {
-                    individualMipOffsets->push_back(totalSize);
-                }
-
-                static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
-                totalSize += numBlocks * sizeof(ETC1Block);
-
-                dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
-            }
-        }
-    }
-
-    return totalSize;
-}
-
-size_t GrCompressedFormatDataSize(SkImage::CompressionType compressionType,
-                                  SkISize dimensions, GrMipMapped mipMapped) {
-    return GrCompressedDataSize(compressionType, dimensions, nullptr, mipMapped);
 }
 
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:
             return 0;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
-        case SkImage::CompressionType::kETC1:
-            int numBlocksWidth = num_ETC1_blocks_w(width);
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+            int numBlocksWidth = num_4x4_blocks(width);
 
             static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
             return numBlocksWidth * sizeof(ETC1Block);
+        }
+    }
+    SkUNREACHABLE;
+}
+
+SkISize GrCompressedDimensions(SkImage::CompressionType type, SkISize baseDimensions) {
+    switch (type) {
+        case SkImage::CompressionType::kNone:
+            return baseDimensions;
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+            int numBlocksWidth = num_4x4_blocks(baseDimensions.width());
+            int numBlocksHeight = num_4x4_blocks(baseDimensions.height());
+
+            // Each BC1_RGB8_UNORM and ETC1 block has 16 pixels
+            return { 4 * numBlocksWidth, 4 * numBlocksHeight };
+        }
     }
     SkUNREACHABLE;
 }
@@ -219,13 +199,54 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     SkColor color = colorf.toSkColor();
 
     BC1Block block;
-    create_BC1_block(color, &block);
+    create_BC1_block(color, color, &block);
 
     int numBlocks = num_ETC1_blocks(dimensions.width(), dimensions.height());
 
     for (int i = 0; i < numBlocks; ++i) {
         memcpy(dest, &block, sizeof(BC1Block));
         dest += sizeof(BC1Block);
+    }
+}
+
+// Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
+void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
+    BC1Block* dstBlocks = reinterpret_cast<BC1Block*>(dstPixels);
+    SkASSERT(pixmap.colorType() == SkColorType::kRGBA_8888_SkColorType);
+
+    BC1Block block;
+
+    // black -> fColor0, otherColor -> fColor1
+    create_BC1_block(SK_ColorBLACK, otherColor, &block);
+
+    int numXBlocks = num_4x4_blocks(pixmap.width());
+    int numYBlocks = num_4x4_blocks(pixmap.height());
+
+    for (int y = 0; y < numYBlocks; ++y) {
+        for (int x = 0; x < numXBlocks; ++x) {
+            int shift = 0;
+            int offsetX = 4 * x, offsetY = 4 * y;
+            block.fIndices = 0;  // init all the pixels to color0 (i.e., opaque black)
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j, shift += 2) {
+                    if (offsetX + j >= pixmap.width() || offsetY + i >= pixmap.height()) {
+                        // This can happen for the topmost levels of a mipmap and for
+                        // non-multiple of 4 textures
+                        continue;
+                    }
+
+                    SkColor tmp = pixmap.getColor(offsetX + j, offsetY + i);
+                    if (tmp == SK_ColorTRANSPARENT) {
+                        // For RGBA BC1 images color3 is set to transparent black
+                        block.fIndices |= 3 << shift;
+                    } else if (tmp != SK_ColorBLACK) {
+                        block.fIndices |= 1 << shift; // color1
+                    }
+                }
+            }
+
+            dstBlocks[y*numXBlocks + x] = block;
+        }
     }
 }
 
@@ -276,12 +297,13 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
     size_t offset = 0;
 
     for (int i = 0; i < numMipLevels; ++i) {
-        size_t levelSize = GrCompressedDataSize(type, dimensions, nullptr, GrMipMapped::kNo);
+        size_t levelSize = SkCompressedDataSize(type, dimensions, nullptr, false);
 
-        if (SkImage::CompressionType::kETC1 == type) {
+        if (SkImage::CompressionType::kETC2_RGB8_UNORM == type) {
             fillin_ETC1_with_color(dimensions, colorf, &dstPixels[offset]);
         } else {
-            SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM);
+            SkASSERT(type == SkImage::CompressionType::kBC1_RGB8_UNORM ||
+                     type == SkImage::CompressionType::kBC1_RGBA8_UNORM);
             fillin_BC1_with_color(dimensions, colorf, &dstPixels[offset]);
         }
 

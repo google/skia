@@ -14,6 +14,7 @@
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBlend.h"
+#include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxy.h"
 
@@ -25,7 +26,6 @@ class GrProcessorKeyBuilder;
 class GrProgramDesc;
 class GrProgramInfo;
 class GrRenderTargetProxy;
-class GrSamplerState;
 class GrSurface;
 class SkJSONWriter;
 
@@ -120,6 +120,13 @@ public:
         SkASSERT(GrBlendEquationIsAdvanced(equation));
         SkASSERT(this->advancedBlendEquationSupport());
         return SkToBool(fAdvBlendEqBlacklist & (1 << equation));
+    }
+
+    // On some GPUs it is a performance win to disable blending instead of doing src-over with a src
+    // alpha equal to 1. To disable blending we collapse src-over to src and the backends will
+    // handle the disabling of blending.
+    bool shouldCollapseSrcOverToSrcWhenAble() const {
+        return fShouldCollapseSrcOverToSrcWhenAble;
     }
 
     /**
@@ -290,8 +297,8 @@ public:
      */
     bool readPixelsRowBytesSupport() const { return fReadPixelsRowBytesSupport; }
 
-    /** Are transfer buffers (to textures and from surfaces) supported? */
-    bool transferBufferSupport() const { return fTransferBufferSupport; }
+    bool transferFromSurfaceToBufferSupport() const { return fTransferFromSurfaceToBufferSupport; }
+    bool transferFromBufferToTextureSupport() const { return fTransferFromBufferToTextureSupport; }
 
     bool suppressPrints() const { return fSuppressPrints; }
 
@@ -379,9 +386,8 @@ public:
         return {};
     }
 
-    bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrPixelConfig,
-                               GrRenderable renderable, int renderTargetSampleCnt,
-                               GrMipMapped) const;
+    bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrRenderable renderable,
+                               int renderTargetSampleCnt, GrMipMapped) const;
 
     bool areColorTypeAndFormatCompatible(GrColorType grCT,
                                          const GrBackendFormat& format) const {
@@ -390,20 +396,6 @@ public:
         }
 
         return this->onAreColorTypeAndFormatCompatible(grCT, format);
-    }
-
-    // TODO: it seems like we could pass the full SkImageInfo and validate its colorSpace too
-    // Returns kUnknown if a valid config could not be determined.
-    GrPixelConfig getConfigFromBackendFormat(const GrBackendFormat& format,
-                                             GrColorType grCT) const {
-        if (GrColorType::kUnknown == grCT) {
-            return kUnknown_GrPixelConfig;
-        }
-
-        return this->onGetConfigFromBackendFormat(format, grCT);
-    }
-    GrPixelConfig getConfigFromCompressedBackendFormat(const GrBackendFormat& format) const {
-        return this->onGetConfigFromCompressedBackendFormat(format);
     }
 
     /**
@@ -436,18 +428,9 @@ public:
      */
     virtual GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
-    const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
+    virtual uint64_t computeFormatKey(const GrBackendFormat&) const = 0;
 
-    /**
-     * Given a possibly generic GrPixelConfig and a backend format return a specific
-     * GrPixelConfig.
-     */
-    GrPixelConfig makeConfigSpecific(GrPixelConfig config, const GrBackendFormat& format) const {
-        auto ct = GrPixelConfigToColorType(config);
-        auto result = this->getConfigFromBackendFormat(format, ct);
-        SkASSERT(config == result || AreConfigsCompatible(config, result));
-        return result;
-    }
+    const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
     /**
      * Adds fields to the key to represent the sampler that will be created for the passed
@@ -455,17 +438,10 @@ public:
      * with immutable samplers.
      */
     virtual void addExtraSamplerKey(GrProcessorKeyBuilder*,
-                                    const GrSamplerState&,
+                                    GrSamplerState,
                                     const GrBackendFormat&) const {}
 
     virtual GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const = 0;
-
-#ifdef SK_DEBUG
-    // This is just a debugging entry point until we're weaned off of GrPixelConfig. It
-    // should be used to verify that the pixel config from user-level code (the genericConfig)
-    // is compatible with a pixel config we've computed from scratch (the specificConfig).
-    static bool AreConfigsCompatible(GrPixelConfig genericConfig, GrPixelConfig specificConfig);
-#endif
 
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
@@ -511,9 +487,11 @@ protected:
     bool fAvoidLargeIndexBufferDraws                 : 1;
     bool fPerformStencilClearsAsDraws                : 1;
     bool fAllowCoverageCounting                      : 1;
-    bool fTransferBufferSupport                      : 1;
+    bool fTransferFromBufferToTextureSupport         : 1;
+    bool fTransferFromSurfaceToBufferSupport         : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
     bool fReadPixelsRowBytesSupport                  : 1;
+    bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
 
     // Driver workaround
     bool fDriverBlacklistCCPR                        : 1;
@@ -570,16 +548,11 @@ private:
         return true;
     }
 
-    virtual GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat& format,
-                                                       GrColorType ct) const = 0;
-    virtual GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const = 0;
-
     virtual bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const = 0;
 
     virtual SupportedRead onSupportedReadPixelsColorType(GrColorType srcColorType,
                                                          const GrBackendFormat& srcFormat,
                                                          GrColorType dstColorType) const = 0;
-
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;

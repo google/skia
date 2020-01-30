@@ -59,14 +59,13 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
     SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
     SkASSERT(bitmap.isImmutable());
 
-    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
-            args.fContext->priv().proxyProvider(), bitmap);
-    if (proxy == nullptr) {
+    auto view = GrMakeCachedBitmapProxyView(args.fContext, bitmap);
+    if (!view.proxy()) {
         SkDebugf("Gradient won't draw. Could not create texture.");
         return nullptr;
     }
 
-    return GrTextureGradientColorizer::Make(std::move(proxy));
+    return GrTextureGradientColorizer::Make(view.detachProxy());
 }
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent

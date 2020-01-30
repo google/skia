@@ -7,8 +7,8 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/Transform.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGTransform.h"
 
@@ -17,26 +17,47 @@ namespace internal {
 
 namespace  {
 
-// Transform effects can operate in either uniform or anisotropic mode, with each
-// component (including mode) animated separately.
-class ScaleAdapter final : public SkNVRefCnt<ScaleAdapter> {
+class TransformEffectAdapter final : public DiscardableAdapterBase<TransformEffectAdapter,
+                                                                   sksg::OpacityEffect> {
 public:
-    explicit ScaleAdapter(sk_sp<TransformAdapter2D> tadapter)
-        : fTransformAdapter(std::move(tadapter)) {}
+    TransformEffectAdapter(const AnimationBuilder& abuilder,
+                           const skjson::ObjectValue* jopacity,
+                           const skjson::ObjectValue* jscale_uniform,
+                           const skjson::ObjectValue* jscale_width,
+                           const skjson::ObjectValue* jscale_height,
+                           sk_sp<TransformAdapter2D> tadapter,
+                           sk_sp<sksg::RenderNode> child)
+        : INHERITED(sksg::OpacityEffect::Make(std::move(child)))
+        , fTransformAdapter(std::move(tadapter)) {
+        this->bind(abuilder, jopacity      , fOpacity     );
+        this->bind(abuilder, jscale_uniform, fUniformScale);
+        this->bind(abuilder, jscale_width  , fScaleWidth  );
+        this->bind(abuilder, jscale_height , fScaleHeight );
 
-    ADAPTER_PROPERTY(IsUniform  , bool    , false)
-    ADAPTER_PROPERTY(ScaleWidth , SkScalar,   100)
-    ADAPTER_PROPERTY(ScaleHeight, SkScalar,   100)
+        this->attachDiscardableAdapter(fTransformAdapter);
+    }
 
 private:
-    void apply() {
+    void onSync() override {
+        this->node()->setOpacity(fOpacity * 0.01f);
+
         // In uniform mode, the scale is based solely in ScaleHeight.
-        const auto scale = SkVector::Make(fIsUniform ? fScaleHeight : fScaleWidth,
+        const auto scale = SkVector::Make(SkScalarRoundToInt(fUniformScale) ? fScaleHeight
+                                                                            : fScaleWidth,
                                           fScaleHeight);
+
+        // NB: this triggers an transform adapter -> SG sync.
         fTransformAdapter->setScale(scale);
     }
 
     const sk_sp<TransformAdapter2D> fTransformAdapter;
+
+    ScalarValue fOpacity      = 100,
+                fUniformScale =   0, // bool
+                fScaleWidth   = 100,
+                fScaleHeight  = 100;
+
+    using INHERITED = DiscardableAdapterBase<TransformEffectAdapter, sksg::OpacityEffect>;
 };
 
 } // anonymous ns
@@ -58,53 +79,28 @@ sk_sp<sksg::RenderNode> EffectBuilder::attachTransformEffect(const skjson::Array
         // kSampling_Index            = 11,
     };
 
-    auto matrix = sksg::Matrix<SkMatrix>::Make(SkMatrix::I());
-    auto t_adapter = sk_make_sp<TransformAdapter2D>(matrix);
-    auto s_adapter = sk_make_sp<ScaleAdapter>(t_adapter);
+    auto transform_adapter = TransformAdapter2D::Make(*fBuilder,
+                                                      GetPropValue(jprops, kAnchorPoint_Index),
+                                                      GetPropValue(jprops, kPosition_Index),
+                                                      nullptr, // scale is handled externally
+                                                      GetPropValue(jprops, kRotation_Index),
+                                                      GetPropValue(jprops, kSkew_Index),
+                                                      GetPropValue(jprops, kSkewAxis_Index));
+    if (!transform_adapter) {
+        return nullptr;
+    }
 
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kAnchorPoint_Index),
-        [t_adapter](const VectorValue& ap) {
-            t_adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(ap));
-        });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kPosition_Index),
-        [t_adapter](const VectorValue& p) {
-            t_adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRotation_Index),
-        [t_adapter](const ScalarValue& r) {
-            t_adapter->setRotation(r);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSkew_Index),
-        [t_adapter](const ScalarValue& s) {
-            t_adapter->setSkew(s);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSkewAxis_Index),
-        [t_adapter](const ScalarValue& sa) {
-            t_adapter->setSkewAxis(sa);
-        });
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kUniformScale_Index),
-        [s_adapter](const ScalarValue& u) {
-            s_adapter->setIsUniform(SkScalarRoundToInt(u));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kScaleHeight_Index),
-        [s_adapter](const ScalarValue& sh) {
-            s_adapter->setScaleHeight(sh);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kScaleWidth_Index),
-        [s_adapter](const ScalarValue& sw) {
-            s_adapter->setScaleWidth(sw);
-        });
-
-    auto opacity_node = sksg::OpacityEffect::Make(sksg::TransformEffect::Make(std::move(layer),
-                                                                              std::move(matrix)));
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOpacity_Index),
-        [opacity_node](const ScalarValue& o) {
-            opacity_node->setOpacity(o * 0.01f);
-        });
-
-    return opacity_node;
+    auto transform_effect_node = sksg::TransformEffect::Make(std::move(layer),
+                                                             transform_adapter->node());
+    return fBuilder->attachDiscardableAdapter<TransformEffectAdapter>
+            (*fBuilder,
+             GetPropValue(jprops, kOpacity_Index),
+             GetPropValue(jprops, kUniformScale_Index),
+             GetPropValue(jprops, kScaleWidth_Index),
+             GetPropValue(jprops, kScaleHeight_Index),
+             std::move(transform_adapter),
+             std::move(transform_effect_node)
+             );
 }
 
 } // namespace internal

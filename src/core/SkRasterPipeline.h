@@ -10,6 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkNx.h"
@@ -160,12 +161,15 @@ struct SkRasterPipeline_CallbackCtx {
 };
 
 namespace SkSL {
-class ByteCode;
 class ByteCodeFunction;
+
+template<int width>
+class Interpreter;
 }
 
 struct SkRasterPipeline_InterpreterCtx {
-    const SkSL::ByteCode*         byteCode;
+    static constexpr int VECTOR_WIDTH = 8;
+    SkSL::Interpreter<VECTOR_WIDTH>* interpreter;
     const SkSL::ByteCodeFunction* fn;
 
     SkColor4f   paintColor;

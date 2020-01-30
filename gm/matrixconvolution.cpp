@@ -24,12 +24,20 @@
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
 
+#include <vector>
+
 namespace skiagm {
+
+enum KernelFixture {
+    kBasic_KernelFixture,
+    kLarge_KernelFixture
+};
 
 class MatrixConvolutionGM : public GM {
 public:
-    MatrixConvolutionGM(SkColor colorOne, SkColor colorTwo, const char* nameSuffix)
-            : fNameSuffix(nameSuffix) {
+    MatrixConvolutionGM(SkColor colorOne, SkColor colorTwo, KernelFixture kernelFixture, const char* nameSuffix)
+            : fNameSuffix(nameSuffix),
+              fKernelFixture(kernelFixture) {
         this->setBGColor(0x00000000);
         fColors[0] = colorOne;
         fColors[1] = colorTwo;
@@ -61,20 +69,32 @@ protected:
         return SkISize::Make(500, 300);
     }
 
+    sk_sp<SkImageFilter> makeFilter(const SkIPoint &kernelOffset, SkTileMode tileMode,
+                                    bool convolveAlpha, const SkIRect *cropRect = nullptr) {
+        switch (fKernelFixture) {
+            case kBasic_KernelFixture: {
+                // All 1s except center value, which is -7 (sum of 1).
+                std::vector<SkScalar> kernel(9, SkIntToScalar(1));
+                kernel[4] = SkIntToScalar(-7);
+                return SkImageFilters::MatrixConvolution({3,3}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
+            }
+            case kLarge_KernelFixture: {
+                // Intentionally go over the MAX_KERNEL_SIZE limit and trigger CPU fallback.
+                // All 1s except center value, which is -47 (sum of 1).
+                std::vector<SkScalar> kernel(49, SkIntToScalar(1));
+                kernel[24] = SkIntToScalar(-47);
+                return SkImageFilters::MatrixConvolution({7,7}, kernel.data(), /* gain */ 0.3f, /* bias */ SkIntToScalar(100), kernelOffset, tileMode, convolveAlpha, nullptr, cropRect);
+            }
+            default:
+                return nullptr;
+        }
+    }
+
     void draw(SkCanvas* canvas, int x, int y, const SkIPoint& kernelOffset,
               SkTileMode tileMode, bool convolveAlpha,
               const SkIRect* cropRect = nullptr) {
-        SkScalar kernel[9] = {
-            SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
-            SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
-            SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
-        };
-        SkISize kernelSize = SkISize::Make(3, 3);
-        SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkPaint paint;
-        paint.setImageFilter(SkImageFilters::MatrixConvolution(kernelSize, kernel, gain, bias,
-                                                               kernelOffset, tileMode,
-                                                               convolveAlpha, nullptr, cropRect));
+        paint.setImageFilter(this->makeFilter(kernelOffset, tileMode, convolveAlpha, cropRect));
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         const SkRect layerBounds = SkRect::MakeIWH(fBitmap.width(), fBitmap.height());
@@ -117,13 +137,16 @@ private:
     SkBitmap fBitmap;
     SkColor fColors[2];
     const char* fNameSuffix;
+    KernelFixture fKernelFixture;
 
     typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new MatrixConvolutionGM(0xFFFFFFFF, 0x40404040, "");)
-DEF_GM(return new MatrixConvolutionGM(0xFFFF0000, 0xFF00FF00, "_color");)
+DEF_GM(return new MatrixConvolutionGM(0xFFFFFFFF, 0x40404040, KernelFixture::kBasic_KernelFixture, "");)
+DEF_GM(return new MatrixConvolutionGM(0xFFFF0000, 0xFF00FF00, KernelFixture::kBasic_KernelFixture, "_color");)
+DEF_GM(return new MatrixConvolutionGM(0xFFFFFFFF, 0x40404040, KernelFixture::kLarge_KernelFixture, "_big");)
+DEF_GM(return new MatrixConvolutionGM(0xFFFF0000, 0xFF00FF00, KernelFixture::kLarge_KernelFixture, "_big_color");)
 
 }

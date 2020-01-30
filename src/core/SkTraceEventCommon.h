@@ -59,7 +59,20 @@
 
 #define TRACE_EMPTY do {} while (0)
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+#ifdef SK_DISABLE_TRACING
+
+#define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
+#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY
+#define TRACE_EVENT0(cg, n) TRACE_EMPTY
+#define TRACE_EVENT1(cg, n, a1n, a1v) TRACE_EMPTY
+#define TRACE_EVENT2(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY
+#define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v) TRACE_EMPTY
+#define TRACE_COUNTER1(cg, n, value) TRACE_EMPTY
+#define TRACE_COUNTER2(cg, n, v1n, v1v, v2n, v2v) TRACE_EMPTY
+
+#elif defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 
 #include <cutils/trace.h>
 #include <stdarg.h>
@@ -102,7 +115,28 @@ private:
     static bool gEnableAndroidTracing;
 };
 
+class SkAndroidFrameworkTraceUtilAlways {
+public:
+    SkAndroidFrameworkTraceUtilAlways(const char* fmt, ...) {
+        if (!ATRACE_ENABLED()) return;
+
+        const int BUFFER_SIZE = 256;
+        va_list ap;
+        char buf[BUFFER_SIZE];
+
+        va_start(ap, fmt);
+        vsnprintf(buf, BUFFER_SIZE, fmt, ap);
+        va_end(ap);
+
+        ATRACE_BEGIN(buf);
+    }
+    ~SkAndroidFrameworkTraceUtilAlways() {
+        ATRACE_END();
+    }
+};
+
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) SkAndroidFrameworkTraceUtil __trace(true, fmt, ##__VA_ARGS__)
+#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) SkAndroidFrameworkTraceUtilAlways __trace(fmt, ##__VA_ARGS__)
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. In the framework, the arguments are ignored.
@@ -153,9 +187,10 @@ private:
 #define TRACE_EVENT_CATEGORY_GROUP_ENABLED(category_group, ret)             \
   do { *ret = false; } while (0)
 
-#else // !SK_BUILD_FOR_ANDROID_FRAMEWORK
+#else // !SK_BUILD_FOR_ANDROID_FRAMEWORK && !SK_DISABLE_TRACING
 
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY
+#define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY
 
 // Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
 // associated arguments. If the category is not enabled, then this does nothing.

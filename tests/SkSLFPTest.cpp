@@ -93,7 +93,8 @@ DEF_TEST(SkSLFPHelloWorld, r) {
              " **************************************************************************************************/\n"
              "#ifndef GrTest_DEFINED\n"
              "#define GrTest_DEFINED\n"
-             "#include \"include/core/SkTypes.h\"\n\n"
+             "#include \"include/core/SkTypes.h\"\n"
+             "#include \"include/private/SkM44.h\"\n\n"
              "#include \"src/gpu/GrCoordTransform.h\"\n"
              "#include \"src/gpu/GrFragmentProcessor.h\"\n"
              "class GrTest : public GrFragmentProcessor {\n"
@@ -486,10 +487,10 @@ DEF_TEST(SkSLFPChildProcessors, r) {
             "this->registerChildProcessor(std::move(child2));"
          },
          {
-            "SkString _sample93(\"_sample93\");\n",
-            "this->invokeChild(_outer.child1_index, &_sample93, args);\n",
-            "SkString _sample110(\"_sample110\");\n",
-            "this->invokeChild(_outer.child2_index, &_sample110, args);\n",
+            "SkString _sample93;\n",
+            "_sample93 = this->invokeChild(_outer.child1_index, args);\n",
+            "SkString _sample110;\n",
+            "_sample110 = this->invokeChild(_outer.child2_index, args);\n",
             "fragBuilder->codeAppendf(\"%s = %s * %s;\\n\", args.fOutputColor, _sample93.c_str(), "
                                      "_sample110.c_str());\n",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
@@ -514,12 +515,12 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
          },
          {
             "SkString _input128(\"childIn\");",
-            "SkString _sample128(\"_sample128\");",
-            "this->invokeChild(_outer.child1_index, _input128.c_str(), &_sample128, args);",
+            "SkString _sample128;",
+            "_sample128 = this->invokeChild(_outer.child1_index, _input128.c_str(), args);",
             "fragBuilder->codeAppendf(\"\\nhalf4 childOut1 = %s;\", _sample128.c_str());",
             "SkString _input174(\"childOut1\");",
-            "SkString _sample174(\"_sample174\");",
-            "this->invokeChild(_outer.child2_index, _input174.c_str(), &_sample174, args);",
+            "SkString _sample174;",
+            "_sample174 = this->invokeChild(_outer.child2_index, _input174.c_str(), args);",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
          });
@@ -537,8 +538,8 @@ DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
          },
          {
             "SkString _input64 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "SkString _sample64(\"_sample64\");",
-            "this->invokeChild(_outer.child_index, _input64.c_str(), &_sample64, args);",
+            "SkString _sample64;",
+            "_sample64 = this->invokeChild(_outer.child_index, _input64.c_str(), args);",
             "fragBuilder->codeAppendf(\"%s = %s;\\n\", args.fOutputColor, _sample64.c_str());",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());",
          });
@@ -558,11 +559,11 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
          },
          {
             "SkString _input121 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "SkString _sample121(\"_sample121\");",
-            "this->invokeChild(_outer.child1_index, _input121.c_str(), &_sample121, args);",
+            "SkString _sample121;",
+            "_sample121 = this->invokeChild(_outer.child1_index, _input121.c_str(), args);",
             "SkString _input93 = SkStringPrintf(\"%s * %s\", args.fInputColor, _sample121.c_str());",
-            "SkString _sample93(\"_sample93\");",
-            "this->invokeChild(_outer.child2_index, _input93.c_str(), &_sample93, args);",
+            "SkString _sample93;",
+            "_sample93 = this->invokeChild(_outer.child2_index, _input93.c_str(), args);",
             "fragBuilder->codeAppendf(\"%s = %s;\\n\", args.fOutputColor, _sample93.c_str());",
             "this->registerChildProcessor(src.childProcessor(child1_index).clone());",
             "this->registerChildProcessor(src.childProcessor(child2_index).clone());"
@@ -589,8 +590,8 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "fragBuilder->codeAppendf(\"bool hasCap = %s;\\nif (hasCap) {\", (hasCap ? \"true\" : "
                                      "\"false\"));",
             "SkString _input130 = SkStringPrintf(\"%s\", args.fInputColor);",
-            "SkString _sample130(\"_sample130\");",
-            "this->invokeChild(_outer.child_index, _input130.c_str(), &_sample130, args);",
+            "SkString _sample130;",
+            "_sample130 = this->invokeChild(_outer.child_index, _input130.c_str(), args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\","
                                      " args.fOutputColor, _sample130.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
@@ -615,8 +616,8 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
             "fragBuilder->codeAppendf(\"if (%s) {\", "
                     "(_outer.childProcessor(_outer.child_index).preservesOpaqueInput() ? ",
             "SkString _input105 = SkStringPrintf(\"%s\", args.fInputColor);",
-            "SkString _sample105(\"_sample105\");",
-            "this->invokeChild(_outer.child_index, _input105.c_str(), &_sample105, args);",
+            "SkString _sample105;",
+            "_sample105 = this->invokeChild(_outer.child_index, _input105.c_str(), args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\","
                                      " args.fOutputColor, _sample105.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
@@ -642,8 +643,8 @@ DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
             "opaque = _outer.childProcessor(_outer.child_index).preservesOpaqueInput();",
             "fragBuilder->codeAppendf(\"bool opaque = %s;\\nif (opaque) {\", (opaque ? \"true\" : "
                                      "\"false\"));",
-            "SkString _sample126(\"_sample126\");",
-            "this->invokeChild(_outer.child_index, &_sample126, args);",
+            "SkString _sample126;",
+            "_sample126 = this->invokeChild(_outer.child_index, args);",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\","
                                      " args.fOutputColor, _sample126.c_str(), args.fOutputColor);",
             "this->registerChildProcessor(src.childProcessor(child_index).clone());"
@@ -665,9 +666,9 @@ DEF_TEST(SkSLFPNullableChildProcessor, r) {
          {
             "fragBuilder->codeAppendf(\"if (%s) {\", _outer.child_index >= 0 ? \"true\" : "
                                      "\"false\");",
-            "SkString _sample93(\"_sample93\");",
+            "SkString _sample93;",
             "if (_outer.child_index >= 0) {",
-            "this->invokeChild(_outer.child_index, &_sample93, args);",
+            "_sample93 = this->invokeChild(_outer.child_index, args);",
             "}",
             "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\","
                                      " args.fOutputColor, _sample93.c_str(), args.fOutputColor);"
@@ -695,14 +696,14 @@ DEF_TEST(SkSLFPSampleCoords, r) {
          *SkSL::ShaderCapsFactory::Default(),
          {},
          {
-            "SkString _sample94(\"_sample94\");\n",
-            "this->invokeChild(_outer.child_index, &_sample94, args);\n",
-            "SkString _sample110(\"_sample110\");\n",
+            "SkString _sample94;\n",
+            "_sample94 = this->invokeChild(_outer.child_index, args);\n",
+            "SkString _sample110;\n",
             "SkString sk_TransformedCoords2D_0 = fragBuilder->ensureCoords2D("
                                                      "args.fTransformedCoords[0].fVaryingPoint);\n",
             "SkString _coords110 = SkStringPrintf(\"%s / 2.0\", "
                 "sk_TransformedCoords2D_0.c_str());\n",
-            "this->invokeChild(_outer.child_index, &_sample110, args, _coords110.c_str());\n",
+            "_sample110 = this->invokeChild(_outer.child_index, args, _coords110.c_str());\n",
             "fragBuilder->codeAppendf(\"%s = %s + %s;\\n\", args.fOutputColor, _sample94.c_str(), "
                                      "_sample110.c_str());\n"
          });

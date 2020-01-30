@@ -20,8 +20,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
@@ -42,8 +42,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            GrMipMapsStatus mipMapsStatus,
                            GrWrapCacheable cacheable,
                            GrIOType ioType)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
@@ -61,8 +61,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, desc.fConfig, GrProtected::kNo,
+        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo)
+        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, GrProtected::kNo,
                     GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));

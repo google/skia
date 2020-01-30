@@ -234,6 +234,57 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     }
 }
 
+skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms* uniforms,
+                                                skvm::F32 x, skvm::F32 y, skvm::I32* mask) const {
+    // See https://skia.org/dev/design/conical, and onAppendStages() above.
+    // There's a lot going on here, and I'm not really sure what's independent
+    // or disjoint, what can be reordered, simplified, etc.  Tweak carefully.
+
+    if (fType == Type::kRadial) {
+        float denom = 1.0f / (fRadius2 - fRadius1),
+              scale = SkTMax(fRadius1, fRadius2) * denom,
+               bias =                  -fRadius1 * denom;
+        return p->mad(p->norm(x,y), p->uniformF(uniforms->pushF(scale))
+                                  , p->uniformF(uniforms->pushF(bias )));
+    }
+
+    if (fType == Type::kStrip) {
+        float r = fRadius1 / this->getCenterX1();
+        skvm::F32 t = p->add(x, p->sqrt(p->sub(p->splat(r*r),
+                                        p->mul(y,y))));
+
+        *mask = p->eq(t,t);   // t != NaN
+        return t;
+    }
+
+    const skvm::F32 invR1 = p->uniformF(uniforms->pushF(1 / fFocalData.fR1));
+
+    skvm::F32 t;
+    if (fFocalData.isFocalOnCircle()) {
+        t = p->mad(p->div(y,x),y,x);       // (x^2 + y^2) / x  ~~>  x + y^2/x  ~~>  y/x * y + x
+    } else if (fFocalData.isWellBehaved()) {
+        t = p->sub(p->norm(x,y), p->mul(x, invR1));
+    } else {
+        skvm::F32 k = p->sqrt(p->sub(p->mul(x,x),
+                                     p->mul(y,y)));
+        if (fFocalData.isSwapped() || 1 - fFocalData.fFocalX < 0) {
+            k = p->negate(k);
+        }
+        t = p->sub(k, p->mul(x, invR1));
+    }
+
+    if (!fFocalData.isWellBehaved()) {
+        // TODO: not sure why we consider t == 0 degenerate
+        *mask = p->gt(t, p->splat(0.0f));  // t > 0 and implicitly, t != NaN
+    }
+
+    const skvm::F32 focalX = p->uniformF(uniforms->pushF(fFocalData.fFocalX));
+    if (1 - fFocalData.fFocalX < 0)    { t = p->negate(t); }
+    if (!fFocalData.isNativelyFocal()) { t = p->add(t, focalX); }
+    if (fFocalData.isSwapped())        { t = p->sub(p->splat(1.0f), t); }
+    return t;
+}
+
 /////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

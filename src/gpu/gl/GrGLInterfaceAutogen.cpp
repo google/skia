@@ -351,10 +351,7 @@ bool GrGLInterface::validate() const {
 
     if ((GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_QCOM_tiled_rendering")))) {
-        if (!fFunctions.fEndTiling ||
-            !fFunctions.fStartTiling) {
-            RETURN_FALSE_INTERFACE;
-        }
+        // all functions were marked optional or test_only
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
@@ -742,6 +739,19 @@ bool GrGLInterface::validate() const {
        GR_IS_GR_GL_ES(fStandard) ||
        GR_IS_GR_WEBGL(fStandard)) {
         if (!fFunctions.fGetShaderPrecisionFormat) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+
+    if ((GR_IS_GR_GL(fStandard) && (
+          fExtensions.has("GL_NV_fence"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          fExtensions.has("GL_NV_fence")))) {
+        if (!fFunctions.fDeleteFences ||
+            !fFunctions.fFinishFence ||
+            !fFunctions.fGenFences ||
+            !fFunctions.fSetFence ||
+            !fFunctions.fTestFence) {
             RETURN_FALSE_INTERFACE;
         }
     }

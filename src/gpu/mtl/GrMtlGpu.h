@@ -129,27 +129,30 @@ private:
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,
-                                            const BackendTextureData*,
                                             GrMipMapped,
-                                            GrProtected) override;
+                                            GrProtected,
+                                            const BackendTextureData*) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
-                                                      const BackendTextureData*,
                                                       GrMipMapped,
-                                                      GrProtected) override;
+                                                      GrProtected,
+                                                      const BackendTextureData*) override;
 
-    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc,
-                                     const GrBackendFormat& format,
+    sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&,
+                                     const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
-                                     SkBudgeted budgeted,
+                                     SkBudgeted,
                                      GrProtected,
                                      int mipLevelCount,
                                      uint32_t levelClearMask) override;
-    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,
-                                               SkBudgeted, const void* data,
-                                               size_t dataSize) override;
+    sk_sp<GrTexture> onCreateCompressedTexture(SkISize dimensions,
+                                               const GrBackendFormat&,
+                                               SkBudgeted,
+                                               GrMipMapped,
+                                               GrProtected,
+                                               const void* data, size_t dataSize) override;
 
     sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrColorType,
                                           GrWrapOwnership, GrWrapCacheable, GrIOType) override;
@@ -200,7 +203,7 @@ private:
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
                          GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
     // Function that fills texture levels with transparent black based on levelMask.
-    bool clearTexture(GrMtlTexture*, GrColorType, uint32_t levelMask);
+    bool clearTexture(GrMtlTexture*, size_t bbp, uint32_t levelMask);
     bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
                               GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
                               size_t imageBytes, size_t rowBytes);
@@ -210,11 +213,11 @@ private:
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
                                            SkISize dimensions,
-                                           bool texturable,
+                                           GrTexturable,
                                            GrRenderable,
-                                           const BackendTextureData*,
                                            GrMipMapped,
-                                           GrMtlTextureInfo*);
+                                           GrMtlTextureInfo*,
+                                           const BackendTextureData*);
 
 #if GR_TEST_UTILS
     void testingOnly_startCapture() override;

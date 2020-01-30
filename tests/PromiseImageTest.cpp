@@ -301,11 +301,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureReuseDifferentConfig, repo
             // The backend texture should be shared between the two uses
             REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(
                                                 grayBackendTex, texture->getBackendTexture()));
-
-            // but the view of them from the GrTexture should've been transmuted into the
-            // specific pixel configs
-            REPORTER_ASSERT(reporter, texture->config() == kAlpha_8_as_Red_GrPixelConfig ||
-                                      texture->config() == kGray_8_as_Red_GrPixelConfig);
         }
     }
 
@@ -426,7 +421,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache, reporter, ctxIn
     SkTArray<sk_sp<GrTexture>> textures;
     for (int i = 0; i < 5; ++i) {
         GrSurfaceDesc desc;
-        desc.fConfig = kRGBA_8888_GrPixelConfig;
         desc.fWidth = desc.fHeight = 100;
         auto format = ctx->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kNo);

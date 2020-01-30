@@ -9,9 +9,11 @@
 #include "include/core/SkMallocPixelRef.h"
 #include "include/private/SkFloatBits.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/gradients/Sk4fLinearGradient.h"
 #include "src/shaders/gradients/SkGradientShaderPriv.h"
@@ -219,6 +221,7 @@ static void add_stop_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, SkPMC
     (ctx->fs[1])[stop] = Fs.fG;
     (ctx->fs[2])[stop] = Fs.fB;
     (ctx->fs[3])[stop] = Fs.fA;
+
     (ctx->bs[0])[stop] = Bs.fR;
     (ctx->bs[1])[stop] = Bs.fG;
     (ctx->bs[2])[stop] = Bs.fB;
@@ -411,6 +414,180 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
     p->extend(postPipeline);
 
+    return true;
+}
+
+bool SkGradientShaderBase::onProgram(skvm::Builder* p,
+                                     const SkMatrix& ctm, const SkMatrix* localM,
+                                     SkFilterQuality quality, SkColorSpace* dstCS,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                                     skvm::F32 x, skvm::F32 y,
+                                     skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    SkMatrix inv;
+    if (!this->computeTotalInverse(ctm, localM, &inv)) {
+        return false;
+    }
+    inv.postConcat(fPtsToUnit);
+    inv.normalizePerspective();
+
+    SkShaderBase::ApplyMatrix(p, inv, &x,&y,uniforms);
+
+    skvm::I32 mask = p->splat(~0);
+    skvm::F32 t = this->transformT(p,uniforms, x,y, &mask);
+
+    // Perhaps unexpectedly, clamping is handled naturally by our search, so we
+    // don't explicitly clamp t to [0,1].  That clamp would break hard stops
+    // right at 0 or 1 boundaries in kClamp mode.  (kRepeat and kMirror always
+    // produce values in [0,1].)
+    switch(fTileMode) {
+        case SkTileMode::kClamp:
+            break;
+
+        case SkTileMode::kDecal:
+            mask = p->bit_and(mask, p->eq(t, p->clamp(t, p->splat(0.0f), p->splat(1.0f))));
+            break;
+
+        case SkTileMode::kRepeat:
+            t = p->sub(t, p->floor(t));
+            break;
+
+        case SkTileMode::kMirror: {
+            // t = | (t-1) - 2*(floor( (t-1)*0.5 )) - 1 |
+            //       {-A-}      {--------B-------}
+            skvm::F32 A = p->sub(t, p->splat(1.0f)),
+                      B = p->floor( p->mul(A, p->splat(0.5f)));
+            t = p->abs(p->sub(p->sub(A, p->add(B,B)),
+                              p->splat(1.0f)));
+        } break;
+    }
+
+    // Transform our colors as we want them interpolated, in dst color space, possibly premul.
+    SkImageInfo common = SkImageInfo::Make(fColorCount,1, kRGBA_F32_SkColorType
+                                                        , kUnpremul_SkAlphaType),
+                src  = common.makeColorSpace(fColorSpace),
+                dst  = common.makeColorSpace(sk_ref_sp(dstCS));
+    if (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
+        dst = dst.makeAlphaType(kPremul_SkAlphaType);
+    }
+
+    std::vector<float> rgba(4*fColorCount);  // TODO: SkSTArray?
+    SkConvertPixels(dst,   rgba.data(), dst.minRowBytes(),
+                    src, fOrigColors4f, src.minRowBytes());
+
+    // Transform our colors into a scale factor f and bias b such that for
+    // any t between stops i and i+1, the color we want is mad(t, f[i], b[i]).
+    using F4 = skvx::Vec<4,float>;
+    struct FB { F4 f,b; };
+
+    if (fColorCount == 2) {
+        // 2-stop gradients have colors at 0 and 1, and so must be evenly spaced.
+        SkASSERT(fOrigPos == nullptr);
+
+        // With 2 stops, we upload the single FB as uniforms and interpolate directly with t.
+        F4 lo = F4::Load(rgba.data() + 0),
+           hi = F4::Load(rgba.data() + 4);
+        F4 F = hi - lo,
+           B = lo;
+
+        auto T = p->clamp(t, p->splat(0.0f), p->splat(1.0f));
+        *r = p->mad(T, p->uniformF(uniforms->pushF(F[0])), p->uniformF(uniforms->pushF(B[0])));
+        *g = p->mad(T, p->uniformF(uniforms->pushF(F[1])), p->uniformF(uniforms->pushF(B[1])));
+        *b = p->mad(T, p->uniformF(uniforms->pushF(F[2])), p->uniformF(uniforms->pushF(B[2])));
+        *a = p->mad(T, p->uniformF(uniforms->pushF(F[3])), p->uniformF(uniforms->pushF(B[3])));
+    } else {
+        // To handle clamps in search we add a conceptual stop at t=-inf, so we
+        // may need up to fColorCount+1 FBs and fColorCount t stops between them:
+        //
+        //   FBs:         [color 0]  [color 0->1]  [color 1->2]  [color 2->3]  ...
+        //   stops:  (-inf)        t0            t1            t2  ...
+        //
+        // Both these arrays could end up shorter if any hard stops share the same t.
+        FB* fb = alloc->makeArrayDefault<FB>(fColorCount+1);
+        std::vector<float> stops;  // TODO: SkSTArray?
+        stops.reserve(fColorCount);
+
+        // Here's our conceptual stop at t=-inf covering all t<=0, clamping to our first color.
+        float  t_lo = this->getPos(0);
+        F4 color_lo = F4::Load(rgba.data());
+        fb[0] = { 0.0f, color_lo };
+        // N.B. No stops[] entry for this implicit -inf.
+
+        // Now the non-edge cases, calculating scale and bias between adjacent normal stops.
+        for (int i = 1; i < fColorCount; i++) {
+            float  t_hi = this->getPos(i);
+            F4 color_hi = F4::Load(rgba.data() + 4*i);
+
+            // If t_lo == t_hi, we're on a hard stop, and transition immediately to the next color.
+            SkASSERT(t_lo <= t_hi);
+            if (t_lo < t_hi) {
+                F4 f = (color_hi - color_lo) / (t_hi - t_lo),
+                   b = color_lo - f*t_lo;
+                stops.push_back(t_lo);
+                fb[stops.size()] = {f,b};
+            }
+
+            t_lo = t_hi;
+            color_lo = color_hi;
+        }
+        // Anything >= our final t clamps to our final color.
+        stops.push_back(t_lo);
+        fb[stops.size()] = { 0.0f, color_lo };
+
+        // We'll gather FBs from that array we just created.
+        skvm::Builder::Uniform fbs = uniforms->pushPtr(fb);
+
+        // Find the two stops we need to interpolate.
+        skvm::I32 ix;
+        if (fOrigPos == nullptr) {
+            // Evenly spaced stops... we can calculate ix directly.
+            // Of note: we need to clamp t and skip over that conceptual -inf stop we made up.
+            ix = p->trunc(p->mad(p->clamp(t, p->splat(0.0f), p->splat(1.0f)),
+                                 p->uniformF(uniforms->pushF(stops.size() - 1.0f)),
+                                 p->splat(1.0f)));
+        } else {
+            // Starting ix at 0 bakes in our conceptual first stop at -inf.
+            // TODO: good place to experiment with a loop in skvm.... stops.size() can be huge.
+            ix = p->splat(0);
+            for (float stop : stops) {
+                // ix += (t >= stop) ? +1 : 0 ~~>
+                // ix -= (t >= stop) ? -1 : 0
+                ix = p->sub(ix, p->gte(t, p->uniformF(uniforms->pushF(stop))));
+            }
+            // TODO: we could skip any of the dummy stops GradientShaderBase's ctor added
+            // to ensure the full [0,1] span is covered.  This linear search doesn't need
+            // them for correctness, and it'd be up to two fewer stops to check.
+            // N.B. we do still need those stops for the fOrigPos == nullptr direct math path.
+        }
+
+        // A scale factor and bias for each lane, 8 total.
+        // TODO: simpler, faster, tidier to push 8 uniform pointers, one for each struct lane?
+        ix = p->shl(ix, 3);            skvm::F32 Fr = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Fg = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Fb = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Fa = p->bit_cast(p->gather32(fbs, ix));
+
+        ix = p->add(ix, p->splat(1));  skvm::F32 Br = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Bg = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Bb = p->bit_cast(p->gather32(fbs, ix));
+        ix = p->add(ix, p->splat(1));  skvm::F32 Ba = p->bit_cast(p->gather32(fbs, ix));
+
+        // This is what we've been building towards!
+        *r = p->mad(t, Fr, Br);
+        *g = p->mad(t, Fg, Bg);
+        *b = p->mad(t, Fb, Bb);
+        *a = p->mad(t, Fa, Ba);
+    }
+
+    // If we interpolated unpremul, premul now to match our output convention.
+    if (0 == (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)
+            && !fColorsAreOpaque) {
+        p->premul(r,g,b,*a);
+    }
+
+    *r = p->bit_cast(p->bit_and(mask, p->bit_cast(*r)));
+    *g = p->bit_cast(p->bit_and(mask, p->bit_cast(*g)));
+    *b = p->bit_cast(p->bit_and(mask, p->bit_cast(*b)));
+    *a = p->bit_cast(p->bit_and(mask, p->bit_cast(*a)));
     return true;
 }
 

@@ -7,7 +7,7 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
@@ -18,11 +18,23 @@ namespace internal {
 
 namespace  {
 
-class HueSaturationEffectAdapter final : public DiscardableAdaptorBase {
+class HueSaturationEffectAdapter final : public AnimatablePropertyContainer {
 public:
     static sk_sp<HueSaturationEffectAdapter> Make(const skjson::ArrayValue& jprops,
                                                   sk_sp<sksg::RenderNode> layer,
                                                   const AnimationBuilder* abuilder) {
+
+        return sk_sp<HueSaturationEffectAdapter>(
+                    new HueSaturationEffectAdapter(jprops, std::move(layer), abuilder));
+    }
+
+    const sk_sp<sksg::ExternalColorFilter>& node() const { return fColorFilter; }
+
+private:
+    HueSaturationEffectAdapter(const skjson::ArrayValue& jprops,
+                               sk_sp<sksg::RenderNode> layer,
+                               const AnimationBuilder* abuilder)
+        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {
         enum : size_t {
             kChannelControl_Index     = 0,
             kChannelRange_Index       = 1,
@@ -33,51 +45,23 @@ public:
             kColorizeHue_Index        = 6,
             kColorizeSat_Index        = 7,
             kColorizeLightness_Index  = 8,
-
-            kMax_Index = kColorizeLightness_Index
         };
 
-        auto adapter = sk_sp<HueSaturationEffectAdapter>(
-                            new HueSaturationEffectAdapter(std::move(layer)));
-
-        auto* raw_adapter = adapter.get();
-
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kChannelControl_Index),
-            [raw_adapter](const ScalarValue& c) {
-                raw_adapter->fChanCtrl = c;
-            });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kMasterHue_Index),
-            [raw_adapter](const ScalarValue& h) {
-                raw_adapter->fMasterHue = h;
-            });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kMasterSat_Index),
-            [raw_adapter](const ScalarValue& s) {
-                raw_adapter->fMasterSat = s;
-            });
-        abuilder->bindProperty<ScalarValue>(EffectBuilder::GetPropValue(jprops,
-                                                                        kMasterLightness_Index),
-            [raw_adapter](const ScalarValue& l) {
-                raw_adapter->fMasterLight = l;
-            });
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kChannelControl_Index),
+                   &fChanCtrl);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kMasterHue_Index),
+                   &fMasterHue);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kMasterSat_Index),
+                   &fMasterSat);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kMasterLightness_Index),
+                   &fMasterLight);
 
         // TODO: colorize support?
-
-        return adapter;
     }
 
-    const sk_sp<sksg::ExternalColorFilter>& renderNode() const { return fColorFilter; }
-
-protected:
     void onSync() override {
         fColorFilter->setColorFilter(this->makeColorFilter());
     }
-
-private:
-    explicit HueSaturationEffectAdapter(sk_sp<sksg::RenderNode> layer)
-        : fColorFilter(sksg::ExternalColorFilter::Make(std::move(layer))) {}
 
     sk_sp<SkColorFilter> makeColorFilter() const {
         enum : uint8_t {
@@ -127,8 +111,6 @@ private:
           fMasterHue   = 0.0f,
           fMasterSat   = 0.0f,
           fMasterLight = 0.0f;
-
-    using INHERITED = DiscardableAdaptorBase;
 };
 
 } // namespace

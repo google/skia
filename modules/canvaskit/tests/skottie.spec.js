@@ -21,8 +21,8 @@ describe('Skottie behavior', function() {
             .then((response) => response.text());
 
         Promise.all([imgPromise, jsonPromise, LoadCanvasKit]).then((values) => {
-            if (!CanvasKit.managed_skottie) {
-                console.warn('Skipping test because not compiled with skottie')
+            if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+                console.warn('Skipping test because not compiled with skottie');
                 done();
                 return;
             }

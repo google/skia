@@ -16,9 +16,6 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFilterQuality.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkFontMgr.h"
-#include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
@@ -47,7 +44,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkShadowUtils.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -72,9 +68,20 @@
 #include <emscripten/html5.h>
 #endif
 
+#ifndef SK_NO_FONTS
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkFontTypes.h"
+#endif
+
 #ifdef SK_INCLUDE_PARAGRAPH
 #include "modules/skparagraph/include/Paragraph.h"
 #endif
+
+#ifdef SK_INCLUDE_PATHOPS
+#include "include/pathops/SkPathOps.h"
+#endif
+
 // Aliases for less typing
 using BoneIndices = SkVertices::BoneIndices;
 using BoneWeights = SkVertices::BoneWeights;
@@ -314,21 +321,31 @@ void ApplyTransform(SkPath& orig,
     orig.transform(m);
 }
 
-bool EMSCRIPTEN_KEEPALIVE ApplySimplify(SkPath& path) {
+#ifdef SK_INCLUDE_PATHOPS
+bool ApplySimplify(SkPath& path) {
     return Simplify(path, &path);
 }
 
-bool EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
+bool ApplyPathOp(SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
     return Op(pathOne, pathTwo, op, &pathOne);
 }
 
-JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
+SkPathOrNull MakePathFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
+    SkPath out;
+    if (Op(pathOne, pathTwo, op, &out)) {
+        return emscripten::val(out);
+    }
+    return emscripten::val::null();
+}
+#endif
+
+JSString ToSVGString(const SkPath& path) {
     SkString s;
     SkParsePath::ToSVGString(path, &s);
     return emscripten::val(s.c_str());
 }
 
-SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromSVGString(std::string str) {
+SkPathOrNull MakePathFromSVGString(std::string str) {
     SkPath path;
     if (SkParsePath::FromSVGString(str.c_str(), &path)) {
         return emscripten::val(path);
@@ -336,20 +353,12 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromSVGString(std::string str) {
     return emscripten::val::null();
 }
 
-SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
-    SkPath out;
-    if (Op(pathOne, pathTwo, op, &out)) {
-        return emscripten::val(out);
-    }
-    return emscripten::val::null();
-}
-
-SkPath EMSCRIPTEN_KEEPALIVE CopyPath(const SkPath& a) {
+SkPath CopyPath(const SkPath& a) {
     SkPath copy(a);
     return copy;
 }
 
-bool EMSCRIPTEN_KEEPALIVE Equals(const SkPath& a, const SkPath& b) {
+bool Equals(const SkPath& a, const SkPath& b) {
     return a == b;
 }
 
@@ -374,7 +383,7 @@ void VisitPath(const SkPath& p, VisitFunc&& f) {
     }
 }
 
-JSArray EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
+JSArray ToCmds(const SkPath& path) {
     JSArray cmds = emscripten::val::array();
 
     VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4], SkPath::RawIter iter) {
@@ -422,7 +431,7 @@ JSArray EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
-SkPathOrNull EMSCRIPTEN_KEEPALIVE MakePathFromCmds(uintptr_t /* float* */ cptr, int numCmds) {
+SkPathOrNull MakePathFromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     const auto* cmds = reinterpret_cast<const float*>(cptr);
     SkPath path;
     float x1, y1, x2, y2, x3, y3;
@@ -737,7 +746,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
     function("_MakePathFromCmds", &MakePathFromCmds);
+#ifdef SK_INCLUDE_PATHOPS
     function("MakePathFromOp", &MakePathFromOp);
+#endif
     function("MakePathFromSVGString", &MakePathFromSVGString);
 
     // These won't be called directly, there's a JS helper to deal with typed arrays.
@@ -781,6 +792,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkGradientShader::MakeLinear(points, colors, positions, count,
                                             mode, flags, &localMatrix);
     }), allow_raw_pointers());
+#ifdef SK_SERIALIZE_SKP
+    function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
+                                                    size_t bytes)->sk_sp<SkPicture> {
+        // See comment above for uintptr_t explanation
+        uint8_t* d = reinterpret_cast<uint8_t*>(dPtr);
+        sk_sp<SkData> data = SkData::MakeFromMalloc(d, bytes);
+
+        return SkPicture::MakeFromData(data.get(), nullptr);
+    }), allow_raw_pointers());
+#endif
     function("_MakeRadialGradientShader", optional_override([](SkPoint center, SkScalar radius,
                                 uintptr_t /* SkColor*  */ cPtr, uintptr_t /* SkScalar*  */ pPtr,
                                 int count, SkTileMode mode, uint32_t flags)->sk_sp<SkShader> {
@@ -858,6 +879,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkAnimatedImage>("SkAnimatedImage")
         .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<SkAnimatedImage>")
         .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame)
+        .function("getCurrentFrame", &SkAnimatedImage::getCurrentFrame)
         .function("getFrameCount", &SkAnimatedImage::getFrameCount)
         .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
         .function("height",  optional_override([](SkAnimatedImage& self)->int32_t {
@@ -1104,6 +1126,15 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkFontMgr_New_Custom_Data(datas, sizes, numFonts);
         }), allow_raw_pointers())
         .class_function("RefDefault", &SkFontMgr::RefDefault)
+        .function("countFamilies", &SkFontMgr::countFamilies)
+        .function("getFamilyName", optional_override([](SkFontMgr& self, int index)->JSString {
+            if (index < 0 || index >= self.countFamilies()) {
+                return emscripten::val::null();
+            }
+            SkString s;
+            self.getFamilyName(index, &s);
+            return emscripten::val(s.c_str());
+        }))
 #ifdef SK_DEBUG
         .function("dumpFamilies", optional_override([](SkFontMgr& self) {
             int numFam = self.countFamilies();
@@ -1115,7 +1146,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
         }))
 #endif
-        .function("countFamilies", &SkFontMgr::countFamilies)
         .function("_makeTypefaceFromData", optional_override([](SkFontMgr& self,
                                                 uintptr_t /* uint8_t*  */ fPtr,
                                                 int flen)->sk_sp<SkTypeface> {
@@ -1265,10 +1295,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_trim", &ApplyTrim)
         .function("_stroke", &ApplyStroke)
 
+#ifdef SK_INCLUDE_PATHOPS
         // PathOps
         .function("_simplify", &ApplySimplify)
         .function("_op", &ApplyPathOp)
-
+#endif
         // Exporting
         .function("toSVGString", &ToSVGString)
         .function("toCmds", &ToCmds)
@@ -1322,15 +1353,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkPicture>("SkPicture")
         .smart_ptr<sk_sp<SkPicture>>("sk_sp<SkPicture>")
+#ifdef SK_SERIALIZE_SKP
         // The serialized format of an SkPicture (informally called an "skp"), is not something
-        // that clients should ever rely on. It is useful when filing bug reports, but that's
-        // about it. The format may change at anytime and no promises are made for backwards
-        // or forward compatibility.
-        .function("DEBUGONLY_serialize", optional_override([](SkPicture& self) -> sk_sp<SkData> {
+        // that clients should ever rely on.  The format may change at anytime and no promises
+        // are made for backwards or forward compatibility.
+        .function("serialize", optional_override([](SkPicture& self) -> sk_sp<SkData> {
             // Emscripten doesn't play well with optional arguments, which we don't
             // want to expose anyway.
             return self.serialize();
-        }), allow_raw_pointers());
+        }), allow_raw_pointers())
+#endif
+    ;
 
     class_<SkShader>("SkShader")
         .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>")
@@ -1352,8 +1385,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkShaders::Lerp(t, dst, src, &m);
         }));
 
-    class_<SkRuntimeEffect>("_SkRuntimeEffect")
-        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<_SkRuntimeEffect>")
+#ifdef SK_INCLUDE_RUNTIME_EFFECT
+    class_<SkRuntimeEffect>("SkRuntimeEffect")
+        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<SkRuntimeEffect>")
         .class_function("Make", optional_override([](std::string sksl)->sk_sp<SkRuntimeEffect> {
             SkString s(sksl.c_str(), sksl.length());
             auto [effect, errorText] = SkRuntimeEffect::Make(s);
@@ -1375,6 +1409,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             auto m = toSkMatrix(sm);
             return self.makeShader(inputs, nullptr, 0, &m, isOpaque);
         }));
+#endif
 
     class_<SkSurface>("SkSurface")
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
@@ -1549,12 +1584,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .value("Stroke",          SkPaint::Style::kStroke_Style)
         .value("StrokeAndFill",   SkPaint::Style::kStrokeAndFill_Style);
 
+#ifdef SK_INCLUDE_PATHOPS
     enum_<SkPathOp>("PathOp")
         .value("Difference",         SkPathOp::kDifference_SkPathOp)
         .value("Intersect",          SkPathOp::kIntersect_SkPathOp)
         .value("Union",              SkPathOp::kUnion_SkPathOp)
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("ReverseDifference",  SkPathOp::kReverseDifference_SkPathOp);
+#endif
 
     enum_<SkCanvas::PointMode>("PointMode")
         .value("Points",   SkCanvas::PointMode::kPoints_PointMode)

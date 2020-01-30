@@ -41,8 +41,8 @@
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrXfermodeFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrConstColorProcessor.h"
-#include "src/gpu/effects/generated/GrSaturateProcessor.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -90,7 +90,6 @@ GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info);
     return desc;
 }
 
@@ -127,90 +126,42 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contex
 
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                      GrSurfaceProxy* baseProxy,
+                                                     GrSurfaceOrigin origin,
                                                      GrColorType srcColorType) {
     SkASSERT(baseProxy);
 
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
         return nullptr;
     }
-    return GrSurfaceProxy::Copy(ctx, baseProxy, GrMipMapped::kYes, SkBackingFit::kExact,
-                                SkBudgeted::kYes);
+    GrSurfaceProxyView view = GrSurfaceProxy::Copy(ctx, baseProxy, origin, srcColorType,
+                                                   GrMipMapped::kYes, SkBackingFit::kExact,
+                                                   SkBudgeted::kYes);
+    return view.asTextureProxyRef();
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     const SkBitmap& bitmap,
-                                                    const GrSamplerState& params,
+                                                    GrSamplerState params,
                                                     SkScalar scaleAdjust[2]) {
-    return GrBitmapTextureMaker(ctx, bitmap).refTextureProxyForParams(params, scaleAdjust);
+    GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kYes);
+    return maker.refTextureProxyForParams(params, scaleAdjust);
 }
 
-sk_sp<GrTextureProxy> GrMakeCachedBitmapProxy(GrProxyProvider* proxyProvider,
-                                              const SkBitmap& bitmap,
-                                              SkBackingFit fit) {
+GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, const SkBitmap& bitmap,
+                                               SkBackingFit fit) {
     if (!bitmap.peekPixels(nullptr)) {
-        return nullptr;
+        return {};
     }
 
-    // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
-    // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
-    // upload of the data to the gpu can happen at anytime and the bitmap may change by then.
-    SkCopyPixelsMode cpyMode = proxyProvider->renderingDirectly() ? kNever_SkCopyPixelsMode
-                                                                  : kIfMutable_SkCopyPixelsMode;
-    sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(bitmap, cpyMode);
+    GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kYes, fit);
+    auto [proxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
 
-    if (!image) {
-        return nullptr;
-    }
-
-    return GrMakeCachedImageProxy(proxyProvider, std::move(image), fit);
-}
-
-static void create_unique_key_for_image(const SkImage* image, GrUniqueKey* result) {
-    if (!image) {
-        result->reset(); // will be invalid
-        return;
-    }
-
-    if (const SkBitmap* bm = as_IB(image)->onPeekBitmap()) {
-        if (!bm->isVolatile()) {
-            SkIPoint origin = bm->pixelRefOrigin();
-            SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bm->width(), bm->height());
-            GrMakeKeyFromImageID(result, bm->getGenerationID(), subset);
-        }
-        return;
-    }
-
-    GrMakeKeyFromImageID(result, image->uniqueID(), image->bounds());
-}
-
-sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
-                                             sk_sp<SkImage> srcImage,
-                                             SkBackingFit fit) {
-    sk_sp<GrTextureProxy> proxy;
-    GrUniqueKey originalKey;
-
-    create_unique_key_for_image(srcImage.get(), &originalKey);
-
-    if (originalKey.isValid()) {
-        proxy = proxyProvider->findOrCreateProxyByUniqueKey(
-                originalKey, SkColorTypeToGrColorType(srcImage->colorType()),
-                kTopLeft_GrSurfaceOrigin);
-    }
     if (!proxy) {
-        proxy = proxyProvider->createTextureProxy(srcImage, 1, SkBudgeted::kYes, fit);
-        if (proxy && originalKey.isValid()) {
-            proxyProvider->assignUniqueKeyToProxy(originalKey, proxy.get());
-            const SkBitmap* bm = as_IB(srcImage.get())->onPeekBitmap();
-            // When recording DDLs we do not want to install change listeners because doing
-            // so isn't threadsafe.
-            if (bm && proxyProvider->renderingDirectly()) {
-                GrInstallBitmapUniqueKeyInvalidator(originalKey, proxyProvider->contextID(),
-                                                    bm->pixelRef());
-            }
-        }
+        return {};
     }
-
-    return proxy;
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    return GrSurfaceProxyView(std::move(proxy), origin, swizzle);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -231,67 +182,6 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorInfo& colorInfo) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
-    switch (type) {
-        case kUnknown_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kAlpha_8_SkColorType:
-            return kAlpha_8_GrPixelConfig;
-        case kRGB_565_SkColorType:
-            return kRGB_565_GrPixelConfig;
-        case kARGB_4444_SkColorType:
-            return kRGBA_4444_GrPixelConfig;
-        case kRGBA_8888_SkColorType:
-            return kRGBA_8888_GrPixelConfig;
-        case kRGB_888x_SkColorType:
-            return kRGB_888_GrPixelConfig;
-        case kBGRA_8888_SkColorType:
-            return kBGRA_8888_GrPixelConfig;
-        case kRGBA_1010102_SkColorType:
-            return kRGBA_1010102_GrPixelConfig;
-        case kRGB_101010x_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kGray_8_SkColorType:
-            return kGray_8_GrPixelConfig;
-        case kRGBA_F16Norm_SkColorType:
-            return kRGBA_half_Clamped_GrPixelConfig;
-        case kRGBA_F16_SkColorType:
-            return kRGBA_half_GrPixelConfig;
-        case kRGBA_F32_SkColorType:
-            return kUnknown_GrPixelConfig;
-        case kR8G8_unorm_SkColorType:
-            return kRG_88_GrPixelConfig;
-        case kR16G16_unorm_SkColorType:
-            return kRG_1616_GrPixelConfig;
-        case kA16_unorm_SkColorType:
-            return kAlpha_16_GrPixelConfig;
-        case kA16_float_SkColorType:
-            return kAlpha_half_GrPixelConfig;
-        case kR16G16_float_SkColorType:
-            return kRG_half_GrPixelConfig;
-        case kR16G16B16A16_unorm_SkColorType:
-            return kRGBA_16161616_GrPixelConfig;
-    }
-    SkUNREACHABLE;
-}
-
-GrPixelConfig SkImageInfo2GrPixelConfig(const SkImageInfo& info) {
-    return SkColorType2GrPixelConfig(info.colorType());
-}
-
-bool GrPixelConfigToColorType(GrPixelConfig config, SkColorType* ctOut) {
-    SkColorType ct = GrColorTypeToSkColorType(GrPixelConfigToColorType(config));
-    if (kUnknown_SkColorType != ct) {
-        if (ctOut) {
-            *ctOut = ct;
-        }
-        return true;
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
 
 static inline bool blend_requires_shader(const SkBlendMode mode) {
     return SkBlendMode::kDst != mode;
@@ -463,7 +353,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 
 #ifndef SK_IGNORE_GPU_DITHER
-    // Conservative default, in case GrPixelConfigToColorType() fails.
     GrColorType ct = dstColorInfo.colorType();
     if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) &&
         grPaint->numColorFragmentProcessors() > 0) {
@@ -480,7 +369,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 #endif
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
         if (grPaint->numColorFragmentProcessors()) {
-            grPaint->addColorFragmentProcessor(GrSaturateProcessor::Make());
+            grPaint->addColorFragmentProcessor(GrClampFragmentProcessor::Make(false));
         } else {
             auto color = grPaint->getColor4f();
             grPaint->setColor4f({SkTPin(color.fR, 0.f, 1.f),

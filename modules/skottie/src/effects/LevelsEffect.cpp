@@ -8,7 +8,7 @@
 #include "modules/skottie/src/effects/Effects.h"
 
 #include "include/effects/SkTableColorFilter.h"
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 #include "src/utils/SkJSON.h"
@@ -33,28 +33,48 @@ namespace internal {
 
 namespace  {
 
-class LevelsEffectAdapter final : public SkNVRefCnt<LevelsEffectAdapter> {
+class LevelsEffectAdapter final : public AnimatablePropertyContainer {
 public:
-    explicit LevelsEffectAdapter(sk_sp<sksg::RenderNode> child)
-        : fEffect(sksg::ExternalColorFilter::Make(std::move(child))) {
-        SkASSERT(fEffect);
+    static sk_sp<LevelsEffectAdapter> Make(const skjson::ArrayValue& jprops,
+                                           sk_sp<sksg::RenderNode> layer,
+                                           const AnimationBuilder* abuilder) {
+        return sk_sp<LevelsEffectAdapter>(new LevelsEffectAdapter(jprops,
+                                                                  std::move(layer),
+                                                                  abuilder));
     }
 
-    // 1: RGB, 2: R, 3: G, 4: B, 5: A
-    ADAPTER_PROPERTY(  Channel, SkScalar, 1)
-    ADAPTER_PROPERTY(  InBlack, SkScalar, 0)
-    ADAPTER_PROPERTY(  InWhite, SkScalar, 1)
-    ADAPTER_PROPERTY( OutBlack, SkScalar, 0)
-    ADAPTER_PROPERTY( OutWhite, SkScalar, 1)
-    ADAPTER_PROPERTY(    Gamma, SkScalar, 1)
-    // 1: clip, 2,3: don't clip
-    ADAPTER_PROPERTY(ClipBlack, SkScalar, 1)
-    ADAPTER_PROPERTY(ClipWhite, SkScalar, 1)
-
-    const sk_sp<sksg::ExternalColorFilter>& root() const { return fEffect; }
+    sk_sp<sksg::RenderNode> node() const { return fEffect; }
 
 private:
-    void apply() {
+    LevelsEffectAdapter(const skjson::ArrayValue& jprops,
+                        sk_sp<sksg::RenderNode> layer,
+                        const AnimationBuilder* abuilder)
+        : fEffect(sksg::ExternalColorFilter::Make(std::move(layer))) {
+        enum : size_t {
+            kChannel_Index        = 0,
+            // ???                = 1,
+            kInputBlack_Index     = 2,
+            kInputWhite_Index     = 3,
+            kGamma_Index          = 4,
+            kOutputBlack_Index    = 5,
+            kOutputWhite_Index    = 6,
+            kClipToOutBlack_Index = 7,
+            kClipToOutWhite_Index = 8,
+        };
+
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,     kChannel_Index), &fChannel );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,  kInputBlack_Index), &fInBlack );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,  kInputWhite_Index), &fInWhite );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,       kGamma_Index), &fGamma   );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kOutputBlack_Index), &fOutBlack);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kOutputWhite_Index), &fOutWhite);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kClipToOutBlack_Index),
+                   &fClipBlack);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kClipToOutWhite_Index),
+                   &fClipWhite);
+    }
+
+    void onSync() override {
         enum LottieChannel {
             kRGB_Channel = 1,
               kR_Channel = 2,
@@ -129,62 +149,25 @@ private:
         ));
     }
 
-    sk_sp<sksg::ExternalColorFilter> fEffect;
+    const sk_sp<sksg::ExternalColorFilter> fEffect;
+
+    ScalarValue fChannel   = 1, // 1: RGB, 2: R, 3: G, 4: B, 5: A
+                fInBlack   = 0,
+                fInWhite   = 1,
+                fOutBlack  = 0,
+                fOutWhite  = 1,
+                fGamma     = 1,
+                fClipBlack = 1, // 1: clip, 2,3: don't clip
+                fClipWhite = 1; // ^
 };
 
 } // anonymous ns
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachLevelsEffect(const skjson::ArrayValue& jprops,
                                                           sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kChannel_Index        = 0,
-        // ???                = 1,
-        kInputBlack_Index     = 2,
-        kInputWhite_Index     = 3,
-        kGamma_Index          = 4,
-        kOutputBlack_Index    = 5,
-        kOutputWhite_Index    = 6,
-        kClipToOutBlack_Index = 7,
-        kClipToOutWhite_Index = 8,
-    };
-
-    auto adapter = sk_make_sp<LevelsEffectAdapter>(std::move(layer));
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kChannel_Index),
-        [adapter](const ScalarValue& channel) {
-            adapter->setChannel(channel);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kInputBlack_Index),
-        [adapter](const ScalarValue& ib) {
-            adapter->setInBlack(ib);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kInputWhite_Index),
-        [adapter](const ScalarValue& iw) {
-            adapter->setInWhite(iw);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputBlack_Index),
-        [adapter](const ScalarValue& ob) {
-            adapter->setOutBlack(ob);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputWhite_Index),
-        [adapter](const ScalarValue& ow) {
-            adapter->setOutWhite(ow);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kGamma_Index),
-        [adapter](const ScalarValue& g) {
-            adapter->setGamma(g);
-        });
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kClipToOutBlack_Index),
-        [adapter](const ScalarValue& cb) {
-            adapter->setClipBlack(cb);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kClipToOutWhite_Index),
-        [adapter](const ScalarValue& cw) {
-            adapter->setClipWhite(cw);
-        });
-
-    return adapter->root();
+    return fBuilder->attachDiscardableAdapter<LevelsEffectAdapter>(jprops,
+                                                                   std::move(layer),
+                                                                   fBuilder);
 }
 
 } // namespace internal

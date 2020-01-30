@@ -219,6 +219,33 @@ DEF_RESCALE_AND_READ_GM(images/text.png, text_up, SkIRect::MakeWH(637, 105), (in
 DEF_RESCALE_AND_READ_GM(images/text.png, text_up_large, SkIRect::MakeXYWH(300, 0, 300, 105),
                         (int)(2.4 * 300), (int)(2.4 * 105))
 
+// Exercises non-scaling YUV420. Reads from the original canvas's surface in order to
+// exercise case where source surface is not a texture (in glbert config).
+DEF_SIMPLE_GM_CAN_FAIL(async_yuv_no_scale, canvas, errorMsg, 400, 300) {
+    auto surface = canvas->getSurface();
+    if (!surface) {
+        *errorMsg = "Not supported on recording/vector backends.";
+        return skiagm::DrawResult::kSkip;
+    }
+
+    auto image = GetResourceAsImage("images/yellow_rose.webp");
+    if (!image) {
+        return skiagm::DrawResult::kFail;
+    }
+    SkPaint paint;
+    canvas->drawImage(image.get(), 0, 0);
+
+    SkScopeExit scopeExit;
+    auto yuvImage = do_read_and_scale_yuv(
+            surface, kRec601_SkYUVColorSpace, SkIRect::MakeWH(400, 300), {400, 300},
+            SkSurface::RescaleGamma::kSrc, kNone_SkFilterQuality, &scopeExit);
+
+    canvas->clear(SK_ColorWHITE);
+    canvas->drawImage(yuvImage.get(), 0, 0);
+
+    return skiagm::DrawResult::kOk;
+}
+
 DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60) {
     if (canvas->imageInfo().colorType() == kUnknown_SkColorType) {
         *errorMsg = "Not supported on recording/vector backends.";
@@ -253,7 +280,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
-    canvas->translate(0, 2 * downSize.height());
+    canvas->translate(0, 4 * downSize.height());
     SkISize upSize = {static_cast<int>(kInner * 3.5), static_cast<int>(kInner * 4.6)};
     result = do_rescale_grid(canvas, surface.get(), srcRect, upSize, false, errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {

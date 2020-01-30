@@ -7,7 +7,7 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"
@@ -17,24 +17,43 @@ namespace internal {
 
 namespace  {
 
-class DropShadowAdapter final : public SkNVRefCnt<DropShadowAdapter> {
+class DropShadowAdapter final : public AnimatablePropertyContainer {
 public:
-    explicit DropShadowAdapter(sk_sp<sksg::DropShadowImageFilter> dropShadow)
-        : fDropShadow(std::move(dropShadow)) {
-        SkASSERT(fDropShadow);
+    static sk_sp<DropShadowAdapter> Make(const skjson::ArrayValue& jprops,
+                                         sk_sp<sksg::RenderNode> layer,
+                                         const AnimationBuilder* abuilder) {
+        return sk_sp<DropShadowAdapter>(new DropShadowAdapter(jprops, std::move(layer), abuilder));
     }
 
-    ADAPTER_PROPERTY(Color     , SkColor , SK_ColorBLACK)
-    ADAPTER_PROPERTY(Opacity   , SkScalar,           255)
-    ADAPTER_PROPERTY(Direction , SkScalar,             0)
-    ADAPTER_PROPERTY(Distance  , SkScalar,             0)
-    ADAPTER_PROPERTY(Softness  , SkScalar,             0)
-    ADAPTER_PROPERTY(ShadowOnly, bool    ,         false)
+    const sk_sp<sksg::RenderNode>& node() const { return fImageFilterEffect; }
 
 private:
-    void apply() {
+    DropShadowAdapter(const skjson::ArrayValue& jprops,
+                      sk_sp<sksg::RenderNode> layer,
+                      const AnimationBuilder* abuilder)
+        : fDropShadow(sksg::DropShadowImageFilter::Make())
+        , fImageFilterEffect(sksg::ImageFilterEffect::Make(std::move(layer), fDropShadow)) {
+        enum : size_t {
+            kShadowColor_Index = 0,
+            kOpacity_Index     = 1,
+            kDirection_Index   = 2,
+            kDistance_Index    = 3,
+            kSoftness_Index    = 4,
+            kShadowOnly_Index  = 5,
+        };
+
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kShadowColor_Index), &fColor    );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,     kOpacity_Index), &fOpacity  );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,   kDirection_Index), &fDirection);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,    kDistance_Index), &fDistance );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,    kSoftness_Index), &fSoftness );
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops,  kShadowOnly_Index), &fShdwOnly );
+    }
+
+    void onSync() override {
         // fColor -> RGB, fOpacity -> A
-        fDropShadow->setColor(SkColorSetA(fColor, SkTPin(SkScalarRoundToInt(fOpacity), 0, 255)));
+        const auto color = ValueTraits<VectorValue>::As<SkColor>(fColor);
+        fDropShadow->setColor(SkColorSetA(color, SkTPin(SkScalarRoundToInt(fOpacity), 0, 255)));
 
         // The offset is specified in terms of a bearing angle + distance.
         SkScalar rad = SkDegreesToRadians(90 - fDirection);
@@ -46,55 +65,29 @@ private:
         const auto sigma = fSoftness * kSoftnessToSigmaFactor;
         fDropShadow->setSigma(SkVector::Make(sigma, sigma));
 
-        fDropShadow->setMode(fShadowOnly ? sksg::DropShadowImageFilter::Mode::kShadowOnly
-                                         : sksg::DropShadowImageFilter::Mode::kShadowAndForeground);
+        fDropShadow->setMode(SkToBool(fShdwOnly)
+                                ? sksg::DropShadowImageFilter::Mode::kShadowOnly
+                                : sksg::DropShadowImageFilter::Mode::kShadowAndForeground);
     }
 
     const sk_sp<sksg::DropShadowImageFilter> fDropShadow;
+    const sk_sp<sksg::RenderNode>            fImageFilterEffect;
+
+    VectorValue fColor     = { 0, 0, 0, 1 };
+    ScalarValue fOpacity   = 255.f,
+                fDirection = 0,
+                fDistance  = 0,
+                fSoftness  = 0,
+                fShdwOnly  = 0;
 };
 
 } // anonymous ns
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachDropShadowEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kShadowColor_Index = 0,
-        kOpacity_Index     = 1,
-        kDirection_Index   = 2,
-        kDistance_Index    = 3,
-        kSoftness_Index    = 4,
-        kShadowOnly_Index  = 5,
-    };
-
-    auto shadow_effect  = sksg::DropShadowImageFilter::Make();
-    auto shadow_adapter = sk_make_sp<DropShadowAdapter>(shadow_effect);
-
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kShadowColor_Index),
-        [shadow_adapter](const VectorValue& c) {
-            shadow_adapter->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOpacity_Index),
-        [shadow_adapter](const ScalarValue& o) {
-            shadow_adapter->setOpacity(o);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDirection_Index),
-        [shadow_adapter](const ScalarValue& d) {
-            shadow_adapter->setDirection(d);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDistance_Index),
-        [shadow_adapter](const ScalarValue& d) {
-            shadow_adapter->setDistance(d);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kSoftness_Index),
-        [shadow_adapter](const ScalarValue& s) {
-            shadow_adapter->setSoftness(s);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kShadowOnly_Index),
-        [shadow_adapter](const ScalarValue& s) {
-            shadow_adapter->setShadowOnly(SkToBool(s));
-        });
-
-    return sksg::ImageFilterEffect::Make(std::move(layer), std::move(shadow_effect));
+    return fBuilder->attachDiscardableAdapter<DropShadowAdapter>(jprops,
+                                                                 std::move(layer),
+                                                                 fBuilder);
 }
 
 } // namespace internal

@@ -101,7 +101,9 @@ DEF_TEST(PictureNegativeSpace, r) {
     SkRect cull = {-200,-200,+200,+200};
 
     {
-        auto canvas = recorder.beginRecording(cull, &factory);
+        sk_sp<SkBBoxHierarchy> bbh = factory();
+        auto base = (SkBBoxHierarchy_Base*)bbh.get();
+        auto canvas = recorder.beginRecording(cull, bbh);
             canvas->save();
             canvas->clipRect(cull);
             canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
@@ -110,6 +112,8 @@ DEF_TEST(PictureNegativeSpace, r) {
         auto pic = recorder.finishRecordingAsPicture();
         REPORTER_ASSERT(r, pic->approximateOpCount() == 5);
         REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
+
+        REPORTER_ASSERT(r, base->getRootBound() == (SkRect{-20,-20,-10,-10}));
     }
 
     {

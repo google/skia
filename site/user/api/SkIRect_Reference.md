@@ -66,7 +66,6 @@ struct <a href='SkIRect_Reference#SkIRect'>SkIRect</a> {
     void <a href='#SkIRect_join'>join</a>(const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& r);
     void <a href='#SkIRect_sort'>sort()</a>;
     <a href='SkIRect_Reference#SkIRect'>SkIRect</a> <a href='#SkIRect_makeSorted'>makeSorted</a>() const;
-    static const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkIRect_EmptyIRect'>EmptyIRect</a>();
 };
 
 </pre>
@@ -148,7 +147,7 @@ outset rect isEmpty: false
 
 ### See Also
 
-<a href='#SkIRect_EmptyIRect'>EmptyIRect</a> <a href='#SkIRect_isEmpty'>isEmpty</a> <a href='#SkIRect_setEmpty'>setEmpty</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_MakeEmpty'>MakeEmpty</a>
+<a href='#SkIRect_isEmpty'>isEmpty</a> <a href='#SkIRect_setEmpty'>setEmpty</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_MakeEmpty'>MakeEmpty</a>
 
 <a name='SkIRect_MakeWH'></a>
 
@@ -712,7 +711,7 @@ sorted: {20, 40, 20, 50} is empty
 
 ### See Also
 
-<a href='#SkIRect_EmptyIRect'>EmptyIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_isEmpty'>isEmpty</a>
+<a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_isEmpty'>isEmpty</a>
 
 <a name='SkIRect_isEmpty64'></a>
 
@@ -747,7 +746,7 @@ sorted: {20, 40, 20, 50} is empty
 
 ### See Also
 
-<a href='#SkIRect_EmptyIRect'>EmptyIRect</a> <a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_isEmpty'>isEmpty</a>
+<a href='#SkIRect_MakeEmpty'>MakeEmpty</a> <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_isEmpty'>isEmpty</a>
 
 <a name='Operators'></a>
 
@@ -2093,34 +2092,4 @@ sorted: 20, 10, 30, 50
 ### See Also
 
 <a href='#SkIRect_sort'>sort</a> <a href='SkRect_Reference#SkRect'>SkRect</a>::<a href='#SkRect_makeSorted'>makeSorted</a>
-
-<a name='SkIRect_EmptyIRect'></a>
-
----
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkIRect_EmptyIRect'>EmptyIRect</a>()
-</pre>
-
-Returns a reference to immutable empty <a href='SkIRect_Reference#SkIRect'>SkIRect</a>, set to (0, 0, 0, 0).
-
-### Return Value
-
-global <a href='SkIRect_Reference#SkIRect'>SkIRect</a> set to all zeroes
-
-### Example
-
-<div><fiddle-embed name="@IRect_EmptyIRect">
-
-#### Example Output
-
-~~~~
-rect: 0, 0, 0, 0
-~~~~
-
-</fiddle-embed></div>
-
-### See Also
-
-<a href='#SkIRect_MakeEmpty'>MakeEmpty</a>
 

@@ -132,9 +132,7 @@ MaskFilterEffectBase::MaskFilterEffectBase(sk_sp<sksg::RenderNode> child, const 
     , fMaskEffectNode(sksg::MaskFilterEffect::Make(std::move(child), fMaskNode))
     , fLayerSize(ls) {}
 
-MaskFilterEffectBase::~MaskFilterEffectBase() = default;
-
-void MaskFilterEffectBase::apply() const {
+void MaskFilterEffectBase::onSync() {
     const auto minfo = this->onMakeMask();
 
     fMaskEffectNode->setVisible(minfo.fVisible);

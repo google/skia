@@ -320,9 +320,9 @@ DrawResult SampleLocationsGM::onDraw(
         return DrawResult::kSkip;
     }
 
-    auto offscreenRTC = ctx->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, 200, 200, rtc->colorInfo().colorType(), nullptr,
-            rtc->numSamples(), GrMipMapped::kNo, fOrigin);
+    auto offscreenRTC = GrRenderTargetContext::Make(
+            ctx, rtc->colorInfo().colorType(), nullptr, SkBackingFit::kExact, {200, 200},
+            rtc->numSamples(), GrMipMapped::kNo, GrProtected::kNo, fOrigin);
     if (!offscreenRTC) {
         *errorMsg = "Failed to create offscreen render target.";
         return DrawResult::kFail;
@@ -357,8 +357,8 @@ DrawResult SampleLocationsGM::onDraw(
                             SkMatrix::I(), SkRect::MakeWH(200, 200));
 
     // Copy offscreen texture to canvas.
-    rtc->drawTexture(GrNoClip(), sk_ref_sp(offscreenRTC->asTextureProxy()),
-                     offscreenRTC->colorInfo().colorType(), offscreenRTC->colorInfo().alphaType(),
+    rtc->drawTexture(GrNoClip(), offscreenRTC->readSurfaceView(),
+                     offscreenRTC->colorInfo().alphaType(),
                      GrSamplerState::Filter::kNearest, SkBlendMode::kSrc, SK_PMColor4fWHITE,
                      {0,0,200,200}, {0,0,200,200}, GrAA::kNo, GrQuadAAFlags::kNone,
                      SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),

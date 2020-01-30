@@ -26,11 +26,18 @@ if (skia_use_system_freetype2) {
     ]
 
     include_dirs = [ "." ]
-    defines = [
-      "FT2_BUILD_LIBRARY",
-      "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
-      "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
-    ]
+    defines = [ "FT2_BUILD_LIBRARY" ]
+    if (target_cpu == "wasm") {
+      defines += [
+        "FT_CONFIG_MODULES_H=<include/freetype-no-type1/ftmodule.h>",
+        "FT_CONFIG_OPTIONS_H=<include/freetype-no-type1/ftoption.h>",
+      ]
+    } else {
+      defines += [
+        "FT_CONFIG_MODULES_H=<include/freetype-android/ftmodule.h>",
+        "FT_CONFIG_OPTIONS_H=<include/freetype-android/ftoption.h>",
+      ]
+    }
 
     sources = [
       "../externals/freetype/src/autofit/autofit.c",

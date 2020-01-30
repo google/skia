@@ -129,6 +129,7 @@ static DEFINE_int_2(threads, j, -1,
 
 static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
+static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 
 const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
     "OpenGL",
@@ -276,6 +277,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkGraphics::Init();
 
     gPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
+    gPathRendererNames[GpuPathRenderers::kGpuTessellation] = "GPU Tessellation";
     gPathRendererNames[GpuPathRenderers::kStencilAndCover] = "NV_path_rendering";
     gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
     gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "CCPR";
@@ -1314,11 +1316,13 @@ void Viewer::drawSlide(SkSurface* surface) {
     // ... in fake perspective or zooming (so we have a snapped copy of the results)
     // ... in any raster mode, because the window surface is actually GL
     // ... in any color managed mode, because we always make the window surface with no color space
+    // ... or if the user explicitly requested offscreen rendering
     sk_sp<SkSurface> offscreenSurface = nullptr;
     if (kPerspective_Fake == fPerspectiveMode ||
         fShowZoomWindow ||
         Window::kRaster_BackendType == fBackendType ||
-        colorSpace != nullptr) {
+        colorSpace != nullptr ||
+        FLAGS_offscreen) {
 
         offscreenSurface = make_surface(fWindow->width(), fWindow->height());
         slideSurface = offscreenSurface.get();
@@ -1708,6 +1712,9 @@ void Viewer::drawImGui() {
                         const auto* caps = ctx->priv().caps();
                         prButton(GpuPathRenderers::kDefault);
                         if (fWindow->sampleCount() > 1 || caps->mixedSamplesSupport()) {
+                            if (caps->shaderCaps()->tessellationSupport()) {
+                                prButton(GpuPathRenderers::kGpuTessellation);
+                            }
                             if (caps->shaderCaps()->pathRenderingSupport()) {
                                 prButton(GpuPathRenderers::kStencilAndCover);
                             }
@@ -2371,6 +2378,10 @@ void Viewer::updateUIState() {
                 const auto* caps = ctx->priv().caps();
                 writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault].c_str());
                 if (fWindow->sampleCount() > 1 || caps->mixedSamplesSupport()) {
+                    if (caps->shaderCaps()->tessellationSupport()) {
+                        writer.appendString(
+                                gPathRendererNames[GpuPathRenderers::kGpuTessellation].c_str());
+                    }
                     if (caps->shaderCaps()->pathRenderingSupport()) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kStencilAndCover].c_str());

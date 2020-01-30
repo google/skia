@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkMatrix44.h"
+#include "include/private/SkM44.h"
 #include "src/core/SkYUVMath.h"
 
 // in SkColorMatrix order (row-major)
@@ -106,29 +106,34 @@ void SkColorMatrix_YUV2RGB(SkYUVColorSpace cs, float m[20]) {
 //           |  3x3   tg |
 //           |        tb |
 //           | 0 0 0  1  |
-static void colormatrix_to_matrix44(const float src[20], SkMatrix44* dst) {
-    for (int r = 0; r < 3; ++r) {
-        for (int c = 0; c < 3; ++c) {
-            dst->set(r, c, src[r*5 + c]);
-        }
-        dst->set(r, 3, src[r*5 + 4]);
-    }
-    dst->set(3, 0, 0);
-    dst->set(3, 1, 0);
-    dst->set(3, 2, 0);
-    dst->set(3, 3, 1);
+static void colormatrix_to_matrix44(const float src[20], SkM44* dst) {
+    *dst = SkM44(src[ 0], src[ 1], src[ 2], src[ 4],
+                 src[ 5], src[ 6], src[ 7], src[ 9],
+                 src[10], src[11], src[12], src[14],
+                       0,       0,       0,       1);
 }
 
 // input: ignore the bottom row
 // output: inject identity row/column for alpha
-static void matrix44_to_colormatrix(const SkMatrix44& src, float dst[20]) {
-    for (int r = 0; r < 3; ++r) {
-        for (int c = 0; c < 3; ++c) {
-            dst[r*5 + c] = src.get(r, c);
-        }
-        dst[r*5 + 3] = 0;   // scale alpha
-        dst[r*5 + 4] = src.get(r, 3);  // translate
-    }
+static void matrix44_to_colormatrix(const SkM44& src, float dst[20]) {
+    dst[0] = src.rc(0,0);
+    dst[1] = src.rc(0,1);
+    dst[2] = src.rc(0,2);
+    dst[3] = 0;
+    dst[4] = src.rc(0,3);    // tx
+
+    dst[5] = src.rc(1,0);
+    dst[6] = src.rc(1,1);
+    dst[7] = src.rc(1,2);
+    dst[8] = 0;
+    dst[9] = src.rc(1,3);    // ty
+
+    dst[10] = src.rc(2,0);
+    dst[11] = src.rc(2,1);
+    dst[12] = src.rc(2,2);
+    dst[13] = 0;
+    dst[14] = src.rc(2,3);   // tz
+
     dst[15] = dst[16] = dst[17] = dst[19] = 0;
     dst[18] = 1;
 }
@@ -206,7 +211,7 @@ void SkColorMatrix_DumpYUVMatrixTables() {
         float m[20];
         make_rgb_to_yuv_matrix(m, gCoeff[(unsigned)cs]);
         dump(m, cs, true);
-        SkMatrix44 m44, im44;
+        SkM44 m44, im44;
         colormatrix_to_matrix44(m, &m44);
         float im[20];
 #ifdef SK_DEBUG

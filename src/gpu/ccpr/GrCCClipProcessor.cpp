@@ -73,7 +73,7 @@ public:
                        atlasTransform, atlasTransform);
 
         f->codeAppend ("coverage = ");
-        f->appendTextureLookup(args.fTexSamplers[0], "texcoord", kHalf2_GrSLType);
+        f->appendTextureLookup(args.fTexSamplers[0], "texcoord");
         f->codeAppend (".a;");
 
         if (proc.fIsCoverageCount) {

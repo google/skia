@@ -19,6 +19,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
@@ -417,20 +418,23 @@ public:
         auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
         // don't need to set ctx->paintColor
         ctx->inputs = fInputs->data();
-        ctx->ninputs = fInputs->size() / 4;
+        ctx->ninputs = fEffect->uniformSize() / 4;
         ctx->shaderConvention = false;
 
-        SkAutoMutexExclusive ama(fByteCodeMutex);
-        if (!fByteCode) {
-            auto [byteCode, errorText] = fEffect->toByteCode();
+        SkAutoMutexExclusive ama(fInterpreterMutex);
+        if (!fInterpreter) {
+            auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
             if (!byteCode) {
                 SkDebugf("%s\n", errorText.c_str());
                 return false;
             }
-            fByteCode = std::move(byteCode);
+            fMain = byteCode->getFunction("main");
+            fInterpreter.reset(
+                           new SkSL::Interpreter<SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH>(
+                                                                          std::move(byteCode)));
         }
-        ctx->byteCode = fByteCode.get();
-        ctx->fn = ctx->byteCode->getFunction("main");
+        ctx->fn = fMain;
+        ctx->interpreter = fInterpreter.get();
         rec.fPipeline->append(SkRasterPipeline::interpreter, ctx);
         return true;
     }
@@ -453,8 +457,10 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkData> fInputs;
 
-    mutable SkMutex fByteCodeMutex;
-    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
+    mutable SkMutex fInterpreterMutex;
+    mutable std::unique_ptr<SkSL::Interpreter<SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH>>
+                                                                                       fInterpreter;
+    mutable const SkSL::ByteCodeFunction* fMain;
 
     friend class SkColorFilter;
 
