@@ -14,7 +14,7 @@
 #include "include/private/SkThreadAnnotations.h"
 #include "include/private/SkThreadID.h"
 
-class SK_CAPABILITY("mutex") SkMutex {
+class SK_CAPABILITY("mutex") SK_API SkMutex {
 public:
     constexpr SkMutex() = default;
 

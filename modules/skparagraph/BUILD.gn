@@ -40,6 +40,7 @@ if (skia_enable_skparagraph) {
     source_set("utils") {
       import("skparagraph.gni")
       public_configs = [ ":utils_config" ]
+      public = skparagraph_utils_public
       configs += [ "../../:skia_private" ]
       if (skia_use_icu && skia_use_harfbuzz) {
         sources = skparagraph_utils
