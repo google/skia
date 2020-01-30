@@ -41,6 +41,7 @@ sk_sp<GrTextureProxy> GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
     if (copyParams.fFilter == GrSamplerState::Filter::kNearest && !resizing &&
         dstWillRequireMipMaps) {
         sk_sp<GrTextureProxy> proxy = GrCopyBaseMipMapToTextureProxy(context, inputProxy.get(),
+                                                                     inputProxy->origin(),
                                                                      colorType);
         if (proxy) {
             return proxy;
