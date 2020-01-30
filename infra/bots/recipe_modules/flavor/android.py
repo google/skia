@@ -6,6 +6,7 @@
 from recipe_engine import recipe_api
 
 from . import default
+import re
 import subprocess  # TODO(borenet): No! Remove this.
 
 
@@ -497,12 +498,12 @@ time.sleep(60)
       self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd, **kwargs):
+    app = self.host_dirs.bin_dir.join(cmd[0])
     if not kwargs.get('skip_binary_push', False):
       if (cmd[0] == 'nanobench'):
         self._scale_for_nanobench()
       else:
         self._scale_for_dm()
-      app = self.host_dirs.bin_dir.join(cmd[0])
       self._adb('push %s' % cmd[0],
                 'push', app, self.device_dirs.bin_dir)
 
@@ -515,7 +516,7 @@ time.sleep(60)
               'push', self.m.vars.tmp_dir.join(sh), self.device_dirs.bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
-    self.m.python.inline('%s' % cmd[0], """
+    app_step = self.m.python.inline('%s' % cmd[0], """
     import subprocess
     import sys
     bin_dir = sys.argv[1]
@@ -528,7 +529,31 @@ time.sleep(60)
       print "Couldn't read the return code.  Probably killed for OOM."
       sys.exit(1)
     """ % (self.ADB_BINARY, self.ADB_BINARY),
-      args=[self.device_dirs.bin_dir, sh])
+                                    args=[self.device_dirs.bin_dir, sh],
+                                    stdout=self.m.raw_io.output())
+    app_out = app_step.stdout.strip() if app_step.stdout else ''
+    if app_out:
+      with self.m.step.nest(
+          'symbolize backtraces in %s output' % cmd[0]) as presentation:
+        symbolized_lines = []
+        # Assume all hex numbers are addresses.
+        hex_re = re.compile(r'(0x\w+)')
+        for line in app_out.split('\n'):
+          for match in hex_re.finditer(line):
+            addr = match.group(1)
+            a2l_out = self.m.run(self.m.step, 'addr2line %s' % addr,
+                                 cmd=['addr2line', '--demangle', '--functions',
+                                      '--pretty-print', '--exe=%s' % app, addr],
+                                 infra_step=True, abort_on_failure=False,
+                                 fail_build_on_failure=False,
+                                 stdout=self.m.raw_io.output())
+            if a2l_out and a2l_out.stdout:
+              line = line.replace(addr,
+                                  '%s %s' % (addr, a2l_out.stdout.strip()))
+          symbolized_lines.append(line)
+        if symbolized_lines:
+          presentation.status = 'SUCCESS'
+          presentation.logs['symbolized output'] = '\n'.join(symbolized_lines)
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)
