@@ -516,29 +516,23 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     SkASSERT(pipelineDescriptor.vertexDescriptor);
     SkASSERT(pipelineDescriptor.colorAttachments[0]);
 
-#if defined(SK_BUILD_FOR_MAC) && defined(GR_USE_COMPLETION_HANDLER)
-    bool timedout;
-    id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
-                                                     fGpu->device(), pipelineDescriptor, &timedout);
-    if (timedout) {
-        // try a second time
-        pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
-                                fGpu->device(), pipelineDescriptor, &timedout);
-    }
-    if (!pipelineState) {
-        return nullptr;
-    }
-#else
     NSError* error = nil;
+#if defined(SK_BUILD_FOR_MAC)
+    id<MTLRenderPipelineState> pipelineState = GrMtlNewRenderPipelineStateWithDescriptor(
+                                                     fGpu->device(), pipelineDescriptor, &error);
+#else
     id<MTLRenderPipelineState> pipelineState =
             [fGpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                                            error: &error];
+#endif
     if (error) {
         SkDebugf("Error creating pipeline: %s\n",
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         return nullptr;
     }
-#endif
+    if (!pipelineState) {
+        return nullptr;
+    }
 
     uint32_t bufferSize = buffer_size(fUniformHandler.fCurrentUBOOffset,
                                       fUniformHandler.fCurrentUBOMaxAlignment);

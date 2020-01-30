@@ -80,13 +80,13 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
  * Replacement for newLibraryWithSource:options:error that has a timeout.
  */
 id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice>, NSString* mslCode,
-                                         MTLCompileOptions*, bool* timedout);
+                                         MTLCompileOptions*, NSError**);
 
 /**
  * Replacement for newRenderPipelineStateWithDescriptor:error that has a timeout.
  */
 id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
-        id<MTLDevice>, MTLRenderPipelineDescriptor*, bool* timedout);
+        id<MTLDevice>, MTLRenderPipelineDescriptor*, NSError**);
 
 /**
  * Returns a MTLTexture corresponding to the GrSurface.
