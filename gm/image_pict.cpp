@@ -196,10 +196,13 @@ protected:
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
+        // TODO: When we update this function to return a view instead of just a proxy then we can
+        // remove the extra ref that happens when we call asTextureProxyRef.
         return GrSurfaceProxy::Copy(
-                fCtx.get(), fProxy.get(), SkColorTypeToGrColorType(info.colorType()), mipMapped,
+                fCtx.get(), fProxy.get(), kTopLeft_GrSurfaceOrigin,
+                SkColorTypeToGrColorType(info.colorType()), mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
-                SkBackingFit::kExact, SkBudgeted::kYes);
+                SkBackingFit::kExact, SkBudgeted::kYes).asTextureProxyRef();
     }
 
 private:

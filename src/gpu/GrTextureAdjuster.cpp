@@ -53,7 +53,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> copy;
     if (copyForMipsOnly) {
-        copy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(), this->colorType());
+        copy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+                                              this->originalProxy()->origin(), this->colorType());
     } else {
         copy = CopyOnGpu(this->context(), std::move(proxy), this->colorType(),
                          copyParams, willBeMipped);
