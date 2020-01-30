@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e8a7807_d93e16db",
+        "filename": "modules/sksg/include/SkSGTransform.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-01-30T21:14:51Z",
+      "side": 1,
+      "message": "technically still private, but hopefully not for long",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 11
+      },
+      "revId": "f1885cb22b959cec6608cb687ea38071cdaec6cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
