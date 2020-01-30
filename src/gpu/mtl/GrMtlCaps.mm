@@ -9,6 +9,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -873,6 +874,13 @@ bool GrMtlCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 bool GrMtlCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
                                                   const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+
+    SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+        return ct == (SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                             : GrColorType::kRGBA_8888);
+    }
+
     const auto& info = this->getFormatInfo(mtlFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         if (info.fColorTypeInfos[i].fColorType == ct) {
@@ -991,6 +999,17 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
         GrColorType srcColorType, const GrBackendFormat& srcBackendFormat,
         GrColorType dstColorType) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(srcBackendFormat);
+
+    SkImage::CompressionType compression = GrMtlFormatToCompressionType(mtlFormat);
+    if (compression != SkImage::CompressionType::kNone) {
+#ifdef SK_BUILD_FOR_IOS
+        // Reading back to kRGB_888x doesn't work on Metal/iOS (skbug.com/9839)
+        return { GrColorType::kUnknown, 0 };
+#else
+        return { SkCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x
+                                                        : GrColorType::kRGBA_8888, 0 };
+#endif
+    }
 
     // Metal requires the destination offset for copyFromTexture to be a multiple of the textures
     // pixels size.
