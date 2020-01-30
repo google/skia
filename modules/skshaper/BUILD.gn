@@ -13,9 +13,6 @@ if (skia_enable_skshaper) {
   config("public_config") {
     include_dirs = [ "include" ]
     defines = []
-    if (is_component_build) {
-      defines += [ "SKSHAPER_DLL" ]
-    }
     if (skia_use_icu) {
       defines += [ "SK_SHAPER_HARFBUZZ_AVAILABLE" ]
     }
