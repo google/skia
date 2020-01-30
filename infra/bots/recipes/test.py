@@ -222,10 +222,6 @@ def dm_flags(api, bot):
       # skbug.com/9235
       blacklist('_ test _ Programs')
 
-    if 'Metal' in bot and 'MacBook10.1-' in bot:
-      # skbug.com/9817
-      blacklist('_ test _ Programs')
-
     # skbug.com/9033 - these devices run out of memory on this test
     # when opList splitting reduction is enabled
     if 'GPU' in bot and ('Nexus7' in bot or
@@ -1082,7 +1078,6 @@ TEST_BUILDERS = [
   'Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
-  'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-Metal',
   'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
 ]
 
