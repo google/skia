@@ -17,26 +17,6 @@
 
 #include <memory>
 
-#if !defined(SKSHAPER_IMPLEMENTATION)
-    #define SKSHAPER_IMPLEMENTATION 0
-#endif
-
-#if !defined(SKSHAPER_API)
-    #if defined(SKIA_DLL)
-        #if defined(_MSC_VER)
-            #if SKSHAPER_IMPLEMENTATION
-                #define SKSHAPER_API __declspec(dllexport)
-            #else
-                #define SKSHAPER_API __declspec(dllimport)
-            #endif
-        #else
-            #define SKSHAPER_API __attribute__((visibility("default")))
-        #endif
-    #else
-        #define SKSHAPER_API
-    #endif
-#endif
-
 class SkFont;
 class SkFontMgr;
 
@@ -46,7 +26,7 @@ class SkFontMgr;
 
    If compiled without HarfBuzz, fall back on SkPaint::textToGlyphs.
  */
-class SKSHAPER_API SkShaper {
+class SkShaper {
 public:
     static std::unique_ptr<SkShaper> MakePrimitive();
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
@@ -252,7 +232,7 @@ private:
 /**
  * Helper for shaping text directly into a SkTextBlob.
  */
-class SKSHAPER_API SkTextBlobBuilderRunHandler final : public SkShaper::RunHandler {
+class SkTextBlobBuilderRunHandler final : public SkShaper::RunHandler {
 public:
     SkTextBlobBuilderRunHandler(const char* utf8Text, SkPoint offset)
         : fUtf8Text(utf8Text)
