@@ -225,9 +225,12 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
                              constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
                              ctm, std::move(textureXform));
     } else {
-        rtc->drawTexture(clip, std::move(proxy), srcColorInfo.colorType(), srcColorInfo.alphaType(),
-                         filter, paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags,
-                         constraint, ctm, std::move(textureXform));
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+        rtc->drawTexture(clip, std::move(view), srcColorInfo.alphaType(), filter,
+                         paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags, constraint,
+                         ctm, std::move(textureXform));
     }
 }
 

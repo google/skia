@@ -1248,17 +1248,17 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
     if (forceCopy || !view.asTextureProxy()) {
         // When the device doesn't have a texture, or a copy is requested, we create a temporary
         // texture that matches the device contents
-        auto proxy = GrSurfaceProxy::Copy(fContext.get(),
-                                          rtc->asSurfaceProxy(),
-                                          rtc->colorInfo().colorType(),
-                                          GrMipMapped::kNo,      // Don't auto generate mips
-                                          subset,
-                                          SkBackingFit::kApprox,
-                                          SkBudgeted::kYes);     // Always budgeted
-        if (!proxy) {
+        view = GrSurfaceProxy::Copy(fContext.get(),
+                                    rtc->asSurfaceProxy(),
+                                    view.origin(),
+                                    rtc->colorInfo().colorType(),
+                                    GrMipMapped::kNo,      // Don't auto generate mips
+                                    subset,
+                                    SkBackingFit::kApprox,
+                                    SkBudgeted::kYes);     // Always budgeted
+        if (!view.proxy()) {
             return nullptr;
         }
-        view = GrSurfaceProxyView(std::move(proxy), view.origin(), view.swizzle());
 
         // Since this copied only the requested subset, the special image wrapping the proxy no
         // longer needs the original subset.

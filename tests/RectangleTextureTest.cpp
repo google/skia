@@ -189,8 +189,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
                                kPremul_SkAlphaType, refPixels);
 
         // Test copy to both a texture and RT
-        TestCopyFromSurface(reporter, context, rectProxy.get(), GrColorType::kRGBA_8888, refPixels,
-                            "RectangleTexture-copy-from");
+        TestCopyFromSurface(reporter, context, rectProxy.get(), origin, GrColorType::kRGBA_8888,
+                            refPixels, "RectangleTexture-copy-from");
 
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(rectangleTex.getBackendFormat(),
                                                                    GrColorType::kRGBA_8888);
