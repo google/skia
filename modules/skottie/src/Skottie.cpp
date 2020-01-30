@@ -146,19 +146,6 @@ sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const
         : nullptr;
 }
 
-sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcolor,
-                                                 const char prop_name[]) const {
-    auto color_node = sksg::Color::Make(SK_ColorBLACK);
-
-    this->bindProperty<VectorValue>(jcolor[prop_name],
-        [color_node](const VectorValue& c) {
-            color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
-        });
-    this->dispatchColorProperty(color_node);
-
-    return color_node;
-}
-
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver,

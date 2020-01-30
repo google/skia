@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkShaderMaskFilter.h"
+#include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/utils/SkJSON.h"
@@ -131,42 +132,56 @@ private:
     using INHERITED = sksg::CustomRenderNode;
 };
 
+class RadialWipeAdapter final : public DiscardableAdapterBase<RadialWipeAdapter, RWipeRenderNode> {
+public:
+    RadialWipeAdapter(const skjson::ArrayValue& jprops,
+                      sk_sp<sksg::RenderNode> layer,
+                      const AnimationBuilder& abuilder)
+        : INHERITED(sk_make_sp<RWipeRenderNode>(std::move(layer))) {
+
+        enum : size_t {
+            kCompletion_Index = 0,
+            kStartAngle_Index = 1,
+            kWipeCenter_Index = 2,
+                  kWipe_Index = 3,
+               kFeather_Index = 4,
+        };
+
+        EffectBinder(jprops, abuilder, this)
+            .bind(kCompletion_Index, fCompletion)
+            .bind(kStartAngle_Index, fStartAngle)
+            .bind(kWipeCenter_Index, fWipeCenter)
+            .bind(      kWipe_Index, fWipe      )
+            .bind(   kFeather_Index, fFeather   );
+    }
+
+private:
+    void onSync() override {
+        const auto& wiper = this->node();
+
+        wiper->setCompletion(fCompletion);
+        wiper->setStartAngle(fStartAngle);
+        wiper->setWipeCenter(ValueTraits<VectorValue>::As<SkPoint>(fWipeCenter));
+        wiper->setWipe(fWipe);
+        wiper->setFeather(fFeather);
+    }
+
+    VectorValue fWipeCenter;
+    ScalarValue fCompletion = 0,
+                fStartAngle = 0,
+                fWipe       = 0,
+                fFeather    = 0;
+
+    using INHERITED = DiscardableAdapterBase<RadialWipeAdapter, RWipeRenderNode>;
+};
+
 } // namespace
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachRadialWipeEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kCompletion_Index = 0,
-        kStartAngle_Index = 1,
-        kWipeCenter_Index = 2,
-        kWipe_Index       = 3,
-        kFeather_Index    = 4,
-    };
-
-    auto wiper = sk_make_sp<RWipeRenderNode>(std::move(layer));
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kCompletion_Index),
-        [wiper](const ScalarValue& c) {
-            wiper->setCompletion(c);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kStartAngle_Index),
-        [wiper](const ScalarValue& sa) {
-            wiper->setStartAngle(sa);
-        });
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kWipeCenter_Index),
-        [wiper](const VectorValue& c) {
-            wiper->setWipeCenter(ValueTraits<VectorValue>::As<SkPoint>(c));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kWipe_Index),
-        [wiper](const ScalarValue& w) {
-            wiper->setWipe(w);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kFeather_Index),
-        [wiper](const ScalarValue& f) {
-            wiper->setFeather(f);
-        });
-
-    return wiper;
+    return fBuilder->attachDiscardableAdapter<RadialWipeAdapter>(jprops,
+                                                                 std::move(layer),
+                                                                 *fBuilder);
 }
 
 } // namespace internal

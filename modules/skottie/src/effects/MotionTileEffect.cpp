@@ -11,6 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
+#include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/utils/SkJSON.h"
@@ -166,57 +167,70 @@ private:
     using INHERITED = sksg::CustomRenderNode;
 };
 
+class MotionTileAdapter final : public DiscardableAdapterBase<MotionTileAdapter, TileRenderNode> {
+public:
+    MotionTileAdapter(const skjson::ArrayValue& jprops,
+                      sk_sp<sksg::RenderNode> layer,
+                      const AnimationBuilder& abuilder,
+                      const SkSize& layer_size)
+        : INHERITED(sk_make_sp<TileRenderNode>(layer_size, std::move(layer))) {
+
+        enum : size_t {
+                      kTileCenter_Index = 0,
+                       kTileWidth_Index = 1,
+                      kTileHeight_Index = 2,
+                     kOutputWidth_Index = 3,
+                    kOutputHeight_Index = 4,
+                     kMirrorEdges_Index = 5,
+                           kPhase_Index = 6,
+            kHorizontalPhaseShift_Index = 7,
+        };
+
+        EffectBinder(jprops, abuilder, this)
+            .bind(          kTileCenter_Index, fTileCenter     )
+            .bind(           kTileWidth_Index, fTileW          )
+            .bind(          kTileHeight_Index, fTileH          )
+            .bind(         kOutputWidth_Index, fOutputW        )
+            .bind(        kOutputHeight_Index, fOutputH        )
+            .bind(         kMirrorEdges_Index, fMirrorEdges    )
+            .bind(               kPhase_Index, fPhase          )
+            .bind(kHorizontalPhaseShift_Index, fHorizontalPhase);
+    }
+
+private:
+    void onSync() override {
+        const auto& tiler = this->node();
+
+        tiler->setTileCenter(ValueTraits<VectorValue>::As<SkPoint>(fTileCenter));
+        tiler->setTileWidth (fTileW);
+        tiler->setTileHeight(fTileH);
+        tiler->setOutputWidth (fOutputW);
+        tiler->setOutputHeight(fOutputH);
+        tiler->setPhase(fPhase);
+        tiler->setMirrorEdges(SkToBool(fMirrorEdges));
+        tiler->setHorizontalPhase(SkToBool(fHorizontalPhase));
+    }
+
+    VectorValue fTileCenter;
+    ScalarValue fTileW           = 1,
+                fTileH           = 1,
+                fOutputW         = 1,
+                fOutputH         = 1,
+                fMirrorEdges     = 0,
+                fPhase           = 0,
+                fHorizontalPhase = 0;
+
+    using INHERITED = DiscardableAdapterBase<MotionTileAdapter, TileRenderNode>;
+};
+
 } // anonymous ns
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachMotionTileEffect(const skjson::ArrayValue& jprops,
                                                               sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kTileCenter_Index           = 0,
-        kTileWidth_Index            = 1,
-        kTileHeight_Index           = 2,
-        kOutputWidth_Index          = 3,
-        kOutputHeight_Index         = 4,
-        kMirrorEdges_Index          = 5,
-        kPhase_Index                = 6,
-        kHorizontalPhaseShift_Index = 7,
-    };
-
-    auto tiler = sk_make_sp<TileRenderNode>(fLayerSize, std::move(layer));
-
-    fBuilder->bindProperty<VectorValue>(GetPropValue(jprops, kTileCenter_Index),
-        [tiler](const VectorValue& tc) {
-            tiler->setTileCenter(ValueTraits<VectorValue>::As<SkPoint>(tc));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kTileWidth_Index),
-        [tiler](const ScalarValue& tw) {
-            tiler->setTileWidth(tw);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kTileHeight_Index),
-        [tiler](const ScalarValue& th) {
-            tiler->setTileHeight(th);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputWidth_Index),
-        [tiler](const ScalarValue& ow) {
-            tiler->setOutputWidth(ow);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kOutputHeight_Index),
-        [tiler](const ScalarValue& oh) {
-            tiler->setOutputHeight(oh);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kMirrorEdges_Index),
-        [tiler](const ScalarValue& me) {
-            tiler->setMirrorEdges(SkScalarRoundToInt(me));
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kPhase_Index),
-        [tiler](const ScalarValue& ph) {
-            tiler->setPhase(ph);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kHorizontalPhaseShift_Index),
-        [tiler](const ScalarValue& hp) {
-            tiler->setHorizontalPhase(SkScalarRoundToInt(hp));
-        });
-
-    return tiler;
+    return fBuilder->attachDiscardableAdapter<MotionTileAdapter>(jprops,
+                                                                 std::move(layer),
+                                                                 *fBuilder,
+                                                                 fLayerSize);
 }
 
 } // namespace internal
