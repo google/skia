@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "81e688ec_df306f18",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1391,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-01-30T21:07:21Z",
+      "side": 1,
+      "message": "Good idea... I\u0027ll figure out a good interface and update the CL.",
+      "parentUuid": "5f4ca5f1_e28355bb",
+      "range": {
+        "startLine": 1367,
+        "startChar": 8,
+        "endLine": 1391,
+        "endChar": 9
+      },
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4fd42c4e_43936807",
         "filename": "dm/DMSrcSink.cpp",
         "patchSetId": 1
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "66418b4a_607a2348",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-01-30T21:07:21Z",
+      "side": 1,
+      "message": "Eventually if we end up wanting to commit the standalone \"dm_run_verifiers\" CLI tool that runs verifiers against image(s) on disk, it may want to bypass the src/sink infrastructure and call the `RenderGoldBmp` method itself. TBD if we actually want that tool committed, but I figured it couldn\u0027t hurt to keep it separate. Also the eventual JNI library may want to call it, without having to integrate with the dm src/sink idea.",
+      "parentUuid": "4fd42c4e_43936807",
+      "range": {
+        "startLine": 117,
+        "startChar": 45,
+        "endLine": 117,
+        "endChar": 58
+      },
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ee5f3af_775ec501",
         "filename": "dm/DMSrcSink.h",
         "patchSetId": 1
@@ -82,6 +130,24 @@
       "writtenOn": "2020-01-30T20:57:33Z",
       "side": 1,
       "message": "why do you need this info on the raster backend?",
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d278adf6_b1d00616",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-01-30T21:07:21Z",
+      "side": 1,
+      "message": "Hmm... good point, I don\u0027t think I do.",
+      "parentUuid": "7ee5f3af_775ec501",
       "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
