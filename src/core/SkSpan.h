@@ -31,6 +31,10 @@ public:
     constexpr T* end() const { return fPtr + fSize; }
     constexpr const T* cbegin() const { return fPtr; }
     constexpr const T* cend() const { return fPtr + fSize; }
+    constexpr auto rbegin() const { return std::make_reverse_iterator(this->end()); }
+    constexpr auto rend() const { return std::make_reverse_iterator(this->begin()); }
+    constexpr auto crbegin() const { return std::make_reverse_iterator(this->cend()); }
+    constexpr auto crend() const { return std::make_reverse_iterator(this->cbegin()); }
     constexpr T* data() const { return fPtr; }
     constexpr size_t size() const { return fSize; }
     constexpr bool empty() const { return fSize == 0; }
