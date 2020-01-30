@@ -480,8 +480,6 @@
       "/cache/skia/uninteresting_hashes.txt",
       "--writePath",
       "/dev/shm/skia/dm_out",
-      "--dont_write",
-      "pdf",
       "--randomProcessorTest",
       "--threads",
       "0",
