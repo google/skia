@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97cfec9c_dedfd48c",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-30T14:31:51Z",
+      "side": 1,
+      "message": "Just occurred to me... isn\u0027t shaper only picking up SKIA_DLL from Skia\u0027s public defines, by depending on :skia?",
+      "revId": "d1be5d64f8a7f28873851804408f3878c43cbbd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
