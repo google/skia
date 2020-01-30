@@ -10,8 +10,8 @@
 
 #include "modules/sksg/include/SkSGEffectNode.h"
 
-#include "include/core/SkMatrix.h"
-#include "include/private/SkM44.h"
+class SkM44;
+class SkMatrix;
 
 namespace sksg {
 
