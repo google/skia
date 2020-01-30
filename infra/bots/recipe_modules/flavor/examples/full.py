@@ -247,3 +247,65 @@ def GenTests(api):
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )
+
+  yield (
+      api.test('android_output_no_backtrace') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('get swarming bot id',
+                    stdout=api.raw_io.output('build123-m2--device5')) +
+      api.step_data('nanobench',
+                    stderr=api.raw_io.output("""start 8888 gm  skottie_webfont
+start 8888 gm  testgradient
+start 8888 gm  bitmap_subset_shader
+start 8888 gm  stroketext"""),
+                    retcode=1)
+  )
+  addr2line = 'symbolize backtraces in nanobench stderr.addr2line '
+  yield (
+      api.test('android_output_with_backtrace') +
+      api.properties(buildername=builder,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.step_data('get swarming bot id',
+                    stdout=api.raw_io.output('build123-m2--device5')) +
+      api.step_data('nanobench',
+                    stderr=api.raw_io.output(
+                        """==12144==ERROR: AddressSanitizer: unknown-crash on """
+                        """address 0x007fca926ce0 at pc 0x00638b85ae20 bp """
+                        """0x007fca926c80 sp 0x007fca926c78
+READ of size 8 at 0x007fca926ce0 thread T0
+    #0 0x638b85ae1c  (/data/local/tmp/dm+0x27ffe1c)
+    #1 0x638b85a940  (/data/local/tmp/dm+0x27ff940)
+    #2 0x638b856be0  (/data/local/tmp/dm+0x27fbbe0)
+    #3 0x638b851154  (/data/local/tmp/dm+0x27f6154)
+    #4 0x638b8506ac  (/data/local/tmp/dm+0x27f56ac)"""),
+                    retcode=1) +
+      # Check various whitespace output from addr2line
+      api.step_data(addr2line + '0x007fca926ce0',
+                    stdout=api.raw_io.output('')) +
+      api.step_data(addr2line + '0x00638b85ae20',
+                    stdout=api.raw_io.output('\n')) +
+      api.step_data(addr2line + '0x007fca926c80',
+                    stdout=api.raw_io.output(' ')) +
+      # Check stack trace output from addr2line
+      api.step_data(addr2line + '0x27ffe1c',
+                    stdout=api.raw_io.output(
+                        'SkMatrix::ComputeInv(float*, float const*, double, '
+                        'bool) at /mnt/pd0/s/w/ir/cache/work/skia/out/'
+                        'Build-Debian9-Clang-arm64-Debug-Android_ASAN/Debug/../'
+                        '../../../../../skia/src/core/SkMatrix.cpp:806')) +
+      api.step_data(addr2line + '0x27ff940',
+                    stdout=api.raw_io.output(
+                        'SkMatrix::invertNonIdentity(SkMatrix*) const at '
+                        '/mnt/pd0/s/w/ir/cache/work/skia/out/'
+                        'Build-Debian9-Clang-arm64-Debug-Android_ASAN/Debug/../'
+                        '../../../../../skia/src/core/SkMatrix.cpp:878\n')) +
+      # Check error from addr2line.
+      api.step_data(addr2line + '0x27fbbe0', retcode=1)
+  )
