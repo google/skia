@@ -144,6 +144,9 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
     while (!fUnresolvedBlocks.empty()) {
         auto unresolved = fUnresolvedBlocks.front();
         fUnresolvedBlocks.pop();
+        if (unresolved.fText.width() == 0) {
+            continue;
+        }
         fResolvedBlocks.emplace_back(unresolved);
         fUnresolvedGlyphs += unresolved.fGlyphs.width();
     }
