@@ -746,6 +746,7 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
 void GrSurfaceContext::validate() const {
     SkASSERT(fReadView.proxy());
     fReadView.proxy()->validate(fContext);
+
     SkASSERT(fContext->priv().caps()->areColorTypeAndFormatCompatible(
             this->colorInfo().colorType(), fReadView.proxy()->backendFormat()));
 
