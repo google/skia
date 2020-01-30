@@ -16,6 +16,24 @@
       "revId": "d1be5d64f8a7f28873851804408f3878c43cbbd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c27297e4_5c69cd7d",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-30T14:35:44Z",
+      "side": 1,
+      "message": "Yes. At the time I figured that made sense, to ensure that we build everything or nothing as shared libs. Still, might be better to also have separate _DLL defines, but still all controlled by is_component_build?",
+      "parentUuid": "97cfec9c_dedfd48c",
+      "revId": "d1be5d64f8a7f28873851804408f3878c43cbbd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
