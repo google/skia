@@ -183,7 +183,8 @@ bool PlaceholderStyle::equals(const PlaceholderStyle& other) const {
            SkScalarNearlyEqual(fHeight, other.fHeight) &&
            fAlignment == other.fAlignment &&
            fBaseline == other.fBaseline &&
-           SkScalarNearlyEqual(fBaselineOffset, other.fBaselineOffset);
+           (fAlignment != PlaceholderAlignment::kBaseline ||
+            SkScalarNearlyEqual(fBaselineOffset, other.fBaselineOffset));
 }
 
 }  // namespace textlayout
