@@ -30,7 +30,7 @@ void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
 }
 
 void InvalidationController::reset() {
-    fRects.reset();
+    fRects.clear();
     fBounds.setEmpty();
 }
 
