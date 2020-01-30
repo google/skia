@@ -95,8 +95,8 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         // proxy into the base layer. We will then let the gpu generate the rest of the mips.
         GrColorType srcColorType = SkColorTypeToGrColorType(fBitmap.colorType());
         if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+                                                              kTopLeft_GrSurfaceOrigin,
                                                               srcColorType)) {
-            SkASSERT(mippedProxy->origin() == kTopLeft_GrSurfaceOrigin);
             if (fOriginalKey.isValid()) {
                 // In this case we are stealing the key from the original proxy which should only
                 // happen when we have just generated mipmaps for an originally unmipped

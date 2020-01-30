@@ -595,11 +595,12 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                         backendFormat, GrColorType::kRGBA_8888);
                 auto proxy = context->priv().proxyProvider()->createLazyProxy(
                         singleUseLazyCB, backendFormat, desc, readSwizzle, renderable, 1,
-                        GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                        kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo,
                         GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
                         SkBackingFit::kExact, budgeted, GrProtected::kNo,
                         GrSurfaceProxy::UseAllocator::kYes);
-                rtc->drawTexture(GrNoClip(), proxy, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
+                GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle);
+                rtc->drawTexture(GrNoClip(), view, kPremul_SkAlphaType,
                                  GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                  SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                  GrAA::kNo, GrQuadAAFlags::kNone, SkCanvas::kFast_SrcRectConstraint,
@@ -613,10 +614,10 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
 
                 // This time we move the proxy into the draw.
-                rtc->drawTexture(GrNoClip(), std::move(proxy), GrColorType::kRGBA_8888,
-                                 kPremul_SkAlphaType, GrSamplerState::Filter::kNearest,
-                                 SkBlendMode::kSrcOver, SkPMColor4f(), SkRect::MakeWH(w, h),
-                                 SkRect::MakeWH(w, h), GrAA::kNo, GrQuadAAFlags::kNone,
+                rtc->drawTexture(GrNoClip(), std::move(view), kPremul_SkAlphaType,
+                                 GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
+                                 SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
+                                 GrAA::kNo, GrQuadAAFlags::kNone,
                                  SkCanvas::kFast_SrcRectConstraint, SkMatrix::I(), nullptr);
                 REPORTER_ASSERT(reporter, idleIDs.find(2) == idleIDs.end());
                 context->flush();
@@ -659,8 +660,12 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                             ->internal_private_accessTopLayerRenderTargetContext();
                             auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
                                     texture, GrColorType::kRGBA_8888, kTopLeft_GrSurfaceOrigin);
+                            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                                    proxy->backendFormat(), GrColorType::kRGBA_8888);
+                            GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin,
+                                                    swizzle);
                             rtc->drawTexture(
-                                    GrNoClip(), proxy, GrColorType::kRGBA_8888, kPremul_SkAlphaType,
+                                    GrNoClip(), std::move(view), kPremul_SkAlphaType,
                                     GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver,
                                     SkPMColor4f(), SkRect::MakeWH(w, h), SkRect::MakeWH(w, h),
                                     GrAA::kNo, GrQuadAAFlags::kNone,
