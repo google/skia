@@ -1150,9 +1150,7 @@ bool ParagraphImpl::calculateBidiRegions(SkTArray<BidiRegion>* regions) {
     // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
     size_t utf8Bytes = fText.size();
     const char* utf8 = fText.c_str();
-    uint8_t bidiLevel = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                            ? UBIDI_LTR
-                            : UBIDI_RTL;
+    uint8_t bidiLevel = fParagraphStyle.textDirectionToLevel();
     if (!SkTFitsIn<int32_t>(utf8Bytes)) {
         SkDEBUGF("Bidi error: text too long");
         return false;

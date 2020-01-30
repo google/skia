@@ -2,6 +2,7 @@
 #include <string>
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "unicode/unistr.h"
+#include <unicode/ubidi.h>
 
 namespace skia {
 namespace textlayout {
@@ -40,6 +41,21 @@ void ParagraphStyle::setEllipsis(const std::u16string& ellipsis) {
     std::string str;
     unicode.toUTF8String(str);
     fEllipsis = SkString(str.c_str());
+}
+
+uint8_t ParagraphStyle::textDirectionToLevel() {
+    switch (fTextDirection) {
+        case TextDirection::kLtr:
+            return UBIDI_LTR;
+        case TextDirection::kRtl:
+            return UBIDI_RTL;
+        case TextDirection::kDefaultLtr:
+            return UBIDI_DEFAULT_LTR;
+        case TextDirection::kDefaultRtl:
+            return UBIDI_DEFAULT_RTL;
+        default:
+            return UBIDI_LTR;
+    }
 }
 }  // namespace textlayout
 }  // namespace skia

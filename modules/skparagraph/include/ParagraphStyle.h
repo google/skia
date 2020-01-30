@@ -88,6 +88,8 @@ struct ParagraphStyle {
     bool hintingIsOn() const { return fHintingIsOn; }
     void turnHintingOff() { fHintingIsOn = false; }
 
+    uint8_t textDirectionToLevel();
+
 private:
     StrutStyle fStrutStyle;
     TextStyle fDefaultTextStyle;

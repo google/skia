@@ -56,6 +56,8 @@ enum class TextAlign {
 enum class TextDirection {
     kRtl,
     kLtr,
+    kDefaultRtl,
+    kDefaultLtr
 };
 
 struct PositionWithAffinity {
