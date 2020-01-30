@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3671fce6_d659bf81",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-30T20:57:33Z",
+      "side": 1,
+      "message": "The primary verification technique will use a source of truth image.\n\nI could imagine a gradient test with multiple color stops having a verifier that checked the the gradient had a consistent transition and that the values at the stops were expected.  It would require no golden image to do that verification.",
+      "range": {
+        "startLine": 10,
+        "startChar": 35,
+        "endLine": 13,
+        "endChar": 0
+      },
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f4ca5f1_e28355bb",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1391,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-30T20:57:33Z",
+      "side": 1,
+      "message": "this code should be in the abstract class GoldenCPUVerifier that the fuzzy comparison verifier extends from.",
+      "range": {
+        "startLine": 1367,
+        "startChar": 8,
+        "endLine": 1391,
+        "endChar": 9
+      },
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fd42c4e_43936807",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-30T20:57:33Z",
+      "side": 1,
+      "message": "does anyone call this function other than this code?  What is the rationale for not folding it into this method?",
+      "range": {
+        "startLine": 117,
+        "startChar": 45,
+        "endLine": 117,
+        "endChar": 58
+      },
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ee5f3af_775ec501",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-30T20:57:33Z",
+      "side": 1,
+      "message": "why do you need this info on the raster backend?",
+      "revId": "ee4baeb764856e509de13aee3b3b41cc08acf9d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
