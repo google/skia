@@ -12,6 +12,7 @@
 #include "include/private/GrTypesPriv.h"
 
 class GrGpuResource;
+class GrSurfaceProxyView;
 
 extern "C" {
     typedef struct AHardwareBuffer AHardwareBuffer;
@@ -49,7 +50,7 @@ private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,
                                     bool isProtectedContent, uint32_t bufferFormat,
                                     GrSurfaceOrigin surfaceOrigin);
-    sk_sp<GrTextureProxy> makeProxy(GrRecordingContext* context);
+    GrSurfaceProxyView makeView(GrRecordingContext* context);
 
     void releaseTextureRef();
 

@@ -101,29 +101,29 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
 
     SkBudgeted budgeted = rtc->asSurfaceProxy()->isBudgeted();
 
-    sk_sp<GrTextureProxy> srcProxy = rtc->asTextureProxyRef();
-
+    GrSurfaceProxyView srcView;
     if (subset) {
-        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->colorInfo().colorType(),
-                                        rtc->mipMapped(), *subset, SkBackingFit::kExact, budgeted);
-    } else if (!srcProxy || rtc->priv().refsWrappedObjects()) {
+        srcView = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->origin(),
+                                       rtc->colorInfo().colorType(), rtc->mipMapped(), *subset,
+                                       SkBackingFit::kExact, budgeted);
+    } else if (!rtc->asTextureProxy() || rtc->priv().refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
-        // want to ever retarget the SkSurface at another buffer we create. Force a copy now to avoid
-        // copy-on-write.
-        SkASSERT(rtc->origin() == rtc->asSurfaceProxy()->origin());
-
-        srcProxy = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->colorInfo().colorType(),
-                                        rtc->mipMapped(), SkBackingFit::kExact, budgeted);
+        // want to ever retarget the SkSurface at another buffer we create. Force a copy now to
+        // avoid copy-on-write.
+        srcView = GrSurfaceProxy::Copy(ctx, rtc->asSurfaceProxy(), rtc->origin(),
+                                       rtc->colorInfo().colorType(), rtc->mipMapped(),
+                                       SkBackingFit::kExact, budgeted);
+    } else {
+        srcView = rtc->readSurfaceView();
     }
 
     const SkImageInfo info = fDevice->imageInfo();
     sk_sp<SkImage> image;
-    if (srcProxy) {
+    if (srcView.asTextureProxy()) {
         // The renderTargetContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
-        SkASSERT(srcProxy->priv().isExact());
-        GrSurfaceProxyView view(std::move(srcProxy), rtc->origin(), rtc->readSwizzle());
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, std::move(view),
+        SkASSERT(srcView.proxy()->priv().isExact());
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, std::move(srcView),
                                         info.colorType(), info.alphaType(), info.refColorSpace());
     }
     return image;

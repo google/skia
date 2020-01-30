@@ -182,6 +182,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
  */
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                      GrSurfaceProxy* baseProxy,
+                                                     GrSurfaceOrigin origin,
                                                      GrColorType srcColorType);
 
 /*

@@ -98,7 +98,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
-            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fProxies[i].get(),
+            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fProxies[i].get(), fOrigin,
                                                               fProxyColorTypes[i]);
             if (!mippedProxy) {
                 return false;
@@ -183,8 +183,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContex
 
     // need to generate mips for the proxy
     GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
-    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fRGBView.proxy(),
-                                                          srcColorType)) {
+    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(
+            context, fRGBView.proxy(), fRGBView.origin(), srcColorType)) {
         SkASSERT(mippedProxy->textureSwizzle() == GrSwizzle());
         fRGBView = GrSurfaceProxyView(mippedProxy, fOrigin, GrSwizzle());
         return mippedProxy;

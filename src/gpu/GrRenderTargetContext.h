@@ -247,17 +247,14 @@ public:
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
      * device space.
      */
-    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
-                     SkAlphaType srcAlphaType, GrSamplerState::Filter filter, SkBlendMode mode,
-                     const SkPMColor4f& color, const SkRect& srcRect, const SkRect& dstRect,
-                     GrAA aa, GrQuadAAFlags edgeAA, SkCanvas::SrcRectConstraint constraint,
-                     const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform> texXform) {
+    void drawTexture(const GrClip& clip, GrSurfaceProxyView view, SkAlphaType srcAlphaType,
+                     GrSamplerState::Filter filter, SkBlendMode mode, const SkPMColor4f& color,
+                     const SkRect& srcRect, const SkRect& dstRect, GrAA aa, GrQuadAAFlags edgeAA,
+                     SkCanvas::SrcRectConstraint constraint, const SkMatrix& viewMatrix,
+                     sk_sp<GrColorSpaceXform> texXform) {
         const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint ?
                 &srcRect : nullptr;
-        GrSurfaceOrigin origin = proxy->origin();
-        const GrSwizzle& swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView proxyView(std::move(proxy), origin, swizzle);
-        this->drawTexturedQuad(clip, std::move(proxyView), srcAlphaType, std::move(texXform),
+        this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
                                filter, color, mode, aa, edgeAA,
                                GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), domain);
     }

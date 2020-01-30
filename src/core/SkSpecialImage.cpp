@@ -498,17 +498,18 @@ public:
                                            fColorSpace);
             }
 
-            sk_sp<GrTextureProxy> subsetProxy(
-                    GrSurfaceProxy::Copy(fContext, proxy, fColorType, GrMipMapped::kNo, *subset,
-                                         SkBackingFit::kExact, SkBudgeted::kYes));
-            if (!subsetProxy) {
+            GrSurfaceProxyView subsetView =
+                    GrSurfaceProxy::Copy(fContext, proxy, fView.origin(), fColorType,
+                                         GrMipMapped::kNo, *subset, SkBackingFit::kExact,
+                                         SkBudgeted::kYes);
+            if (!subsetView.proxy()) {
                 return nullptr;
             }
+            SkASSERT(subsetView.asTextureProxy());
+            SkASSERT(subsetView.proxy()->priv().isExact());
 
-            SkASSERT(subsetProxy->priv().isExact());
             // MDB: this is acceptable (wrapping subsetProxy in an SkImage) bc Copy will
             // return a kExact-backed proxy
-            GrSurfaceProxyView subsetView(std::move(subsetProxy), fView.origin(), fView.swizzle());
             return wrap_proxy_in_image(fContext, std::move(subsetView), this->colorType(),
                                        fAlphaType, fColorSpace);
         }

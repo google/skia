@@ -216,7 +216,10 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
-        return GrSurfaceProxy::Copy(context, proxy.get(), grColorType, mipMapped, subset,
-                                    SkBackingFit::kExact, SkBudgeted::kYes);
+        // TODO: When we update this function to return a view instead of just a proxy then we can
+        // remove the extra ref that happens when we call asTextureProxyRef.
+        return GrSurfaceProxy::Copy(
+                context, proxy.get(), fSurfaceOrigin, grColorType, mipMapped, subset,
+                SkBackingFit::kExact, SkBudgeted::kYes).asTextureProxyRef();
     }
 }
