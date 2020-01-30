@@ -5,6 +5,53 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 81
+------------
+
+  * Added support for GL_NV_fence extension.
+
+  * Make SkImageInfo::validRowBytes require rowBytes to be pixel aligned. This
+    makes SkBitmap match the behavior of raster SkSurfaces in rejecting
+    non-aligned rowBytes.
+
+  * Added an SkImage::MakeRasterFromCompressed entry point. Also updated
+    SkImage::MakeFromCompressed to decompress the compressed image data if
+    the GPU doesn't support the specified compression type (i.e., macOS Metal
+    doesn't support BC1_RGB8_UNORM so such compressed images will always be
+    decompressed on that platform).
+
+  * Added support for BC1 RGBA compressed textures
+
+  * Added CachingHint to SkImage::makeRasterImage
+
+  * Added SkAnimatedImage::getCurrentFrame()
+
+  * Add support to create an SkSurface from an MTKView, with delayed acquisition of
+    the MTLDrawable.
+    Entry point: SkSurface::MakeFromMTKView
+
+  * Removed SkIRect::EmptyIRect(). Use SkIRect::MakeEmpty() instead.
+    https://review.skia.org/262382/
+
+  * Moved SkRuntimeEffect to public API. This is the new (experimental) interface to custom SkSL
+    shaders and color filters.
+
+  * Added BC1 compressed format support. Metal and Vulkan seem to only support the BC
+    formats on desktop machines.
+
+  * Added compressed format support for backend texture creation API.
+    This adds the following new entry points:
+    GrContext::compressedBackendFormat
+    GrContext::createCompressedBackendTexture
+    The latter method comes in variants that allow color-initialized and
+    compressed texture data initialized.
+
+  * Added SkMatrix::MakeTrans(SkIVector)
+    https://review.skia.org/259804
+
+
+* * *
+
 Milestone 80
 ------------
 
