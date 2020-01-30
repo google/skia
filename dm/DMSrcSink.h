@@ -24,6 +24,12 @@
 
 //#define TEST_VIA_SVG
 
+namespace skiagm {
+namespace verifiers {
+class VerifierList;
+}
+}
+
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -82,6 +88,17 @@ struct Src {
     virtual SkISize size(int) const { return this->size(); }
     // Force Tasks using this Src to run on the main thread?
     virtual bool serial() const { return false; }
+
+    /** Draws the verifier "golden" image for the src. */
+    virtual Error drawVerifierGoldenImage(
+        SkColorType colorType, sk_sp<SkColorSpace> colorSpace, SkBitmap* outBmp) const {
+        return Error("Drawing of verifier golden image unimplemented by this source");
+    }
+
+    /** Return a list of verifiers for the src, or null if no verifiers should be run .*/
+    virtual std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const {
+        return nullptr;
+    }
 };
 
 struct Sink {
@@ -97,6 +114,12 @@ struct Sink {
     virtual const char* fileExtension() const  = 0;
 
     virtual SinkFlags flags() const = 0;
+
+    /** Returns the color type and space used by the sink. */
+    virtual void colorConfig(SkColorType* outColorType, sk_sp<SkColorSpace>* outColorSpace) const {
+        *outColorType = kN32_SkColorType;
+        *outColorSpace = nullptr;
+    }
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -109,6 +132,10 @@ public:
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
+
+    Error drawVerifierGoldenImage(
+        SkColorType colorType, sk_sp<SkColorSpace> colorSpace, SkBitmap* outBmp) const override;
+    std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const override;
 
 private:
     skiagm::GMFactory fFactory;
@@ -351,6 +378,10 @@ public:
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
     const GrContextOptions& baseContextOptions() const { return fBaseContextOptions; }
+    void colorConfig(SkColorType* outColorType, sk_sp<SkColorSpace>* outColorSpace) const override {
+        *outColorType = fColorType;
+        *outColorSpace = fColorSpace;
+    }
 
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
@@ -440,6 +471,10 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
+    void colorConfig(SkColorType* outColorType, sk_sp<SkColorSpace>* outColorSpace) const override {
+        *outColorType = fColorType;
+        *outColorSpace = fColorSpace;
+    }
 
 private:
     SkColorType         fColorType;
