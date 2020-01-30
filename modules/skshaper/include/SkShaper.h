@@ -22,7 +22,7 @@
 #endif
 
 #if !defined(SKSHAPER_API)
-    #if defined(SKIA_DLL)
+    #if defined(SKSHAPER_DLL)
         #if defined(_MSC_VER)
             #if SKSHAPER_IMPLEMENTATION
                 #define SKSHAPER_API __declspec(dllexport)
