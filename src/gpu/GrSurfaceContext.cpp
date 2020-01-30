@@ -534,17 +534,18 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
     int srcH = srcRect.height();
     int srcX = srcRect.fLeft;
     int srcY = srcRect.fTop;
-    sk_sp<GrTextureProxy> texProxy = sk_ref_sp(this->asTextureProxy());
+    GrSurfaceProxyView texView = this->readSurfaceView();
     SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
     GrColorType srcColorType = this->colorInfo().colorType();
     SkAlphaType srcAlphaType = this->colorInfo().alphaType();
-    if (!texProxy) {
-        texProxy = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), srcColorType,
-                                        GrMipMapped::kNo, srcRect, SkBackingFit::kApprox,
-                                        SkBudgeted::kNo);
-        if (!texProxy) {
+    if (!texView.asTextureProxy()) {
+        texView = GrSurfaceProxy::Copy(fContext, this->asSurfaceProxy(), this->origin(),
+                                       srcColorType, GrMipMapped::kNo, srcRect,
+                                       SkBackingFit::kApprox, SkBudgeted::kNo);
+        if (!texView.proxy()) {
             return nullptr;
         }
+        SkASSERT(texView.asTextureProxy());
         srcX = 0;
         srcY = 0;
         constraint = SkCanvas::kFast_SrcRectConstraint;
@@ -584,12 +585,13 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
         if (!linearRTC) {
             return nullptr;
         }
-        linearRTC->drawTexture(GrNoClip(), texProxy, srcColorType, srcAlphaType,
+        linearRTC->drawTexture(GrNoClip(), std::move(texView), srcAlphaType,
                                GrSamplerState::Filter::kNearest, SkBlendMode::kSrc,
                                SK_PMColor4fWHITE, SkRect::Make(srcRect), SkRect::MakeWH(srcW, srcH),
                                GrAA::kNo, GrQuadAAFlags::kNone, constraint, SkMatrix::I(),
                                std::move(xform));
-        texProxy = linearRTC->asTextureProxyRef();
+        texView = linearRTC->readSurfaceView();
+        SkASSERT(texView.asTextureProxy());
         tempA = std::move(linearRTC);
         srcX = 0;
         srcY = 0;
@@ -646,12 +648,13 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             } else if (nextH == srcH) {
                 dir = GrBicubicEffect::Direction::kX;
             }
-            if (srcW != texProxy->width() || srcH != texProxy->height()) {
+            if (srcW != texView.proxy()->width() || srcH != texView.proxy()->height()) {
                 auto domain = GrTextureDomain::MakeTexelDomain(
                         SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), GrTextureDomain::kClamp_Mode);
-                fp = GrBicubicEffect::Make(texProxy, matrix, domain, dir, prevAlphaType);
+                fp = GrBicubicEffect::Make(texView.detachProxy(), matrix, domain, dir,
+                                           prevAlphaType);
             } else {
-                fp = GrBicubicEffect::Make(texProxy, matrix, dir, prevAlphaType);
+                fp = GrBicubicEffect::Make(texView.detachProxy(), matrix, dir, prevAlphaType);
             }
             if (xform) {
                 fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
@@ -665,11 +668,11 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             auto filter = rescaleQuality == kNone_SkFilterQuality ? GrSamplerState::Filter::kNearest
                                                                   : GrSamplerState::Filter::kBilerp;
             auto srcSubset = SkRect::MakeXYWH(srcX, srcY, srcW, srcH);
-            tempB->drawTexture(GrNoClip(), texProxy, srcColorType, srcAlphaType, filter,
+            tempB->drawTexture(GrNoClip(), std::move(texView), srcAlphaType, filter,
                                SkBlendMode::kSrc, SK_PMColor4fWHITE, srcSubset, dstRect, GrAA::kNo,
                                GrQuadAAFlags::kNone, constraint, SkMatrix::I(), std::move(xform));
         }
-        texProxy = tempB->asTextureProxyRef();
+        texView = tempB->readSurfaceView();
         tempA = std::move(tempB);
         srcX = srcY = 0;
         srcW = nextW;

@@ -45,15 +45,16 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
                                              backendRT, GrColorType::kBGRA_8888,
                                              kTopLeft_GrSurfaceOrigin);
 
-    sk_sp<GrTextureProxy> dstProxy = GrSurfaceProxy::Copy(context, srcProxy.get(),
-                                                          GrColorType::kBGRA_8888,
-                                                          GrMipMapped::kNo,
-                                                          SkBackingFit::kExact,
-                                                          SkBudgeted::kYes);
+    GrSurfaceProxyView dstView = GrSurfaceProxy::Copy(context, srcProxy.get(),
+                                                      kTopLeft_GrSurfaceOrigin,
+                                                      GrColorType::kBGRA_8888,
+                                                      GrMipMapped::kNo,
+                                                      SkBackingFit::kExact,
+                                                      SkBudgeted::kYes);
 
     // TODO: GrSurfaceProxy::Copy doesn't check to see if the framebufferOnly bit is set yet.
     // Update this when it does -- it should fail.
-    if (!dstProxy) {
+    if (!dstView.proxy()) {
         ERRORF(reporter, "Expected copy to succeed");
     }
 

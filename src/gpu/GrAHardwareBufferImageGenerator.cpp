@@ -80,14 +80,14 @@ GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingContext* context) {
+GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext* context) {
     if (context->priv().abandoned()) {
-        return nullptr;
+        return {};
     }
 
     auto direct = context->priv().asDirectContext();
     if (!direct) {
-        return nullptr;
+        return {};
     }
 
     GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(direct,
@@ -188,14 +188,14 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrRecordingCont
             SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    return texProxy;
+    return GrSurfaceProxyView(std::move(texProxy), fSurfaceOrigin, readSwizzle);
 }
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrRecordingContext* context, const SkImageInfo& info,
         const SkIPoint& origin, bool willNeedMipMaps) {
-    sk_sp<GrTextureProxy> texProxy = this->makeProxy(context);
-    if (!texProxy) {
+    GrSurfaceProxyView texProxyView = this->makeView(context);
+    if (!texProxyView.proxy()) {
         return nullptr;
     }
 
@@ -203,7 +203,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
         info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
         // If the caller wants the full texture we're done. The caller will handle making a copy for
         // mip maps if that is required.
-        return texProxy;
+        return texProxyView.asTextureProxyRef();
     }
     // Otherwise, make a copy for the requested subset.
     SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
@@ -211,8 +211,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
     GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
-    return GrSurfaceProxy::Copy(context, texProxy.get(), grColorType, mipMapped, subset,
-                                SkBackingFit::kExact, SkBudgeted::kYes);
+    return GrSurfaceProxy::Copy(context, texProxyView.proxy(), texProxyView.origin(), grColorType,
+                                mipMapped, subset, SkBackingFit::kExact,
+                                SkBudgeted::kYes).asTextureProxyRef();
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
