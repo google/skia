@@ -22,6 +22,30 @@
       "revId": "6af38422dccdbcfb5719e82c0d503f9fe723ba72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a0868d_ff05f78b",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1172,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-30T19:09:44Z",
+      "side": 1,
+      "message": "Opinions vary on this, but I like to keep them one stop to the left of the code they guard, exactly as if they were {}.",
+      "parentUuid": "7bb5514f_ccf2bdb9",
+      "range": {
+        "startLine": 1172,
+        "startChar": 12,
+        "endLine": 1172,
+        "endChar": 16
+      },
+      "revId": "6af38422dccdbcfb5719e82c0d503f9fe723ba72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
