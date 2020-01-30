@@ -328,6 +328,8 @@ public:
      *  If no clipping is needed, returns false and "result" is left unchanged.
      */
     static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
+
+    static SkPoint* GrowForVerbsInPath(SkPath* dst, const SkPath& src);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

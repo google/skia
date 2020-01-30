@@ -332,6 +332,36 @@ void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef*
     out->fIsRRect = false;
 }
 
+SkPoint* SkPathRef::growForVerbsInPath(const SkPathRef& path) {
+    SkDEBUGCODE(this->validate();)
+
+    if (path.fVerbs.isEmpty()) {
+        return nullptr;
+    }
+
+    fBoundsIsDirty = true;  // this also invalidates fIsFinite
+    fIsOval = false;
+    fIsRRect = false;
+
+    if (SkPath::kMove_Verb != path.fVerbs[0]) {
+        // Implicit blah blah.
+        *fVerbs.append() = SkPath::kMove_Verb;
+        fPoints.append()->set(0, 0);
+    }
+
+    int numVerbs = path.fVerbs.count();
+    memcpy(fVerbs.append(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
+
+    int numConics = path.fConicWeights.count();
+    memcpy(fConicWeights.append(numConics), path.fConicWeights.begin(),
+           numConics * sizeof(fConicWeights[0]));
+
+    SkPoint* pts = fPoints.append(path.fPoints.count());
+
+    SkDEBUGCODE(this->validate();)
+    return pts;
+}
+
 SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                         int numVbs,
                                         SkScalar** weights) {

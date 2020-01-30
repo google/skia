@@ -83,6 +83,10 @@ public:
             return fPathRef->growForRepeatedVerb(verb, numVbs, weights);
         }
 
+        SkPoint* growForVerbsInPath(const SkPathRef& path) {
+            return fPathRef->growForVerbsInPath(path);
+        }
+
         /**
          * Resets the path ref to a new verb and point count. The new verbs and points are
          * uninitialized.
@@ -400,6 +404,8 @@ private:
         fConicWeights.setCount(conicCount);
         SkDEBUGCODE(this->validate();)
     }
+
+    SkPoint* growForVerbsInPath(const SkPathRef& path);
 
     /**
      * Increases the verb count by numVbs and point count by the required amount.
