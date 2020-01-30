@@ -26,7 +26,6 @@ if (skia_enable_skshaper) {
     deps = [
       "../..:skia",
     ]
-    defines = [ "SKSHAPER_IMPLEMENTATION=1" ]
     sources = skia_shaper_primitive_sources
     if (skia_use_icu && skia_use_harfbuzz) {
       sources += skia_shaper_harfbuzz_sources
