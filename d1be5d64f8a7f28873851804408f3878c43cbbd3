@@ -34,6 +34,24 @@
       "revId": "d1be5d64f8a7f28873851804408f3878c43cbbd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "078c1893_0308b70d",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-30T14:48:51Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s bad to have them all in one controlled by is_component_build.\n\nThe thing that worries me more is the dependency path to :skia_public in GN.\n\nLike, I think, shaper sees this because it depends on Skia, but things which depend on shaper won\u0027t.",
+      "parentUuid": "c27297e4_5c69cd7d",
+      "revId": "d1be5d64f8a7f28873851804408f3878c43cbbd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
