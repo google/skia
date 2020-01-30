@@ -40,7 +40,7 @@ static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
     SK_ABORT("Unknown wrap mode.");
 }
 
-GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& samplerState) {
+GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerState) {
     static MTLSamplerMinMagFilter mtlMinMagFilterModes[] = {
         MTLSamplerMinMagFilterNearest,
         MTLSamplerMinMagFilterLinear,
@@ -73,6 +73,6 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
                             GenerateKey(samplerState));
 }
 
-GrMtlSampler::Key GrMtlSampler::GenerateKey(const GrSamplerState& samplerState) {
+GrMtlSampler::Key GrMtlSampler::GenerateKey(GrSamplerState samplerState) {
     return GrSamplerState::GenerateKey(samplerState);
 }

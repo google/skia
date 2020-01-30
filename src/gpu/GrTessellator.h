@@ -12,6 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrColor.h"
 
+class GrEagerVertexAllocator;
 class SkPath;
 struct SkRect;
 
@@ -22,17 +23,6 @@ struct SkRect;
 #define TESSELLATOR_WIREFRAME 0
 
 namespace GrTessellator {
-
-class VertexAllocator {
-public:
-    VertexAllocator(size_t stride) : fStride(stride) {}
-    virtual ~VertexAllocator() {}
-    virtual void* lock(int vertexCount) = 0;
-    virtual void unlock(int actualCount) = 0;
-    size_t stride() const { return fStride; }
-private:
-    size_t fStride;
-};
 
 struct WindingVertex {
     SkPoint fPos;
@@ -46,8 +36,27 @@ struct WindingVertex {
 int PathToVertices(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                    WindingVertex** verts);
 
+enum class Mode {
+    kNormal,
+
+    // Surround path edges with coverage ramps for antialiasing.
+    kEdgeAntialias,
+
+    // Tessellate only each contour's inner polygon. The inner polygons connect the endpoints of
+    // each verb. (i.e., they are the path that would result from collapsing all curves to single
+    // lines.)
+    //
+    // If the inner polygons are not simple (e.g., self intersection, double winding), then the
+    // tessellator aborts and returns 0.
+    kSimpleInnerPolygons
+};
+
+constexpr size_t GetVertexStride(Mode mode) {
+    return sizeof(SkPoint) + ((Mode::kEdgeAntialias == mode) ? sizeof(float) : 0);
+}
+
 int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
-                    VertexAllocator*, bool antialias, bool *isLinear);
+                    GrEagerVertexAllocator*, Mode, bool *isLinear);
 }
 
 #endif

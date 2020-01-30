@@ -7,7 +7,7 @@
 
 #include "modules/skottie/include/SkottieProperty.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Transform.h"
 #include "modules/skottie/src/text/TextAdapter.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGPaint.h"
@@ -22,6 +22,7 @@ bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
         && fLineHeight == other.fLineHeight
         && fHAlign == other.fHAlign
         && fVAlign == other.fVAlign
+        && fResize == other.fResize
         && fBox == other.fBox
         && fFillColor == other.fFillColor
         && fStrokeColor == other.fStrokeColor
@@ -85,10 +86,11 @@ void PropertyHandle<TextPropertyValue, internal::TextAdapter>::set(const TextPro
 }
 
 template <>
-PropertyHandle<TransformPropertyValue, TransformAdapter2D>::~PropertyHandle() {}
+PropertyHandle<TransformPropertyValue, internal::TransformAdapter2D>::~PropertyHandle() {}
 
 template <>
-TransformPropertyValue PropertyHandle<TransformPropertyValue, TransformAdapter2D>::get() const {
+TransformPropertyValue PropertyHandle<TransformPropertyValue,
+                                      internal::TransformAdapter2D>::get() const {
     return {
         fNode->getAnchorPoint(),
         fNode->getPosition(),
@@ -100,7 +102,7 @@ TransformPropertyValue PropertyHandle<TransformPropertyValue, TransformAdapter2D
 }
 
 template <>
-void PropertyHandle<TransformPropertyValue, TransformAdapter2D>::set(
+void PropertyHandle<TransformPropertyValue, internal::TransformAdapter2D>::set(
         const TransformPropertyValue& t) {
     fNode->setAnchorPoint(t.fAnchorPoint);
     fNode->setPosition(t.fPosition);

@@ -637,13 +637,6 @@
     "name": "SkIPoint::y()",
         "stdout": "pt1.fY == pt1.y()\\n"
     },
-        "SkIRect_EmptyIRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    const SkIRect& rect = SkIRect::EmptyIRect();\n    SkDebugf(\"rect: %d, %d, %d, %d\\n\", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);\n}",
-    "hash": "65e0b9b52e907902630577941fb3ed6d",
-    "file": "SkIRect_Reference",
-    "name": "SkIRect::EmptyIRect",
-        "stdout": "rect: 0, 0, 0, 0\\n"
-    },
         "SkIRect_Intersects": {
     "code": "void draw(SkCanvas* canvas) {\n    SkDebugf(\"%s intersection\", SkIRect::Intersects({10, 40, 50, 80}, {30, 60, 70, 90}) ? \"\" : \"no \");\n}",
     "hash": "0c67cf8981389efc7108369fb9b7976b",

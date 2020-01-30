@@ -54,6 +54,8 @@ public:
 
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    uint64_t computeFormatKey(const GrBackendFormat&) const override;
+
     GrColorType getYUVAColorTypeFromBackendFormat(const GrBackendFormat&,
                                                   bool isAlphaChannel) const override;
 
@@ -72,9 +74,6 @@ private:
         return true;
     }
     GrBackendFormat onGetDefaultBackendFormat(GrColorType, GrRenderable) const override;
-
-    GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
-    GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const override;
 
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 

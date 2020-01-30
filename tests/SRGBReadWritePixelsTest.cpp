@@ -190,10 +190,10 @@ static std::unique_ptr<uint32_t[]> make_data() {
 static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEncoding,
                                                               GrContext* context,
                                                               skiatest::Reporter* reporter) {
-    auto surfaceContext = context->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, kW, kH, GrColorType::kRGBA_8888,
-            encoding_as_color_space(contextEncoding), 1, GrMipMapped::kNo,
-            kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kNo, GrProtected::kNo);
+    auto surfaceContext = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, encoding_as_color_space(contextEncoding),
+            SkBackingFit::kExact, {kW, kH}, 1, GrMipMapped::kNo, GrProtected::kNo,
+            kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
     if (!surfaceContext) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }

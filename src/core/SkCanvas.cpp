@@ -22,6 +22,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapDevice.h"
+#include "src/core/SkCanvasMatrix.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
@@ -31,6 +32,7 @@
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMSAN.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -235,7 +237,7 @@ public:
     DeviceCM* fTopLayer;
     std::unique_ptr<BackImage> fBackImage;
     SkConservativeClip fRasterClip;
-    SkMatrix fMatrix;
+    SkCanvasMatrix fMatrix;
     int fDeferredSaveCount;
 
     MCRec() {
@@ -493,7 +495,6 @@ void SkCanvas::resetForNextPicture(const SkIRect& bounds) {
 }
 
 void SkCanvas::init(sk_sp<SkBaseDevice> device) {
-    fAllowSimplifyClip = false;
     fSaveCount = 1;
 
     fMCRec = (MCRec*)fMCStack.push_back();
@@ -731,6 +732,22 @@ void SkCanvas::doSave() {
     SkASSERT(fMCRec->fDeferredSaveCount > 0);
     fMCRec->fDeferredSaveCount -= 1;
     this->internalSave();
+}
+
+int SkCanvas::experimental_saveCamera(const SkM44& projection, const SkM44& camera) {
+    // TODO: add a virtual for this, and update clients (e.g. chrome)
+    int n = this->save();
+    this->experimental_concat44(projection * camera);
+    fCameraStack.push_back(CameraRec(fMCRec, camera));
+    return n;
+}
+
+int SkCanvas::experimental_saveCamera(const SkScalar projection[16],
+                                      const SkScalar camera[16]) {
+    SkM44 proj, cam;
+    proj.setColMajor(projection);
+    cam.setColMajor(camera);
+    return this->experimental_saveCamera(proj, cam);
 }
 
 void SkCanvas::restore() {
@@ -1259,6 +1276,10 @@ void SkCanvas::internalRestore() {
     // move this out before we do the actual restore
     auto backImage = std::move(fMCRec->fBackImage);
 
+    if (!fCameraStack.empty() && fCameraStack.back().fMCRec == fMCRec) {
+        fCameraStack.pop_back();
+    }
+
     // now do the normal restore()
     fMCRec->~MCRec();       // balanced in save()
     fMCStack.pop_back();
@@ -1425,10 +1446,12 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y, const SkPa
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
     if (dx || dy) {
         this->checkForDeferredSave();
-        fMCRec->fMatrix.preTranslate(dx,dy);
+        fMCRec->fMatrix.preTranslate(dx, dy);
 
         // Translate shouldn't affect the is-scale-translateness of the matrix.
-        SkASSERT(fIsScaleTranslate == fMCRec->fMatrix.isScaleTranslate());
+        // However, if either is non-finite, we might still complicate the matrix type,
+        // so we still have to compute this.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
         FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
@@ -1437,9 +1460,18 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
-    SkMatrix m;
-    m.setScale(sx, sy);
-    this->concat(m);
+    if (sx != 1 || sy != 1) {
+        this->checkForDeferredSave();
+        fMCRec->fMatrix.preScale(sx, sy);
+
+        // shouldn't need to do this (theoretically), as the state shouldn't have changed,
+        // but pre-scaling by a non-finite does change it, so we have to recompute.
+        fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+        this->didScale(sx, sy);
+    }
 }
 
 void SkCanvas::rotate(SkScalar degrees) {
@@ -1467,11 +1499,28 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 
     this->checkForDeferredSave();
     fMCRec->fMatrix.preConcat(matrix);
+
     fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
 
     FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
 
     this->didConcat(matrix);
+}
+
+void SkCanvas::experimental_concat44(const SkScalar m[16]) {
+    this->checkForDeferredSave();
+
+    fMCRec->fMatrix.preConcat16(m);
+
+    fIsScaleTranslate = fMCRec->fMatrix.isScaleTranslate();
+
+    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+
+    this->didConcat44(m);
+}
+
+void SkCanvas::experimental_concat44(const SkM44& m) {
+    this->experimental_concat44(SkMatrixPriv::M44ColMajor(m));
 }
 
 void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
@@ -1583,8 +1632,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
     FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
 
     const SkPath* rasterClipPath = &path;
-    const SkMatrix* matrix = &fMCRec->fMatrix;
-    fMCRec->fRasterClip.opPath(*rasterClipPath, *matrix, this->getTopLayerBounds(),
+    fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix, this->getTopLayerBounds(),
                                (SkRegion::Op)op, isAA);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
 }
@@ -1744,7 +1792,7 @@ SkRect SkCanvas::getLocalClipBounds() const {
 
     SkMatrix inverse;
     // if we can't invert the CTM, we can't return local clip bounds
-    if (!fMCRec->fMatrix.invert(&inverse)) {
+    if (!fMCRec->fMatrix.asM33().invert(&inverse)) {
         return SkRect::MakeEmpty();
     }
 
@@ -1761,8 +1809,54 @@ SkIRect SkCanvas::getDeviceClipBounds() const {
     return fMCRec->fRasterClip.getBounds();
 }
 
-const SkMatrix& SkCanvas::getTotalMatrix() const {
+///////////////////////////////////////////////////////////////////////
+
+SkCanvas::CameraRec::CameraRec(MCRec* owner, const SkM44& camera)
+    : fMCRec(owner)
+    , fCamera(camera)
+{
+    // assumes the mcrec has already been concatenated with the camera
+    if (!owner->fMatrix.invert(&fInvPostCamera)) {
+        fInvPostCamera.setIdentity();
+    }
+}
+
+SkMatrix SkCanvas::getTotalMatrix() const {
     return fMCRec->fMatrix;
+}
+
+SkM44 SkCanvas::experimental_getLocalToDevice() const {
+    return fMCRec->fMatrix;
+}
+
+SkM44 SkCanvas::experimental_getLocalToWorld() const {
+    if (fCameraStack.empty()) {
+        return this->experimental_getLocalToDevice();
+    } else {
+        const auto& top = fCameraStack.back();
+        return top.fInvPostCamera * this->experimental_getLocalToDevice();
+    }
+}
+
+SkM44 SkCanvas::experimental_getLocalToCamera() const {
+    if (fCameraStack.empty()) {
+        return this->experimental_getLocalToDevice();
+    } else {
+        const auto& top = fCameraStack.back();
+        return top.fCamera * top.fInvPostCamera * this->experimental_getLocalToDevice();
+    }
+}
+
+void SkCanvas::experimental_getLocalToDevice(SkScalar colMajor[16]) const {
+    this->experimental_getLocalToDevice().getColMajor(colMajor);
+}
+
+void SkCanvas::experimental_getLocalToWorld(SkScalar colMajor[16]) const {
+    this->experimental_getLocalToWorld().getColMajor(colMajor);
+}
+
+void SkCanvas::experimental_getLocalToCamera(SkScalar colMajor[16]) const {
+    this->experimental_getLocalToCamera().getColMajor(colMajor);
 }
 
 GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetContext() {

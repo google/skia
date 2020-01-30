@@ -382,7 +382,7 @@ func (b *builder) kitchenTask(name, recipe, isolate, serviceAccount string, dime
 	cipd := append([]*specs.CipdPackage{}, CIPD_PKGS_KITCHEN...)
 	if strings.Contains(name, "Win") && !strings.Contains(name, "LenovoYogaC630") {
 		cipd = append(cipd, CIPD_PKG_CPYTHON)
-	} else if strings.Contains(name, "P30") {
+	} else if strings.Contains(name, "Mac10.15") && strings.Contains(name, "VMware7.1") {
 		cipd = append(cipd, CIPD_PKG_CPYTHON)
 	}
 	properties := map[string]string{
@@ -466,7 +466,8 @@ func (b *builder) deriveCompileTaskName(jobName string, parts map[string]string)
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
 				"ReleaseAndAbandonGpuContext", "CCPR", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "T8888", "DDLTotal", "DDLRecord", "9x9",
-				"BonusConfigs", "SkottieTracing", "SkottieWASM", "NonNVPR", "Mskp", "Docker"}
+				"BonusConfigs", "SkottieTracing", "SkottieWASM", "GpuTess", "NonNVPR", "Mskp",
+				"Docker", "PDF"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -565,7 +566,6 @@ func (b *builder) defaultSwarmDimensions(parts map[string]string) []string {
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-18363",
-			"Win2016":    "Windows-Server-14393",
 			"Win2019":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
@@ -820,13 +820,6 @@ func (b *builder) buildTaskDrivers() string {
 		CipdPackages: append(specs.CIPD_PKGS_GIT, b.MustGetCipdPackageFromAsset("go")),
 		Command: []string{
 			"/bin/bash", "skia/infra/bots/build_task_drivers.sh", specs.PLACEHOLDER_ISOLATED_OUTDIR,
-			// The following arguments are not used by the script but are specified
-			// because they prevent de-duplication.
-			specs.PLACEHOLDER_REPO,
-			specs.PLACEHOLDER_REVISION,
-			specs.PLACEHOLDER_ISSUE,
-			specs.PLACEHOLDER_PATCHSET,
-			specs.PLACEHOLDER_CODEREVIEW_SERVER,
 		},
 		Dimensions: b.linuxGceDimensions(MACHINE_TYPE_SMALL),
 		EnvPrefixes: map[string][]string{
@@ -857,7 +850,6 @@ func (b *builder) updateGoDeps(name string) string {
 			"--gerrit_project", "skia",
 			"--gerrit_url", "https://skia-review.googlesource.com",
 			"--repo", specs.PLACEHOLDER_REPO,
-			"--reviewers", "borenet@google.com",
 			"--revision", specs.PLACEHOLDER_REVISION,
 			"--patch_issue", specs.PLACEHOLDER_ISSUE,
 			"--patch_set", specs.PLACEHOLDER_PATCHSET,

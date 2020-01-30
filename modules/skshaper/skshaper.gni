@@ -12,5 +12,6 @@ skia_shaper_public = [ "$_include/SkShaper.h" ]
 skia_shaper_primitive_sources = [
   "$_src/SkShaper.cpp",
   "$_src/SkShaper_primitive.cpp",
+  "$_src/SkShaper_coretext.cpp",
 ]
 skia_shaper_harfbuzz_sources = [ "$_src/SkShaper_harfbuzz.cpp" ]

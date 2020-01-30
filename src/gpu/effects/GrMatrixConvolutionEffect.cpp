@@ -143,7 +143,7 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
     fDomain.setData(pdman, conv.domain(), view, conv.textureSampler(0).samplerState());
 }
 
-GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcProxy,
+GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrSurfaceProxyView srcView,
                                                      const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -155,10 +155,10 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcPr
         // To advertise either the modulation or opaqueness optimizations we'd have to examine the
         // parameters.
         : INHERITED(kGrMatrixConvolutionEffect_ClassID, kNone_OptimizationFlags)
-        , fCoordTransform(srcProxy.get())
-        , fDomain(srcProxy.get(), GrTextureDomain::MakeTexelDomain(srcBounds, tileMode),
+        , fCoordTransform(srcView.proxy())
+        , fDomain(srcView.proxy(), GrTextureDomain::MakeTexelDomain(srcBounds, tileMode),
                   tileMode, tileMode)
-        , fTextureSampler(std::move(srcProxy))
+        , fTextureSampler(std::move(srcView))
         , fKernelSize(kernelSize)
         , fGain(SkScalarToFloat(gain))
         , fBias(SkScalarToFloat(bias) / 255.0f)
@@ -294,7 +294,7 @@ static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
 
 // Static function to create a 2D convolution
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
-        sk_sp<GrTextureProxy> srcProxy,
+        GrSurfaceProxyView srcView,
         const SkIRect& srcBounds,
         const SkISize& kernelSize,
         SkScalar gain,
@@ -304,12 +304,19 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::MakeGaussian(
         bool convolveAlpha,
         SkScalar sigmaX,
         SkScalar sigmaY) {
+    // SkGpuBlurUtils is not as aggressive as it once was about avoiding texture domains.
+    // Check for a trivial case here where the domain can be avoided. TODO: Use GrTextureEffect
+    // here which includes this and more.
+    if (tileMode == GrTextureDomain::kClamp_Mode && !srcView.proxy()->isFullyLazy() &&
+        srcBounds.contains(SkIRect::MakeSize(srcView.proxy()->backingStoreDimensions()))) {
+        tileMode = GrTextureDomain::kIgnore_Mode;
+    }
     float kernel[MAX_KERNEL_SIZE];
 
     fill_in_2D_gaussian_kernel(kernel, kernelSize.width(), kernelSize.height(), sigmaX, sigmaY);
 
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrMatrixConvolutionEffect(std::move(srcProxy), srcBounds, kernelSize, kernel,
+            new GrMatrixConvolutionEffect(std::move(srcView), srcBounds, kernelSize, kernel,
                                           gain, bias, kernelOffset, tileMode, convolveAlpha));
 }
 
@@ -337,7 +344,12 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrPro
     GrTextureDomain::Mode tileMode =
             static_cast<GrTextureDomain::Mode>(d->fRandom->nextRangeU(0, 2));
     bool convolveAlpha = d->fRandom->nextBool();
-    return GrMatrixConvolutionEffect::Make(std::move(proxy),
+
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
+    return GrMatrixConvolutionEffect::Make(std::move(view),
                                            bounds,
                                            kernelSize,
                                            kernel.get(),

@@ -212,7 +212,7 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
             if (!strikeSpec.isEmpty()) {
                 SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
 
-                fDrawable.startSource(fRejects.source(), origin);
+                fDrawable.startPaths(fRejects.source());
                 strike->prepareForPathDrawing(&fDrawable, &fRejects);
                 fRejects.flipRejectsToSource();
                 maxDimensionInSourceSpace =

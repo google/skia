@@ -69,83 +69,12 @@ public:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-    /*
-     * Create a new render target context backed by a deferred-style
-     * GrRenderTargetProxy. We guarantee that "asTextureProxy" will succeed for
-     * renderTargetContexts created via this entry point.
-     */
-    std::unique_ptr<GrRenderTargetContext> makeDeferredRenderTargetContext(
-            SkBackingFit fit,
-            int width,
-            int height,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo,
-            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr,
-            SkBudgeted = SkBudgeted::kYes,
-            GrProtected isProtected = GrProtected::kNo);
-
-    /*
-     * This method will attempt to create a renderTargetContext that has, at least, the number of
-     * channels and precision per channel as requested in 'config' (e.g., A8 and 888 can be
-     * converted to 8888). It may also swizzle the channels (e.g., BGRA -> RGBA).
-     * SRGB-ness will be preserved.
-     */
-    std::unique_ptr<GrRenderTargetContext> makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit fit,
-            int width,
-            int height,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            int sampleCnt = 1,
-            GrMipMapped = GrMipMapped::kNo,
-            GrSurfaceOrigin origin = kBottomLeft_GrSurfaceOrigin,
-            const SkSurfaceProps* surfaceProps = nullptr,
-            SkBudgeted budgeted = SkBudgeted::kYes,
-            GrProtected isProtected = GrProtected::kNo);
-
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
     /**
      * Create a GrContext without a resource cache
      */
     static sk_sp<GrContext> MakeDDL(const sk_sp<GrContextThreadSafeProxy>&);
-
-    // These match the definitions in SkSurface & GrSurface.h, for whence they came
-    typedef void* ReleaseContext;
-    typedef void (*ReleaseProc)(ReleaseContext);
-
-    std::unique_ptr<GrRenderTargetContext> makeBackendTextureRenderTargetContext(
-            const GrBackendTexture& tex,
-            GrSurfaceOrigin origin,
-            int sampleCnt,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* = nullptr,
-            ReleaseProc = nullptr,
-            ReleaseContext = nullptr);
-
-    std::unique_ptr<GrRenderTargetContext> makeBackendRenderTargetRenderTargetContext(
-            const GrBackendRenderTarget&,
-            GrSurfaceOrigin origin,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* = nullptr,
-            ReleaseProc = nullptr,
-            ReleaseContext = nullptr);
-
-    std::unique_ptr<GrRenderTargetContext> makeBackendTextureAsRenderTargetRenderTargetContext(
-            const GrBackendTexture& tex,
-            GrSurfaceOrigin origin,
-            int sampleCnt,
-            GrColorType,
-            sk_sp<SkColorSpace> colorSpace,
-            const SkSurfaceProps* = nullptr);
-
-    std::unique_ptr<GrRenderTargetContext> makeVulkanSecondaryCBRenderTargetContext(
-            const SkImageInfo&, const GrVkDrawableInfo&, const SkSurfaceProps* = nullptr);
 
     /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves

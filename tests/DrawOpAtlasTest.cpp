@@ -72,9 +72,12 @@ void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
     fMaxPages = maxPages;
 }
 
-void EvictionFunc(GrDrawOpAtlas::AtlasID atlasID, void*) {
-    SkASSERT(0); // The unit test shouldn't exercise this code path
-}
+class DummyEvict : public GrDrawOpAtlas::EvictionCallback {
+public:
+    void evict(GrDrawOpAtlas::PlotLocator plotLocator) override {
+        SkASSERT(0); // The unit test shouldn't exercise this code path
+    }
+};
 
 static void check(skiatest::Reporter* r, GrDrawOpAtlas* atlas,
                   uint32_t expectedActive, uint32_t expectedMax, int expectedAlloced) {
@@ -111,7 +114,7 @@ private:
 static bool fill_plot(GrDrawOpAtlas* atlas,
                       GrResourceProvider* resourceProvider,
                       GrDeferredUploadTarget* target,
-                      GrDrawOpAtlas::AtlasID* atlasID,
+                      GrDrawOpAtlas::PlotLocator* plotLocator,
                       int alpha) {
     SkImageInfo ii = SkImageInfo::MakeA8(kPlotSize, kPlotSize);
 
@@ -121,7 +124,7 @@ static bool fill_plot(GrDrawOpAtlas* atlas,
 
     SkIPoint16 loc;
     GrDrawOpAtlas::ErrorCode code;
-    code = atlas->addToAtlas(resourceProvider, atlasID, target, kPlotSize, kPlotSize,
+    code = atlas->addToAtlas(resourceProvider, plotLocator, target, kPlotSize, kPlotSize,
                               data.getAddr(0, 0), &loc);
     return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
 }
@@ -142,20 +145,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                            GrRenderable::kNo);
 
+    DummyEvict evictor;
+    GrDrawOpAtlas::GenerationCounter counter;
+
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(
                                                 proxyProvider,
                                                 format,
                                                 GrColorType::kAlpha_8,
                                                 kAtlasSize, kAtlasSize,
                                                 kAtlasSize/kNumPlots, kAtlasSize/kNumPlots,
+                                                &counter,
                                                 GrDrawOpAtlas::AllowMultitexturing::kYes,
-                                                EvictionFunc, nullptr);
+                                                &evictor);
     check(reporter, atlas.get(), 0, 4, 0);
 
     // Fill up the first level
-    GrDrawOpAtlas::AtlasID atlasIDs[kNumPlots * kNumPlots];
+    GrDrawOpAtlas::PlotLocator plotLocators[kNumPlots * kNumPlots];
     for (int i = 0; i < kNumPlots * kNumPlots; ++i) {
-        bool result = fill_plot(atlas.get(), resourceProvider, &uploadTarget, &atlasIDs[i], i*32);
+        bool result = fill_plot(
+                atlas.get(), resourceProvider, &uploadTarget, &plotLocators[i], i * 32);
         REPORTER_ASSERT(reporter, result);
         check(reporter, atlas.get(), 1, 4, 1);
     }
@@ -164,14 +172,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     check(reporter, atlas.get(), 1, 4, 1);
 
     // Force allocation of a second level
-    GrDrawOpAtlas::AtlasID atlasID;
-    bool result = fill_plot(atlas.get(), resourceProvider, &uploadTarget, &atlasID, 4*32);
+    GrDrawOpAtlas::PlotLocator plotLocator;
+    bool result = fill_plot(atlas.get(), resourceProvider, &uploadTarget, &plotLocator, 4 * 32);
     REPORTER_ASSERT(reporter, result);
     check(reporter, atlas.get(), 2, 4, 2);
 
     // Simulate a lot of draws using only the first plot. The last texture should be compacted.
     for (int i = 0; i < 512; ++i) {
-        atlas->setLastUseToken(atlasIDs[0], uploadTarget.tokenTracker()->nextDrawToken());
+        atlas->setLastUseToken(plotLocators[0], uploadTarget.tokenTracker()->nextDrawToken());
         uploadTarget.issueDrawToken();
         uploadTarget.flushToken();
         atlas->compact(uploadTarget.tokenTracker()->nextTokenToFlush());
@@ -192,8 +200,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto textContext = drawingManager->getTextContext();
     auto opMemoryPool = context->priv().opMemoryPool();
 
-    auto rtc = context->priv().makeDeferredRenderTargetContext(SkBackingFit::kApprox, 32, 32,
-                                                               GrColorType::kRGBA_8888, nullptr);
+    auto rtc = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {32, 32});
 
     SkPaint paint;
     paint.setColor(SK_ColorRED);

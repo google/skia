@@ -18,7 +18,12 @@ class SkData;
 class SkMatrix;
 class SkRuntimeEffect;
 
-namespace SkSL { class ByteCode; }
+namespace SkSL {
+    class ByteCodeFunction;
+
+    template<int width>
+    class Interpreter;
+}
 
 class SkRTShader : public SkShaderBase {
 public:
@@ -37,6 +42,8 @@ protected:
     bool onAppendStages(const SkStageRec& rec) const override;
 
 private:
+    static constexpr int VECTOR_WIDTH = 8;
+
     SK_FLATTENABLE_HOOKS(SkRTShader)
 
     sk_sp<SkRuntimeEffect> fEffect;
@@ -45,33 +52,11 @@ private:
     sk_sp<SkData> fInputs;
     std::vector<sk_sp<SkShader>> fChildren;
 
-    mutable SkMutex fByteCodeMutex;
-    mutable std::unique_ptr<SkSL::ByteCode> fByteCode;
+    mutable SkMutex fInterpreterMutex;
+    mutable std::unique_ptr<SkSL::Interpreter<VECTOR_WIDTH>> fInterpreter;
+    mutable const SkSL::ByteCodeFunction* fMain;
 
     typedef SkShaderBase INHERITED;
-};
-
-class SK_API SkRuntimeShaderFactory {
-public:
-    SkRuntimeShaderFactory(SkString sksl, bool isOpaque);
-    SkRuntimeShaderFactory(const SkRuntimeShaderFactory&);
-    SkRuntimeShaderFactory(SkRuntimeShaderFactory&&);
-
-    ~SkRuntimeShaderFactory();
-
-    SkRuntimeShaderFactory& operator=(const SkRuntimeShaderFactory&);
-    SkRuntimeShaderFactory& operator=(SkRuntimeShaderFactory&&);
-
-    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix) {
-        return this->make(std::move(inputs), localMatrix, nullptr, 0);
-    }
-
-    sk_sp<SkShader> make(sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-                         sk_sp<SkShader>* children, size_t childCount);
-
-private:
-    sk_sp<SkRuntimeEffect> fEffect;
-    bool fIsOpaque;
 };
 
 #endif

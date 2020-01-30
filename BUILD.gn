@@ -200,6 +200,9 @@ opts("hsw") {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
+    if (is_mac && is_debug) {
+      cflags += [ "-O1" ]  # Work around skia:9709
+    }
   }
 }
 
@@ -792,18 +795,9 @@ optional("sksl_interpreter") {
   public_defines = [ "SK_ENABLE_SKSL_INTERPRETER" ]
 }
 
-config("vtune_includes") {
-  include_dirs = [ "$skia_vtune_path/include" ]
-}
 optional("skvm_jit") {
   enabled = skia_enable_skvm_jit
   public_defines = [ "SKVM_JIT" ]
-
-  if (skia_vtune_path != "") {
-    public_defines += [ "SKVM_JIT_VTUNE" ]
-    public_configs = [ ":vtune_includes" ]
-    libs = [ "$skia_vtune_path/lib64/libjitprofiling.a" ]
-  }
 }
 
 if (skia_enable_gpu && skia_generate_workarounds) {
@@ -2296,7 +2290,10 @@ if (skia_enable_tools) {
         "tools/fiddle/examples.h",
       ]
       if (is_win) {
-        cflags = [ "/wd4756" ]  # Overflow in constant arithmetic
+        cflags = [
+          "/wd4756",  # Overflow in constant arithmetic
+          "/wd4305",  # truncation from 'double' to 'float'
+        ]
       }
       deps = [
         ":skia",
@@ -2512,7 +2509,7 @@ if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
   }
 }
 
-if (is_ios && !skia_enable_flutter_defines) {
+if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
   group("skottie_ios") {
     deps = [
       "tools/skottie_ios_app",

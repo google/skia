@@ -101,7 +101,7 @@ public:
 
     // Finds or creates a compatible GrVkSampler based on the GrSamplerState and
     // GrVkYcbcrConversionInfo. The refcount is incremented and a pointer returned.
-    GrVkSampler* findOrCreateCompatibleSampler(const GrSamplerState&,
+    GrVkSampler* findOrCreateCompatibleSampler(GrSamplerState,
                                                const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     // Finds or creates a compatible GrVkSamplerYcbcrConversion based on the GrSamplerState and

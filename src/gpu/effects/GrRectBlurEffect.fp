@@ -9,9 +9,13 @@
 #include <cmath>
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/gpu/GrContext.h"
+#include "include/private/GrRecordingContext.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMathPriv.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
 }
 
@@ -42,7 +46,7 @@ layout(key) in bool isFast;
     samplerParams
 }
 @class {
-static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvider,
+static sk_sp<GrTextureProxy> CreateIntegralTexture(GrRecordingContext* context,
                                                    float sixSigma) {
     // The texture we're producing represents the integral of a normal distribution over a six-sigma
     // range centered at zero. We want enough resolution so that the linear interpolation done in
@@ -58,6 +62,7 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvide
     builder[0] = width;
     builder.finish();
 
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
             key, GrColorType::kAlpha_8, kTopLeft_GrSurfaceOrigin));
     if (!proxy) {
@@ -75,7 +80,9 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvide
         }
         *bitmap.getAddr8(width - 1, 0) = 0;
         bitmap.setImmutable();
-        proxy = proxyProvider->createProxyFromBitmap(bitmap, GrMipMapped::kNo);
+
+        GrBitmapTextureMaker maker(context, bitmap);
+        std::tie(proxy, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
         if (!proxy) {
             return nullptr;
         }
@@ -87,7 +94,7 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvide
 }
 
 @make {
-     static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,
+     static std::unique_ptr<GrFragmentProcessor> Make(GrRecordingContext* context,
                                                       const GrShaderCaps& caps,
                                                       const SkRect& rect, float sigma) {
          SkASSERT(rect.isSorted());
@@ -102,7 +109,7 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvide
          }
 
          const float sixSigma = 6 * sigma;
-         auto integral = CreateIntegralTexture(proxyProvider, sixSigma);
+         auto integral = CreateIntegralTexture(context, sixSigma);
          if (!integral) {
              return nullptr;
          }
@@ -126,7 +133,7 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrProxyProvider* proxyProvide
          // normalized texture coords from frag coord distances.
          float invSixSigma = 1.f / sixSigma;
          return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(insetRect,
-                 std::move(integral), invSixSigma, isFast, GrSamplerState::ClampBilerp()));
+                 std::move(integral), invSixSigma, isFast, GrSamplerState::Filter::kBilerp));
      }
 }
 
@@ -200,6 +207,6 @@ void main() {
     float sigma = data->fRandom->nextRangeF(3,8);
     float width = data->fRandom->nextRangeF(200,300);
     float height = data->fRandom->nextRangeF(200,300);
-    return GrRectBlurEffect::Make(data->proxyProvider(), *data->caps()->shaderCaps(),
+    return GrRectBlurEffect::Make(data->context(), *data->caps()->shaderCaps(),
                                   SkRect::MakeWH(width, height), sigma);
 }

@@ -319,7 +319,7 @@ static bool parse_option_gpu_color(const SkString&      value,
         *outColorSpace = SkColorSpace::MakeSRGB();
     } else if (value.equals("p3")) {
         *outColorType  = kRGBA_8888_SkColorType;
-        *outColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+        *outColorSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
     } else if (value.equals("esrgb")) {
         *outColorType  = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();

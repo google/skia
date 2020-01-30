@@ -37,6 +37,14 @@ public:
         }
     }
 
+    void onTextProperty(const char node_name[],
+                        const LazyHandle<skottie::TextPropertyHandle>& t) override {
+        const auto key = fMgr->acceptKey(node_name);
+        if (!key.empty()) {
+            fMgr->fTextMap[key].push_back(t());
+        }
+    }
+
 private:
     CustomPropertyManager* fMgr;
 };
@@ -138,9 +146,26 @@ CustomPropertyManager::getTransformProps() const {
     return this->getProps(fTransformMap);
 }
 
+skottie::TransformPropertyValue CustomPropertyManager::getTransform(const PropKey& key) const {
+    return this->get<skottie::TransformPropertyValue>(key, fTransformMap);
+}
+
 bool CustomPropertyManager::setTransform(const PropKey& key,
                                          const skottie::TransformPropertyValue& t) {
     return this->set(key, t, fTransformMap);
+}
+
+std::vector<CustomPropertyManager::PropKey>
+CustomPropertyManager::getTextProps() const {
+    return this->getProps(fTextMap);
+}
+
+skottie::TextPropertyValue CustomPropertyManager::getText(const PropKey& key) const {
+    return this->get<skottie::TextPropertyValue>(key, fTextMap);
+}
+
+bool CustomPropertyManager::setText(const PropKey& key, const skottie::TextPropertyValue& o) {
+    return this->set(key, o, fTextMap);
 }
 
 } // namespace skottie_utils

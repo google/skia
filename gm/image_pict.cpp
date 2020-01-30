@@ -196,10 +196,13 @@ protected:
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
 
+        // TODO: When we update this function to return a view instead of just a proxy then we can
+        // remove the extra ref that happens when we call asTextureProxyRef.
         return GrSurfaceProxy::Copy(
-                fCtx.get(), fProxy.get(), mipMapped,
+                fCtx.get(), fProxy.get(), kTopLeft_GrSurfaceOrigin,
+                SkColorTypeToGrColorType(info.colorType()), mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
-                SkBackingFit::kExact, SkBudgeted::kYes);
+                SkBackingFit::kExact, SkBudgeted::kYes).asTextureProxyRef();
     }
 
 private:
@@ -268,7 +271,7 @@ protected:
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
         sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef(
-                canvas->getGrContext(), GrSamplerState::ClampBilerp(), nullptr));
+                canvas->getGrContext(), GrSamplerState::Filter::kBilerp, nullptr));
         if (!proxy) {
             // show placeholder if we have no texture
             SkPaint paint;
@@ -289,8 +292,9 @@ protected:
 
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
         sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()),
-                                                image->uniqueID(), kPremul_SkAlphaType,
-                                                std::move(view), image->refColorSpace()));
+                                                image->uniqueID(), std::move(view),
+                                                image->colorType(), image->alphaType(),
+                                                image->refColorSpace()));
         canvas->drawImage(texImage.get(), x, y);
     }
 

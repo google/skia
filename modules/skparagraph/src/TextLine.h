@@ -93,6 +93,10 @@ public:
 
     LineMetrics getMetrics() const;
 
+    SkRect calculateBoundaries();
+
+    SkRect extendHeight(const ClipContext& context) const;
+
 private:
 
     Run* shapeEllipsis(const SkString& ellipsis, Run* run);

@@ -245,33 +245,33 @@ void ClockwiseGM::onDraw(GrContext* ctx, GrRenderTargetContext* rtc, SkCanvas* c
 
     // Draw the test to an off-screen, top-down render target.
     GrColorType rtcColorType = rtc->colorInfo().colorType();
-    if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 200, rtcColorType, nullptr, 1,
-                GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
+    if (auto topLeftRTC = GrRenderTargetContext::Make(
+                ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                nullptr)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()), rtcColorType,
-                         rtc->colorInfo().alphaType(), GrSamplerState::Filter::kNearest,
-                         SkBlendMode::kSrcOver, SK_PMColor4fWHITE, {0, 0, 100, 200},
-                         {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
+        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+                         GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
+                         {0, 0, 100, 200}, {100, 0, 200, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
                          nullptr);
     }
 
     // Draw the test to an off-screen, bottom-up render target.
-    if (auto topLeftRTC = ctx->priv().makeDeferredRenderTargetContext(
-                SkBackingFit::kExact, 100, 200, rtcColorType, nullptr, 1,
-                GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr, SkBudgeted::kYes)) {
+    if (auto topLeftRTC = GrRenderTargetContext::Make(
+                ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, 1,
+                GrMipMapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+                nullptr)) {
         topLeftRTC->clear(nullptr, SK_PMColor4fTRANSPARENT,
                           GrRenderTargetContext::CanClearFullscreen::kYes);
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->priv().testingOnly_addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(GrNoClip(), sk_ref_sp(topLeftRTC->asTextureProxy()), rtcColorType,
-                         rtc->colorInfo().alphaType(), GrSamplerState::Filter::kNearest,
-                         SkBlendMode::kSrcOver, SK_PMColor4fWHITE, {0, 0, 100, 200},
-                         {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
+        rtc->drawTexture(GrNoClip(), topLeftRTC->readSurfaceView(), rtc->colorInfo().alphaType(),
+                         GrSamplerState::Filter::kNearest, SkBlendMode::kSrcOver, SK_PMColor4fWHITE,
+                         {0, 0, 100, 200}, {200, 0, 300, 200}, GrAA::kNo, GrQuadAAFlags::kNone,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
                          nullptr);
     }

@@ -89,6 +89,8 @@ public:
     GrSwizzle getReadSwizzle(const GrBackendFormat&, GrColorType) const override;
     GrSwizzle getOutputSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    uint64_t computeFormatKey(const GrBackendFormat&) const override;
+
     GrProgramDesc makeDesc(const GrRenderTarget*, const GrProgramInfo&) const override;
 
 #if GR_TEST_UTILS
@@ -109,8 +111,6 @@ private:
     bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                           const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
     GrBackendFormat onGetDefaultBackendFormat(GrColorType, GrRenderable) const override;
-    GrPixelConfig onGetConfigFromBackendFormat(const GrBackendFormat&, GrColorType) const override;
-    GrPixelConfig onGetConfigFromCompressedBackendFormat(const GrBackendFormat&) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 
     SupportedRead onSupportedReadPixelsColorType(GrColorType, const GrBackendFormat&,
@@ -161,7 +161,7 @@ private:
 #ifdef SK_BUILD_FOR_IOS
     static constexpr size_t kNumMtlFormats = 17;
 #else
-    static constexpr size_t kNumMtlFormats = 14;
+    static constexpr size_t kNumMtlFormats = 15;
 #endif
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];

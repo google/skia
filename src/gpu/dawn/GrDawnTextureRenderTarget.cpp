@@ -13,15 +13,15 @@
 #include "src/gpu/dawn/GrDawnGpu.h"
 
 GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
-                                                     const SkISize& dimensions,
-                                                     GrPixelConfig config,
+                                                     SkISize dimensions,
                                                      wgpu::TextureView textureView,
                                                      int sampleCnt,
-                                                     const GrDawnImageInfo& info,
+                                                     const GrDawnTextureInfo& textureInfo,
                                                      GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, dimensions, config, GrProtected::kNo)
-        , GrDawnTexture(gpu, dimensions, config, textureView, info, mipMapsStatus)
-        , GrDawnRenderTarget(gpu, dimensions, config, sampleCnt, info) {}
+        : GrSurface(gpu, dimensions, GrProtected::kNo)
+        , GrDawnTexture(gpu, dimensions, textureView, textureInfo, mipMapsStatus)
+        , GrDawnRenderTarget(gpu, dimensions, sampleCnt,
+                             GrDawnRenderTargetInfo(textureInfo)) {}
 
 bool GrDawnTextureRenderTarget::canAttemptStencilAttachment() const {
     return true;

@@ -7,10 +7,10 @@
 
 @header {
     #include "include/gpu/GrContext.h"
+    #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrClip.h"
     #include "src/gpu/GrContextPriv.h"
     #include "src/gpu/GrImageInfo.h"
-    #include "src/gpu/GrProxyProvider.h"
     #include "src/gpu/GrRenderTargetContext.h"
 }
 
@@ -41,14 +41,10 @@
         const SkImageInfo ii = SkImageInfo::Make(kSize, kSize,
                                                  kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-        auto readRTC =
-                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
-                                                                kSize, kSize,
-                                                                kColorType, nullptr);
-        auto tempRTC =
-                context->priv().makeDeferredRenderTargetContext(SkBackingFit::kExact,
-                                                                kSize, kSize,
-                                                                kColorType, nullptr);
+        auto readRTC = GrRenderTargetContext::Make(
+                context, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
+        auto tempRTC = GrRenderTargetContext::Make(
+                context, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }
@@ -56,18 +52,16 @@
         // draw
         readRTC->discard();
 
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-
-        SkPixmap pixmap(ii, srcData, 4 * kSize);
-
         // This function is only ever called if we are in a GrContext that has a GrGpu since we are
         // calling read pixels here. Thus the pixel data will be uploaded immediately and we don't
         // need to keep the pixel data alive in the proxy. Therefore the ReleaseProc is nullptr.
-        sk_sp<SkImage> image = SkImage::MakeFromRaster(pixmap, nullptr, nullptr);
-        sk_sp<GrTextureProxy> dataProxy = proxyProvider->createTextureProxy(std::move(image),
-                                                                            1,
-                                                                            SkBudgeted::kYes,
-                                                                            SkBackingFit::kExact);
+        SkBitmap bitmap;
+        bitmap.installPixels(ii, srcData, 4 * kSize);
+        bitmap.setImmutable();
+
+        GrBitmapTextureMaker maker(context, bitmap);
+        auto [dataProxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
+
         if (!dataProxy) {
             return false;
         }
@@ -86,7 +80,7 @@
         std::unique_ptr<GrFragmentProcessor> upmToPM(
                 new GrConfigConversionEffect(PMConversion::kToPremul));
 
-        paint1.addColorTextureProcessor(dataProxy, kPremul_SkAlphaType, SkMatrix::I());
+        paint1.addColorFragmentProcessor(GrTextureEffect::Make(dataProxy, kPremul_SkAlphaType));
         paint1.addColorFragmentProcessor(pmToUPM->clone());
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
@@ -100,16 +94,14 @@
         // draw
         tempRTC->discard();
 
-        paint2.addColorTextureProcessor(readRTC->asTextureProxyRef(), kUnpremul_SkAlphaType,
-                                        SkMatrix::I());
+        paint2.addColorFragmentProcessor(GrTextureEffect::Make(readRTC->asTextureProxyRef(), kUnpremul_SkAlphaType));
         paint2.addColorFragmentProcessor(std::move(upmToPM));
         paint2.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         tempRTC->fillRectToRect(GrNoClip(), std::move(paint2), GrAA::kNo, SkMatrix::I(), kRect,
                                 kRect);
 
-        paint3.addColorTextureProcessor(tempRTC->asTextureProxyRef(), kPremul_SkAlphaType,
-                                        SkMatrix::I());
+        paint3.addColorFragmentProcessor(GrTextureEffect::Make(tempRTC->asTextureProxyRef(), kPremul_SkAlphaType));
         paint3.addColorFragmentProcessor(std::move(pmToUPM));
         paint3.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

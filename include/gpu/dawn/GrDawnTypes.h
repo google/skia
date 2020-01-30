@@ -22,25 +22,61 @@ static constexpr int None = 0L;
 #endif
 #include "dawn/webgpu_cpp.h"
 
-struct GrDawnImageInfo {
+struct GrDawnTextureInfo {
     wgpu::Texture       fTexture;
     wgpu::TextureFormat fFormat;
     uint32_t            fLevelCount;
-    GrDawnImageInfo() : fTexture(nullptr), fFormat(), fLevelCount(0) {
+    GrDawnTextureInfo() : fTexture(nullptr), fFormat(), fLevelCount(0) {
     }
-    GrDawnImageInfo(const GrDawnImageInfo& other)
+    GrDawnTextureInfo(const GrDawnTextureInfo& other)
         : fTexture(other.fTexture)
         , fFormat(other.fFormat)
         , fLevelCount(other.fLevelCount) {
     }
-    GrDawnImageInfo& operator=(const GrDawnImageInfo& other) {
+    GrDawnTextureInfo& operator=(const GrDawnTextureInfo& other) {
         fTexture = other.fTexture;
         fFormat = other.fFormat;
         fLevelCount = other.fLevelCount;
         return *this;
     }
-    bool operator==(const GrDawnImageInfo& other) const {
+    bool operator==(const GrDawnTextureInfo& other) const {
         return fTexture.Get() == other.fTexture.Get() &&
+               fFormat == other.fFormat &&
+               fLevelCount == other.fLevelCount;
+    }
+};
+
+// GrDawnRenderTargetInfo holds a reference to a (1-mip) TextureView. This means that, for now,
+// GrDawnRenderTarget is suitable for rendering, but not readPixels() or writePixels(). Also,
+// backdrop filters and certain blend modes requiring copying the destination framebuffer
+// will not work.
+struct GrDawnRenderTargetInfo {
+    wgpu::TextureView   fTextureView;
+    wgpu::TextureFormat fFormat;
+    uint32_t            fLevelCount;
+    GrDawnRenderTargetInfo() : fTextureView(nullptr), fFormat(), fLevelCount(0) {
+    }
+    GrDawnRenderTargetInfo(const GrDawnRenderTargetInfo& other)
+        : fTextureView(other.fTextureView)
+        , fFormat(other.fFormat)
+        , fLevelCount(other.fLevelCount) {
+    }
+    explicit GrDawnRenderTargetInfo(const GrDawnTextureInfo& texInfo)
+        : fFormat(texInfo.fFormat)
+        , fLevelCount(1) {
+        wgpu::TextureViewDescriptor desc;
+        desc.format = texInfo.fFormat;
+        desc.mipLevelCount = 1;
+        fTextureView = texInfo.fTexture.CreateView(&desc);
+    }
+    GrDawnRenderTargetInfo& operator=(const GrDawnRenderTargetInfo& other) {
+        fTextureView = other.fTextureView;
+        fFormat = other.fFormat;
+        fLevelCount = other.fLevelCount;
+        return *this;
+    }
+    bool operator==(const GrDawnRenderTargetInfo& other) const {
+        return fTextureView.Get() == other.fTextureView.Get() &&
                fFormat == other.fFormat &&
                fLevelCount == other.fLevelCount;
     }

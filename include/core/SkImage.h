@@ -231,32 +231,81 @@ public:
         return DecodeToTexture(ctx, data->data(), data->size(), subset);
     }
 
-    // Experimental
+    /*
+     * Experimental:
+     *   Skia                | GL_COMPRESSED_*     | MTLPixelFormat*      | VK_FORMAT_*_BLOCK
+     *  --------------------------------------------------------------------------------------
+     *   kETC2_RGB8_UNORM    | ETC1_RGB8           | ETC2_RGB8 (iOS-only) | ETC2_R8G8B8_UNORM
+     *                       | RGB8_ETC2           |                      |
+     *  --------------------------------------------------------------------------------------
+     *   kBC1_RGB8_UNORM     | RGB_S3TC_DXT1_EXT   | N/A                  | BC1_RGB_UNORM
+     *  --------------------------------------------------------------------------------------
+     *   kBC1_RGBA8_UNORM    | RGBA_S3TC_DXT1_EXT  | BC1_RGBA (macOS-only)| BC1_RGBA_UNORM
+     */
     enum class CompressionType {
         kNone,
-        kETC1,
+        kETC2_RGB8_UNORM, // the same as ETC1
+
         kBC1_RGB8_UNORM,
-        kLast = kBC1_RGB8_UNORM,
+        kBC1_RGBA8_UNORM,
+        kLast = kBC1_RGBA8_UNORM,
     };
 
     static constexpr int kCompressionTypeCount = static_cast<int>(CompressionType::kLast) + 1;
 
-    static const CompressionType kETC1_CompressionType = CompressionType::kETC1;
+    static const CompressionType kETC1_CompressionType = CompressionType::kETC2_RGB8_UNORM;
 
     /** Creates a GPU-backed SkImage from compressed data.
 
-        SkImage is returned if format of the compressed data is supported.
-        Supported formats vary by platform.
+        This method will return an SkImage representing the compressed data.
+        If the GPU doesn't support the specified compression method, the data
+        will be decompressed and then wrapped in a GPU-backed image.
 
-        @param context  GPU context
+        Note: one can query the supported compression formats via
+        GrContext::compressedBackendFormat.
+
+        @param context     GPU context
+        @param data        compressed data to store in SkImage
+        @param width       width of full SkImage
+        @param height      height of full SkImage
+        @param type        type of compression used
+        @param mipMapped   does 'data' contain data for all the mipmap levels?
+        @param isProtected do the contents of 'data' require DRM protection (on Vulkan)?
+        @return            created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeTextureFromCompressed(GrContext* context,
+                                                    sk_sp<SkData> data,
+                                                    int width, int height,
+                                                    CompressionType type,
+                                                    GrMipMapped mipMapped = GrMipMapped::kNo,
+                                                    GrProtected isProtected = GrProtected::kNo);
+    /** To be deprecated. Use MakeTextureFromCompressed.
+     */
+    static sk_sp<SkImage> MakeFromCompressed(GrContext* context,
+                                             sk_sp<SkData> data,
+                                             int width, int height,
+                                             CompressionType type,
+                                             GrMipMapped mipMapped = GrMipMapped::kNo,
+                                             GrProtected isProtected = GrProtected::kNo) {
+        return MakeTextureFromCompressed(context, data, width, height, type,
+                                         mipMapped, isProtected);
+
+    }
+
+    /** Creates a CPU-backed SkImage from compressed data.
+
+        This method will decompress the compressed data and create an image wrapping
+        it. Any mipmap levels present in the compressed data are discarded.
+
         @param data     compressed data to store in SkImage
         @param width    width of full SkImage
         @param height   height of full SkImage
         @param type     type of compression used
         @return         created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromCompressed(GrContext* context, sk_sp<SkData> data,
-                                             int width, int height, CompressionType type);
+    static sk_sp<SkImage> MakeRasterFromCompressed(sk_sp<SkData> data,
+                                                   int width, int height,
+                                                   CompressionType type);
 
     /** User function called when supplied texture may be deleted.
     */
@@ -1077,11 +1126,15 @@ public:
 
         Returns nullptr if copy, decode, or pixel read fails.
 
+        If cachingHint is kAllow_CachingHint, pixels may be retained locally.
+        If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
+
+        @param cachingHint    one of: kAllow_CachingHint, kDisallow_CachingHint
         @return  raster image, or nullptr
 
         example: https://fiddle.skia.org/c/@Image_makeRasterImage
     */
-    sk_sp<SkImage> makeRasterImage() const;
+    sk_sp<SkImage> makeRasterImage(CachingHint cachingHint = kDisallow_CachingHint) const;
 
     /** Creates filtered SkImage. filter processes original SkImage, potentially changing
         color, position, and size. subset is the bounds of original SkImage processed

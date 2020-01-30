@@ -150,14 +150,14 @@ unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
 
 hb_position_t skhb_glyph_h_advance(hb_font_t* hb_font,
                                    void* font_data,
-                                   hb_codepoint_t codepoint,
+                                   hb_codepoint_t hbGlyph,
                                    void* user_data) {
     SkFont& font = *reinterpret_cast<SkFont*>(font_data);
 
     SkScalar advance;
-    SkGlyphID glyph = SkTo<SkGlyphID>(codepoint);
+    SkGlyphID skGlyph = SkTo<SkGlyphID>(hbGlyph);
 
-    font.getWidths(&glyph, 1, &advance);
+    font.getWidths(&skGlyph, 1, &advance);
     if (!font.isSubpixel()) {
         advance = SkScalarRoundToInt(advance);
     }
@@ -205,18 +205,16 @@ void skhb_glyph_h_advances(hb_font_t* hb_font,
 // Unicode mark classes. Above, below, centered or left or right, etc.
 hb_bool_t skhb_glyph_extents(hb_font_t* hb_font,
                              void* font_data,
-                             hb_codepoint_t codepoint,
+                             hb_codepoint_t hbGlyph,
                              hb_glyph_extents_t* extents,
                              void* user_data) {
     SkFont& font = *reinterpret_cast<SkFont*>(font_data);
-
-    SkASSERT(codepoint < 0xFFFFu);
     SkASSERT(extents);
 
     SkRect sk_bounds;
-    SkGlyphID glyph = codepoint;
+    SkGlyphID skGlyph = SkTo<SkGlyphID>(hbGlyph);
 
-    font.getWidths(&glyph, 1, nullptr, &sk_bounds);
+    font.getWidths(&skGlyph, 1, nullptr, &sk_bounds);
     if (!font.isSubpixel()) {
         sk_bounds.set(sk_bounds.roundOut());
     }
@@ -1295,8 +1293,10 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
     hb_buffer_set_cluster_level(buffer, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
 
-    // See 763e5466c0a03a7c27020e1e2598e488612529a7 for documentation.
-    hb_buffer_set_flags(buffer, HB_BUFFER_FLAG_BOT | HB_BUFFER_FLAG_EOT);
+    // Documentation for HB_BUFFER_FLAG_BOT/EOT at 763e5466c0a03a7c27020e1e2598e488612529a7.
+    // Currently BOT forces a dotted circle when first codepoint is a mark; EOT has no effect.
+    // Avoid adding dotted circle, re-evaluate if BOT/EOT change. See https://skbug.com/9618.
+    // hb_buffer_set_flags(buffer, HB_BUFFER_FLAG_BOT | HB_BUFFER_FLAG_EOT);
 
     // Add precontext.
     hb_buffer_add_utf8(buffer, utf8, utf8Start - utf8, utf8Start - utf8, 0);

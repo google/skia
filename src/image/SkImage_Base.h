@@ -65,7 +65,7 @@ public:
         return GrSurfaceProxyView();
     }
 
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
                                                     SkScalar scaleAdjust[2]) const = 0;
     virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext*,
                                                         uint32_t* uniqueID) const {

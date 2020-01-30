@@ -269,7 +269,7 @@ DEF_TEST(ColorSpace_Primaries, r) {
     p3.fBY = 0.060f;
     p3.fWX = 0.3127f;
     p3.fWY = 0.3290f;
-    space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDCIP3);
+    space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
     skcms_Matrix3x3 reference;
     SkAssertResult(space->toXYZD50(&reference));
     check_primaries(r, p3, reference);

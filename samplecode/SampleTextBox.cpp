@@ -24,6 +24,8 @@
 #include "src/shaders/SkColorShader.h"
 #include "src/utils/SkUTF.h"
 
+typedef std::unique_ptr<SkShaper> (*ShaperFactory)();
+
 static const char gText[] =
     "When in the Course of human events it becomes necessary for one people "
     "to dissolve the political bands which have connected them with another "
@@ -33,11 +35,14 @@ static const char gText[] =
     "declare the causes which impel them to the separation.";
 
 class TextBoxView : public Sample {
+    SkString fName;
 public:
-    TextBoxView() : fShaper(SkShaper::Make()) {}
+    TextBoxView(ShaperFactory fact, const char suffix[]) : fShaper(fact()) {
+        fName.printf("TextBox_%s", suffix);
+    }
 
 protected:
-    SkString name() override { return SkString("TextBox"); }
+    SkString name() override { return fName; }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         SkAutoCanvasRestore acr(canvas, true);
@@ -54,6 +59,7 @@ protected:
             SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
             SkFont srcFont(nullptr, SkIntToScalar(i));
             srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+            srcFont.setSubpixel(true);
 
             const char* utf8 = gText;
             size_t utf8Bytes = sizeof(gText) - 1;
@@ -107,6 +113,75 @@ private:
     typedef Sample INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
+DEF_SAMPLE( return new TextBoxView([](){ return SkShaper::Make(); }, "default"); );
+#ifdef SK_BUILD_FOR_MAC
+DEF_SAMPLE( return new TextBoxView(SkShaper::MakeCoreText, "coretext"); );
+#endif
 
-DEF_SAMPLE( return new TextBoxView(); )
+class SampleShaper : public Sample {
+public:
+    SampleShaper() {}
+
+protected:
+    SkString name() override { return SkString("shaper"); }
+
+    void drawTest(SkCanvas* canvas, const char str[], SkScalar size,
+                  std::unique_ptr<SkShaper> shaper) {
+        if (!shaper) return;
+
+        SkTextBlobBuilderRunHandler builder(str, {0, 0});
+        SkFont srcFont;
+        srcFont.setSize(size);
+        srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        srcFont.setSubpixel(true);
+
+        size_t len = strlen(str);
+
+        std::unique_ptr<SkShaper::BiDiRunIterator> bidi(
+            SkShaper::MakeBiDiRunIterator(str, len, 0xfe));
+        if (!bidi) {
+            return;
+        }
+
+        std::unique_ptr<SkShaper::LanguageRunIterator> language(
+            SkShaper::MakeStdLanguageRunIterator(str, len));
+        if (!language) {
+            return;
+        }
+
+        SkFourByteTag undeterminedScript = SkSetFourByteTag('Z','y','y','y');
+        std::unique_ptr<SkShaper::ScriptRunIterator> script(
+            SkShaper::MakeScriptRunIterator(str, len, undeterminedScript));
+        if (!script) {
+            return;
+        }
+
+        std::unique_ptr<SkShaper::FontRunIterator> font(
+            SkShaper::MakeFontMgrRunIterator(str, len, srcFont, SkFontMgr::RefDefault(),
+                                             "Arial", SkFontStyle::Bold(), &*language));
+        if (!font) {
+            return;
+        }
+
+        shaper->shape(str, len, *font, *bidi, *script, *language, 2000, &builder);
+
+        canvas->drawTextBlob(builder.makeBlob(), 0, 0, SkPaint());
+    }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->translate(10, 30);
+
+        const char text[] = "world";
+
+        for (SkScalar size = 30; size <= 30; size += 10) {
+            this->drawTest(canvas, text, size, SkShaper::Make());
+            canvas->translate(0, size + 5);
+            this->drawTest(canvas, text, size, SkShaper::MakeCoreText());
+            canvas->translate(0, size*2);
+        }
+    }
+
+private:
+    typedef Sample INHERITED;
+};
+DEF_SAMPLE( return new SampleShaper; );

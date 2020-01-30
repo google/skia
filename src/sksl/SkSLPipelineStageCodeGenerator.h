@@ -9,9 +9,6 @@
 #define SKSL_PIPELINESTAGECODEGENERATOR
 
 #include "src/sksl/SkSLGLSLCodeGenerator.h"
-#include "src/sksl/SkSLSectionAndParameterHelper.h"
-
-#include <set>
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
@@ -21,16 +18,9 @@ class PipelineStageCodeGenerator : public GLSLCodeGenerator {
 public:
     PipelineStageCodeGenerator(const Context* context, const Program* program,
                                ErrorReporter* errors, OutputStream* out,
-                               std::vector<Compiler::FormatArg>* outFormatArgs,
-                               std::vector<Compiler::GLSLFunction>* outFunctions);
+                               PipelineStageArgs* outArgs);
 
 private:
-    void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
-
-    void writef(const char* s, ...) SKSL_PRINTF_LIKE(2, 3);
-
-    bool writeSection(const char* name, const char* prefix = "");
-
     void writeHeader() override;
 
     bool usesPrecisionModifiers() const override;
@@ -53,15 +43,7 @@ private:
 
     void writeProgramElement(const ProgramElement& p) override;
 
-    bool writeEmitCode(std::vector<const Variable*>& uniforms);
-
-    String fName;
-    String fFullName;
-    SectionAndParameterHelper fSectionAndParameterHelper;
-    std::set<int> fWrittenTransformedCoords;
-    std::vector<Compiler::FormatArg>* fFormatArgs;
-    std::vector<Compiler::GLSLFunction>* fFunctions;
-    const FunctionDeclaration* fCurrentFunction;
+    PipelineStageArgs* fArgs;
 
     typedef GLSLCodeGenerator INHERITED;
 };

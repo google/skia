@@ -40,112 +40,6 @@ void GrContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBO
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContext(
-        SkBackingFit fit,
-        int width,
-        int height,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        int sampleCnt,
-        GrMipMapped mipMapped,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
-        SkBudgeted budgeted,
-        GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContext(fit, width, height, colorType,
-                                                     std::move(colorSpace), sampleCnt, mipMapped,
-                                                     origin, surfaceProps, budgeted, isProtected);
-}
-
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeDeferredRenderTargetContextWithFallback(
-        SkBackingFit fit, int width, int height, GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace, int sampleCnt, GrMipMapped mipMapped,
-        GrSurfaceOrigin origin, const SkSurfaceProps* surfaceProps, SkBudgeted budgeted,
-        GrProtected isProtected) {
-    return fContext->makeDeferredRenderTargetContextWithFallback(
-            fit, width, height, colorType, std::move(colorSpace), sampleCnt, mipMapped, origin,
-            surfaceProps, budgeted, isProtected);
-}
-
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeBackendTextureRenderTargetContext(
-        const GrBackendTexture& tex,
-        GrSurfaceOrigin origin,
-        int sampleCnt,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* props,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(sampleCnt > 0);
-
-    sk_sp<GrTextureProxy> proxy(this->proxyProvider()->wrapRenderableBackendTexture(
-            tex, origin, sampleCnt, colorType, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
-            releaseProc, releaseCtx));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
-                                                           std::move(colorSpace), props);
-}
-
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeBackendRenderTargetRenderTargetContext(
-        const GrBackendRenderTarget& backendRT,
-        GrSurfaceOrigin origin,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        const SkSurfaceProps* surfaceProps,
-        ReleaseProc releaseProc,
-        ReleaseContext releaseCtx) {
-    ASSERT_SINGLE_OWNER
-
-    sk_sp<GrSurfaceProxy> proxy = this->proxyProvider()->wrapBackendRenderTarget(
-            backendRT, colorType, origin, releaseProc, releaseCtx);
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
-                                                           std::move(colorSpace), surfaceProps);
-}
-
-std::unique_ptr<GrRenderTargetContext>
-GrContextPriv::makeBackendTextureAsRenderTargetRenderTargetContext(const GrBackendTexture& tex,
-                                                                   GrSurfaceOrigin origin,
-                                                                   int sampleCnt,
-                                                                   GrColorType colorType,
-                                                                   sk_sp<SkColorSpace> colorSpace,
-                                                                   const SkSurfaceProps* props) {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(sampleCnt > 0);
-    sk_sp<GrSurfaceProxy> proxy(
-            this->proxyProvider()->wrapBackendTextureAsRenderTarget(tex, colorType,
-                                                                    origin, sampleCnt));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeRenderTargetContext(std::move(proxy), colorType,
-                                                           std::move(colorSpace), props);
-}
-
-std::unique_ptr<GrRenderTargetContext> GrContextPriv::makeVulkanSecondaryCBRenderTargetContext(
-        const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo, const SkSurfaceProps* props) {
-    ASSERT_SINGLE_OWNER
-    sk_sp<GrSurfaceProxy> proxy(
-            this->proxyProvider()->wrapVulkanSecondaryCBAsRenderTarget(imageInfo, vkInfo));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return this->drawingManager()->makeRenderTargetContext(
-            std::move(proxy),
-            SkColorTypeToGrColorType(imageInfo.colorType()),
-            imageInfo.refColorSpace(),
-            props);
-}
-
 GrSemaphoresSubmitted GrContextPriv::flushSurfaces(GrSurfaceProxy* proxies[], int numProxies,
                                                    const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
@@ -237,9 +131,10 @@ sk_sp<SkImage> GrContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat format,
         return nullptr;
     }
 
+    SkColorType colorType = GrColorTypeToSkColorType(GrMaskFormatToColorType(format));
     SkASSERT(views[index].proxy()->priv().isExact());
     sk_sp<SkImage> image(new SkImage_Gpu(sk_ref_sp(fContext), kNeedNewImageUniqueID,
-                                         kPremul_SkAlphaType, views[index], nullptr));
+                                         views[index], colorType, kPremul_SkAlphaType, nullptr));
     return image;
 }
 

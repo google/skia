@@ -22,101 +22,6 @@
 
 #define PRINT_MSL 0 // print out the MSL code generated
 
-bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
-    MTLPixelFormat dontCare;
-    if (!format) {
-        format = &dontCare;
-    }
-
-    switch (config) {
-        case kUnknown_GrPixelConfig:
-            return false;
-        case kRGBA_8888_GrPixelConfig:
-            *format = MTLPixelFormatRGBA8Unorm;
-            return true;
-        case kRGB_888_GrPixelConfig:
-            *format = MTLPixelFormatRGBA8Unorm;
-            return true;
-        case kRGB_888X_GrPixelConfig:
-            *format = MTLPixelFormatRGBA8Unorm;
-            return true;
-        case kRG_88_GrPixelConfig:
-            *format = MTLPixelFormatRG8Unorm;
-            return true;
-        case kBGRA_8888_GrPixelConfig:
-            *format = MTLPixelFormatBGRA8Unorm;
-            return true;
-        case kSRGBA_8888_GrPixelConfig:
-            *format = MTLPixelFormatRGBA8Unorm_sRGB;
-            return true;
-        case kRGBA_1010102_GrPixelConfig:
-            *format = MTLPixelFormatRGB10A2Unorm;
-            return true;
-        case kRGB_565_GrPixelConfig:
-#ifdef SK_BUILD_FOR_IOS
-            *format = MTLPixelFormatB5G6R5Unorm;
-            return true;
-#else
-            return false;
-#endif
-        case kRGBA_4444_GrPixelConfig:
-#ifdef SK_BUILD_FOR_IOS
-            *format = MTLPixelFormatABGR4Unorm;
-            return true;
-#else
-            return false;
-#endif
-        case kAlpha_8_GrPixelConfig: // fall through
-        case kAlpha_8_as_Red_GrPixelConfig:
-            *format = MTLPixelFormatR8Unorm;
-            return true;
-        case kAlpha_8_as_Alpha_GrPixelConfig:
-            *format = MTLPixelFormatA8Unorm;
-            return true;
-        case kGray_8_GrPixelConfig: // fall through
-        case kGray_8_as_Red_GrPixelConfig:
-            *format = MTLPixelFormatR8Unorm;
-            return true;
-        case kGray_8_as_Lum_GrPixelConfig:
-            return false;
-        case kRGBA_half_GrPixelConfig:
-            *format = MTLPixelFormatRGBA16Float;
-            return true;
-        case kRGBA_half_Clamped_GrPixelConfig:
-            *format = MTLPixelFormatRGBA16Float;
-            return true;
-        case kAlpha_half_GrPixelConfig: // fall through
-        case kAlpha_half_as_Red_GrPixelConfig:
-            *format = MTLPixelFormatR16Float;
-            return true;
-        case kAlpha_half_as_Lum_GrPixelConfig:
-            return false;
-        case kRGB_ETC1_GrPixelConfig:
-#ifdef SK_BUILD_FOR_IOS
-            *format = MTLPixelFormatETC2_RGB8;
-            return true;
-#else
-            return false;
-#endif
-        case kRGB_BC1_GrPixelConfig:
-            // Even Mac desktops only support the RGBA variants
-            return false;
-        case kAlpha_16_GrPixelConfig:
-            *format = MTLPixelFormatR16Unorm;
-            return true;
-        case kRG_1616_GrPixelConfig:
-            *format = MTLPixelFormatRG16Unorm;
-            return true;
-        case kRGBA_16161616_GrPixelConfig:
-            *format = MTLPixelFormatRGBA16Unorm;
-            return true;
-        case kRG_half_GrPixelConfig:
-            *format = MTLPixelFormatRG16Float;
-            return true;
-    }
-    SK_ABORT("Unexpected config");
-}
-
 MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
     texDesc.textureType = mtlTexture.textureType;
@@ -300,6 +205,9 @@ bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:
             return true;
+#else
+        case MTLPixelFormatBC1_RGBA:
+            return true;
 #endif
         default:
             return false;
@@ -309,7 +217,9 @@ bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
 SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
-        case MTLPixelFormatETC2_RGB8: return SkImage::CompressionType::kETC1;
+        case MTLPixelFormatETC2_RGB8: return SkImage::CompressionType::kETC2_RGB8_UNORM;
+#else
+        case MTLPixelFormatBC1_RGBA:  return SkImage::CompressionType::kBC1_RGBA8_UNORM;
 #endif
         default:                      return SkImage::CompressionType::kNone;
     }
@@ -343,12 +253,14 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR16Unorm:        return "R16Unorm";
         case MTLPixelFormatRG16Unorm:       return "RG16Unorm";
 #ifdef SK_BUILD_FOR_IOS
-        case MTLPixelFormatETC2_RGB8:      return "ETC2_RGB8";
+        case MTLPixelFormatETC2_RGB8:       return "ETC2_RGB8";
+#else
+        case MTLPixelFormatBC1_RGBA:        return "BC1_RGBA";
 #endif
-        case MTLPixelFormatRGBA16Unorm:    return "RGBA16Unorm";
-        case MTLPixelFormatRG16Float:      return "RG16Float";
+        case MTLPixelFormatRGBA16Unorm:     return "RGBA16Unorm";
+        case MTLPixelFormatRG16Float:       return "RG16Float";
 
-        default:                           return "Unknown";
+        default:                            return "Unknown";
     }
 }
 

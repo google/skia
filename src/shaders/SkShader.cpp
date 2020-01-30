@@ -15,6 +15,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTLazy.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkColorShader.h"
@@ -200,7 +201,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
 bool SkShaderBase::program(skvm::Builder* p,
                            const SkMatrix& ctm, const SkMatrix* localM,
                            SkFilterQuality quality, SkColorSpace* dstCS,
-                           skvm::Uniforms* uniforms,
+                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
                            skvm::F32 x, skvm::F32 y,
                            skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // Force opaque alpha for all opaque shaders.
@@ -215,13 +216,47 @@ bool SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (this->onProgram(p, ctm,localM, quality,dstCS, uniforms, x,y, r,g,b,a)) {
+    if (this->onProgram(p, ctm,localM, quality,dstCS, uniforms,alloc, x,y, r,g,b,a)) {
         if (this->isOpaque()) {
             *a = p->splat(1.0f);
         }
         return true;
     }
     return false;
+}
+
+bool SkShaderBase::onProgram(skvm::Builder*,
+                             const SkMatrix& ctm, const SkMatrix* localM,
+                             SkFilterQuality quality, SkColorSpace* dstCS,
+                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                             skvm::F32 x, skvm::F32 y,
+                             skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+    return false;
+}
+
+void SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
+                               skvm::F32* x, skvm::F32* y, skvm::Uniforms* uniforms) {
+    if (m.isIdentity()) {
+        // That was easy.
+    } else if (m.isTranslate()) {
+        *x = p->add(*x, p->uniformF(uniforms->pushF(m[2])));
+        *y = p->add(*y, p->uniformF(uniforms->pushF(m[5])));
+    } else if (m.isScaleTranslate()) {
+        *x = p->mad(*x, p->uniformF(uniforms->pushF(m[0])), p->uniformF(uniforms->pushF(m[2])));
+        *y = p->mad(*y, p->uniformF(uniforms->pushF(m[4])), p->uniformF(uniforms->pushF(m[5])));
+    } else {  // Affine or perspective.
+        auto dot = [&,X=*x,Y=*y](int row) {
+            return p->mad(X, p->uniformF(uniforms->pushF(m[3*row+0])),
+                   p->mad(Y, p->uniformF(uniforms->pushF(m[3*row+1])),
+                             p->uniformF(uniforms->pushF(m[3*row+2]))));
+        };
+        *x = dot(0);
+        *y = dot(1);
+        if (m.hasPerspective()) {
+            *x = p->div(*x, dot(2));
+            *y = p->div(*y, dot(2));
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -273,17 +273,17 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&);
+    TextureSampler(GrSamplerState, const GrBackendFormat&, const GrSwizzle&);
 
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(const GrSamplerState&, const GrBackendFormat&, const GrSwizzle&);
+    void reset(GrSamplerState, const GrBackendFormat&, const GrSwizzle&);
 
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
     GrTextureType textureType() const { return fBackendFormat.textureType(); }
 
-    const GrSamplerState& samplerState() const { return fSamplerState; }
+    GrSamplerState samplerState() const { return fSamplerState; }
     const GrSwizzle& swizzle() const { return fSwizzle; }
 
     bool isInitialized() const { return fIsInitialized; }

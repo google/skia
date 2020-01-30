@@ -65,9 +65,6 @@ bool Sample::mouse(SkPoint point, skui::InputState clickState, skui::ModifierKey
     switch (clickState) {
         case skui::InputState::kDown:
             fClick = nullptr;
-            if (point.x() < 0 || point.y() < 0 || point.x() >= fWidth || point.y() >= fHeight) {
-                return false;
-            }
             fClick.reset(this->onFindClickHandler(point.x(), point.y(), modifierKeys));
             if (!fClick) {
                 return false;

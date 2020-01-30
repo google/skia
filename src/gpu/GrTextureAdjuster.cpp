@@ -34,7 +34,8 @@ void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contex
 }
 
 sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& copyParams,
-                                                             bool willBeMipped) {
+                                                             bool willBeMipped,
+                                                             bool copyForMipsOnly) {
     GrProxyProvider* proxyProvider = this->context()->priv().proxyProvider();
 
     GrUniqueKey key;
@@ -50,8 +51,14 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
 
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
 
-    sk_sp<GrTextureProxy> copy = CopyOnGpu(this->context(), std::move(proxy), this->colorType(),
-                                           copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> copy;
+    if (copyForMipsOnly) {
+        copy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+                                              this->originalProxy()->origin(), this->colorType());
+    } else {
+        copy = CopyOnGpu(this->context(), std::move(proxy), this->colorType(),
+                         copyParams, willBeMipped);
+    }
     if (copy) {
         if (key.isValid()) {
             SkASSERT(copy->origin() == this->originalProxy()->origin());
@@ -71,10 +78,9 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     return copy;
 }
 
-sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
-        const GrSamplerState& params,
-        bool willBeMipped,
-        SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(GrSamplerState params,
+                                                                    bool willBeMipped,
+                                                                    SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
@@ -99,7 +105,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
         }
     }
 
-    sk_sp<GrTextureProxy> result = this->refTextureProxyCopy(copyParams, willBeMipped);
+    sk_sp<GrTextureProxy> result = this->refTextureProxyCopy(copyParams, willBeMipped,
+                                                             needsCopyForMipsOnly);
     if (!result && needsCopyForMipsOnly) {
         // If we were unable to make a copy and we only needed a copy for mips, then we will return
         // the source texture here and require that the GPU backend is able to fall back to using

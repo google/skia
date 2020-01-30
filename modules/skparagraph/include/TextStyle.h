@@ -109,6 +109,8 @@ struct PlaceholderStyle {
             , fBaseline(baseline)
             , fBaselineOffset(offset) {}
 
+    bool equals(const PlaceholderStyle& other) const;
+
     SkScalar fWidth = 0;
     SkScalar fHeight = 0;
 
@@ -134,6 +136,7 @@ public:
     ~TextStyle() = default;
 
     bool equals(const TextStyle& other) const;
+    bool equalsByFonts(const TextStyle& that) const;
     bool matchOneAttribute(StyleType styleType, const TextStyle& other) const;
     bool operator==(const TextStyle& rhs) const { return this->equals(rhs); }
 

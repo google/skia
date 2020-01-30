@@ -354,18 +354,10 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrRecordingContext* c
         return proxy;
     }
 
-    auto isProtected = proxy->isProtected();
-    auto rtc = context->priv().makeDeferredRenderTargetContextWithFallback(SkBackingFit::kApprox,
-                                                                           reducedClip.width(),
-                                                                           reducedClip.height(),
-                                                                           GrColorType::kAlpha_8,
-                                                                           nullptr,
-                                                                           1,
-                                                                           GrMipMapped::kNo,
-                                                                           kTopLeft_GrSurfaceOrigin,
-                                                                           nullptr,
-                                                                           SkBudgeted::kYes,
-                                                                           isProtected);
+    auto rtc = GrRenderTargetContext::MakeWithFallback(
+            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox,
+            {reducedClip.width(), reducedClip.height()}, 1, GrMipMapped::kNo, proxy->isProtected(),
+            kTopLeft_GrSurfaceOrigin);
     if (!rtc) {
         return nullptr;
     }
@@ -490,15 +482,17 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         GrSurfaceDesc desc;
         desc.fWidth = maskSpaceIBounds.width();
         desc.fHeight = maskSpaceIBounds.height();
-        desc.fConfig = kAlpha_8_GrPixelConfig;
 
         GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                GrRenderable::kNo);
+
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kAlpha_8);
 
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
         proxy = proxyProvider->createProxy(format,
                                            desc,
+                                           swizzle,
                                            GrRenderable::kNo,
                                            1,
                                            kTopLeft_GrSurfaceOrigin,

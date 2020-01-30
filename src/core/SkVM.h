@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
+#include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
 
 class SkWStream;
@@ -65,15 +66,36 @@ namespace skvm {
         void add(GP64, int imm);
         void sub(GP64, int imm);
 
+        void movq(GP64 dst, GP64 src, int off);  // dst = *(src+off)
+
+        struct Label {
+            int                                      offset = 0;
+            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
+            std::vector<int>                         references;
+        };
+
+        struct YmmOrLabel {
+            Ymm    ymm   = ymm0;
+            Label* label = nullptr;
+
+            /*implicit*/ YmmOrLabel(Ymm    y) : ymm  (y) { SkASSERT(!label); }
+            /*implicit*/ YmmOrLabel(Label* l) : label(l) { SkASSERT( label); }
+        };
+
         // All dst = x op y.
         using DstEqXOpY = void(Ymm dst, Ymm x, Ymm y);
-        DstEqXOpY vpand, vpor, vpxor, vpandn,
-                  vpaddd, vpsubd, vpmulld,
-                          vpsubw, vpmullw,
-                  vaddps, vsubps, vmulps, vdivps, vminps, vmaxps,
+        DstEqXOpY vpandn,
+                  vpmulld,
+                  vpsubw, vpmullw,
+                  vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb,
                   vpcmpeqd, vpcmpgtd;
+
+        using DstEqXOpYOrLabel = void(Ymm dst, Ymm x, YmmOrLabel y);
+        DstEqXOpYOrLabel vpand, vpor, vpxor,
+                         vpaddd, vpsubd,
+                         vaddps, vsubps, vmulps, vminps, vmaxps;
 
         // Floating point comparisons are all the same instruction with varying imm.
         void vcmpps(Ymm dst, Ymm x, Ymm y, int imm);
@@ -85,18 +107,15 @@ namespace skvm {
         using DstEqXOpImm = void(Ymm dst, Ymm x, int imm);
         DstEqXOpImm vpslld, vpsrld, vpsrad,
                     vpsrlw,
-                    vpermq;
+                    vpermq,
+                    vroundps;
+
+        enum { NEAREST, FLOOR, CEIL, TRUNC };  // vroundps immediates
 
         using DstEqOpX = void(Ymm dst, Ymm x);
-        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq, vcvtps2dq;
+        DstEqOpX vmovdqa, vcvtdq2ps, vcvttps2dq, vcvtps2dq, vsqrtps;
 
         void vpblendvb(Ymm dst, Ymm x, Ymm y, Ymm z);
-
-        struct Label {
-            int                                      offset = 0;
-            enum { NotYetSet, ARMDisp19, X86Disp32 } kind = NotYetSet;
-            std::vector<int>                         references;
-        };
 
         Label here();
         void label(Label*);
@@ -108,21 +127,20 @@ namespace skvm {
         void jc (Label*);
         void cmp(GP64, int imm);
 
+        void vpshufb(Ymm dst, Ymm x, Label*);
         void vptest(Ymm dst, Label*);
 
         void vbroadcastss(Ymm dst, Label*);
         void vbroadcastss(Ymm dst, Xmm src);
         void vbroadcastss(Ymm dst, GP64 ptr, int off);  // dst = *(ptr+off)
 
-        void vpshufb(Ymm dst, Ymm x, Label*);
-        void vpaddd (Ymm dst, Ymm x, Label*);
-        void vpsubd (Ymm dst, Ymm x, Label*);
-        void vmulps (Ymm dst, Ymm x, Label*);
-
         void vmovups  (Ymm dst, GP64 ptr);   // dst = *ptr, 256-bit
         void vpmovzxwd(Ymm dst, GP64 ptr);   // dst = *ptr, 128-bit, each uint16_t expanded to int
         void vpmovzxbd(Ymm dst, GP64 ptr);   // dst = *ptr,  64-bit, each uint8_t  expanded to int
         void vmovd    (Xmm dst, GP64 ptr);   // dst = *ptr,  32-bit
+
+        enum Scale { ONE, TWO, FOUR, EIGHT };
+        void vmovd(Xmm dst, Scale, GP64 index, GP64 base);   // dst = *(base + scale*index),  32-bit
 
         void vmovups(GP64 ptr, Ymm src);     // *ptr = src, 256-bit
         void vmovups(GP64 ptr, Xmm src);     // *ptr = src, 128-bit
@@ -140,6 +158,12 @@ namespace skvm {
 
         void vpextrw(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           , 16-bit
         void vpextrb(GP64 ptr, Xmm src, int imm);           // *dst = src[imm]           ,  8-bit
+
+        // if (mask & 0x8000'0000) {
+        //     dst = base[scale*ix];
+        // }
+        // mask = 0;
+        void vgatherdps(Ymm dst, Scale scale, Ymm ix, GP64 base, Ymm mask);
 
         // aarch64
 
@@ -228,6 +252,7 @@ namespace skvm {
 
         // dst = op(x,label) or op(label)
         void op(int prefix, int map, int opcode, Ymm dst, Ymm x, Label* l);
+        void op(int prefix, int map, int opcode, Ymm dst, Ymm x, YmmOrLabel);
 
         // *ptr = ymm or ymm = *ptr, depending on opcode.
         void load_store(int prefix, int map, int opcode, Ymm ymm, GP64 ptr);
@@ -255,44 +280,50 @@ namespace skvm {
         size_t   fSize;
     };
 
-    enum class Op : uint8_t {
-          assert_true,
-          store8,   store16,   store32,
-    // ↑ side effects / no side effects ↓
-           index,
-           load8,    load16,    load32,
-         gather8,  gather16,  gather32,
-    // ↑ always varying / uniforms, constants, Just Math ↓
+    // Order matters a little: Ops <=store32 are treated as having side effects.
+    #define SKVM_OPS(M)                       \
+        M(assert_true)                        \
+        M(store8)   M(store16)   M(store32)   \
+        M(index)                              \
+        M(load8)    M(load16)    M(load32)    \
+        M(gather8)  M(gather16)  M(gather32)  \
+        M(uniform8) M(uniform16) M(uniform32) \
+        M(splat)                              \
+        M(add_f32) M(add_i32) M(add_i16x2)    \
+        M(sub_f32) M(sub_i32) M(sub_i16x2)    \
+        M(mul_f32) M(mul_i32) M(mul_i16x2)    \
+        M(div_f32)                            \
+        M(min_f32)                            \
+        M(max_f32)                            \
+        M(mad_f32)                            \
+        M(sqrt_f32)                           \
+                   M(shl_i32) M(shl_i16x2)    \
+                   M(shr_i32) M(shr_i16x2)    \
+                   M(sra_i32) M(sra_i16x2)    \
+        M(add_f32_imm)                        \
+        M(sub_f32_imm)                        \
+        M(mul_f32_imm)                        \
+        M(min_f32_imm)                        \
+        M(max_f32_imm)                        \
+        M(floor) M(trunc) M(round) M(to_f32)  \
+        M( eq_f32) M( eq_i32) M( eq_i16x2)    \
+        M(neq_f32) M(neq_i32) M(neq_i16x2)    \
+        M( gt_f32) M( gt_i32) M( gt_i16x2)    \
+        M(gte_f32) M(gte_i32) M(gte_i16x2)    \
+        M(bit_and)                            \
+        M(bit_or)                             \
+        M(bit_xor)                            \
+        M(bit_clear)                          \
+        M(bit_and_imm)                        \
+        M(bit_or_imm)                         \
+        M(bit_xor_imm)                        \
+        M(select) M(bytes) M(pack)            \
+    // End of SKVM_OPS
 
-        uniform8, uniform16, uniform32,
-        splat,
-
-        add_f32, add_i32, add_i16x2,
-        sub_f32, sub_i32, sub_i16x2,
-        mul_f32, mul_i32, mul_i16x2,
-        div_f32,
-        min_f32,
-        max_f32,
-        mad_f32,
-                 shl_i32, shl_i16x2,
-                 shr_i32, shr_i16x2,
-                 sra_i32, sra_i16x2,
-        mul_f32_imm,
-
-         trunc, round,  to_f32,
-
-         eq_f32,  eq_i32,  eq_i16x2,
-        neq_f32, neq_i32, neq_i16x2,
-         gt_f32,  gt_i32,  gt_i16x2,
-        gte_f32, gte_i32, gte_i16x2,
-
-        bit_and,
-        bit_or,
-        bit_xor,
-        bit_clear,
-        select,
-
-        bytes, extract, pack,
+    enum class Op : int {
+    #define M(op) op,
+        SKVM_OPS(M)
+    #undef M
     };
 
     using Val = int;
@@ -303,14 +334,16 @@ namespace skvm {
     struct I32 { Val id; };
     struct F32 { Val id; };
 
-    class Program;
+    struct Color { skvm::F32 r,g,b,a; };
 
     class Builder {
     public:
         struct Instruction {
+            // Tightly packed for hashing:
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
+            // End tightly packed for hashing.
 
             // Not populated until done() has been called.
             int  death;         // Index of last live instruction taking this input; live if != 0.
@@ -337,7 +370,10 @@ namespace skvm {
         // TODO: sign extension (signed types) for <32-bit loads?
         // TODO: unsigned integer operations where relevant (just comparisons?)?
 
-        void assert_true(I32 val);
+        // Assert cond is true, printing debug when not.
+        void assert_true(I32 cond, I32 debug);
+        void assert_true(I32 cond, F32 debug) { this->assert_true(cond, this->bit_cast(debug)); }
+        void assert_true(I32 cond)            { this->assert_true(cond, cond); }
 
         // Store {8,16,32}-bit varying.
         void store8 (Arg ptr, I32 val);
@@ -352,25 +388,29 @@ namespace skvm {
         I32 load16(Arg ptr);
         I32 load32(Arg ptr);
 
-        // Gather u8,u16,i32 with varying element-count offset.
-        I32 gather8 (Arg ptr, I32 offset);
-        I32 gather16(Arg ptr, I32 offset);
-        I32 gather32(Arg ptr, I32 offset);
+        // Load u8,u16,i32 uniform with byte-count offset.
+        I32 uniform8 (Arg ptr, int offset);
+        I32 uniform16(Arg ptr, int offset);
+        I32 uniform32(Arg ptr, int offset);
+        F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
-        // Load u8,u16,i32 uniform with optional byte-count offset.
-        I32 uniform8 (Arg ptr, int offset=0);
-        I32 uniform16(Arg ptr, int offset=0);
-        I32 uniform32(Arg ptr, int offset=0);
-        F32 uniformF (Arg ptr, int offset=0) { return this->bit_cast(this->uniform32(ptr,offset)); }
+        // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
+        I32 gather8 (Arg ptr, int offset, I32 index);
+        I32 gather16(Arg ptr, int offset, I32 index);
+        I32 gather32(Arg ptr, int offset, I32 index);
 
+        // Convenience methods for working with skvm::Uniforms.
         struct Uniform {
             Arg ptr;
             int offset;
         };
-        I32 uniform8 (Uniform u) { return this->uniform8 (u.ptr, u.offset); }
-        I32 uniform16(Uniform u) { return this->uniform16(u.ptr, u.offset); }
-        I32 uniform32(Uniform u) { return this->uniform32(u.ptr, u.offset); }
-        F32 uniformF (Uniform u) { return this->uniformF (u.ptr, u.offset); }
+        I32 uniform8 (Uniform u)            { return this->uniform8 (u.ptr, u.offset); }
+        I32 uniform16(Uniform u)            { return this->uniform16(u.ptr, u.offset); }
+        I32 uniform32(Uniform u)            { return this->uniform32(u.ptr, u.offset); }
+        F32 uniformF (Uniform u)            { return this->uniformF (u.ptr, u.offset); }
+        I32 gather8  (Uniform u, I32 index) { return this->gather8  (u.ptr, u.offset, index); }
+        I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
+        I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
 
         // Load an immediate constant.
         I32 splat(int      n);
@@ -385,6 +425,27 @@ namespace skvm {
         F32 min(F32 x, F32 y);
         F32 max(F32 x, F32 y);
         F32 mad(F32 x, F32 y, F32 z);  //  x*y+z, often an FMA
+        F32 sqrt(F32 x);
+
+        F32 negate(F32 x) {
+            return sub(splat(0.0f), x);
+        }
+        F32 lerp(F32 lo, F32 hi, F32 t) {
+            return mad(sub(hi,lo), t, lo);
+        }
+        F32 clamp(F32 x, F32 lo, F32 hi) {
+            return max(lo, min(x, hi));
+        }
+        F32 abs(F32 x) {
+            return bit_cast(bit_and(bit_cast(x),
+                                    splat(0x7fffffff)));
+        }
+        F32 fract(F32 x) {
+            return sub(x, floor(x));
+        }
+        F32 norm(F32 x, F32 y) {
+            return sqrt(mad(x,x, mul(y,y)));
+        }
 
         I32 eq (F32 x, F32 y);
         I32 neq(F32 x, F32 y);
@@ -393,6 +454,7 @@ namespace skvm {
         I32 gt (F32 x, F32 y);
         I32 gte(F32 x, F32 y);
 
+        F32 floor(F32);
         I32 trunc(F32 x);
         I32 round(F32 x);
         I32 bit_cast(F32 x) { return {x.id}; }
@@ -467,16 +529,28 @@ namespace skvm {
         //    - bytes(x, 0x0404) transforms an RGBA pixel into an A0A0 bit pattern.
         I32 bytes  (I32 x, int control);
 
-        I32 extract(I32 x, int bits, I32 z);   // (x >> bits) & z
+        I32 extract(I32 x, int bits, I32 z);   // (x>>bits) & z
         I32 pack   (I32 x, I32 y, int bits);   // x | (y << bits), assuming (x & (y << bits)) == 0
+
+        // Common idioms used in several places, worth centralizing for consistency.
+        F32 unorm(int bits, I32);   // E.g. unorm(8, x) -> x * (1/255.0f)
+        I32 unorm(int bits, F32);   // E.g. unorm(8, f) -> round(x * 255)
+
+        Color unpack_8888(I32 rgba);
+        Color unpack_565 (I32 bgr );  // bottom 16 bits
+
+        void   premul(F32* r, F32* g, F32* b, F32 a);
+        void unpremul(F32* r, F32* g, F32* b, F32 a);
+
+        Color lerp(Color lo, Color hi, F32 t);
 
         void dump(SkWStream* = nullptr) const;
 
-        uint32_t hash() const;
+        uint64_t hash() const;
 
     private:
         struct InstructionHash {
-            size_t operator()(const Instruction& inst) const;
+            uint32_t operator()(const Instruction& inst, uint32_t seed=0) const;
         };
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
@@ -495,7 +569,8 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
-        uint32_t                                      fHash{0};
+        uint32_t                                      fHashLo{0},
+                                                      fHashHi{0};
     };
 
     // Helper to streamline allocating and working with uniforms.
@@ -516,10 +591,15 @@ namespace skvm {
 
         Builder::Uniform push (int   val) { return this->push (&val, 1); }
         Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
-    };
 
-    // Maps Builder::Instructions to regions of JIT'd code, for debugging in VTune.
-    struct LineTableEntry { int line; size_t offset; };
+        Builder::Uniform pushPtr(const void* ptr) {
+            union {
+                const void* ptr;
+                int   ints[sizeof(const void*) / sizeof(int)];
+            } pun = {ptr};
+            return this->push(pun.ints, SK_ARRAY_COUNT(pun.ints));
+        }
+    };
 
     using Reg = int;
 
@@ -567,24 +647,20 @@ namespace skvm {
         void setupInterpreter(const std::vector<Builder::Instruction>&);
         void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
 
+        void interpret(int n, void* args[]) const;
+
         bool jit(const std::vector<Builder::Instruction>&,
                  bool try_hoisting,
-                 std::vector<LineTableEntry>*,
                  Assembler*) const;
-
-        // Dump jit-*.dump files for perf inject.
-        void dumpJIT(const char* debug_name, size_t size) const;
 
         std::vector<Instruction> fInstructions;
         int                      fRegs = 0;
         int                      fLoop = 0;
         std::vector<int>         fStrides;
 
-        // We only hang onto these to help debugging.
-        std::vector<Builder::Instruction> fOriginalProgram;
-
-        void*  fJITBuf  = nullptr;
-        size_t fJITSize = 0;
+        void*  fJITEntry = nullptr;
+        size_t fJITSize  = 0;
+        void*  fDylib    = nullptr;
     };
 
     // TODO: control flow

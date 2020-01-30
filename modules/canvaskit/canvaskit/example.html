@@ -231,9 +231,9 @@
       path.delete();
       rrect.delete();
       paint.delete();
-      // Intentionally just draw frame once
     }
-    surface.requestAnimationFrame(drawFrame);
+    // Intentionally just draw frame once
+    surface.drawOnce(drawFrame);
   }
 
   function preventScrolling(canvas) {

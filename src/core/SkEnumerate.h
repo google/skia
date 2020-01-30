@@ -50,9 +50,10 @@ class SkEnumerate {
     };
 
 public:
-    constexpr SkEnumerate(Iter begin, Iter end) : fBegin{begin}, fEnd{end} { }
+    constexpr SkEnumerate(Iter begin, Iter end) : SkEnumerate{0, begin, end} {}
     explicit constexpr SkEnumerate(C&& c)
             : fCollection{std::move(c)}
+            , fBeginIndex{0}
             , fBegin{std::begin(fCollection)}
             , fEnd{std::end(fCollection)} { }
     constexpr SkEnumerate(const SkEnumerate& that) = default;
@@ -61,11 +62,36 @@ public:
         fEnd = that.fEnd;
         return *this;
     }
-    constexpr Iterator begin() const { return Iterator{0, fBegin}; }
-    constexpr Iterator end() const { return Iterator{fEnd - fBegin, fEnd}; }
+    constexpr Iterator begin() const { return Iterator{fBeginIndex, fBegin}; }
+    constexpr Iterator end() const { return Iterator{fBeginIndex + this->ssize(), fEnd}; }
+    constexpr bool empty() const { return fBegin == fEnd; }
+    constexpr size_t size() const { return std::distance(fBegin,  fEnd); }
+    constexpr ptrdiff_t ssize() const { return std::distance(fBegin,  fEnd); }
+    constexpr SkEnumerate first(size_t n) {
+        SkASSERT(n <= this->size());
+        ptrdiff_t deltaEnd = this->ssize() - n;
+        return SkEnumerate{fBeginIndex, fBegin, std::prev(fEnd, deltaEnd)};
+    }
+    constexpr SkEnumerate last(size_t n) {
+        SkASSERT(n <= this->size());
+        ptrdiff_t deltaBegin = this->ssize() - n;
+        return SkEnumerate{fBeginIndex + deltaBegin, std::next(fBegin, deltaBegin), fEnd};
+    }
+    constexpr SkEnumerate subspan(size_t offset, size_t count) {
+        SkASSERT(offset < this->size());
+        SkASSERT(count <= this->size() - offset);
+        auto newBegin = std::next(fBegin, offset);
+        return SkEnumerate(fBeginIndex + offset, newBegin, std::next(newBegin, count));
+    }
 
 private:
+    constexpr SkEnumerate(ptrdiff_t beginIndex, Iter begin, Iter end)
+        : fBeginIndex{beginIndex}
+        , fBegin(begin)
+        , fEnd(end) {}
+
     C fCollection;
+    const ptrdiff_t fBeginIndex;
     Iter fBegin;
     Iter fEnd;
 };

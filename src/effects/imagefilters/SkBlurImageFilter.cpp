@@ -131,23 +131,6 @@ void SkBlurImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(static_cast<int>(fTileMode));
 }
 
-#if SK_SUPPORT_GPU
-static GrTextureDomain::Mode to_texture_domain_mode(SkTileMode tileMode) {
-    switch (tileMode) {
-        case SkTileMode::kClamp:
-            return GrTextureDomain::kClamp_Mode;
-        case SkTileMode::kDecal:
-            return GrTextureDomain::kDecal_Mode;
-        case SkTileMode::kMirror:
-            // TODO (michaelludwig) - Support mirror mode, treat as repeat for now
-        case SkTileMode::kRepeat:
-            return GrTextureDomain::kRepeat_Mode;
-        default:
-            SK_ABORT("Unsupported tile mode.");
-    }
-}
-#endif
-
 // This is defined by the SVG spec:
 // https://drafts.fxtf.org/filter-effects/#feGaussianBlurElement
 static int calculate_window(double sigma) {
@@ -660,36 +643,37 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
 
     auto context = ctx.getContext();
 
-    sk_sp<GrTextureProxy> inputTexture(input->asTextureProxyRef(context));
-    if (!inputTexture) {
+    GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+    if (!inputView.proxy()) {
         return nullptr;
     }
+    SkASSERT(inputView.asTextureProxy());
 
     // TODO (michaelludwig) - The color space choice is odd, should it just be ctx.refColorSpace()?
+    dstBounds.offset(input->subset().topLeft());
+    inputBounds.offset(input->subset().topLeft());
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(
             context,
-            std::move(inputTexture),
+            std::move(inputView),
             SkColorTypeToGrColorType(input->colorType()),
             input->alphaType(),
-            input->subset().topLeft(),
             ctx.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
             dstBounds,
             inputBounds,
             sigma.x(),
             sigma.y(),
-            to_texture_domain_mode(fTileMode));
+            fTileMode);
     if (!renderTargetContext) {
         return nullptr;
     }
 
-    return SkSpecialImage::MakeDeferredFromGpu(
-            context,
-            SkIRect::MakeWH(dstBounds.width(), dstBounds.height()),
-            kNeedNewImageUniqueID_SpecialImage,
-            renderTargetContext->asTextureProxyRef(),
-            renderTargetContext->colorInfo().colorType(),
-            sk_ref_sp(input->getColorSpace()),
-            ctx.surfaceProps());
+    return SkSpecialImage::MakeDeferredFromGpu(context,
+                                               SkIRect::MakeSize(dstBounds.size()),
+                                               kNeedNewImageUniqueID_SpecialImage,
+                                               renderTargetContext->readSurfaceView(),
+                                               renderTargetContext->colorInfo().colorType(),
+                                               sk_ref_sp(input->getColorSpace()),
+                                               ctx.surfaceProps());
 }
 #endif
 

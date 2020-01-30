@@ -234,22 +234,21 @@ void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {
     }
 
     for (int i = 0; i < fGeoCount; ++i) {
+        auto subRun = fGeoData[i].fSubRunPtr;
         // TODO4F: Preserve float colors
+        subRun->updateVerticesColorIfNeeded(fGeoData[i].fColor.toBytes_RGBA());
+        subRun->translateVerticesIfNeeded(fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin);
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, fGeoData[i].fSubRunPtr,
-                fGeoData[i].fDrawMatrix, fGeoData[i].fDrawOrigin,
-                fGeoData[i].fColor.toBytes_RGBA(), &context, glyphCache, atlasManager);
-        bool done = false;
-        while (!done) {
-            GrTextBlob::VertexRegenerator::Result result;
-            if (!regenerator.regenerate(&result)) {
-                break;
-            }
-            done = result.fFinished;
+                resourceProvider, fGeoData[i].fSubRunPtr, &context, glyphCache, atlasManager);
+        int subRunEnd = subRun->fGlyphs.size();
+        for (int subRunIndex = 0; subRunIndex < subRunEnd;) {
+            auto [ok, glyphsRegenerated] = regenerator.regenerate(subRunIndex, subRunEnd);
+            if (!ok) { break; }
 
-            context.recordDraw(result.fFirstVertex, result.fGlyphsRegenerated,
+            context.recordDraw(subRun->quadStart(subRunIndex), glyphsRegenerated,
                                fGeoData[i].fDrawMatrix, target->handle());
-            if (!result.fFinished) {
+            subRunIndex += glyphsRegenerated;
+            if (subRunIndex != subRunEnd) {
                 // Make space in the atlas so we can continue generating vertices.
                 context.flush();
             }

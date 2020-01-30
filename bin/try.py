@@ -20,16 +20,29 @@ import tempfile
 
 BUCKET_SKIA_PRIMARY = 'skia/skia.primary'
 BUCKET_SKIA_INTERNAL = 'skia-internal/skia.internal'
-CHECKOUT_ROOT = os.path.realpath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), os.pardir))
-INFRA_BOTS = os.path.join(CHECKOUT_ROOT, 'infra', 'bots')
-JOBS_JSON = os.path.join(INFRA_BOTS, 'jobs.json')
+INFRA_BOTS = os.path.join('infra', 'bots')
+TASKS_JSON = os.path.join(INFRA_BOTS, 'tasks.json')
 REPO_INTERNAL = 'https://skia.googlesource.com/internal_test.git'
 TMP_DIR = os.path.join(tempfile.gettempdir(), 'sktry')
 
-sys.path.insert(0, INFRA_BOTS)
+SKIA_ROOT = os.path.realpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), os.pardir))
+SKIA_INFRA_BOTS = os.path.join(SKIA_ROOT, INFRA_BOTS)
+sys.path.insert(0, SKIA_INFRA_BOTS)
 
 import utils
+
+
+def find_repo_root():
+  """Find the root directory of the current repository."""
+  cwd = os.getcwd()
+  while True:
+    if os.path.isdir(os.path.join(cwd, '.git')):
+      return cwd
+    next_cwd = os.path.dirname(cwd)
+    if next_cwd == cwd:
+      raise Exception('Failed to find repo root!')
+    cwd = next_cwd
 
 
 def get_jobs(repo):
@@ -45,13 +58,13 @@ def get_jobs(repo):
     with utils.chdir(dirname):
       subprocess.check_call([utils.GIT, 'remote', 'update'])
       jobs = json.loads(subprocess.check_output([
-          utils.GIT, 'show', 'master:infra/bots/jobs.json']))
+          utils.GIT, 'show', 'master:%s' % JOBS_JSON]))
       return (BUCKET_SKIA_INTERNAL, jobs)
 
 
 def main():
   # Parse arguments.
-  d = 'Helper script for triggering try jobs defined in %s.' % JOBS_JSON
+  d = 'Helper script for triggering try jobs.'
   parser = argparse.ArgumentParser(description=d)
   parser.add_argument('--list', action='store_true', default=False,
                       help='Just list the jobs; do not trigger anything.')
@@ -64,8 +77,18 @@ def main():
 
   # Load and filter the list of jobs.
   jobs = []
-  with open(JOBS_JSON) as f:
-    jobs.append((BUCKET_SKIA_PRIMARY, json.load(f)))
+  tasks_json = os.path.join(find_repo_root(), TASKS_JSON)
+  with open(tasks_json) as f:
+    tasks_cfg = json.load(f)
+  skia_primary_jobs = []
+  for k, v in tasks_cfg['jobs'].iteritems():
+    skia_primary_jobs.append(k)
+  skia_primary_jobs.sort()
+
+  # TODO(borenet): This assumes that the current repo is associated with the
+  # skia.primary bucket. This will work for most repos but it would be better to
+  # look up the correct bucket to use.
+  jobs.append((BUCKET_SKIA_PRIMARY, skia_primary_jobs))
   if args.internal:
     jobs.append(get_jobs(REPO_INTERNAL))
   if args.job:

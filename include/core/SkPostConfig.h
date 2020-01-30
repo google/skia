@@ -24,16 +24,6 @@
 #  error "must define either SK_DEBUG or SK_RELEASE"
 #endif
 
-/**
- * Matrix calculations may be float or double.
- * The default is float, as that's what Chromium's using.
- */
-#if defined(SK_MSCALAR_IS_DOUBLE) && defined(SK_MSCALAR_IS_FLOAT)
-#  error "cannot define both SK_MSCALAR_IS_DOUBLE and SK_MSCALAR_IS_FLOAT"
-#elif !defined(SK_MSCALAR_IS_DOUBLE) && !defined(SK_MSCALAR_IS_FLOAT)
-#  define SK_MSCALAR_IS_FLOAT
-#endif
-
 #if defined(SK_CPU_LENDIAN) && defined(SK_CPU_BENDIAN)
 #  error "cannot define both SK_CPU_LENDIAN and SK_CPU_BENDIAN"
 #elif !defined(SK_CPU_LENDIAN) && !defined(SK_CPU_BENDIAN)
@@ -44,14 +34,6 @@
     #error "The Skia team is not endian-savvy enough to support big-endian CPUs."
     #error "If you still want to use Skia,"
     #error "please define I_ACKNOWLEDGE_SKIA_DOES_NOT_SUPPORT_BIG_ENDIAN."
-#endif
-
-#if !defined(SK_HAS_COMPILER_FEATURE)
-#  if defined(__has_feature)
-#    define SK_HAS_COMPILER_FEATURE(x) __has_feature(x)
-#  else
-#    define SK_HAS_COMPILER_FEATURE(x) 0
-#  endif
 #endif
 
 #if !defined(SK_ATTRIBUTE)
@@ -81,22 +63,6 @@
 #  define SK_SUPPORT_ATLAS_TEXT 0
 #elif SK_SUPPORT_ATLAS_TEXT && !SK_SUPPORT_GPU
 #  error "SK_SUPPORT_ATLAS_TEXT requires SK_SUPPORT_GPU"
-#endif
-
-/**
- * The clang static analyzer likes to know that when the program is not
- * expected to continue (crash, assertion failure, etc). It will notice that
- * some combination of parameters lead to a function call that does not return.
- * It can then make appropriate assumptions about the parameters in code
- * executed only if the non-returning function was *not* called.
- */
-#if !defined(SkNO_RETURN_HINT)
-#  if SK_HAS_COMPILER_FEATURE(attribute_analyzer_noreturn)
-     static inline void SkNO_RETURN_HINT() __attribute__((analyzer_noreturn));
-     static inline void SkNO_RETURN_HINT() {}
-#  else
-#    define SkNO_RETURN_HINT() do {} while (false)
-#  endif
 #endif
 
 #if !defined(SkUNREACHABLE)
@@ -129,7 +95,6 @@
 #ifndef SK_ABORT
 #  define SK_ABORT(message) \
     do { \
-       SkNO_RETURN_HINT(); \
        SK_DUMP_LINE_FORMAT(message); \
        SK_DUMP_GOOGLE3_STACK(); \
        sk_abort_no_print(); \
@@ -156,13 +121,6 @@
 #define SK_G32_SHIFT 8
 #define SK_A32_SHIFT 24
 
-/**
- * SkColor has well defined shift values, but SkPMColor is configurable. This
- * macro is a convenience that returns true if the shift values are equal while
- * ignoring the machine's endianness.
- */
-#define SK_COLOR_MATCHES_PMCOLOR_BYTE_ORDER \
-    (SK_A32_SHIFT == 24 && SK_R32_SHIFT == 16 && SK_G32_SHIFT == 8 && SK_B32_SHIFT == 0)
 
 /**
  * SK_PMCOLOR_BYTE_ORDER can be used to query the byte order of SkPMColor at compile time. The
@@ -235,14 +193,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
-    #define SK_PREFETCH(ptr)       _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
-    #define SK_WRITE_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
+    #define SK_PREFETCH(ptr) _mm_prefetch(reinterpret_cast<const char*>(ptr), _MM_HINT_T0)
 #elif defined(__GNUC__)
-    #define SK_PREFETCH(ptr)       __builtin_prefetch(ptr)
-    #define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
+    #define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
 #else
     #define SK_PREFETCH(ptr)
-    #define SK_WRITE_PREFETCH(ptr)
 #endif
 
 //////////////////////////////////////////////////////////////////////

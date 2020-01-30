@@ -66,14 +66,15 @@ describe('Core canvas behavior', function() {
         }));
     });
 
-    it('can decode and draw a png', function(done) {
-        const imgPromise = fetch('/assets/mandrill_512.png')
+    // This helper is used for all the MakeImageFromEncoded tests.
+    function decodeAndDrawSingleFrameImage(imgName, goldName, done) {
+        const imgPromise = fetch(imgName)
             .then((response) => response.arrayBuffer());
         Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
-            const pngData = values[0];
-            expect(pngData).toBeTruthy();
+            const imgData = values[0];
+            expect(imgData).toBeTruthy();
             catchException(done, () => {
-                let img = CanvasKit.MakeImageFromEncoded(pngData);
+                let img = CanvasKit.MakeImageFromEncoded(imgData);
                 expect(img).toBeTruthy();
                 const surface = CanvasKit.MakeCanvasSurface('test');
                 expect(surface).toBeTruthy('Could not make surface');
@@ -88,61 +89,50 @@ describe('Core canvas behavior', function() {
                 paint.delete();
                 img.delete();
 
-                reportSurface(surface, 'drawImage_png', done);
+                reportSurface(surface, goldName, done);
             })();
         });
+    }
+
+    it('can decode and draw a png', function(done) {
+        decodeAndDrawSingleFrameImage('/assets/mandrill_512.png', 'drawImage_png', done);
     });
 
     it('can decode and draw a jpg', function(done) {
-        const imgPromise = fetch('/assets/mandrill_h1v1.jpg')
-            .then((response) => response.arrayBuffer());
-        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
-            const jpgData = values[0];
-            expect(jpgData).toBeTruthy();
-            catchException(done, () => {
-                let img = CanvasKit.MakeImageFromEncoded(jpgData);
-                expect(img).toBeTruthy();
-                const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface');
-                if (!surface) {
-                    done();
-                    return;
-                }
-                const canvas = surface.getCanvas();
-                let paint = new CanvasKit.SkPaint();
-                canvas.drawImage(img, 0, 0, paint);
-
-                paint.delete();
-                img.delete();
-
-                reportSurface(surface, 'drawImage_jpg', done);
-            })();
-        });
+        decodeAndDrawSingleFrameImage('/assets/mandrill_h1v1.jpg', 'drawImage_jpg', done);
     });
 
     it('can decode and draw a (still) gif', function(done) {
-        const imgPromise = fetch('/assets/flightAnim.gif')
+        decodeAndDrawSingleFrameImage('/assets/flightAnim.gif', 'drawImage_gif', done);
+    });
+
+    it('can decode and draw a still webp', function(done) {
+        decodeAndDrawSingleFrameImage('/assets/color_wheel.webp', 'drawImage_webp', done);
+    });
+
+   it('can readPixels from an SkImage', function(done) {
+        const imgPromise = fetch('/assets/mandrill_512.png')
             .then((response) => response.arrayBuffer());
         Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
-            const gifData = values[0];
-            expect(gifData).toBeTruthy();
+            const imgData = values[0];
+            expect(imgData).toBeTruthy();
             catchException(done, () => {
-                let img = CanvasKit.MakeImageFromEncoded(gifData);
+                let img = CanvasKit.MakeImageFromEncoded(imgData);
                 expect(img).toBeTruthy();
-                const surface = CanvasKit.MakeCanvasSurface('test');
-                expect(surface).toBeTruthy('Could not make surface');
-                if (!surface) {
-                    done();
-                    return;
-                }
-                const canvas = surface.getCanvas();
-                let paint = new CanvasKit.SkPaint();
-                canvas.drawImage(img, 0, 0, paint);
+                const imageInfo = {
+                    alphaType: CanvasKit.AlphaType.Unpremul,
+                    colorType: CanvasKit.ColorType.RGBA_8888,
+                    width: img.width(),
+                    height: img.height(),
+                };
 
-                paint.delete();
+                const pixels = img.readPixels(imageInfo, 0, 0);
+                // We know the image is 512 by 512 pixels in size, each pixel
+                // requires 4 bytes (R, G, B, A).
+                expect(pixels.length).toEqual(512 * 512 * 4);
+
                 img.delete();
-
-                reportSurface(surface, 'drawImage_gif', done);
+                done();
             })();
         });
     });
@@ -306,6 +296,111 @@ describe('Core canvas behavior', function() {
                 reportSurface(surface, 'combined_filters', done);
             })();
         });
+    });
+
+    it('can use various image filters on animated images', function(done) {
+        const imgPromise = fetch('/assets/flightAnim.gif')
+            .then((response) => response.arrayBuffer());
+        Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
+            const gifData = values[0];
+            expect(gifData).toBeTruthy();
+            catchException(done, () => {
+                let img = CanvasKit.MakeAnimatedImageFromEncoded(gifData);
+                expect(img).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface');
+                if (!surface) {
+                    done();
+                    return;
+                }
+                img.decodeNextFrame();
+                img.decodeNextFrame();
+                const canvas = surface.getCanvas();
+                canvas.clear(CanvasKit.WHITE);
+                const paint = new CanvasKit.SkPaint();
+                paint.setAntiAlias(true);
+                paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
+                const redCF =  CanvasKit.SkColorFilter.MakeBlend(
+                        CanvasKit.Color(255, 0, 0, 0.1), CanvasKit.BlendMode.SrcOver);
+                const redIF = CanvasKit.SkImageFilter.MakeColorFilter(redCF, null);
+                const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+                const combined = CanvasKit.SkImageFilter.MakeCompose(redIF, blurIF);
+                paint.setImageFilter(combined);
+
+                const frame = img.getCurrentFrame();
+                canvas.drawImage(frame, 100, 50, paint);
+
+                surface.flush();
+
+                paint.delete();
+                redIF.delete();
+                redCF.delete();
+                blurIF.delete();
+                combined.delete();
+                frame.delete();
+                img.delete();
+
+                reportSurface(surface, 'animated_filters', done);
+            })();
+        });
+    });
+
+    it('can decode and draw an skp', function(done) {
+        const skpPromise = fetch('/assets/red_line.skp')
+            .then((response) => response.arrayBuffer());
+        Promise.all([skpPromise, LoadCanvasKit]).then((values) => {
+            const skpData = values[0];
+            expect(skpData).toBeTruthy();
+            catchException(done, () => {
+                let pic = CanvasKit.MakeSkPicture(skpData);
+                expect(pic).toBeTruthy();
+                const surface = CanvasKit.MakeCanvasSurface('test');
+                expect(surface).toBeTruthy('Could not make surface');
+                if (!surface) {
+                    done();
+                    return;
+                }
+                const canvas = surface.getCanvas();
+                canvas.clear(CanvasKit.TRANSPARENT);
+                canvas.drawPicture(pic);
+
+                reportSurface(surface, 'drawImage_skp', done);
+            })();
+        });
+    });
+
+    it('can draw once using drawOnce utility method', function(done) {
+        LoadCanvasKit.then(catchException(done, () => {
+            const surface = CanvasKit.MakeCanvasSurface('test');
+            expect(surface).toBeTruthy('Could not make surface');
+            if (!surface) {
+                done();
+                return;
+            }
+
+            function drawFrame(canvas) {
+                const paint = new CanvasKit.SkPaint();
+                paint.setStrokeWidth(1.0);
+                paint.setAntiAlias(true);
+                paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
+                paint.setStyle(CanvasKit.PaintStyle.Stroke);
+                const path = new CanvasKit.SkPath();
+                path.moveTo(20, 5);
+                path.lineTo(30, 20);
+                path.lineTo(40, 10);
+                canvas.drawPath(path, paint);
+                path.delete();
+                paint.delete();
+                // surface hasn't been flushed yet (nor should we call flush
+                // ourselves), so reportSurface would likely be blank if we
+                // were to call it.
+                done();
+            }
+            surface.drawOnce(drawFrame);
+            // Reminder: drawOnce is async. In this test, we are just making
+            // sure the drawOnce function is there and doesn't crash, so we can
+            // just call done() when the frame is rendered.
+        }));
     });
 
     it('can use DecodeCache APIs', function(done) {

@@ -208,11 +208,11 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
                 fFormatArgs.push_back(cppCode + ".fB");
                 fFormatArgs.push_back(cppCode + ".fA");
                 break;
-            case Layout::CType::kSkVector4:
-                fFormatArgs.push_back(cppCode + ".fData[0]");
-                fFormatArgs.push_back(cppCode + ".fData[1]");
-                fFormatArgs.push_back(cppCode + ".fData[2]");
-                fFormatArgs.push_back(cppCode + ".fData[3]");
+            case Layout::CType::kSkV4:
+                fFormatArgs.push_back(cppCode + ".x");
+                fFormatArgs.push_back(cppCode + ".y");
+                fFormatArgs.push_back(cppCode + ".z");
+                fFormatArgs.push_back(cppCode + ".w");
                 break;
             case Layout::CType::kSkRect: // fall through
             case Layout::CType::kDefault:
@@ -444,7 +444,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // Write the output handling after the possible input handling
         String childName = "_sample" + to_string(c.fOffset);
-        addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
+        addExtraEmitCodeLine("SkString " + childName + ";");
         String coordsName;
         if (hasCoords) {
             coordsName = "_coords" + to_string(c.fOffset);
@@ -454,23 +454,22 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             addExtraEmitCodeLine("if (_outer." + String(child.fName) + "_index >= 0) {\n    ");
         }
         if (hasCoords) {
-            addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
-                                 inputArg + ", &" + childName + ", args, " + coordsName +
-                                 ".c_str());");
+            addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." + String(child.fName) +
+                                 "_index" + inputArg + ", args, " + coordsName + ".c_str());");
         } else {
-            addExtraEmitCodeLine("this->invokeChild(_outer." + String(child.fName) + "_index" +
-                                 inputArg + ", &" + childName + ", args);");
+            addExtraEmitCodeLine(childName + " = this->invokeChild(_outer." + String(child.fName) +
+                                 "_index" + inputArg + ", args);");
         }
 
         if (c.fArguments[0]->fType.kind() == Type::kNullable_Kind) {
             // Null FPs are not emitted, but their output can still be referenced in dependent
-            // expressions - thus we always declare the variable.
+            // expressions - thus we always fill the variable with something.
             // Note: this is essentially dead code required to satisfy the compiler, because
             // 'process' function calls should always be guarded at a higher level, in the .fp
             // source.
             addExtraEmitCodeLine(
                 "} else {"
-                "   fragBuilder->codeAppendf(\"half4 %s;\", " + childName + ".c_str());"
+                "    " + childName + " = \"half4(1)\";"
                 "}");
         }
         this->write("%s");

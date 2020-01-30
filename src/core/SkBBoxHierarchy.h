@@ -8,18 +8,17 @@
 #ifndef SkBBoxHierarchy_DEFINED
 #define SkBBoxHierarchy_DEFINED
 
+#include "include/core/SkBBHFactory.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRefCnt.h"
 #include "include/private/SkTDArray.h"
 
 /**
  * Interface for a spatial data structure that stores axis-aligned bounding
  * boxes and allows efficient retrieval of intersections with query rectangles.
  */
-class SkBBoxHierarchy : public SkRefCnt {
+class SkBBoxHierarchy_Base : public SkBBoxHierarchy {
 public:
-    SkBBoxHierarchy() {}
-    virtual ~SkBBoxHierarchy() {}
+    SkBBoxHierarchy_Base() {}
 
     /**
      * Insert N bounding boxes into the hierarchy.
@@ -35,9 +34,6 @@ public:
 
     // Get the root bound.
     virtual SkRect getRootBound() const = 0;
-
-private:
-    typedef SkRefCnt INHERITED;
 };
 
 #endif

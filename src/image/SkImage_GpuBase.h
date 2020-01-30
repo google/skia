@@ -36,7 +36,7 @@ public:
 
     virtual const GrSurfaceProxyView& getSurfaceProxyView(GrRecordingContext* context) const = 0;
 
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, const GrSamplerState&,
+    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
                                             SkScalar scaleAdjust[2]) const final;
 
     sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext* context,

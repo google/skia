@@ -21,10 +21,11 @@
 #include "src/gpu/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrRect.h"
 
 class GrAppliedClip;
+class GrAppliedHardClip;
 class GrOp;
 class GrRenderTargetContext;
 
@@ -83,7 +84,7 @@ public:
     struct FixedDynamicState {
         explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
         FixedDynamicState() = default;
-        SkIRect fScissorRect = SkIRect::EmptyIRect();
+        SkIRect fScissorRect = SkIRect::MakeEmpty();
         // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers
         // or textures are passed using DynamicStateArrays.
         GrSurfaceProxy** fPrimitiveProcessorTextures = nullptr;
@@ -117,6 +118,7 @@ public:
                InputFlags = InputFlags::kNone,
                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
 
+    GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor>, const GrAppliedHardClip&);
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
     GrPipeline(const GrPipeline&) = delete;
@@ -185,6 +187,12 @@ public:
     /// @}
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
+    void setUserStencil(const GrUserStencilSettings* stencil) {
+        fUserStencilSettings = stencil;
+        if (!fUserStencilSettings->isDisabled(fFlags & Flags::kHasStencilClip)) {
+            fFlags |= Flags::kStencilEnabled;
+        }
+    }
 
     bool isScissorEnabled() const {
         return SkToBool(fFlags & Flags::kScissorEnabled);
@@ -253,7 +261,7 @@ private:
     FragmentProcessorArray fFragmentProcessors;
 
     // This value is also the index in fFragmentProcessors where coverage processors begin.
-    int fNumColorProcessors;
+    int fNumColorProcessors = 0;
 
     GrSwizzle fOutputSwizzle;
 };

@@ -127,7 +127,7 @@ public:
                          std::unique_ptr<GrRenderTargetContext> renderTargetContext,
                          int width, int height, const SkIRect& subset)
             : INHERITED(subset, &renderTargetContext->surfaceProps())
-            , fProxy(renderTargetContext->asTextureProxyRef()) {
+            , fReadView(renderTargetContext->readSurfaceView()) {
         // CONTEXT TODO: remove this use of 'backdoor' to create an SkGpuDevice
         auto device = SkGpuDevice::Make(context->priv().backdoor(), std::move(renderTargetContext),
                                         SkGpuDevice::kUninit_InitContents);
@@ -143,21 +143,23 @@ public:
     }
 
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
-        if (!fProxy) {
+        if (!fReadView.asTextureProxy()) {
             return nullptr;
         }
         GrColorType ct = SkColorTypeToGrColorType(fCanvas->imageInfo().colorType());
 
+        // Note: SkSpecialImages can only be snapShotted once, so this call is destructive and we
+        // move fReadMove.
         return SkSpecialImage::MakeDeferredFromGpu(fCanvas->getGrContext(),
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
-                                                   std::move(fProxy), ct,
+                                                   std::move(fReadView), ct,
                                                    fCanvas->imageInfo().refColorSpace(),
                                                    &this->props());
     }
 
 private:
-    sk_sp<GrTextureProxy> fProxy;
+    GrSurfaceProxyView fReadView;
     typedef SkSpecialSurface_Base INHERITED;
 };
 
@@ -169,9 +171,10 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* c
     if (!context) {
         return nullptr;
     }
-    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kApprox, width, height, colorType, std::move(colorSpace), 1,
-            GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, props);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, colorType, std::move(colorSpace), SkBackingFit::kApprox, {width, height}, 1,
+            GrMipMapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin, SkBudgeted::kYes,
+            props);
     if (!renderTargetContext) {
         return nullptr;
     }

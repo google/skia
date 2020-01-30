@@ -17,102 +17,58 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
     this->onSetData(pdman, processor);
 }
 
-void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor, EmitArgs& args,
-                                          SkSL::String skslCoords) {
-    while (childIndex >= (int) fFunctionNames.size()) {
-        fFunctionNames.emplace_back();
-    }
-    this->internalInvokeChild(childIndex, inputColor, args.fOutputColor, args, skslCoords);
-}
-
-void GrGLSLFragmentProcessor::writeChildCall(GrGLSLFPFragmentBuilder* fragBuilder, int childIndex,
-                                             TransformedCoordVars coordVars, const char* inputColor,
-                                             const char* outputColor, EmitArgs& args,
-                                             SkSL::String skslCoords) {
-    std::vector<SkString> coordParams;
-    for (int i = 0; i < coordVars.count(); ++i) {
-        coordParams.push_back(fragBuilder->ensureCoords2D(coordVars[i].fVaryingPoint));
-    }
-    // if the fragment processor is invoked with overridden coordinates, it must *always* be invoked
-    // with overridden coords
-    SkASSERT(args.fFp.coordTransformsApplyToLocalCoords() == (skslCoords.length() == 0));
-    fragBuilder->codeAppendf("%s = %s(%s", outputColor, fFunctionNames[childIndex].c_str(),
-                             inputColor ? inputColor : "half4(1)");
-    if (skslCoords.length()) {
-        fragBuilder->codeAppendf(", %s", skslCoords.c_str());
-    }
-    fragBuilder->codeAppend(");\n");
-}
-
-void GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
-                                          SkString* outputColor, EmitArgs& args,
-                                          SkSL::String skslCoords) {
-    SkASSERT(outputColor);
+SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
+                                              EmitArgs& args, SkSL::String skslCoords) {
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    outputColor->append(fragBuilder->getMangleString());
-    fragBuilder->codeAppendf("half4 %s;", outputColor->c_str());
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
     }
+
+    // Subtle bug workaround: If an FP (this) has a child, and wishes to sample it, but does not
+    // want to *force* explicit coord sampling, then the obvious solution is to call it with
+    // invokeChild and no coords. However, if this FP is then adopted as a child of another FP that
+    // does want to sample with explicit coords, that property is propagated (recursively) to all
+    // children, and we need to supply explicit coords. So we propagate our own "_coords" (this is
+    // the name of our explicit coords parameter generated in the helper function).
     if (!args.fFp.coordTransformsApplyToLocalCoords() && skslCoords.length() == 0) {
         skslCoords = "_coords";
     }
+
+    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
+
+    // Emit the child's helper function if this is the first time we've seen a call
     if (fFunctionNames[childIndex].size() == 0) {
-        this->internalInvokeChild(childIndex, inputColor, outputColor->c_str(), args, skslCoords);
-    } else {
-        const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
+        fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
 
         TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
         TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
+
         EmitArgs childArgs(fragBuilder,
                            args.fUniformHandler,
                            args.fShaderCaps,
                            childProc,
-                           outputColor->c_str(),
+                           "_output",
                            "_input",
                            coordVars,
                            textureSamplers);
-        this->writeChildCall(fragBuilder, childIndex, coordVars, inputColor, outputColor->c_str(),
-                             childArgs, skslCoords);
-    }
-}
+        fFunctionNames[childIndex] =
+                fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
 
-void GrGLSLFragmentProcessor::internalInvokeChild(int childIndex, const char* inputColor,
-                                                  const char* outputColor, EmitArgs& args,
-                                                  SkSL::String skslCoords) {
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-
-    fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
-
-    // Prepare a mangled input color variable if the default is not used,
-    // inputName remains the empty string if no variable is needed.
-    SkString inputName;
-    if (inputColor&& strcmp("half4(1.0)", inputColor) != 0 && strcmp("half4(1)", inputColor) != 0) {
-        // The input name is based off of the current mangle string, and
-        // since this is called after onBeforeChildProcEmitCode(), it will be
-        // unique to the child processor (exactly what we want for its input).
-        inputName.appendf("_childInput%s", fragBuilder->getMangleString().c_str());
-        fragBuilder->codeAppendf("half4 %s = %s;", inputName.c_str(), inputColor);
+        fragBuilder->onAfterChildProcEmitCode();
     }
 
-    const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
-    TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
-    TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
+    // If the fragment processor is invoked with overridden coordinates, it must *always* be invoked
+    // with overridden coords.
+    SkASSERT(childProc.coordTransformsApplyToLocalCoords() == (skslCoords.length() == 0));
 
-    EmitArgs childArgs(fragBuilder,
-                       args.fUniformHandler,
-                       args.fShaderCaps,
-                       childProc,
-                       outputColor,
-                       "_input",
-                       coordVars,
-                       textureSamplers);
-    fFunctionNames[childIndex] = fragBuilder->writeProcessorFunction(
-                                                               this->childProcessor(childIndex),
-                                                               childArgs);
-    this->writeChildCall(fragBuilder, childIndex, coordVars, inputColor, outputColor, childArgs,
-                         skslCoords);
-    fragBuilder->onAfterChildProcEmitCode();
+    // Produce a string containing the call to the helper function
+    SkString result = SkStringPrintf("%s(%s", fFunctionNames[childIndex].c_str(),
+                                              inputColor ? inputColor : "half4(1)");
+    if (skslCoords.length()) {
+        result.appendf(", %s", skslCoords.c_str());
+    }
+    result.append(")");
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////

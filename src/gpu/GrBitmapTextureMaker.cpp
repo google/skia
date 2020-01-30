@@ -17,10 +17,21 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 
+static GrImageInfo get_image_info(GrRecordingContext* context, const SkBitmap& bitmap) {
+    GrColorType ct = SkColorTypeToGrColorType(bitmap.info().colorType());
+    GrBackendFormat format = context->priv().caps()->getDefaultBackendFormat(ct, GrRenderable::kNo);
+    if (!format.isValid()) {
+        ct = GrColorType::kRGBA_8888;
+    }
+    return {ct, bitmap.alphaType(), bitmap.refColorSpace(), bitmap.dimensions()};
+}
+
 GrBitmapTextureMaker::GrBitmapTextureMaker(GrRecordingContext* context, const SkBitmap& bitmap,
-                                           bool useDecal)
-        : INHERITED(context, bitmap.info(), useDecal), fBitmap(bitmap) {
-    if (!bitmap.isVolatile()) {
+                                           Cached cached, SkBackingFit fit, bool useDecal)
+        : INHERITED(context, get_image_info(context, bitmap), useDecal)
+        , fBitmap(bitmap)
+        , fFit(fit) {
+    if (!bitmap.isVolatile() && cached == Cached::kYes) {
         SkIPoint origin = bitmap.pixelRefOrigin();
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, bitmap.width(),
                                            bitmap.height());
@@ -47,8 +58,20 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     }
 
     if (!proxy) {
-        proxy = proxyProvider->createProxyFromBitmap(fBitmap, willBeMipped ? GrMipMapped::kYes
-                                                                           : GrMipMapped::kNo);
+        if (this->colorType() != SkColorTypeToGrColorType(fBitmap.info().colorType())) {
+            SkASSERT(this->colorType() == GrColorType::kRGBA_8888);
+            SkBitmap copy8888;
+            if (!copy8888.tryAllocPixels(fBitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
+                !fBitmap.readPixels(copy8888.pixmap())) {
+                return nullptr;
+            }
+            copy8888.setImmutable();
+            proxy = proxyProvider->createProxyFromBitmap(
+                    copy8888, willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo, fFit);
+        } else {
+            proxy = proxyProvider->createProxyFromBitmap(
+                    fBitmap, willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo, fFit);
+        }
         if (proxy) {
             if (fOriginalKey.isValid()) {
                 proxyProvider->assignUniqueKeyToProxy(fOriginalKey, proxy.get());
@@ -72,8 +95,8 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
         // proxy into the base layer. We will then let the gpu generate the rest of the mips.
         GrColorType srcColorType = SkColorTypeToGrColorType(fBitmap.colorType());
         if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(this->context(), proxy.get(),
+                                                              kTopLeft_GrSurfaceOrigin,
                                                               srcColorType)) {
-            SkASSERT(mippedProxy->origin() == kTopLeft_GrSurfaceOrigin);
             if (fOriginalKey.isValid()) {
                 // In this case we are stealing the key from the original proxy which should only
                 // happen when we have just generated mipmaps for an originally unmipped

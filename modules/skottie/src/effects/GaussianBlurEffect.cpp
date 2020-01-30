@@ -7,7 +7,7 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "modules/skottie/src/SkottieAdapter.h"
+#include "modules/skottie/src/Animator.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"
@@ -17,35 +17,36 @@ namespace internal {
 
 namespace  {
 
-class GaussianBlurEffectAdapter final : public SkNVRefCnt<GaussianBlurEffectAdapter> {
+class GaussianBlurEffectAdapter final : public AnimatablePropertyContainer {
 public:
-    explicit GaussianBlurEffectAdapter(sk_sp<sksg::BlurImageFilter> blur)
-        : fBlur(std::move(blur)) {
-        SkASSERT(fBlur);
+    static sk_sp<GaussianBlurEffectAdapter> Make(const skjson::ArrayValue& jprops,
+                                                 sk_sp<sksg::RenderNode> layer,
+                                                 const AnimationBuilder* abuilder) {
+        return sk_sp<GaussianBlurEffectAdapter>(new GaussianBlurEffectAdapter(jprops,
+                                                                              std::move(layer),
+                                                                              abuilder));
     }
 
-    // AE/BM model properties.  These are all animatable/interpolatable.
-
-    // Controls the blur sigma.
-    ADAPTER_PROPERTY(Blurriness, SkScalar, 0)
-
-    // Enum selecting the blur dimensionality:
-    //
-    //   1 -> horizontal & vertical
-    //   2 -> horizontal
-    //   3 -> vertical
-    //
-    ADAPTER_PROPERTY(Dimensions, SkScalar, 1)
-
-    // Enum selecting edge behavior:
-    //
-    //   0 -> clamp
-    //   1 -> repeat
-    //
-    ADAPTER_PROPERTY(RepeatEdge, SkScalar, 0)
+    const sk_sp<sksg::RenderNode>& node() const { return fImageFilterEffect; }
 
 private:
-    void apply() {
+    GaussianBlurEffectAdapter(const skjson::ArrayValue& jprops,
+                              sk_sp<sksg::RenderNode> layer,
+                              const AnimationBuilder* abuilder)
+        : fBlur(sksg::BlurImageFilter::Make())
+        , fImageFilterEffect(sksg::ImageFilterEffect::Make(std::move(layer), fBlur)) {
+        enum : size_t {
+            kBlurriness_Index = 0,
+            kDimensions_Index = 1,
+            kRepeatEdge_Index = 2,
+        };
+
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kBlurriness_Index), &fBlurriness);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kDimensions_Index), &fDimensions);
+        this->bind(*abuilder, EffectBuilder::GetPropValue(jprops, kRepeatEdge_Index), &fRepeatEdge);
+    }
+
+    void onSync() override {
         static constexpr SkVector kDimensionsMap[] = {
             { 1, 1 }, // 1 -> horizontal and vertical
             { 1, 0 }, // 2 -> horizontal
@@ -73,6 +74,11 @@ private:
     }
 
     const sk_sp<sksg::BlurImageFilter> fBlur;
+    const sk_sp<sksg::RenderNode>      fImageFilterEffect;
+
+    ScalarValue fBlurriness = 0, // Controls the blur sigma.
+                fDimensions = 1, // 1 -> horizontal & vertical, 2 -> horizontal, 3 -> vertical
+                fRepeatEdge = 0; // 0 -> clamp, 1 -> repeat
 };
 
 } // anonymous ns
@@ -80,29 +86,9 @@ private:
 sk_sp<sksg::RenderNode> EffectBuilder::attachGaussianBlurEffect(
         const skjson::ArrayValue& jprops,
         sk_sp<sksg::RenderNode> layer) const {
-    enum : size_t {
-        kBlurriness_Index = 0,
-        kDimensions_Index = 1,
-        kRepeatEdge_Index = 2,
-    };
-
-    auto blur_effect   = sksg::BlurImageFilter::Make();
-    auto blur_addapter = sk_make_sp<GaussianBlurEffectAdapter>(blur_effect);
-
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kBlurriness_Index),
-        [blur_addapter](const ScalarValue& b) {
-            blur_addapter->setBlurriness(b);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kDimensions_Index),
-        [blur_addapter](const ScalarValue& d) {
-            blur_addapter->setDimensions(d);
-        });
-    fBuilder->bindProperty<ScalarValue>(GetPropValue(jprops, kRepeatEdge_Index),
-        [blur_addapter](const ScalarValue& r) {
-            blur_addapter->setRepeatEdge(r);
-        });
-
-    return sksg::ImageFilterEffect::Make(std::move(layer), std::move(blur_effect));
+    return fBuilder->attachDiscardableAdapter<GaussianBlurEffectAdapter>(jprops,
+                                                                         std::move(layer),
+                                                                         fBuilder);
 }
 
 } // namespace internal

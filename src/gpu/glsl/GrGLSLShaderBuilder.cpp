@@ -69,8 +69,7 @@ static inline void append_texture_swizzle(SkString* out, GrSwizzle swizzle) {
 
 void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
                                               SamplerHandle samplerHandle,
-                                              const char* coordName,
-                                              GrSLType varyingType) const {
+                                              const char* coordName) const {
     const char* sampler = fProgramBuilder->samplerVariable(samplerHandle);
     out->appendf("sample(%s, %s)", sampler, coordName);
     append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
@@ -78,10 +77,9 @@ void GrGLSLShaderBuilder::appendTextureLookup(SkString* out,
 
 void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
                                               const char* coordName,
-                                              GrSLType varyingType,
                                               GrGLSLColorSpaceXformHelper* colorXformHelper) {
     SkString lookup;
-    this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
+    this->appendTextureLookup(&lookup, samplerHandle, coordName);
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
 }
 
@@ -90,16 +88,25 @@ void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
         SkBlendMode mode,
         SamplerHandle samplerHandle,
         const char* coordName,
-        GrSLType varyingType,
         GrGLSLColorSpaceXformHelper* colorXformHelper) {
     if (!dst) {
         dst = "half4(1)";
     }
     SkString lookup;
-    this->codeAppendf("%s(", GrGLSLBlend::BlendFuncName(mode));
-    this->appendTextureLookup(&lookup, samplerHandle, coordName, varyingType);
-    this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
-    this->codeAppendf(", %s)", dst);
+    // This works around an issue in SwiftShader where the texture lookup is messed up
+    // if we use blend_modulate instead of simply operator * on dst and the sampled result.
+    // At this time it's unknown if the same problem exists for other modes.
+    if (mode == SkBlendMode::kModulate) {
+        this->codeAppend("(");
+        this->appendTextureLookup(&lookup, samplerHandle, coordName);
+        this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
+        this->codeAppendf(" * %s)", dst);
+    } else {
+        this->codeAppendf("%s(", GrGLSLBlend::BlendFuncName(mode));
+        this->appendTextureLookup(&lookup, samplerHandle, coordName);
+        this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
+        this->codeAppendf(", %s)", dst);
+    }
 }
 
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,

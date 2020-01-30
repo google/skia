@@ -16,6 +16,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipMap.h"
 #include "src/core/SkScopeExit.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -97,7 +98,7 @@ bool SkImage_GpuYUVA::setupMipmapsForPlanes(GrRecordingContext* context) const {
                                                     fProxies[i].get(),
                                                     GrSamplerState::Filter::kMipMap,
                                                     &copyParams)) {
-            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fProxies[i].get(),
+            auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fProxies[i].get(), fOrigin,
                                                               fProxyColorTypes[i]);
             if (!mippedProxy) {
                 return false;
@@ -142,9 +143,9 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 
     // Needs to create a render target in order to draw to it for the yuv->rgb conversion.
-    auto renderTargetContext = context->priv().makeDeferredRenderTargetContext(
-            SkBackingFit::kExact, this->width(), this->height(), GrColorType::kRGBA_8888,
-            this->refColorSpace(), 1, GrMipMapped::kNo, fOrigin);
+    auto renderTargetContext = GrRenderTargetContext::Make(
+            context, GrColorType::kRGBA_8888, this->refColorSpace(), SkBackingFit::kExact,
+            this->dimensions(), 1, GrMipMapped::kNo, GrProtected::kNo, fOrigin);
     if (!renderTargetContext) {
         return;
     }
@@ -182,8 +183,8 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asMippedTextureProxyRef(GrRecordingContex
 
     // need to generate mips for the proxy
     GrColorType srcColorType = SkColorTypeToGrColorType(this->colorType());
-    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(context, fRGBView.proxy(),
-                                                          srcColorType)) {
+    if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(
+            context, fRGBView.proxy(), fRGBView.origin(), srcColorType)) {
         SkASSERT(mippedProxy->textureSwizzle() == GrSwizzle());
         fRGBView = GrSurfaceProxyView(mippedProxy, fOrigin, GrSwizzle());
         return mippedProxy;
@@ -272,7 +273,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
     }
 
     // Make proxies
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> tempTextureProxies[4];
     GrColorType proxyColorTypes[4];
     for (int i = 0; i < numPixmaps; ++i) {
@@ -296,12 +296,13 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
         // Turn the pixmap into a GrTextureProxy
         SkBitmap bmp;
         bmp.installPixels(*pixmap);
+        GrBitmapTextureMaker bitmapMaker(context, bmp);
         GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
-        tempTextureProxies[i] = proxyProvider->createProxyFromBitmap(bmp, mipMapped);
+        std::tie(tempTextureProxies[i], proxyColorTypes[i]) =
+                bitmapMaker.refTextureProxy(mipMapped);
         if (!tempTextureProxies[i]) {
             return nullptr;
         }
-        proxyColorTypes[i] = SkColorTypeToGrColorType(bmp.colorType());
     }
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageSize, kNeedNewImageUniqueID,

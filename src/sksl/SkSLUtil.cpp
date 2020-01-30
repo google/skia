@@ -9,6 +9,10 @@
 
 #include "src/sksl/SkSLStringStream.h"
 
+#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
+#include "include/gpu/GrContextOptions.h"
+#endif
+
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
@@ -72,5 +76,178 @@ Token::Kind remove_assignment(Token::Kind op) {
         default: return op;
     }
 }
+
+#if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
+sk_sp<GrShaderCaps> ShaderCapsFactory::Default() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fShaderDerivativeSupport = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::Version450Core() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 450 core";
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::Version110() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 110";
+    result->fGLSLGeneration = GrGLSLGeneration::k110_GrGLSLGeneration;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::UsesPrecisionModifiers() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fUsesPrecisionModifiers = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::CannotUseMinAndAbsTogether() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fCanUseMinAndAbsTogether = false;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::CannotUseFractForNegativeValues() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fCanUseFractForNegativeValues = false;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::MustForceNegatedAtanParamToFloat() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fMustForceNegatedAtanParamToFloat = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::ShaderDerivativeExtensionString() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fShaderDerivativeSupport = true;
+    result->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
+    result->fUsesPrecisionModifiers = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::FragCoordsOld() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 110";
+    result->fGLSLGeneration = GrGLSLGeneration::k110_GrGLSLGeneration;
+    result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::FragCoordsNew() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::GeometryShaderSupport() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fGeometryShaderSupport = true;
+    result->fGSInvocationsSupport = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::NoGSInvocationsSupport() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fGeometryShaderSupport = true;
+    result->fGSInvocationsSupport = false;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::GeometryShaderExtensionString() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 310es";
+    result->fGeometryShaderSupport = true;
+    result->fGeometryShaderExtensionString = "GL_EXT_geometry_shader";
+    result->fGSInvocationsSupport = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::GSInvocationsExtensionString() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fGeometryShaderSupport = true;
+    result->fGSInvocationsSupport = true;
+    result->fGSInvocationsExtensionString = "GL_ARB_gpu_shader5";
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::VariousCaps() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fExternalTextureSupport = true;
+    result->fFBFetchSupport = false;
+    result->fCanUseAnyFunctionInShader = false;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::CannotUseFragCoord() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fCanUseFragCoord = false;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::IncompleteShortIntPrecision() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 310es";
+    result->fUsesPrecisionModifiers = true;
+    result->fIncompleteShortIntPrecision = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::AddAndTrueToLoopCondition() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fAddAndTrueToLoopCondition = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::UnfoldShortCircuitAsTernary() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fUnfoldShortCircuitAsTernary = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::EmulateAbsIntFunction() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fEmulateAbsIntFunction = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::RewriteDoWhileLoops() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fRewriteDoWhileLoops = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::RemovePowWithConstantExponent() {
+    sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+    result->fVersionDeclString = "#version 400";
+    result->fRemovePowWithConstantExponent = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::SampleMaskSupport() {
+    sk_sp<GrShaderCaps> result = Default();
+    result->fSampleMaskSupport = true;
+    return result;
+}
+#endif
 
 } // namespace

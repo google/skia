@@ -76,6 +76,13 @@ public:
     const SkImageInfo& getInfo() const { return fInfo; }
 
     /**
+     * Return the ICC profile of the encoded data.
+     */
+    const skcms_ICCProfile* getICCProfile() const {
+        return fCodec->getEncodedInfo().profile();
+    }
+
+    /**
      *  Format of the encoded data.
      */
     SkEncodedImageFormat getEncodedFormat() const { return fCodec->getEncodedFormat(); }

@@ -54,11 +54,11 @@ private:
     };
 
     using ShapeVisitor =
-            std::function<SkScalar(SkSpan<const char>, SkSpan<Block>, SkScalar&, TextIndex)>;
+            std::function<SkScalar(TextRange textRange, SkSpan<Block>, SkScalar&, TextIndex, uint8_t)>;
     bool iterateThroughShapingRegions(const ShapeVisitor& shape);
 
     using ShapeSingleFontVisitor = std::function<void(Block, SkTArray<SkShaper::Feature>)>;
-    void iterateThroughFontStyles(SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
+    void iterateThroughFontStyles(TextRange textRange, SkSpan<Block> styleSpan, const ShapeSingleFontVisitor& visitor);
 
     using TypefaceVisitor = std::function<bool(sk_sp<SkTypeface> typeface)>;
     void matchResolvedFonts(const TextStyle& textStyle, const TypefaceVisitor& visitor);
@@ -74,11 +74,12 @@ private:
     void commitLine() override {}
 
     Buffer runBuffer(const RunInfo& info) override {
+        auto index = fUnresolvedBlocks.size() + fResolvedBlocks.size();
         fCurrentRun = std::make_shared<Run>(fParagraph,
                                            info,
                                            fCurrentText.start,
                                            fHeight,
-                                           fParagraph->fRuns.count(),
+                                           index,
                                            fAdvance.fX);
         return fCurrentRun->newRunBuffer();
     }

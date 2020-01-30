@@ -16,7 +16,7 @@
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> srcProxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView srcView,
                                                      const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
@@ -26,11 +26,11 @@ public:
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrMatrixConvolutionEffect(std::move(srcProxy), srcBounds, kernelSize, kernel,
+                new GrMatrixConvolutionEffect(std::move(srcView), srcBounds, kernelSize, kernel,
                                               gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> srcProxy,
+    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(GrSurfaceProxyView srcView,
                                                              const SkIRect& srcBounds,
                                                              const SkISize& kernelSize,
                                                              SkScalar gain,
@@ -57,7 +57,7 @@ public:
 private:
     // srcProxy is the texture that is going to be convolved
     // srcBounds is the subset of 'srcProxy' that will be used (e.g., for clamp mode)
-    GrMatrixConvolutionEffect(sk_sp<GrSurfaceProxy> srcProxy,
+    GrMatrixConvolutionEffect(GrSurfaceProxyView srcView,
                               const SkIRect& srcBounds,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,

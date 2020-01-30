@@ -78,12 +78,12 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* render
                                devClipBounds);
 
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
-        *unclippedDevShapeBounds = SkIRect::EmptyIRect();
-        *clippedDevShapeBounds = SkIRect::EmptyIRect();
+        *unclippedDevShapeBounds = SkIRect::MakeEmpty();
+        *clippedDevShapeBounds = SkIRect::MakeEmpty();
         return false;
     }
     if (!clippedDevShapeBounds->intersect(*devClipBounds, *unclippedDevShapeBounds)) {
-        *clippedDevShapeBounds = SkIRect::EmptyIRect();
+        *clippedDevShapeBounds = SkIRect::MakeEmpty();
         return false;
     }
     return true;
@@ -163,7 +163,7 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
     SkMatrix maskMatrix = SkMatrix::MakeTrans(SkIntToScalar(-textureOriginInDeviceSpace.fX),
                                               SkIntToScalar(-textureOriginInDeviceSpace.fY));
     maskMatrix.preConcat(viewMatrix);
-    paint.addCoverageFragmentProcessor(GrSimpleTextureEffect::Make(
+    paint.addCoverageFragmentProcessor(GrTextureEffect::Make(
             std::move(proxy), kPremul_SkAlphaType, maskMatrix, GrSamplerState::Filter::kNearest));
     DrawNonAARect(renderTargetContext, std::move(paint), userStencilSettings, clip, SkMatrix::I(),
                   dstRect, invert);
@@ -178,13 +178,15 @@ static sk_sp<GrTextureProxy> make_deferred_mask_texture_proxy(GrRecordingContext
     GrSurfaceDesc desc;
     desc.fWidth = width;
     desc.fHeight = height;
-    desc.fConfig = kAlpha_8_GrPixelConfig;
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                  GrRenderable::kNo);
 
-    return proxyProvider->createProxy(format, desc, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
-                                      GrMipMapped::kNo, fit, SkBudgeted::kYes, GrProtected::kNo);
+    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
+
+    return proxyProvider->createProxy(format, desc, swizzle, GrRenderable::kNo, 1,
+                                      kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, fit,
+                                      SkBudgeted::kYes, GrProtected::kNo);
 }
 
 namespace {

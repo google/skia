@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
@@ -331,6 +332,7 @@ public:
         kScale_Type,
         k2x3_Type,
         k3x3_Type,
+        k4x4_Type,
     };
     Type fType;
 
@@ -341,6 +343,7 @@ public:
             case kScale_Type:     fName.append("_scale"); break;
             case k2x3_Type:       fName.append("_2x3"); break;
             case k3x3_Type:       fName.append("_3x3"); break;
+            case k4x4_Type:       fName.append("_4x4"); break;
         }
     }
 
@@ -355,6 +358,7 @@ protected:
         if (fType == k3x3_Type) {
             m[7] = 0.0001f;
         }
+        SkM44 m4(m);
 
         for (int i = 0; i < loops; ++i) {
             canvas->save();
@@ -364,6 +368,7 @@ protected:
                     case kScale_Type:     canvas->scale(1.0001f, 0.9999f); break;
                     case k2x3_Type:       canvas->concat(m); break;
                     case k3x3_Type:       canvas->concat(m); break;
+                    case k4x4_Type:       canvas->experimental_concat44(m4); break;
                 }
             }
             canvas->restore();
@@ -378,3 +383,4 @@ DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kTranslate_Type));
 DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kScale_Type));
 DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k2x3_Type));
 DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k3x3_Type));
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k4x4_Type));

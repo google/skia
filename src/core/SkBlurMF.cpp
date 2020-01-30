@@ -28,8 +28,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
-#include "src/gpu/effects/GrTextureDomain.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrRRectBlurEffect.h"
 #include "src/gpu/effects/generated/GrRectBlurEffect.h"
@@ -61,12 +60,12 @@ public:
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const GrShape& shape) const override;
-    sk_sp<GrTextureProxy> filterMaskGPU(GrRecordingContext*,
-                                        sk_sp<GrTextureProxy> srcProxy,
-                                        GrColorType srcColorType,
-                                        SkAlphaType srcAlphaType,
-                                        const SkMatrix& ctm,
-                                        const SkIRect& maskRect) const override;
+    GrSurfaceProxyView filterMaskGPU(GrRecordingContext*,
+                                     GrSurfaceProxyView srcView,
+                                     GrColorType srcColorType,
+                                     SkAlphaType srcAlphaType,
+                                     const SkMatrix& ctm,
+                                     const SkIRect& maskRect) const override;
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
@@ -760,15 +759,14 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         return false;
     }
 
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     std::unique_ptr<GrFragmentProcessor> fp;
 
     if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
         if (devRRect.isRect()) {
-            fp = GrRectBlurEffect::Make(proxyProvider, *context->priv().caps()->shaderCaps(),
+            fp = GrRectBlurEffect::Make(context, *context->priv().caps()->shaderCaps(),
                                         devRRect.rect(), xformedSigma);
         } else {
-            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, devRRect.rect(), xformedSigma);
+            fp = GrCircleBlurFragmentProcessor::Make(context, devRRect.rect(), xformedSigma);
         }
 
         if (!fp) {
@@ -868,12 +866,12 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
     return true;
 }
 
-sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
-                                                          sk_sp<GrTextureProxy> srcProxy,
-                                                          GrColorType srcColorType,
-                                                          SkAlphaType srcAlphaType,
-                                                          const SkMatrix& ctm,
-                                                          const SkIRect& maskRect) const {
+GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* context,
+                                                       GrSurfaceProxyView srcView,
+                                                       GrColorType srcColorType,
+                                                       SkAlphaType srcAlphaType,
+                                                       const SkMatrix& ctm,
+                                                       const SkIRect& maskRect) const {
     // 'maskRect' isn't snapped to the UL corner but the mask in 'src' is.
     const SkIRect clipRect = SkIRect::MakeWH(maskRect.width(), maskRect.height());
 
@@ -883,26 +881,26 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
     // If we're doing a normal blur, we can clobber the pathTexture in the
     // gaussianBlur.  Otherwise, we need to save it for later compositing.
     bool isNormalBlur = (kNormal_SkBlurStyle == fBlurStyle);
+    auto srcBounds = SkIRect::MakeSize(srcView.proxy()->dimensions());
     auto renderTargetContext = SkGpuBlurUtils::GaussianBlur(context,
-                                                            srcProxy,
+                                                            srcView,
                                                             srcColorType,
                                                             srcAlphaType,
-                                                            SkIPoint::Make(0, 0),
                                                             nullptr,
                                                             clipRect,
-                                                            SkIRect::EmptyIRect(),
+                                                            srcBounds,
                                                             xformedSigma,
                                                             xformedSigma,
-                                                            GrTextureDomain::kIgnore_Mode);
-    if (!renderTargetContext) {
-        return nullptr;
+                                                            SkTileMode::kClamp);
+    if (!renderTargetContext || !renderTargetContext->asTextureProxy()) {
+        return {};
     }
 
     if (!isNormalBlur) {
         GrPaint paint;
         // Blend pathTexture over blurTexture.
         paint.addCoverageFragmentProcessor(
-                GrSimpleTextureEffect::Make(std::move(srcProxy), srcAlphaType, SkMatrix::I()));
+                GrTextureEffect::Make(srcView.detachProxy(), srcAlphaType));
         if (kInner_SkBlurStyle == fBlurStyle) {
             // inner:  dst = dst * src
             paint.setCoverageSetOpXPFactory(SkRegion::kIntersect_Op);
@@ -922,7 +920,7 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* co
                                       SkRect::Make(clipRect));
     }
 
-    return renderTargetContext->asTextureProxyRef();
+    return renderTargetContext->readSurfaceView();
 }
 
 #endif // SK_SUPPORT_GPU

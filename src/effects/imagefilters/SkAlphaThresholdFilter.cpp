@@ -23,7 +23,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/effects/GrSimpleTextureEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrAlphaThresholdFragmentProcessor.h"
 #endif
 
@@ -103,8 +103,8 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
 sk_sp<GrTextureProxy> SkAlphaThresholdFilterImpl::createMaskTexture(GrRecordingContext* context,
                                                                     const SkMatrix& inMatrix,
                                                                     const SkIRect& bounds) const {
-    auto rtContext = context->priv().makeDeferredRenderTargetContextWithFallback(
-            SkBackingFit::kApprox, bounds.width(), bounds.height(), GrColorType::kAlpha_8, nullptr);
+    auto rtContext = GrRenderTargetContext::MakeWithFallback(
+            context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox, bounds.size());
     if (!rtContext) {
         return nullptr;
     }
@@ -149,9 +149,9 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 
-        sk_sp<GrTextureProxy> inputProxy(input->asTextureProxyRef(context));
-        SkASSERT(inputProxy);
-        const GrProtected isProtected = inputProxy->isProtected();
+        GrSurfaceProxyView inputView = (input->asSurfaceProxyViewRef(context));
+        SkASSERT(inputView.asTextureProxy());
+        const GrProtected isProtected = inputView.proxy()->isProtected();
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
@@ -166,8 +166,8 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
             return nullptr;
         }
 
-        auto textureFP = GrSimpleTextureEffect::Make(
-                std::move(inputProxy), input->alphaType(),
+        auto textureFP = GrTextureEffect::Make(
+                inputView.detachProxy(), input->alphaType(),
                 SkMatrix::MakeTrans(input->subset().x(), input->subset().y()));
         textureFP = GrColorSpaceXformEffect::Make(std::move(textureFP), input->getColorSpace(),
                                                   input->alphaType(), ctx.colorSpace());

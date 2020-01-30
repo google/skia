@@ -30,14 +30,10 @@ static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceProxy* proxy,
                           GrSurfaceOrigin origin,
                           int width, int height,
-                          GrPixelConfig config,
                           SkBudgeted budgeted) {
     REPORTER_ASSERT(reporter, proxy->origin() == origin);
     REPORTER_ASSERT(reporter, proxy->width() == width);
     REPORTER_ASSERT(reporter, proxy->height() == height);
-#ifdef SK_DEBUG
-    REPORTER_ASSERT(reporter, GrCaps::AreConfigsCompatible(config, proxy->config()));
-#endif
     REPORTER_ASSERT(reporter, !proxy->uniqueID().isInvalid());
     REPORTER_ASSERT(reporter, proxy->isBudgeted() == budgeted);
 }
@@ -71,7 +67,7 @@ static void check_rendertarget(skiatest::Reporter* reporter,
         REPORTER_ASSERT(reporter, rt->width() >= rtProxy->width());
         REPORTER_ASSERT(reporter, rt->height() >= rtProxy->height());
     }
-    REPORTER_ASSERT(reporter, rt->config() == rtProxy->config());
+    REPORTER_ASSERT(reporter, rt->backendFormat() == rtProxy->backendFormat());
 
     REPORTER_ASSERT(reporter, rt->numSamples() == rtProxy->numSamples());
     REPORTER_ASSERT(reporter, rt->surfacePriv().flags() == rtProxy->testingOnly_getFlags());
@@ -108,7 +104,7 @@ static void check_texture(skiatest::Reporter* reporter,
 
     REPORTER_ASSERT(reporter, tex->dimensions() == expectedSize);
 
-    REPORTER_ASSERT(reporter, tex->config() == texProxy->config());
+    REPORTER_ASSERT(reporter, tex->backendFormat() == texProxy->backendFormat());
 }
 
 
@@ -126,19 +122,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
-
-                            auto config = GrColorTypeToPixelConfig(ct);
-                            SkASSERT(kUnknown_GrPixelConfig != config);
-
                             GrSurfaceDesc desc;
                             desc.fWidth = widthHeight;
                             desc.fHeight = widthHeight;
-                            desc.fConfig = config;
 
                             auto format = caps.getDefaultBackendFormat(ct, GrRenderable::kYes);
                             if (!format.isValid()) {
                                 continue;
                             }
+                            GrSwizzle swizzle = caps.getReadSwizzle(format, ct);
 
                             // Renderable
                             {
@@ -154,8 +146,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                                        format, desc, GrRenderable::kYes, numSamples, origin,
-                                        GrMipMapped::kNo, fit, budgeted, GrProtected::kNo);
+                                        format, desc, swizzle, GrRenderable::kYes, numSamples,
+                                        origin, GrMipMapped::kNo, fit, budgeted, GrProtected::kNo);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     REPORTER_ASSERT(reporter, proxy->asRenderTargetProxy());
@@ -167,7 +159,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     proxy->gpuMemorySize(caps);
 
                                     check_surface(reporter, proxy.get(), origin,
-                                                  widthHeight, widthHeight, config, budgeted);
+                                                  widthHeight, widthHeight, budgeted);
                                     int supportedSamples =
                                             caps.getRenderTargetSampleCount(numSamples, format);
                                     check_rendertarget(reporter, caps, resourceProvider,
@@ -191,8 +183,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
-                                        format, desc, GrRenderable::kNo, numSamples, origin,
-                                        GrMipMapped::kNo, fit, budgeted, GrProtected::kNo));
+                                        format, desc, swizzle, GrRenderable::kNo, numSamples,
+                                        origin, GrMipMapped::kNo, fit, budgeted, GrProtected::kNo));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
                                     // This forces the proxy to compute and cache its
@@ -203,7 +195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                     proxy->gpuMemorySize(caps);
 
                                     check_surface(reporter, proxy.get(), origin,
-                                                  widthHeight, widthHeight, config, budgeted);
+                                                  widthHeight, widthHeight, budgeted);
                                     check_texture(reporter, resourceProvider,
                                                   proxy->asTextureProxy(), fit);
                                 }
@@ -231,8 +223,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
         for (auto colorType : { kAlpha_8_SkColorType, kRGBA_8888_SkColorType,
                                 kRGBA_1010102_SkColorType }) {
             GrColorType grColorType = SkColorTypeToGrColorType(colorType);
-            GrPixelConfig config = GrColorTypeToPixelConfig(grColorType);
-            SkASSERT(kUnknown_GrPixelConfig != config);
 
             // External on-screen render target.
             // Tests wrapBackendRenderTarget with a GrBackendRenderTarget
@@ -245,7 +235,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                         proxyProvider->wrapBackendRenderTarget(backendRT, grColorType,
                                                                origin, nullptr, nullptr));
                 check_surface(reporter, sProxy.get(), origin, kWidthHeight, kWidthHeight,
-                              config, SkBudgeted::kNo);
+                              SkBudgeted::kNo);
                 static constexpr int kExpectedNumSamples = 1;
                 check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                    kExpectedNumSamples, SkBackingFit::kExact,
@@ -275,8 +265,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                             proxyProvider->wrapBackendRenderTarget(backendRT, grColorType,
                                                                    origin, nullptr, nullptr));
                     check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight,
-                                  config, SkBudgeted::kNo);
+                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                     check_rendertarget(reporter, caps, resourceProvider,
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact, 0);
@@ -300,8 +289,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     }
 
                     check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight,
-                                  config, SkBudgeted::kNo);
+                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                     check_rendertarget(reporter, caps, resourceProvider,
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact,
@@ -330,8 +318,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     }
 
                     check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight,
-                                  config, SkBudgeted::kNo);
+                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                     check_rendertarget(reporter, caps, resourceProvider,
                                        sProxy->asRenderTargetProxy(),
                                        supportedNumSamples, SkBackingFit::kExact,
@@ -360,8 +347,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
                     }
 
                     check_surface(reporter, sProxy.get(), origin,
-                                  kWidthHeight, kWidthHeight,
-                                  config, SkBudgeted::kNo);
+                                  kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                     check_texture(reporter, resourceProvider, sProxy->asTextureProxy(),
                                   SkBackingFit::kExact);
 
@@ -387,15 +373,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     GrSurfaceDesc desc;
                     desc.fWidth = width;
                     desc.fHeight = height;
-                    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
                     const GrBackendFormat format =
                             context->priv().caps()->getDefaultBackendFormat(
                                 GrColorType::kRGBA_8888,
                                 renderable);
+                    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
+                            format, GrColorType::kRGBA_8888);
 
                     sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, desc, renderable, 1, kBottomLeft_GrSurfaceOrigin,
+                            format, desc, swizzle, renderable, 1, kBottomLeft_GrSurfaceOrigin,
                             GrMipMapped::kNo, fit, SkBudgeted::kNo, GrProtected::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }

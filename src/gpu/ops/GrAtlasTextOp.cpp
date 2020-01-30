@@ -319,76 +319,139 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
                                                               *target->caps().shaderCaps(),
                                                               views, numActiveViews);
     } else {
-        GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
-                                                           : GrSamplerState::ClampNearest();
-        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(target->allocator(),
-            *target->caps().shaderCaps(), this->color(), false, views, numActiveViews,
-            samplerState, maskFormat, localMatrix, vmPerspective);
+        auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kBilerp
+                                           : GrSamplerState::Filter::kNearest;
+        flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
+                target->allocator(), *target->caps().shaderCaps(), this->color(), false, views,
+                numActiveViews, filter, maskFormat, localMatrix, vmPerspective);
     }
 
-    flushInfo.fGlyphsToFlush = 0;
-    size_t vertexStride = flushInfo.fGeometryProcessor->vertexStride();
+    int vertexStride = (int)flushInfo.fGeometryProcessor->vertexStride();
 
-    int glyphCount = this->numGlyphs();
+    // Ensure we don't request an insanely large contiguous vertex allocation.
+    static const int kMaxVertexBytes = GrBufferAllocPool::kDefaultBufferSize;
+    const int quadSize = vertexStride * kVerticesPerGlyph;
+    const int maxQuadsPerBuffer = kMaxVertexBytes / quadSize;
 
-    void* vertices = target->makeVertexSpace(vertexStride, glyphCount * kVerticesPerGlyph,
-                                             &flushInfo.fVertexBuffer, &flushInfo.fVertexOffset);
+    // Where the quad buffer begins and ends relative to totalGlyphsRegened.
+    int quadBufferBegin = 0;
+    int quadBufferEnd = std::min(this->numGlyphs(), maxQuadsPerBuffer);
+
     flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
+    void* vertices = target->makeVertexSpace(
+            vertexStride,
+            kVerticesPerGlyph * (quadBufferEnd - quadBufferBegin),
+            &flushInfo.fVertexBuffer,
+            &flushInfo.fVertexOffset);
     if (!vertices || !flushInfo.fVertexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;
     }
 
-    char* currVertex = reinterpret_cast<char*>(vertices);
-
-    // each of these is a SubRun
+    // totalGlyphsRegened is all the glyphs for the op [0, this->numGlyphs()). The subRun glyph and
+    // quad buffer indices are calculated from this.
+    int totalGlyphsRegened = 0;
     for (int i = 0; i < fGeoCount; i++) {
         const Geometry& args = fGeoData[i];
+        auto subRun = args.fSubRunPtr;
+        SkASSERT((int)subRun->vertexStride() == vertexStride);
+
+        subRun->updateVerticesColorIfNeeded(args.fColor.toBytes_RGBA());
+        subRun->translateVerticesIfNeeded(args.fDrawMatrix, args.fDrawOrigin);
+
         // TODO4F: Preserve float colors
         GrTextBlob::VertexRegenerator regenerator(
-                resourceProvider, args.fSubRunPtr, args.fDrawMatrix, args.fDrawOrigin,
-                args.fColor.toBytes_RGBA(), target->deferredUploadTarget(), glyphCache,
+                resourceProvider, args.fSubRunPtr, target->deferredUploadTarget(), glyphCache,
                 atlasManager);
-        bool done = false;
-        while (!done) {
-            GrTextBlob::VertexRegenerator::Result result;
-            if (!regenerator.regenerate(&result)) {
-                break;
-            }
-            done = result.fFinished;
 
-            // Copy regenerated vertices from the blob to our vertex buffer.
-            size_t vertexBytes = result.fGlyphsRegenerated * kVerticesPerGlyph * vertexStride;
-            if (args.fClipRect.isEmpty()) {
-                memcpy(currVertex, result.fFirstVertex, vertexBytes);
-            } else {
-                SkASSERT(!vmPerspective);
-                clip_quads(args.fClipRect, currVertex, result.fFirstVertex, vertexStride,
-                           result.fGlyphsRegenerated);
-            }
-            if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
-                // We always do the distance field view matrix transformation after copying rather
-                // than during blob vertex generation time in the blob as handling successive
-                // arbitrary transformations would be complicated and accumulate error.
-                if (args.fDrawMatrix.hasPerspective()) {
-                    auto* pos = reinterpret_cast<SkPoint3*>(currVertex);
-                    SkMatrixPriv::MapHomogeneousPointsWithStride(
-                            args.fDrawMatrix, pos, vertexStride, pos, vertexStride,
-                            result.fGlyphsRegenerated * kVerticesPerGlyph);
+        // Where the subRun begins and ends relative to totalGlyphsRegened.
+        int subRunBegin = totalGlyphsRegened;
+        int subRunEnd = subRunBegin + (int)subRun->fGlyphs.size();
+
+        // Draw all the glyphs in the subRun.
+        while (totalGlyphsRegened < subRunEnd) {
+            // drawBegin and drawEnd are indices for the subRun on the
+            // interval [0, subRun->fGlyphs.size()).
+            int drawBegin = totalGlyphsRegened - subRunBegin;
+            // drawEnd is either the end of the subRun or the end of the current quad buffer.
+            int drawEnd = std::min(subRunEnd, quadBufferEnd) - subRunBegin;
+            auto[ok, glyphsRegenerated] = regenerator.regenerate(drawBegin, drawEnd);
+
+            // There was a problem allocating the glyph in the atlas. Bail.
+            if(!ok) { return; }
+
+            // Update all the vertices for glyphsRegenerate glyphs.
+            if (glyphsRegenerated > 0) {
+                int quadBufferIndex = totalGlyphsRegened - quadBufferBegin;
+                int subRunIndex = totalGlyphsRegened - subRunBegin;
+                auto regeneratedQuadBuffer =
+                        SkTAddOffset<char>(vertices, subRun->quadOffset(quadBufferIndex));
+                if (args.fClipRect.isEmpty()) {
+                    memcpy(regeneratedQuadBuffer,
+                           subRun->quadStart(subRunIndex),
+                           glyphsRegenerated * quadSize);
                 } else {
-                    auto* pos = reinterpret_cast<SkPoint*>(currVertex);
-                    SkMatrixPriv::MapPointsWithStride(
-                            args.fDrawMatrix, pos, vertexStride,
-                            result.fGlyphsRegenerated * kVerticesPerGlyph);
+                    SkASSERT(!vmPerspective);
+                    clip_quads(args.fClipRect,
+                               regeneratedQuadBuffer,
+                               subRun->quadStart(subRunIndex),
+                               vertexStride,
+                               glyphsRegenerated);
+                }
+                if (fNeedsGlyphTransform && !args.fDrawMatrix.isIdentity()) {
+                    // We always do the distance field view matrix transformation after copying
+                    // rather than during blob vertex generation time in the blob as handling
+                    // successive arbitrary transformations would be complicated and accumulate
+                    // error.
+                    if (args.fDrawMatrix.hasPerspective()) {
+                        auto* pos = reinterpret_cast<SkPoint3*>(regeneratedQuadBuffer);
+                        SkMatrixPriv::MapHomogeneousPointsWithStride(
+                                args.fDrawMatrix, pos,
+                                vertexStride, pos,
+                                vertexStride,
+                                glyphsRegenerated * kVerticesPerGlyph);
+                    } else {
+                        auto* pos = reinterpret_cast<SkPoint*>(regeneratedQuadBuffer);
+                        SkMatrixPriv::MapPointsWithStride(args.fDrawMatrix, pos, vertexStride,
+                                                          glyphsRegenerated * kVerticesPerGlyph);
+                    }
                 }
             }
-            flushInfo.fGlyphsToFlush += result.fGlyphsRegenerated;
-            if (!result.fFinished) {
+
+            totalGlyphsRegened += glyphsRegenerated;
+            flushInfo.fGlyphsToFlush += glyphsRegenerated;
+
+            // regenerate() has stopped part way through a SubRun. This means that either the atlas
+            // or the quad buffer is full or both. There is a case were the flow through
+            // the loop is strange. If we run out of quad buffer space at the same time the
+            // SubRun ends, then this is not triggered which is the right result for the last
+            // SubRun. But, if this is not the last SubRun, then advance to the next SubRun which
+            // will process no glyphs, and return to this point where the quad buffer will be
+            // expanded.
+            if (totalGlyphsRegened != subRunEnd) {
+                // Flush if not all glyphs drawn because either the quad buffer is full or the
+                // atlas is out of space.
                 this->flush(target, &flushInfo);
+                if (totalGlyphsRegened == quadBufferEnd) {
+                    // Quad buffer is full. Get more buffer.
+                    quadBufferBegin = totalGlyphsRegened;
+                    int quadBufferSize =
+                            std::min(maxQuadsPerBuffer, this->numGlyphs() - totalGlyphsRegened);
+                    quadBufferEnd = quadBufferBegin + quadBufferSize;
+
+                    vertices = target->makeVertexSpace(
+                            vertexStride,
+                            kVerticesPerGlyph * quadBufferSize,
+                            &flushInfo.fVertexBuffer,
+                            &flushInfo.fVertexOffset);
+                    if (!vertices || !flushInfo.fVertexBuffer) {
+                        SkDebugf("Could not allocate vertices\n");
+                        return;
+                    }
+                }
             }
-            currVertex += vertexBytes;
         }
-    }
+    }  // for all geometries
     this->flush(target, &flushInfo);
 }
 
@@ -425,20 +488,23 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
             target->sampledProxyArray()->push_back(views[i].proxy());
+            // These will get unreffed when the previously recorded draws destruct.
+            for (int d = 0; d < flushInfo->fNumDraws; ++d) {
+                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i]->ref();
+            }
         }
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewViews(
-                    views, numActiveViews, GrSamplerState::ClampBilerp());
+                        views, numActiveViews, GrSamplerState::Filter::kBilerp);
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewViews(
-                    views, numActiveViews, GrSamplerState::ClampBilerp());
+                        views, numActiveViews, GrSamplerState::Filter::kBilerp);
             }
         } else {
-            GrSamplerState samplerState = fNeedsGlyphTransform ? GrSamplerState::ClampBilerp()
-                                                               : GrSamplerState::ClampNearest();
-            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews,
-                                                                      samplerState);
+            auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kBilerp
+                                               : GrSamplerState::Filter::kNearest;
+            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews, filter);
         }
     }
     int maxGlyphsPerDraw = static_cast<int>(flushInfo->fIndexBuffer->size() / sizeof(uint16_t) / 6);
@@ -450,6 +516,7 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                        nullptr, GrPrimitiveType::kTriangles);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
+    ++flushInfo->fNumDraws;
 }
 
 GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingContext::Arenas*,
@@ -491,14 +558,6 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, GrRecordingConte
         if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
             return CombineResult::kCannotCombine;
         }
-    }
-
-    // Keep the batch vertex buffer size below 32K so we don't have to create a special one
-    // We use the largest possible vertex size for this
-    static const int kVertexSize = sizeof(SkPoint) + sizeof(SkColor) + 2 * sizeof(uint16_t);
-    static const int kMaxGlyphs = 32768 / (kVerticesPerGlyph * kVertexSize);
-    if (this->fNumGlyphs + that->fNumGlyphs > kMaxGlyphs) {
-        return CombineResult::kCannotCombine;
     }
 
     fNumGlyphs += that->numGlyphs();
@@ -560,7 +619,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
         return GrDistanceFieldLCDTextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                   GrSamplerState::ClampBilerp(), widthAdjust,
+                                                   GrSamplerState::Filter::kBilerp, widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
 #ifdef SK_GAMMA_APPLY_TO_A8
@@ -572,11 +631,11 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                              fUseGammaCorrectDistanceTable);
         }
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                  GrSamplerState::ClampBilerp(),
-                                                  correction, fDFGPFlags, localMatrix);
+                                                  GrSamplerState::Filter::kBilerp, correction,
+                                                  fDFGPFlags, localMatrix);
 #else
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
-                                                  GrSamplerState::ClampBilerp(),
+                                                  GrSamplerState::Filter::kBilerp,
                                                   fDFGPFlags, localMatrix);
 #endif
     }

@@ -14,8 +14,11 @@
 #include "src/shaders/SkRTShader.h"
 
 #include "src/sksl/SkSLByteCode.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLInterpreter.h"
 
 #if SK_SUPPORT_GPU
+#include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #endif
@@ -41,20 +44,22 @@ bool SkRTShader::onAppendStages(const SkStageRec& rec) const {
     auto ctx = rec.fAlloc->make<SkRasterPipeline_InterpreterCtx>();
     ctx->paintColor = rec.fPaint.getColor4f();
     ctx->inputs = fInputs->data();
-    ctx->ninputs = fInputs->size() / 4;
+    ctx->ninputs = fEffect->uniformSize() / 4;
     ctx->shaderConvention = true;
 
-    SkAutoMutexExclusive ama(fByteCodeMutex);
-    if (!fByteCode) {
-        auto [byteCode, errorText] = fEffect->toByteCode();
+    SkAutoMutexExclusive ama(fInterpreterMutex);
+    if (!fInterpreter) {
+        auto [byteCode, errorText] = fEffect->toByteCode(fInputs->data());
         if (!byteCode) {
             SkDebugf("%s\n", errorText.c_str());
             return false;
         }
-        fByteCode = std::move(byteCode);
+        fMain = byteCode->getFunction("main");
+        fInterpreter.reset(new SkSL::Interpreter<SkRasterPipeline_InterpreterCtx::VECTOR_WIDTH>(
+                                                                      std::move(byteCode)));
     }
-    ctx->byteCode = fByteCode.get();
-    ctx->fn = ctx->byteCode->getFunction("main");
+    ctx->fn = fMain;
+    ctx->interpreter = fInterpreter.get();
 
     rec.fPipeline->append(SkRasterPipeline::seed_shader);
     rec.fPipeline->append_matrix(rec.fAlloc, inverse);
@@ -135,28 +140,10 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
         }
         fp->addChild(std::move(childFP));
     }
-    return fp;
+    if (GrColorTypeClampType(args.fDstColorInfo->colorType()) != GrClampType::kNone) {
+        return GrFragmentProcessor::ClampPremulOutput(std::move(fp));
+    } else {
+        return fp;
+    }
 }
 #endif
-
-SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkString sksl, bool isOpaque)
-    : fEffect(std::get<0>(SkRuntimeEffect::Make(std::move(sksl))))
-    , fIsOpaque(isOpaque) {}
-
-SkRuntimeShaderFactory::SkRuntimeShaderFactory(const SkRuntimeShaderFactory&) = default;
-SkRuntimeShaderFactory::SkRuntimeShaderFactory(SkRuntimeShaderFactory&&) = default;
-
-SkRuntimeShaderFactory::~SkRuntimeShaderFactory() = default;
-
-SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(const SkRuntimeShaderFactory&) = default;
-SkRuntimeShaderFactory& SkRuntimeShaderFactory::operator=(SkRuntimeShaderFactory&&) = default;
-
-sk_sp<SkShader> SkRuntimeShaderFactory::make(sk_sp<SkData> inputs, const SkMatrix* localMatrix,
-                                             sk_sp<SkShader>* children, size_t childCount) {
-    return fEffect
-        && inputs->size() >= fEffect->inputSize()
-        && childCount >= fEffect->childCount()
-        ? sk_sp<SkShader>(new SkRTShader(fEffect, std::move(inputs), localMatrix,
-                                         children, childCount, fIsOpaque))
-        : nullptr;
-}

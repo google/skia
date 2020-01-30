@@ -7,6 +7,7 @@
 
 #include "include/core/SkMatrix44.h"
 #include "include/core/SkPoint3.h"
+#include "include/private/SkM44.h"
 #include "tests/Test.h"
 
 static bool nearly_equal_double(double a, double b) {
@@ -15,12 +16,6 @@ static bool nearly_equal_double(double a, double b) {
     if (diff < 0)
         diff = -diff;
     return diff <= tolerance;
-}
-
-static bool nearly_equal_mscalar(SkMScalar a, SkMScalar b) {
-    const SkMScalar tolerance = SK_MScalar1 / 200000;
-
-    return SkTAbs<SkMScalar>(a - b) <= tolerance;
 }
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
@@ -57,7 +52,7 @@ template <typename T> void assert16(skiatest::Reporter* reporter, const T data[]
 static bool nearly_equal(const SkMatrix44& a, const SkMatrix44& b) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if (!nearly_equal_mscalar(a.get(i, j), b.get(i, j))) {
+            if (!SkScalarNearlyEqual(a.get(i, j), b.get(i, j))) {
                 SkDebugf("not equal %g %g\n", a.get(i, j), b.get(i, j));
                 return false;
             }
@@ -178,7 +173,7 @@ static void make_a(SkMatrix44* mat) {
     mat->setRotateDegreesAbout(1, 2, 3, 45);
 }
 static void make_p(SkMatrix44* mat) {
-    SkMScalar data[] = {
+    SkScalar data[] = {
         1, 2, 3, 4, 5, 6, 7, 8,
         1, 2, 3, 4, 5, 6, 7, 8,
     };
@@ -192,17 +187,17 @@ static const Make44Proc gMakeProcs[] = {
 };
 
 static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
-    SkMScalar src2[] = { 1, 2 };
-    SkMScalar src4[] = { src2[0], src2[1], 0, 1 };
-    SkMScalar dstA[4], dstB[4];
+    SkScalar src2[] = { 1, 2 };
+    SkScalar src4[] = { src2[0], src2[1], 0, 1 };
+    SkScalar dstA[4], dstB[4];
 
     for (int i = 0; i < 4; ++i) {
-        dstA[i] = SkDoubleToMScalar(123456789);
-        dstB[i] = SkDoubleToMScalar(987654321);
+        dstA[i] = SkScalar(123456789);
+        dstB[i] = SkScalar(987654321);
     }
 
     mat.map2(src2, 1, dstA);
-    mat.mapMScalars(src4, dstB);
+    mat.mapScalars(src4, dstB);
 
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, dstA[i] == dstB[i]);
@@ -242,9 +237,9 @@ static void test_gettype(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, matrix.getType() & SkMatrix44::kPerspective_Mask);
 
     // ensure that negative zero is treated as zero
-    SkMScalar dx = 0;
-    SkMScalar dy = 0;
-    SkMScalar dz = 0;
+    SkScalar dx = 0;
+    SkScalar dy = 0;
+    SkScalar dz = 0;
     matrix.setTranslate(-dx, -dy, -dz);
     REPORTER_ASSERT(reporter, matrix.isIdentity());
     matrix.preTranslate(-dx, -dy, -dz);
@@ -260,7 +255,7 @@ static void test_common_angles(skiatest::Reporter* reporter) {
     for (int i = 0; i < 9; ++i) {
         rot.setRotateDegreesAbout(0, 0, -1, SkIntToScalar(common_angles[i]));
 
-        SkMatrix rot3x3 = rot;
+        SkMatrix rot3x3 = SkMatrix(rot);
         REPORTER_ASSERT(reporter, rot3x3.rectStaysRect());
     }
 }
@@ -520,21 +515,21 @@ static void test_set_row_col_major(skiatest::Reporter* reporter) {
 }
 
 static void test_3x3_conversion(skiatest::Reporter* reporter) {
-    SkMScalar values4x4[16] = { 1, 2, 3, 4,
-                                5, 6, 7, 8,
-                                9, 10, 11, 12,
-                                13, 14, 15, 16 };
+    SkScalar values4x4[16] = { 1, 2, 3, 4,
+                               5, 6, 7, 8,
+                               9, 10, 11, 12,
+                               13, 14, 15, 16 };
     SkScalar values3x3[9] = { 1, 2, 4,
                               5, 6, 8,
                               13, 14, 16 };
-    SkMScalar values4x4flattened[16] = { 1, 2, 0, 4,
-                                         5, 6, 0, 8,
-                                         0, 0, 1, 0,
-                                         13, 14, 0, 16 };
+    SkScalar values4x4flattened[16] = { 1, 2, 0, 4,
+                                        5, 6, 0, 8,
+                                        0, 0, 1, 0,
+                                        13, 14, 0, 16 };
     SkMatrix44 a44;
     a44.setRowMajor(values4x4);
 
-    SkMatrix a33 = a44;
+    SkMatrix a33 = SkMatrix(a44);
     SkMatrix expected33;
     for (int i = 0; i < 9; i++) expected33[i] = values3x3[i];
     REPORTER_ASSERT(reporter, expected33 == a33);
@@ -647,10 +642,10 @@ static void test_preserves_2d_axis_alignment(skiatest::Reporter* reporter) {
   SkMatrix44 transform2;
 
   static const struct TestCase {
-    SkMScalar a; // row 1, column 1
-    SkMScalar b; // row 1, column 2
-    SkMScalar c; // row 2, column 1
-    SkMScalar d; // row 2, column 2
+    SkScalar a; // row 1, column 1
+    SkScalar b; // row 1, column 2
+    SkScalar c; // row 2, column 1
+    SkScalar d; // row 2, column 2
     bool expected;
   } test_cases[] = {
     { 3.f, 0.f,
@@ -766,14 +761,14 @@ static void test_preserves_2d_axis_alignment(skiatest::Reporter* reporter) {
   }
 
   static const struct DoubleRotationCase {
-    SkMScalar x1;
-    SkMScalar y1;
-    SkMScalar z1;
-    SkMScalar degrees1;
-    SkMScalar x2;
-    SkMScalar y2;
-    SkMScalar z2;
-    SkMScalar degrees2;
+    SkScalar x1;
+    SkScalar y1;
+    SkScalar z1;
+    SkScalar degrees1;
+    SkScalar x2;
+    SkScalar y2;
+    SkScalar z2;
+    SkScalar degrees2;
     bool expected;
   } double_rotation_tests[] = {
     { 0.0, 0.0, 1.0, 90.0, 0.0, 1.0, 0.0, 90.0, true },
@@ -803,20 +798,20 @@ static void test_preserves_2d_axis_alignment(skiatest::Reporter* reporter) {
   test(true, reporter, transform);
 }
 
-// just want to exercise the various converters for MScalar
+// just want to exercise the various converters for Scalar
 static void test_toint(skiatest::Reporter* reporter) {
     SkMatrix44 mat;
     mat.setScale(3, 3, 3);
 
-    SkMScalar sum = SkMScalarFloor(mat.get(0, 0)) +
-                    SkMScalarRound(mat.get(1, 0)) +
-                    SkMScalarCeil(mat.get(2, 0));
-    int isum =      SkMScalarFloorToInt(mat.get(0, 1)) +
-                    SkMScalarRoundToInt(mat.get(1, 2)) +
-                    SkMScalarCeilToInt(mat.get(2, 3));
+    SkScalar sum = SkScalarFloorToScalar(mat.get(0, 0)) +
+                   SkScalarRoundToScalar(mat.get(1, 0)) +
+                   SkScalarCeilToScalar(mat.get(2, 0));
+    int isum =     SkScalarFloorToInt(mat.get(0, 1)) +
+                   SkScalarRoundToInt(mat.get(1, 2)) +
+                   SkScalarCeilToInt(mat.get(2, 3));
     REPORTER_ASSERT(reporter, sum >= 0);
     REPORTER_ASSERT(reporter, isum >= 0);
-    REPORTER_ASSERT(reporter, static_cast<SkMScalar>(isum) == SkIntToMScalar(isum));
+    REPORTER_ASSERT(reporter, static_cast<SkScalar>(isum) == SkIntToScalar(isum));
 }
 
 DEF_TEST(Matrix44, reporter) {
@@ -836,7 +831,7 @@ DEF_TEST(Matrix44, reporter) {
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
 
-    mat.setScale(SK_MScalar1/2, SK_MScalar1/2, SK_MScalar1/2);
+    mat.setScale(SK_Scalar1/2, SK_Scalar1/2, SK_Scalar1/2);
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
     REPORTER_ASSERT(reporter, is_identity(iden1));
@@ -853,7 +848,7 @@ DEF_TEST(Matrix44, reporter) {
 
     // test tiny-valued matrix inverse
     mat.reset();
-    auto v = SkDoubleToMScalar(1.0e-12);
+    auto v = 1.0e-12f;
     mat.setScale(v,v,v);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
@@ -865,14 +860,10 @@ DEF_TEST(Matrix44, reporter) {
 
     // test mixed-valued matrix inverse
     mat.reset();
-    mat.setScale(SkDoubleToMScalar(1.0e-2),
-                 SkDoubleToMScalar(3.0),
-                 SkDoubleToMScalar(1.0e+2));
+    mat.setScale(1.0e-2f, 3.0f, 1.0e+2f);
     rot.setRotateDegreesAbout(0, 0, -1, 90);
     mat.postConcat(rot);
-    mat.postTranslate(SkDoubleToMScalar(1.0e+2),
-                      SkDoubleToMScalar(3.0),
-                      SkDoubleToMScalar(1.0e-2));
+    mat.postTranslate(1.0e+2f, 3.0f, 1.0e-2f);
     REPORTER_ASSERT(reporter, mat.invert(nullptr));
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);
@@ -933,4 +924,191 @@ DEF_TEST(Matrix44, reporter) {
     test_has_perspective(reporter);
     test_preserves_2d_axis_alignment(reporter);
     test_toint(reporter);
+}
+
+static bool eq(const SkMatrix44& a, const SkM44& b, float tol) {
+    float fa[16], fb[16];
+    a.asColMajorf(fa);
+    b.getColMajor(fb);
+    for (int i = 0; i < 16; ++i) {
+        if (!SkScalarNearlyEqual(fa[i], fb[i], tol)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool eq(const SkM44& a, const SkM44& b, float tol) {
+    float fa[16], fb[16];
+    a.getColMajor(fa);
+    b.getColMajor(fb);
+    for (int i = 0; i < 16; ++i) {
+        if (!SkScalarNearlyEqual(fa[i], fb[i], tol)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+DEF_TEST(M44, reporter) {
+    SkM44 m, im;
+    SkMatrix44 m44, im44;
+
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+    REPORTER_ASSERT(reporter, SkM44() == m);
+    REPORTER_ASSERT(reporter, m.invert(&im));
+    REPORTER_ASSERT(reporter, SkM44() == im);
+
+    m.setTranslate(3, 4, 2);
+    m44.setTranslate(3, 4, 2);
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+    REPORTER_ASSERT(reporter, SkM44(1, 0, 0, 3,
+                                    0, 1, 0, 4,
+                                    0, 0, 1, 2,
+                                    0, 0, 0, 1) == m);
+
+    const float f[] = { 1, 0, 0, 2, 3, 1, 2, 5, 0, 5, 3, 0, 0, 1, 0, 2 };
+    m.setColMajor(f);
+    m44.setColMajorf(f);
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+
+    {
+        SkM44 t = m.transpose();
+        REPORTER_ASSERT(reporter, t != m);
+        REPORTER_ASSERT(reporter, t.rc(1,0) == m.rc(0,1));
+        SkM44 tt = t.transpose();
+        REPORTER_ASSERT(reporter, tt == m);
+    }
+
+    m.setRowMajor(f);
+    m44.setRowMajorf(f);
+    REPORTER_ASSERT(reporter, eq(m44, m, 0));
+
+    REPORTER_ASSERT(reporter, m.invert(&im));
+    REPORTER_ASSERT(reporter, m44.invert(&im44));
+    REPORTER_ASSERT(reporter, eq(im44, im, 0));
+
+    m = m * im;
+    // m should be identity now, but our calc is not perfect...
+    REPORTER_ASSERT(reporter, eq(SkM44(), m, 0.0000005f));
+    REPORTER_ASSERT(reporter, SkM44() != m);
+}
+
+DEF_TEST(M44_v3, reporter) {
+    SkV3 a = {1, 2, 3},
+         b = {1, 2, 2};
+
+    REPORTER_ASSERT(reporter, a.lengthSquared() == 1 + 4 + 9);
+    REPORTER_ASSERT(reporter, b.length() == 3);
+    REPORTER_ASSERT(reporter, a.dot(b) == 1 + 4 + 6);
+    REPORTER_ASSERT(reporter, b.dot(a) == 1 + 4 + 6);
+    REPORTER_ASSERT(reporter, (a.cross(b) == SkV3{-2,  1, 0}));
+    REPORTER_ASSERT(reporter, (b.cross(a) == SkV3{ 2, -1, 0}));
+
+    SkM44 m = {
+        2, 0, 0, 3,
+        0, 1, 0, 5,
+        0, 0, 3, 1,
+        0, 0, 0, 1
+    };
+
+    SkV3 c = m * a;
+    REPORTER_ASSERT(reporter, (c == SkV3{2, 2, 9}));
+    SkV4 d = m.map(4, 3, 2, 1);
+    REPORTER_ASSERT(reporter, (d == SkV4{11, 8, 7, 1}));
+}
+
+DEF_TEST(M44_v4, reporter) {
+    SkM44 m( 1,  2,  3,  4,
+             5,  6,  7,  8,
+             9, 10, 11, 12,
+            13, 14, 15, 16);
+
+    SkV4 r0 = m.row(0),
+         r1 = m.row(1),
+         r2 = m.row(2),
+         r3 = m.row(3);
+
+    REPORTER_ASSERT(reporter, (r0 == SkV4{ 1,  2,  3,  4}));
+    REPORTER_ASSERT(reporter, (r1 == SkV4{ 5,  6,  7,  8}));
+    REPORTER_ASSERT(reporter, (r2 == SkV4{ 9, 10, 11, 12}));
+    REPORTER_ASSERT(reporter, (r3 == SkV4{13, 14, 15, 16}));
+
+    REPORTER_ASSERT(reporter, SkM44::Rows(r0, r1, r2, r3) == m);
+
+    SkV4 c0 = m.col(0),
+         c1 = m.col(1),
+         c2 = m.col(2),
+         c3 = m.col(3);
+
+    REPORTER_ASSERT(reporter, (c0 == SkV4{1, 5,  9, 13}));
+    REPORTER_ASSERT(reporter, (c1 == SkV4{2, 6, 10, 14}));
+    REPORTER_ASSERT(reporter, (c2 == SkV4{3, 7, 11, 15}));
+    REPORTER_ASSERT(reporter, (c3 == SkV4{4, 8, 12, 16}));
+
+    REPORTER_ASSERT(reporter, SkM44::Cols(c0, c1, c2, c3) == m);
+
+    // implement matrix * vector using column vectors
+    SkV4 v = {1, 2, 3, 4};
+    SkV4 v1 = m * v;
+    SkV4 v2 = c0 * v.x + c1 * v.y + c2 * v.z + c3 * v.w;
+    REPORTER_ASSERT(reporter, v1 == v2);
+
+    REPORTER_ASSERT(reporter, (c0 + r0 == SkV4{c0.x+r0.x, c0.y+r0.y, c0.z+r0.z, c0.w+r0.w}));
+    REPORTER_ASSERT(reporter, (c0 - r0 == SkV4{c0.x-r0.x, c0.y-r0.y, c0.z-r0.z, c0.w-r0.w}));
+    REPORTER_ASSERT(reporter, (c0 * r0 == SkV4{c0.x*r0.x, c0.y*r0.y, c0.z*r0.z, c0.w*r0.w}));
+}
+
+DEF_TEST(M44_rotate, reporter) {
+    const SkV3 x = {1, 0, 0},
+               y = {0, 1, 0},
+               z = {0, 0, 1};
+
+    // We have radians version of setRotateAbout methods, but even with our best approx
+    // for PI, sin(SK_ScalarPI) != 0, so to make the comparisons in the unittest clear,
+    // I'm using the variants that explicitly take the sin,cos values.
+
+    struct {
+        SkScalar sinAngle, cosAngle;
+        SkV3 aboutAxis;
+        SkV3 expectedX, expectedY, expectedZ;
+    } recs[] = {
+        { 0, 1,    x,   x, y, z},    // angle = 0
+        { 0, 1,    y,   x, y, z},    // angle = 0
+        { 0, 1,    z,   x, y, z},    // angle = 0
+
+        { 0,-1,    x,   x,-y,-z},    // angle = 180
+        { 0,-1,    y,  -x, y,-z},    // angle = 180
+        { 0,-1,    z,  -x,-y, z},    // angle = 180
+
+        // Skia coordinate system is right-handed
+
+        { 1, 0,    x,   x, z,-y},    // angle = 90
+        { 1, 0,    y,  -z, y, x},    // angle = 90
+        { 1, 0,    z,   y,-x, z},    // angle = 90
+
+        {-1, 0,    x,   x,-z, y},    // angle = -90
+        {-1, 0,    y,   z, y,-x},    // angle = -90
+        {-1, 0,    z,  -y, x, z},    // angle = -90
+    };
+
+    for (const auto& r : recs) {
+        SkM44 m(SkM44::kNaN_Constructor);
+        m.setRotateUnitSinCos(r.aboutAxis, r.sinAngle, r.cosAngle);
+
+        auto mx = m * x;
+        auto my = m * y;
+        auto mz = m * z;
+        REPORTER_ASSERT(reporter, mx == r.expectedX);
+        REPORTER_ASSERT(reporter, my == r.expectedY);
+        REPORTER_ASSERT(reporter, mz == r.expectedZ);
+
+        // flipping the axis-of-rotation should flip the results
+        mx = m * -x;
+        my = m * -y;
+        mz = m * -z;
+        REPORTER_ASSERT(reporter, mx == -r.expectedX);
+        REPORTER_ASSERT(reporter, my == -r.expectedY);
+        REPORTER_ASSERT(reporter, mz == -r.expectedZ);
+    }
 }

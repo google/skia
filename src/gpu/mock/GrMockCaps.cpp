@@ -17,6 +17,15 @@ GrProgramDesc GrMockCaps::makeDesc(const GrRenderTarget* rt,
     return desc;
 }
 
+uint64_t GrMockCaps::computeFormatKey(const GrBackendFormat& format) const {
+#ifdef SK_DEBUG
+    SkImage::CompressionType compression = format.asMockCompressionType();
+    SkASSERT(compression == SkImage::CompressionType::kNone);
+#endif
+    auto ct = format.asMockColorType();
+    return (uint64_t)ct;
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
     // TODO: need to add compressed formats to this list
@@ -57,10 +66,11 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
                                                                   SkImage::CompressionType::kNone)},
         // For these two compressed image formats the color type will effectively be RGB_888x
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                                  SkImage::CompressionType::kETC1)},
+                                                    SkImage::CompressionType::kETC2_RGB8_UNORM)},
         { GrColorType::kRGB_888x,       GrBackendFormat::MakeMock(GrColorType::kUnknown,
-                                                        SkImage::CompressionType::kBC1_RGB8_UNORM)},
-
+                                                    SkImage::CompressionType::kBC1_RGB8_UNORM)},
+        { GrColorType::kRGBA_8888,      GrBackendFormat::MakeMock(GrColorType::kUnknown,
+                                                    SkImage::CompressionType::kBC1_RGBA8_UNORM)},
     };
 
 #ifdef SK_DEBUG
@@ -71,4 +81,5 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
 
     return combos;
 }
+
 #endif
