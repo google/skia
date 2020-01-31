@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d11fc4e9_dcb48ac3",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-31T22:34:57Z",
+      "side": 1,
+      "message": "This MaybeStrike bit of the name still good?  That\u0027s not what we\u0027ve moved out into regenerate()?",
+      "range": {
+        "startLine": 788,
+        "startChar": 53,
+        "endLine": 788,
+        "endChar": 88
+      },
+      "revId": "0ae9fd991ad2879740d6d5ecae41db458452cc0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "467f90cc_bcfdca21",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-01-31T22:34:57Z",
+      "side": 1,
+      "message": "Think it makes sense to swap this around?\n\nif (fSubRun-\u003efAtlasGeneration \u003d\u003d currentAtlasGen) {\n    // The atlas hasn\u0027t changed, so our texture coordinates are still valid.\n    ...\n} else {\n    // The atlas generation has changed, so we\u0027ll need to update the texture coordinates.\n    ...\n}",
+      "revId": "0ae9fd991ad2879740d6d5ecae41db458452cc0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
