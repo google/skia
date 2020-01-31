@@ -431,7 +431,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             if (totalGlyphsRegened != subRunEnd) {
                 // Flush if not all glyphs drawn because either the quad buffer is full or the
                 // atlas is out of space.
-                this->flush(target, &flushInfo);
+                this->createDrawForGeneratedGlyphs(target, &flushInfo);
                 if (totalGlyphsRegened == quadBufferEnd) {
                     // Quad buffer is full. Get more buffer.
                     quadBufferBegin = totalGlyphsRegened;
@@ -452,7 +452,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
             }
         }
     }  // for all geometries
-    this->flush(target, &flushInfo);
+    this->createDrawForGeneratedGlyphs(target, &flushInfo);
 }
 
 void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -463,7 +463,8 @@ void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBou
     flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
 }
 
-void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+void GrAtlasTextOp::createDrawForGeneratedGlyphs(
+        GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
     if (!flushInfo->fGlyphsToFlush) {
         return;
     }
