@@ -26,6 +26,6 @@ void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matr
     this->setMatrix3f(u, mt);
 }
 
-void GrGLSLProgramDataManager::setSkM44(UniformHandle u, const SkM44& matrix) const {
+void GrGLSLProgramDataManager::setSkM44(UniformHandle u, const SkMat4& matrix) const {
     this->setMatrix4f(u, SkMatrixPriv::M44ColMajor(matrix));
 }

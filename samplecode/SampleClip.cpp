@@ -424,8 +424,8 @@ class HalfPlaneView2 : public Sample {
 };
 DEF_SAMPLE( return new HalfPlaneView2(); )
 
-static SkM44 inv(const SkM44& m) {
-    SkM44 inverse;
+static SkMat4 inv(const SkMat4& m) {
+    SkMat4 inverse;
     SkAssertResult(m.invert(&inverse));
     return inverse;
 }
@@ -439,15 +439,15 @@ class SampleCameraView : public Sample {
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
 
-    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
-    SkV3    fCOA { 0, 0, 0 };
-    SkV3    fUp  { 0, 1, 0 };
+    SkVec3  fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkVec3  fCOA { 0, 0, 0 };
+    SkVec3  fUp  { 0, 1, 0 };
 
-    SkM44  fRot;
-    SkV3   fTrans;
+    SkMat4  fRot;
+    SkVec3  fTrans;
 
     void rotate(float x, float y, float z) {
-        SkM44 r;
+        SkMat4 r;
         if (x) {
             r.setRotateUnit({1, 0, 0}, x);
         } else if (y) {
@@ -459,15 +459,15 @@ class SampleCameraView : public Sample {
     }
 
 public:
-    SkM44 get44(const SkRect& r) const {
+    SkMat4 get44(const SkRect& r) const {
         SkScalar w = r.width();
         SkScalar h = r.height();
 
-        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
-              perspective = Sk3Perspective(fNear, fFar, fAngle),
-              translate = SkM44::Translate(fTrans.x, fTrans.y, fTrans.z),
-              viewport = SkM44::Translate(r.centerX(), r.centerY(), 0) *
-                         SkM44::Scale(w*0.5f, h*0.5f, 1);
+        SkMat4 camera = Sk3LookAt(fEye, fCOA, fUp),
+               perspective = Sk3Perspective(fNear, fFar, fAngle),
+               translate = SkMat4::Translate(fTrans.x, fTrans.y, fTrans.z),
+               viewport = SkMat4::Translate(r.centerX(), r.centerY(), 0) *
+                          SkMat4::Scale(w*0.5f, h*0.5f, 1);
 
         return viewport * perspective * camera * translate * fRot * inv(viewport);
     }
@@ -517,7 +517,7 @@ class HalfPlaneView3 : public SampleCameraView {
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkM44 mx = this->get44({0, 0, 400, 400});
+        SkMat4 mx = this->get44({0, 0, 400, 400});
 
         SkPaint paint;
         paint.setColor({0.75, 0.75, 0.75, 1});

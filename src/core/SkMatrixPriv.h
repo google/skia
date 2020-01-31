@@ -160,7 +160,7 @@ public:
         return &a == &b || 0 == memcmp(a.fMat, b.fMat, sizeof(a.fMat));
     }
 
-    static const SkScalar* M44ColMajor(const SkM44& m) { return m.fMat; }
+    static const SkScalar* M44ColMajor(const SkMat4& m) { return m.fMat; }
 };
 
 #endif

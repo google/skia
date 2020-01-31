@@ -44,24 +44,24 @@ public:
 
     static std::unique_ptr<GrFragmentProcessor> Make(const float matrix[20], bool unpremulInput,
                                                      bool clampRGBOutput, bool premulOutput) {
-        SkM44 m44(matrix[0], matrix[1], matrix[2], matrix[3], matrix[5], matrix[6], matrix[7],
-                  matrix[8], matrix[10], matrix[11], matrix[12], matrix[13], matrix[15], matrix[16],
-                  matrix[17], matrix[18]);
-        SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
+        SkMat4 m44(matrix[0], matrix[1], matrix[2], matrix[3], matrix[5], matrix[6], matrix[7],
+                   matrix[8], matrix[10], matrix[11], matrix[12], matrix[13], matrix[15], matrix[16],
+                   matrix[17], matrix[18]);
+        SkVec4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
         return std::unique_ptr<GrFragmentProcessor>(new GrColorMatrixFragmentProcessor(
                 m44, v4, unpremulInput, clampRGBOutput, premulOutput));
     }
     GrColorMatrixFragmentProcessor(const GrColorMatrixFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ColorMatrixFragmentProcessor"; }
-    SkM44 m;
-    SkV4 v;
+    SkMat4 m;
+    SkVec4 v;
     bool unpremulInput;
     bool clampRGBOutput;
     bool premulOutput;
 
 private:
-    GrColorMatrixFragmentProcessor(SkM44 m, SkV4 v, bool unpremulInput, bool clampRGBOutput,
+    GrColorMatrixFragmentProcessor(SkMat4 m, SkVec4 v, bool unpremulInput, bool clampRGBOutput,
                                    bool premulOutput)
             : INHERITED(kGrColorMatrixFragmentProcessor_ClassID,
                         (OptimizationFlags)kConstantOutputForConstantInput_OptimizationFlag)

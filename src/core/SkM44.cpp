@@ -11,7 +11,7 @@
 
 typedef skvx::Vec<4, float> sk4f;
 
-bool SkM44::operator==(const SkM44& other) const {
+bool SkMat4::operator==(const SkMat4& other) const {
     if (this == &other) {
         return true;
     }
@@ -37,16 +37,16 @@ static void transpose_arrays(SkScalar dst[], const SkScalar src[]) {
     dst[12] = src[3]; dst[13] = src[7]; dst[14] = src[11]; dst[15] = src[15];
 }
 
-void SkM44::getRowMajor(SkScalar v[]) const {
+void SkMat4::getRowMajor(SkScalar v[]) const {
     transpose_arrays(v, fMat);
 }
 
-SkM44& SkM44::setRowMajor(const SkScalar v[]) {
+SkMat4& SkMat4::setRowMajor(const SkScalar v[]) {
     transpose_arrays(fMat, v);
     return *this;
 }
 
-SkM44& SkM44::setConcat16(const SkM44& a, const SkScalar b[16]) {
+SkMat4& SkMat4::setConcat16(const SkMat4& a, const SkScalar b[16]) {
     sk4f c0 = sk4f::Load(a.fMat +  0);
     sk4f c1 = sk4f::Load(a.fMat +  4);
     sk4f c2 = sk4f::Load(a.fMat +  8);
@@ -68,7 +68,7 @@ SkM44& SkM44::setConcat16(const SkM44& a, const SkScalar b[16]) {
     return *this;
 }
 
-SkM44& SkM44::preConcat(const SkMatrix& b) {
+SkMat4& SkMat4::preConcat(const SkMatrix& b) {
     sk4f c0 = sk4f::Load(fMat +  0);
     sk4f c1 = sk4f::Load(fMat +  4);
     sk4f c3 = sk4f::Load(fMat + 12);
@@ -87,7 +87,7 @@ SkM44& SkM44::preConcat(const SkMatrix& b) {
     return *this;
 }
 
-SkM44& SkM44::preTranslate(SkScalar x, SkScalar y) {
+SkMat4& SkMat4::preTranslate(SkScalar x, SkScalar y) {
     sk4f c0 = sk4f::Load(fMat +  0);
     sk4f c1 = sk4f::Load(fMat +  4);
     sk4f c3 = sk4f::Load(fMat + 12);
@@ -97,7 +97,7 @@ SkM44& SkM44::preTranslate(SkScalar x, SkScalar y) {
     return *this;
 }
 
-SkM44& SkM44::preScale(SkScalar x, SkScalar y) {
+SkMat4& SkMat4::preScale(SkScalar x, SkScalar y) {
     sk4f c0 = sk4f::Load(fMat +  0);
     sk4f c1 = sk4f::Load(fMat +  4);
 
@@ -106,13 +106,13 @@ SkM44& SkM44::preScale(SkScalar x, SkScalar y) {
     return *this;
 }
 
-SkV4 SkM44::map(float x, float y, float z, float w) const {
+SkVec4 SkMat4::map(float x, float y, float z, float w) const {
     sk4f c0 = sk4f::Load(fMat +  0);
     sk4f c1 = sk4f::Load(fMat +  4);
     sk4f c2 = sk4f::Load(fMat +  8);
     sk4f c3 = sk4f::Load(fMat + 12);
 
-    SkV4 v;
+    SkVec4 v;
     skvx::mad(c0, x, skvx::mad(c1, y, skvx::mad(c2, z, c3 * w))).store(&v.x);
     return v;
 }
@@ -123,7 +123,7 @@ SkV4 SkM44::map(float x, float y, float z, float w) const {
     precision along the way. This relies on the compiler automatically
     promoting our SkScalar values to double (if needed).
  */
-double SkM44::determinant() const {
+double SkMat4::determinant() const {
     double a00 = fMat[0];
     double a01 = fMat[1];
     double a02 = fMat[2];
@@ -160,7 +160,7 @@ double SkM44::determinant() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkM44::invert(SkM44* inverse) const {
+bool SkMat4::invert(SkMat4* inverse) const {
     double a00 = fMat[0];
     double a01 = fMat[1];
     double a02 = fMat[2];
@@ -240,13 +240,13 @@ bool SkM44::invert(SkM44* inverse) const {
     return true;
 }
 
-SkM44 SkM44::transpose() const {
-    SkM44 trans(SkM44::kUninitialized_Constructor);
+SkMat4 SkMat4::transpose() const {
+    SkMat4 trans(SkMat4::kUninitialized_Constructor);
     transpose_arrays(trans.fMat, fMat);
     return trans;
 }
 
-SkM44& SkM44::setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngle) {
+SkMat4& SkMat4::setRotateUnitSinCos(SkVec3 axis, SkScalar sinAngle, SkScalar cosAngle) {
     // Taken from "Essential Mathematics for Games and Interactive Applications"
     //             James M. Van Verth and Lars M. Bishop -- third edition
     SkScalar x = axis.x;
@@ -262,7 +262,7 @@ SkM44& SkM44::setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngl
                        0,           0,           0,           1);
 }
 
-SkM44& SkM44::setRotate(SkV3 axis, SkScalar radians) {
+SkMat4& SkMat4::setRotate(SkVec3 axis, SkScalar radians) {
     SkScalar len = axis.length();
     if (len > 0 && SkScalarIsFinite(len)) {
         this->setRotateUnit(axis * (SK_Scalar1 / len), radians);
@@ -274,7 +274,7 @@ SkM44& SkM44::setRotate(SkV3 axis, SkScalar radians) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkM44::dump() const {
+void SkMat4::dump() const {
     static const char* format = "|%g %g %g %g|\n"
                                 "|%g %g %g %g|\n"
                                 "|%g %g %g %g|\n"
@@ -286,28 +286,28 @@ void SkM44::dump() const {
              fMat[3], fMat[7], fMat[11], fMat[15]);
 }
 
-static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
+static SkVec3 normalize(SkVec3 v) { return v * (1.0f / v.length()); }
 
-static SkV4 v4(SkV3 v, SkScalar w) { return {v.x, v.y, v.z, w}; }
+static SkVec4 v4(SkVec3 v, SkScalar w) { return {v.x, v.y, v.z, w}; }
 
-SkM44 Sk3LookAt(const SkV3& eye, const SkV3& center, const SkV3& up) {
-    SkV3 f = normalize(center - eye);
-    SkV3 u = normalize(up);
-    SkV3 s = normalize(f.cross(u));
+SkMat4 Sk3LookAt(const SkVec3& eye, const SkVec3& center, const SkVec3& up) {
+    SkVec3 f = normalize(center - eye);
+    SkVec3 u = normalize(up);
+    SkVec3 s = normalize(f.cross(u));
 
-    SkM44 m(SkM44::kUninitialized_Constructor);
-    (void)SkM44::Cols(v4(s, 0), v4(s.cross(f), 0), v4(-f, 0), v4(eye, 1)).invert(&m);
+    SkMat4 m(SkMat4::kUninitialized_Constructor);
+    (void)SkMat4::Cols(v4(s, 0), v4(s.cross(f), 0), v4(-f, 0), v4(eye, 1)).invert(&m);
     return m;
 }
 
-SkM44 Sk3Perspective(float near, float far, float angle) {
+SkMat4 Sk3Perspective(float near, float far, float angle) {
     SkASSERT(far > near);
 
     float denomInv = sk_ieee_float_divide(1, far - near);
     float halfAngle = angle * 0.5f;
     float cot = sk_float_cos(halfAngle) / sk_float_sin(halfAngle);
 
-    SkM44 m;
+    SkMat4 m;
     m.setRC(0, 0, cot);
     m.setRC(1, 1, cot);
     m.setRC(2, 2, (far + near) * denomInv);

@@ -55,20 +55,20 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrColorMatrixFragmentProcessor& _outer = _proc.cast<GrColorMatrixFragmentProcessor>();
         {
-            const SkM44& mValue = _outer.m;
+            const SkMat4& mValue = _outer.m;
             if (mPrev != (mValue)) {
                 mPrev = mValue;
                 pdman.setSkM44(mVar, mValue);
             }
-            const SkV4& vValue = _outer.v;
+            const SkVec4& vValue = _outer.v;
             if (vPrev != (vValue)) {
                 vPrev = vValue;
                 pdman.set4fv(vVar, 1, vValue.ptr());
             }
         }
     }
-    SkM44 mPrev = SkM44(SkM44::kNaN_Constructor);
-    SkV4 vPrev = SkV4{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+    SkMat4 mPrev(SkMat4::NaN_Constructor);
+    SkVec4 vPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle mVar;
     UniformHandle vVar;
 };

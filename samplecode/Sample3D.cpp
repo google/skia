@@ -13,36 +13,7 @@
 #include "samplecode/Sample.h"
 #include "tools/Resources.h"
 
-static SkV3 normalize(SkV3 v) { return v * (1.0f / v.length()); }
-
-struct SkVec2 {
-    SkScalar x, y;
-
-    bool operator==(const SkVec2 v) const { return x == v.x && y == v.y; }
-    bool operator!=(const SkVec2 v) const { return !(*this == v); }
-
-    static SkScalar   Dot(SkVec2 a, SkVec2 b) { return a.x * b.x + a.y * b.y; }
-    static SkScalar Cross(SkVec2 a, SkVec2 b) { return a.x * b.y - a.y * b.x; }
-
-    SkVec2 operator-() const { return {-x, -y}; }
-    SkVec2 operator+(SkVec2 v) const { return {x+v.x, y+v.y}; }
-    SkVec2 operator-(SkVec2 v) const { return {x-v.x, y-v.y}; }
-
-    SkVec2 operator*(SkVec2 v) const { return {x*v.x, y*v.y}; }
-    friend SkVec2 operator*(SkVec2 v, SkScalar s) { return {v.x*s, v.y*s}; }
-    friend SkVec2 operator*(SkScalar s, SkVec2 v) { return {v.x*s, v.y*s}; }
-
-    void operator+=(SkVec2 v) { *this = *this + v; }
-    void operator-=(SkVec2 v) { *this = *this - v; }
-    void operator*=(SkVec2 v) { *this = *this * v; }
-    void operator*=(SkScalar s) { *this = *this * s; }
-
-    SkScalar lengthSquared() const { return Dot(*this, *this); }
-    SkScalar length() const { return SkScalarSqrt(this->lengthSquared()); }
-
-    SkScalar   dot(SkVec2 v) const { return Dot(*this, v); }
-    SkScalar cross(SkVec2 v) const { return Cross(*this, v); }
-};
+static SkVec3 normalize(SkVec3 v) { return v * (1.0f / v.length()); }
 
 static SkVec2 normalize(SkVec2 v) {
     SkScalar len = v.length();
@@ -68,7 +39,7 @@ struct VSphere {
         return fCenter + v;
     }
 
-    SkV3 computeUnitV3(SkVec2 v) const {
+    SkVec3 computeUnitV3(SkVec2 v) const {
         v = (v - fCenter) * (1 / fRadius);
         SkScalar len2 = v.lengthSquared();
         if (len2 > 1) {
@@ -79,14 +50,14 @@ struct VSphere {
         return {v.x, v.y, z};
     }
 
-    SkM44 computeRotation(SkVec2 a, SkVec2 b) {
-        SkV3 u = this->computeUnitV3(a);
-        SkV3 v = this->computeUnitV3(b);
-        SkV3 axis = u.cross(v);
+    SkMat4 computeRotation(SkVec2 a, SkVec2 b) {
+        SkVec3 u = this->computeUnitV3(a);
+        SkVec3 v = this->computeUnitV3(b);
+        SkVec3 axis = u.cross(v);
         SkScalar sinValue = axis.length();
         SkScalar cosValue = u.dot(v);
 
-        SkM44 m;
+        SkMat4 m;
         if (!SkScalarNearlyZero(sinValue)) {
             m.setRotateUnitSinCos(axis * (1.0f / sinValue), sinValue, cosValue);
         }
@@ -94,13 +65,13 @@ struct VSphere {
     }
 };
 
-static SkM44 inv(const SkM44& m) {
-    SkM44 inverse;
+static SkMat4 inv(const SkMat4& m) {
+    SkMat4 inverse;
     SkAssertResult(m.invert(&inverse));
     return inverse;
 }
 
-static SkPoint project(const SkM44& m, SkV4 p) {
+static SkPoint project(const SkMat4& m, SkV4 p) {
     auto v = m * p;
     return {v.x / v.w, v.y / v.w};
 }
@@ -111,15 +82,15 @@ protected:
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 12;
 
-    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
-    SkV3    fCOA { 0, 0, 0 };
-    SkV3    fUp  { 0, 1, 0 };
+    SkVec3  fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkVec3  fCOA { 0, 0, 0 };
+    SkVec3  fUp  { 0, 1, 0 };
 
-    SkM44   fRot;
-    SkV3    fTrans;
+    SkMat4  fRot;
+    SkVec3  fTrans;
 
     void rotate(float x, float y, float z) {
-        SkM44 r;
+        SkMat4 r;
         if (x) {
             r.setRotateUnit({1, 0, 0}, x);
         } else if (y) {
@@ -132,10 +103,10 @@ protected:
 
 public:
     void saveCamera(SkCanvas* canvas, const SkRect& area, SkScalar zscale) {
-        SkM44 camera = Sk3LookAt(fEye, fCOA, fUp),
-              perspective = Sk3Perspective(fNear, fFar, fAngle),
-              viewport = SkM44::Translate(area.centerX(), area.centerY(), 0) *
-                         SkM44::Scale(area.width()*0.5f, area.height()*0.5f, zscale);
+        SkMat4 camera = Sk3LookAt(fEye, fCOA, fUp),
+               perspective = Sk3Perspective(fNear, fFar, fAngle),
+               viewport = SkMat4::Translate(area.centerX(), area.centerY(), 0) *
+                          SkMat4::Scale(area.width()*0.5f, area.height()*0.5f, zscale);
 
         // want "world" to be in our big coordinates (e.g. area), so apply this inverse
         // as part of our "camera".
@@ -169,21 +140,21 @@ struct Face {
     SkScalar fRx, fRy;
     SkColor  fColor;
 
-    static SkM44 T(SkScalar x, SkScalar y, SkScalar z) {
-        return SkM44::Translate(x, y, z);
+    static SkMat4 T(SkScalar x, SkScalar y, SkScalar z) {
+        return SkMat4::Translate(x, y, z);
     }
 
-    static SkM44 R(SkV3 axis, SkScalar rad) {
-        return SkM44::Rotate(axis, rad);
+    static SkMat4 R(SkVec3 axis, SkScalar rad) {
+        return SkMat4::Rotate(axis, rad);
     }
 
-    SkM44 asM44(SkScalar scale) const {
+    SkMat4 asM44(SkScalar scale) const {
         return R({0,1,0}, fRy) * R({1,0,0}, fRx) * T(0, 0, scale);
     }
 };
 
-static bool front(const SkM44& m) {
-    SkM44 m2;
+static bool front(const SkMat4& m) {
+    SkMat4 m2;
     m.invert(&m2);
     /*
      *  Classically we want to dot the transpose(inverse(ctm)) with our surface normal.
@@ -209,7 +180,7 @@ const Face faces[] = {
 #include "include/effects/SkColorMatrix.h"
 
 static SkColorMatrix comput_planar_lighting(SkCanvas* canvas, SkV3 lightDir) {
-    SkM44 l2w = canvas->experimental_getLocalToWorld();
+    SkMat4 l2w = canvas->experimental_getLocalToWorld();
     auto normal = normalize(l2w * SkV3{0, 0, 1});
     float dot = -normal.dot(lightDir);
 
@@ -282,8 +253,8 @@ class SampleRR3D : public Sample3DView {
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m) {
-        SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+    void drawContent(SkCanvas* canvas, const SkMat4& m) {
+        SkMat4 trans = SkMat4::Translate(200, 200, 0);   // center of the rotation
 
         canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
@@ -353,7 +324,7 @@ struct LightPos {
         paint.setAntiAlias(true);
 
         SkAutoCanvasRestore acr(canvas, true);
-        canvas->experimental_concat44(SkM44::Translate(0, 0, fPos.z));
+        canvas->experimental_concat44(SkMat4::Translate(0, 0, fPos.z));
         canvas->drawCircle(fPos.x, fPos.y, fUIRadius, paint);
     }
 };
@@ -365,8 +336,8 @@ class SamplePointLight3D : public Sample3DView {
     sk_sp<SkShader> fShader;
     sk_sp<SkRuntimeEffect> fEffect;
 
-    SkM44 fWorldToClick,
-          fClickToWorld;
+    SkMat4 fWorldToClick,
+           fClickToWorld;
 
     SkString name() override { return SkString("pointlight3d"); }
 
@@ -417,8 +388,8 @@ class SamplePointLight3D : public Sample3DView {
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m, SkColor color) {
-        SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+    void drawContent(SkCanvas* canvas, const SkMat4& m, SkColor color) {
+        SkMat4 trans = SkMat4::Translate(200, 200, 0);   // center of the rotation
 
         canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
@@ -428,8 +399,8 @@ class SamplePointLight3D : public Sample3DView {
         }
 
         struct Uniforms {
-            SkM44  fLocalToWorld;
-            SkV3   fLightPos;
+            SkMat4 fLocalToWorld;
+            SkVec3 fLightPos;
         } uni;
         uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
         uni.fLightPos     = {fLight.fPos.x, fLight.fPos.y, fLight.fPos.z};
@@ -442,14 +413,14 @@ class SamplePointLight3D : public Sample3DView {
         canvas->drawRRect(fRR, paint);
     }
 
-    void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
+    void setClickToWorld(SkCanvas* canvas, const SkMat4& clickM) {
         auto l2d = canvas->experimental_getLocalToDevice();
         fWorldToClick = inv(clickM) * l2d;
         fClickToWorld = inv(fWorldToClick);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkM44 clickM = canvas->experimental_getLocalToDevice();
+        SkMat4 clickM = canvas->experimental_getLocalToDevice();
 
         canvas->save();
         canvas->translate(400, 300);
@@ -521,11 +492,11 @@ class SampleBump3D : public Sample3DView {
     sk_sp<SkShader> fBmpShader, fImgShader;
     sk_sp<SkRuntimeEffect> fEffect;
 
-    SkM44 fWorldToClick,
-          fClickToWorld;
+    SkMat4 fWorldToClick,
+           fClickToWorld;
 
-    SkM44 fRotation,        // part of model
-          fClickRotation;  // temp during a click/drag
+    SkMat4 fRotation,        // part of model
+           fClickRotation;  // temp during a click/drag
 
 public:
     SampleBump3D() : fSphere({200 + DX, 200 + DY}, 400) {}
@@ -582,8 +553,8 @@ public:
         return this->Sample3DView::onChar(uni);
     }
 
-    void drawContent(SkCanvas* canvas, const SkM44& m, SkColor color) {
-        SkM44 trans = SkM44::Translate(200, 200, 0);   // center of the rotation
+    void drawContent(SkCanvas* canvas, const SkMat4& m, SkColor color) {
+        SkMat4 trans = SkMat4::Translate(200, 200, 0);   // center of the rotation
 
         canvas->experimental_concat44(trans * fRot * m * inv(trans));
 
@@ -592,16 +563,16 @@ public:
             return;
         }
 
-        auto adj_inv = [](const SkM44& m) {
-            SkM44 inv;
+        auto adj_inv = [](const SkMat4& m) {
+            SkMat4 inv;
             SkAssertResult(m.invert(&inv));
             return inv.transpose();
         };
 
         struct Uniforms {
-            SkM44  fLocalToWorld;
-            SkM44  fLocalToWorldAdjInv;
-            SkV3   fLightPos;
+            SkMat4  fLocalToWorld;
+            SkMat4  fLocalToWorldAdjInv;
+            SkVec3  fLightPos;
         } uni;
         uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
@@ -617,7 +588,7 @@ public:
         canvas->drawRRect(fRR, paint);
     }
 
-    void setClickToWorld(SkCanvas* canvas, const SkM44& clickM) {
+    void setClickToWorld(SkCanvas* canvas, const SkMat4& clickM) {
         auto l2d = canvas->experimental_getLocalToDevice();
         fWorldToClick = inv(clickM) * l2d;
         fClickToWorld = inv(fWorldToClick);
@@ -627,7 +598,7 @@ public:
         if (canvas->getGrContext() == nullptr) {
             return;
         }
-        SkM44 clickM = canvas->experimental_getLocalToDevice();
+        SkMat4 clickM = canvas->experimental_getLocalToDevice();
 
         canvas->save();
         canvas->translate(DX, DY);

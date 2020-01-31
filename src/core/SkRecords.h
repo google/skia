@@ -156,7 +156,7 @@ struct TypedMatrix : public SkMatrix {
     TypedMatrix(const SkMatrix& matrix);
 };
 
-struct Matrix44 : public SkM44 {
+struct Matrix44 : public SkMat4 {
     Matrix44() {}
     Matrix44(const SkScalar m[16]) {
         this->setColMajor(m);

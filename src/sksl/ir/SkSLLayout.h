@@ -168,7 +168,7 @@ struct Layout {
             case CType::kSkPMColor:
                 return "SkPMColor";
             case CType::kSkV4:
-                return "SkV4";
+                return "SkVec4";
             case CType::kSkPoint:
                 return "SkPoint";
             case CType::kSkIPoint:
@@ -176,7 +176,7 @@ struct Layout {
             case CType::kSkMatrix:
                 return "SkMatrix";
             case CType::kSkM44:
-                return "SkM44";
+                return "SkMat4";
             case CType::kGrSurfaceProxy:
                 return "sk_sp<GrSurfaceProxy>";
             case CType::kGrFragmentProcessor:

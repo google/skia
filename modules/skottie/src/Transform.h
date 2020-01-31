@@ -79,9 +79,9 @@ public:
     virtual SkM44 totalMatrix() const;
 
 protected:
-    SkV3 anchor_point() const;
-    SkV3 position() const;
-    SkV3 rotation() const;
+    SkVec3 anchor_point() const;
+    SkVec3 position() const;
+    SkVec3 rotation() const;
 
 private:
     void onSync() final;
