@@ -60,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "f5cc06fc_da9093c4",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-01-31T20:02:31Z",
+      "side": 1,
+      "message": "@Derek check out the latest patchet and let me know if it\u0027s along the lines of what you were thinking.",
+      "parentUuid": "34ee9bed_fae654bf",
+      "range": {
+        "startLine": 1409,
+        "startChar": 26,
+        "endLine": 1409,
+        "endChar": 42
+      },
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55716f69_5e021774",
         "filename": "dm/DMSrcSink.h",
         "patchSetId": 4
