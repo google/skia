@@ -3,7 +3,7 @@
 #define ParagraphImpl_DEFINED
 
 #include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
+//#include <unicode/ubidi.h>
 #include <unicode/unistr.h>
 #include <unicode/urename.h>
 #include "include/core/SkPicture.h"
