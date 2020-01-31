@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0564782_a876a0c1",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:03:03Z",
+      "side": 1,
+      "message": "If you can\u0027t have an error then why not just return an SkBitmap instead?",
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a40c283_38f41d1d",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:03:03Z",
+      "side": 1,
+      "message": "I would suggest returning the default initialized SkColorInfo.  Which defaults to kUnknown_SkColorType and kUnknown_SkAlphaType",
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c3b180f_3cd41434",
+        "filename": "gm/verifiers/gmverifier.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:03:03Z",
+      "side": 1,
+      "message": "use SkImageInfo::Make(size, colorInfo) instead",
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec44759f_bf271bb4",
+        "filename": "gm/verifiers/gmverifier.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:03:03Z",
+      "side": 1,
+      "message": "SkColorInfo",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 92
+      },
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dcde8ae_fe6397ce",
+        "filename": "gm/verifiers/gmverifier.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:03:03Z",
+      "side": 1,
+      "message": "how will we keep this in sync with what the GM image is output as?  Can we have a static function that both of them share?",
+      "range": {
+        "startLine": 94,
+        "startChar": 24,
+        "endLine": 94,
+        "endChar": 45
+      },
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76277c4d_d270473b",
+        "filename": "gm/verifiers/gmverifier.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:03:03Z",
+      "side": 1,
+      "message": "does this mean we can\u0027t have a gold verifier and a standalone verifier in the same list?  If we treat all verifiers as needing a gold image?",
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
