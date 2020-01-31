@@ -124,7 +124,6 @@ GrGLSLFragmentProcessor* GrColorSpaceXformEffect::onCreateGLSLInstance() const {
 
 GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
         const GrFragmentProcessor* child) {
-    // TODO: Implement constant output for constant input
     if (child) {
         OptimizationFlags flags = kNone_OptimizationFlags;
         if (child->compatibleWithCoverageAsAlpha()) {
@@ -133,11 +132,23 @@ GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
         if (child->preservesOpaqueInput()) {
             flags |= kPreservesOpaqueInput_OptimizationFlag;
         }
+        if (child->hasConstantOutputForConstantInput()) {
+            flags |= kConstantOutputForConstantInput_OptimizationFlag;
+        }
         return flags;
     } else {
         return kCompatibleWithCoverageAsAlpha_OptimizationFlag |
-               kPreservesOpaqueInput_OptimizationFlag;
+               kPreservesOpaqueInput_OptimizationFlag |
+               kConstantOutputForConstantInput_OptimizationFlag;
     }
+}
+
+SkPMColor4f GrColorSpaceXformEffect::constantOutputForConstantInput(
+        const SkPMColor4f& input) const {
+    const auto c0 = this->numChildProcessors()
+                            ? ConstantOutputForConstantInput(this->childProcessor(0), input)
+                            : input;
+    return this->fColorXform->apply(c0.unpremul()).premul();
 }
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(SkColorSpace* src,
