@@ -113,6 +113,24 @@
       "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b20a72a_c1596c97",
+        "filename": "gm/verifiers/gmverifier.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T20:06:36Z",
+      "side": 1,
+      "message": "Your latest patch set resolves this concern!",
+      "parentUuid": "76277c4d_d270473b",
+      "revId": "d233f0fe87b2d76d1cb238d348448272092916cf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
