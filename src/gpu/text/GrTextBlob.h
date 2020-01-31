@@ -312,7 +312,6 @@ private:
     GrAtlasManager* fFullAtlasManager;
     SkTLazy<SkBulkGlyphMetricsAndImages> fMetricsAndImages;
     SubRun* fSubRun;
-    bool fRegenerateTextureCoordinates{false};
 };
 
 // -- GrTextBlob::SubRun ---------------------------------------------------------------------------
