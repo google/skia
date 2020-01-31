@@ -60,6 +60,11 @@ template("third_party") {
       } else {
         cflags = [ "-w" ]
       }
+
+      # See skia:9731.
+      if (sanitize == "ASAN") {
+          cflags += [ "-fsanitize-recover=pointer-overflow" ]
+      }
     }
   }
 }
