@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c6b0b38_87794a4a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T18:40:01Z",
+      "side": 1,
+      "message": "file a bug on bugs.skia.org indicating what the goal of this series of CLs is.  Then in the commit message put the following line...\n\nBug: \u003cbug_id\u003e\n\nThis will correlate the two and help us track what CLs have landed related to this issue.",
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34ee9bed_fae654bf",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T18:40:01Z",
+      "side": 1,
+      "message": "seems like the verifyAll could just take as input the colorType and colorspace of the original GM and the concept of generating a gold image is specific to the CPUVerifier subclass.  Then in the future if we have a L*A*B verifier that logic is specific to that subclass and doesn\u0027t need to be added here.",
+      "range": {
+        "startLine": 1409,
+        "startChar": 26,
+        "endLine": 1409,
+        "endChar": 42
+      },
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55716f69_5e021774",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T18:40:01Z",
+      "side": 1,
+      "message": "just pass in an SkColorInfo",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 94,
+        "endChar": 79
+      },
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc6e2f45_c03efb03",
+        "filename": "dm/DMSrcSink.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T18:40:01Z",
+      "side": 1,
+      "message": "return an SkColorInfo.  It will have this info as well as the premul state",
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08b65a6c_059cfae8",
+        "filename": "gm/verifiers/gmverifier.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T18:40:01Z",
+      "side": 1,
+      "message": "SkColorInfo",
+      "range": {
+        "startLine": 101,
+        "startChar": 24,
+        "endLine": 102,
+        "endChar": 38
+      },
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38e81838_82c107c7",
+        "filename": "gm/verifiers/gmverifier.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-01-31T18:40:01Z",
+      "side": 1,
+      "message": "I think we may want to consider treating this more like a DAG than a list.  Don\u0027t do this now but do put it in your mind.\n\ngraph {\n  Root -- Region\n  Root -- \"Custom Verifier\"\n  Region -- \"CPU Verifier\"\n  \"CPU Verifier\" -- \"Fuzzy w/ Edge\"\n  \"CPU Verifier\" -- \"SubRegion\"\n  \"SubRegion\" -- \"Exact Comparison\"\n}",
+      "revId": "63c4943804fff39772912425d2e3210efcb580a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
