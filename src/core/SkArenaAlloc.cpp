@@ -146,7 +146,7 @@ restart:
     if (needsSkipFooter) {
         skipOverhead = sizeof(Footer) + sizeof(uint32_t);
     }
-    char* objStart = (char*)((uintptr_t)(fCursor + skipOverhead + mask) & ~mask);
+    char* objStart = (char*)( ((uintptr_t)fCursor + skipOverhead + mask) & ~mask );
     uint32_t totalSize = sizeIncludingFooter + skipOverhead;
 
     if ((ptrdiff_t)totalSize > fEnd - objStart) {
