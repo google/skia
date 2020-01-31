@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb8ef441_373773ee",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 23
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-01-31T15:28:02Z",
+      "side": 1,
+      "message": "Just a comment that the else is for iOS",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 523,
+        "endChar": 5
+      },
+      "revId": "fa52ae5db566690528f05f06fca16924417092c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
