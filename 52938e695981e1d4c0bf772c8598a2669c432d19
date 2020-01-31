@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e6c2fa7_714edc82",
+        "filename": "modules/skshaper/include/SkICUInterface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-31T18:13:54Z",
+      "side": 1,
+      "message": "This isn\u0027t really an iterator.",
+      "range": {
+        "startLine": 13,
+        "startChar": 12,
+        "endLine": 13,
+        "endChar": 20
+      },
+      "revId": "52938e695981e1d4c0bf772c8598a2669c432d19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf2e782c_422a07b3",
+        "filename": "modules/skshaper/include/SkICUInterface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-31T18:13:54Z",
+      "side": 1,
+      "message": "Depending on how you look at it, this is kind of a constructor. ICU does things with a separate \u0027set\u0027 is so you can keep it around and re-use allocations. This includes the case where you re-use the same object for the next \u0027hunk\u0027 when using it as a streaming interface.",
+      "range": {
+        "startLine": 25,
+        "startChar": 22,
+        "endLine": 25,
+        "endChar": 29
+      },
+      "revId": "52938e695981e1d4c0bf772c8598a2669c432d19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49dde391_4867d989",
+        "filename": "modules/skshaper/include/SkICUInterface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-01-31T18:13:54Z",
+      "side": 1,
+      "message": "This is only ever used for the streaming interface, we may or may not want or be able to support that.",
+      "range": {
+        "startLine": 26,
+        "startChar": 30,
+        "endLine": 26,
+        "endChar": 53
+      },
+      "revId": "52938e695981e1d4c0bf772c8598a2669c432d19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
