@@ -182,7 +182,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backend
                                                  GrColorType colorType,
                                                  GrWrapOwnership ownership,
                                                  GrWrapCacheable cacheable,
-                                                 GrIOType) {
+                                                 GrIOType ioType) {
     GrDawnTextureInfo info;
     if (!backendTex.getDawnTextureInfo(&info)) {
         return nullptr;
@@ -191,7 +191,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapBackendTexture(const GrBackendTexture& backend
     SkISize dimensions = { backendTex.width(), backendTex.height() };
     GrMipMapsStatus status = GrMipMapsStatus::kNotAllocated;
     return GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kNo, 1, status, cacheable,
-                                      info);
+                                      ioType, info);
 }
 
 sk_sp<GrTexture> GrDawnGpu::onWrapCompressedBackendTexture(const GrBackendTexture& backendTex,
@@ -218,7 +218,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
 
     GrMipMapsStatus status = GrMipMapsStatus::kNotAllocated;
     return GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kYes, sampleCnt, status,
-                                      cacheable, info);
+                                      cacheable, kRW_GrIOType, info);
 }
 
 sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt,
