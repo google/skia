@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "487a2544_ef931f7a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-01-31T20:53:32Z",
+      "side": 1,
+      "message": "This may be true internally (we always populate both profiles), but I think this CL now makes it so that even with F16 you can request a decode with no dst color space?. Might want to clarify that in the description.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 57
+      },
+      "revId": "5b55a3ebc6d3f559b4643cef9387c3b05cad02f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
