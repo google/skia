@@ -209,6 +209,8 @@ static void fillin_BC1_with_color(SkISize dimensions, const SkColor4f& colorf, c
     }
 }
 
+#if GR_TEST_UTILS
+
 // Fill in 'dstPixels' with BC1 blocks derived from the 'pixmap'.
 void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dstPixels) {
     BC1Block* dstBlocks = reinterpret_cast<BC1Block*>(dstPixels);
@@ -249,6 +251,8 @@ void GrTwoColorBC1Compress(const SkPixmap& pixmap, SkColor otherColor, char* dst
         }
     }
 }
+
+#endif
 
 size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimensions,
                                         SkTArray<size_t>* individualMipOffsets, int mipLevelCount) {
