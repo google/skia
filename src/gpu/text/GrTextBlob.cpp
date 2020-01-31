@@ -787,7 +787,6 @@ GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourcePro
 
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMaybeStrike(
         const int begin, const int end) {
-    fSubRun->resetBulkUseToken();
 
     const SkStrikeSpec& strikeSpec = fSubRun->strikeSpec();
 
@@ -821,34 +820,28 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinatesMay
     // Update the quads with the new atlas coordinates.
     fSubRun->updateTexCoords(begin, begin + glyphsPlacedInAtlas);
 
-    if (code == GrDrawOpAtlas::ErrorCode::kSucceeded) {
-        // If we reach here with begin > 0, some earlier call to regenerate() exhausted the atlas
-        // before it could place all its glyphs and returned kTryAgain. Invalidate texture
-        // coordinates, forcing them to be regenerated, minding the atlas flush between.
-        fSubRun->fAtlasGeneration =
-                begin > 0 ? GrDrawOpAtlas::kInvalidAtlasGeneration
-                          : fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
-    }
-
     return {code != GrDrawOpAtlas::ErrorCode::kError, glyphsPlacedInAtlas};
 }
 
 std::tuple<bool, int> GrTextBlob::VertexRegenerator::regenerate(int begin, int end) {
     uint64_t currentAtlasGen = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
+
     // If regenerate() is called multiple times then the atlas gen may have changed. So we check
     // this each time.
+    if (fSubRun->fAtlasGeneration != currentAtlasGen) {
+        fSubRun->resetBulkUseToken();
+        auto [success, glyphsPlacedInAtlas] = this->updateTextureCoordinatesMaybeStrike(begin, end);
 
-    // TODO: figure out why this needs to latch true instead of maintaining the invariant with
-    //  the atlas generation.
-    fRegenerateTextureCoordinates =
-            fRegenerateTextureCoordinates || fSubRun->fAtlasGeneration != currentAtlasGen;
-    if (fRegenerateTextureCoordinates) {
-        return this->updateTextureCoordinatesMaybeStrike(begin, end);
+        // Update atlas generation if there are no more glyphs to put in the atlas.
+        if (success && begin + glyphsPlacedInAtlas == (int)fSubRun->fGlyphs.size()) {
+            // Need to get the freshest value of the atlas' generation because
+            // updateTextureCoordinatesMaybeStrike may have changed it.
+            fSubRun->fAtlasGeneration = fFullAtlasManager->atlasGeneration(fSubRun->maskFormat());
+        }
+        return {success, glyphsPlacedInAtlas};
     } else {
-        // All glyphs are inserted into the atlas if fCurrGlyph is at the end of fGlyphs.
         if (end == (int)fSubRun->fGlyphs.size()) {
-            // Set use tokens for all of the glyphs in our SubRun.  This is only valid if we
-            // have a valid atlas generation
+            // Set the token for all the plots used.
             fFullAtlasManager->setUseTokenBulk(*fSubRun->bulkUseToken(),
                                                fUploadTarget->tokenTracker()->nextDrawToken(),
                                                fSubRun->maskFormat());
