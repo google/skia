@@ -74,6 +74,10 @@ set_defaults("third_party") {
   if (is_debug) {
     configs += [ "//gn:optimize" ]
   }
+
+  if (sanitize == "ASAN") {
+    configs += [ "//gn:recover_pointer_overflow" ]
+  }
 }
 
 template("system") {
