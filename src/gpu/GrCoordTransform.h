@@ -73,7 +73,7 @@ public:
     const SkMatrix& matrix() const { return fMatrix; }
     const GrSurfaceProxy* proxy() const { return fProxy; }
     bool normalize() const {
-        return fProxy && fProxy->backendFormat().textureType() != GrTextureType::kRectangle;
+        return !fOverrideNorm && fProxy && fProxy->backendFormat().textureType() != GrTextureType::kRectangle;
     }
     bool reverseY() const { return fProxy && fProxy->origin() == kBottomLeft_GrSurfaceOrigin; }
     bool isNoOp() const { return fMatrix.isIdentity() && !this->normalize() && !this->reverseY(); }
@@ -81,6 +81,8 @@ public:
     // This should only ever be called at flush time after the backing texture has been
     // successfully instantiated
     GrTexture* peekTexture() const { return fProxy->peekTexture(); }
+
+    bool fOverrideNorm = false;
 
 private:
     const GrSurfaceProxy* fProxy = nullptr;

@@ -106,6 +106,7 @@ private:
         GrSamplerState fHWSampler;
         ShaderMode fShaderModes[2] = {ShaderMode::kNone, ShaderMode::kNone};
         SkRect fShaderSubset = {0, 0, 0, 0};
+        SkRect fShaderClamp  = {0, 0, 0, 0};
         Sampling(GrSamplerState::Filter filter) : fHWSampler(filter) {}
         Sampling(GrSamplerState, SkISize, const GrCaps&);
         Sampling(const GrSurfaceProxy& proxy,
@@ -120,6 +121,7 @@ private:
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
     SkRect fSubset;
+    SkRect fClamp;
     ShaderMode fShaderModes[2];
 
     inline GrTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&, const Sampling&);

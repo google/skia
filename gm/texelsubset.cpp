@@ -64,7 +64,7 @@ protected:
         int n = GrSamplerState::kWrapModeCount;
         if (fFilter != GrSamplerState::Filter::kNearest) {
             // Account for not supporting kMirror or kMirrorRepeat with filtering.
-            n -= 2;
+            n -= 1;
         }
         int w = kTestPad + 2 * n * (kImageSize.width()  + 2 * kDrawPad + kTestPad);
         int h = kTestPad + 2 * n * (kImageSize.height() + 2 * kDrawPad + kTestPad);
@@ -132,8 +132,7 @@ protected:
                 SkScalar x = kDrawPad + kTestPad;
                 auto wmx = static_cast<GrSamplerState::WrapMode>(mx);
                 if (fFilter != GrSamplerState::Filter::kNearest &&
-                    (wmx == GrSamplerState::WrapMode::kRepeat ||
-                     wmx == GrSamplerState::WrapMode::kMirrorRepeat)) {
+                    (wmx == GrSamplerState::WrapMode::kMirrorRepeat)) {
                     // [Mirror] Repeat mode doesn't produce correct results with bilerp
                     // filtering
                     continue;
@@ -141,8 +140,7 @@ protected:
                 for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
                     auto wmy = static_cast<GrSamplerState::WrapMode>(my);
                     if (fFilter != GrSamplerState::Filter::kNearest &&
-                        (wmy == GrSamplerState::WrapMode::kRepeat ||
-                         wmy == GrSamplerState::WrapMode::kMirrorRepeat)) {
+                        (wmy == GrSamplerState::WrapMode::kMirrorRepeat)) {
                         continue;
                     }
                     GrSamplerState sampler(wmx, wmy, fFilter);
