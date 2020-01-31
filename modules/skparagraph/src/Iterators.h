@@ -3,7 +3,6 @@
 #define FontIterator_DEFINED
 
 #include <unicode/brkiter.h>
-#include <unicode/ubidi.h>
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
