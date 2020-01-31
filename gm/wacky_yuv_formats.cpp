@@ -1155,6 +1155,13 @@ protected:
                 return nullptr;
             }
 
+            if (ct == kRGBA_8888_SkColorType || ct == kRGBA_1010102_SkColorType) {
+                // We disallow resizing AYUV and Y410 formats on the GPU bc resizing them w/ a
+                // premul draw combines the YUV channels w/ the A channel in an inappropriate
+                // manner.
+                return nullptr;
+            }
+
             SkISize shrunkPlaneSize = { yuvaTextures[i].width() / 2, yuvaTextures[i].height() / 2 };
 
             sk_sp<SkImage> wrappedOrig = SkImage::MakeFromTexture(context, yuvaTextures[i],
@@ -1640,9 +1647,9 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkYUVAIndex indices[4];
-        indices[SkYUVAIndex::kY_Index] = {0, SkColorChannel::kR};
-        indices[SkYUVAIndex::kU_Index] = {1, SkColorChannel::kR};
-        indices[SkYUVAIndex::kV_Index] = {2, SkColorChannel::kR};
+        indices[SkYUVAIndex::kY_Index] = {0,  SkColorChannel::kR};
+        indices[SkYUVAIndex::kU_Index] = {1,  SkColorChannel::kR};
+        indices[SkYUVAIndex::kV_Index] = {2,  SkColorChannel::kR};
         indices[SkYUVAIndex::kA_Index] = {-1, SkColorChannel::kR};
 
         canvas->translate(fOrig->width(), 0);

@@ -31,17 +31,6 @@
 class GrContext;
 class GrRenderTargetContext;
 
-static sk_sp<SkColorFilter> make_color_filter() {
-    // rotate R, G and B
-    float colorMatrix[20] = {
-        0, 1, 0, 0, 0,
-        0, 0, 1, 0, 0,
-        1, 0, 0, 0, 0,
-        0, 0, 0, 1, 0
-    };
-    return SkColorFilters::Matrix(colorMatrix);
-}
-
 static SkPoint gen_pt(float angle, const SkVector& scale) {
     SkScalar s = SkScalarSin(angle);
     SkScalar c = SkScalarCos(angle);
@@ -258,8 +247,8 @@ private:
         int numMipLevels = SkMipMap::ComputeLevelCount(levelDimensions.width(),
                                                        levelDimensions.height()) + 1;
 
-        SkPaint paint;
-        paint.setFilterQuality(kHigh_SkFilterQuality); // to force mipmapping
+        SkPaint imagePaint;
+        imagePaint.setFilterQuality(kHigh_SkFilterQuality); // to force mipmapping
 
         bool isCompressed = false;
         if (image->isTextureBacked()) {
@@ -269,16 +258,19 @@ private:
             isCompressed = caps->isFormatCompressed(proxy->backendFormat());
         }
 
-        if (!isCompressed) {
-            // Make it obvious which drawImages used decompressed images
-            paint.setColorFilter(make_color_filter());
-        }
+        SkPaint redStrokePaint;
+        redStrokePaint.setColor(SK_ColorRED);
+        redStrokePaint.setStyle(SkPaint::kStroke_Style);
 
         for (int i = 0; i < numMipLevels; ++i) {
             SkRect r = SkRect::MakeXYWH(offset.fX, offset.fY,
                                         levelDimensions.width(), levelDimensions.height());
 
-            canvas->drawImageRect(image, r, &paint);
+            canvas->drawImageRect(image, r, &imagePaint);
+            if (!isCompressed) {
+                // Make it obvious which drawImages used decompressed images
+                canvas->drawRect(r, redStrokePaint);
+            }
 
             if (i == 0) {
                 offset.fX += levelDimensions.width()+1;
