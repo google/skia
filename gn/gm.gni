@@ -157,6 +157,7 @@ gm_sources = [
   "$_gm/encode_platform.cpp",
   "$_gm/encode_srgb.cpp",
   "$_gm/extractbitmap.cpp",
+  "$_gm/exoticformats.cpp",
   "$_gm/fadefilter.cpp",
   "$_gm/fatpathfill.cpp",
   "$_gm/filltypes.cpp",
