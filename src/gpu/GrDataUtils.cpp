@@ -22,6 +22,13 @@ struct ETC1Block {
     uint32_t fLow;
 };
 
+constexpr uint32_t kDiffBit = 0x2; // set -> differential; not-set -> individual
+
+static inline int extend_5To8bits(int b) {
+    int c = b & 0x1f;
+    return (c << 3) | (c >> 2);
+}
+
 static const int kNumETC1ModifierTables = 8;
 static const int kNumETC1PixelIndices = 4;
 
@@ -37,11 +44,6 @@ static const int kETC1ModifierTables[kNumETC1ModifierTables][kNumETC1PixelIndice
     /* 6 */ { 33, 106, -33, -106 },
     /* 7 */ { 47, 183, -47, -183 }
 };
-
-static inline int convert_5To8(int b) {
-    int c = b & 0x1f;
-    return (c << 3) | (c >> 2);
-}
 
 // Evaluate one of the entries in 'kModifierTables' to see how close it can get (r8,g8,b8) to
 // the original color (rOrig, gOrib, bOrig).
@@ -71,12 +73,13 @@ static void create_etc1_block(SkColor col, ETC1Block* block) {
     int g5 = SkMulDiv255Round(31, gOrig);
     int b5 = SkMulDiv255Round(31, bOrig);
 
-    int r8 = convert_5To8(r5);
-    int g8 = convert_5To8(g5);
-    int b8 = convert_5To8(b5);
+    int r8 = extend_5To8bits(r5);
+    int g8 = extend_5To8bits(g5);
+    int b8 = extend_5To8bits(b5);
 
-    // We always encode solid color textures as 555 + zero diffs
-    high |= (r5 << 27) | (g5 << 19) | (b5 << 11) | 0x2;
+    // We always encode solid color textures in differential mode (i.e., with a 555 base color) but
+    // with zero diffs (i.e., bits 26-24, 18-16 and 10-8 are left 0).
+    high |= (r5 << 27) | (g5 << 19) | (b5 << 11) | kDiffBit;
 
     int bestTableIndex = 0, bestPixelIndex = 0;
     int bestSoFar = 1024;
