@@ -1774,3 +1774,16 @@ DEF_TEST(Codec_crbug807324, r) {
         }
     }
 }
+
+DEF_TEST(Codec_F16_noColorSpace, r) {
+    const char* path = "images/color_wheel.png";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        return;
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    SkImageInfo info = codec->getInfo().makeColorType(kRGBA_F16_SkColorType)
+                                       .makeColorSpace(nullptr);
+    test_info(r, codec.get(), info, SkCodec::kSuccess, nullptr);
+}
