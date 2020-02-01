@@ -39,6 +39,7 @@
 
 class SkFont;
 class SkFontMgr;
+class SkICUInterface;
 
 /**
    Shapes text using HarfBuzz and places the shaped text into a
@@ -134,7 +135,7 @@ public:
     MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
     static std::unique_ptr<BiDiRunIterator>
-    MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
+    MakeIcuBiDiRunIterator(SkICUInterface*, const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
     #endif
     class TrivialBiDiRunIterator : public TrivialRunIterator<BiDiRunIterator> {
     public:
