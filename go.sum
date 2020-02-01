@@ -506,6 +506,8 @@ go.chromium.org/luci v0.0.0-20200130081110-c4507dd3a1f8 h1:46VYPsNmBxd3eSLuU1K4N
 go.chromium.org/luci v0.0.0-20200130081110-c4507dd3a1f8/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.chromium.org/luci v0.0.0-20200131042736-5e8fe922dbd7 h1:Qf8sNCLQsnWD4Lw8ShC2cF7sLCow6AaA2hAK862EKPY=
 go.chromium.org/luci v0.0.0-20200131042736-5e8fe922dbd7/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
+go.chromium.org/luci v0.0.0-20200201041625-963be2a61472 h1:IF2sT+inLfz39p/ewVk5m75trNIek5pUIOTVdL7GM7A=
+go.chromium.org/luci v0.0.0-20200201041625-963be2a61472/go.mod h1:MIQewVTLvOvc0UioV0JNqTNO/RspKFS0XEeoKrOxsdM=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0 h1:mU6zScU4U1YAFPHEHYk+3JC4SY7JxgkqS10ZOSyksNg=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
@@ -526,6 +528,8 @@ go.skia.org/infra v0.0.0-20200130155713-d7ed1ff6b3dc h1:QsNS9PqNrbOxP4dfw4DZnx+0
 go.skia.org/infra v0.0.0-20200130155713-d7ed1ff6b3dc/go.mod h1:o3pXGC0VVpNSMiMS0q8XwJk1/HdXDzuQE7Bj03S22rs=
 go.skia.org/infra v0.0.0-20200130212953-de712fe38674 h1:q3nih5JZK2KeEyan6WpHbJgWgXvE4F3TbaKAqXzxwtE=
 go.skia.org/infra v0.0.0-20200130212953-de712fe38674/go.mod h1:o3pXGC0VVpNSMiMS0q8XwJk1/HdXDzuQE7Bj03S22rs=
+go.skia.org/infra v0.0.0-20200131230822-c4a593c17e0d h1:JWDigH4RElKjDDAr1GMuSZjRhM+ZOugz61XPK7V1Xr8=
+go.skia.org/infra v0.0.0-20200131230822-c4a593c17e0d/go.mod h1:Pu+IWasYuccqXywGIamlZz5ktcIVe+qlZO0mjLNguMI=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
 go.uber.org/zap v1.10.0/go.mod h1:vwi/ZaCAaUcBkycHslxD9B2zi4UTXhF60s6SWpuDF0Q=
@@ -716,6 +720,8 @@ golang.org/x/tools v0.0.0-20200130002326-2f3ba24bd6e7 h1:EBZoQjiKKPaLbPrbpssUfuH
 golang.org/x/tools v0.0.0-20200130002326-2f3ba24bd6e7/go.mod h1:TB2adYChydJhpapKDTa4BR/hXlZSLoq2Wpct/0txZ28=
 golang.org/x/tools v0.0.0-20200131000851-b4207ef49307 h1:EQ2+IX03EBhP4MOLhFm3ToxyxJfIr5vHihPe8eCgu3M=
 golang.org/x/tools v0.0.0-20200131000851-b4207ef49307/go.mod h1:TB2adYChydJhpapKDTa4BR/hXlZSLoq2Wpct/0txZ28=
+golang.org/x/tools v0.0.0-20200131211209-ecb101ed6550 h1:3Kc3/T5DQ/majKzDmb+0NzmbXFhKLaeDTp3KqVPV5Eo=
+golang.org/x/tools v0.0.0-20200131211209-ecb101ed6550/go.mod h1:TB2adYChydJhpapKDTa4BR/hXlZSLoq2Wpct/0txZ28=
 golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=
