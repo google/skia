@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "16124d99_4cd29f67",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-01T21:39:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d11fc4e9_dcb48ac3",
+      "range": {
+        "startLine": 788,
+        "startChar": 53,
+        "endLine": 788,
+        "endChar": 88
+      },
+      "revId": "0ae9fd991ad2879740d6d5ecae41db458452cc0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "467f90cc_bcfdca21",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 2
@@ -39,6 +63,24 @@
       "revId": "0ae9fd991ad2879740d6d5ecae41db458452cc0b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f75e2863_1e97e838",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-01T21:39:08Z",
+      "side": 1,
+      "message": "I\u0027m leaving them in the original order. I think this makes sense because the first use must generate the initial texture coordinates. The else is rarely used compared to the if branch. I have added a comment about initial coordinate calculation.",
+      "parentUuid": "467f90cc_bcfdca21",
+      "revId": "0ae9fd991ad2879740d6d5ecae41db458452cc0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
