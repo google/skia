@@ -64,8 +64,12 @@ bool sk_pixmap_extract_subset(const sk_pixmap_t* cpixmap, sk_pixmap_t* result, c
     return AsPixmap(cpixmap)->extractSubset(AsPixmap(result), *AsIRect(subset));
 }
 
-bool sk_pixmap_erase_color (const sk_pixmap_t* cpixmap, sk_color_t color, const sk_irect_t* subset) {
+bool sk_pixmap_erase_color(const sk_pixmap_t* cpixmap, sk_color_t color, const sk_irect_t* subset) {
     return AsPixmap(cpixmap)->erase((SkColor)color, *AsIRect(subset));
+}
+
+bool sk_pixmap_erase_color4f(const sk_pixmap_t* cpixmap, const sk_color4f_t* color, const sk_irect_t* subset) {
+    return AsPixmap(cpixmap)->erase(*AsColor4f(color), AsIRect(subset));
 }
 
 sk_color_t sk_color_unpremultiply(const sk_pmcolor_t pmcolor) {

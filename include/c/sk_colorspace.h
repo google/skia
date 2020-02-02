@@ -68,6 +68,12 @@ SK_C_API bool sk_colorspace_icc_profile_parse(const void* buffer, size_t length,
 SK_C_API const uint8_t* sk_colorspace_icc_profile_get_buffer(const sk_colorspace_icc_profile_t* profile, uint32_t* size);
 SK_C_API bool sk_colorspace_icc_profile_get_to_xyzd50(const sk_colorspace_icc_profile_t* profile, sk_colorspace_xyz_t* toXYZD50);
 
+// sk_color4f_t
+
+SK_C_API sk_color_t sk_color4f_to_color(const sk_color4f_t* color4f);
+SK_C_API void sk_color4f_from_color(sk_color_t color, sk_color4f_t* color4f);
+SK_C_API void sk_color4f_pin(const sk_color4f_t* color4f, sk_color4f_t* pinned);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

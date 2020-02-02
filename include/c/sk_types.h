@@ -55,6 +55,13 @@ typedef uint32_t sk_pmcolor_t;
 #define sk_color_get_g(c)               (((c) >>  8) & 0xFF)
 #define sk_color_get_b(c)               (((c) >>  0) & 0xFF)
 
+typedef struct sk_color4f_t {
+    float fR;
+    float fG;
+    float fB;
+    float fA;
+} sk_color4f_t;
+
 typedef enum {
     UNKNOWN_SK_COLORTYPE = 0,
     ALPHA_8_SK_COLORTYPE,

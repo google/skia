@@ -182,3 +182,18 @@ bool sk_colorspace_icc_profile_get_to_xyzd50(const sk_colorspace_icc_profile_t* 
         *toXYZD50 = ToColorSpaceXyz(p->toXYZD50);
     return p->has_toXYZD50;
 }
+
+
+// sk_color4f_t
+
+sk_color_t sk_color4f_to_color(const sk_color4f_t* color4f) {
+    return AsColor4f(color4f)->toSkColor();
+}
+
+void sk_color4f_from_color(sk_color_t color, sk_color4f_t* color4f) {
+    *color4f = ToColor4f(SkColor4f::FromColor(color));
+}
+
+void sk_color4f_pin(const sk_color4f_t* color4f, sk_color4f_t* pinned) {
+    *pinned = ToColor4f(AsColor4f(color4f)->pin());
+}
