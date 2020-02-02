@@ -42,10 +42,6 @@ sk_shader_t* sk_shader_new_empty(void) {
     return ToShader(SkShaders::Empty().release());
 }
 
-void sk_shader_ref(sk_shader_t* shader) {
-    SkSafeRef(AsShader(shader));
-}
-
 sk_shader_t* sk_shader_new_color(sk_color_t color) {
     return ToShader(SkShaders::Color(color).release());
 }
