@@ -98,7 +98,8 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-SwiftShader/Release",
+      "-j1"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

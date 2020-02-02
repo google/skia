@@ -49,7 +49,8 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug-Exceptions\\Debug"
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug-Exceptions\\Debug",
+      "-j1"
     ],
     "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {

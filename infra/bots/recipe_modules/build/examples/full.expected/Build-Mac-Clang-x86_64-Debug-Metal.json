@@ -36,6 +36,24 @@
   },
   {
     "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_mac/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get clang_mac VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "[START_DIR]/cache/work/skia/bin/fetch-gn"
@@ -53,7 +71,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-O1\"] skia_use_metal=true target_cpu=\"x86_64\" werror=true"
+      "--args=cc=\"[START_DIR]/clang_mac/bin/clang\" cxx=\"[START_DIR]/clang_mac/bin/clang++\" dlsymutil_pool_depth=1 extra_cflags=[\"-DDUMMY_xcode_build_version=10g8\", \"-B[START_DIR]/clang_mac/bin\", \"-DDUMMY_clang_mac_version=42\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_mac/bin\"] skia_use_metal=true target_cpu=\"x86_64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -67,7 +85,8 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug"
+      "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug",
+      "-j1"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

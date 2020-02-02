@@ -49,7 +49,8 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Vulkan/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Release-Vulkan/Release",
+      "-j1"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

@@ -101,7 +101,8 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN/Debug"
+      "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN/Debug",
+      "-j1"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
