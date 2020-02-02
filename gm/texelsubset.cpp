@@ -183,24 +183,23 @@ protected:
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
                     if (my < GrSamplerState::kWrapModeCount - 1) {
-                        SkPaint paint;
-                        SkScalar midX = drawRect.right() + kTestPad / 2.f;
-                        canvas->drawLine({midX, 0}, {midX, (float)size.fHeight}, paint);
+                        SkScalar midX =
+                                SkScalarFloorToScalar(drawRect.right() + kTestPad/2.f) + 0.5f;
+                        canvas->drawLine({midX, -1}, {midX, (float)size.fHeight+1}, {});
                     }
                     x += localRect.width() + kTestPad;
                 }
                 if (mx < GrSamplerState::kWrapModeCount - 1) {
-                    SkPaint paint;
-                    SkScalar midY = drawRect.bottom() + kTestPad / 2.f;
-                    canvas->drawLine({0, midY}, {(float)size.fWidth, midY}, paint);
+                    SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;
+                    canvas->drawLine({-1, midY}, {(float)size.fWidth+1, midY}, {});
                 }
                 y += localRect.height() + kTestPad;
             }
             if (tm < textureMatrices.count() - 1) {
                 SkPaint paint;
                 paint.setColor(SK_ColorRED);
-                SkScalar midY = drawRect.bottom() + kTestPad / 2.f;
-                canvas->drawLine({0, midY}, {(float)size.fWidth, midY}, paint);
+                SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;
+                canvas->drawLine({-1, midY}, {(float)size.fWidth + 1, midY}, paint);
             }
         }
         return DrawResult::kOk;
