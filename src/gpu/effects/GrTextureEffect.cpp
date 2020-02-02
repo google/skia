@@ -15,65 +15,8 @@
 #include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
-namespace {
-struct Span {
-    float fA = 0.f, fB = 0.f;
-
-    Span makeInset(float o) const {
-        Span r = {fA + o, fB - o};
-        if (r.fA > r.fB) {
-            r.fA = r.fB = (r.fA + r.fB) / 2;
-        }
-        return r;
-    }
-
-    bool contains(Span r) const { return fA <= r.fA && fB >= r.fB; }
-};
-}  // anonymous namespace
-
-GrTextureEffect::Sampling::Sampling(GrSamplerState sampler, SkISize size, const GrCaps& caps)
-        : fHWSampler(sampler) {
-    if (!caps.clampToBorderSupport()) {
-        if (fHWSampler.wrapModeX() == GrSamplerState::WrapMode::kClampToBorder) {
-            fHWSampler.setWrapModeX(GrSamplerState::WrapMode::kClamp);
-            fShaderModes[0] = ShaderMode::kDecal;
-            Span span{0, (float)size.width()};
-            if (sampler.filter() != GrSamplerState::Filter::kNearest) {
-                span = span.makeInset(0.5f);
-            }
-            fShaderSubset.fLeft  = span.fA;
-            fShaderSubset.fRight = span.fB;
-        }
-        if (fHWSampler.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder) {
-            fHWSampler.setWrapModeY(GrSamplerState::WrapMode::kClamp);
-            fShaderModes[1] = ShaderMode::kDecal;
-            Span span{0, (float)size.height()};
-            if (sampler.filter() != GrSamplerState::Filter::kNearest) {
-                span = span.makeInset(0.5f);
-            }
-            fShaderSubset.fTop    = span.fA;
-            fShaderSubset.fBottom = span.fB;
-        }
-    }
-    if (!caps.npotTextureTileSupport()) {
-        if (fHWSampler.wrapModeX() != GrSamplerState::WrapMode::kClamp && !SkIsPow2(size.width())) {
-            fShaderModes[0] = static_cast<ShaderMode>(fHWSampler.wrapModeX());
-            fHWSampler.setWrapModeX(GrSamplerState::WrapMode::kClamp);
-            // We don't yet support shader based Mirror or Repeat with filtering.
-            fHWSampler.setFilterMode(GrSamplerState::Filter::kNearest);
-            fShaderSubset.fLeft  = 0;
-            fShaderSubset.fRight = size.width();
-        }
-        if (fHWSampler.wrapModeY() != GrSamplerState::WrapMode::kClamp &&
-            !SkIsPow2(size.height())) {
-            fShaderModes[1] = static_cast<ShaderMode>(fHWSampler.wrapModeY());
-            fHWSampler.setWrapModeY(GrSamplerState::WrapMode::kClamp);
-            fHWSampler.setFilterMode(GrSamplerState::Filter::kNearest);
-            fShaderSubset.fTop    = 0;
-            fShaderSubset.fBottom = size.height();
-        }
-    }
-}
+using Mode = GrSamplerState::WrapMode;
+using Filter = GrSamplerState::Filter;
 
 GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     GrSamplerState sampler,
@@ -81,43 +24,48 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     bool adjustForFilter,
                                     const SkRect* domain,
                                     const GrCaps& caps) {
-    using Mode = GrSamplerState::WrapMode;
-    using Filter = GrSamplerState::Filter;
+    struct Span {
+        float fA = 0.f, fB = 0.f;
 
+        Span makeInset(float o) const {
+            Span r = {fA + o, fB - o};
+            if (r.fA > r.fB) {
+                r.fA = r.fB = (r.fA + r.fB) / 2;
+            }
+            return r;
+        }
+
+        bool contains(Span r) const { return fA <= r.fA && fB >= r.fB; }
+    };
     struct Result1D {
         ShaderMode fShaderMode;
         Span fShaderSubset;
+        Span fShaderClamp;
         Mode fHWMode;
-        Filter fFilter;
     };
 
-    auto resolve = [adjustForFilter, filter = sampler.filter(), &caps](int size, Mode mode,
-                                                                       Span subset, Span domain) {
-        float inset;
+    auto type = proxy.asTextureProxy()->textureType();
+
+    auto resolve = [type, adjustForFilter, &caps](int size, Mode mode, Span subset, Span domain) {
         Result1D r;
-        r.fFilter = filter;
-        bool canDoHW = (mode != Mode::kClampToBorder || caps.clampToBorderSupport()) &&
-                       (mode == Mode::kClamp || caps.npotTextureTileSupport() || SkIsPow2(size));
+        bool canDoHW =
+                (mode != Mode::kClampToBorder || caps.clampToBorderSupport()) &&
+                (mode == Mode::kClamp || caps.npotTextureTileSupport() || SkIsPow2(size)) &&
+                (mode != Mode::kClamp && mode != Mode::kClampToBorder &&
+                 type == GrTextureType::kRectangle);
         if (canDoHW && size > 0 && subset.fA <= 0 && subset.fB >= size) {
             r.fShaderMode = ShaderMode::kNone;
             r.fHWMode = mode;
+            r.fShaderSubset = r.fShaderClamp = {0, 0};
             return r;
         }
 
-        inset = (adjustForFilter && filter != Filter::kNearest) ? 0.5 : 0;
-        auto insetSubset = subset.makeInset(inset);
-
-        if (canDoHW && insetSubset.contains(domain)) {
+        r.fShaderClamp  = adjustForFilter ? subset.makeInset(0.5f) : subset;
+        r.fShaderSubset = adjustForFilter ? subset : subset.makeInset(-.5f);
+        if (r.fShaderClamp.contains(domain)) {
             r.fShaderMode = ShaderMode::kNone;
-            r.fHWMode = mode;
-            return r;
-        }
-
-        if (mode == Mode::kRepeat || mode == Mode::kMirrorRepeat) {
-            r.fFilter = Filter::kNearest;
-            r.fShaderSubset = subset;
-        } else {
-            r.fShaderSubset = insetSubset;
+            r.fHWMode = Mode::kClamp;
+            r.fShaderSubset = r.fShaderClamp = {0, 0};
         }
         r.fShaderMode = static_cast<ShaderMode>(mode);
         r.fHWMode = Mode::kClamp;
@@ -136,11 +84,13 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                           : Span{SK_FloatNegativeInfinity, SK_FloatInfinity};
     auto y = resolve(dim.height(), sampler.wrapModeY(), subsetY, domainY);
 
-    fHWSampler = {x.fHWMode, y.fHWMode, std::min(x.fFilter, y.fFilter)};
+    fHWSampler = {x.fHWMode, y.fHWMode, sampler.filter()};
     fShaderModes[0] = x.fShaderMode;
     fShaderModes[1] = y.fShaderMode;
     fShaderSubset = {x.fShaderSubset.fA, y.fShaderSubset.fA,
                      x.fShaderSubset.fB, y.fShaderSubset.fB};
+    fShaderClamp = {x.fShaderClamp.fA, y.fShaderClamp.fA,
+                    x.fShaderClamp.fB, y.fShaderClamp.fB};
 }
 
 bool GrTextureEffect::Sampling::usesDecal() const {
@@ -152,7 +102,7 @@ bool GrTextureEffect::Sampling::usesDecal() const {
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
-                                                           GrSamplerState::Filter filter) {
+                                                           Filter filter) {
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(proxy), alphaType, matrix, Sampling(filter)));
 }
@@ -162,7 +112,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy>
                                                            const SkMatrix& matrix,
                                                            GrSamplerState sampler,
                                                            const GrCaps& caps) {
-    Sampling sampling(sampler, proxy->dimensions(), caps);
+    Sampling sampling(*proxy, sampler, SkRect::Make(proxy->dimensions()), true, nullptr, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
 }
@@ -213,10 +163,15 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(sk_sp<GrSurface
             new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
 }
 
+bool GrTextureEffect::SmoothInShader(GrSamplerState::Filter filter, ShaderMode mode) {
+    return filter > Filter::kNearest && (mode == ShaderMode::kDecal || mode == ShaderMode::kRepeat);
+}
+
 GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
     class Impl : public GrGLSLFragmentProcessor {
         UniformHandle fSubsetUni;
-        UniformHandle fDecalUni;
+        UniformHandle fClampUni;
+        UniformHandle fNormUni;
 
     public:
         void emitCode(EmitArgs& args) override {
@@ -224,16 +179,12 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                                  const char* domainStart, const char* domainEnd, bool is2D,
                                  const char* out) {
                 switch (mode) {
+                    // These only use the clamp step, not the subset step.
+                    case ShaderMode::kDecal:
+                    case ShaderMode::kClamp:
+                    // This uses neither subset nor clamp.
                     case ShaderMode::kNone:
                         builder->codeAppendf("%s = %s;\n", out, inCoord);
-                        break;
-                    case ShaderMode::kDecal:
-                        // The lookup coordinate to use for decal will be clamped just like
-                        // kClamp_Mode, it's just that the post-processing will be different, so
-                        // fall through
-                    case ShaderMode::kClamp:
-                        builder->codeAppendf("%s = clamp(%s, %s, %s);", out, inCoord, domainStart,
-                                             domainEnd);
                         break;
                     case ShaderMode::kRepeat:
                         builder->codeAppendf("%s = mod(%s - %s, %s - %s) + %s;", out, inCoord,
@@ -253,6 +204,7 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                     }
                 }
             };
+
             auto te = args.fFp.cast<GrTextureEffect>();
             const char* coords;
             if (args.fFp.coordTransformsApplyToLocalCoords()) {
@@ -268,82 +220,170 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
                                                 args.fTexSamplers[0], coords);
                 fb->codeAppendf(";");
             } else {
-                const char* subsetName;
-                SkString uniName("TexDom");
-                fSubsetUni = args.fUniformHandler->addUniform(
-                        kFragment_GrShaderFlag, kHalf4_GrSLType, "subset", &subsetName);
-
                 // Always use a local variable for the input coordinates; often callers pass in an
                 // expression and we want to cache it across all of its references in the code below
-                auto inCoords = fb->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint);
-                fb->codeAppend("float2 clampedCoord;");
+                fb->codeAppendf("float2 inCoords = %s;",
+                        fb->ensureCoords2D(args.fTransformedCoords[0].fVaryingPoint).c_str());
+
+                const auto& m = te.fShaderModes;
+                const char* subsetName ="<bogus>";
+                const auto* texture = te.fSampler.proxy()->peekTexture();
+                bool normCoords = texture->texturePriv().textureType() != GrTextureType::kRectangle;
+                auto filter = te.fSampler.samplerState().filter();
+                auto modeUsesSubset = [filter](ShaderMode m) {
+                    return m == ShaderMode::kRepeat || m == ShaderMode::kMirrorRepeat ||
+                           (m == ShaderMode::kDecal && filter > Filter::kNearest);
+                };
+
+                bool useSubset[2] = {modeUsesSubset(m[0]), modeUsesSubset(m[1])};
+                if (useSubset[0] || useSubset[1]) {
+                    fSubsetUni = args.fUniformHandler->addUniform(
+                            kFragment_GrShaderFlag, kFloat4_GrSLType, "subset", &subsetName);
+                }
+                bool smoothEdge[2] = {SmoothInShader(filter, m[0]), SmoothInShader(filter, m[1])};
+                const char* norm = nullptr;
+                if (normCoords && (smoothEdge[0] || smoothEdge[1])) {
+                    // TODO: Detect support for textureSize() or polyfill textureSize() in SkSL and
+                    // always use?
+                    fNormUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                kFloat4_GrSLType, "norm", &norm);
+                    // TODO: Remove the normalization from the CoordTransform to skip denorm here.
+                    fb->codeAppendf("inCoords *= %s.xy;", norm);
+                }
+                auto read = [&fb, norm, &sampler = args.fTexSamplers[0]] (const char* coord) {
+                    SkString result;
+                    SkString normCoord;
+                    if (norm) {
+                        normCoord.printf("(%s) * %s.zw", coord, norm);
+                    } else {
+                        normCoord = coord;
+                    }
+                    fb->appendTextureLookup(&result, sampler, normCoord.c_str());
+                    return result;
+                };
+
+                const char* clampName;
+                fClampUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                             kFloat4_GrSLType, "clamp", &clampName);
+
+                fb->codeAppend("float2 subsetCoord;");
                 SkString start;
                 SkString end;
-                if (te.fShaderModes[0] == te.fShaderModes[1]) {
+                if (m[0] == m[1]) {
                     // Doing the domain setup using vectors seems to avoid shader compilation issues
                     // on Chromecast, possibly due to reducing shader length.
                     start.printf("%s.xy", subsetName);
                     end.printf("%s.zw", subsetName);
-                    appendWrap(fb, te.fShaderModes[0], inCoords.c_str(), start.c_str(), end.c_str(),
-                               true, "clampedCoord");
+                    appendWrap(fb, m[0], "inCoords", start.c_str(), end.c_str(), true, "subsetCoord");
+                    fb->codeAppendf("float2 clampedCoord = clamp(subsetCoord, %s.xy, %s.zw);", clampName, clampName);
                 } else {
-                    SkString origX, origY;
                     // Apply x mode to the x coordinate using the left and right edges of the domain
                     // rect (stored as the x and z components of the domain uniform).
                     start.printf("%s.x", subsetName);
                     end.printf("%s.z", subsetName);
-                    origX.printf("%s.x", inCoords.c_str());
-                    appendWrap(fb, te.fShaderModes[0], origX.c_str(), start.c_str(), end.c_str(),
-                               false, "clampedCoord.x");
+                    appendWrap(fb, m[0], "inCoords.x", start.c_str(), end.c_str(), false, "subsetCoord.x");
                     // Repeat the same logic for y.
                     start.printf("%s.y", subsetName);
                     end.printf("%s.w", subsetName);
-                    origY.printf("%s.y", inCoords.c_str());
-                    appendWrap(fb, te.fShaderModes[1], origY.c_str(), start.c_str(), end.c_str(),
-                               false, "clampedCoord.y");
-                }
-                SkString textureLookup;
-                fb->appendTextureLookup(&textureLookup, args.fTexSamplers[0], "clampedCoord");
-                fb->codeAppendf("half4 textureColor = %s;", textureLookup.c_str());
-
-                // Apply decal mode's transparency interpolation if needed
-                bool decalX = te.fShaderModes[0] == ShaderMode::kDecal;
-                bool decalY = te.fShaderModes[1] == ShaderMode::kDecal;
-                if (decalX || decalY) {
-                    const char* decalName;
-                    // Half3 since this will hold texture width, height, and then a step function
-                    // control param
-                    fDecalUni = args.fUniformHandler->addUniform(
-                            kFragment_GrShaderFlag, kHalf3_GrSLType, uniName.c_str(), &decalName);
-                    // The decal err is the max absolute value between the clamped coordinate and
-                    // the original pixel coordinate. This will then be clamped to 1.f if it's
-                    // greater than the control parameter, which simulates kNearest and kBilerp
-                    // behavior depending on if it's 0 or 1.
-                    if (decalX && decalY) {
-                        fb->codeAppendf(
-                                "half err = max(half(abs(clampedCoord.x - %s.x) * %s.x), "
-                                "               half(abs(clampedCoord.y - %s.y) * %s.y));",
-                                inCoords.c_str(), decalName, inCoords.c_str(), decalName);
-                    } else if (decalX) {
-                        fb->codeAppendf("half err = half(abs(clampedCoord.x - %s.x) * %s.x);",
-                                        inCoords.c_str(), decalName);
+                    appendWrap(fb, m[1], "inCoords.y", start.c_str(), end.c_str(), false, "subsetCoord.y");
+                    if (m[0] == ShaderMode::kNone) {
+                        fb->codeAppendf("float2 clampedCoord = float2(subsetCoord.x, clamp(subsetCoord, %s.x, %s.z));",
+                                        clampName, clampName);
+                    } else if (m[1] == ShaderMode::kNone) {
+                        fb->codeAppendf("float2 clampedCoord = float2(clamp(subsetCoord, %s.y, %s.w), subsetCoord.y);",
+                                        clampName, clampName);
                     } else {
-                        SkASSERT(decalY);
-                        fb->codeAppendf("half err = half(abs(clampedCoord.y - %s.y) * %s.y);",
-                                        inCoords.c_str(), decalName);
-                    }
+                        fb->codeAppendf("float2 clampedCoord = clamp(subsetCoord, %s.xy, %s.zw);", clampName, clampName);
 
-                    // Apply a transform to the error rate, which let's us simulate nearest or
-                    // bilerp filtering in the same shader. When the texture is nearest filtered,
-                    // fSizeName.z is set to 0 so this becomes a step function centered at the
-                    // clamped coordinate. When bilerp, fSizeName.z is set to 1 and it becomes
-                    // a simple linear blend between texture and transparent.
-                    fb->codeAppendf(
-                            "if (err > %s.z) { err = 1.0; } else if (%s.z < 1) { err = 0.0; }",
-                            decalName, decalName);
-                    fb->codeAppend("textureColor = mix(textureColor, half4(0), err);");
+                    }
                 }
-                fb->codeAppendf("%s = textureColor * %s;", args.fOutputColor, args.fInputColor);
+                fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
+
+                if (smoothEdge[0] || smoothEdge[1]) {
+                   const char* errX = nullptr;
+                    const char* errY = nullptr;
+                    if (smoothEdge[0] && smoothEdge[1]) {
+                        fb->codeAppend("half2 err = half2(subsetCoord - clampedCoord);");
+                        errX = "err.x";
+                        errY = "err.y";
+                    } else if (smoothEdge[0]) {
+                        fb->codeAppend("half err = half(subsetCoord.x - clampedCoord.x);");
+                        errX = "err";
+                    } else {
+                        fb->codeAppend("half err = half(subsetCoord.y - clampedCoord.y);");
+                        errY = "err";
+                    }
+                    bool bothRepeat = (m[0] == ShaderMode::kRepeat) &&
+                                      (m[1] == ShaderMode::kRepeat);
+                    SkString repeatX, repeatY, repeatXY;
+                    if (bothRepeat) {
+                        fb->codeAppendf("float2 repeatCoord = mix(%s.xy, %s.zw, lessThan(err, half2(0)));", clampName, clampName);
+                        repeatX.printf("float2(repeatCoord.x, clampedCoord.y)");
+                        repeatY.printf("float2(clampedCoord.x, repeatCoord.y)");
+                        repeatXY = "repeatCoord";
+                    } else if (m[0] == ShaderMode::kRepeat) {
+                        fb->codeAppendf("float repeatCoord = mix(%s.x, %s.z, %s < half(0));", clampName, clampName, errX);
+                        repeatX.printf("float2(repeatCoord, clampedCoord.y)");
+                    } else if (m[1] == ShaderMode::kRepeat){
+                        fb->codeAppendf("float repeatCoord = mix(%s.y, %s.w, %s < half(0));", clampName, clampName, errY);
+                        repeatY.printf("float2(clampedCoord.x, repeatCoord)");
+                    }
+                    fb->codeAppend("err = min(abs(err), 1);");
+                    const char* individualIf = "if";
+                    if (bothRepeat) {
+                        auto readX  = read(repeatX.c_str());
+                        auto readY  = read(repeatY.c_str());
+                        auto readXY = read(repeatXY.c_str());
+                        fb->codeAppendf("if (err.x != 0 && err.y != 0) {"
+                                        "    textureColor = mix(mix(textureColor, %s, err.x),"
+                                        "                       mix(%s, %s, err.x),"
+                                        "                       err.y);"
+                                        "}", readX.c_str(), readY.c_str(), readXY.c_str());
+                        individualIf = "else if";
+                    }
+                    if (m[0] == ShaderMode::kRepeat) {
+                        auto readX = read(repeatX.c_str());
+                        fb->codeAppendf("%s (%s != 0) {"
+                                        "    textureColor = mix(textureColor, %s, %s);"
+                                        "}", individualIf, errX, readX.c_str(), errX);
+                    }
+                    if (m[1] == ShaderMode::kRepeat) {
+                        auto readY = read(repeatY.c_str());
+                        fb->codeAppendf("%s (%s != 0) {"
+                                        "    textureColor = mix(textureColor, %s, %s);"
+                                        "}", individualIf, errY, readY.c_str(), errY);
+                    }
+                    if (m[0] == ShaderMode::kDecal && m[1] == ShaderMode::kDecal) {
+                        fb->codeAppendf(
+                                "textureColor = mix("
+                                "        mix(textureColor, half4(0), err.x),"
+                                "        half4(0),"
+                                "        err.y);");
+                    } else if (m[0] == ShaderMode::kDecal) {
+                        fb->codeAppendf(
+                                "textureColor = mix(textureColor, half4(0), %s);", errX);
+                    } else if (m[1] == ShaderMode::kDecal)  {
+                        fb->codeAppendf(
+                                "textureColor = mix(textureColor, half4(0), %s);", errY);
+                    }
+                } else {
+                    // TODO: DON'T SAMPLE THE TEXTURE AT ALL IF OUTSIDE?
+                    SkString errX;
+                    if (m[0] == ShaderMode::kDecal) {
+                        fb->codeAppend(
+                                "if (subsetCoord.x != clampedCoord.x) {"
+                                "    textureColor = half4(0);"
+                                "}");
+                    }
+                    SkString errY;
+                    if (m[1] == ShaderMode::kDecal) {
+                        fb->codeAppend(
+                                "if (subsetCoord.y != clampedCoord.y) {"
+                                "    textureColor = half4(0);"
+                                "}");
+                    }
+                }
+                fb->codeAppendf("%s = %s * textureColor;", args.fOutputColor, args.fInputColor);
             }
         }
 
@@ -351,42 +391,49 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
         void onSetData(const GrGLSLProgramDataManager& pdm,
                        const GrFragmentProcessor& fp) override {
             const auto& te = fp.cast<GrTextureEffect>();
-            if (fSubsetUni.isValid()) {
+            if (fClampUni.isValid()) {
                 const float w = te.fSampler.peekTexture()->width();
                 const float h = te.fSampler.peekTexture()->height();
 
                 const auto& s = te.fSubset;
-                float rect[] = {s.fLeft, s.fTop, s.fRight, s.fBottom};
-                float decalW[3];
+                const auto& c = te.fClamp;
+                float subset[] = {s.fLeft, s.fTop, s.fRight, s.fBottom};
+                float clamp[]  = {c.fLeft, c.fTop, c.fRight, c.fBottom};
 
                 if (te.fSampler.view().origin() == kBottomLeft_GrSurfaceOrigin) {
-                    rect[1] = h - rect[1];
-                    rect[3] = h - rect[3];
-                    std::swap(rect[1], rect[3]);
+                    subset[1] = h - subset[1];
+                    subset[3] = h - subset[3];
+                    std::swap(subset[1], subset[3]);
+                    clamp[1] = h - clamp[1];
+                    clamp[3] = h - clamp[3];
+                    std::swap(clamp[1], clamp[3]);
                 }
 
                 if (te.fSampler.peekTexture()->texturePriv().textureType() !=
                     GrTextureType::kRectangle) {
-                    float iw = 1.f / w;
-                    float ih = 1.f / h;
-                    rect[0] *= iw;
-                    rect[2] *= iw;
-                    rect[1] *= ih;
-                    rect[3] *= ih;
-                    decalW[0] = w;
-                    decalW[1] = h;
+                    float norm[4] = {w, h, 1.f/w, 1.f/h};
+                    if (fNormUni.isValid()) {
+                        pdm.set4fv(fNormUni, 1, norm);
+                        norm[2] = norm[3] = 1;
+                    }
+                    subset[0] *= norm[2];
+                    subset[2] *= norm[2];
+                    subset[1] *= norm[3];
+                    subset[3] *= norm[3];
+                    clamp[0] *= norm[2];
+                    clamp[2] *= norm[2];
+                    clamp[1] *= norm[3];
+                    clamp[3] *= norm[3];
                 } else {
-                    decalW[0] = 1;
-                    decalW[1] = 1;
+                    SkASSERT(!fNormUni.isValid());
                 }
-                pdm.set4fv(fSubsetUni, 1, rect);
-
-                if (fDecalUni.isValid()) {
-                    bool filter = te.textureSampler(0).samplerState().filter() !=
-                                  GrSamplerState::Filter::kNearest;
-                    decalW[2] = filter ? 1.f : 0.f;
-                    pdm.set3fv(fDecalUni, 1, decalW);
+                if (fSubsetUni.isValid()) {
+                    pdm.set4fv(fSubsetUni, 1, subset);
                 }
+                pdm.set4fv(fClampUni, 1, clamp);
+            } else {
+                SkASSERT(!fSubsetUni.isValid());
+                SkASSERT(!fNormUni.isValid());
             }
         }
     };
@@ -394,12 +441,11 @@ GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
 }
 
 void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
-    bool shaderFilter = (fShaderModes[0] == ShaderMode::kDecal ||
-                         fShaderModes[1] == ShaderMode::kDecal) &&
-                        fSampler.samplerState().filter() != GrSamplerState::Filter::kNearest;
+    bool smooth = SmoothInShader(fSampler.samplerState().filter(), fShaderModes[0]) ||
+                  SmoothInShader(fSampler.samplerState().filter(), fShaderModes[1]);
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);
     auto m1 = static_cast<uint32_t>(fShaderModes[1]);
-    b->add32(shaderFilter << 31 | (m0 << 16) | m1);
+    b->add32(smooth << 31 | (m0 << 16) | m1);
 }
 
 bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
@@ -415,6 +461,7 @@ GrTextureEffect::GrTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alph
         , fCoordTransform(matrix, texture.get())
         , fSampler(std::move(texture), sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
+        , fClamp(sampling.fShaderClamp)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]} {
     // We always compare the range even when it isn't used so assert we have canonical don't care
     // values.
@@ -446,18 +493,26 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTextureEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTestData* testData) {
     auto [proxy, ct, at] = testData->randomProxy();
-    GrSamplerState::WrapMode wrapModes[2];
+    Mode wrapModes[2];
     GrTest::TestWrapModes(testData->fRandom, wrapModes);
-    if (!testData->caps()->npotTextureTileSupport()) {
-        // Performing repeat sampling on npot textures will cause asserts on HW
-        // that lacks support.
-        wrapModes[0] = GrSamplerState::WrapMode::kClamp;
-        wrapModes[1] = GrSamplerState::WrapMode::kClamp;
-    }
 
-    GrSamplerState params(wrapModes, testData->fRandom->nextBool()
-                                             ? GrSamplerState::Filter::kBilerp
-                                             : GrSamplerState::Filter::kNearest);
+    Filter filter;
+    if (proxy->mipMapped() == GrMipMapped::kYes) {
+        switch (testData->fRandom->nextULessThan(3)) {
+            case 0:
+                filter = Filter::kNearest;
+                break;
+            case 1:
+                filter = Filter::kBilerp;
+                break;
+            default:
+                filter = Filter::kMipMap;
+                break;
+        }
+    } else {
+        filter = testData->fRandom->nextBool() ? Filter::kBilerp : Filter::kNearest;
+    }
+    GrSamplerState params(wrapModes, filter);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
     return GrTextureEffect::Make(std::move(proxy), at, matrix, params, *testData->caps());
