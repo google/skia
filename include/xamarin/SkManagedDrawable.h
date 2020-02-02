@@ -26,7 +26,7 @@ class SkManagedDrawable : public SkDrawable {
 public:
     SkManagedDrawable(void* context);
 
-    virtual ~SkManagedDrawable();
+    ~SkManagedDrawable() override;
 
 public:
     typedef void       (*DrawProc)               (SkManagedDrawable* d, void* context, SkCanvas* canvas);

@@ -41,6 +41,7 @@
 #include "include/c/sk_textblob.h"
 #include "include/c/sk_typeface.h"
 #include "include/c/sk_vertices.h"
+#include "include/c/sk_xml.h"
 
 // Xamarin
 #include "include/xamarin/sk_managedstream.h"
@@ -83,6 +84,7 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_surface_new_null,
         (void*)sk_svgcanvas_create,
         (void*)sk_typeface_unref,
+        (void*)sk_xmlstreamwriter_new,
         (void*)sk_textblob_ref,
         (void*)sk_vertices_unref,
 
