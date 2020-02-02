@@ -61,13 +61,9 @@ protected:
     }
 
     SkISize onISize() override {
-        int n = GrSamplerState::kWrapModeCount;
-        if (fFilter != GrSamplerState::Filter::kNearest) {
-            // Account for not supporting kMirror or kMirrorRepeat with filtering.
-            n -= 2;
-        }
-        int w = kTestPad + 2 * n * (kImageSize.width()  + 2 * kDrawPad + kTestPad);
-        int h = kTestPad + 2 * n * (kImageSize.height() + 2 * kDrawPad + kTestPad);
+        static constexpr int n = GrSamplerState::kWrapModeCount;
+        int w = kTestPad + 2*n*(kImageSize.width()  + 2 * kDrawPad + kTestPad);
+        int h = kTestPad + 2*n*(kImageSize.height() + 2 * kDrawPad + kTestPad);
         return {w, h};
     }
 
@@ -131,20 +127,8 @@ protected:
             for (int mx = 0; mx < GrSamplerState::kWrapModeCount; ++mx) {
                 SkScalar x = kDrawPad + kTestPad;
                 auto wmx = static_cast<GrSamplerState::WrapMode>(mx);
-                if (fFilter != GrSamplerState::Filter::kNearest &&
-                    (wmx == GrSamplerState::WrapMode::kRepeat ||
-                     wmx == GrSamplerState::WrapMode::kMirrorRepeat)) {
-                    // [Mirror] Repeat mode doesn't produce correct results with bilerp
-                    // filtering
-                    continue;
-                }
                 for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
                     auto wmy = static_cast<GrSamplerState::WrapMode>(my);
-                    if (fFilter != GrSamplerState::Filter::kNearest &&
-                        (wmy == GrSamplerState::WrapMode::kRepeat ||
-                         wmy == GrSamplerState::WrapMode::kMirrorRepeat)) {
-                        continue;
-                    }
                     GrSamplerState sampler(wmx, wmy, fFilter);
                     const auto& caps = *context->priv().caps();
                     auto fp1 = GrTextureEffect::MakeTexelSubset(proxy,
@@ -183,23 +167,24 @@ protected:
                         renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     }
                     if (my < GrSamplerState::kWrapModeCount - 1) {
-                        SkScalar midX =
-                                SkScalarFloorToScalar(drawRect.right() + kTestPad/2.f) + 0.5f;
-                        canvas->drawLine({midX, -1}, {midX, (float)size.fHeight+1}, {});
+                        SkPaint paint;
+                        SkScalar midX = drawRect.right() + kTestPad / 2.f;
+                        canvas->drawLine({midX, 0}, {midX, (float)size.fHeight}, paint);
                     }
                     x += localRect.width() + kTestPad;
                 }
                 if (mx < GrSamplerState::kWrapModeCount - 1) {
-                    SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;
-                    canvas->drawLine({-1, midY}, {(float)size.fWidth+1, midY}, {});
+                    SkPaint paint;
+                    SkScalar midY = drawRect.bottom() + kTestPad / 2.f;
+                    canvas->drawLine({0, midY}, {(float)size.fWidth, midY}, paint);
                 }
                 y += localRect.height() + kTestPad;
             }
             if (tm < textureMatrices.count() - 1) {
                 SkPaint paint;
                 paint.setColor(SK_ColorRED);
-                SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;
-                canvas->drawLine({-1, midY}, {(float)size.fWidth + 1, midY}, paint);
+                SkScalar midY = drawRect.bottom() + kTestPad / 2.f;
+                canvas->drawLine({0, midY}, {(float)size.fWidth, midY}, paint);
             }
         }
         return DrawResult::kOk;

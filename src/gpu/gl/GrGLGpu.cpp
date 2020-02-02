@@ -55,7 +55,7 @@
     #define CHECK_ALLOC_ERROR(iface)          GR_GL_NO_ERROR
 #endif
 
-//#define USE_NSIGHT
+#define USE_NSIGHT
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -368,7 +368,6 @@ sk_sp<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface, const GrContext
         }
     }
 #ifdef USE_NSIGHT
-    const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif
     auto glContext = GrGLContext::Make(std::move(interface), options);
     if (!glContext) {
