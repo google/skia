@@ -152,11 +152,3 @@ SkMasks* SkMasks::CreateMasks(InputMasks masks, int bytesPerPixel) {
                        process_mask(masks.alpha));
 }
 
-
-SkMasks::SkMasks(const MaskInfo& red, const MaskInfo& green,
-                 const MaskInfo& blue, const MaskInfo& alpha)
-    : fRed(red)
-    , fGreen(green)
-    , fBlue(blue)
-    , fAlpha(alpha)
-{}
