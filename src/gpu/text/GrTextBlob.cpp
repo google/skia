@@ -768,11 +768,9 @@ void GrTextBlob::processSourceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 GrTextBlob::VertexRegenerator::VertexRegenerator(GrResourceProvider* resourceProvider,
                                                  GrTextBlob::SubRun* subRun,
                                                  GrDeferredUploadTarget* uploadTarget,
-                                                 GrStrikeCache* grStrikeCache,
                                                  GrAtlasManager* fullAtlasManager)
         : fResourceProvider(resourceProvider)
         , fUploadTarget(uploadTarget)
-        , fGrStrikeCache(grStrikeCache)
         , fFullAtlasManager(fullAtlasManager)
         , fSubRun(subRun) { }
 
@@ -797,7 +795,7 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
 
         if (!fFullAtlasManager->hasGlyph(glyph)) {
             code = grStrike->addGlyphToAtlas(
-                    fResourceProvider, fUploadTarget, fGrStrikeCache, fFullAtlasManager, glyph,
+                    fResourceProvider, fUploadTarget, fFullAtlasManager, glyph,
                     fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
             if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                 break;

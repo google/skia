@@ -17,10 +17,6 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
-GrStrikeCache::GrStrikeCache(const GrCaps* caps, size_t maxTextureBytes)
-        : f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
-                    GrMaskFormatBytesPerPixel(kA565_GrMaskFormat))) { }
-
 GrStrikeCache::~GrStrikeCache() {
     this->freeAll();
 }
@@ -55,7 +51,15 @@ static void expand_bits(INT_TYPE* dst,
 
 static void get_packed_glyph_image(const SkGlyph* glyph, int width,
                                    int height, int dstRB, GrMaskFormat expectedMaskFormat,
-                                   void* dst, const SkMasks& masks) {
+                                   void* dst) {
+
+    static constexpr SkMasks masks{
+            {0b1111'1000'0000'0000, 11, 5},  // Red
+            {0b0000'0111'1110'0000,  5, 6},  // Green
+            {0b0000'0000'0001'1111,  0, 5},  // Blue
+            {0, 0, 0}                        // Alpha
+    };
+
     SkASSERT(glyph->width() == width);
     SkASSERT(glyph->height() == height);
 
@@ -152,7 +156,6 @@ void GrTextStrike::removeID(GrDrawOpAtlas::PlotLocator plotLocator) {
 GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
                                    GrResourceProvider* resourceProvider,
                                    GrDeferredUploadTarget* target,
-                                   GrStrikeCache* glyphCache,
                                    GrAtlasManager* fullAtlasManager,
                                    GrGlyph* glyph,
                                    SkBulkGlyphMetricsAndImages* metricsAndImages,
@@ -165,7 +168,7 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     expectedMaskFormat = fullAtlasManager->resolveMaskFormat(expectedMaskFormat);
     int bytesPerPixel = GrMaskFormatBytesPerPixel(expectedMaskFormat);
 
-    bool isSDFGlyph =  glyph->maskStyle() == GrGlyph::kDistance_MaskStyle;
+    bool isSDFGlyph = glyph->maskStyle() == GrGlyph::kDistance_MaskStyle;
     // Add 1 pixel padding around glyph if needed.
     bool addPad = isScaledGlyph && !isSDFGlyph;
     const int width = addPad ? glyph->width() + 2 : glyph->width();
@@ -186,11 +189,10 @@ GrDrawOpAtlas::ErrorCode GrTextStrike::addGlyphToAtlas(
     }
 
     get_packed_glyph_image(skGlyph, glyph->width(), glyph->height(),
-            rowBytes, expectedMaskFormat, dataPtr, glyphCache->getMasks());
+            rowBytes, expectedMaskFormat, dataPtr);
 
     GrDrawOpAtlas::ErrorCode result = fullAtlasManager->addToAtlas(
-            resourceProvider, glyphCache, this,
-            &glyph->fPlotLocator, target, expectedMaskFormat,
+            resourceProvider, &glyph->fPlotLocator, target, expectedMaskFormat,
             width, height,
             storage.get(), &glyph->fAtlasLocation);
     if (GrDrawOpAtlas::ErrorCode::kSucceeded == result) {

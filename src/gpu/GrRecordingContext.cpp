@@ -58,8 +58,7 @@ bool GrRecordingContext::init(sk_sp<const GrCaps> caps) {
         return false;
     }
 
-    fStrikeCache.reset(new GrStrikeCache(this->caps(),
-                                        this->options().fGlyphCacheTextureMaximumBytes));
+    fStrikeCache.reset(new GrStrikeCache{});
 
     fTextBlobCache.reset(new GrTextBlobCache(textblobcache_overbudget_CB, this,
                                              this->contextID()));
