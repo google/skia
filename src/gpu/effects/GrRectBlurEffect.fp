@@ -82,10 +82,11 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrRecordingContext* context,
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        std::tie(proxy, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy) {
+        auto[view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        if (!view.proxy()) {
             return nullptr;
         }
+        proxy = view.asTextureProxyRef();
         SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
     }

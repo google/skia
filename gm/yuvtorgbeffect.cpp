@@ -99,11 +99,12 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxies[i]) {
+            auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            if (!view.proxy()) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
             }
+            proxies[i] = view.asTextureProxyRef();
         }
 
         for (int space = kJPEG_SkYUVColorSpace; space <= kLastEnum_SkYUVColorSpace; ++space) {
@@ -215,11 +216,12 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxies[i]) {
+            auto[view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            if (!view.proxy()) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
             }
+            proxies[i] = view.asTextureProxyRef();
         }
 
         SkYUVAIndex yuvaIndices[4] = {
@@ -311,11 +313,12 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            std::tie(proxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
-            if (!proxies[i]) {
+            auto[view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            if (!view.proxy()) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
             }
+            proxies[i] = view.asTextureProxyRef();
         }
 
         // Draw a 2x2 grid of the YUV images.

@@ -62,11 +62,11 @@ public:
     // Returns the texture proxy. If we're going to generate and cache the texture, we should use
     // the passed in key (if the key is valid). If genType is AllowedTexGenType::kCheap and the
     // texture is not trivial to construct, returns nullptr.
-    sk_sp<GrTextureProxy> lockTextureProxy(GrRecordingContext*,
-                                           const GrUniqueKey& key,
-                                           SkImage::CachingHint,
-                                           bool willBeMipped,
-                                           GrTextureMaker::AllowedTexGenType genType) const;
+    GrSurfaceProxyView lockTextureProxyView(GrRecordingContext*,
+                                            const GrUniqueKey& key,
+                                            SkImage::CachingHint,
+                                            bool willBeMipped,
+                                            GrTextureMaker::AllowedTexGenType genType) const;
 
     // Returns the GrColorType to use with the GrTextureProxy returned from lockTextureProxy. This
     // may be different from the color type on the image in the case where we need up upload CPU

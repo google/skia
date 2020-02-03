@@ -282,11 +282,11 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                              [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy || !proxy->instantiate(resourceProvider)) {
+        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
-        proxies[0] = {std::move(proxy), GrColorType::kRGBA_8888, kPremul_SkAlphaType};
+        proxies[0] = {view.asTextureProxyRef(), GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
 
     {
@@ -305,11 +305,11 @@ bool init_test_textures(GrResourceProvider* resourceProvider,
                              [](void* addr, void* context) { delete[] (uint8_t*)addr; }, nullptr);
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy || !proxy->instantiate(resourceProvider)) {
+        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        if (!view.proxy() || !view.proxy()->instantiate(resourceProvider)) {
             return false;
         }
-        proxies[1] = {std::move(proxy), GrColorType::kAlpha_8, kPremul_SkAlphaType};
+        proxies[1] = {view.asTextureProxyRef(), GrColorType::kAlpha_8, kPremul_SkAlphaType};
     }
 
     return true;
@@ -332,8 +332,8 @@ sk_sp<GrTextureProxy> make_input_texture(GrRecordingContext* context, int width,
                          [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
     bitmap.setImmutable();
     GrBitmapTextureMaker maker(context, bitmap);
-    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-    return proxy;
+    auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+    return view.asTextureProxyRef();
 }
 
 // We tag logged  data as unpremul to avoid conversion when encoding as  PNG. The input texture

@@ -29,25 +29,24 @@ public:
             bool coordsLimitedToConstraintRect,
             const GrSamplerState::Filter* filterOrNullForBicubic) override;
 
-    GrTextureAdjuster(GrRecordingContext*, sk_sp<GrTextureProxy>, const GrColorInfo&,
+    GrTextureAdjuster(GrRecordingContext*, GrSurfaceProxyView, const GrColorInfo&,
                       uint32_t uniqueID, bool useDecal = false);
 
 protected:
     void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
 
-    GrTextureProxy* originalProxy() const { return fOriginal.get(); }
-    sk_sp<GrTextureProxy> originalProxyRef() const { return fOriginal; }
+    const GrSurfaceProxyView& originalProxyView() const { return fOriginal; }
+    GrSurfaceProxyView originalProxyViewRef() const { return fOriginal; }
 
 private:
-    sk_sp<GrTextureProxy> onRefTextureProxyForParams(GrSamplerState,
-                                                     bool willBeMipped,
-                                                     SkScalar scaleAdjust[2]) override;
+    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped,
+                                                      SkScalar scaleAdjust[2]) override;
 
-    sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped,
-                                              bool copyOnlyForMips);
+    GrSurfaceProxyView refTextureProxyViewCopy(const CopyParams& copyParams, bool willBeMipped,
+                                                bool copyOnlyForMips);
 
-    sk_sp<GrTextureProxy> fOriginal;
+    GrSurfaceProxyView fOriginal;
     uint32_t fUniqueID;
 
     typedef GrTextureProducer INHERITED;

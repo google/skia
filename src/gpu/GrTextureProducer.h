@@ -82,9 +82,9 @@ public:
      * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
      * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
      */
-    sk_sp<GrTextureProxy> refTextureProxyForParams(GrSamplerState, SkScalar scaleAdjust[2]);
+    GrSurfaceProxyView refTextureProxyViewForParams(GrSamplerState, SkScalar scaleAdjust[2]);
 
-    sk_sp<GrTextureProxy> refTextureProxyForParams(
+    GrSurfaceProxyView refTextureProxyViewForParams(
             const GrSamplerState::Filter* filterOrNullForBicubic, SkScalar scaleAdjust[2]);
 
     /**
@@ -96,7 +96,7 @@ public:
     // wrap mode. To support that flag now would require us to support scaleAdjust array like in
     // refTextureProxyForParams, however the current public API that uses this call does not expose
     // that array.
-    std::pair<sk_sp<GrTextureProxy>, GrColorType> refTextureProxy(GrMipMapped willNeedMips);
+    std::pair<GrSurfaceProxyView, GrColorType> refTextureProxyView(GrMipMapped willNeedMips);
 
     virtual ~GrTextureProducer() {}
 
@@ -158,21 +158,21 @@ protected:
     };
 
     // This can draw to accomplish the copy, thus the recording context is needed
-    static sk_sp<GrTextureProxy> CopyOnGpu(GrRecordingContext*,
-                                           sk_sp<GrTextureProxy> inputProxy,
-                                           GrColorType,
-                                           const CopyParams& copyParams,
-                                           bool dstWillRequireMipMaps);
+    static GrSurfaceProxyView CopyOnGpu(GrRecordingContext*,
+                                        GrSurfaceProxyView inputView,
+                                        GrColorType,
+                                        const CopyParams& copyParams,
+                                        bool dstWillRequireMipMaps);
 
     static DomainMode DetermineDomainMode(const SkRect& constraintRect,
                                           FilterConstraint filterConstraint,
                                           bool coordsLimitedToConstraintRect,
-                                          GrTextureProxy*,
+                                          GrSurfaceProxy*,
                                           const GrSamplerState::Filter* filterModeOrNullForBicubic,
                                           SkRect* domainRect);
 
     std::unique_ptr<GrFragmentProcessor> createFragmentProcessorForDomainAndFilter(
-            sk_sp<GrTextureProxy> proxy,
+            GrSurfaceProxyView view,
             const SkMatrix& textureMatrix,
             DomainMode,
             const SkRect& domain,
@@ -181,9 +181,8 @@ protected:
     GrRecordingContext* context() const { return fContext; }
 
 private:
-    virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(GrSamplerState,
-                                                             bool willBeMipped,
-                                                             SkScalar scaleAdjust[2]) = 0;
+    virtual GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped,
+                                                              SkScalar scaleAdjust[2]) = 0;
 
     GrRecordingContext* fContext;
     const GrImageInfo fImageInfo;

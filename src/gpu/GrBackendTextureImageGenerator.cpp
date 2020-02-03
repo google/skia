@@ -93,16 +93,16 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
     refHelper->unref();
 }
 
-sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
+GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
         GrRecordingContext* context, const SkImageInfo& info,
         const SkIPoint& origin, bool willNeedMipMaps) {
     SkASSERT(context);
 
     if (context->backend() != fBackendTexture.backend()) {
-        return nullptr;
+        return {};
     }
     if (info.colorType() != this->getInfo().colorType()) {
-        return nullptr;
+        return {};
     }
 
     auto proxyProvider = context->priv().proxyProvider();
@@ -113,7 +113,7 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         if (fRefHelper->fBorrowingContextID != context->priv().contextID()) {
             fBorrowingMutex.release();
             SkDebugf("GrBackendTextureImageGenerator: Trying to use texture on two GrContexts!\n");
-            return nullptr;
+            return {};
         } else {
             SkASSERT(fRefHelper->fBorrowingContextReleaseProc);
             // Ref the release proc to be held by the proxy we make below
@@ -201,14 +201,14 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
             mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
-        return nullptr;
+        return {};
     }
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
         (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
-        return proxy;
+        return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {
         // Otherwise, make a copy of the requested subset. Make sure our temporary is renderable,
         // because Vulkan will want to do the copy as a draw. All other copies would require a
@@ -216,10 +216,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
         SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
 
-        // TODO: When we update this function to return a view instead of just a proxy then we can
-        // remove the extra ref that happens when we call asTextureProxyRef.
         return GrSurfaceProxy::Copy(
                 context, proxy.get(), fSurfaceOrigin, grColorType, mipMapped, subset,
-                SkBackingFit::kExact, SkBudgeted::kYes).asTextureProxyRef();
+                SkBackingFit::kExact, SkBudgeted::kYes);
     }
 }

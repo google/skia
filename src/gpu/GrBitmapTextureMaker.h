@@ -23,8 +23,8 @@ public:
                          bool useDecal = false);
 
 private:
-    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  AllowedTexGenType onlyIfFast) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
+                                                   AllowedTexGenType onlyIfFast) override;
 
     void makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;

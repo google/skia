@@ -426,15 +426,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         copySrcBitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, copySrcBitmap);
-        auto [copySrc, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
+        auto [copySrc, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
 
-        REPORTER_ASSERT(reporter, copySrc);
-        auto copyResult = surfContext->testCopy(copySrc.get());
+        REPORTER_ASSERT(reporter, copySrc.proxy());
+        auto copyResult = surfContext->testCopy(copySrc.proxy());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
         // Try the low level copy.
         context->flush();
         auto gpuCopyResult = context->priv().getGpu()->copySurface(
-                proxy->peekTexture(), copySrc->peekTexture(), SkIRect::MakeWH(kSize, kSize),
+                proxy->peekSurface(), copySrc.proxy()->peekSurface(), SkIRect::MakeWH(kSize, kSize),
                 {0, 0});
         REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
 
