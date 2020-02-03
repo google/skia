@@ -17,6 +17,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+//#include "src/core/SkVM.h"
 
 static const uint8_t gIdentityTable[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -121,6 +122,45 @@ public:
         }
         return true;
     }
+
+#if 0
+    bool onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
+                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
+        auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* table) {
+            // normalize float. do we already have a helper?
+            c = p->max(p->min(c, 1.0f), 0);
+            // scale/round to byte. already have a helper?
+            auto index = p->mad(c, 255, 0.5f);
+
+            skvm::I32 byte = p->gather8(table, 0, index);
+            return p->mul(byte, (1.0f/255));
+        }
+
+        // Do we need to convert to unpremul? Is the caller known to be opaque?
+        p->unpremul(r,g,b,*a);
+
+        const uint8_t* ptr = fStorage;
+        if (fFlags & kA_Flag) {
+            *a = apply_table_to_component(*a, ptr);
+            ptr += 256;
+        }
+        if (fFlags & kR_Flag) {
+            *a = apply_table_to_component(*a, ptr);
+            ptr += 256;
+        }
+        if (fFlags & kG_Flag) {
+            *a = apply_table_to_component(*a, ptr);
+            ptr += 256;
+        }
+        if (fFlags & kB_Flag) {
+            *b = apply_table_to_component(*b, ptr);
+        }
+
+        p->premul(r,g,b,*a);
+        return true;
+    }
+#endif
+}
 
 protected:
     void flatten(SkWriteBuffer&) const override;
