@@ -16,6 +16,7 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 static const uint8_t gIdentityTable[] = {
@@ -119,6 +120,44 @@ public:
         if (!definitelyOpaque) {
             p->append(SkRasterPipeline::premul);
         }
+        return true;
+    }
+
+    bool onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
+                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
+
+        auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
+            // normalize float. do we already have a helper?
+            c = p->max(p->min(c, p->splat(1.0f)), p->splat(0.f));
+            // scale/round to byte. already have a helper?
+            skvm::I32 index = p->round(p->mul(c, p->splat(255.f)));
+
+            skvm::Builder::Uniform table = uniforms->pushPtr(bytePtr);
+            skvm::I32 byte = p->gather8(table, index);
+            return p->mul(p->to_f32(byte), p->splat(1.0f/255));
+        };
+
+        // Do we need to convert to unpremul? Is the caller known to be opaque?
+        p->unpremul(r,g,b,*a);
+
+        const uint8_t* ptr = fStorage;
+        if (fFlags & kA_Flag) {
+            *a = apply_table_to_component(*a, ptr);
+            ptr += 256;
+        }
+        if (fFlags & kR_Flag) {
+            *a = apply_table_to_component(*a, ptr);
+            ptr += 256;
+        }
+        if (fFlags & kG_Flag) {
+            *a = apply_table_to_component(*a, ptr);
+            ptr += 256;
+        }
+        if (fFlags & kB_Flag) {
+            *b = apply_table_to_component(*b, ptr);
+        }
+
+        p->premul(r,g,b,*a);
         return true;
     }
 
