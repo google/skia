@@ -138,6 +138,8 @@ static uint16_t to565(SkColor col) {
 static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
     block->fColor0 = to565(col0);
     block->fColor1 = to565(col1);
+    SkASSERT(block->fColor0 <= block->fColor1); // we always assume transparent blocks
+
     if (col0 == SK_ColorTRANSPARENT) {
         // This sets all 16 pixels to just use color3 (under the assumption
         // that this is a kBC1_RGBA8_UNORM texture. Note that in this case
