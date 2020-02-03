@@ -189,8 +189,8 @@ namespace {
                                                          uniforms, alloc,
                                                          x,y, &src.r, &src.g, &src.b, &src.a));
             if (params.coverage == Coverage::Mask3D) {
-                skvm::F32 M = unorm(8, load8(varying<uint8_t>())),
-                          A = unorm(8, load8(varying<uint8_t>()));
+                skvm::F32 M = from_unorm(8, load8(varying<uint8_t>())),
+                          A = from_unorm(8, load8(varying<uint8_t>()));
 
                 src.r = min(mad(src.r, M, A), src.a);
                 src.g = min(mad(src.g, M, A), src.a);
@@ -230,12 +230,12 @@ namespace {
                     case Coverage::Full: return false;
 
                     case Coverage::UniformA8: cov->r = cov->g = cov->b = cov->a =
-                                              unorm(8, uniform8(uniform(), 0));
+                                              from_unorm(8, uniform8(uniform(), 0));
                                               return true;
 
                     case Coverage::Mask3D:
                     case Coverage::MaskA8: cov->r = cov->g = cov->b = cov->a =
-                                           unorm(8, load8(varying<uint8_t>()));
+                                           from_unorm(8, load8(varying<uint8_t>()));
                                            return true;
 
                     case Coverage::MaskLCD16:
@@ -367,17 +367,17 @@ namespace {
                 default: SkUNREACHABLE;
 
                 case kRGB_565_SkColorType:
-                    store16(dst_ptr, pack(pack(unorm(5,src.b),
-                                               unorm(6,src.g), 5),
-                                               unorm(5,src.r),11));
+                    store16(dst_ptr, pack(pack(to_unorm(5,src.b),
+                                               to_unorm(6,src.g), 5),
+                                               to_unorm(5,src.r),11));
                     break;
 
                 case kBGRA_8888_SkColorType: std::swap(src.r, src.b);  // fallthrough
                 case kRGBA_8888_SkColorType:
-                     store32(dst_ptr, pack(pack(unorm(8, src.r),
-                                                unorm(8, src.g), 8),
-                                           pack(unorm(8, src.b),
-                                                unorm(8, src.a), 8), 16));
+                     store32(dst_ptr, pack(pack(to_unorm(8, src.r),
+                                                to_unorm(8, src.g), 8),
+                                           pack(to_unorm(8, src.b),
+                                                to_unorm(8, src.a), 8), 16));
                      break;
             }
         }

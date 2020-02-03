@@ -834,28 +834,28 @@ namespace skvm {
         return {this->push(Op::round, x.id)};
     }
 
-    F32 Builder::unorm(int bits, I32 x) {
+    F32 Builder::from_unorm(int bits, I32 x) {
         float limit = (1<<bits)-1.0f;
         return mul(to_f32(x), splat(1/limit));
     }
-    I32 Builder::unorm(int bits, F32 x) {
+    I32 Builder::to_unorm(int bits, F32 x) {
         float limit = (1<<bits)-1.0f;
         return round(mul(x, splat(limit)));
     }
 
     Color Builder::unpack_8888(I32 rgba) {
         return {
-            unorm(8, extract(rgba,  0, splat(0xff))),
-            unorm(8, extract(rgba,  8, splat(0xff))),
-            unorm(8, extract(rgba, 16, splat(0xff))),
-            unorm(8, extract(rgba, 24, splat(0xff))),
+            from_unorm(8, extract(rgba,  0, splat(0xff))),
+            from_unorm(8, extract(rgba,  8, splat(0xff))),
+            from_unorm(8, extract(rgba, 16, splat(0xff))),
+            from_unorm(8, extract(rgba, 24, splat(0xff))),
         };
     }
     Color Builder::unpack_565(I32 bgr) {
         return {
-            unorm(5, extract(bgr, 11, splat(0b011'111))),
-            unorm(6, extract(bgr,  5, splat(0b111'111))),
-            unorm(5, extract(bgr,  0, splat(0b011'111))),
+            from_unorm(5, extract(bgr, 11, splat(0b011'111))),
+            from_unorm(6, extract(bgr,  5, splat(0b111'111))),
+            from_unorm(5, extract(bgr,  0, splat(0b011'111))),
             splat(1.0f),
         };
     }
