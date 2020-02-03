@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "feab8b53_a63c0195",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1717,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T23:28:43Z",
+      "side": 1,
+      "message": "I think these loads themselves are going to need to be implemented with memcpy() too to allow for loads with 1 or 2 byte alignment from gather8/16.  Pretty sure vgatherdps allows any alignment.",
+      "revId": "c8074bb28e7a2854141ce3ac59a0307eb4f93be0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
