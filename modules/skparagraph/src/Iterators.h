@@ -15,27 +15,6 @@
 namespace skia {
 namespace textlayout {
 
-class SingleFontIterator final : public SkShaper::FontRunIterator {
-public:
-    SingleFontIterator(SkSpan<const char> utf8, const SkFont& font)
-        : fText(utf8), fCurrentChar(utf8.begin()), fFont(font) { }
-
-    void consume() override {
-        SkASSERT(fCurrentChar < fText.end());
-        fCurrentChar = fText.end();
-    }
-
-    size_t endOfCurrentRun() const override { return fCurrentChar - fText.begin(); }
-    bool atEnd() const override { return fCurrentChar == fText.end(); }
-    const SkFont& currentFont() const override { return fFont; }
-
-private:
-
-    SkSpan<const char> fText;
-    const char* fCurrentChar;
-    SkFont fFont;
-};
-
 class LangIterator final : public SkShaper::LanguageRunIterator {
 public:
     LangIterator(SkSpan<const char> utf8, SkSpan<Block> styles, const TextStyle& defaultStyle)
