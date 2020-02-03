@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d55e1de6_a2b3bdbb",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T21:18:29Z",
+      "side": 1,
+      "message": "GrMaskFormat?",
+      "range": {
+        "startLine": 62,
+        "startChar": 82,
+        "endLine": 62,
+        "endChar": 90
+      },
+      "revId": "54e2fa5bfe1c8c66b652625f545731bece44786b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
