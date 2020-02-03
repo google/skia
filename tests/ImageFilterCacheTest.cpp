@@ -210,14 +210,8 @@ DEF_TEST(ImageFilterCache_ImageBackedRaster, reporter) {
 static GrSurfaceProxyView create_proxy_view(GrRecordingContext* context) {
     SkBitmap srcBM = create_bm();
     GrBitmapTextureMaker maker(context, srcBM);
-    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-
-    if (!proxy) {
-        return {};
-    }
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    return {std::move(proxy), origin, swizzle};
+    auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+    return view;
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_ImageBackedGPU, reporter, ctxInfo) {

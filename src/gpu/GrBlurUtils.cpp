@@ -154,23 +154,18 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
 
         GrBitmapTextureMaker maker(context, bm, GrBitmapTextureMaker::Cached::kNo,
                                    SkBackingFit::kApprox);
-        auto [filteredMask, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!filteredMask) {
+        std::tie(filteredMaskView, std::ignore) = maker.refTextureProxyView(GrMipMapped::kNo);
+        if (!filteredMaskView.proxy()) {
             return false;
         }
 
-        // TODO: refTextureProxy should return a view instead of a proxy
-        SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMask->origin());
+        SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMaskView.origin());
 
         drawRect = dstM.fBounds;
 
         if (key.isValid()) {
-            proxyProvider->assignUniqueKeyToProxy(key, filteredMask.get());
+            proxyProvider->assignUniqueKeyToProxy(key, filteredMaskView.asTextureProxy());
         }
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(filteredMask->backendFormat(),
-                                                                   grCT);
-        filteredMaskView = GrSurfaceProxyView(std::move(filteredMask), kTopLeft_GrSurfaceOrigin,
-                                              swizzle);
     }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix, drawRect, std::move(paint),

@@ -664,13 +664,14 @@ static sk_sp<GrTextureProxy> create_falloff_texture(GrRecordingContext* context)
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        std::tie(falloffTexture, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
+        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
 
+        falloffTexture = view.asTextureProxyRef();
         if (!falloffTexture) {
             return nullptr;
         }
 
-        SkASSERT(falloffTexture->origin() == kTopLeft_GrSurfaceOrigin);
         proxyProvider->assignUniqueKeyToProxy(key, falloffTexture.get());
     }
 

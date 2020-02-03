@@ -88,7 +88,9 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
                                  GrSamplerState::Filter filter,
                                  GrTextureProducer::CopyParams* copyParams) {
     SkASSERT(texProxy);
-    bool willNeedMips = GrSamplerState::Filter::kMipMap == filter && caps->mipMapSupport();
+    int mipCount = SkMipMap::ComputeLevelCount(texProxy->width(), texProxy->height());
+    bool willNeedMips = GrSamplerState::Filter::kMipMap == filter && caps->mipMapSupport() &&
+            mipCount;
     // If the texture format itself doesn't support mipmapping (and those capabilities are required)
     // force a copy.
     if (willNeedMips && texProxy->mipMapped() == GrMipMapped::kNo) {

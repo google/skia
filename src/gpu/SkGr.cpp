@@ -124,19 +124,20 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, uint32_t contex
     pixelRef->addGenIDChangeListener(new Invalidator(key, contextUniqueID));
 }
 
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
-                                                     GrSurfaceProxy* baseProxy,
-                                                     GrSurfaceOrigin origin,
-                                                     GrColorType srcColorType) {
+GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
+                                                  GrSurfaceProxy* baseProxy,
+                                                  GrSurfaceOrigin origin,
+                                                  GrColorType srcColorType) {
     SkASSERT(baseProxy);
 
     if (!ctx->priv().caps()->isFormatCopyable(baseProxy->backendFormat())) {
-        return nullptr;
+        return {};
     }
     GrSurfaceProxyView view = GrSurfaceProxy::Copy(ctx, baseProxy, origin, srcColorType,
                                                    GrMipMapped::kYes, SkBackingFit::kExact,
                                                    SkBudgeted::kYes);
-    return view.asTextureProxyRef();
+    SkASSERT(!view.proxy() || view.asTextureProxy());
+    return view;
 }
 
 sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
@@ -144,7 +145,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     GrSamplerState params,
                                                     SkScalar scaleAdjust[2]) {
     GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kYes);
-    return maker.refTextureProxyForParams(params, scaleAdjust);
+    return maker.refTextureProxyViewForParams(params, scaleAdjust).asTextureProxyRef();
 }
 
 GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, const SkBitmap& bitmap,
@@ -154,14 +155,8 @@ GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, cons
     }
 
     GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kYes, fit);
-    auto [proxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
-
-    if (!proxy) {
-        return {};
-    }
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    return GrSurfaceProxyView(std::move(proxy), origin, swizzle);
+    auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+    return view;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

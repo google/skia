@@ -84,8 +84,8 @@ protected:
                                 context->priv().caps()->mipMapSupport()
                 ? GrMipMapped::kYes : GrMipMapped::kNo;
         GrBitmapTextureMaker maker(context, fBitmap);
-        auto [proxy, grCT] = maker.refTextureProxy(mipMapped);
-        if (!proxy) {
+        auto [view, grCT] = maker.refTextureProxyView(mipMapped);
+        if (!view.proxy()) {
             *errorMsg = "Failed to create proxy.";
             return DrawResult::kFail;
         }
@@ -114,12 +114,11 @@ protected:
         textureMatrices.back().preRotate(45.f, a.centerX(), a.centerY());
         textureMatrices.back().postSkew(.05f, -.05f);
 
-        sk_sp<GrTextureProxy> subsetProxy;
         SkBitmap subsetBmp;
         fBitmap.extractSubset(&subsetBmp, texelSubset);
         subsetBmp.setImmutable();
         GrBitmapTextureMaker subsetMaker(context, subsetBmp);
-        std::tie(subsetProxy, std::ignore) = subsetMaker.refTextureProxy(mipMapped);
+        auto[subsetView, subsetCT] = subsetMaker.refTextureProxyView(mipMapped);
 
         SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);
 
@@ -147,7 +146,7 @@ protected:
                     }
                     GrSamplerState sampler(wmx, wmy, fFilter);
                     const auto& caps = *context->priv().caps();
-                    auto fp1 = GrTextureEffect::MakeTexelSubset(proxy,
+                    auto fp1 = GrTextureEffect::MakeTexelSubset(view.proxyRef(),
                                                                 fBitmap.alphaType(),
                                                                 textureMatrices[tm],
                                                                 sampler,
@@ -175,8 +174,8 @@ protected:
                     // Now draw with a subsetted proxy using fixed function texture sampling rather
                     // than a texture subset as a comparison.
                     drawRect = localRect.makeOffset(x, y);
-                    auto fp2 = GrTextureEffect::Make(subsetProxy, fBitmap.alphaType(),
-                                                     subsetTextureMatrix,
+                    auto fp2 = GrTextureEffect::Make(subsetView.proxyRef(),
+                                                     fBitmap.alphaType(), subsetTextureMatrix,
                                                      GrSamplerState(wmx, wmy, fFilter), caps);
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(fp2), drawRect,
                                                                   localRect)) {

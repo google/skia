@@ -36,13 +36,13 @@ protected:
      *  construct then refOriginalTextureProxy should return nullptr (for example if texture is made
      *  by drawing into a render target).
      */
-    virtual sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                          AllowedTexGenType genType) = 0;
+    virtual GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
+                                                           AllowedTexGenType genType) = 0;
 
 private:
-    sk_sp<GrTextureProxy> onRefTextureProxyForParams(GrSamplerState,
-                                                     bool willBeMipped,
-                                                     SkScalar scaleAdjust[2]) override;
+    GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState,
+                                                      bool willBeMipped,
+                                                      SkScalar scaleAdjust[2]) override;
 
     typedef GrTextureProducer INHERITED;
 };

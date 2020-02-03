@@ -43,8 +43,8 @@ protected:
     bool onIsValid(GrContext*) const override;
 
     TexGenType onCanGenerateTexture() const override { return TexGenType::kCheap; }
-    sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
-                                            const SkIPoint&, bool willNeedMipMaps) override;
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
+                                         const SkIPoint&, bool willNeedMipMaps) override;
 
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,

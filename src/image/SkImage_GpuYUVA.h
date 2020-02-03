@@ -55,8 +55,8 @@ public:
 
     bool setupMipmapsForPlanes(GrRecordingContext*) const;
 
-    // Returns a ref-ed texture proxy with miplevels
-    sk_sp<GrTextureProxy> asMippedTextureProxyRef(GrRecordingContext*) const;
+    // Returns a ref-ed texture proxy view with miplevels
+    GrSurfaceProxyView asMippedTextureProxyViewRef(GrRecordingContext*) const;
 
 #if GR_TEST_UTILS
     bool testingOnly_IsFlattened() const {

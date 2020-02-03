@@ -25,8 +25,8 @@ private:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  AllowedTexGenType onlyIfFast) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
+                                                   AllowedTexGenType onlyIfFast) override;
 
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
@@ -50,8 +50,8 @@ protected:
     // TODO: consider overriding this, for the case where the underlying generator might be
     //       able to efficiently produce a "stretched" texture natively (e.g. picture-backed)
     //          GrTexture* generateTextureForParams(const CopyParams&) override;
-    sk_sp<GrTextureProxy> refOriginalTextureProxy(bool willBeMipped,
-                                                  AllowedTexGenType onlyIfFast) override;
+    GrSurfaceProxyView refOriginalTextureProxyView(bool willBeMipped,
+                                                   AllowedTexGenType onlyIfFast) override;
 
     void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
@@ -69,6 +69,5 @@ private:
 
     typedef GrTextureMaker INHERITED;
 };
-
 
 #endif

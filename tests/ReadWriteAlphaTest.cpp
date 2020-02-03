@@ -71,16 +71,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         bitmap.installPixels(ii, alphaDataCopy, ii.minRowBytes());
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy) {
+        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        if (!view.proxy()) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
         }
 
-        SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                   grCT);
-        GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle);
         auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
                                                nullptr);
 

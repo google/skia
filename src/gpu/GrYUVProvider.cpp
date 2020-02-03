@@ -104,11 +104,11 @@ void GrYUVProvider::YUVGen_DataReleaseProc(void*, void* data) {
     cachedData->unref();
 }
 
-sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
-                                                       const GrSurfaceDesc& desc,
-                                                       GrColorType colorType,
-                                                       SkColorSpace* srcColorSpace,
-                                                       SkColorSpace* dstColorSpace) {
+GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
+                                                        const GrSurfaceDesc& desc,
+                                                        GrColorType colorType,
+                                                        SkColorSpace* srcColorSpace,
+                                                        SkColorSpace* dstColorSpace) {
     SkYUVASizeInfo yuvSizeInfo;
     SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
     SkYUVColorSpace yuvColorSpace;
@@ -117,7 +117,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
     sk_sp<SkCachedData> dataStorage = this->getPlanes(&yuvSizeInfo, yuvaIndices,
                                                       &yuvColorSpace, planes);
     if (!dataStorage) {
-        return nullptr;
+        return {};
     }
 
     sk_sp<GrTextureProxy> yuvTextureProxies[SkYUVASizeInfo::kMaxCount];
@@ -153,10 +153,11 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kNo, fit);
-        std::tie(yuvTextureProxies[i], std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
+        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        yuvTextureProxies[i] = view.asTextureProxyRef();
 
         if (!yuvTextureProxies[i]) {
-            return nullptr;
+            return {};
         }
 
         SkASSERT(yuvTextureProxies[i]->dimensions() == yuvSizeInfo.fSizes[i]);
@@ -167,7 +168,7 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
             ctx, colorType, nullptr, SkBackingFit::kExact, {desc.fWidth, desc.fHeight}, 1,
             GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
-        return nullptr;
+        return {};
     }
 
     GrPaint paint;
@@ -192,5 +193,6 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrRecordingContext* ctx,
     SkMatrix m = SkEncodedOriginToMatrix(yuvSizeInfo.fOrigin, r.width(), r.height());
     renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, m, r);
 
-    return renderTargetContext->asTextureProxyRef();
+    SkASSERT(renderTargetContext->asTextureProxy());
+    return renderTargetContext->readSurfaceView();
 }

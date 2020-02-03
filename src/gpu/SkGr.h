@@ -180,10 +180,10 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext*,
 /**
  * Creates a new texture with mipmap levels and copies the baseProxy into the base layer.
  */
-sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
-                                                     GrSurfaceProxy* baseProxy,
-                                                     GrSurfaceOrigin origin,
-                                                     GrColorType srcColorType);
+GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
+                                                  GrSurfaceProxy* baseProxy,
+                                                  GrSurfaceOrigin origin,
+                                                  GrColorType srcColorType);
 
 /*
  * Create a texture proxy from the provided bitmap and add it to the texture cache

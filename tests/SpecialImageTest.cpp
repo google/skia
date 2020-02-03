@@ -224,14 +224,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_MakeTexture, reporter, ctxInfo) 
     {
         // gpu
         GrBitmapTextureMaker maker(context, bm);
-        auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-        if (!proxy) {
+        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        if (!view.proxy()) {
             return;
         }
-
-        GrSurfaceOrigin origin = proxy->origin();
-        GrSwizzle swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
         sk_sp<SkSpecialImage> gpuImage(SkSpecialImage::MakeDeferredFromGpu(
                                                             context,
@@ -259,14 +255,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     SkBitmap bm = create_bm();
     GrBitmapTextureMaker maker(context, bm);
-    auto [proxy, grCT] = maker.refTextureProxy(GrMipMapped::kNo);
-    if (!proxy) {
+    auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+    if (!view.proxy()) {
         return;
     }
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     sk_sp<SkSpecialImage> fullSImg(SkSpecialImage::MakeDeferredFromGpu(
                                                             context,
