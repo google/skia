@@ -190,17 +190,16 @@ static bool decompress_bc1(SkISize dimensions, const uint8_t* srcData,
 
             colors[0] = from565(curBlock->fColor0);
             colors[1] = from565(curBlock->fColor1);
-            if (colors[0] <= colors[1]) {                 // signal for a transparent block
-                colors[2] = SkPackARGB32(
-                    0xFF,
-                    (SkGetPackedR32(colors[0]) + SkGetPackedR32(colors[1])) >> 1,
-                    (SkGetPackedG32(colors[0]) + SkGetPackedG32(colors[1])) >> 1,
-                    (SkGetPackedB32(colors[0]) + SkGetPackedB32(colors[1])) >> 1);
-                // The opacity of the overall texture trumps the per-block transparency
-                colors[3] = SkPackARGB32(isOpaque ? 0xFF : 0, 0, 0, 0);
-            } else {
+            if (isOpaque) {
                 colors[2] = lerp(2.0f/3.0f, colors[0], colors[1]);
                 colors[3] = lerp(1.0f/3.0f, colors[0], colors[1]);
+            } else {
+                colors[2] = SkPackARGB32(
+                                0xFF,
+                                (SkGetPackedR32(colors[0]) + SkGetPackedR32(colors[1])) >> 1,
+                                (SkGetPackedG32(colors[0]) + SkGetPackedG32(colors[1])) >> 1,
+                                (SkGetPackedB32(colors[0]) + SkGetPackedB32(colors[1])) >> 1);
+                colors[3] = SkPackARGB32(0, 0, 0, 0);
             }
 
             int shift = 0;
