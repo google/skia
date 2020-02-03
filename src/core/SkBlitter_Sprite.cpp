@@ -14,6 +14,8 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkSpriteBlitter.h"
 
+extern bool gUseSkVMBlitter;
+
 SkSpriteBlitter::SkSpriteBlitter(const SkPixmap& source)
     : fSource(source) {}
 
@@ -167,6 +169,8 @@ private:
 // have wrapped the source bitmap inside a shader
 SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         const SkPixmap& source, int left, int top, SkArenaAlloc* allocator) {
+    SkASSERT(allocator != nullptr);
+
     /*  We currently ignore antialiasing and filtertype, meaning we will take our
         special blitters regardless of these settings. Ignoring filtertype seems fine
         since by definition there is no scale in the matrix. Ignoring antialiasing is
@@ -176,7 +180,18 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         paint and return null if it is set, forcing the client to take the slow shader case
         (which does respect soft edges).
     */
-    SkASSERT(allocator != nullptr);
+
+    bool try_skvm_blitter = gUseSkVMBlitter;
+#if defined(SK_USE_SKVM_BLITTER)
+    try_skvm_blitter = true;
+#endif
+    if (try_skvm_blitter) {
+        // TODO:
+        // if (auto b = SkCreateSkVMSpriteBlitter(dst, paint, allocator, source, left, top)) {
+        //     return b;
+        // }
+        return nullptr;
+    }
 
     // TODO: in principle SkRasterPipelineSpriteBlitter could be made to handle this.
     if (source.alphaType() == kUnpremul_SkAlphaType) {
