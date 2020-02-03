@@ -61,6 +61,10 @@ def RunSteps(api):
     with api.context(env=gn_env):
       api.run(api.step, 'GN', cmd=[gn, 'gen', out_dir])
 
+    print 'GOING TO BUILD CHROME'
+    import time
+    time.sleep(15*60)
+
     # Build Chrome.
     api.run(api.step, 'Build Chrome', cmd=['ninja', '-C', out_dir, 'chrome'])
 
