@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bca66b5d_75ef99df",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T14:42:10Z",
+      "side": 0,
+      "message": "Ha!  These were always ignored?  Is that... intentional?",
+      "range": {
+        "startLine": 20,
+        "startChar": 29,
+        "endLine": 20,
+        "endChar": 71
+      },
+      "revId": "f033404de825f934ce1a143fd792f4e0558abd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
