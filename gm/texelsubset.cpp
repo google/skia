@@ -104,7 +104,7 @@ protected:
         SkTArray<SkMatrix> textureMatrices;
 
         SkRect a = SkRect::Make(texelSubset);
-        SkRect b = fUpscale ? a.makeInset (.30f * a.width(), .30f * a.height())
+        SkRect b = fUpscale ? a.makeInset (.31f * a.width(), .31f * a.height())
                             : a.makeOutset(.25f * a.width(), .25f * a.height());
         textureMatrices.push_back().setRectToRect(a, b, SkMatrix::kFill_ScaleToFit);
 
