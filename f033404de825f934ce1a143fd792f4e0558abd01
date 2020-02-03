@@ -22,6 +22,30 @@
       "revId": "f033404de825f934ce1a143fd792f4e0558abd01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa3c9c6a_060929be",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-02-03T16:01:07Z",
+      "side": 0,
+      "message": "As far as I can tell, they are detritus left from many changes. They were there before I started working on this area of code.",
+      "parentUuid": "bca66b5d_75ef99df",
+      "range": {
+        "startLine": 20,
+        "startChar": 29,
+        "endLine": 20,
+        "endChar": 71
+      },
+      "revId": "f033404de825f934ce1a143fd792f4e0558abd01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
