@@ -22,6 +22,30 @@
       "revId": "d6706b9b62d195605b7e1823ff6adbbd3fd4940c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21f44b66_9e1dd354",
+        "filename": "gm/bc1_transparency.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-03T20:18:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d27a401_861af0ed",
+      "range": {
+        "startLine": 50,
+        "startChar": 15,
+        "endLine": 50,
+        "endChar": 16
+      },
+      "revId": "d6706b9b62d195605b7e1823ff6adbbd3fd4940c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
