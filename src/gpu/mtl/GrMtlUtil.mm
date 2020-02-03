@@ -143,8 +143,8 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
                          options: options
                completionHandler: completionHandler];
 
-    // Wait 5 seconds for the compiler
-    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 5000000UL))) {
+    // Wait 100 ms for the compiler
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 100000000UL))) {
         SkDebugf("Timeout compiling MSL shader\n");
         return nil;
     }
@@ -171,8 +171,8 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
     [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                completionHandler: completionHandler];
 
-    // Wait 5 seconds for pipeline creation
-    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 5000000UL))) {
+    // Wait 100 ms for pipeline creation
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 100000000UL))) {
         SkDebugf("Timeout creating pipeline.\n");
         return nil;
     }
