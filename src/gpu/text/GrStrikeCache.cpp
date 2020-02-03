@@ -51,56 +51,28 @@ static void expand_bits(INT_TYPE* dst,
 
 static void get_packed_glyph_image(
         const SkGlyph& glyph, int dstRB, GrMaskFormat expectedMaskFormat, void* dst) {
-
-    static constexpr SkMasks masks{
-            {0b1111'1000'0000'0000, 11, 5},  // Red
-            {0b0000'0111'1110'0000,  5, 6},  // Green
-            {0b0000'0000'0001'1111,  0, 5},  // Blue
-            {0, 0, 0}                        // Alpha
-    };
-
     const int width = glyph.width();
     const int height = glyph.height();
-
     const void* src = glyph.image();
     SkASSERT(src != nullptr);
 
-    if (kA565_GrMaskFormat == GrGlyph::FormatFromSkGlyph(glyph.maskFormat()) &&
-        kARGB_GrMaskFormat == expectedMaskFormat) {
-        // Convert if the glyph uses a 565 mask format since it is using LCD text rendering but the
-        // expected format is 8888 (will happen on macOS with Metal since that combination does not
-        // support 565).
-        const int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
-        const int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                uint16_t color565 = 0;
-                memcpy(&color565, src, a565Bpp);
-                uint32_t colorRGBA = GrColorPackRGBA(masks.getRed(color565),
-                                                     masks.getGreen(color565),
-                                                     masks.getBlue(color565),
-                                                     0xFF);
-                memcpy(dst, &colorRGBA, argbBpp);
-                src = (char*)src + a565Bpp;
-                dst = (char*)dst + argbBpp;
-            }
-        }
-    } else if (GrGlyph::FormatFromSkGlyph(glyph.maskFormat()) != expectedMaskFormat) {
-        // crbug:510931
-        // Retrieving the image from the cache can actually change the mask format.  This case is
-        // very uncommon so for now we just draw a clear box for these glyphs.
-        const int bpp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
-        for (int y = 0; y < height; y++) {
-            sk_bzero(dst, width * bpp);
-            dst = (char*)dst + dstRB;
-        }
-    } else {
+    GrMaskFormat grMaskFormat = GrGlyph::FormatFromSkGlyph(glyph.maskFormat());
+    if (grMaskFormat == expectedMaskFormat) {
         int srcRB = glyph.rowBytes();
-        // The windows font host sometimes has BW glyphs in a non-BW strike. So it is important here
-        // to check the glyph's format, not the strike's format, and to be able to convert to any
-        // of the GrMaskFormats.
-        if (glyph.maskFormat() == SkMask::kBW_Format) {
-            // expand bits to our mask type
+        // Notice this comparison is with the glyphs raw mask format, and not its GrMaskFormat.
+        if (glyph.maskFormat() != SkMask::kBW_Format) {
+            if (srcRB != dstRB) {
+                const int bbp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+                for (int y = 0; y < height; y++) {
+                    memcpy(dst, src, width * bbp);
+                    src = (const char*) src + srcRB;
+                    dst = (char*) dst + dstRB;
+                }
+            } else {
+                memcpy(dst, src, dstRB * height);
+            }
+        } else {
+            // Handle 8-bit format by expanding the mask to the expected format.
             const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
             switch (expectedMaskFormat) {
                 case kA8_GrMaskFormat: {
@@ -116,15 +88,40 @@ static void get_packed_glyph_image(
                 default:
                     SK_ABORT("Invalid GrMaskFormat");
             }
-        } else if (srcRB == dstRB) {
-            memcpy(dst, src, dstRB * height);
-        } else {
-            const int bbp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
-            for (int y = 0; y < height; y++) {
-                memcpy(dst, src, width * bbp);
-                src = (const char*) src + srcRB;
-                dst = (char*) dst + dstRB;
+        }
+    } else if (grMaskFormat == kA565_GrMaskFormat && expectedMaskFormat == kARGB_GrMaskFormat) {
+        // Convert if the glyph uses a 565 mask format since it is using LCD text rendering
+        // but the expected format is 8888 (will happen on macOS with Metal since that
+        // combination does not support 565).
+        static constexpr SkMasks masks{
+                {0b1111'1000'0000'0000, 11, 5},  // Red
+                {0b0000'0111'1110'0000,  5, 6},  // Green
+                {0b0000'0000'0001'1111,  0, 5},  // Blue
+                {0, 0, 0}                        // Alpha
+        };
+        const int a565Bpp = GrMaskFormatBytesPerPixel(kA565_GrMaskFormat);
+        const int argbBpp = GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                uint16_t color565 = 0;
+                memcpy(&color565, src, a565Bpp);
+                uint32_t colorRGBA = GrColorPackRGBA(masks.getRed(color565),
+                                                     masks.getGreen(color565),
+                                                     masks.getBlue(color565),
+                                                     0xFF);
+                memcpy(dst, &colorRGBA, argbBpp);
+                src = (char*)src + a565Bpp;
+                dst = (char*)dst + argbBpp;
             }
+        }
+    } else {
+        // crbug:510931
+        // Retrieving the image from the cache can actually change the mask format. This case is
+        // very uncommon so for now we just draw a clear box for these glyphs.
+        const int bpp = GrMaskFormatBytesPerPixel(expectedMaskFormat);
+        for (int y = 0; y < height; y++) {
+            sk_bzero(dst, width * bpp);
+            dst = (char*)dst + dstRB;
         }
     }
 }
