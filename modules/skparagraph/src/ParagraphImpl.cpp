@@ -654,7 +654,6 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         // Found a line that intersects with the text
         auto firstBoxOnTheLine = results.size();
         auto paragraphTextDirection = paragraphStyle().getTextDirection();
-        auto lineTextAlign = line.assumedTextAlign();
         const Run* lastRun = nullptr;
         line.iterateThroughVisualRuns(true,
             [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
@@ -683,15 +682,40 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
                 auto runInLineWidth = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
                 runOffset += *width;
+                *width = runInLineWidth;
 
                 // Found a run that intersects with the text
                 auto context = line.measureTextInsideOneRun(intersect, run, runOffset, 0, true, true);
 
-                //*width += context.clip.width();
-                *width = runInLineWidth;
-
                 SkRect clip = context.clip;
+
+                // Separate trailing spaces and move them in the default order of the paragraph
+                // in case the run order and the paragraph order don't match
                 SkRect trailingSpaces = SkRect::MakeEmpty();
+                auto trailing = line.textWithSpaces().end == intersect.end;
+                if (trailing && line.trimmedText().end < line.textWithSpaces().end) {
+                    auto delta = line.spacesWidth();
+                    // Split
+                    trailingSpaces = SkRect::MakeXYWH(0, 0, 0, 0);
+                    // There are trailing spaces in this run
+                    if (this->fParagraphStyle.getTextDirection() == TextDirection::kRtl) {
+                        // To the left
+                        trailingSpaces = clip;
+                        trailingSpaces.fLeft = - delta;
+                        trailingSpaces.fRight = 0;
+                        clip.fRight -= delta;
+                        *width -= delta;
+                    } else if (this->fParagraphStyle.getTextDirection() == TextDirection::kLtr) {
+                        // To the right
+                        trailingSpaces = clip;
+                        trailingSpaces.fLeft = line.width();
+                        trailingSpaces.fRight = trailingSpaces.fLeft + delta;
+                        clip.fRight -= delta;
+                        *width -= delta;
+                    }
+                }
+
+                /*
                 SkScalar ghostSpacesRight = context.run->leftToRight() ? clip.right() - line.width() : 0;
                 SkScalar ghostSpacesLeft = !context.run->leftToRight() ? clip.right() - line.width() : 0;
 
@@ -704,7 +728,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         // TODO: What do we do for centering?
                     }
                 }
-
+                */
                 if (rectHeightStyle == RectHeightStyle::kMax) {
                     // TODO: Change it once flutter rolls into google3
                     //  (probably will break things if changed before)
@@ -743,6 +767,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
                 // Check if we can merge two boxes
                 bool mergedBoxes = false;
+                /*
                 if (!results.empty() &&
                     lastRun != nullptr && lastRun->placeholder() == nullptr && context.run->placeholder() == nullptr &&
                     lastRun->lineHeight() == context.run->lineHeight() &&
@@ -757,6 +782,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                         mergedBoxes = true;
                     }
                 }
+                */
                 lastRun = context.run;
 
                 if (!mergedBoxes) {
@@ -765,6 +791,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                 }
 
                 if (trailingSpaces.width() > 0) {
+                    trailingSpaces.offset(line.offset());
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
                 }
 
@@ -862,13 +889,13 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 
                 auto offsetX = line.offset().fX;
                 auto context = line.measureTextInsideOneRun(textRange, run, 0, 0, true, false);
-                if (dx < context.clip.fLeft ) {
+                if (dx < context.clip.fLeft + offsetX) {
                     // All the other runs are placed right of this one
                     result = { SkToS32(context.run->fClusterIndexes[context.pos]), kDownstream };
                     return false;
                 }
 
-                if (dx >= context.clip.fRight) {
+                if (dx >= context.clip.fRight + offsetX) {
                     // We have to keep looking but just in case keep the last one as the closes
                     // so far
                     auto index = context.pos + context.size;
@@ -887,12 +914,18 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
                 size_t found = context.pos;
                 for (size_t i = context.pos; i < context.pos + context.size; ++i) {
                     // TODO: this rounding is done to match Flutter tests. Must be removed..
-                    auto end = littleRound(context.run->positionX(i) + context.fTextShift + offsetX);
-                    if (end > dx) {
+                    auto index = context.run->leftToRight() ? i : context.size - i;
+                    auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
+                    if ((context.run->leftToRight() ? end > dx : dx > end)) {
                         break;
                     }
-                    found = i;
+                    found = index;
                 }
+
+                if (!context.run->leftToRight()) {
+                    --found;
+                }
+
                 auto glyphStart = context.run->positionX(found) + context.fTextShift + offsetX;
                 auto glyphWidth = context.run->positionX(found + 1) - context.run->positionX(found);
                 auto clusterIndex8 = context.run->fClusterIndexes[found];

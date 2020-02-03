@@ -536,15 +536,10 @@ bool OneLineShaper::shape() {
                                       fParagraph->paragraphStyle().getTextStyle());
                     auto script = SkShaper::MakeHbIcuScriptRunIterator(unresolvedText.begin(),
                                                                        unresolvedText.size());
-                    auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-                            unresolvedText.begin(), unresolvedText.size(), textDirection);
-                    if (bidi == nullptr) {
-                        return false;
-                    }
-
+                    SingleBidiIterator bidiIter(unresolvedText, textDirection);
                     fCurrentText = unresolvedRange;
                     shaper->shape(unresolvedText.begin(), unresolvedText.size(),
-                            fontIter, *bidi,*script, lang,
+                            fontIter, bidiIter,*script, lang,
                             features.data(), features.size(),
                             limitlessWidth, this);
 

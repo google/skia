@@ -36,6 +36,27 @@ private:
     SkFont fFont;
 };
 
+class SingleBidiIterator final : public SkShaper::BiDiRunIterator {
+public:
+    SingleBidiIterator(SkSpan<const char> utf8, uint8_t level)
+        : fText(utf8), fCurrentChar(utf8.begin()), fLevel(level) { }
+
+    void consume() override {
+        SkASSERT(fCurrentChar < fText.end());
+        fCurrentChar = fText.end();
+    }
+
+    size_t endOfCurrentRun() const override { return fCurrentChar - fText.begin(); }
+    bool atEnd() const override { return fCurrentChar == fText.end(); }
+    uint8_t currentLevel() const override { return fLevel; }
+
+private:
+
+    SkSpan<const char> fText;
+    const char* fCurrentChar;
+    uint8_t fLevel;
+};
+
 class LangIterator final : public SkShaper::LanguageRunIterator {
 public:
     LangIterator(SkSpan<const char> utf8, SkSpan<Block> styles, const TextStyle& defaultStyle)
