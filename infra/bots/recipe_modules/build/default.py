@@ -78,7 +78,9 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, cc, cxx, out):
 
 
 def compile_fn(api, checkout_root, out_dir):
-  skia_dir      = checkout_root.join('skia')
+  # Change checkout root ion compile.py. Perhaps use compiler/configuration/etc
+  # as subdir components in the skia directory.
+  skia_dir      = checkout_root.join('cache/rsync_source/skia')
   compiler      = api.vars.builder_cfg.get('compiler',      '')
   configuration = api.vars.builder_cfg.get('configuration', '')
   extra_tokens  = api.vars.extra_tokens
@@ -313,6 +315,8 @@ def compile_fn(api, checkout_root, out_dir):
               infra_step=True)
 
     with api.env(env):
+      # Here is where gn drops it's output files into out_dir, and ninja reads
+      # them.
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
