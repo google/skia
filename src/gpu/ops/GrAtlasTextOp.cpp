@@ -197,12 +197,16 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
             auto* blobCoordsRB = reinterpret_cast<const uint16_t*>(blobVertices + 3 * vertexStride +
                                                                    coordOffset);
             // Pull out the texel coordinates and texture index bits
-            uint16_t coordsRectL = blobCoordsLT[0] >> 1;
-            uint16_t coordsRectT = blobCoordsLT[1] >> 1;
-            uint16_t coordsRectR = blobCoordsRB[0] >> 1;
-            uint16_t coordsRectB = blobCoordsRB[1] >> 1;
-            uint16_t pageIndexX = blobCoordsLT[0] & 0x1;
-            uint16_t pageIndexY = blobCoordsLT[1] & 0x1;
+            uint16_t coordsRectL = blobCoordsLT[0];
+            uint16_t coordsRectT = blobCoordsLT[1];
+            uint16_t coordsRectR = blobCoordsRB[0];
+            uint16_t coordsRectB = blobCoordsRB[1];
+            int index0, index1;
+            std::tie(coordsRectL, coordsRectT, index0) =
+                    GrDrawOpAtlas::UnpackIndexFromTexCoords(coordsRectL, coordsRectT);
+            std::tie(coordsRectR, coordsRectB, index1) =
+                    GrDrawOpAtlas::UnpackIndexFromTexCoords(coordsRectR, coordsRectB);
+            SkASSERT(index0 == index1);
 
             int positionRectWidth = positionRect.width();
             int positionRectHeight = positionRect.height();
@@ -228,10 +232,10 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
             positionRect.fBottom -= delta;
 
             // Repack texel coordinates and index
-            coordsRectL = coordsRectL << 1 | pageIndexX;
-            coordsRectT = coordsRectT << 1 | pageIndexY;
-            coordsRectR = coordsRectR << 1 | pageIndexX;
-            coordsRectB = coordsRectB << 1 | pageIndexY;
+            std::tie(coordsRectL, coordsRectT) =
+                    GrDrawOpAtlas::PackIndexInTexCoords(coordsRectL, coordsRectT, index0);
+            std::tie(coordsRectR, coordsRectB) =
+                    GrDrawOpAtlas::PackIndexInTexCoords(coordsRectR, coordsRectB, index1);
 
             // Set new positions and coords
             SkPoint* currPosition = reinterpret_cast<SkPoint*>(currVertex);
