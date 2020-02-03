@@ -11,9 +11,12 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/pkg/errors v0.9.1
 	go.chromium.org/luci v0.0.0-20200201041625-963be2a61472 // indirect
-	go.skia.org/infra v0.0.0-20200202021623-779c6243c618
+	go.opencensus.io v0.22.3 // indirect
+	go.skia.org/infra v0.0.0-20200202214534-6369eed3d8d8
+	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200131211209-ecb101ed6550 // indirect
+	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
+	golang.org/x/tools v0.0.0-20200203023011-6f24f261dadb // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.15.0
 )
