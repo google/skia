@@ -21,6 +21,7 @@
 #include "include/private/SkFloatBits.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
+#include "tools/SkMetaData.h"
 #include "tools/ToolUtils.h"
 
 #include <string.h>
@@ -576,3 +577,105 @@ DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
     }
 }
 #endif
+
+class StrokeCapGM : public skiagm::GM {
+public:
+    StrokeCapGM() {}
+    SkScalar fRadius = 9.867;
+    static constexpr const SkScalar MaxRadius = 200;
+    static constexpr const char* RadiusLabel = "Radius";
+
+    SkScalar fStrokeWidth = 20;
+    static constexpr const SkScalar MaxStrokeWidth = 100;
+    static constexpr const char* StrokeWidthLabel = "Stroke";
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("stroke_with_cap");
+    }
+
+    SkISize onISize() override {
+        return SkISize::Make(MaxRadius * 2 * 3, MaxRadius * 2 * 4);
+    }
+
+    bool onGetControls(SkMetaData* controls) override {
+        SkScalar radius[3] = { fRadius, 0, MaxRadius - fStrokeWidth };
+        controls->setScalars(RadiusLabel, 3, radius);
+
+        SkScalar stroke[3] = { fStrokeWidth, 0, MaxStrokeWidth };
+        controls->setScalars(StrokeWidthLabel, 3, stroke);
+        return true;
+    }
+
+    void onSetControls(const SkMetaData& controls) override {
+        const SkScalar* radius = controls.findScalars(RadiusLabel, nullptr, nullptr);
+        if (radius) {
+            fRadius = *radius;
+        }
+
+        const SkScalar* stroke = controls.findScalars(StrokeWidthLabel, nullptr, nullptr);
+        if (stroke) {
+            fStrokeWidth = *stroke;
+        }
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        static constexpr SkPaint::Cap caps[] = {
+            SkPaint::kSquare_Cap,
+            SkPaint::kRound_Cap,
+            SkPaint::kButt_Cap,
+        };
+
+        SkScalar x = MaxRadius;
+        for (SkPaint::Cap cap : caps) {
+            SkPaint paint;
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeCap(cap);
+            paint.setStrokeWidth(fStrokeWidth);
+            paint.setColor(SK_ColorBLUE);
+            paint.setAntiAlias(true);
+
+            SkScalar y = MaxRadius;
+
+            // GPU draws circles of size zero as square caps always.
+            canvas->drawCircle(x, y, fRadius, paint);
+
+            y += MaxRadius * 2;
+
+            // addCircle ignores zero radius circle, drawing nothing instead of end caps.
+            SkPath circle;
+            circle.addCircle(x, y, fRadius);
+            canvas->drawPath(circle, paint);
+
+            y += MaxRadius * 2;
+
+            // One of these arcs goes in the wrong direction, close goes though the middle.
+            // Also draws nothing instead of end caps at zero radius.
+            SkPath arcs;
+            SkRect r = SkRect::MakeLTRB(x - fRadius, y - fRadius, x + fRadius, y + fRadius);
+            arcs.addArc(r, 180, 180);
+            arcs.addArc(r,   0, 180);
+            arcs.close();
+            canvas->drawPath(arcs, paint);
+
+            y += MaxRadius * 2;
+
+            // http://tavmjong.free.fr/SVG/line_cap.svg
+            // Draws strange things at some sizes.
+            // radius 9.867, 10.931 11.988 11.981-11.989 17.004 20.243
+            SkPath arcTos;
+            arcTos.moveTo(x - fRadius, y);
+            arcTos.rArcTo(fRadius, fRadius, 0, SkPath::kSmall_ArcSize, SkPathDirection::kCW,  fRadius*2, 0);
+            arcTos.rArcTo(fRadius, fRadius, 0, SkPath::kSmall_ArcSize, SkPathDirection::kCW, -fRadius*2, 0);
+            arcTos.close();
+            canvas->drawPath(arcTos, paint);
+
+            x += MaxRadius * 2;
+        }
+    }
+
+private:
+    typedef skiagm::GM INHERITED;
+};
+DEF_GM( return new StrokeCapGM; )
