@@ -63,19 +63,6 @@ public:
     };
     const FontInfo* findFont(const SkString& name) const;
 
-    // DEPRECATED/TO-BE-REMOVED: use AnimatablePropertyContainer::bind<> instead.
-    template <typename T>
-    bool bindProperty(const skjson::Value&,
-                      std::function<void(const T&)>&&,
-                      const T* default_igore = nullptr) const;
-
-    template <typename T>
-    bool bindProperty(const skjson::Value& jv,
-                      std::function<void(const T&)>&& apply,
-                      const T& default_ignore) const {
-        return this->bindProperty(jv, std::move(apply), &default_ignore);
-    }
-
     void log(Logger::Level, const skjson::Value*, const char fmt[], ...) const;
 
     sk_sp<sksg::Transform> attachMatrix2D(const skjson::ObjectValue&, sk_sp<sksg::Transform>) const;
@@ -118,16 +105,22 @@ public:
         AnimatorScope*          fPrevScope;
     };
 
+    template <typename T>
+    void attachDiscardableAdapter(sk_sp<T> adapter) const {
+        if (adapter->isStatic()) {
+            // Fire off a synthetic tick to force a single SG sync before discarding.
+            adapter->tick(0);
+        } else {
+            fCurrentAnimatorScope->push_back(std::move(adapter));
+        }
+    }
+
     template <typename T,  typename NodeType = sk_sp<sksg::RenderNode>, typename... Args>
     NodeType attachDiscardableAdapter(Args&&... args) const {
         if (auto adapter = T::Make(std::forward<Args>(args)...)) {
             auto node = adapter->node();
-            if (adapter->isStatic()) {
-                // Fire off a synthetic tick to force a single SG sync before discarding.
-                adapter->tick(0);
-            } else {
-                fCurrentAnimatorScope->push_back(std::move(adapter));
-            }
+            this->attachDiscardableAdapter(std::move(adapter));
+
             return node;
         }
 

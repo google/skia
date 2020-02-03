@@ -68,25 +68,26 @@ void AnimationBuilder::log(Logger::Level lvl, const skjson::Value* json,
     fLogger->log(lvl, buff, jsonstr.c_str());
 }
 
-sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
-                                                        sk_sp<sksg::RenderNode> childNode) const {
-    if (!childNode)
-        return nullptr;
-
-    auto opacityNode = sksg::OpacityEffect::Make(childNode);
-
-    const auto bound = this->bindProperty<ScalarValue>(jtransform["o"],
-        [opacityNode](const ScalarValue& o) {
-            // BM opacity is [0..100]
-            opacityNode->setOpacity(o * 0.01f);
-        }, 100.0f);
-    const auto dispatched = this->dispatchOpacityProperty(opacityNode);
-
-    // We can ignore constant full opacity.
-    return (bound || dispatched) ? std::move(opacityNode) : childNode;
-}
-
 namespace  {
+
+class OpacityAdapter final : public DiscardableAdapterBase<OpacityAdapter, sksg::OpacityEffect> {
+public:
+    OpacityAdapter(const skjson::ObjectValue& jobject,
+                   sk_sp<sksg::RenderNode> child,
+                   const AnimationBuilder& abuilder)
+        : INHERITED(sksg::OpacityEffect::Make(child)) {
+        this->bind(abuilder, jobject["o"], fOpacity);
+    }
+
+private:
+    void onSync() override {
+        this->node()->setOpacity(fOpacity * 0.01f);
+    }
+
+    ScalarValue fOpacity = 100;
+
+    using INHERITED = DiscardableAdapterBase<OpacityAdapter, sksg::OpacityEffect>;
+};
 
 static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
                                 const AnimationBuilder* abuilder) {
@@ -122,6 +123,27 @@ static SkBlendMode GetBlendMode(const skjson::ObjectValue& jobject,
 
 } // namespace
 
+sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jobject,
+                                                        sk_sp<sksg::RenderNode> child_node) const {
+    if (!child_node)
+        return nullptr;
+
+    auto adapter = OpacityAdapter::Make(jobject, child_node, *this);
+    const auto dispatched = this->dispatchOpacityProperty(adapter->node());
+
+    if (adapter->isStatic()) {
+        adapter->tick(0);
+        if (!dispatched && adapter->node()->getOpacity() >= 1) {
+            // No obeservable effects - we can discard.
+            return child_node;
+        }
+    } else {
+        fCurrentAnimatorScope->push_back(adapter);
+    }
+
+    return adapter->node();
+}
+
 sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectValue& jobject,
                                                           sk_sp<sksg::RenderNode> child) const {
     const auto bm = GetBlendMode(jobject, this);
@@ -131,19 +153,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachBlendMode(const skjson::ObjectVa
     }
 
     return child;
-}
-
-sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath) const {
-    auto path_node = sksg::Path::Make();
-    return this->bindProperty<ShapeValue>(jpath,
-        [path_node](const ShapeValue& p) {
-            // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
-            auto path = ValueTraits<ShapeValue>::As<SkPath>(p);
-            path.setFillType(path_node->getFillType());
-            path_node->setPath(path);
-        })
-        ? path_node
-        : nullptr;
 }
 
 AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
