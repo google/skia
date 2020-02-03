@@ -176,22 +176,22 @@ public:
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            fProxy = as_IB(image)->asTextureProxyRef(fCtx.get());
+            fView = as_IB(image)->asSurfaceProxyViewRef(fCtx.get());
         }
     }
 protected:
-    sk_sp<GrTextureProxy> onGenerateTexture(GrRecordingContext* ctx, const SkImageInfo& info,
-                                            const SkIPoint& origin,
-                                            bool willBeMipped) override {
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext* ctx, const SkImageInfo& info,
+                                         const SkIPoint& origin,
+                                         bool willBeMipped) override {
         SkASSERT(ctx);
         SkASSERT(ctx == fCtx.get());
 
-        if (!fProxy) {
-            return nullptr;
+        if (!fView.proxy()) {
+            return {};
         }
 
-        if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fProxy->dimensions()) {
-            return fProxy;
+        if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fView.proxy()->dimensions()) {
+            return fView;
         }
 
         GrMipMapped mipMapped = willBeMipped ? GrMipMapped::kYes : GrMipMapped::kNo;
@@ -199,15 +199,15 @@ protected:
         // TODO: When we update this function to return a view instead of just a proxy then we can
         // remove the extra ref that happens when we call asTextureProxyRef.
         return GrSurfaceProxy::Copy(
-                fCtx.get(), fProxy.get(), kTopLeft_GrSurfaceOrigin,
+                fCtx.get(), fView.proxy(), fView.origin(),
                 SkColorTypeToGrColorType(info.colorType()), mipMapped,
                 SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
-                SkBackingFit::kExact, SkBudgeted::kYes).asTextureProxyRef();
+                SkBackingFit::kExact, SkBudgeted::kYes);
     }
 
 private:
-    sk_sp<GrContext>      fCtx;
-    sk_sp<GrTextureProxy> fProxy;
+    sk_sp<GrContext>   fCtx;
+    GrSurfaceProxyView fView;
 };
 
 static std::unique_ptr<SkImageGenerator> make_tex_generator(GrContext* ctx, sk_sp<SkPicture> pic) {

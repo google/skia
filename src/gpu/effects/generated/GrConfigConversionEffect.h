@@ -69,9 +69,9 @@ public:
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[dataProxy, ct] = maker.refTextureProxy(GrMipMapped::kNo);
+        auto[dataView, ct] = maker.refTextureProxyView(GrMipMapped::kNo);
 
-        if (!dataProxy) {
+        if (!dataView.proxy()) {
             return false;
         }
 
@@ -89,7 +89,8 @@ public:
         std::unique_ptr<GrFragmentProcessor> upmToPM(
                 new GrConfigConversionEffect(PMConversion::kToPremul));
 
-        paint1.addColorFragmentProcessor(GrTextureEffect::Make(dataProxy, kPremul_SkAlphaType));
+        paint1.addColorFragmentProcessor(
+                GrTextureEffect::Make(dataView.detachProxy(), kPremul_SkAlphaType));
         paint1.addColorFragmentProcessor(pmToUPM->clone());
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 

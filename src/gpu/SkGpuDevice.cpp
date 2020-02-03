@@ -1318,7 +1318,10 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     auto iter = std::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy),
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+        GrTextureAdjuster adjuster(this->context(), std::move(view),
                                    image->imageInfo().colorInfo(), pinnedUniqueID);
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
@@ -1358,16 +1361,12 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
 
     auto dstColorSpace = fRenderTargetContext->colorInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
-    auto proxy = producer->refTextureProxyForParams(&filter, nullptr);
-    if (!proxy) {
+    auto view = producer->refTextureProxyViewForParams(&filter, nullptr);
+    if (!view.proxy()) {
         return;
     }
     auto csxf = GrColorSpaceXform::Make(producer->colorSpace(), producer->alphaType(),
                                         dstColorSpace,          kPremul_SkAlphaType);
-
-    GrSurfaceOrigin origin = proxy->origin();
-    const GrSwizzle& swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->localToDevice(),
                                            std::move(view), producer->alphaType(), std::move(csxf),
@@ -1382,7 +1381,10 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
                                                                           &pinnedUniqueID)) {
-        GrTextureAdjuster adjuster(this->context(), std::move(proxy),
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+        GrTextureAdjuster adjuster(this->context(), std::move(view),
                                    image->imageInfo().colorInfo(), pinnedUniqueID);
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {

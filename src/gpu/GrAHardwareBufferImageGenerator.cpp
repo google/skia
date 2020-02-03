@@ -191,19 +191,20 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     return GrSurfaceProxyView(std::move(texProxy), fSurfaceOrigin, readSwizzle);
 }
 
-sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
+GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrRecordingContext* context, const SkImageInfo& info,
         const SkIPoint& origin, bool willNeedMipMaps) {
     GrSurfaceProxyView texProxyView = this->makeView(context);
     if (!texProxyView.proxy()) {
-        return nullptr;
+        return {};
     }
+    SkASSERT(texProxyView.asTextureProxy());
 
     if (0 == origin.fX && 0 == origin.fY &&
         info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
         // If the caller wants the full texture we're done. The caller will handle making a copy for
         // mip maps if that is required.
-        return texProxyView.asTextureProxyRef();
+        return texProxyView;
     }
     // Otherwise, make a copy for the requested subset.
     SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
@@ -213,7 +214,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
     GrColorType grColorType = SkColorTypeToGrColorType(this->getInfo().colorType());
     return GrSurfaceProxy::Copy(context, texProxyView.proxy(), texProxyView.origin(), grColorType,
                                 mipMapped, subset, SkBackingFit::kExact,
-                                SkBudgeted::kYes).asTextureProxyRef();
+                                SkBudgeted::kYes);
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {

@@ -253,7 +253,8 @@ uniform half4 circleData;
             bm.setImmutable();
 
             GrBitmapTextureMaker maker(context, bm);
-            std::tie(blurProfile, std::ignore) = maker.refTextureProxy(GrMipMapped::kNo);
+            auto[blurView, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            blurProfile = blurView.asTextureProxyRef();
             if (!blurProfile) {
                 return nullptr;
             }
