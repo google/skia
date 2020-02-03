@@ -1697,38 +1697,44 @@ namespace skvm {
                     // The pointer we base our gather on is loaded indirectly from a uniform:
                     //     - arg(immy) is the uniform holding our gather base pointer somewhere;
                     //     - (const uint8_t*)arg(immy) + immz points to the gather base pointer;
-                    //     - *(const T**)foo loads the gather base and casts it to the right type.
+                    //     - memcpy() loads the gather base and into a pointer of the right type.
                     // After all that we have an ordinary (uniform) pointer `ptr` to load from,
                     // and we then gather from it using the varying indices in r(x).
                     STRIDE_1(Op::gather8):
                         for (int i = 0; i < K; i++) {
-                            auto ptr = *(const uint8_t**)((const uint8_t*)arg(immy) + immz);
+                            const uint8_t* ptr;
+                            memcpy(&ptr, (const uint8_t*)arg(immy) + immz, sizeof(ptr));
                             r(d).i32[i] = (i==0) ? ptr[ r(x).i32[i] ] : 0;
                         } break;
                     STRIDE_1(Op::gather16):
                         for (int i = 0; i < K; i++) {
-                            auto ptr = *(const uint16_t**)((const uint8_t*)arg(immy) + immz);
+                            const uint16_t* ptr;
+                            memcpy(&ptr, (const uint8_t*)arg(immy) + immz, sizeof(ptr));
                             r(d).i32[i] = (i==0) ? ptr[ r(x).i32[i] ] : 0;
                         } break;
                     STRIDE_1(Op::gather32):
                         for (int i = 0; i < K; i++) {
-                            auto ptr = *(const int**)((const uint8_t*)arg(immy) + immz);
+                            const int* ptr;
+                            memcpy(&ptr, (const uint8_t*)arg(immy) + immz, sizeof(ptr));
                             r(d).i32[i] = (i==0) ? ptr[ r(x).i32[i] ] : 0;
                         } break;
 
                     STRIDE_K(Op::gather8):
                         for (int i = 0; i < K; i++) {
-                            auto ptr = *(const uint8_t**)((const uint8_t*)arg(immy) + immz);
+                            const uint8_t* ptr;
+                            memcpy(&ptr, (const uint8_t*)arg(immy) + immz, sizeof(ptr));
                             r(d).i32[i] = ptr[ r(x).i32[i] ];
                         } break;
                     STRIDE_K(Op::gather16):
                         for (int i = 0; i < K; i++) {
-                            auto ptr = *(const uint16_t**)((const uint8_t*)arg(immy) + immz);
+                            const uint16_t* ptr;
+                            memcpy(&ptr, (const uint8_t*)arg(immy) + immz, sizeof(ptr));
                             r(d).i32[i] = ptr[ r(x).i32[i] ];
                         } break;
                     STRIDE_K(Op::gather32):
                         for (int i = 0; i < K; i++) {
-                            auto ptr = *(const int**)((const uint8_t*)arg(immy) + immz);
+                            const int* ptr;
+                            memcpy(&ptr, (const uint8_t*)arg(immy) + immz, sizeof(ptr));
                             r(d).i32[i] = ptr[ r(x).i32[i] ];
                         } break;
 
