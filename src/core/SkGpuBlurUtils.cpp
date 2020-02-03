@@ -322,20 +322,10 @@ static GrSurfaceProxyView decimate(GrRecordingContext* context,
                 // GrSamplerState::Filter::kBilerp. So we use kClampToBorder.
                 wrapMode = GrSamplerState::WrapMode::kClampToBorder;
             }
-            SkRect domain = SkRect::Make(*contentRect);
-            domain.inset((i < scaleFactorX) ? SK_ScalarHalf + SK_ScalarNearlyZero : 0.0f,
-                         (i < scaleFactorY) ? SK_ScalarHalf + SK_ScalarNearlyZero : 0.0f);
-            // Ensure that the insetting doesn't invert the domain rectangle.
-            if (domain.fRight < domain.fLeft) {
-                domain.fLeft = domain.fRight = SkScalarAve(domain.fLeft, domain.fRight);
-            }
-            if (domain.fBottom < domain.fTop) {
-                domain.fTop = domain.fBottom = SkScalarAve(domain.fTop, domain.fBottom);
-            }
             const auto& caps = *context->priv().caps();
             GrSamplerState sampler(wrapMode, GrSamplerState::Filter::kBilerp);
-            fp = GrTextureEffect::MakeSubset(srcView.detachProxy(), srcAlphaType, SkMatrix::I(),
-                                             sampler, domain, caps);
+            fp = GrTextureEffect::MakeTexelSubset(srcView.detachProxy(), srcAlphaType,
+                                                  SkMatrix::I(), sampler, *contentRect, caps);
             srcRect.offset(-srcOffset);
         } else {
             fp = GrTextureEffect::Make(srcView.detachProxy(), srcAlphaType, SkMatrix::I(),
