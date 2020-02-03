@@ -1612,6 +1612,7 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kJustify);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
 
@@ -1650,7 +1651,7 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     RectWidthStyle rect_width_style = RectWidthStyle::kTight;
     auto boxes = paragraph->getRectsForRange(0, 100, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorRED, boxes);
-    REPORTER_ASSERT(reporter, boxes.size() == 5);
+    REPORTER_ASSERT(reporter, boxes.size() == 3);
 
     boxes = paragraph->getRectsForRange(240, 250, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorBLUE, boxes);
@@ -4067,7 +4068,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 34.5f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 50, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 95, EPSILON100));
     }
@@ -4085,7 +4086,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 300, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 34.5f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 500, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 95, EPSILON100));
     }
@@ -4094,7 +4095,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 224.5f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 190, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 100, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 285, EPSILON100));
     }
@@ -4103,7 +4104,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 50, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 319.5f, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 285, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 300, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 380, EPSILON100));
     }
@@ -4174,7 +4175,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 24, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 50, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 80, EPSILON100));
     }
@@ -4192,7 +4193,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 300, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 24, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 500, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 80, EPSILON100));
     }
@@ -4201,7 +4202,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 184, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 160, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 100, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 240, EPSILON100));
     }
@@ -4210,7 +4211,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 50, EPSILON100));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 264, EPSILON100));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 240, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 300, EPSILON100));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 320, EPSILON100));
     }
@@ -4282,7 +4283,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, epsilon));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 8, epsilon));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 50, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 60, epsilon));
     }
@@ -4300,7 +4301,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 300, epsilon));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 8, epsilon));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 0, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 500, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 60, epsilon));
     }
@@ -4309,7 +4310,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, epsilon));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 128, epsilon));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 120, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 100, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 180, epsilon));
     }
@@ -4318,7 +4319,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
         canvas.drawRects(SK_ColorRED, boxes);
         REPORTER_ASSERT(reporter, boxes.size() == 1);
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 50, epsilon));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 188, epsilon));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 180, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 300, epsilon));
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 240, epsilon));
     }
@@ -4386,7 +4387,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, boxes3);
     REPORTER_ASSERT(reporter, boxes3.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes3[0].rect.left(), 0, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes3[0].rect.top(), 22.5f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes3[0].rect.top(), 0, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes3[0].rect.right(), 50, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes3[0].rect.bottom(), 80, EPSILON100));
 
@@ -4402,7 +4403,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, boxes5);
     REPORTER_ASSERT(reporter, boxes5.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes5[0].rect.left(), 300, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes5[0].rect.top(), 22.5f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes5[0].rect.top(), 0, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes5[0].rect.right(), 500, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes5[0].rect.bottom(), 80, EPSILON100));
 
@@ -4410,7 +4411,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, boxes6);
     REPORTER_ASSERT(reporter, boxes6.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes6[0].rect.left(), 0, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes6[0].rect.top(), 182.5f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes6[0].rect.top(), 160, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes6[0].rect.right(), 100, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes6[0].rect.bottom(), 240, EPSILON100));
 
@@ -4418,7 +4419,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     canvas.drawRects(SK_ColorRED, boxes7);
     REPORTER_ASSERT(reporter, boxes7.size() == 1);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes7[0].rect.left(), 50, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes7[0].rect.top(), 262.5f, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes7[0].rect.top(), 240, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes7[0].rect.right(), 300, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes7[0].rect.bottom(), 320, EPSILON100));
 }

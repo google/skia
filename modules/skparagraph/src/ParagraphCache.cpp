@@ -83,11 +83,18 @@ uint32_t ParagraphCache::KeyHash::operator()(const ParagraphCacheKey& key) const
         for (auto& ff : ts.fStyle.getFontFamilies()) {
             hash = mix(hash, SkGoodHash()(ff));
         }
+        for (auto& ff : ts.fStyle.getFontFeatures()) {
+            hash = mix(hash, SkGoodHash()(ff));
+        }
         hash = mix(hash, SkGoodHash()(ts.fStyle.getFontStyle()));
         hash = mix(hash, SkGoodHash()(relax(ts.fStyle.getFontSize())));
         hash = mix(hash, SkGoodHash()(ts.fRange.start));
         hash = mix(hash, SkGoodHash()(ts.fRange.end));
     }
+
+    hash = mix(hash, SkGoodHash()(relax(key.fParagraphStyle.getHeight())));
+    hash = mix(hash, SkGoodHash()(key.fParagraphStyle.getTextDirection()));
+
     hash = mix(hash, SkGoodHash()(key.fText));
     return hash;
 }
@@ -107,7 +114,10 @@ bool operator==(const ParagraphCacheKey& a, const ParagraphCacheKey& b) {
     }
 
     // There is no need to compare default paragraph styles - they are included into fTextStyles
-    if (a.fParagraphStyle.getHeight() != b.fParagraphStyle.getHeight()) {
+    if (!SkScalarNearlyEqual(a.fParagraphStyle.getHeight(), b.fParagraphStyle.getHeight())) {
+        return false;
+    }
+    if (a.fParagraphStyle.getTextDirection() != b.fParagraphStyle.getTextDirection()) {
         return false;
     }
 
