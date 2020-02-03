@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c284196e_5571bd88",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T20:30:32Z",
+      "side": 1,
+      "message": "Given this, think it makes sense to name the variable glyphMaskFormat something else to not read so similarly to glyph.maskFormat()?  Maybe just grMaskFormat?",
+      "revId": "a78c9000e6809619e10313936989800d2da9fafc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16e9a495_0ffdb181",
+        "filename": "src/gpu/text/GrStrikeCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T20:30:32Z",
+      "side": 1,
+      "message": "Think it makes sense to fuse these up as else if { ... } else { ... }?",
+      "range": {
+        "startLine": 92,
+        "startChar": 5,
+        "endLine": 128,
+        "endChar": 5
+      },
+      "revId": "a78c9000e6809619e10313936989800d2da9fafc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
