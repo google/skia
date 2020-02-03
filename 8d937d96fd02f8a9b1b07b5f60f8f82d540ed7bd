@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d5ad933_ef27b47d",
+        "filename": "site/dev/sheriffing/index.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-02-03T14:54:15Z",
+      "side": 1,
+      "message": "Ignore this test comment",
+      "revId": "8d937d96fd02f8a9b1b07b5f60f8f82d540ed7bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
