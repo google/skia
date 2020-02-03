@@ -107,6 +107,7 @@ bool TextStyle::equalsByFonts(const TextStyle& that) const {
     return !fIsPlaceholder && !that.fIsPlaceholder &&
            fFontStyle == that.fFontStyle &&
            fFontFamilies == that.fFontFamilies &&
+           fFontFeatures == that.fFontFeatures &&
            SkScalarNearlyEqual(fLetterSpacing, that.fLetterSpacing) &&
            SkScalarNearlyEqual(fWordSpacing, that.fWordSpacing) &&
            SkScalarNearlyEqual(fHeight, that.fHeight) &&

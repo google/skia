@@ -1901,26 +1901,59 @@ protected:
     SkString name() override { return SkString("Paragraph26"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        fontCollection->getParagraphCache()->turnOn(false);
 
-        //const char* text = "ERROR\nSECOND ERROR";
-        const char* text = "ERROR\nSECOND ERROR\nTHIRD ERRORRRRRRRRR\nFOURTH ERROR";
-        ParagraphStyle paragraph_style;
-        paragraph_style.setEllipsis(u"\u2026");
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
-        TextStyle text_style;
-        text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Google Sans")});
-        text_style.setFontSize(20);
-        builder.pushStyle(text_style);
-        builder.addText(text);
-        auto paragraph = builder.Build();
-        paragraph->layout(std::numeric_limits<SkScalar>::max());
-        paragraph->paint(canvas, 0, 0);
-        canvas->translate(0, 300);
-        paragraph->layout(200);
-        paragraph->paint(canvas, 0, 0);
+        canvas->clear(SK_ColorWHITE);
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorBLACK);
+
+        TextStyle textStyle;
+        textStyle.setForegroundColor(paint);
+        textStyle.setFontFamilies({SkString("Roboto")});
+        textStyle.setFontSize(16);
+
+        ParagraphStyle paragraphStyle;
+        paragraphStyle.setTextStyle(textStyle);
+        paragraphStyle.setTextAlign(TextAlign::kLeft);
+        {
+            ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+            builder.addText("");
+
+            auto paragraph = builder.Build();
+            paragraph->layout(SK_ScalarInfinity);
+            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
+                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
+                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
+                     paragraph->getIdeographicBaseline());
+
+            paragraph->layout(253);
+            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
+                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
+                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
+                     paragraph->getIdeographicBaseline());
+        }
+        {
+            ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+            builder.addText(" ");
+
+            auto paragraph = builder.Build();
+            paragraph->layout(SK_ScalarInfinity);
+            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
+                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
+                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
+                     paragraph->getIdeographicBaseline());
+
+            paragraph->layout(253);
+            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
+                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
+                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
+                     paragraph->getIdeographicBaseline());
+        }
     }
 
 private:
@@ -1932,37 +1965,104 @@ protected:
     SkString name() override { return SkString("Paragraph27"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        fontCollection->getParagraphCache()->turnOn(false);
+
+        SkPaint red;
+        red.setColor(SK_ColorRED);
+        red.setStyle(SkPaint::kStroke_Style);
+        red.setAntiAlias(true);
+        red.setStrokeWidth(1);
+
+        SkPaint blue;
+        blue.setColor(SK_ColorRED);
+        blue.setStyle(SkPaint::kStroke_Style);
+        blue.setAntiAlias(true);
+        blue.setStrokeWidth(1);
+
+        SkPaint black;
+        black.setColor(SK_ColorBLACK);
+        black.setStyle(SkPaint::kStroke_Style);
+        black.setAntiAlias(true);
+        black.setStrokeWidth(1);
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
-        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setTextAlign(TextAlign::kRight);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Google Sans")});
-        text_style.setFontSize(24);
+        text_style.setFontFamilies({SkString("Roboto")});
 
-        auto draw = [&](const char* text, SkScalar height) {
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
-            text_style.setHeightOverride(true);
-            text_style.setHeight(height);
+        // RTL + right align + arabic
+        // RTL + right align + latin
+        // LTR + right align + arabic
+        // LTR + right align + latin
+        // RTL + left align + arabic
+        // RTL + left align + latin
+        // arabic and latin should not differ at all
+        // check: line breaking and trailing spaces
+
+        canvas->drawColor(SK_ColorWHITE);
+        auto h = 60;
+        auto w = 300;
+
+        auto draw = [&](SkScalar width, SkScalar height, TextDirection td, TextAlign ta, const char* text) {
+            SkString str;
+            str.append("   ");
+            str.append(text);
+            str.append(" ");
+            str.append(text);
+            str.append("   ");
+
+            SkDebugf("draw '%s' dir:%s align:%s\n", str.c_str(),
+                    td == TextDirection::kLtr ? "left" : "right",
+                    ta == TextAlign::kLeft ? "left" : "right");
+            paragraph_style.setTextDirection(td);
+            paragraph_style.setTextAlign(ta);
+            text_style.setFontSize(20);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
             builder.pushStyle(text_style);
-            builder.addText(text);
+            builder.addText(str.c_str());
             auto paragraph = builder.Build();
-            paragraph->layout(153.33f);
-
-            SkDebugf("'%s': %f\n", text, paragraph->getHeight());
-            auto boxes1 = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kTight, RectWidthStyle::kTight);
-            auto boxes2 = paragraph->getRectsForRange(0, strlen(text), RectHeightStyle::kMax, RectWidthStyle::kTight);
-            if (boxes1.size() > 0 && boxes2.size() > 0) {
-                SkDebugf("Heights: %f %f\\b", boxes1[0].rect.height() , boxes2[0].rect.height());
-            }
+            paragraph->layout(width);
             paragraph->paint(canvas, 0, 0);
-            canvas->translate(0, 200);
+            auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+            for (auto& line : impl->lines()) {
+                SkDebugf("line[%d]: %f + %f\n", &line - impl->lines().begin(), line.offset().fX, line.shift());
+                line.iterateThroughVisualRuns(true,
+                    [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
+                    *width = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
+                    SkDebugf("%d[%d: %d) @%f + %f %s\n", run->index(),
+                            textRange.start, textRange.end, runOffset, *width, run->leftToRight() ? "left" : "right");
+                    return true;
+                });
+            }
+            auto boxes = paragraph->getRectsForRange(0, 100, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            bool even = true;
+            for (auto& box : boxes) {
+                SkDebugf("[%f:%f,%f:%f] %s\n",
+                        box.rect.fLeft, box.rect.fRight, box.rect.fTop, box.rect.fBottom,
+                        box.direction == TextDirection::kLtr ? "left" : "right");
+                canvas->drawRect(box.rect, even ? red : blue);
+                even = !even;
+            }
+            canvas->translate(0, height);
         };
 
-        //draw("Artist Name with long text in active media bar to test word truncation", 1.333f);
-        draw("provider with long text in active media bar to test word truncation inside the subtitle", 1);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, w, h * 8), black);
+
+        draw(w, h, TextDirection::kRtl, TextAlign::kRight, "RTL+RIGHT#1234567890");
+        draw(w, h, TextDirection::kRtl, TextAlign::kRight, "قففغغغغقففغغغغقففغغغ");
+
+        draw(w, h, TextDirection::kLtr, TextAlign::kRight, "LTR+RIGHT#1234567890");
+        draw(w, h, TextDirection::kLtr, TextAlign::kRight, "قففغغغغقففغغغغقففغغغ");
+
+        draw(w, h, TextDirection::kRtl, TextAlign::kLeft, "RTL+LEFT##1234567890");
+        draw(w, h, TextDirection::kRtl, TextAlign::kLeft, "قففغغغغقففغغغغقففغغغ");
+
+        draw(w, h, TextDirection::kLtr, TextAlign::kLeft, "LTR+LEFT##1234567890");
+        draw(w, h, TextDirection::kLtr, TextAlign::kLeft, "قففغغغغقففغغغغقففغغغ");
     }
 
 private:

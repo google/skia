@@ -103,19 +103,10 @@ void TextWrapper::trimEndSpaces(TextAlign align) {
     // Remember the breaking position
     fEndLine.saveBreak();
     // Skip all space cluster at the end
-    //bool left = align == TextAlign::kStart || align == TextAlign::kLeft;
-    bool right = align == TextAlign::kRight || align == TextAlign::kEnd;
     for (auto cluster = fEndLine.endCluster();
          cluster >= fEndLine.startCluster() && cluster->isWhitespaces();
          --cluster) {
-        if ((cluster->run()->leftToRight()) ||
-            (right && !cluster->run()->leftToRight()) ||
-             align == TextAlign::kJustify || align == TextAlign::kCenter) {
-            fEndLine.trim(cluster);
-            continue;
-        } else {
-            break;
-        }
+        fEndLine.trim(cluster);
     }
     fEndLine.trim();
 }

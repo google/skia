@@ -497,7 +497,7 @@ bool OneLineShaper::shape() {
 
     auto result = iterateThroughShapingRegions(
             [this, limitlessWidth]
-            (TextRange textRange, SkSpan<Block> styleSpan, SkScalar& advanceX, TextIndex textStart, uint8_t textDirection) {
+            (TextRange textRange, SkSpan<Block> styleSpan, SkScalar& advanceX, TextIndex textStart, uint8_t defaultBidiLevel) {
 
         // Set up the shaper and shape the next
         auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
@@ -507,7 +507,7 @@ bool OneLineShaper::shape() {
         }
 
         iterateThroughFontStyles(textRange, styleSpan,
-                [this, &shaper, textDirection, limitlessWidth, &advanceX]
+                [this, &shaper, defaultBidiLevel, limitlessWidth, &advanceX]
                 (Block block, SkTArray<SkShaper::Feature> features) {
             auto blockSpan = SkSpan<Block>(&block, 1);
 
@@ -531,20 +531,15 @@ bool OneLineShaper::shape() {
                     auto unresolvedRange = fUnresolvedBlocks.front().fText;
                     auto unresolvedText = fParagraph->text(unresolvedRange);
 
-                    SingleFontIterator fontIter(unresolvedText, font);
-                    LangIterator lang(unresolvedText, blockSpan,
+                    SkShaper::TrivialFontRunIterator fontIter(font, unresolvedText.size());
+                    LangIterator langIter(unresolvedText, blockSpan,
                                       fParagraph->paragraphStyle().getTextStyle());
-                    auto script = SkShaper::MakeHbIcuScriptRunIterator(unresolvedText.begin(),
-                                                                       unresolvedText.size());
-                    auto bidi = SkShaper::MakeIcuBiDiRunIterator(
-                            unresolvedText.begin(), unresolvedText.size(), textDirection);
-                    if (bidi == nullptr) {
-                        return false;
-                    }
-
+                    SkShaper::TrivialBiDiRunIterator bidiIter(defaultBidiLevel, unresolvedText.size());
+                    auto scriptIter = SkShaper::MakeHbIcuScriptRunIterator
+                                     (unresolvedText.begin(), unresolvedText.size());
                     fCurrentText = unresolvedRange;
                     shaper->shape(unresolvedText.begin(), unresolvedText.size(),
-                            fontIter, *bidi,*script, lang,
+                            fontIter, bidiIter,*scriptIter, langIter,
                             features.data(), features.size(),
                             limitlessWidth, this);
 

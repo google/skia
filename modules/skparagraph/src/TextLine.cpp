@@ -266,12 +266,9 @@ TextAlign TextLine::assumedTextAlign() const {
         return this->fMaster->paragraphStyle().effective_align();
     }
 
-    if (fClusterRange.empty()) {
-        return TextAlign::kLeft;
-    } else {
-        auto run = this->fMaster->cluster(fClusterRange.end - 1).run();
-        return run->leftToRight() ? TextAlign::kLeft : TextAlign::kRight;
-    }
+    return this->fMaster->paragraphStyle().getTextDirection() == TextDirection::kLtr
+                ? TextAlign::kLeft
+                : TextAlign::kRight;
 }
 
 void TextLine::scanStyles(StyleType styleType, const RunStyleVisitor& visitor) {
@@ -855,6 +852,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
     // Walk through all the runs that intersect with the line in visual order
     SkScalar width = 0;
     SkScalar runOffset = 0;
+    SkScalar totalWidth = 0;
     auto textRange = includingGhostSpaces ? this->textWithSpaces() : this->trimmedText();
     for (auto& runIndex : fRunsInVisualOrder) {
 
@@ -864,23 +862,37 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
             // TODO: deal with empty runs in a better way
             continue;
         }
+        if (!run->leftToRight() && runOffset == 0 && includingGhostSpaces) {
+            // runOffset does not take in account a possibility
+            // that RTL run could start before the line (trailing spaces)
+            // so we need to do runOffset -= "trailing whitespaces length"
+            TextRange whitespaces = intersected(
+                    TextRange(fTextRange.end, fTextWithWhitespacesRange.end), run->fTextRange);
+            if (whitespaces.width() > 0) {
+                auto whitespacesLen = measureTextInsideOneRun(whitespaces, run, runOffset, 0, true, false).clip.width();
+                runOffset -= whitespacesLen;
+            }
+        }
         runOffset += width;
+        totalWidth += width;
         if (!visitor(run, runOffset, lineIntersection, &width)) {
             return;
         }
     }
 
     runOffset += width;
+    totalWidth += width;
+
     if (this->ellipsis() != nullptr) {
         if (visitor(ellipsis(), runOffset, ellipsis()->textRange(), &width)) {
-            runOffset += width;
+            totalWidth += width;
         }
     }
 
     // This is a very important assert!
     // It asserts that 2 different ways of calculation come with the same results
-    if (!includingGhostSpaces && compareRound(runOffset, this->width()) != 0) {
-        SkDebugf("ASSERT: %f != %f\n", runOffset, this->width());
+    if (!includingGhostSpaces && compareRound(totalWidth, this->width()) != 0) {
+        SkDebugf("ASSERT: %f != %f\n", totalWidth, this->width());
         SkASSERT(false);
     }
 }
