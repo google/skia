@@ -44,11 +44,13 @@ public:
     // happen.
     // TODO we can handle some of these cases if we really want to, but the long term solution is to
     // get the actual glyph image itself when we get the glyph metrics.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(GrResourceProvider*, GrDeferredUploadTarget*,
-                                             GrAtlasManager*, GrGlyph*,
-                                             SkBulkGlyphMetricsAndImages*,
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
                                              GrMaskFormat expectedMaskFormat,
-                                             bool isScaledGlyph);
+                                             bool isScaledGlyph,
+                                             GrResourceProvider*,
+                                             GrDeferredUploadTarget*,
+                                             GrAtlasManager*,
+                                             GrGlyph*);
 
     // testing
     int countGlyphs() const { return fCache.count(); }
