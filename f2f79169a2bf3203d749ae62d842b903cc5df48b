@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7b2b7fe_b250cf03",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:44:24Z",
+      "side": 1,
+      "message": "Yeah, Builder::clamp, e.g.\n\n  c \u003d p-\u003eclamp(c, p-\u003esplat(0.0f), p-\u003esplat(1.0f))\n\nGood to use that one in case we need to get careful about how it works when c is a NaN.",
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c73ac327_860f853d",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:44:24Z",
+      "side": 1,
+      "message": "Yes,\n\n   skvm::I32 index \u003d p-\u003eunorm(8, c);",
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fefb1656_8b8c3200",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:44:24Z",
+      "side": 1,
+      "message": "Also have one here,\n\n   return p-\u003eunorm(8, byte);\n\n\n(Been meaning to rename these to_unorm and from_unorm...)",
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2807ab15_00ebe476",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:44:24Z",
+      "side": 1,
+      "message": "Now that I\u0027m thinking of this, I think we can make it so that unpremul() can figure this out itself at compile time.  We might even have enough constant propagation math hooked up into the ops unpremul uses that it might actually even work already... it\u0027d be fun to check by writing up some unit tests that use unpremul with a \u003d\u003d 1.0f and a \u003d\u003d unknown uniform and count instructions or something.",
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f68d4bdc_d9f9d5ba",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:44:24Z",
+      "side": 1,
+      "message": "Probably better to use r and g?",
+      "range": {
+        "startLine": 148,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 9
+      },
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c32fe541_fca064d0",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:44:24Z",
+      "side": 1,
+      "message": "(Same deal here of course... I think we can make SkVM elide this when it\u0027s a known no-op without us having to explicitly check.)",
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
