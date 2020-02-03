@@ -286,7 +286,7 @@ namespace skvm {
         M(store8)   M(store16)   M(store32)   \
         M(index)                              \
         M(load8)    M(load16)    M(load32)    \
-                                 M(gather32)  \
+        M(gather8)  M(gather16)  M(gather32)  \
         M(uniform8) M(uniform16) M(uniform32) \
         M(splat)                              \
         M(add_f32) M(add_i32) M(add_i16x2)    \
