@@ -11,6 +11,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkPaintPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkSpriteBlitter.h"
 
@@ -186,11 +187,14 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     try_skvm_blitter = true;
 #endif
     if (try_skvm_blitter) {
-        // TODO:
-        // if (auto b = SkCreateSkVMSpriteBlitter(dst, paint, allocator, source, left, top)) {
-        //     return b;
-        // }
-        return nullptr;
+        SkPaint p = paint;
+        if (p.getColorFilter()) {
+            SkPaintPriv::RemoveColorFilter(&p, dst.colorSpace());
+        }
+        SkASSERT(!p.getColorFilter());
+        if (auto b = SkCreateSkVMSpriteBlitter(dst, p, allocator, source, left, top)) {
+            return b;
+        }
     }
 
     // TODO: in principle SkRasterPipelineSpriteBlitter could be made to handle this.

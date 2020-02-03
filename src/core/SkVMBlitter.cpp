@@ -34,8 +34,10 @@ namespace {
     struct Params {
         sk_sp<SkColorSpace> colorSpace;
         sk_sp<SkShader>     shader;
-        SkColorType         colorType;
-        SkAlphaType         alphaType;
+        SkColorType         spriteColorType;
+        SkAlphaType         spriteAlphaType;
+        SkColorType         dstColorType;
+        SkAlphaType         dstAlphaType;
         SkBlendMode         blendMode;
         Coverage            coverage;
         SkFilterQuality     quality;
@@ -53,24 +55,28 @@ namespace {
     struct Key {
         uint64_t colorSpace;
         uint64_t shader;
-        uint8_t  colorType,
-                 alphaType,
+        uint8_t  spriteColorType,
+                 spriteAlphaType,
+                 dstColorType,
+                 dstAlphaType,
                  blendMode,
                  coverage,
                  dither;
-        uint8_t padding[3] = {0,0,0};
+        uint8_t padding{0};
         // Params::quality and Params::ctm are only passed to shader->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
 
         bool operator==(const Key& that) const {
-            return this->colorSpace == that.colorSpace
-                && this->shader     == that.shader
-                && this->colorType  == that.colorType
-                && this->alphaType  == that.alphaType
-                && this->blendMode  == that.blendMode
-                && this->coverage   == that.coverage
-                && this->dither     == that.dither;
+            return this->colorSpace      == that.colorSpace
+                && this->shader          == that.shader
+                && this->spriteColorType == that.spriteColorType
+                && this->spriteAlphaType == that.spriteAlphaType
+                && this->dstColorType    == that.dstColorType
+                && this->dstAlphaType    == that.dstAlphaType
+                && this->blendMode       == that.blendMode
+                && this->coverage        == that.coverage
+                && this->dither          == that.dither;
         }
 
         Key withCoverage(Coverage c) const {
@@ -82,9 +88,10 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
+        // TODO: sprite args
         return SkStringPrintf("CT%d-AT%d-Cov%d-Blend%d-Dither%d-CS%llx-Shader%llx",
-                              key.colorType,
-                              key.alphaType,
+                              key.dstColorType,
+                              key.dstAlphaType,
                               key.coverage,
                               key.blendMode,
                               key.dither,
@@ -143,7 +150,7 @@ namespace {
                 }
             }
 
-            switch (params.colorType) {
+            switch (params.dstColorType) {
                 default: *ok = false;        break;
                 case kRGB_565_SkColorType:   break;
                 case kRGBA_8888_SkColorType: break;
@@ -157,8 +164,10 @@ namespace {
             return {
                 params.colorSpace ? params.colorSpace->hash() : 0,
                 shaderHash,
-                SkToU8(params.colorType),
-                SkToU8(params.alphaType),
+                SkToU8(params.spriteColorType),
+                SkToU8(params.spriteAlphaType),
+                SkToU8(params.dstColorType),
+                SkToU8(params.dstAlphaType),
                 SkToU8(params.blendMode),
                 SkToU8(params.coverage),
                 SkToU8(params.dither),
@@ -168,7 +177,7 @@ namespace {
         Builder(const Params& params, skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
             // First two arguments are always uniforms and the destination buffer.
             uniforms->ptr     = uniform();
-            skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.colorType));
+            skvm::Arg dst_ptr = arg(SkColorTypeBytesPerPixel(params.dstColorType));
             // Other arguments depend on params.coverage:
             //    - Full:      (no more arguments)
             //    - Mask3D:    mul varying, add varying, 8-bit coverage varying
@@ -209,8 +218,8 @@ namespace {
             // before the blend step (~here).  To match that auto-clamp, we clamp alpha to
             // [0,1] too, just in case someone gave us a crazy alpha.
             if (!src_in_gamut
-                    && params.alphaType == kPremul_SkAlphaType
-                    && SkColorTypeIsNormalized(params.colorType)) {
+                    && params.dstAlphaType == kPremul_SkAlphaType
+                    && SkColorTypeIsNormalized(params.dstColorType)) {
                 src.a = clamp(src.a, splat(0.0f), splat(1.0f));
                 src.r = clamp(src.r, splat(0.0f), src.a);
                 src.g = clamp(src.g, splat(0.0f), src.a);
@@ -267,7 +276,7 @@ namespace {
 
             // Load up the destination color.
             SkDEBUGCODE(dst_loaded = true;)
-            switch (params.colorType) {
+            switch (params.dstColorType) {
                 default: SkUNREACHABLE;
                 case kRGB_565_SkColorType:   dst = unpack_565 (load16(dst_ptr)); break;
                 case kRGBA_8888_SkColorType: dst = unpack_8888(load32(dst_ptr)); break;
@@ -279,10 +288,10 @@ namespace {
             // When a destination is tagged opaque, we may assume it both starts and stays fully
             // opaque, ignoring any math that disagrees.  So anything involving force_opaque is
             // optional, and sometimes helps cut a small amount of work in these programs.
-            const bool force_opaque = true && params.alphaType == kOpaque_SkAlphaType;
+            const bool force_opaque = true && params.dstAlphaType == kOpaque_SkAlphaType;
             if (force_opaque) {
                 dst.a = splat(1.0f);
-            } else if (params.alphaType == kUnpremul_SkAlphaType) {
+            } else if (params.dstAlphaType == kUnpremul_SkAlphaType) {
                 premul(&dst.r, &dst.g, &dst.b, dst.a);
             }
 
@@ -305,7 +314,7 @@ namespace {
                 assert_true(eq(src.r, clamp(src.r, splat(0.0f), src.a)));
                 assert_true(eq(src.g, clamp(src.g, splat(0.0f), src.a)));
                 assert_true(eq(src.b, clamp(src.b, splat(0.0f), src.a)));
-            } else if (SkColorTypeIsNormalized(params.colorType)) {
+            } else if (SkColorTypeIsNormalized(params.dstColorType)) {
                 src.r = clamp(src.r, splat(0.0f), splat(1.0f));
                 src.g = clamp(src.g, splat(0.0f), splat(1.0f));
                 src.b = clamp(src.b, splat(0.0f), splat(1.0f));
@@ -313,12 +322,12 @@ namespace {
             }
             if (force_opaque) {
                 src.a = splat(1.0f);
-            } else if (params.alphaType == kUnpremul_SkAlphaType) {
+            } else if (params.dstAlphaType == kUnpremul_SkAlphaType) {
                 unpremul(&src.r, &src.g, &src.b, src.a);
             }
 
             float dither_rate = 0.0f;
-            switch (params.colorType) {
+            switch (params.dstColorType) {
                 default:                        dither_rate =      0.0f; break;
                 case kARGB_4444_SkColorType:    dither_rate =   1/15.0f; break;
                 case   kRGB_565_SkColorType:    dither_rate =   1/63.0f; break;
@@ -363,7 +372,7 @@ namespace {
             }
 
             // Store back to the destination.
-            switch (params.colorType) {
+            switch (params.dstColorType) {
                 default: SkUNREACHABLE;
 
                 case kRGB_565_SkColorType:
@@ -400,7 +409,9 @@ namespace {
 
     static Params effective_params(const SkPixmap& device,
                                    const SkPaint& paint,
-                                   const SkMatrix& ctm) {
+                                   const SkMatrix& ctm,
+                                   SkColorType spriteColorType,
+                                   SkAlphaType spriteAlphaType) {
         // Color filters have been handled for us by SkBlitter::Choose().
         SkASSERT(!paint.getColorFilter());
 
@@ -438,6 +449,8 @@ namespace {
         return {
             device.refColorSpace(),
             std::move(shader),
+            spriteColorType,
+            spriteAlphaType,
             device.colorType(),
             device.alphaType(),
             blendMode,
@@ -452,8 +465,20 @@ namespace {
     public:
         Blitter(const SkPixmap& device, const SkPaint& paint, const SkMatrix& ctm, bool* ok)
             : fDevice(device)
+            , fSprite()
             , fUniforms(kBlitterUniformsCount)
-            , fParams(effective_params(device, paint, ctm))
+            , fParams(effective_params(device, paint, ctm,
+                                       kUnknown_SkColorType, kUnknown_SkAlphaType))
+            , fKey(Builder::CacheKey(fParams, &fUniforms, &fAlloc, ok))
+        {}
+
+        Blitter(const SkPixmap& device, const SkPaint& paint,
+                const SkPixmap& sprite, int left, int top, bool* ok)
+            : fDevice(device)
+            , fSprite(sprite)
+            , fUniforms(kBlitterUniformsCount)
+            , fParams(effective_params(device, paint, SkMatrix::MakeTrans(left, top),
+                                       sprite.colorType(), sprite.alphaType()))
             , fKey(Builder::CacheKey(fParams, &fUniforms, &fAlloc, ok))
         {}
 
@@ -480,7 +505,8 @@ namespace {
         }
 
     private:
-        SkPixmap       fDevice;
+        SkPixmap       fDevice,
+                       fSprite;
         skvm::Uniforms fUniforms;                // Most data is copied directly into fUniforms,
         SkArenaAlloc   fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
         const Params   fParams;
@@ -709,5 +735,15 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                SkArenaAlloc* alloc) {
     bool ok = true;
     auto blitter = alloc->make<Blitter>(device, paint, ctm, &ok);
+    return ok ? blitter : nullptr;
+}
+
+
+SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& device,
+                                     const SkPaint& paint,
+                                     SkArenaAlloc* alloc,
+                                     const SkPixmap& sprite, int left, int top) {
+    bool ok = true;
+    auto blitter = alloc->make<Blitter>(device, paint, sprite, left,top, &ok);
     return ok ? blitter : nullptr;
 }
