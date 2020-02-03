@@ -790,19 +790,22 @@ std::tuple<bool, int> GrTextBlob::VertexRegenerator::updateTextureCoordinates(
     auto tokenTracker = fUploadTarget->tokenTracker();
     int i = begin;
     for (; i < end; i++) {
-        GrGlyph* glyph = fSubRun->fGlyphs[i];
-        SkASSERT(glyph && glyph->fMaskFormat == fSubRun->maskFormat());
+        GrGlyph* grGlyph = fSubRun->fGlyphs[i];
+        SkASSERT(grGlyph && grGlyph->fMaskFormat == fSubRun->maskFormat());
 
-        if (!fFullAtlasManager->hasGlyph(glyph)) {
-            code = grStrike->addGlyphToAtlas(
-                    fResourceProvider, fUploadTarget, fFullAtlasManager, glyph,
-                    fMetricsAndImages.get(), fSubRun->maskFormat(), fSubRun->needsTransform());
+        if (!fFullAtlasManager->hasGlyph(grGlyph)) {
+            const SkGlyph& skGlyph = *fMetricsAndImages->glyph(grGlyph->fPackedID);
+            if (skGlyph.image() == nullptr) { return {false, 0}; }
+            code = grStrike->addGlyphToAtlas(skGlyph,
+                    fSubRun->maskFormat(),
+                    fSubRun->needsTransform(),
+                    fResourceProvider, fUploadTarget, fFullAtlasManager, grGlyph);
             if (code != GrDrawOpAtlas::ErrorCode::kSucceeded) {
                 break;
             }
         }
         fFullAtlasManager->addGlyphToBulkAndSetUseToken(
-                fSubRun->bulkUseToken(), glyph, tokenTracker->nextDrawToken());
+                fSubRun->bulkUseToken(), grGlyph, tokenTracker->nextDrawToken());
     }
     int glyphsPlacedInAtlas = i - begin;
 
