@@ -176,4 +176,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
 
 SkBlitter* SkCreateSkVMBlitter(const SkPixmap&, const SkPaint&, const SkMatrix& ctm, SkArenaAlloc*);
 
+SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& dst, const SkPaint&, SkArenaAlloc*,
+                                     const SkPixmap& src, int top, int left);
+
 #endif

@@ -186,11 +186,9 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     try_skvm_blitter = true;
 #endif
     if (try_skvm_blitter) {
-        // TODO:
-        // if (auto b = SkCreateSkVMSpriteBlitter(dst, paint, allocator, source, left, top)) {
-        //     return b;
-        // }
-        return nullptr;
+        if (auto b = SkCreateSkVMSpriteBlitter(dst, paint, allocator, source, left, top)) {
+            return b;
+        }
     }
 
     // TODO: in principle SkRasterPipelineSpriteBlitter could be made to handle this.
