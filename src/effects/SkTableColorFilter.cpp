@@ -128,11 +128,11 @@ public:
 
         auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
             c = p->clamp(c, p->splat(0.f), p->splat(1.0f));
-            skvm::I32 index = p->unorm(8, c);
+            skvm::I32 index = p->to_unorm(8, c);
 
             skvm::Builder::Uniform table = uniforms->pushPtr(bytePtr);
             skvm::I32 byte = p->gather8(table, index);
-            return p->unorm(8, byte);
+            return p->from_unorm(8, byte);
         };
 
         p->unpremul(r,g,b,*a);
