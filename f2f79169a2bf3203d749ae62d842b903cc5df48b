@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "d58c286f_1677feaf",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-03T17:47:56Z",
+      "side": 1,
+      "message": "Longer term we may want to change this effect to store 32-bit table entries, or rewrite our logic to  gather the right group of 4 then mask and shift to get the right one.  gather8 isn\u0027t ever really going to perform well.",
+      "range": {
+        "startLine": 136,
+        "startChar": 31,
+        "endLine": 136,
+        "endChar": 39
+      },
+      "revId": "f2f79169a2bf3203d749ae62d842b903cc5df48b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fefb1656_8b8c3200",
         "filename": "src/effects/SkTableColorFilter.cpp",
         "patchSetId": 2
