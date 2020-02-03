@@ -167,6 +167,8 @@ private:
 // have wrapped the source bitmap inside a shader
 SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         const SkPixmap& source, int left, int top, SkArenaAlloc* allocator) {
+    return nullptr;
+
     /*  We currently ignore antialiasing and filtertype, meaning we will take our
         special blitters regardless of these settings. Ignoring filtertype seems fine
         since by definition there is no scale in the matrix. Ignoring antialiasing is
