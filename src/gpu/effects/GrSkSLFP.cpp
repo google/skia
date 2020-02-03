@@ -271,7 +271,7 @@ extern const char* SKSL_OVERDRAW_SRC;
 using Value = SkSL::Program::Settings::Value;
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
-    int type = d->fRandom->nextULessThan(3);
+    int type = d->fRandom->nextULessThan(2);
     switch (type) {
         case 0: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_DITHER_SRC)));
@@ -295,6 +295,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
                                                         GrConstColorProcessor::InputMode::kIgnore));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
+#if 0
         case 2: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_OVERDRAW_SRC)));
             SkColor4f inputs[6];
@@ -305,6 +306,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
                                          &inputs, sizeof(inputs));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
+#endif
     }
     SK_ABORT("unreachable");
 }

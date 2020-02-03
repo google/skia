@@ -80,7 +80,7 @@
         SK_REGISTER_FLATTENABLE(SkLumaColorFilter);
         SkColorFilter::RegisterFlattenables();
         SkHighContrastFilter::RegisterFlattenables();
-        SkOverdrawColorFilter::RegisterFlattenables();
+//        SkOverdrawColorFilter::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();
 
         // Mask filters.
