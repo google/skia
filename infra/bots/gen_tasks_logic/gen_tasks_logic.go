@@ -92,6 +92,12 @@ var (
 			Path: "cache/work",
 		},
 	}
+	CACHES_SOURCE = []*specs.Cache{
+		&specs.Cache{
+			Name: "src",
+			Path: "cache/src",
+		},
+	}
 	CACHES_DOCKER = []*specs.Cache{
 		&specs.Cache{
 			Name: "docker",
@@ -1146,6 +1152,7 @@ func (b *builder) compile(name string, parts map[string]string) string {
 		needSync = true
 	}
 	task := b.kitchenTask(name, recipe, isolate, b.cfg.ServiceAccountCompile, b.swarmDimensions(parts), props, OUTPUT_BUILD)
+	// TODO(westont): Is this syncing referring to copying shit before compile, is it relevant to the RSYNC work.
 	if needSync {
 		b.usesGit(task, name)
 	} else {

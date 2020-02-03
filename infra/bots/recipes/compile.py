@@ -35,6 +35,17 @@ def RunSteps(api):
     # TODO(borenet): Move this out of the try/finally.
     dst = api.vars.swarming_out_dir
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
+    api.python.inline(name='sleep', program='''
+# [VPYTHON:BEGIN]
+# wheel: <
+#  name: "infra/python/wheels/psutil/${vpython_platform}"
+#  version: "version:5.4.7"
+# >
+# [VPYTHON:END]
+
+import time
+time.sleep(9999)
+                      ''', infra_step=True, venv=True)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
       api.python.inline(
