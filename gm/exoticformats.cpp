@@ -321,7 +321,7 @@ namespace skiagm {
 class ExoticFormatsGM : public GM {
 public:
     ExoticFormatsGM() {
-        this->setBGColor(0xFFCCCCCC);
+        this->setBGColor(SK_ColorBLACK);
     }
 
 protected:
@@ -330,7 +330,7 @@ protected:
     }
 
     SkISize onISize() override {
-        return SkISize::Make(2*kImgWidthHeight, kImgWidthHeight);
+        return SkISize::Make(2*kImgWidthHeight + 3 * kPad, kImgWidthHeight + 2 * kPad);
     }
 
     void loadImages(GrContext *context) {
@@ -386,6 +386,7 @@ protected:
             SkPaint paint;
             paint.setColor(SK_ColorRED);
             paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(2.0f);
             canvas->drawRect(r, paint);
         }
     }
@@ -395,12 +396,13 @@ protected:
 
         this->loadImages(context);
 
-        this->drawImage(context, canvas, fETC1Image.get(), 0, 0);
-        this->drawImage(context, canvas, fBC1Image.get(), kImgWidthHeight, 0);
+        this->drawImage(context, canvas, fETC1Image.get(), kPad, kPad);
+        this->drawImage(context, canvas, fBC1Image.get(), kImgWidthHeight + 2 * kPad, kPad);
     }
 
 private:
     static const int kImgWidthHeight = 128;
+    static const int kPad = 4;
 
     sk_sp<SkImage> fETC1Image;
     sk_sp<SkImage> fBC1Image;
