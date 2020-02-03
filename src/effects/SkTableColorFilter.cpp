@@ -16,7 +16,6 @@
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
 
 static const uint8_t gIdentityTable[] = {
@@ -120,41 +119,6 @@ public:
         if (!definitelyOpaque) {
             p->append(SkRasterPipeline::premul);
         }
-        return true;
-    }
-
-    bool onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
-                   skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
-
-        auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {
-            c = p->clamp(c, p->splat(0.f), p->splat(1.0f));
-            skvm::I32 index = p->unorm(8, c);
-
-            skvm::Builder::Uniform table = uniforms->pushPtr(bytePtr);
-            skvm::I32 byte = p->gather8(table, index);
-            return p->unorm(8, byte);
-        };
-
-        p->unpremul(r,g,b,*a);
-
-        const uint8_t* ptr = fStorage;
-        if (fFlags & kA_Flag) {
-            *a = apply_table_to_component(*a, ptr);
-            ptr += 256;
-        }
-        if (fFlags & kR_Flag) {
-            *r = apply_table_to_component(*r, ptr);
-            ptr += 256;
-        }
-        if (fFlags & kG_Flag) {
-            *g = apply_table_to_component(*g, ptr);
-            ptr += 256;
-        }
-        if (fFlags & kB_Flag) {
-            *b = apply_table_to_component(*b, ptr);
-        }
-
-        p->premul(r,g,b,*a);
         return true;
     }
 
