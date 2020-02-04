@@ -63,7 +63,6 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
         }
     }
 
-    glyph->zeroMetrics();
     fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
 }
 
