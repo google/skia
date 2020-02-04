@@ -287,7 +287,7 @@ public:
     /** If this is invertible, return that in inverse and return true. If it is
      *  not invertible, return false and leave the inverse parameter unchanged.
      */
-    bool invert(SkM44* inverse) const;
+    bool SK_WARN_UNUSED_RESULT invert(SkM44* inverse) const;
 
     SkM44 transpose() const;
 
