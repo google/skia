@@ -183,8 +183,10 @@ struct Face {
 };
 
 static bool front(const SkM44& m) {
-    SkM44 m2;
-    m.invert(&m2);
+    SkM44 m2(SkM44::kUninitialized_Constructor);
+    if (!m.invert(&m2)) {
+        m2.setIdentity();
+    }
     /*
      *  Classically we want to dot the transpose(inverse(ctm)) with our surface normal.
      *  In this case, the normal is known to be {0, 0, 1}, so we only actually need to look
