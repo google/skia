@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81b02f84_c2f8f9d4",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-04T18:40:35Z",
+      "side": 1,
+      "message": "I think I\u0027ve convinced myself that with these floor/ceil\u0027s and strict comparisons, that it doesn\u0027t matter if we check the domain against subset or against the modified insetSubset below.",
+      "range": {
+        "startLine": 108,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 93
+      },
+      "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfee0185_3fff675f",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-04T18:40:35Z",
+      "side": 1,
+      "message": "Does kDecal also need this same inset? Is it possible for the sampler to select the texel just out the subset due to weird filtering, and then the shader still think the coord shouldn\u0027t be forced transparent black?",
+      "range": {
+        "startLine": 111,
+        "startChar": 16,
+        "endLine": 111,
+        "endChar": 36
+      },
+      "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77c7c5ec_68433640",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-04T18:40:35Z",
+      "side": 1,
+      "message": "I think this could use a comment along the lines of:\n\u0027This inset prevents nearest-neighbor filtering reading outside integer subsets on certain GPUs\u0027.",
+      "range": {
+        "startLine": 112,
+        "startChar": 16,
+        "endLine": 112,
+        "endChar": 53
+      },
+      "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
