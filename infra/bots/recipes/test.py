@@ -380,7 +380,7 @@ def dm_flags(api, bot):
     remove_from_args('image')
     remove_from_args('colorImage')
     remove_from_args('svg')
-  else:
+  elif 'PDF' not in bot:
     # Currently, only the DDL bots render skps
     remove_from_args('skp')
 
@@ -396,7 +396,7 @@ def dm_flags(api, bot):
     remove_from_args('lottie')
 
   if 'PDF' in bot:
-    # (Just GMs for now.)
+    # (Just GMs and PDFs for now.)
     remove_from_args('tests')
     remove_from_args('image')
     remove_from_args('colorImage')
