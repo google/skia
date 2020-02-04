@@ -256,7 +256,7 @@
     paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
-    paint.setPathEffect(CanvasKit.MakeSkCornerPathEffect(50));
+    paint.setPathEffect(CanvasKit.SkPathEffect.MakeCorner(50));
 
     // Draw I N K
     let path = new CanvasKit.SkPath();
