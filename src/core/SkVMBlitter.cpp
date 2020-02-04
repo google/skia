@@ -695,10 +695,10 @@ skvm::Color skvm::BlendModeProgram(skvm::Builder* p,
         };
 
         case SkBlendMode::kScreen: return {
-            p->sub(p->add(src.r, dst.r), p->mul(src.r, dst.r)),
-            p->sub(p->add(src.g, dst.g), p->mul(src.g, dst.g)),
-            p->sub(p->add(src.b, dst.b), p->mul(src.b, dst.b)),
-            p->sub(p->add(src.a, dst.a), p->mul(src.a, dst.a)),
+            p->add(src.r, p->sub(dst.r, p->mul(src.r, dst.r))),
+            p->add(src.g, p->sub(dst.g, p->mul(src.g, dst.g))),
+            p->add(src.b, p->sub(dst.b, p->mul(src.b, dst.b))),
+            p->add(src.a, p->sub(dst.a, p->mul(src.a, dst.a))),
         };
     }
 }
