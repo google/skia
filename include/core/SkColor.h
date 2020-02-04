@@ -9,6 +9,7 @@
 #define SkColor_DEFINED
 
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPreConfig.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 
@@ -75,7 +76,7 @@ static constexpr inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU 
     @param a  alpha: transparent at zero, fully opaque at 255
     @return   color with transparency
 */
-static constexpr inline SkColor SkColorSetA(SkColor c, U8CPU a) {
+static constexpr inline SkColor SK_WARN_UNUSED_RESULT SkColorSetA(SkColor c, U8CPU a) {
     return (c & 0x00FFFFFF) | (a << 24);
 }
 
