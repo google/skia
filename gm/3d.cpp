@@ -20,7 +20,7 @@ struct Info {
 
 static SkM44 inv(const SkM44& m) {
     SkM44 inverse;
-    m.invert(&inverse);
+    (void)m.invert(&inverse);
     return inverse;
 }
 
