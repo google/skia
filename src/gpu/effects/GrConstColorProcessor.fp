@@ -32,6 +32,7 @@ void main() {
             sk_OutColor = sk_InColor.a * color;
             break;
     }
+    sk_OutColor = half4(mix(sk_OutColor, half4(1, 0, 0, 1), bool4(false)));
 }
 
 @class {
