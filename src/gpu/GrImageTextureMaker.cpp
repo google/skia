@@ -65,9 +65,9 @@ GrSurfaceProxyView GrYUVAImageTextureMaker::refOriginalTextureProxyView(
     }
 
     if (willBeMipped) {
-        return fImage->asMippedTextureProxyViewRef(this->context());
+        return fImage->refMippedView(this->context());
     } else {
-        return fImage->asSurfaceProxyViewRef(this->context());
+        return fImage->view(this->context());
     }
 }
 

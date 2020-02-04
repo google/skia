@@ -643,7 +643,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
 
     auto context = ctx.getContext();
 
-    GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+    GrSurfaceProxyView inputView = input->view(context);
     if (!inputView.proxy()) {
         return nullptr;
     }

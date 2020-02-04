@@ -71,9 +71,9 @@ static void test_image(const sk_sp<SkSpecialImage>& img, skiatest::Reporter* rep
     REPORTER_ASSERT(reporter, isGPUBacked == img->isTextureBacked());
 
     //--------------
-    // Test asSurfaceProxyViewRef - as long as there is a context this should succeed
+    // Test view - as long as there is a context this should succeed
     if (context) {
-        GrSurfaceProxyView view = img->asSurfaceProxyViewRef(context);
+        GrSurfaceProxyView view = img->view(context);
         REPORTER_ASSERT(reporter, view.asTextureProxy());
     }
 

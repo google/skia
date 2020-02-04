@@ -61,8 +61,9 @@ public:
 
     // This returns a copy of the GrSurfaceProxyView which essentially refs the contained
     // GrSurfaceProxy. Callers should check if the proxy of the returned view is null.
-    virtual GrSurfaceProxyView asSurfaceProxyViewRef(GrRecordingContext*) const {
-        return GrSurfaceProxyView();
+    virtual const GrSurfaceProxyView& view(GrRecordingContext*) const {
+        static const GrSurfaceProxyView kDefaultView;
+        return kDefaultView;
     }
 
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
