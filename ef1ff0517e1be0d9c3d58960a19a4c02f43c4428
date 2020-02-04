@@ -22,6 +22,30 @@
       "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b2867b0_f951c640",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-04T19:42:40Z",
+      "side": 1,
+      "message": "I don\u0027t think we can since the view stores an sk_sp\u003cGrSurfaceProxy\u003e which isn\u0027t a literal. right?",
+      "parentUuid": "5e506443_e000c145",
+      "range": {
+        "startLine": 65,
+        "startChar": 15,
+        "endLine": 65,
+        "endChar": 20
+      },
+      "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
