@@ -3053,6 +3053,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -3121,6 +3125,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -3193,6 +3201,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -3261,6 +3273,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -3333,6 +3349,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -3401,6 +3421,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -3473,6 +3497,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -3541,6 +3569,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -3613,6 +3645,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -3683,6 +3719,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -3751,6 +3791,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -3909,6 +3953,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -3979,6 +4027,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4049,6 +4101,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4119,6 +4175,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4189,6 +4249,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4269,6 +4333,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4344,6 +4412,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4414,6 +4486,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4484,6 +4560,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4554,6 +4634,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4634,6 +4718,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4709,6 +4797,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "git",
@@ -4805,6 +4897,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4875,6 +4971,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -4945,6 +5045,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5015,6 +5119,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5085,6 +5193,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5155,6 +5267,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5225,6 +5341,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5471,6 +5591,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5541,6 +5665,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5611,6 +5739,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5681,6 +5813,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5751,6 +5887,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5821,6 +5961,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5891,6 +6035,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -5961,6 +6109,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "git",
@@ -6052,10 +6204,15 @@
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Build-Debian9-Clang-x86_64-Debug": {
+      "id": "skia-e-gce-301",
       "caches": [
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6112,7 +6269,6 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
@@ -6126,6 +6282,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6196,6 +6356,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6266,6 +6430,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6341,6 +6509,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6411,6 +6583,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6491,6 +6667,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6561,6 +6741,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6631,6 +6815,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6701,6 +6889,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6771,6 +6963,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6841,6 +7037,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6911,6 +7111,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -6986,6 +7190,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7061,6 +7269,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7131,6 +7343,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7201,6 +7417,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7271,6 +7491,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7341,6 +7565,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7411,6 +7639,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7481,6 +7713,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "git",
@@ -7582,6 +7818,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7657,6 +7897,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7727,6 +7971,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "git",
@@ -7819,6 +8067,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7889,6 +8141,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -7959,6 +8215,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8029,6 +8289,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8099,6 +8363,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8169,6 +8437,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8239,6 +8511,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8314,6 +8590,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8384,6 +8664,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8454,6 +8738,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8524,6 +8812,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -8596,6 +8888,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -8664,6 +8960,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -8736,6 +9036,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -8804,6 +9108,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -8876,6 +9184,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -8944,6 +9256,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "docker",
@@ -9016,6 +9332,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -9086,6 +9406,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "docker",
           "path": "cache/docker"
         }
@@ -9154,6 +9478,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -9234,6 +9562,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -9310,6 +9642,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -9379,6 +9715,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -9459,6 +9799,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -9535,6 +9879,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -9615,6 +9963,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -9691,6 +10043,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -9771,6 +10127,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -9842,6 +10202,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -9917,6 +10281,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -9988,6 +10356,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "git",
@@ -10089,6 +10461,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -10160,6 +10536,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -10235,6 +10615,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -10306,6 +10690,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "git",
@@ -10407,6 +10795,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -10478,6 +10870,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         },
         {
           "name": "xcode",
@@ -10553,6 +10949,10 @@
           "path": "cache/vpython"
         },
         {
+          "name": "src",
+          "path": "cache/rsync_source"
+        },
+        {
           "name": "xcode",
           "path": "cache/Xcode.app"
         }
@@ -10624,6 +11024,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -10700,6 +11104,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -10776,6 +11184,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -10852,6 +11264,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -10928,6 +11344,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11003,6 +11423,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11079,6 +11503,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11155,6 +11583,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11231,6 +11663,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11307,6 +11743,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11383,6 +11823,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11459,6 +11903,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11540,6 +11988,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11616,6 +12068,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11692,6 +12148,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11768,6 +12228,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11844,6 +12308,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11920,6 +12388,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -11996,6 +12468,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12067,6 +12543,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12138,6 +12618,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12209,6 +12693,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12280,6 +12768,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12351,6 +12843,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12422,6 +12918,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12493,6 +12993,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12564,6 +13068,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12635,6 +13143,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12706,6 +13218,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
@@ -12777,6 +13293,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "src",
+          "path": "cache/rsync_source"
         }
       ],
       "cipd_packages": [
