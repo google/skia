@@ -22,6 +22,30 @@
       "revId": "573d94a34ec13b920117490de75e8533a8df4383",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9c85058_c0dae1f4",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-04T15:06:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "837e953f_57281986",
+      "range": {
+        "startLine": 698,
+        "startChar": 29,
+        "endLine": 698,
+        "endChar": 32
+      },
+      "revId": "573d94a34ec13b920117490de75e8533a8df4383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
