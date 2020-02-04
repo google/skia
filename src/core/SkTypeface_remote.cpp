@@ -43,6 +43,7 @@ void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
 
     glyph->fMaskFormat = fRec.fMaskFormat;
     glyph->zeroMetrics();
+
     fDiscardableManager->notifyCacheMiss(SkStrikeClient::CacheMissType::kGlyphMetrics);
 }
 
