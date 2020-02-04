@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42399feb_b440e196",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-04T23:30:19Z",
+      "side": 1,
+      "message": "You could also just change these to gm/**/*.cpp and gm/**/*.h if you like.",
+      "revId": "84a8c13bd9df51ac9353964ed38fe1a0c2364e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
