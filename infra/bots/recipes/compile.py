@@ -30,11 +30,36 @@ def RunSteps(api):
       'work', 'skia', 'out', api.vars.builder_name, api.vars.configuration)
 
   try:
+    api.run(api.step, 'rsync skia source',
+            cmd=['rsync', '-rc', checkout_root.join('skia'),checkout_root.join('cache', 'rsync_source')])
+#    api.python.inline(name='sleep', program='''
+# [VPYTHON:BEGIN]
+# wheel: <
+#  name: "infra/python/wheels/psutil/${vpython_platform}"
+#  version: "version:5.4.7"
+# >
+# [VPYTHON:END]
+
+# Here is where we will do python stuff to call 
+# rsync -rc <checkout_root>/skia <checkout_root>/cache/rsync_source
+
+#                      ''', infra_step=True, venv=True)
     api.build(checkout_root=checkout_root, out_dir=out_dir)
 
     # TODO(borenet): Move this out of the try/finally.
     dst = api.vars.swarming_out_dir
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
+###    api.python.inline(name='sleep', program='''
+# [VPYTHON:BEGIN]
+# wheel: <
+#  name: "infra/python/wheels/psutil/${vpython_platform}"
+#  version: "version:5.4.7"
+# >
+# [VPYTHON:END]
+
+###import time
+###time.sleep(9999)
+###                      ''', infra_step=True, venv=True)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
       api.python.inline(
