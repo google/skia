@@ -2561,8 +2561,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         return false;
     }
     void* mappedMemory = transferBuffer->map();
-    const GrVkAlloc& transAlloc = transferBuffer->alloc();
-    GrVkMemory::InvalidateMappedAlloc(this, transAlloc, 0, transAlloc.fSize);
 
     if (copyFromOrigin) {
         uint32_t skipRows = region.imageExtent.height - height;
