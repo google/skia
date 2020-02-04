@@ -34,6 +34,24 @@
       "revId": "a72fc617959046b58becac88334abd4c281edb01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0e37b83_93253acd",
+        "filename": "site/user/sample/viewer.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-02-04T21:48:06Z",
+      "side": 1,
+      "message": "Updated to include NDK information again",
+      "parentUuid": "827a534f_79c90399",
+      "revId": "a72fc617959046b58becac88334abd4c281edb01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
