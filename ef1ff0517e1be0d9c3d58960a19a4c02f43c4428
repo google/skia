@@ -70,6 +70,30 @@
       "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbcc6b77_8373b08f",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-04T22:05:22Z",
+      "side": 1,
+      "message": "Now using pointers so this shouldn\u0027t be a worry.",
+      "parentUuid": "88d136c4_f6eca2f2",
+      "range": {
+        "startLine": 65,
+        "startChar": 15,
+        "endLine": 65,
+        "endChar": 20
+      },
+      "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
