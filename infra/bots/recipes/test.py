@@ -374,14 +374,14 @@ def dm_flags(api, bot):
     if arg in args:
       args.remove(arg)
 
-  if 'DDL' in bot:
-    # The DDL bots just render the large skps and the gms
+  if 'DDL' in bot or 'PDF' in bot:
+    # The DDL and PDF bots just render the large skps and the gms
     remove_from_args('tests')
     remove_from_args('image')
     remove_from_args('colorImage')
     remove_from_args('svg')
   else:
-    # Currently, only the DDL bots render skps
+    # No other bots render the .skps.
     remove_from_args('skp')
 
   if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
@@ -394,13 +394,6 @@ def dm_flags(api, bot):
     remove_from_args('skp')
   else:
     remove_from_args('lottie')
-
-  if 'PDF' in bot:
-    # (Just GMs for now.)
-    remove_from_args('tests')
-    remove_from_args('image')
-    remove_from_args('colorImage')
-    remove_from_args('svg')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
