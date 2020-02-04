@@ -575,29 +575,30 @@ namespace skvm {
 
     // Helper to streamline allocating and working with uniforms.
     struct Uniforms {
-        Arg              ptr;
+        Arg              base;
         std::vector<int> buf;
 
-        explicit Uniforms(int init) : ptr(Arg{0}), buf(init) {}
+        explicit Uniforms(int init) : base(Arg{0}), buf(init) {}
 
-        Builder::Uniform push(const int* vals, int n) {
-            int offset = sizeof(int)*buf.size();
-            buf.insert(buf.end(), vals, vals+n);
-            return {ptr, offset};
-        }
-        Builder::Uniform pushF(const float* vals, int n) {
-            return this->push((const int*)vals, n);
+        Builder::Uniform push(int val) {
+            buf.push_back(val);
+            return {base, (int)( sizeof(int)*(buf.size() - 1) )};
         }
 
-        Builder::Uniform push (int   val) { return this->push (&val, 1); }
-        Builder::Uniform pushF(float val) { return this->pushF(&val, 1); }
+        Builder::Uniform pushF(float val) {
+            int bits;
+            memcpy(&bits, &val, sizeof(int));
+            return this->push(bits);
+        }
 
         Builder::Uniform pushPtr(const void* ptr) {
-            union {
-                const void* ptr;
-                int   ints[sizeof(const void*) / sizeof(int)];
-            } pun = {ptr};
-            return this->push(pun.ints, SK_ARRAY_COUNT(pun.ints));
+            // Jam the pointer into 1 or 2 ints.
+            int ints[sizeof(ptr) / sizeof(int)];
+            memcpy(ints, &ptr, sizeof(ptr));
+            for (int bits : ints) {
+                buf.push_back(bits);
+            }
+            return {base, (int)( sizeof(int)*(buf.size() - SK_ARRAY_COUNT(ints)) )};
         }
     };
 

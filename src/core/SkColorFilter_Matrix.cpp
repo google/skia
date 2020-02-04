@@ -88,8 +88,7 @@ bool SkColorFilter_Matrix::onProgram(skvm::Builder* p,
     if (fDomain == Domain::kRGBA) {
         p->unpremul(r,g,b,*a);
 
-        skvm::Builder::Uniform u = uniforms->pushF(fMatrix, 20);
-        auto m = [&](int i) { return p->uniformF(u.ptr, u.offset + 4*i); };
+        auto m = [&](int i) { return p->uniformF(uniforms->pushF(fMatrix[i])); };
 
         skvm::F32 rgba[4];
         for (int j = 0; j < 4; j++) {
