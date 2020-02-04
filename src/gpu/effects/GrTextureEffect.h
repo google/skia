@@ -103,8 +103,8 @@ private:
         GrSamplerState fHWSampler;
         ShaderMode fShaderModes[2] = {ShaderMode::kNone, ShaderMode::kNone};
         SkRect fShaderSubset = {0, 0, 0, 0};
+        SkRect fShaderClamp  = {0, 0, 0, 0};
         Sampling(GrSamplerState::Filter filter) : fHWSampler(filter) {}
-        Sampling(GrSamplerState, SkISize, const GrCaps&);
         Sampling(const GrSurfaceProxy& proxy,
                  GrSamplerState sampler,
                  const SkRect&,
@@ -116,7 +116,11 @@ private:
     GrCoordTransform fCoordTransform;
     TextureSampler fSampler;
     SkRect fSubset;
+    SkRect fClamp;
     ShaderMode fShaderModes[2];
+
+    // Must the edge of the subset be interpolated in the shader?
+    static inline bool SmoothInShader(GrSamplerState::Filter filter, ShaderMode mode);
 
     inline GrTextureEffect(sk_sp<GrSurfaceProxy>, SkAlphaType, const SkMatrix&, const Sampling&);
 
