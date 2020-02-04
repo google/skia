@@ -46,6 +46,30 @@
       "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88d136c4_f6eca2f2",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-04T21:09:59Z",
+      "side": 1,
+      "message": "Only the parameters to a constexpr need be literal types. sk_sp has a constexpr default constructor.",
+      "parentUuid": "9b2867b0_f951c640",
+      "range": {
+        "startLine": 65,
+        "startChar": 15,
+        "endLine": 65,
+        "endChar": 20
+      },
+      "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
