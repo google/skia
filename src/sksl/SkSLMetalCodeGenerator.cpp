@@ -26,6 +26,7 @@ void MetalCodeGenerator::setupIntrinsics() {
 #define SPECIAL(x) std::make_pair(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic)
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
+    fIntrinsicMap[String("mix")]                = SPECIAL(Mix);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
     fIntrinsicMap[String("lessThan")]           = METAL(LessThan);
@@ -343,7 +344,14 @@ void MetalCodeGenerator::writeInverseHack(const Expression& mat) {
     this->write(name);
 }
 
-void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
+static bool is_bool(const Context& context, const Type& type) {
+    if (type.kind() == Type::kVector_Kind) {
+        return is_bool(context, type.componentType());
+    }
+    return type == *context.fBool_Type;
+}
+
+void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind) {
     switch (kind) {
         case kTexture_SpecialIntrinsic:
             this->writeExpression(*c.fArguments[0], kSequence_Precedence);
@@ -376,6 +384,37 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write(", " + tmpY + " = ");
             this->writeExpression(*c.fArguments[1], kSequence_Precedence);
             this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
+            break;
+        }
+        case kMix_SpecialIntrinsic: {
+            if (c.fArguments[2]->fType == *fContext.fBool_Type) {
+                this->write("(");
+                this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                this->write(" ? ");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(" : ");
+                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->write(")");
+            } else {
+                this->write("mix(");
+                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(", ");
+                if (is_bool(fContext, c.fArguments[2]->fType)) {
+                    // Slight behavioral difference from GLSL: in GLSL, the bvec variant gracefully
+                    // handles infinities and NaN, whereas converting the bvec to a vec means you
+                    // end up propagating infinities and NaNs even if you aren't selecting them. I
+                    // don't think this is a huge deal for us, so going with the straightforward
+                    // implementation for now.
+                    this->write(" float4(");
+                }
+                this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                if (is_bool(fContext, c.fArguments[2]->fType)) {
+                    this->write(")");
+                }
+                this->write(")");
+            }
             break;
         }
         default:
