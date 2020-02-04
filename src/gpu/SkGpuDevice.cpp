@@ -955,8 +955,11 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
             fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir, srcAlphaType);
         } else {
-            fp = GrTextureEffect::MakeSubset(std::move(proxy), srcAlphaType, texMatrix,
-                                             samplerState, domain, caps);
+            GrSurfaceOrigin origin = proxy->origin();
+            GrSwizzle swizzle = proxy->textureSwizzle();
+            GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+            fp = GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix, samplerState,
+                                             domain, caps);
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
@@ -964,7 +967,10 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
         fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, srcAlphaType);
     } else {
-        fp = GrTextureEffect::Make(std::move(proxy), srcAlphaType, texMatrix, samplerState, caps);
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+        fp = GrTextureEffect::Make(std::move(view), srcAlphaType, texMatrix, samplerState, caps);
     }
 
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),
@@ -1035,7 +1041,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     tmpUnfiltered.setImageFilter(nullptr);
 
-    auto fp = GrTextureEffect::Make(view.detachProxy(), special->alphaType());
+    auto fp = GrTextureEffect::Make(std::move(view), special->alphaType());
     fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
                                        fRenderTargetContext->colorInfo().colorSpace());
     if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
@@ -1074,8 +1080,12 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         std::unique_ptr<GrFragmentProcessor> cfp;
         if (clipProxy && ctm.invert(&inverseClipMatrix)) {
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
-            cfp = GrTextureEffect::Make(std::move(clipProxy), clipImage->alphaType(),
-                                        inverseClipMatrix, filter);
+
+            GrSurfaceOrigin origin = clipProxy->origin();
+            GrSwizzle swizzle = clipProxy->textureSwizzle();
+            GrSurfaceProxyView view(std::move(clipProxy), origin, swizzle);
+            cfp = GrTextureEffect::Make(std::move(view), clipImage->alphaType(), inverseClipMatrix,
+                                        filter);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
