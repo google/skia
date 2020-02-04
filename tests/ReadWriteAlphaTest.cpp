@@ -71,7 +71,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         bitmap.installPixels(ii, alphaDataCopy, ii.minRowBytes());
         bitmap.setImmutable();
         GrBitmapTextureMaker maker(context, bitmap);
-        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        auto[view, grCT] = maker.view(GrMipMapped::kNo);
         if (!view.proxy()) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
