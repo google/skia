@@ -53,6 +53,11 @@ SK_ALWAYS_INLINE const void* GrRetainPtrFromId(id idObject) {
     return (__bridge_retained const void*)idObject;
 }
 
+enum class GrMtlErrorCode {
+    kTimeout = 1,
+};
+
+NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode);
 
 /**
  * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate
