@@ -244,7 +244,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
     if (attemptDrawTexture && can_use_draw_texture(paint)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto [view, ct] = producer->refTextureProxyView(GrMipMapped::kNo);
+        auto[view, ct] = producer->view(GrMipMapped::kNo);
         if (!view.proxy()) {
             return;
         }
