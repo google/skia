@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "651d4b6f_c7a255cc",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-04T18:22:13Z",
+      "side": 1,
+      "message": "This fixes the case of nearest/clamp. Previously this wouldn\u0027t inset in that case which could be incorrect when the subset boundary was at an integer, depending on GPU behavior in that case (a subtlety I missed when I first wrote this). The check for a \"safe\" domain is also updated for all nearest cases to snap the subset to ints and then check that the domain is strictly \u003e and \u003c.\n\nI wouldn\u0027t fixate too much on the other mode/filter combos. There is a WIP change that will enable filtering for all modes that yet again significantly modifies this code. This whole change to remove instances of insetting in callers is to make that change easier.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 125,
+        "endChar": 0
+      },
+      "revId": "8ed89ae4939fe5710476504d1be97b0a02b2aec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
