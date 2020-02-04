@@ -123,7 +123,7 @@ public:
         return true;
     }
 
-    bool onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms,
+    bool onProgram(skvm::Builder* p, SkColorSpace* dstCS, skvm::Uniforms* uniforms, SkArenaAlloc*,
                    skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const override {
 
         auto apply_table_to_component = [&](skvm::F32 c, const uint8_t* bytePtr) -> skvm::F32 {

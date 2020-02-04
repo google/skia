@@ -82,7 +82,7 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 
 bool SkColorFilter_Matrix::onProgram(skvm::Builder* p,
                                      SkColorSpace* /*dstCS*/,
-                                     skvm::Uniforms* uniforms,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc*,
                                      skvm::F32* r, skvm::F32* g, skvm::F32* b, skvm::F32* a) const {
     // TODO: specialize generated code on the 0/1 values of fMatrix?
     if (fDomain == Domain::kRGBA) {
