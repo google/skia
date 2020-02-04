@@ -8,7 +8,6 @@
 #ifndef skiagm_DEFINED
 #define skiagm_DEFINED
 
-#include "gm/verifiers/gmverifier.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -149,8 +148,6 @@ namespace skiagm {
 
         virtual void modifyGrContextOptions(GrContextOptions*);
 
-        virtual std::unique_ptr<verifiers::VerifierList> getVerifiers() const;
-
     protected:
         virtual void onOnceBeforeDraw();
         virtual DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg);
@@ -179,12 +176,6 @@ namespace skiagm {
     class GpuGM : public GM {
     public:
         GpuGM(SkColor backgroundColor = SK_ColorWHITE) : GM(backgroundColor) {}
-
-        // TODO(tdenniston): Currently GpuGMs don't have verifiers (because they do not render on
-        //   CPU), but we may want to be able to verify the output images standalone, without
-        //   requiring a gold image for comparison.
-        std::unique_ptr<verifiers::VerifierList> getVerifiers() const override { return nullptr; }
-
     private:
         using GM::onDraw;
         DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;
