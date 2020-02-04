@@ -415,7 +415,7 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
                                                  uint32_t id, GrMipMapped mipMapped) {
-    auto [view, colorType] = producer->refTextureProxyView(mipMapped);
+    auto[view, colorType] = producer->view(mipMapped);
     if (!view.proxy()) {
         return nullptr;
     }
@@ -555,7 +555,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     bmp.installPixels(*pixmap);
     GrBitmapTextureMaker bitmapMaker(context, bmp);
     GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
-    auto [view, grCT] = bitmapMaker.refTextureProxyView(mipMapped);
+    auto[view, grCT] = bitmapMaker.view(mipMapped);
     if (!view.proxy()) {
         return SkImage::MakeRasterCopy(*pixmap);
     }

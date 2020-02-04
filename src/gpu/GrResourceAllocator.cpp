@@ -444,7 +444,7 @@ void GrResourceAllocator::dumpIntervals() {
     unsigned int min = std::numeric_limits<unsigned int>::max();
     unsigned int max = 0;
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
-        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d\n",
+        SkDebugf("{ %3d,%3d }: [%2d, %2d] - refProxys:%d surfaceRefs:%d\n",
                  cur->proxy()->uniqueID().asUInt(),
                  cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
                  cur->start(),

@@ -154,7 +154,7 @@ static bool sw_draw_with_mask_filter(GrRecordingContext* context,
 
         GrBitmapTextureMaker maker(context, bm, GrBitmapTextureMaker::Cached::kNo,
                                    SkBackingFit::kApprox);
-        std::tie(filteredMaskView, std::ignore) = maker.refTextureProxyView(GrMipMapped::kNo);
+        std::tie(filteredMaskView, std::ignore) = maker.view(GrMipMapped::kNo);
         if (!filteredMaskView.proxy()) {
             return false;
         }

@@ -69,7 +69,7 @@ public:
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, bitmap);
-        auto[dataView, ct] = maker.refTextureProxyView(GrMipMapped::kNo);
+        auto[dataView, ct] = maker.view(GrMipMapped::kNo);
 
         if (!dataView.proxy()) {
             return false;

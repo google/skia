@@ -182,7 +182,7 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrRecordingContext* cont
         GrSurfaceProxyView view(std::move(tex), origin, swizzle);
         GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
                                    fPinnedUniqueID);
-        return adjuster.refTextureProxyViewForParams(params, scaleAdjust).asTextureProxyRef();
+        return adjuster.viewForParams(params, scaleAdjust).asTextureProxyRef();
     }
 
     return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);

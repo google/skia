@@ -153,7 +153,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kNo, fit);
-        auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        auto[view, grCT] = maker.view(GrMipMapped::kNo);
         yuvTextureProxies[i] = view.asTextureProxyRef();
 
         if (!yuvTextureProxies[i]) {

@@ -97,7 +97,7 @@ public:
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
-    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fReadView.proxyRef(); }
+    sk_sp<GrSurfaceProxy> asSurfaceProxyRef() { return fReadView.refProxy(); }
 
     GrTextureProxy* asTextureProxy() { return fReadView.asTextureProxy(); }
     const GrTextureProxy* asTextureProxy() const { return fReadView.asTextureProxy(); }
