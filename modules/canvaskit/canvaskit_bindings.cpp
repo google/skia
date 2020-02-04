@@ -671,6 +671,10 @@ namespace emscripten {
         void raw_destructor<SkVertices>(SkVertices *ptr) {
         }
 
+        template<>
+        void raw_destructor<SkCornerPathEffect>(SkCornerPathEffect *ptr) {
+        }
+
 #ifndef SK_NO_FONTS
         template<>
         void raw_destructor<SkTextBlob>(SkTextBlob *ptr) {
@@ -738,7 +742,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 
     function("getSkDataBytes", &getSkDataBytes, allow_raw_pointers());
+    // Deprecated: use Canvaskit.SkCornerPathEffect.Make
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
+    // Deprecated: use Canvaskit.SkDiscretePathEffect.Make
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
     // Deprecated: use Canvaskit.SkMaskFilter.MakeBlur
     function("MakeBlurMaskFilter", optional_override([](SkBlurStyle style, SkScalar sigma, bool respectCTM)->sk_sp<SkMaskFilter> {
@@ -1209,6 +1215,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // Adds a little helper because emscripten doesn't expose default params.
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
+
+    class_<SkCornerPathEffect>("SkCornerPathEffect")
+        .smart_ptr<sk_sp<SkCornerPathEffect>>("sk_sp<SkCornerPathEffect>")
+        .class_function("Make", &SkCornerPathEffect::Make, allow_raw_pointers());
+
+    class_<SkDiscretePathEffect>("SkDiscretePathEffect")
+        .smart_ptr<sk_sp<SkDiscretePathEffect>>("sk_sp<SkDiscretePathEffect>")
+        .class_function("Make", &SkDiscretePathEffect::Make, allow_raw_pointers());
 
     class_<SkPaint>("SkPaint")
         .constructor<>()
