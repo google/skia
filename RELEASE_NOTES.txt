@@ -7,6 +7,8 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * SkColorSetA now warns if the result is unused.
+
   * An SkImageInfo with a null SkColorSpace passed to SkCodec::getPixels() and
     related calls is treated as a request to do no color correction at decode
     time.
