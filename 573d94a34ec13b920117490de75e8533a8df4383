@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "837e953f_57281986",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-02-04T15:03:19Z",
+      "side": 1,
+      "message": "nit: may be worth a comment showing the old form, and the reason for the new one",
+      "range": {
+        "startLine": 698,
+        "startChar": 29,
+        "endLine": 698,
+        "endChar": 32
+      },
+      "revId": "573d94a34ec13b920117490de75e8533a8df4383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
