@@ -685,7 +685,8 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
         if (clipRRect.isRect()) {
             // No rounded corners, so the kClear and kExplicitClip optimizations are possible
             if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad)) {
-                if (constColor && deviceQuad->quadType() == GrQuad::Type::kAxisAligned) {
+                if (!stencilSettings && constColor &&
+                    deviceQuad->quadType() == GrQuad::Type::kAxisAligned) {
                     // Clear optimization is possible
                     drawBounds = deviceQuad->bounds();
                     if (drawBounds.contains(rtRect)) {
@@ -722,7 +723,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
                 // the clip entirely
                 return QuadOptimization::kCropped;
             }
-        } else if (constColor) {
+        } else if (!stencilSettings && constColor) {
             // Rounded corners and constant filled color (limit ourselves to solid colors because
             // there is no way to use custom local coordinates with drawRRect).
             if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad) &&
