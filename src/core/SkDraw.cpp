@@ -1099,7 +1099,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         }
         int ix = SkScalarRoundToInt(matrix.getTranslateX());
         int iy = SkScalarRoundToInt(matrix.getTranslateY());
-        if (clipHandlesSprite(*fRC, ix, iy, pmap)) {
+        if (clipHandlesSprite(*fRC, ix, iy, pmap) && false) {
             SkSTArenaAlloc<kSkBlitterContextSize> allocator;
             // blitter will be owned by the allocator.
             SkBlitter* blitter = SkBlitter::ChooseSprite(fDst, *paint, pmap, ix, iy, &allocator);

@@ -412,6 +412,8 @@ namespace skvm {
         I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
         I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
 
+        F32 gatherF  (Uniform u, I32 index) { return this->bit_cast(this->gather32 (u.ptr, u.offset, index)); }
+
         // Load an immediate constant.
         I32 splat(int      n);
         I32 splat(unsigned u) { return this->splat((int)u); }

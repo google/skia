@@ -130,9 +130,12 @@ public:
             c = p->clamp(c, p->splat(0.f), p->splat(1.0f));
             skvm::I32 index = p->to_unorm(8, c);
 
-            skvm::Builder::Uniform table = uniforms->pushPtr(bytePtr);
-            skvm::I32 byte = p->gather8(table, index);
-            return p->from_unorm(8, byte);
+            float f[256];
+            for (int i = 0; i < 256; ++i) {
+                f[i] = bytePtr[i] * (1.0f/255);
+            }
+            skvm::Builder::Uniform table = uniforms->pushF(f, 256);
+            return p->gatherF(table, index);
         };
 
         p->unpremul(r,g,b,*a);
