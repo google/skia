@@ -32,11 +32,12 @@ public:
         fragBuilder->codeAppendf(
                 "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
                 "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "
-                "break;\n}\n",
+                "break;\n}\n%s = half4(mix(float4(%s), float4(half4(1.0, 0.0, 0.0, 1.0)), "
+                "bool4(false)));\n",
                 (int)_outer.mode, args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar),
                 args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(colorVar),
-                args.fOutputColor, args.fInputColor,
-                args.fUniformHandler->getUniformCStr(colorVar));
+                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(colorVar),
+                args.fOutputColor, args.fOutputColor);
     }
 
 private:
