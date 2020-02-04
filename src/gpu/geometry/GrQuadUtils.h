@@ -17,6 +17,11 @@ enum class GrAAType : unsigned;
 struct SkRect;
 
 namespace GrQuadUtils {
+    struct DrawQuad {
+        GrQuad        fDevice;
+        GrQuad        fLocal;
+        GrQuadAAFlags fEdgeFlags;
+    };
 
     // Resolve disagreements between the overall requested AA type and the per-edge quad AA flags.
     // Both outAAType and outEdgeFlags will be updated.
@@ -24,10 +29,24 @@ namespace GrQuadUtils {
                        const GrQuad& quad, GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
 
     /**
+     * Clip the device vertices of 'quad' to be in front of the W = 0 plane (w/in epsilon). The
+     * local coordinates will be updated to match the new clipped vertices. This returns the number
+     * of clipped quads that need to be drawn: 0 if 'quad' was entirely behind the plane, 1 if
+     * 'quad' did not need to be clipped or if 2 or 3 vertices were clipped, or 2 if 'quad' had one
+     * vertex clipped (producing a pentagonal shape spanned by 'quad' and 'extraVertices').
+     *
+     * If 0 is returned, the draw can be dropped. If 1 is returned, 'quad' will have been updated in
+     * place and 'extraVertices' should be ignored. If 2 is returned, both 'quad' and
+     * 'extraVertices' have been updated, including edge flags so they seam correctly together.
+     */
+    int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices);
+
+    /**
      * Crops quad to the provided device-space axis-aligned rectangle. If the intersection of this
      * quad (projected) and cropRect results in a quadrilateral, this returns true. If not, this
      * quad may be updated to be a smaller quad of the same type such that its intersection with
-     * cropRect is visually the same. This function assumes that the 'quad' coordinates are finite.
+     * cropRect is visually the same. This function assumes that the 'quad' coordinates are finite
+     * and that the device coords have already been clipped to W > 0.
      *
      * The provided edge flags are updated to reflect edges clipped by cropRect (toggling on or off
      * based on cropAA policy). If provided, the local coordinates will be updated to reflect the
@@ -35,7 +54,7 @@ namespace GrQuadUtils {
      *
      * 'local' may be null, in which case the new local coordinates will not be calculated. This is
      * useful when it's known a paint does not require local coordinates. However, neither
-     * 'edgeFlags' nore 'quad' can be null.
+     * 'edgeFlags' nor 'quad' can be null.
      */
     bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
                     GrQuad* local=nullptr);
@@ -44,6 +63,7 @@ namespace GrQuadUtils {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
         // by the requested edge distances. Use nullptr if there are no local coordinates to update.
+        // This assumes all device coordinates have been clipped to W > 0.
         void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
         // Calculates a new quadrilateral with edges parallel to the original except that they
@@ -180,6 +200,8 @@ namespace GrQuadUtils {
         // returns the number of effective vertices in the adjusted shape.
         int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
                                      Vertices* vertices);
+
+        friend int ClipToW0(DrawQuad*, DrawQuad*); // To reuse Vertices struct
     };
 
 }; // namespace GrQuadUtils

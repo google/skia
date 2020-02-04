@@ -782,20 +782,38 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
         constColor = &paintColor;
     }
 
-    GrQuad croppedDeviceQuad = deviceQuad;
-    GrQuad croppedLocalQuad = localQuad;
-    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, &edgeFlags,
-                                                         &croppedDeviceQuad, &croppedLocalQuad);
-    if (opt >= QuadOptimization::kClipApplied) {
-        // These optimizations require caller to add an op themselves
-        const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
-                                                                        : clip;
-        GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
-                             : this->chooseAAType(aa);
-        this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                                      croppedDeviceQuad, croppedLocalQuad, ss));
+    auto drawOptimized = [&](GrQuadUtils::DrawQuad* quad) {
+        QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss,
+                                                             &aa, &quad->fEdgeFlags,
+                                                             &quad->fDevice, &quad->fLocal);
+
+        if (opt >= QuadOptimization::kClipApplied) {
+            // These optimizations require caller to add an op themselves
+            bool skipClip = opt == QuadOptimization::kClipApplied;
+            const GrClip& finalClip = skipClip ? GrFixedClip::Disabled() : clip;
+            GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
+                                 : this->chooseAAType(aa);
+            this->addDrawOp(finalClip,
+                            GrFillRectOp::Make(fContext, std::move(paint), aaType, quad->fEdgeFlags,
+                                               quad->fDevice, quad->fLocal, ss));
+        }
+        // All other optimization levels were completely handled inside attempt(), so no op needed
+    };
+
+    // These coordinates may be modified as part of clipping to W > 0 and to crop to the
+    // device bounds
+    GrQuadUtils::DrawQuad cropped = { deviceQuad, localQuad, edgeFlags };
+    GrQuadUtils::DrawQuad extra;
+
+    int quadCount = GrQuadUtils::ClipToW0(&cropped, &extra);
+    SkASSERT(quadCount >= 0 && quadCount <= 2);
+    if (quadCount > 0) {
+        // Always draw 'cropped', maybe draw 'extra'
+        drawOptimized(&cropped);
+        if (quadCount == 2) {
+            drawOptimized(&extra);
+        }
     }
-    // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
 
 void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
@@ -820,27 +838,42 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
 
     // Functionally this is very similar to drawFilledQuad except that there's no constColor to
     // enable the kSubmitted optimizations, no stencil settings support, and its a GrTextureOp.
-    GrQuad croppedDeviceQuad = deviceQuad;
-    GrQuad croppedLocalQuad = localQuad;
-    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr, nullptr, &aa, &edgeFlags,
-                                                         &croppedDeviceQuad, &croppedLocalQuad);
+    auto drawOptimized = [&](GrQuadUtils::DrawQuad* quad) {
+        QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr, nullptr,
+                                                             &aa, &quad->fEdgeFlags,
+                                                             &quad->fDevice, &quad->fLocal);
 
-    SkASSERT(opt != QuadOptimization::kSubmitted);
-    if (opt != QuadOptimization::kDiscarded) {
-        // And the texture op if not discarded
-        const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
-                                                                        : clip;
-        GrAAType aaType = this->chooseAAType(aa);
-        auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
-        auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
-                                                          : GrTextureOp::Saturate::kNo;
-        // Use the provided domain, although hypothetically we could detect that the cropped local
-        // quad is sufficiently inside the domain and the constraint could be dropped.
-        this->addDrawOp(
-                finalClip,
-                GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
-                                  std::move(textureXform), filter, color, saturate, blendMode,
-                                  aaType, edgeFlags, croppedDeviceQuad, croppedLocalQuad, domain));
+        SkASSERT(opt != QuadOptimization::kSubmitted);
+        if (opt != QuadOptimization::kDiscarded) {
+            bool skipClip = opt == QuadOptimization::kClipApplied;
+            const GrClip& finalClip = skipClip ? GrFixedClip::Disabled() : clip;
+            GrAAType aaType = this->chooseAAType(aa);
+            auto clampType = GrColorTypeClampType(this->colorInfo().colorType());
+            auto saturate = clampType == GrClampType::kManual ? GrTextureOp::Saturate::kYes
+                                                              : GrTextureOp::Saturate::kNo;
+            // Use the provided domain, although hypothetically we could detect that the cropped
+            // local quad is sufficiently inside the domain and the constraint could be dropped.
+            this->addDrawOp(finalClip,
+                            GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
+                                              std::move(textureXform), filter, color, saturate,
+                                              blendMode, aaType, quad->fEdgeFlags, quad->fDevice,
+                                              quad->fLocal, domain));
+        }
+    };
+
+    // These coordinates may be modified as part of clipping to W > 0 and to crop to the
+    // device bounds
+    GrQuadUtils::DrawQuad cropped = { deviceQuad, localQuad, edgeFlags };
+    GrQuadUtils::DrawQuad extra;
+
+    int quadCount = GrQuadUtils::ClipToW0(&cropped, &extra);
+    SkASSERT(quadCount >= 0 && quadCount <= 2);
+    if (quadCount > 0) {
+        // Always draw 'cropped', maybe draw 'extra'
+        drawOptimized(&cropped);
+        if (quadCount == 2) {
+            drawOptimized(&extra);
+        }
     }
 }
 
