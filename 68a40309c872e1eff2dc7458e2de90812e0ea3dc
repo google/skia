@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71d13d24_ea8bc9fd",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-04T23:10:52Z",
+      "side": 1,
+      "message": "SkTypes.h is our usual way to pull this in transitively, so you can probably leave it out.",
+      "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
