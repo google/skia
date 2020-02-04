@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Deprecated
+ - `MakeSkCornerPathEffect` will be renamed soon. Calls can be replaced with
+   `PathEffect.MakeCorner`.
+ - `MakeSkDiscretePathEffect` will be renamed soon. Calls can be replaced with
+   `PathEffect.MakeDiscrete`.
+
 ### Added
  - `SkSurface.drawOnce` for drawing a single frame (in addition to already existing
    `SkSurface.requestAnimationFrame` for animation logic).
