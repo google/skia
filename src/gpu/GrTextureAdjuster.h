@@ -43,8 +43,7 @@ private:
     GrSurfaceProxyView onRefTextureProxyViewForParams(GrSamplerState, bool willBeMipped,
                                                       SkScalar scaleAdjust[2]) override;
 
-    GrSurfaceProxyView refTextureProxyViewCopy(const CopyParams& copyParams, bool willBeMipped,
-                                                bool copyOnlyForMips);
+    GrSurfaceProxyView copy(const CopyParams& copyParams, bool willBeMipped, bool copyOnlyForMips);
 
     GrSurfaceProxyView fOriginal;
     uint32_t fUniqueID;

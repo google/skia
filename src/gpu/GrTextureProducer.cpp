@@ -229,9 +229,8 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
     }
 }
 
-GrSurfaceProxyView GrTextureProducer::refTextureProxyViewForParams(
-        const GrSamplerState::Filter* filterOrNullForBicubic,
-        SkScalar scaleAdjust[2]) {
+GrSurfaceProxyView GrTextureProducer::viewForParams(
+        const GrSamplerState::Filter* filterOrNullForBicubic, SkScalar scaleAdjust[2]) {
     GrSamplerState sampler; // Default is nearest + clamp
     if (filterOrNullForBicubic) {
         sampler.setFilterMode(*filterOrNullForBicubic);
@@ -243,11 +242,11 @@ GrSurfaceProxyView GrTextureProducer::refTextureProxyViewForParams(
             sampler.setWrapModeY(GrSamplerState::WrapMode::kClampToBorder);
         }
     }
-    return this->refTextureProxyViewForParams(sampler, scaleAdjust);
+    return this->viewForParams(sampler, scaleAdjust);
 }
 
-GrSurfaceProxyView GrTextureProducer::refTextureProxyViewForParams(GrSamplerState sampler,
-                                                                   SkScalar scaleAdjust[2]) {
+GrSurfaceProxyView GrTextureProducer::viewForParams(GrSamplerState sampler,
+                                                    SkScalar scaleAdjust[2]) {
     // Check that the caller pre-initialized scaleAdjust
     SkASSERT(!scaleAdjust || (scaleAdjust[0] == 1 && scaleAdjust[1] == 1));
 
@@ -277,14 +276,13 @@ GrSurfaceProxyView GrTextureProducer::refTextureProxyViewForParams(GrSamplerStat
     return result;
 }
 
-std::pair<GrSurfaceProxyView, GrColorType> GrTextureProducer::refTextureProxyView(
-        GrMipMapped willNeedMips) {
+std::pair<GrSurfaceProxyView, GrColorType> GrTextureProducer::view(GrMipMapped willNeedMips) {
     GrSamplerState::Filter filter =
             GrMipMapped::kNo == willNeedMips ? GrSamplerState::Filter::kNearest
                                              : GrSamplerState::Filter::kMipMap;
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, filter);
 
-    auto result = this->refTextureProxyViewForParams(sampler, nullptr);
+    auto result = this->viewForParams(sampler, nullptr);
 
 #ifdef SK_DEBUG
     const GrCaps* caps = this->context()->priv().caps();

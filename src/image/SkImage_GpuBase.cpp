@@ -197,7 +197,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* con
 
     GrTextureAdjuster adjuster(fContext.get(), this->asSurfaceProxyViewRef(context),
                                this->imageInfo().colorInfo(), this->uniqueID());
-    return adjuster.refTextureProxyViewForParams(params, scaleAdjust).asTextureProxyRef();
+    return adjuster.viewForParams(params, scaleAdjust).asTextureProxyRef();
 }
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,
@@ -244,14 +244,14 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> proxyRef = this->asTextureProxyRef(direct);
-    SkASSERT(proxyRef && !proxyRef->isInstantiated());
+    sk_sp<GrTextureProxy> refProxy = this->asTextureProxyRef(direct);
+    SkASSERT(refProxy && !refProxy->isInstantiated());
 
-    if (!proxyRef->instantiate(direct->priv().resourceProvider())) {
+    if (!refProxy->instantiate(direct->priv().resourceProvider())) {
         return nullptr;
     }
 
-    return proxyRef->peekTexture();
+    return refProxy->peekTexture();
 }
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {

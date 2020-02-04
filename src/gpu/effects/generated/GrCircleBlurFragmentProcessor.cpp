@@ -230,7 +230,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrRecordingContext* context,
         bm.setImmutable();
 
         GrBitmapTextureMaker maker(context, bm);
-        auto[blurView, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        auto[blurView, grCT] = maker.view(GrMipMapped::kNo);
         blurProfile = blurView.asTextureProxyRef();
         if (!blurProfile) {
             return nullptr;

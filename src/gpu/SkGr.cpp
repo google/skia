@@ -145,7 +145,7 @@ sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
                                                     GrSamplerState params,
                                                     SkScalar scaleAdjust[2]) {
     GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kYes);
-    return maker.refTextureProxyViewForParams(params, scaleAdjust).asTextureProxyRef();
+    return maker.viewForParams(params, scaleAdjust).asTextureProxyRef();
 }
 
 GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, const SkBitmap& bitmap,
@@ -155,7 +155,7 @@ GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, cons
     }
 
     GrBitmapTextureMaker maker(context, bitmap, GrBitmapTextureMaker::Cached::kYes, fit);
-    auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+    auto[view, grCT] = maker.view(GrMipMapped::kNo);
     return view;
 }
 

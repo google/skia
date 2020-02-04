@@ -134,8 +134,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
     }
 
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    GrSurfaceProxyView view = this->refTextureProxyViewForParams(filterOrNullForBicubic,
-                                                                 scaleAdjust);
+    GrSurfaceProxyView view = this->viewForParams(filterOrNullForBicubic, scaleAdjust);
     if (!view.proxy()) {
         return nullptr;
     }

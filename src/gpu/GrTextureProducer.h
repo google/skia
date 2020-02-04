@@ -82,10 +82,10 @@ public:
      * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
      * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
      */
-    GrSurfaceProxyView refTextureProxyViewForParams(GrSamplerState, SkScalar scaleAdjust[2]);
+    GrSurfaceProxyView viewForParams(GrSamplerState, SkScalar scaleAdjust[2]);
 
-    GrSurfaceProxyView refTextureProxyViewForParams(
-            const GrSamplerState::Filter* filterOrNullForBicubic, SkScalar scaleAdjust[2]);
+    GrSurfaceProxyView viewForParams(const GrSamplerState::Filter* filterOrNullForBicubic,
+                                     SkScalar scaleAdjust[2]);
 
     /**
      * Returns a texture. If willNeedMips is true then the returned texture is guaranteed to have
@@ -96,7 +96,7 @@ public:
     // wrap mode. To support that flag now would require us to support scaleAdjust array like in
     // refTextureProxyForParams, however the current public API that uses this call does not expose
     // that array.
-    std::pair<GrSurfaceProxyView, GrColorType> refTextureProxyView(GrMipMapped willNeedMips);
+    std::pair<GrSurfaceProxyView, GrColorType> view(GrMipMapped willNeedMips);
 
     virtual ~GrTextureProducer() {}
 

@@ -49,7 +49,7 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
         // colorType here? If so we will need to manually pass that in.
         GrSwizzle outSwizzle = context->priv().caps()->getOutputSwizzle(proxy->backendFormat(),
                                                                         colorType);
-        GrSurfaceProxyView outputView(readView.proxyRef(), readView.origin(), outSwizzle);
+        GrSurfaceProxyView outputView(readView.refProxy(), readView.origin(), outSwizzle);
         surfaceContext.reset(new GrRenderTargetContext(context, std::move(readView),
                                                        std::move(outputView), colorType,
                                                        std::move(colorSpace), nullptr));

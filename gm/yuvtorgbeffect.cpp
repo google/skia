@@ -99,7 +99,7 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            auto [view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            auto[view, grCT] = maker.view(GrMipMapped::kNo);
             if (!view.proxy()) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -216,7 +216,7 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            auto[view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            auto[view, grCT] = maker.view(GrMipMapped::kNo);
             if (!view.proxy()) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;
@@ -313,7 +313,7 @@ protected:
 
         for (int i = 0; i < 3; ++i) {
             GrBitmapTextureMaker maker(context, fBitmaps[i]);
-            auto[view, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+            auto[view, grCT] = maker.view(GrMipMapped::kNo);
             if (!view.proxy()) {
                 *errorMsg = "Failed to create proxy";
                 return DrawResult::kFail;

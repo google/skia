@@ -426,7 +426,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         copySrcBitmap.setImmutable();
 
         GrBitmapTextureMaker maker(context, copySrcBitmap);
-        auto [copySrc, grCT] = maker.refTextureProxyView(GrMipMapped::kNo);
+        auto[copySrc, grCT] = maker.view(GrMipMapped::kNo);
 
         REPORTER_ASSERT(reporter, copySrc.proxy());
         auto copyResult = surfContext->testCopy(copySrc.proxy());
