@@ -738,7 +738,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 
     function("getSkDataBytes", &getSkDataBytes, allow_raw_pointers());
+    // Deprecated: use Canvaskit.SkPathEffect.MakeCorner
     function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
+    // Deprecated: use Canvaskit.SkPathEffect.MakeDiscrete
     function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
     // Deprecated: use Canvaskit.SkMaskFilter.MakeBlur
     function("MakeBlurMaskFilter", optional_override([](SkBlurStyle style, SkScalar sigma, bool respectCTM)->sk_sp<SkMaskFilter> {
@@ -1245,7 +1247,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setStyle", &SkPaint::setStyle);
 
     class_<SkPathEffect>("SkPathEffect")
-        .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>");
+        .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>")
+        .class_function("MakeCorner", &SkCornerPathEffect::Make)
+        .class_function("MakeDiscrete", &SkDiscretePathEffect::Make);
 
     class_<SkPath>("SkPath")
         .constructor<>()
