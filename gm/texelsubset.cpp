@@ -84,7 +84,7 @@ protected:
                                 context->priv().caps()->mipMapSupport()
                 ? GrMipMapped::kYes : GrMipMapped::kNo;
         GrBitmapTextureMaker maker(context, fBitmap);
-        auto [view, grCT] = maker.refTextureProxyView(mipMapped);
+        auto[view, grCT] = maker.view(mipMapped);
         if (!view.proxy()) {
             *errorMsg = "Failed to create proxy.";
             return DrawResult::kFail;
@@ -118,7 +118,7 @@ protected:
         fBitmap.extractSubset(&subsetBmp, texelSubset);
         subsetBmp.setImmutable();
         GrBitmapTextureMaker subsetMaker(context, subsetBmp);
-        auto[subsetView, subsetCT] = subsetMaker.refTextureProxyView(mipMapped);
+        auto[subsetView, subsetCT] = subsetMaker.view(mipMapped);
 
         SkRect localRect = SkRect::Make(fBitmap.bounds()).makeOutset(kDrawPad, kDrawPad);
 
@@ -146,7 +146,7 @@ protected:
                     }
                     GrSamplerState sampler(wmx, wmy, fFilter);
                     const auto& caps = *context->priv().caps();
-                    auto fp1 = GrTextureEffect::MakeTexelSubset(view.proxyRef(),
+                    auto fp1 = GrTextureEffect::MakeTexelSubset(view.refProxy(),
                                                                 fBitmap.alphaType(),
                                                                 textureMatrices[tm],
                                                                 sampler,
@@ -174,7 +174,7 @@ protected:
                     // Now draw with a subsetted proxy using fixed function texture sampling rather
                     // than a texture subset as a comparison.
                     drawRect = localRect.makeOffset(x, y);
-                    auto fp2 = GrTextureEffect::Make(subsetView.proxyRef(),
+                    auto fp2 = GrTextureEffect::Make(subsetView.refProxy(),
                                                      fBitmap.alphaType(), subsetTextureMatrix,
                                                      GrSamplerState(wmx, wmy, fFilter), caps);
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(fp2), drawRect,

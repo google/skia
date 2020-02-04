@@ -299,7 +299,7 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(
         GrBitmapTextureMaker bitmapMaker(context, bmp);
         GrMipMapped mipMapped = buildMips ? GrMipMapped::kYes : GrMipMapped::kNo;
         GrSurfaceProxyView view;
-        std::tie(view, proxyColorTypes[i]) = bitmapMaker.refTextureProxyView(mipMapped);
+        std::tie(view, proxyColorTypes[i]) = bitmapMaker.view(mipMapped);
         if (!view.proxy()) {
             return nullptr;
         }
