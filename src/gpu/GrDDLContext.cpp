@@ -84,7 +84,7 @@ private:
         }
 
         GrProgramDesc desc = caps->makeDesc(nullptr, *programInfo);
-        if (desc.isValid()) {
+        if (!desc.isValid()) {
             return;
         }
 

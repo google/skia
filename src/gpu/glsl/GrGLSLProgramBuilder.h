@@ -57,7 +57,7 @@ public:
         return fRenderTarget->renderTargetPriv().getSampleLocations();
     }
 
-    const GrProgramDesc* desc() const { return fDesc; }
+    const GrProgramDesc& desc() const { return fDesc; }
 
     void appendUniformDecls(GrShaderFlags visibility, SkString*) const;
 
@@ -104,9 +104,8 @@ public:
     int fStageIndex;
 
     const GrRenderTarget*        fRenderTarget; // TODO: remove this
+    const GrProgramDesc&         fDesc;
     const GrProgramInfo&         fProgramInfo;
-
-    const GrProgramDesc*         fDesc;
 
     GrGLSLBuiltinUniformHandles  fUniformHandles;
 
@@ -116,7 +115,7 @@ public:
     int fFragmentProcessorCnt;
 
 protected:
-    explicit GrGLSLProgramBuilder(GrRenderTarget*, const GrProgramInfo&, const GrProgramDesc*);
+    explicit GrGLSLProgramBuilder(GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
 
     void addFeature(GrShaderFlags shaders, uint32_t featureBit, const char* extensionName);
 

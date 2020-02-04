@@ -42,7 +42,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
     }
 }
 
-void DDLTileHelper::TileData::createDDL() {
+SkDeferredDisplayList* DDLTileHelper::TileData::createDDL() {
     SkASSERT(!fDisplayList);
 
     SkDeferredDisplayListRecorder recorder(fCharacterization);
@@ -73,6 +73,7 @@ void DDLTileHelper::TileData::createDDL() {
     }
 
     fDisplayList = recorder.detach();
+    return fDisplayList.get();
 }
 
 void DDLTileHelper::TileData::draw() {
@@ -136,10 +137,25 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
     }
 }
 
-void DDLTileHelper::createDDLsInParallel() {
+static void analyze(GrContext* context, SkDeferredDisplayList* ddl) {
+    auto& programInfos = ddl->priv().programInfos();
+
+    for (auto programInfo : programInfos) {
+
+    }
+}
+
+void DDLTileHelper::createDDLsInParallel(SkTaskGroup* recordingTaskGroup,
+                                         SkTaskGroup* gpuTaskGroup,
+                                         GrContext* directContext) {
 #if 1
-    SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
-    SkTaskGroup().wait();
+    recordingTaskGroup->batch(fTiles.count(),
+                     [&](int i) {
+                        SkDeferredDisplayList* ddl = fTiles[i].createDDL();
+                        gpuTaskGroup->add([directContext, ddl]() {
+                                              analyze(directContext, ddl);
+                                          });
+                     });
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < fTiles.count(); ++i) {

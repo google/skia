@@ -35,8 +35,8 @@ public:
                                    const DDLPromiseImageHelper& helper);
 
         // This method can be invoked in parallel
-        // Create the per-tile DDL from the per-tile SKP
-        void createDDL();
+        // Create the per-tile DDL from the per-tile SKP. This object keeps ownership of it.
+        SkDeferredDisplayList* createDDL();
 
         // This method operates serially and replays the recorded DDL into the tile surface.
         void draw();
@@ -61,7 +61,9 @@ public:
 
     void createSKPPerTile(SkData* compressedPictureData, const DDLPromiseImageHelper& helper);
 
-    void createDDLsInParallel();
+    void createDDLsInParallel(SkTaskGroup* recordingTaskGroup,
+                              SkTaskGroup* gpuTaskGroup,
+                              GrContext* directContext);
 
     void drawAllTilesAndFlush(GrContext*, bool flush);
 

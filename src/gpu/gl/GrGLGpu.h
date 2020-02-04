@@ -124,6 +124,10 @@ public:
             const GrRenderTarget* rt, int width, int height, int numStencilSamples) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 
+    bool compile(const GrProgramDesc& desc, const GrProgramInfo& programInfo) override {
+        return fProgramCache->compileShader(desc, programInfo);
+    }
+
     bool precompileShader(const SkData& key, const SkData& data) override {
         return fProgramCache->precompileShader(key, data);
     }
@@ -316,11 +320,16 @@ private:
 
         void abandon();
         void reset();
-        GrGLProgram* refProgram(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&);
+        sk_sp<GrGLProgram> refProgram1(GrRenderTarget*, const GrProgramInfo&);
         bool precompileShader(const SkData& key, const SkData& data);
+        bool compileShader(const GrProgramDesc&, const GrProgramInfo&);
 
     private:
         struct Entry;
+
+        sk_sp<GrGLProgram> findOrCreateProgram(GrRenderTarget*,
+                                               const GrProgramDesc&,
+                                               const GrProgramInfo&);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {

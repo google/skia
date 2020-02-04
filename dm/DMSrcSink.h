@@ -16,6 +16,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
 #include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
@@ -530,6 +531,12 @@ public:
     ViaDDL(int numReplays, int numDivisions, Sink* sink);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    SkTaskGroup fRecordingTaskGroup;
+
+    std::unique_ptr<SkExecutor> fGPUThread;
+    SkTaskGroup fGPUTaskGroup;
+
     const int fNumReplays;
     const int fNumDivisions;
 };
