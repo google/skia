@@ -28,7 +28,13 @@ private:
     void setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,
                           const SkString& dumpName) const override;
 
-    void onMap() override { this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu()); }
+    void onMap() override {
+        this->GrGpuBuffer::fMapPtr = this->vkMap(this->getVkGpu());
+        if (this->intendedType() == GrGpuBufferType::kXferGpuToCpu) {
+            const GrVkAlloc& alloc = this->alloc();
+            GrVkMemory::InvalidateMappedAlloc(this->getVkGpu(), alloc, 0, alloc.fSize);
+        }
+    }
 
     void onUnmap() override { this->vkUnmap(this->getVkGpu()); }
 
