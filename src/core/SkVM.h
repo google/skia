@@ -90,7 +90,8 @@ namespace skvm {
                   vdivps,
                   vfmadd132ps, vfmadd213ps, vfmadd231ps,
                   vpackusdw, vpackuswb,
-                  vpcmpeqd, vpcmpgtd;
+                  vpcmpeqd, vpcmpgtd,
+                  vpsllvd, vpsrlvd, vpsravd;
 
         using DstEqXOpYOrLabel = void(Ymm dst, Ymm x, YmmOrLabel y);
         DstEqXOpYOrLabel vpand, vpor, vpxor,
@@ -175,7 +176,8 @@ namespace skvm {
                        sub8h,  mul8h,
               fadd4s, fsub4s, fmul4s, fdiv4s, fmin4s, fmax4s,
               fcmeq4s, fcmgt4s, fcmge4s,
-              tbl;
+              tbl,
+              sshl4s, ushl4s;
 
         // TODO: there are also float ==,<,<=,>,>= instructions with an immediate 0.0f,
         // and the register comparison > and >= can also compare absolute values.  Interesting.
@@ -192,6 +194,7 @@ namespace skvm {
         // d = op(n)
         using DOpN = void(V d, V n);
         DOpN not16b,    // d = ~n
+             neg4s,     // d = -n
              scvtf4s,   // int -> float
              fcvtzs4s,  // truncate float -> int
              fcvtns4s,  // round float -> int
