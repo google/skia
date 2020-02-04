@@ -2357,6 +2357,10 @@ void GrGLGpu::flushViewport(int width, int height) {
     #endif
 #endif
 
+void GrGLGpu::compile(const GrProgramInfo& programInfo) {
+
+}
+
 void GrGLGpu::draw(GrRenderTarget* renderTarget,
                    const GrProgramInfo& programInfo,
                    const GrMesh meshes[],

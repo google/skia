@@ -45,26 +45,37 @@ void GrGLGpu::ProgramCache::reset() {
     fMap.reset();
 }
 
-GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
-                                               GrRenderTarget* renderTarget,
+GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrRenderTarget* renderTarget,
                                                const GrProgramInfo& programInfo) {
-    const GrCaps& caps = *gpu->caps();
+    const GrCaps& caps = *fGpu->caps();
 
     GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
     if (!desc.isValid()) {
-        GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
+        GrCapsDebugf(&caps, "Failed to gl program descriptor!\n");
         return nullptr;
     }
 
+    Entry* entry = this->findOrCreateProgram(renderTarget, desc, programInfo);
+    if (!entry) {
+        return nullptr;
+    }
+
+    return SkRef(entry->fProgram.get());
+}
+
+GrGLGpu::ProgramCache::Entry* GrGLGpu::ProgramCache::findOrCreateProgram(
+                                                GrRenderTarget* renderTarget,
+                                                const GrProgramDesc& desc,
+                                                const GrProgramInfo& programInfo) {
     std::unique_ptr<Entry>* entry = fMap.find(desc);
     if (entry && !(*entry)->fProgram) {
         // We've pre-compiled the GL program, but don't have the GrGLProgram scaffolding
         const GrGLPrecompiledProgram* precompiledProgram = &((*entry)->fPrecompiledProgram);
         SkASSERT(precompiledProgram->fProgramID != 0);
         GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, programInfo,
-                                                                 &desc, fGpu,
+                                                                 desc, fGpu,
                                                                  precompiledProgram);
-        if (nullptr == program) {
+        if (!program) {
             // Should we purge the program ID from the cache at this point?
             SkDEBUGFAIL("Couldn't create program from precompiled program");
             return nullptr;
@@ -73,14 +84,14 @@ GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
     } else if (!entry) {
         // We have a cache miss
         GrGLProgram* program = GrGLProgramBuilder::CreateProgram(renderTarget, programInfo,
-                                                                 &desc, fGpu);
-        if (nullptr == program) {
+                                                                 desc, fGpu);
+        if (!program) {
             return nullptr;
         }
         entry = fMap.insert(desc, std::unique_ptr<Entry>(new Entry(sk_sp<GrGLProgram>(program))));
     }
 
-    return SkRef((*entry)->fProgram.get());
+    return entry->get();
 }
 
 bool GrGLGpu::ProgramCache::precompileShader(const SkData& key, const SkData& data) {

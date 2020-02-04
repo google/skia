@@ -31,6 +31,10 @@ public:
 #endif
     }
 
+    const SkTDArray<const GrProgramInfo*>& programInfos() const {
+        return fDDL->programInfos();
+    }
+
 private:
     explicit SkDeferredDisplayListPriv(SkDeferredDisplayList* ddl) : fDDL(ddl) {}
     SkDeferredDisplayListPriv(const SkDeferredDisplayListPriv&);            // unimpl

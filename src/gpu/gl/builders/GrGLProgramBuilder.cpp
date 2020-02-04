@@ -47,7 +47,7 @@ static void cleanup_program(GrGLGpu* gpu, GrGLuint programID,
 
 GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
                                                const GrProgramInfo& programInfo,
-                                               GrProgramDesc* desc,
+                                               const GrProgramDesc& desc,
                                                GrGLGpu* gpu,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
     ATRACE_ANDROID_FRAMEWORK_ALWAYS("shader_compile");
@@ -55,11 +55,11 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, renderTarget, programInfo, desc);
+    GrGLProgramBuilder builder(gpu, renderTarget, desc, programInfo);
 
     auto persistentCache = gpu->getContext()->priv().getPersistentCache();
     if (persistentCache && !precompiledProgram) {
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->keyLength());
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc.asKey(), desc.keyLength());
         builder.fCached = persistentCache->load(*key);
         // the eventual end goal is to completely skip emitAndInstallProcs on a cache hit, but it's
         // doing necessary setup in addition to generating the SkSL code. Currently we are only able
@@ -75,9 +75,9 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        GrRenderTarget* renderTarget,
-                                       const GrProgramInfo& programInfo,
-                                       GrProgramDesc* desc)
-        : INHERITED(renderTarget, programInfo, desc)
+                                       const GrProgramDesc& desc,
+                                       const GrProgramInfo& programInfo)
+        : INHERITED(renderTarget, desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)
