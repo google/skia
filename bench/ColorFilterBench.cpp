@@ -11,6 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/effects/SkTableColorFilter.h"
 #include "tools/Resources.h"
 
 // Just need an interesting filter, nothing to special about colormatrix
@@ -182,6 +183,14 @@ DEF_BENCH( return new ColorMatrixBench("lerp_src",
                                        SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc),
                                        SkColorFilters::Blend(0x80808080, SkBlendMode::kSrc));
     }); )
+DEF_BENCH( return new ColorMatrixBench("table",
+[]() {
+    uint8_t table[256];
+    for (int i = 0; i < 256; ++i) {
+        table[i] = 255 - i;
+    }
+    return SkTableColorFilter::Make(table);
+}); )
 
 #ifdef SK_SUPPORT_GPU
 DEF_BENCH( return new ColorMatrixBench("src_runtime", []() {
