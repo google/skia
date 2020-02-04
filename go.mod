@@ -10,10 +10,14 @@ require (
 	github.com/google/go-github v17.0.0+incompatible // indirect
 	github.com/google/uuid v1.1.1
 	github.com/pkg/errors v0.9.1
-	go.chromium.org/luci v0.0.0-20200201041625-963be2a61472 // indirect
-	go.skia.org/infra v0.0.0-20200202021623-779c6243c618
+	go.chromium.org/luci v0.0.0-20200204005705-309926bb78ef // indirect
+	go.opencensus.io v0.22.3 // indirect
+	go.skia.org/infra v0.0.0-20200204002405-f97412faf1e1
+	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/tools v0.0.0-20200131211209-ecb101ed6550 // indirect
+	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
+	golang.org/x/tools v0.0.0-20200204005449-35ac94b00d9e // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.15.0
+	google.golang.org/genproto v0.0.0-20200203223152-ff9e8190c2f5 // indirect
 )
