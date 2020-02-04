@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "52b1ed1d_26a20255",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-04T18:58:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "407f429b_04eac1a0",
+      "revId": "5c44e6bf51949de7f36f0f8531cd5940656e7912",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3fb5dd2c_83b93a8e",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2020-02-04T18:05:32Z",
       "side": 1,
       "message": "I guess I had envisioned SkPathEffect.MakeCorner and SkPathEffect.MakeDiscrete, since that doesn\u0027t require use to expose the actual object types.",
+      "range": {
+        "startLine": 1219,
+        "startChar": 32,
+        "endLine": 1219,
+        "endChar": 50
+      },
+      "revId": "5c44e6bf51949de7f36f0f8531cd5940656e7912",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7232f7b3_d19d886a",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-02-04T18:58:25Z",
+      "side": 1,
+      "message": "I like that better, and it seems to make it unnecessary to tell emscripten about SkCornerPathEffect\u0027s protected destructor.",
+      "parentUuid": "3fb5dd2c_83b93a8e",
       "range": {
         "startLine": 1219,
         "startChar": 32,
