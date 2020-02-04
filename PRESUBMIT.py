@@ -482,9 +482,9 @@ def PostUploadHook(gerrit, change, output_api):
 
   # If the change includes only doc changes then add No-Try: true in the
   # CL's description if it does not exist yet.
-  if all_docs_changes and 'true' not in footers.get('No-Try', []):
+  if all_docs_changes and 'true' not in footers.get('No-Try', []) or True:
     description_changed = True
-    change.AddDescriptionFooters([('No-Try', 'true')])
+    change.AddDescriptionFooters('No-Try', 'true')
     results.append(
         output_api.PresubmitNotifyResult(
             'This change has only doc changes. Automatically added '
