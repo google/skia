@@ -1863,9 +1863,18 @@ Error ViaSerialization::draw(
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaDDL::ViaDDL(int numReplays, int numDivisions, Sink* sink)
-        : Via(sink), fNumReplays(numReplays), fNumDivisions(numDivisions) {}
+        : Via(sink)
+        , fNumReplays(numReplays)
+        , fNumDivisions(numDivisions)
+        , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(2))
+        , fRecordingTaskGroup(*fRecordingThreadPool)
+        , fGPUThread(SkExecutor::MakeFIFOThreadPool(1))
+        , fGPUTaskGroup(*fGPUThread) {
+}
 
 Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    ViaDDL* nonConstThis = const_cast<ViaDDL*>(this);
+
     auto size = src.size();
     SkPictureRecorder recorder;
     Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
@@ -1907,7 +1916,10 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
             tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
             // Third, create the DDLs in parallel
-            tiles.createDDLsInParallel();
+            tiles.createDDLsInParallel(&nonConstThis->fRecordingTaskGroup,
+                                       &nonConstThis->fGPUTaskGroup,
+                                       context);
+            nonConstThis->fRecordingTaskGroup.wait();
 
             if (replay == fNumReplays - 1) {
                 // This drops the promiseImageHelper's refs on all the promise images if we're in

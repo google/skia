@@ -40,16 +40,16 @@ public:
      * The program implements what is specified in the stages given as input.
      * After successful generation, the builder result objects are available
      * to be used.
-     * This function may modify the GrProgramDesc by setting the surface origin
-     * key to 0 (unspecified) if it turns out the program does not care about
-     * the surface origin.
+     * This function may modify the GrProgramDesc by setting the surface origin ??
+     * key to 0 (unspecified) if it turns out the program does not care about   ??
+     * the surface origin.                                                      ??
      * If a GL program has already been created, the program ID and inputs can
      * be supplied to skip the shader compilation.
      * @return true if generation was successful.
      */
     static GrGLProgram* CreateProgram(GrRenderTarget*,
                                       const GrProgramInfo&,
-                                      GrProgramDesc*,
+                                      const GrProgramDesc&,
                                       GrGLGpu*,
                                       const GrGLPrecompiledProgram* = nullptr);
 
@@ -60,7 +60,7 @@ public:
     GrGLGpu* gpu() const { return fGpu; }
 
 private:
-    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
+    GrGLProgramBuilder(GrGLGpu*, GrRenderTarget*, const GrProgramDesc&, const GrProgramInfo&);
 
     void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const SkSL::String& glsl,
