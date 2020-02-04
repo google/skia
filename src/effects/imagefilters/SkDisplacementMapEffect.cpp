@@ -335,8 +335,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffectImpl::onFilterImage(const Context& 
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 
-        GrSurfaceProxyView colorView = color->asSurfaceProxyViewRef(context);
-        GrSurfaceProxyView displView = displ->asSurfaceProxyViewRef(context);
+        GrSurfaceProxyView colorView = color->view(context);
+        GrSurfaceProxyView displView = displ->view(context);
         if (!colorView.proxy() || !displView.proxy()) {
             return nullptr;
         }

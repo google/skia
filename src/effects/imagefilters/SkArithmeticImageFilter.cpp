@@ -336,13 +336,13 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
 
     GrProtected isProtected = GrProtected::kNo;
     if (background) {
-        backgroundView = background->asSurfaceProxyViewRef(context);
+        backgroundView = background->view(context);
         SkASSERT(backgroundView.proxy());
         isProtected = backgroundView.proxy()->isProtected();
     }
 
     if (foreground) {
-        foregroundView = foreground->asSurfaceProxyViewRef(context);
+        foregroundView = foreground->view(context);
         SkASSERT(foregroundView.proxy());
         isProtected = foregroundView.proxy()->isProtected();
     }
