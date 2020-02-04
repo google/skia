@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e714641_dfec1a86",
+        "filename": "site/user/sample/viewer.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-02-04T20:31:53Z",
+      "side": 1,
+      "message": "I think it\u0027s also required to run e.g. `bin/gn gen out/arm64 --args\u003d\"is_debug\u003dfalse ndk\u003d\\\"$ANDROID_NDK_HOME\\\" target_cpu\u003d\\\"arm64\\\"\"` prior to `android_build_app`.",
+      "revId": "a72fc617959046b58becac88334abd4c281edb01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
