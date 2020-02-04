@@ -63,6 +63,7 @@ public:
                            bool                      testThreading,
                            int                       testPersistentCache,
                            bool                      testPrecompile,
+                           bool                      doubleHeaded,
                            SurfType);
 
     const SkCommandLineConfigGpu* asConfigGpu() const override { return this; }
@@ -75,7 +76,8 @@ public:
     SkColorSpace* getColorSpace() const { return fColorSpace.get(); }
     bool          getTestThreading() const { return fTestThreading; }
     int           getTestPersistentCache() const { return fTestPersistentCache; }
-    bool          getTestPrecompile() const { return fTestPrecompile; }
+    bool          getTestPrecompile() const { return fTestPrecompile1; }
+    bool          getTestDoubleHeaded() const { return fTestDoubleHeaded; }
     SurfType      getSurfType() const { return fSurfType; }
 
 private:
@@ -88,7 +90,8 @@ private:
     sk_sp<SkColorSpace> fColorSpace;
     bool                fTestThreading;
     int                 fTestPersistentCache;
-    bool                fTestPrecompile;
+    bool                fTestPrecompile1;
+    bool                fTestDoubleHeaded;
     SurfType            fSurfType;
 };
 

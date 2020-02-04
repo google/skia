@@ -446,6 +446,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                bool                      testThreading,
                                                int                       testPersistentCache,
                                                bool                      testPrecompile,
+                                               bool                      testDoubleHeaded,
                                                SurfType                  surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
@@ -457,7 +458,8 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         , fColorSpace(std::move(colorSpace))
         , fTestThreading(testThreading)
         , fTestPersistentCache(testPersistentCache)
-        , fTestPrecompile(testPrecompile)
+        , fTestPrecompile1(testPrecompile)
+        , fTestDoubleHeaded(testDoubleHeaded)
         , fSurfType(surfType) {
     if (!useStencilBuffers) {
         fContextOverrides |= ContextOverrides::kAvoidStencilBuffers;
@@ -477,7 +479,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     bool                                useStencils         = true;
     bool                                testThreading       = false;
     int                                 testPersistentCache = 0;
-    bool                                testPrecompile      = false;
+    bool                                testPrecompile1      = false;
+    bool                                testDoubleHeaded = false;
     SkCommandLineConfigGpu::SurfType    surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool            parseSucceeded = false;
@@ -494,7 +497,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_bool("stencils", &useStencils) &&
             extendedOptions.get_option_bool("testThreading", &testThreading) &&
             extendedOptions.get_option_int("testPersistentCache", &testPersistentCache) &&
-            extendedOptions.get_option_bool("testPrecompile", &testPrecompile) &&
+            extendedOptions.get_option_bool("testPrecompile", &testPrecompile1) &&
+            extendedOptions.get_option_bool("testDoubleHeaded", &testDoubleHeaded) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
     // testing threading and the persistent cache are mutually exclusive.
@@ -513,7 +517,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       useStencils,
                                       testThreading,
                                       testPersistentCache,
-                                      testPrecompile,
+                                      testPrecompile1,
+                                      testDoubleHeaded,
                                       surfType);
 }
 

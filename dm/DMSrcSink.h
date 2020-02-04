@@ -16,6 +16,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
 #include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
@@ -414,6 +415,21 @@ private:
     typedef GPUSink INHERITED;
 };
 
+class GPUDoubleHeadedTestingSink : public GPUSink {
+public:
+    GPUDoubleHeadedTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to do our matching test
+        return nullptr;
+    }
+
+private:
+    typedef GPUSink INHERITED;
+};
+
 class PDFSink : public Sink {
 public:
     PDFSink(bool pdfa, SkScalar rasterDpi) : fPDFA(pdfa), fRasterDpi(rasterDpi) {}
@@ -530,6 +546,12 @@ public:
     ViaDDL(int numReplays, int numDivisions, Sink* sink);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 private:
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    SkTaskGroup fRecordingTaskGroup;
+
+    std::unique_ptr<SkExecutor> fGPUThread;
+    SkTaskGroup fGPUTaskGroup;
+
     const int fNumReplays;
     const int fNumDivisions;
 };
