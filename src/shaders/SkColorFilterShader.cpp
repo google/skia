@@ -82,7 +82,7 @@ bool SkColorFilterShader::onProgram(skvm::Builder* p,
     }
 
     // Finally run that through the color filter.
-    if (!fFilter->program(p, dstCS, uniforms, r,g,b,a)) {
+    if (!fFilter->program(p, dstCS, uniforms,alloc, r,g,b,a)) {
         return false;
     }
 
