@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8429a05_fb874fa0",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-04T14:39:21Z",
+      "side": 1,
+      "message": "Yeah, sorry, this is my bad.  It\u0027s a type-safety kind of problem, essentially that (const float*) and (const float**) both look like a pointer when you take away all the typing.\n\nThere\u0027s nothing set up to let you gather directly from uniforms like this, but if we thread through the SkArenaAlloc into color filters, you can allocate a buffer there and pushPtr() to it, just like we do with the FBs in SkGradientShader.",
+      "range": {
+        "startLine": 137,
+        "startChar": 12,
+        "endLine": 138,
+        "endChar": 44
+      },
+      "revId": "75b4c36f545e6da8913dfbb054ba9652b0af105a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
