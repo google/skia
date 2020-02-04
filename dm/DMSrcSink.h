@@ -24,12 +24,6 @@
 
 //#define TEST_VIA_SVG
 
-namespace skiagm {
-namespace verifiers {
-class VerifierList;
-}
-}
-
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -88,11 +82,6 @@ struct Src {
     virtual SkISize size(int) const { return this->size(); }
     // Force Tasks using this Src to run on the main thread?
     virtual bool serial() const { return false; }
-
-    /** Return a list of verifiers for the src, or null if no verifiers should be run .*/
-    virtual std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const {
-        return nullptr;
-    }
 };
 
 struct Sink {
@@ -108,9 +97,6 @@ struct Sink {
     virtual const char* fileExtension() const  = 0;
 
     virtual SinkFlags flags() const = 0;
-
-    /** Returns the color type and space used by the sink. */
-    virtual SkColorInfo colorInfo() const { return SkColorInfo(); }
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -123,8 +109,6 @@ public:
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
-
-    std::unique_ptr<skiagm::verifiers::VerifierList> getVerifiers() const override;
 
 private:
     skiagm::GMFactory fFactory;
@@ -367,9 +351,6 @@ public:
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
     const GrContextOptions& baseContextOptions() const { return fBaseContextOptions; }
-    SkColorInfo colorInfo() const override {
-        return SkColorInfo(fColorType, fAlphaType, fColorSpace);
-    }
 
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
