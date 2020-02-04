@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42beeb0c_ee1f4763",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-04T21:03:00Z",
+      "side": 1,
+      "message": "You\u0027ll want a short line and an empty line after to avoid git from thinking all of this is the summary.",
+      "revId": "402097e53c30681666fa7d10715253ae44e8dd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09aea7e4_82891dd7",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-04T21:03:00Z",
+      "side": 1,
+      "message": "Can this be put by itself on the next line, lined up with the \u0027if\u0027? It\u0027s difficult to scan where the block begins with this \u0027{\u0027 tucked away here.",
+      "range": {
+        "startLine": 731,
+        "startChar": 62,
+        "endLine": 731,
+        "endChar": 63
+      },
+      "revId": "402097e53c30681666fa7d10715253ae44e8dd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a2b2603_6ca982e2",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-04T21:03:00Z",
+      "side": 1,
+      "message": "next line",
+      "range": {
+        "startLine": 736,
+        "startChar": 45,
+        "endLine": 736,
+        "endChar": 46
+      },
+      "revId": "402097e53c30681666fa7d10715253ae44e8dd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa2f1335_48b58096",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-04T21:03:00Z",
+      "side": 1,
+      "message": "next line",
+      "range": {
+        "startLine": 743,
+        "startChar": 44,
+        "endLine": 743,
+        "endChar": 45
+      },
+      "revId": "402097e53c30681666fa7d10715253ae44e8dd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82afea41_71216c9e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-04T21:03:00Z",
+      "side": 1,
+      "message": "This one really should go on the next line by itself lined up with the \u0027if\u0027. It took me a while to find this \u0027{\u0027 over here.",
+      "range": {
+        "startLine": 765,
+        "startChar": 64,
+        "endLine": 765,
+        "endChar": 65
+      },
+      "revId": "402097e53c30681666fa7d10715253ae44e8dd1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
