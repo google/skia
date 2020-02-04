@@ -190,7 +190,7 @@ static bool decompress_bc1(SkISize dimensions, const uint8_t* srcData,
 
             colors[0] = from565(curBlock->fColor0);
             colors[1] = from565(curBlock->fColor1);
-            if (colors[0] <= colors[1]) {                 // signal for a transparent block
+            if (curBlock->fColor0 <= curBlock->fColor1) {        // signal for a transparent block
                 colors[2] = SkPackARGB32(
                     0xFF,
                     (SkGetPackedR32(colors[0]) + SkGetPackedR32(colors[1])) >> 1,
