@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e506443_e000c145",
+        "filename": "src/image/SkImage_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-04T16:03:39Z",
+      "side": 1,
+      "message": "Could we make a constexpr cons for GrSurfaceProxyView? Just thinking about extra code generated to make this be initialized only once if it is initialized at runtime.",
+      "range": {
+        "startLine": 65,
+        "startChar": 15,
+        "endLine": 65,
+        "endChar": 20
+      },
+      "revId": "ef1ff0517e1be0d9c3d58960a19a4c02f43c4428",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
