@@ -992,8 +992,16 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kMix_SpecialIntrinsic: {
             std::vector<SpvId> args = this->vectorize(c.fArguments, out);
             SkASSERT(args.size() == 3);
-            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMix, SpvOpUndef,
-                                               SpvOpUndef, args, out);
+            if (is_bool(fContext, c.fArguments[2]->fType)) {
+                SpvId trueId = this->writeExpression(*c.fArguments[0], out);
+                SpvId falseId = this->writeExpression(*c.fArguments[1], out);
+                SpvId test = this->writeExpression(*c.fArguments[2], out);
+                this->writeInstruction(SpvOpSelect, this->getType(c.fType), result, test, falseId,
+                                       trueId, out);
+            } else {
+                this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMix, SpvOpUndef,
+                                                   SpvOpUndef, args, out);
+            }
             break;
         }
         case kSaturate_SpecialIntrinsic: {

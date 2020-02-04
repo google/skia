@@ -26,6 +26,7 @@ void MetalCodeGenerator::setupIntrinsics() {
 #define SPECIAL(x) std::make_pair(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic)
     fIntrinsicMap[String("sample")]             = SPECIAL(Texture);
     fIntrinsicMap[String("mod")]                = SPECIAL(Mod);
+    fIntrinsicMap[String("mix")]                = SPECIAL(Mix);
     fIntrinsicMap[String("equal")]              = METAL(Equal);
     fIntrinsicMap[String("notEqual")]           = METAL(NotEqual);
     fIntrinsicMap[String("lessThan")]           = METAL(LessThan);
@@ -343,7 +344,14 @@ void MetalCodeGenerator::writeInverseHack(const Expression& mat) {
     this->write(name);
 }
 
-void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
+static bool is_bool(const Context& context, const Type& type) {
+    if (type.kind() == Type::kVector_Kind) {
+        return is_bool(context, type.componentType());
+    }
+    return type == *context.fBool_Type;
+}
+
+void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind) {
     switch (kind) {
         case kTexture_SpecialIntrinsic:
             this->writeExpression(*c.fArguments[0], kSequence_Precedence);
@@ -376,6 +384,26 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             this->write(", " + tmpY + " = ");
             this->writeExpression(*c.fArguments[1], kSequence_Precedence);
             this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
+            break;
+        }
+        case kMix_SpecialIntrinsic: {
+            if (is_bool(fContext, c.fArguments[2]->fType)) {
+                this->write("(");
+                this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                this->write(" ? ");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(" : ");
+                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->write(")");
+            } else {
+                this->write("mix(");
+                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                this->write(")");
+            }
             break;
         }
         default:
