@@ -634,9 +634,17 @@ GrGLenum GrToGLStencilFunc(GrStencilTest test) {
 
 bool GrGLFormatIsCompressed(GrGLFormat format) {
     switch (format) {
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
         case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
+        //--
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
+        case GrGLFormat::kCOMPRESSED_SRGB8_ETC2:
+        case GrGLFormat::kCOMPRESSED_RGBA8_ETC2:
+        case GrGLFormat::kCOMPRESSED_SRGBA8_ETC2:
+        //---
         case GrGLFormat::kCOMPRESSED_RGB8_BC1:
+        case GrGLFormat::kCOMPRESSED_SRGB8_BC1:
+        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:
+        case GrGLFormat::kCOMPRESSED_SRGBA8_BC1:
             return true;
 
         case GrGLFormat::kRGBA8:
@@ -665,11 +673,16 @@ bool GrGLFormatIsCompressed(GrGLFormat format) {
 
 SkImage::CompressionType GrGLFormatToCompressionType(GrGLFormat format) {
     switch (format) {
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:
-            return SkImage::CompressionType::kETC1;
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:
-            return SkImage::CompressionType::kBC1_RGB8_UNORM;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8:   // fall through
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2:   return SkImage::CompressionType::kETC2_RGB8_UNORM;
+        case GrGLFormat::kCOMPRESSED_SRGB8_ETC2:  return SkImage::CompressionType::kETC2_RGB8_SRGB;
+        case GrGLFormat::kCOMPRESSED_RGBA8_ETC2:  return SkImage::CompressionType::kETC2_RGBA8_UNORM;
+        case GrGLFormat::kCOMPRESSED_SRGBA8_ETC2: return SkImage::CompressionType::kETC2_RGBA8_SRGB;
+
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:    return SkImage::CompressionType::kBC1_RGB8_UNORM;
+        case GrGLFormat::kCOMPRESSED_SRGB8_BC1:   return SkImage::CompressionType::kBC1_RGB8_SRGB;
+        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:   return SkImage::CompressionType::kBC1_RGBA8_UNORM;
+        case GrGLFormat::kCOMPRESSED_SRGBA8_BC1:  return SkImage::CompressionType::kBC1_RGBA8_SRGB;
 
         case GrGLFormat::kRGBA8:
         case GrGLFormat::kR8:

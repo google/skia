@@ -1410,10 +1410,41 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
     return tex;
 }
 
+#if 0
+static SkImage::CompressionType wtf(GrGLFormat glFormat) {
+    switch (glFormat) {
+        case kCOMPRESSED_ETC1_RGB8_1: return SkImage::CompressionType::kETC1_old;
+        //---
+        case kCOMPRESSED_RGB8_ETC2_1: return SkImage::CompressionType::kETC1_old;
+
+        case kCOMPRESSED_SRGB8_ETC2:  // fall through
+        case kCOMPRESSED_RGBA8_ETC2:  // fall through
+        case kCOMPRESSED_SRGBA8_ETC2: return SkImage::CompressionType::kETC2;
+        //---
+        case kCOMPRESSED_RGB8_BC1:
+        case kCOMPRESSED_SRGB8_BC1:
+        case kCOMPRESSED_RGBA8_BC1:
+        case kCOMPRESSED_SRGBA8_BC1:  return SkImage::CompressionType::kBC1;
+    }
+
+    return SkImage::CompressionType::kNone;
+}
+#endif
+
 sk_sp<GrTexture> GrGLGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
-                                                    SkBudgeted budgeted,
-                                                    const void* data, size_t dataSize) {
+                                                    SkImage::CompressionType compression1,
+                                                    SkBudgeted budgeted, const void* data) {
+
+    SkImage::CompressionType compression2;
+    if (this->caps()->isFormatCompressed(format, &compression2)) {
+        return nullptr;
+    }
+
+    SkASSERT(compression1 == compression2);
+
+    bool isSRGB = this->caps()->isFormatSRGB(format);
+
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc desc;
     desc.fSize = dimensions;
@@ -3768,7 +3799,7 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kRG8:                  return kRG_88_GrPixelConfig;
         case GrGLFormat::kBGRA8:                return kBGRA_8888_GrPixelConfig;
         case GrGLFormat::kLUMINANCE8:           return kGray_8_GrPixelConfig;
-        case GrGLFormat::kSRGB8_ALPHA8:         return kSRGBA_8888_GrPixelConfig;
+        case GrGLFormat::kSRGB8_ALPHA8:         return kSRGBA_8888_GrPixelConfig1;
         case GrGLFormat::kRGB10_A2:             return kRGBA_1010102_GrPixelConfig;
         case GrGLFormat::kRGB565:               return kRGB_565_GrPixelConfig;
         case GrGLFormat::kRGBA4:                return kRGBA_4444_GrPixelConfig;
@@ -3787,10 +3818,17 @@ static GrPixelConfig gl_format_to_pixel_config(GrGLFormat format) {
         case GrGLFormat::kALPHA8:               return kAlpha_8_GrPixelConfig;
         case GrGLFormat::kR8:                   return kAlpha_8_GrPixelConfig;
 
-        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return kRGB_ETC1_GrPixelConfig;
-        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return kRGB_ETC1_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return kETC2_RGB8_UNORM_GrPixelConfig;
 
-        case GrGLFormat::kCOMPRESSED_RGB8_BC1:  return kRGB_BC1_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return kETC2_RGB8_UNORM_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_SRGB8_ETC2:  return kETC2_RGB8_SRGB_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_RGBA8_ETC2:  return kETC2_RGBA8_UNORM_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_SRGBA8_ETC2: return kETC2_RGBA8_SRGB_GrPixelConfig;
+
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:    return kBC1_RGB8_UNORM_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_SRGB8_BC1:   return kBC1_RGB8_SRGB_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_RGBA8_BC1:   return kBC1_RGBA8_UNORM_GrPixelConfig;
+        case GrGLFormat::kCOMPRESSED_SRGBA8_BC1:  return kBC1_RGBA8_SRGB_GrPixelConfig;
     }
     SkUNREACHABLE;
 }
