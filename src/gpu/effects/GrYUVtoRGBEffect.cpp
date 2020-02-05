@@ -70,10 +70,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const sk_sp<GrTextur
         GrSurfaceProxyView view(proxies[i], origin, swizzle);
         if (domain) {
             SkASSERT(planeFilter != GrSamplerState::Filter::kMipMap);
-            if (planeFilter != GrSamplerState::Filter::kNearest) {
-                // Inset by half a pixel for bilerp, after scaling to the size of the plane
-                planeDomain.inset(0.5f, 0.5f);
-            }
             planeFPs[i] = GrTextureEffect::MakeSubset(std::move(view), kUnknown_SkAlphaType,
                                                       *planeMatrix, planeFilter, planeDomain, caps);
         } else {

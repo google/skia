@@ -78,7 +78,6 @@ GrTextureEffect::Sampling::Sampling(GrSamplerState sampler, SkISize size, const 
 GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
                                     GrSamplerState sampler,
                                     const SkRect& subset,
-                                    bool adjustForFilter,
                                     const SkRect* domain,
                                     const GrCaps& caps) {
     using Mode = GrSamplerState::WrapMode;
@@ -91,9 +90,8 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         Filter fFilter;
     };
 
-    auto resolve = [adjustForFilter, filter = sampler.filter(), &caps](int size, Mode mode,
-                                                                       Span subset, Span domain) {
-        float inset;
+    auto resolve = [filter = sampler.filter(), &caps](int size, Mode mode, Span subset,
+                                                      Span domain) {
         Result1D r;
         r.fFilter = filter;
         bool canDoHW = (mode != Mode::kClampToBorder || caps.clampToBorderSupport()) &&
@@ -104,10 +102,27 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
             return r;
         }
 
-        inset = (adjustForFilter && filter != Filter::kNearest) ? 0.5 : 0;
-        auto insetSubset = subset.makeInset(inset);
-
-        if (canDoHW && insetSubset.contains(domain)) {
+        bool domainIsSafe = false;
+        Span insetSubset;
+        if (filter == Filter::kNearest) {
+            Span isubset{sk_float_floor(subset.fA), sk_float_ceil(subset.fB)};
+            if (domain.fA > isubset.fA && domain.fB < isubset.fB) {
+                domainIsSafe = true;
+            }
+            if (mode == Mode::kClamp) {
+                // This inset prevents sampling neighboring texels that could occur when
+                // texture coords fall exactly at texel boundaries (depending on precision
+                // and GPU-specific snapping at the boundary).
+                insetSubset = isubset.makeInset(0.5f);
+            } else {
+                // TODO: Handle other modes properly in this case.
+                insetSubset = subset;
+            }
+        } else {
+            insetSubset = subset.makeInset(0.5f);
+            domainIsSafe = insetSubset.contains(domain);
+        }
+        if (canDoHW && domainIsSafe) {
             r.fShaderMode = ShaderMode::kNone;
             r.fHWMode = mode;
             return r;
@@ -173,8 +188,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(GrSurfaceP
                                                                       GrSamplerState sampler,
                                                                       const SkIRect& subset,
                                                                       const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), true, nullptr, caps);
-
+    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), nullptr, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
@@ -186,7 +200,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(GrSurfaceP
                                                                       const SkIRect& subset,
                                                                       const SkRect& domain,
                                                                       const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), true, &domain, caps);
+    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), &domain, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
@@ -197,7 +211,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, subset, false, nullptr, caps);
+    Sampling sampling(*view.proxy(), sampler, subset, nullptr, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
@@ -209,7 +223,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyV
                                                                  const SkRect& subset,
                                                                  const SkRect& domain,
                                                                  const GrCaps& caps) {
-    Sampling sampling(*view.proxy(), sampler, subset, false, &domain, caps);
+    Sampling sampling(*view.proxy(), sampler, subset, &domain, caps);
     return std::unique_ptr<GrFragmentProcessor>(
             new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }

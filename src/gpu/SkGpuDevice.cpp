@@ -937,29 +937,15 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
 
     const auto& caps = *this->caps();
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
-        // Use a constrained texture domain to avoid color bleeding
-        SkRect domain;
-        if (srcRect.width() > SK_Scalar1) {
-            domain.fLeft  = srcRect.fLeft + 0.5f;
-            domain.fRight = srcRect.fRight - 0.5f;
-        } else {
-            domain.fLeft = domain.fRight = srcRect.centerX();
-        }
-        if (srcRect.height() > SK_Scalar1) {
-            domain.fTop  = srcRect.fTop + 0.5f;
-            domain.fBottom = srcRect.fBottom - 0.5f;
-        } else {
-            domain.fTop = domain.fBottom = srcRect.centerY();
-        }
         if (bicubic) {
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir, srcAlphaType);
+            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, srcRect, kDir, srcAlphaType);
         } else {
             GrSurfaceOrigin origin = proxy->origin();
             GrSwizzle swizzle = proxy->textureSwizzle();
             GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-            fp = GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix, samplerState,
-                                             domain, caps);
+            fp = GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix,
+                                             samplerState, srcRect, caps);
         }
     } else if (bicubic) {
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
