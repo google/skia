@@ -439,8 +439,6 @@ public:
 
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
-        // See comment in CreateProc about this index
-        buffer.writeInt(fEffect->index());
         buffer.writeString(fEffect->source().c_str());
         if (fInputs) {
             buffer.writeDataAsByteArray(fInputs.get());
@@ -466,17 +464,12 @@ private:
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
-    // We don't have a way to ensure that indices are consistent and correct when deserializing.
-    // For now, all shaders get a new unique ID after serialization.
-    int index = buffer.readInt();
-    (void)index;
-
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> inputs = buffer.readByteArrayAsData();
 
     auto effect = std::get<0>(SkRuntimeEffect::Make(std::move(sksl)));
-    return sk_sp<SkFlattenable>(new SkRuntimeColorFilter(std::move(effect), std::move(inputs)));
+    return effect->makeColorFilter(std::move(inputs));
 }
 
 // Private helper method so SkRuntimeEffect can access SkRuntimeColorFilter

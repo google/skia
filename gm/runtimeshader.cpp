@@ -29,8 +29,7 @@ class RuntimeShader : public skiagm::GM {
     SkISize onISize() override { return {512, 256}; }
 
     void onDraw(SkCanvas* canvas) override {
-        // static to pass gl persistent cache test in dm
-        static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(SkRuntimeEffect::Make(SkString(gProg)));
+        sk_sp<SkRuntimeEffect> gEffect = std::get<0>(SkRuntimeEffect::Make(SkString(gProg)));
         SkASSERT(gEffect);
 
         SkMatrix localM;
