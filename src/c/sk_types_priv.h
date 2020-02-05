@@ -151,6 +151,11 @@ DEF_MAP(SkPath::RawIter, sk_path_rawiterator_t, PathRawIter)
 #include "SkPngEncoder.h"
 DEF_MAP(SkPngEncoder::Options, sk_pngencoder_options_t, PngEncoderOptions)
 
+#include "SkRegion.h"
+DEF_MAP(SkRegion::Iterator, sk_region_iterator_t, RegionIterator)
+DEF_MAP(SkRegion::Cliperator, sk_region_cliperator_t, RegionCliperator)
+DEF_MAP(SkRegion::Spanerator, sk_region_spanerator_t, RegionSpanerator)
+
 #include "SkTime.h"
 DEF_MAP(SkTime::DateTime, sk_time_datetime_t, TimeDateTime)
 
