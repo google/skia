@@ -5223,3 +5223,55 @@ DEF_TEST(SkParagraph_MemoryLeak, reporter) {
 		//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 };
+
+DEF_TEST(SkParagraph_FormattingInfinity, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    TestCanvas canvas("SkParagraph_FormattingInfinity.png");
+
+    const char* text = "Some text\nAnother line";
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorBLACK);
+
+    TextStyle textStyle;
+    textStyle.setForegroundColor(paint);
+    textStyle.setFontFamilies({ SkString("Roboto") });
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextStyle(textStyle);
+
+    auto draw = [&](const char* prefix, TextAlign textAlign) {
+        paragraphStyle.setTextAlign(textAlign);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        paragraph->paint(canvas.get(), 0, 0);
+        canvas.get()->translate(0, 100);
+    };
+
+    draw("left", TextAlign::kLeft);
+    draw("right", TextAlign::kRight);
+    draw("center", TextAlign::kCenter);
+    draw("justify", TextAlign::kJustify);
+};
+
+DEF_TEST(SkParagraph_Infinity, reporter) {
+    SkASSERT(nearlyEqual(1, SK_ScalarInfinity) == false);
+    SkASSERT(nearlyEqual(1, SK_ScalarNegativeInfinity) == false);
+    SkASSERT(nearlyEqual(1, SK_ScalarNaN) == false);
+
+    SkASSERT(nearlyEqual(SK_ScalarInfinity, SK_ScalarInfinity) == true);
+    SkASSERT(nearlyEqual(SK_ScalarInfinity, SK_ScalarNegativeInfinity) == false);
+    SkASSERT(nearlyEqual(SK_ScalarInfinity, SK_ScalarNaN) == false);
+
+    SkASSERT(nearlyEqual(SK_ScalarNegativeInfinity, SK_ScalarInfinity) == false);
+    SkASSERT(nearlyEqual(SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity) == true);
+    SkASSERT(nearlyEqual(SK_ScalarNegativeInfinity, SK_ScalarNaN) == false);
+
+    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarInfinity) == false);
+    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNegativeInfinity) == false);
+    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNaN) == false);
+};

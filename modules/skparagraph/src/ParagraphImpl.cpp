@@ -414,7 +414,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                     }
                 }
 
-                fLongestLine = SkTMax(fLongestLine, SkScalarNearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
+                fLongestLine = SkTMax(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
             });
     fHeight = textWrapper.height();
     fWidth = maxWidth;
@@ -427,9 +427,17 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
 
 void ParagraphImpl::formatLines(SkScalar maxWidth) {
     auto effectiveAlign = fParagraphStyle.effective_align();
+
+    if (!SkScalarIsFinite(maxWidth) && effectiveAlign != TextAlign::kLeft) {
+        // Special case: clean all text in case of maxWidth == INF & align != left
+        // We had to go through shaping though because we need all the measurement numbers
+        fLines.reset();
+        return;
+    }
     if (effectiveAlign == TextAlign::kJustify) {
         this->resetRunShifts();
     }
+
     for (auto& line : fLines) {
         if (&line == &fLines.back() && effectiveAlign == TextAlign::kJustify) {
             effectiveAlign = line.assumedTextAlign();
@@ -768,16 +776,16 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     bool mergedBoxes = false;
                     if (!results.empty() &&
                         lastRun != nullptr &&
-                        lastRun->placeholder() == nullptr &&
-                        context.run->placeholder() == nullptr &&
-                        SkScalarNearlyEqual(lastRun->lineHeight(), context.run->lineHeight()) &&
+                        lastRun->placeholderStyle() == nullptr &&
+                        context.run->placeholderStyle() == nullptr &&
+                        nearlyEqual(lastRun->lineHeight(), context.run->lineHeight()) &&
                         lastRun->font() == context.run->font())
                     {
                         auto& lastBox = results.back();
-                        if (SkScalarNearlyEqual(lastBox.rect.fTop, clip.fTop) &&
-                            SkScalarNearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
-                                (SkScalarNearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
-                                 SkScalarNearlyEqual(lastBox.rect.fRight, clip.fLeft)))
+                        if (nearlyEqual(lastBox.rect.fTop, clip.fTop) &&
+                            nearlyEqual(lastBox.rect.fBottom, clip.fBottom) &&
+                                (nearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
+                                 nearlyEqual(lastBox.rect.fRight, clip.fLeft)))
                         {
                             lastBox.rect.fLeft = SkTMin(lastBox.rect.fLeft, clip.fLeft);
                             lastBox.rect.fRight = SkTMax(lastBox.rect.fRight, clip.fRight);
@@ -792,7 +800,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                     results.emplace_back(
                         clip, context.run->leftToRight() ? TextDirection::kLtr : TextDirection::kRtl);
                 }
-                if (!SkScalarNearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
+                if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
                     results.emplace_back(trailingSpaces, paragraphTextDirection);
                 }
 
@@ -843,7 +851,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForPlaceholders() {
                   auto context =
                           line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false);
                   *width = context.clip.width();
-                  if (run->placeholder() == nullptr) {
+                  if (run->placeholderStyle() == nullptr) {
                       return true;
                   }
                   if (run->textRange().width() == 0) {
@@ -1120,7 +1128,9 @@ void ParagraphImpl::computeEmptyMetrics() {
                                       fEmptyMetrics.leading() * multiplier);
     }
 
-    fStrutMetrics.updateLineMetrics(fEmptyMetrics);
+    if (fParagraphStyle.getStrutStyle().getStrutEnabled()) {
+        fStrutMetrics.updateLineMetrics(fEmptyMetrics);
+    }
 }
 
 void ParagraphImpl::updateText(size_t from, SkString text) {
