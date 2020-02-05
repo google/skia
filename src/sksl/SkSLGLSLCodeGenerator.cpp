@@ -473,6 +473,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["inverse"]     = FunctionClass::kInverse;
         (*fFunctionClasses)["inverseSqrt"] = FunctionClass::kInverseSqrt;
         (*fFunctionClasses)["min"]         = FunctionClass::kMin;
+        (*fFunctionClasses)["mix"]         = FunctionClass::kMix;
         (*fFunctionClasses)["pow"]         = FunctionClass::kPow;
         (*fFunctionClasses)["saturate"]    = FunctionClass::kSaturate;
         (*fFunctionClasses)["sample"]      = FunctionClass::kTexture;
@@ -598,6 +599,24 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     }
                 }
                 break;
+            case FunctionClass::kMix: {
+                this->write("mix(");
+                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->write(", ");
+                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->write(", ");
+                bool needToConvert = !fProgram.fSettings.fCaps->mixSupportsBool() &&
+                                     c.fArguments[2]->fType.hasBoolComponents();
+                if (needToConvert) {
+                    this->write("vec4(");
+                }
+                this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                if (needToConvert) {
+                    this->write(")");
+                }
+                this->write(")");
+                return;
+            }
             case FunctionClass::kPow:
                 if (!fProgram.fSettings.fCaps->removePowWithConstantExponent()) {
                     break;

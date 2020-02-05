@@ -307,6 +307,16 @@ public:
     }
 
     /**
+     * Returns true if this is bool or a vector of bools.
+     */
+    bool hasBoolComponents() const {
+        if (fColumns == 1) {
+            return fName == "bool";
+        }
+        return this->componentType().hasBoolComponents();
+    }
+
+    /**
      * Returns true if an instance of this type can be freely coerced (implicitly converted) to
      * another type.
      */

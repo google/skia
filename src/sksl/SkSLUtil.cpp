@@ -82,6 +82,7 @@ sk_sp<GrShaderCaps> ShaderCapsFactory::Default() {
     sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
     result->fVersionDeclString = "#version 400";
     result->fShaderDerivativeSupport = true;
+    result->fMixSupportsBool = true;
     return result;
 }
 
@@ -246,6 +247,12 @@ sk_sp<GrShaderCaps> ShaderCapsFactory::RemovePowWithConstantExponent() {
 sk_sp<GrShaderCaps> ShaderCapsFactory::SampleMaskSupport() {
     sk_sp<GrShaderCaps> result = Default();
     result->fSampleMaskSupport = true;
+    return result;
+}
+
+sk_sp<GrShaderCaps> ShaderCapsFactory::NoMixBools() {
+    sk_sp<GrShaderCaps> result = Default();
+    result->fMixSupportsBool = false;
     return result;
 }
 #endif

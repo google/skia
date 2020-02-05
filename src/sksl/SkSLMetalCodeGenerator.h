@@ -105,6 +105,7 @@ protected:
     enum SpecialIntrinsic {
         kTexture_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
+        kMix_SpecialIntrinsic,
     };
 
     enum MetalIntrinsic {

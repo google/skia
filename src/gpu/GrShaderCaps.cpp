@@ -76,6 +76,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFBFetchExtensionString = nullptr;
     fMaxFragmentSamplers = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
+    fMixSupportsBool = false;
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
@@ -140,6 +141,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Has poor fragment precision", fHasLowFragmentPrecision);
     writer->appendBool("Texture swizzle applied in shader", fTextureSwizzleAppliedInShader);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
+    writer->appendBool("mix() supports bool", fMixSupportsBool);
 
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
     writer->appendString("Advanced blend equation interaction",

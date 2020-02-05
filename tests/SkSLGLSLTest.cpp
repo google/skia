@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLCompiler.h"
-
 #include "tests/Test.h"
+
+#include "src/sksl/SkSLCompiler.h"
 
 // Note that the optimizer will aggressively kill dead code and substitute constants in place of
 // variables, so we have to jump through a few hoops to ensure that the code in these tests has the
@@ -2464,5 +2464,30 @@ DEF_TEST(SkSLNegatedVectorLiteral, r) {
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLMixBool, r) {
+    test(r,
+         "void main() {"
+         "    sk_FragColor = half4(mix(float4(1, 0, 0, 1), float4(0, 1, 1, 0), bool4(true)));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = mix(vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 1.0, 0.0), "
+                                "bvec4(true));\n"
+         "}\n");
+    test(r,
+         "void main() {"
+         "    sk_FragColor = half4(mix(float4(1, 0, 0, 1), float4(0, 1, 1, 0), bool4(true)));"
+         "}",
+         *SkSL::ShaderCapsFactory::NoMixBools(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = mix(vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 1.0, 0.0), "
+                                "vec4(bvec4(true)));\n"
          "}\n");
 }
