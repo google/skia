@@ -16,6 +16,24 @@
       "revId": "84a8c13bd9df51ac9353964ed38fe1a0c2364e8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c0f7020_95ddb3e9",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-02-05T14:10:55Z",
+      "side": 1,
+      "message": "Just saw this. If it\u0027s ok, I\u0027ll keep it explicit for now just in case we end up rearchitecting (this is a bit of a speculative project currently).",
+      "parentUuid": "42399feb_b440e196",
+      "revId": "84a8c13bd9df51ac9353964ed38fe1a0c2364e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
