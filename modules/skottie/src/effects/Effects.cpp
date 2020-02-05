@@ -27,13 +27,14 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
         EffectBuilderT fBuilder;
     } gBuilderInfo[] = {
         { "ADBE Drop Shadow"    , &EffectBuilder::attachDropShadowEffect     },
-        { "ADBE Easy Levels2"   , &EffectBuilder::attachLevelsEffect         },
+        { "ADBE Easy Levels2"   , &EffectBuilder::attachEasyLevelsEffect     },
         { "ADBE Fill"           , &EffectBuilder::attachFillEffect           },
         { "ADBE Gaussian Blur 2", &EffectBuilder::attachGaussianBlurEffect   },
         { "ADBE Geometry2"      , &EffectBuilder::attachTransformEffect      },
         { "ADBE HUE SATURATION" , &EffectBuilder::attachHueSaturationEffect  },
         { "ADBE Invert"         , &EffectBuilder::attachInvertEffect         },
         { "ADBE Linear Wipe"    , &EffectBuilder::attachLinearWipeEffect     },
+        { "ADBE Pro Levels2"    , &EffectBuilder::attachProLevelsEffect      },
         { "ADBE Radial Wipe"    , &EffectBuilder::attachRadialWipeEffect     },
         { "ADBE Ramp"           , &EffectBuilder::attachGradientEffect       },
         { "ADBE Shift Channels" , &EffectBuilder::attachShiftChannelsEffect  },
