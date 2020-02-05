@@ -110,6 +110,10 @@ bool sk_image_is_lazy_generated(const sk_image_t* image) {
     return AsImage(image)->isLazyGenerated();
 }
 
+bool sk_image_is_valid(const sk_image_t* image, gr_context_t* context) {
+    return AsImage(image)->isValid(AsGrContext(context));
+}
+
 bool sk_image_read_pixels(const sk_image_t* image, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_image_caching_hint_t cachingHint) {
     return AsImage(image)->readPixels(AsImageInfo(dstInfo), dstPixels, dstRowBytes, srcX, srcY, (SkImage::CachingHint)cachingHint);
 }
@@ -138,8 +142,16 @@ sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* sub
     return ToImage(AsImage(cimage)->makeSubset(*AsIRect(subset)).release());
 }
 
+sk_image_t* sk_image_make_texture_image(const sk_image_t* cimage, gr_context_t* context, sk_colorspace_t* colorspace) {
+    return ToImage(AsImage(cimage)->makeTextureImage(AsGrContext(context), AsColorSpace(colorspace)).release());
+}
+
 sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage) {
     return ToImage(AsImage(cimage)->makeNonTextureImage().release());
+}
+
+sk_image_t* sk_image_make_raster_image(const sk_image_t* cimage) {
+    return ToImage(AsImage(cimage)->makeRasterImage().release());
 }
 
 sk_image_t* sk_image_make_with_filter(const sk_image_t* cimage, const sk_imagefilter_t* filter, const sk_irect_t* subset, const sk_irect_t* clipBounds, sk_irect_t* outSubset, sk_ipoint_t* outOffset) {
