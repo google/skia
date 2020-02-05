@@ -211,7 +211,11 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    b->add32(fEffect->index());
+    // In the unlikely event of a hash collision, we also include the input size in the key.
+    // That ensures that we will (at worst) use the wrong program, but one that expects the same
+    // amount of input data.
+    b->add32(fEffect->hash());
+    b->add32(SkToU32(fInputs->size()));
     const uint8_t* inputs = fInputs->bytes();
     for (const auto& v : fEffect->inputs()) {
         if (v.fQualifier != SkRuntimeEffect::Variable::Qualifier::kIn) {
@@ -236,7 +240,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
-    return fEffect->index() == sk.fEffect->index() && fInputs->equals(sk.fInputs.get());
+    return fEffect->hash() == sk.fEffect->hash() && fInputs->equals(sk.fInputs.get());
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
