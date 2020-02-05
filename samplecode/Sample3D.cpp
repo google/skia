@@ -549,14 +549,29 @@ public:
             uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
+            float rect[4];
+            float width;
+
+            float3 rect_norm(float x, float y) {
+                float l = rect[0] + width;
+                float r = rect[2] - width;
+                float dx = 0;
+                if (x < l) {  // left side
+                    dx = l - x;
+                } else if (x > r) {
+                    dx = x - r;
+                }
+                dx = dx / width;
+                return float3(dx, 0, sqrt(1 - dx*dx));
+            }
+
             float3 convert_normal_sample(half4 c) {
                 float3 n = 2 * c.rgb - 1;
                 n.y = -n.y;
                 return n;
             }
 
-            void main(float x, float y, inout half4 color) {
-                float3 norm = convert_normal_sample(sample(normal_map));
+            half4 do_lighting(float x, float y, float3 norm) {
                 float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
 
                 float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
@@ -564,9 +579,14 @@ public:
 
                 float ambient = 0.2;
                 float dp = dot(plane_norm, light_dir);
-                float scale = min(ambient + max(dp, 0), 1);
+                half scale = half(min(ambient + max(dp, 0), 1));
+                return half4(scale, scale, scale, 1);
+            }
 
-                color = sample(color_map) * half4(float4(scale, scale, scale, 1));
+            void main(float x, float y, inout half4 color) {
+                float3 norm = convert_normal_sample(sample(normal_map));
+             //   float3 norm = rect_norm(x, y);
+                color = sample(color_map) * do_lighting(x, y, norm);
             }
         )";
         auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
@@ -604,10 +624,16 @@ public:
             SkM44  fLocalToWorld;
             SkM44  fLocalToWorldAdjInv;
             SkV3   fLightPos;
+
+            SkRect fRect;
+            float  fWidth;
         } uni;
         uni.fLocalToWorld = canvas->experimental_getLocalToWorld();
         uni.fLocalToWorldAdjInv = adj_inv(uni.fLocalToWorld);
         uni.fLightPos = fLight.computeWorldPos(fSphere);
+
+        uni.fRect = {0, 0, 400, 400};
+        uni.fWidth = 50;
 
         sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
         sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
