@@ -82,12 +82,15 @@ struct SkPDFTagNode {
         kYes,
         kNo,
     } fCanDiscard = kUnknown;
+    SkPDF::StructureElementAttribute* fAttributes;
+    size_t fAttributeCount;
 };
 
 SkPDFTagTree::SkPDFTagTree() : fArena(4 * sizeof(SkPDFTagNode)) {}
 
 SkPDFTagTree::~SkPDFTagTree() = default;
 
+int g_indent = 0;
 static void copy(const SkPDF::StructureElementNode& node,
                  SkPDFTagNode* dst,
                  SkArenaAlloc* arena,
@@ -101,6 +104,16 @@ static void copy(const SkPDF::StructureElementNode& node,
     dst->fChildren = children;
     for (size_t i = 0; i < childCount; ++i) {
         copy(node.fChildren[i], &children[i], arena, nodeMap);
+    }
+    dst->fAttributeCount = node.fAttributeCount;
+    if (node.fAttributeCount > 0) {
+        dst->fAttributes = arena->makeArray<SkPDF::StructureElementAttribute>(
+            node.fAttributeCount);
+        for (size_t i = 0; i < node.fAttributeCount; i++) {
+            dst->fAttributes[i] = node.fAttributes[i];
+        }
+    } else {
+        dst->fAttributes = nullptr;
     }
 }
 
@@ -184,6 +197,73 @@ SkPDFIndirectReference prepare_tag_tree_to_emit(SkPDFIndirectReference parent,
     dict.insertName("S", tag_name_from_type(node->fType));
     dict.insertRef("P", parent);
     dict.insertObject("K", std::move(kids));
+    SkString idString;
+    idString.printf("%d", node->fNodeId);
+    dict.insertName("ID", idString.c_str());
+
+    std::unique_ptr<SkPDFArray> attrs = SkPDFMakeArray();
+    for (size_t i = 0; i < node->fAttributeCount; i++) {
+        std::unique_ptr<SkPDFDict> attr_dict = SkPDFMakeDict();
+        SkPDF::StructureElementAttribute& attr = node->fAttributes[i];
+        switch (attr.fType) {
+            case SkPDF::StructureElementAttributeType::kColor: {
+                attr_dict->insertName("O", "Layout");
+                std::unique_ptr<SkPDFArray> colorComponents = SkPDFMakeArray();
+                colorComponents->appendScalar(
+                    SkColorGetR(attr.fColor) / 255.0);
+                colorComponents->appendScalar(
+                    SkColorGetG(attr.fColor) / 255.0);
+                colorComponents->appendScalar(
+                    SkColorGetB(attr.fColor) / 255.0);
+                attr_dict->insertObject("Color", std::move(colorComponents));
+                break;
+            }
+            case SkPDF::StructureElementAttributeType::kBoundingBox: {
+                attr_dict->insertName("O", "Layout");
+                std::unique_ptr<SkPDFArray> box = SkPDFMakeArray();
+                box->appendScalar(attr.fBoundingBox.fLeft);
+                box->appendScalar(attr.fBoundingBox.fBottom);
+                box->appendScalar(attr.fBoundingBox.fRight);
+                box->appendScalar(attr.fBoundingBox.fTop);
+                attr_dict->insertObject("BBox", std::move(box));
+                break;
+            }
+            case SkPDF::StructureElementAttributeType::kRowSpan:
+                attr_dict->insertName("O", "Table");
+                attr_dict->insertInt("RowSpan", attr.fRowSpan);
+                break;
+            case SkPDF::StructureElementAttributeType::kColSpan:
+                attr_dict->insertName("O", "Table");
+                attr_dict->insertInt("ColSpan", attr.fColSpan);
+                break;
+            case SkPDF::StructureElementAttributeType::kTableHeaderScope:
+                attr_dict->insertName("O", "Table");
+                switch (attr.fTableHeaderScope) {
+                    case SkPDF::TableHeaderScope::kRow:
+                        attr_dict->insertName("Scope", "Row");
+                        break;
+                    case SkPDF::TableHeaderScope::kColumn:
+                        attr_dict->insertName("Scope", "Column");
+                        break;
+                    case SkPDF::TableHeaderScope::kBoth:
+                        attr_dict->insertName("Scope", "Both");
+                        break;
+                }
+                break;
+            case SkPDF::StructureElementAttributeType::kTableCellHeaderID: {
+                attr_dict->insertName("O", "Table");
+                std::unique_ptr<SkPDFArray> headers = SkPDFMakeArray();
+                SkString idString;
+                idString.printf("%d", attr.fTableCellHeaderID);
+                headers->appendName(idString.c_str());
+                attr_dict->insertObject("Headers", std::move(headers));
+                break;
+            }
+        }
+        attrs->appendObject(std::move(attr_dict));
+    }
+    dict.insertObject("A", std::move(attrs));
+
     return doc->emit(dict, ref);
 }
 
@@ -223,4 +303,3 @@ SkPDFIndirectReference SkPDFTagTree::makeStructTreeRoot(SkPDFDocument* doc) {
     structTreeRoot.insertRef("ParentTree", doc->emit(parentTree));
     return doc->emit(structTreeRoot, ref);
 }
-

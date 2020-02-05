@@ -5,6 +5,7 @@
 
 #include "include/core/SkDocument.h"
 
+#include "include/core/SkColor.h"
 #include "include/core/SkMilestone.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -71,6 +72,39 @@ enum class DocumentStructureType {
     kForm,        //!< Form control (not like an HTML FORM element)
 };
 
+enum class StructureElementAttributeType {
+    kColor,
+    kBoundingBox,
+    kRowSpan,
+    kColSpan,
+    kTableHeaderScope,
+    kTableCellHeaderID,
+};
+
+enum class TableHeaderScope {
+    kRow,
+    kColumn,
+    kBoth,
+};
+
+/** An attribute that applies to a node in the PDF structure tree. */
+struct StructureElementAttribute {
+    StructureElementAttributeType fType;
+    union {
+        SkColor fColor;
+        struct {
+            float fLeft;
+            float fTop;
+            float fRight;
+            float fBottom;
+        } fBoundingBox;
+        int fRowSpan;
+        int fColSpan;
+        TableHeaderScope fTableHeaderScope;
+        int fTableCellHeaderID;
+    };
+};
+
 /** A node in a PDF structure tree, giving a semantic representation
     of the content.  Each node ID is associated with content
     by passing the SkCanvas and node ID to SkPDF::SetNodeId() when drawing.
@@ -78,9 +112,11 @@ enum class DocumentStructureType {
 */
 struct StructureElementNode {
     const StructureElementNode* fChildren = nullptr;
-    size_t fChildCount;
-    int fNodeId;
-    DocumentStructureType fType;
+    size_t fChildCount = 0;
+    int fNodeId = 0;
+    DocumentStructureType fType = DocumentStructureType::kNonStruct;
+    const StructureElementAttribute* fAttributes = nullptr;
+    size_t fAttributeCount = 0;
 };
 
 /** Optional metadata to be passed into the PDF factory function.
