@@ -52,6 +52,24 @@
       "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e36a0477_e5df3a57",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-05T16:17:54Z",
+      "side": 1,
+      "message": "No worries, ordinarily you\u0027d be exactly right.   SkPreConfig.h and SkPostConfig.h are oddballs that we always include via SkTypes.h (along with stdint.h and stddef.h), for reasons I\u0027m not exactly sure matter...",
+      "parentUuid": "fa960ab5_8854b77f",
+      "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
