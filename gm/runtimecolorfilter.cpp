@@ -37,8 +37,7 @@ DEF_SIMPLE_GPU_GM(runtimecolorfilter, context, rtc, canvas, 512, 256) {
 
     float b = 0.75;
     sk_sp<SkData> data = SkData::MakeWithCopy(&b, sizeof(b));
-    static sk_sp<SkRuntimeEffect> effect = std::get<0>(
-            SkRuntimeEffect::Make(SkString(SKSL_TEST_SRC)));
+    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_TEST_SRC)));
 
     auto cf1 = effect->makeColorFilter(data);
     SkPaint p;

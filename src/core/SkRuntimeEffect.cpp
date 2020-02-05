@@ -8,15 +8,11 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/SkChecksum.h"
 #include "src/shaders/SkRTShader.h"
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-
-static inline int new_sksl_index() {
-    static std::atomic<int> nextIndex{ 0 };
-    return nextIndex++;
-}
 
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     auto compiler = std::make_unique<SkSL::Compiler>();
@@ -198,7 +194,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl, std::unique_ptr<SkSL::Compiler> 
                                  std::vector<Variable>&& inAndUniformVars,
                                  std::vector<SkString>&& children,
                                  size_t uniformSize)
-        : fIndex(new_sksl_index())
+        : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fCompiler(std::move(compiler))
         , fBaseProgram(std::move(baseProgram))
