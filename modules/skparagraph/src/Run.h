@@ -104,8 +104,8 @@ public:
     bool leftToRight() const { return fBidiLevel % 2 == 0; }
     size_t index() const { return fIndex; }
     SkScalar lineHeight() const { return fHeightMultiplier; }
-    PlaceholderStyle* placeholder() const { return fPlaceholder; }
-    bool isPlaceholder() const { return fPlaceholder != nullptr; }
+    PlaceholderStyle* placeholderStyle() const;
+    bool isPlaceholder() const { return fPlaceholderIndex != std::numeric_limits<size_t>::max(); }
     size_t clusterIndex(size_t pos) const { return fClusterIndexes[pos]; }
     SkScalar positionX(size_t pos) const;
 
@@ -177,7 +177,7 @@ private:
     SkFont fFont;
     SkFontMetrics fFontMetrics;
     SkScalar fHeightMultiplier;
-    PlaceholderStyle* fPlaceholder;
+    size_t fPlaceholderIndex;
     bool fEllipsis;
     size_t fIndex;
     uint8_t fBidiLevel;
