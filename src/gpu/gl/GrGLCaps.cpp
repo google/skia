@@ -3755,14 +3755,21 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDriverBlacklistMSAACCPR = true;
     }
 
-    if (shaderCaps->fTessellationSupport && kNVIDIA_GrGLDriver == ctxInfo.driver()) {
+    // http://skbug.com/9739
+    bool isNVIDIAPascal =
+            kNVIDIA_GrGLDriver == ctxInfo.driver() &&
+            ctxInfo.hasExtension("GL_NV_conservative_raster_pre_snap_triangles") &&  // Pascal+.
+            !ctxInfo.hasExtension("GL_NV_conservative_raster_underestimation");  // Volta+.
+    if (isNVIDIAPascal && ctxInfo.driverVersion() < GR_GL_DRIVER_VER(440, 00, 0)) {
         if (GR_IS_GR_GL(ctxInfo.standard())) {
+            // glMemoryBarrier wasn't around until version 4.2.
             if (ctxInfo.version() >= GR_GL_VER(4,2)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
                 shaderCaps->fTessellationSupport = false;
             }
         } else {
+            // glMemoryBarrier wasn't around until es version 3.1.
             if (ctxInfo.version() >= GR_GL_VER(3,1)) {
                 fRequiresManualFBBarrierAfterTessellatedStencilDraw = true;
             } else {
