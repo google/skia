@@ -1870,26 +1870,30 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        const char* text =  "Overflowing endorsement that has a large lengthy text and is a lot longer than expected";
-        ParagraphStyle paragraph_style;
-        paragraph_style.setEllipsis(u"\u2026");
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        auto fontCollection = getFontCollection();
+        const char* text =  "Go to device settings ￼ and set up a passcode. ￼";
+        ParagraphStyle paragraph_style;;
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Google Sans")});
+        text_style.setFontFamilies({SkString("Roboto")});
         text_style.setFontSize(20);
-        builder.pushStyle(text_style);
-        builder.addText(text);
-        auto paragraph = builder.Build();
-        paragraph->layout(594.0f);
-        paragraph->paint(canvas, 0, 0);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(600);
+            paragraph->paint(canvas, 0, 0);
+        }
         canvas->translate(0, 200);
-        paragraph->layout(std::numeric_limits<SkScalar>::max());
-        paragraph->paint(canvas, 0, 0);
-        canvas->translate(0, 200);
-        paragraph->layout(787.0f);
-        paragraph->paint(canvas, 0, 0);
+        {
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(600);
+            paragraph->paint(canvas, 0, 0);
+        }
     }
 
 private:

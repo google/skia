@@ -149,13 +149,15 @@ static inline SkScalar SkScalarSignAsScalar(SkScalar x) {
 static inline bool SkScalarNearlyZero(SkScalar x,
                                       SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance >= 0);
-    return SkScalarAbs(x) <= tolerance;
+    // To make sure INFs work, too
+    return !(SkScalarAbs(x) > tolerance);
 }
 
 static inline bool SkScalarNearlyEqual(SkScalar x, SkScalar y,
                                        SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance >= 0);
-    return SkScalarAbs(x-y) <= tolerance;
+    // To make sure INFs work, too
+    return !(SkScalarAbs(x-y) > tolerance);
 }
 
 static inline float SkScalarSinSnapToZero(SkScalar radians) {
