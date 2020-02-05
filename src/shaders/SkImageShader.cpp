@@ -247,8 +247,10 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
                                       kDir, srcAlphaType);
     } else {
-        inner = GrTextureEffect::Make(std::move(proxy), srcAlphaType, lmInverse, samplerState,
-                                      caps);
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+        inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,
                                           args.fDstColorInfo->colorSpace());

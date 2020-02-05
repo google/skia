@@ -85,7 +85,7 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
     GrBitmapTextureMaker maker(ctx, bmp);
     auto[view, grCT] = maker.view(GrMipMapped::kNo);
     std::unique_ptr<GrFragmentProcessor> imgFP =
-            GrTextureEffect::Make(view.detachProxy(), bmp.alphaType(), SkMatrix());
+            GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
     auto fp = std::unique_ptr<GrFragmentProcessor>(new SampleCoordEffect(std::move(imgFP)));
 
     GrPaint grPaint;
