@@ -34,6 +34,24 @@
       "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa960ab5_8854b77f",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 10864
+      },
+      "writtenOn": "2020-02-05T15:45:36Z",
+      "side": 1,
+      "message": "Thanks. I wasn\u0027t sure about the rules, so I erred on the side of including it.",
+      "parentUuid": "c88b2bb6_c5534b85",
+      "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
