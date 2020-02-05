@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "63b40469_95eb1747",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-05T21:24:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5899cf21_d9968b14",
+      "range": {
+        "startLine": 7,
+        "startChar": 18,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "0ef41fd4ea1348c983f534e5364d85051b474a06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a126559_431b3e96",
         "filename": "tests/GLBackendSurfaceTest.cpp",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-05T21:08:35Z",
       "side": 1,
       "message": "view \u0026\u0026 *view ?",
+      "range": {
+        "startLine": 67,
+        "startChar": 30,
+        "endLine": 67,
+        "endChar": 36
+      },
+      "revId": "0ef41fd4ea1348c983f534e5364d85051b474a06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce52a770_c37aa37d",
+        "filename": "tests/GLBackendSurfaceTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-05T21:24:45Z",
+      "side": 1,
+      "message": "The view call guarantees that if the returned value is not null than the proxy is valid.",
+      "parentUuid": "8a126559_431b3e96",
       "range": {
         "startLine": 67,
         "startChar": 30,
