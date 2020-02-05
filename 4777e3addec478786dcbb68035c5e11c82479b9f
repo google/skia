@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85991fa9_accc2ce6",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2020-02-05T18:54:03Z",
+      "side": 0,
+      "message": "Generally for enums which map directly to UMA logging we don\u0027t remove stuff, just mark it as deprecated (both in code and enums.xml : https://cs.chromium.org/chromium/src/tools/metrics/histograms/enums.xml).\n\nAlso, it would be good to update the chromium side code to remove the concept of fallback there as well : https://cs.chromium.org/chromium/src/gpu/command_buffer/service/service_font_manager.cc?l\u003d101\u0026rcl\u003d766a13939ad8e5516b9f0f22620cf1b247866902.",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 31
+      },
+      "revId": "4777e3addec478786dcbb68035c5e11c82479b9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
