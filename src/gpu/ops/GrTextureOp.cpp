@@ -1069,7 +1069,6 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
         paint.setColor4f(color);
         paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
 
-        GrSurfaceProxy* proxy = proxyView.proxy();
         std::unique_ptr<GrFragmentProcessor> fp;
         if (domain) {
             // Update domain to match what GrTextureOp would do for bilerp, but don't do any
@@ -1078,14 +1077,14 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
             const auto& caps = *context->priv().caps();
             SkRect localRect;
             if (localQuad.asRect(&localRect)) {
-                fp = GrTextureEffect::MakeSubset(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter,
-                                                 correctedDomain, localRect, caps);
+                fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(),
+                                                 filter, correctedDomain, localRect, caps);
             } else {
-                fp = GrTextureEffect::MakeSubset(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter,
-                                                 correctedDomain, caps);
+                fp = GrTextureEffect::MakeSubset(std::move(proxyView), alphaType, SkMatrix::I(),
+                                                 filter, correctedDomain, caps);
             }
         } else {
-            fp = GrTextureEffect::Make(sk_ref_sp(proxy), alphaType, SkMatrix::I(), filter);
+            fp = GrTextureEffect::Make(std::move(proxyView), alphaType, SkMatrix::I(), filter);
         }
         fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(textureXform));
         paint.addColorFragmentProcessor(std::move(fp));
@@ -1093,8 +1092,8 @@ std::unique_ptr<GrDrawOp> GrTextureOp::Make(GrRecordingContext* context,
             paint.addColorFragmentProcessor(GrClampFragmentProcessor::Make(false));
         }
 
-        return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags,
-                                  deviceQuad, localQuad);
+        return GrFillRectOp::Make(context, std::move(paint), aaType, aaFlags, deviceQuad,
+                                  localQuad);
     }
 }
 

@@ -446,10 +446,13 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
 
     rtc->clear(nullptr, { 1, 0, 0, 1 }, GrRenderTargetContext::CanClearFullscreen::kYes);
 
+    GrSurfaceOrigin origin = atlasProxy->origin();
+    GrSwizzle swizzle = atlasProxy->textureSwizzle();
+    GrSurfaceProxyView atlasView(std::move(atlasProxy), origin, swizzle);
     for (int i = 0; i < 3; ++i) {
         SkRect r = SkRect::MakeXYWH(i*kDrawnTileSize, 0, kDrawnTileSize, kDrawnTileSize);
 
-        auto fp = GrTextureEffect::Make(atlasProxy, atlasAlphaType);
+        auto fp = GrTextureEffect::Make(atlasView, atlasAlphaType);
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -568,7 +571,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
         SkMatrix t = SkMatrix::MakeTrans(-i*3*kDrawnTileSize, 0);
 
         GrPaint paint;
-        auto fp = GrTextureEffect::Make(std::move(proxies[i]), kPremul_SkAlphaType, t);
+        GrSurfaceOrigin origin = proxies[i]->origin();
+        GrSwizzle swizzle = proxies[i]->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxies[i]), origin, swizzle);
+        auto fp = GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, t);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         paint.addColorFragmentProcessor(std::move(fp));
 

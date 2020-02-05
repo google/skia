@@ -61,7 +61,7 @@ GrSurfaceProxyView GrTextureProducer::CopyOnGpu(GrRecordingContext* context,
 
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, copyParams.fFilter);
     auto boundsRect = SkIRect::MakeSize(proxy->dimensions());
-    auto fp = GrTextureEffect::MakeTexelSubset(inputView.detachProxy(), kUnknown_SkAlphaType,
+    auto fp = GrTextureEffect::MakeTexelSubset(std::move(inputView), kUnknown_SkAlphaType,
                                                SkMatrix::I(), sampler, boundsRect, localRect, caps);
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -202,10 +202,10 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
                                                     : GrSamplerState::WrapMode::kClamp;
         GrSamplerState samplerState(wrapMode, *filterOrNullForBicubic);
         if (kNoDomain_DomainMode == domainMode) {
-            return GrTextureEffect::Make(view.detachProxy(), srcAlphaType, textureMatrix,
-                                         samplerState, caps);
+            return GrTextureEffect::Make(std::move(view), srcAlphaType, textureMatrix, samplerState,
+                                         caps);
         }
-        return GrTextureEffect::MakeSubset(view.detachProxy(), srcAlphaType, textureMatrix,
+        return GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, textureMatrix,
                                            samplerState, domain, caps);
     } else {
         static const GrSamplerState::WrapMode kClampClamp[] = {

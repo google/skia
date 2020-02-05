@@ -357,9 +357,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkMatrix backgroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(bgSubset.left() - backgroundOffset.fX),
                 SkIntToScalar(bgSubset.top()  - backgroundOffset.fY));
-        bgFP = GrTextureEffect::MakeTexelSubset(backgroundView.detachProxy(),
-                                                background->alphaType(), backgroundMatrix, sampler,
-                                                bgSubset, caps);
+        bgFP = GrTextureEffect::MakeTexelSubset(std::move(backgroundView), background->alphaType(),
+                                                backgroundMatrix, sampler, bgSubset, caps);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
                                              background->alphaType(),
                                              ctx.colorSpace());
@@ -373,9 +372,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkMatrix foregroundMatrix = SkMatrix::MakeTrans(
                 SkIntToScalar(fgSubset.left() - foregroundOffset.fX),
                 SkIntToScalar(fgSubset.top()  - foregroundOffset.fY));
-        auto fgFP = GrTextureEffect::MakeTexelSubset(foregroundView.detachProxy(),
-                                                     foreground->alphaType(), foregroundMatrix,
-                                                     sampler, fgSubset, caps);
+        auto fgFP =
+                GrTextureEffect::MakeTexelSubset(std::move(foregroundView), foreground->alphaType(),
+                                                 foregroundMatrix, sampler, fgSubset, caps);
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP),
                                              foreground->getColorSpace(),
                                              foreground->alphaType(),

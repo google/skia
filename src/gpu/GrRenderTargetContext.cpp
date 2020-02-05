@@ -2036,7 +2036,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::copy_n(baseM + 0, 5, yM + 15);
     GrPaint yPaint;
     yPaint.addColorFragmentProcessor(
-            GrTextureEffect::Make(srcView.refProxy(), this->colorInfo().alphaType(), texMatrix));
+            GrTextureEffect::Make(srcView, this->colorInfo().alphaType(), texMatrix));
     auto yFP = GrColorMatrixFragmentProcessor::Make(yM, false, true, false);
     yPaint.addColorFragmentProcessor(std::move(yFP));
     yPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -2058,8 +2058,7 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::copy_n(baseM + 5, 5, uM + 15);
     GrPaint uPaint;
     uPaint.addColorFragmentProcessor(GrTextureEffect::Make(
-            srcView.refProxy(), this->colorInfo().alphaType(), texMatrix,
-            GrSamplerState::Filter::kBilerp));
+            srcView, this->colorInfo().alphaType(), texMatrix, GrSamplerState::Filter::kBilerp));
     auto uFP = GrColorMatrixFragmentProcessor::Make(uM, false, true, false);
     uPaint.addColorFragmentProcessor(std::move(uFP));
     uPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -2079,9 +2078,9 @@ void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvC
     std::fill_n(vM, 15, 0.f);
     std::copy_n(baseM + 10, 5, vM + 15);
     GrPaint vPaint;
-    vPaint.addColorFragmentProcessor(GrTextureEffect::Make(
-            srcView.detachProxy(), this->colorInfo().alphaType(), texMatrix,
-            GrSamplerState::Filter::kBilerp));
+    vPaint.addColorFragmentProcessor(GrTextureEffect::Make(std::move(srcView),
+                                                           this->colorInfo().alphaType(), texMatrix,
+                                                           GrSamplerState::Filter::kBilerp));
     auto vFP = GrColorMatrixFragmentProcessor::Make(vM, false, true, false);
     vPaint.addColorFragmentProcessor(std::move(vFP));
     vPaint.setPorterDuffXPFactory(SkBlendMode::kSrc);
@@ -2628,7 +2627,11 @@ bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcR
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-    auto fp = GrTextureEffect::Make(sk_ref_sp(src), kUnknown_SkAlphaType);
+
+    GrSurfaceOrigin origin = src->origin();
+    GrSwizzle swizzle = src->textureSwizzle();
+    GrSurfaceProxyView view(sk_ref_sp(src), origin, swizzle);
+    auto fp = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
     if (!fp) {
         return false;
     }

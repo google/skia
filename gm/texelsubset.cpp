@@ -146,7 +146,7 @@ protected:
                     }
                     GrSamplerState sampler(wmx, wmy, fFilter);
                     const auto& caps = *context->priv().caps();
-                    auto fp1 = GrTextureEffect::MakeTexelSubset(view.refProxy(),
+                    auto fp1 = GrTextureEffect::MakeTexelSubset(view,
                                                                 fBitmap.alphaType(),
                                                                 textureMatrices[tm],
                                                                 sampler,
@@ -174,8 +174,8 @@ protected:
                     // Now draw with a subsetted proxy using fixed function texture sampling rather
                     // than a texture subset as a comparison.
                     drawRect = localRect.makeOffset(x, y);
-                    auto fp2 = GrTextureEffect::Make(subsetView.refProxy(),
-                                                     fBitmap.alphaType(), subsetTextureMatrix,
+                    auto fp2 = GrTextureEffect::Make(subsetView, fBitmap.alphaType(),
+                                                     subsetTextureMatrix,
                                                      GrSamplerState(wmx, wmy, fFilter), caps);
                     if (auto op = sk_gpu_test::test_ops::MakeRect(context, std::move(fp2), drawRect,
                                                                   localRect)) {

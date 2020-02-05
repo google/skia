@@ -168,8 +168,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
         cleanup(glCtx0, externalTexture.fID, glCtx1.get(), context1, &backendTexture1, image);
         return;
     }
-    auto surfaceContext = GrSurfaceContext::Make(context0, std::move(texProxy), colorType,
-                                                 alphaType, nullptr);
+    GrSwizzle swizzle =
+            context0->priv().caps()->getReadSwizzle(texProxy->backendFormat(), colorType);
+    GrSurfaceProxyView view(std::move(texProxy), origin, swizzle);
+    auto surfaceContext =
+            GrSurfaceContext::Make(context0, std::move(view), colorType, alphaType, nullptr);
 
     if (!surfaceContext) {
         ERRORF(reporter, "Error wrapping external texture in GrSurfaceContext.");

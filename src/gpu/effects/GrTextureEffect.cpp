@@ -149,68 +149,69 @@ bool GrTextureEffect::Sampling::usesDecal() const {
            fHWSampler.wrapModeY() == GrSamplerState::WrapMode::kClampToBorder;
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView view,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
                                                            GrSamplerState::Filter filter) {
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix, Sampling(filter)));
+            new GrTextureEffect(std::move(view), alphaType, matrix, Sampling(filter)));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(sk_sp<GrSurfaceProxy> proxy,
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::Make(GrSurfaceProxyView view,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
                                                            GrSamplerState sampler,
                                                            const GrCaps& caps) {
-    Sampling sampling(sampler, proxy->dimensions(), caps);
+    Sampling sampling(sampler, view.proxy()->dimensions(), caps);
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
+            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(sk_sp<GrSurfaceProxy> proxy,
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(GrSurfaceProxyView view,
                                                                       SkAlphaType alphaType,
                                                                       const SkMatrix& matrix,
                                                                       GrSamplerState sampler,
                                                                       const SkIRect& subset,
                                                                       const GrCaps& caps) {
-    Sampling sampling(*proxy, sampler, SkRect::Make(subset), true, nullptr, caps);
+    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), true, nullptr, caps);
+
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
+            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(sk_sp<GrSurfaceProxy> proxy,
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeTexelSubset(GrSurfaceProxyView view,
                                                                       SkAlphaType alphaType,
                                                                       const SkMatrix& matrix,
                                                                       GrSamplerState sampler,
                                                                       const SkIRect& subset,
                                                                       const SkRect& domain,
                                                                       const GrCaps& caps) {
-    Sampling sampling(*proxy, sampler, SkRect::Make(subset), true, &domain, caps);
+    Sampling sampling(*view.proxy(), sampler, SkRect::Make(subset), true, &domain, caps);
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
+            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(sk_sp<GrSurfaceProxy> proxy,
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyView view,
                                                                  SkAlphaType alphaType,
                                                                  const SkMatrix& matrix,
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const GrCaps& caps) {
-    Sampling sampling(*proxy, sampler, subset, false, nullptr, caps);
+    Sampling sampling(*view.proxy(), sampler, subset, false, nullptr, caps);
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
+            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
 
-std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(sk_sp<GrSurfaceProxy> proxy,
+std::unique_ptr<GrFragmentProcessor> GrTextureEffect::MakeSubset(GrSurfaceProxyView view,
                                                                  SkAlphaType alphaType,
                                                                  const SkMatrix& matrix,
                                                                  GrSamplerState sampler,
                                                                  const SkRect& subset,
                                                                  const SkRect& domain,
                                                                  const GrCaps& caps) {
-    Sampling sampling(*proxy, sampler, subset, false, &domain, caps);
+    Sampling sampling(*view.proxy(), sampler, subset, false, &domain, caps);
     return std::unique_ptr<GrFragmentProcessor>(
-            new GrTextureEffect(std::move(proxy), alphaType, matrix, sampling));
+            new GrTextureEffect(std::move(view), alphaType, matrix, sampling));
 }
 
 GrGLSLFragmentProcessor* GrTextureEffect::onCreateGLSLInstance() const {
@@ -408,12 +409,12 @@ bool GrTextureEffect::onIsEqual(const GrFragmentProcessor& other) const {
            fSubset == that.fSubset;
 }
 
-GrTextureEffect::GrTextureEffect(sk_sp<GrSurfaceProxy> texture, SkAlphaType alphaType,
+GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view, SkAlphaType alphaType,
                                  const SkMatrix& matrix, const Sampling& sampling)
         : GrFragmentProcessor(kGrTextureEffect_ClassID,
                               ModulateForSamplerOptFlags(alphaType, sampling.usesDecal()))
-        , fCoordTransform(matrix, texture.get())
-        , fSampler(std::move(texture), sampling.fHWSampler)
+        , fCoordTransform(matrix, view.proxy())
+        , fSampler(std::move(view), sampling.fHWSampler)
         , fSubset(sampling.fShaderSubset)
         , fShaderModes{sampling.fShaderModes[0], sampling.fShaderModes[1]} {
     // We always compare the range even when it isn't used so assert we have canonical don't care
@@ -460,6 +461,9 @@ std::unique_ptr<GrFragmentProcessor> GrTextureEffect::TestCreate(GrProcessorTest
                                              : GrSamplerState::Filter::kNearest);
 
     const SkMatrix& matrix = GrTest::TestMatrix(testData->fRandom);
-    return GrTextureEffect::Make(std::move(proxy), at, matrix, params, *testData->caps());
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+    return GrTextureEffect::Make(std::move(view), at, matrix, params, *testData->caps());
 }
 #endif
