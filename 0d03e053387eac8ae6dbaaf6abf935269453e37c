@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bced9942_1d8fa0ce",
+        "filename": "infra/bots/assets/ccache_linux/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-05T18:21:06Z",
+      "side": 1,
+      "message": "nit: Does this use CMake at all?",
+      "range": {
+        "startLine": 21,
+        "startChar": 4,
+        "endLine": 21,
+        "endChar": 9
+      },
+      "revId": "0d03e053387eac8ae6dbaaf6abf935269453e37c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b90f73b_cde0f1f6",
+        "filename": "infra/bots/assets/ccache_linux/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-05T18:21:06Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 24,
+        "startChar": 9,
+        "endLine": 24,
+        "endChar": 12
+      },
+      "revId": "0d03e053387eac8ae6dbaaf6abf935269453e37c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12d8a9bf_617a1124",
+        "filename": "infra/bots/assets/ccache_linux/create.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-05T18:21:06Z",
+      "side": 1,
+      "message": "nit:\nimport common\nimport utils\n...\nwith utils.tmp_dir():\n  ...\n\n(Example use in infra/bots/assets/opencl_intel_neo_linux/create.py)",
+      "range": {
+        "startLine": 25,
+        "startChar": 2,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "0d03e053387eac8ae6dbaaf6abf935269453e37c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
