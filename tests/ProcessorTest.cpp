@@ -237,8 +237,10 @@ void test_draw_op(GrContext* context,
                   sk_sp<GrTextureProxy> inputDataProxy,
                   SkAlphaType inputAlphaType) {
     GrPaint paint;
-    paint.addColorFragmentProcessor(
-            GrTextureEffect::Make(std::move(inputDataProxy), inputAlphaType));
+    GrSurfaceOrigin origin = inputDataProxy->origin();
+    GrSwizzle swizzle = inputDataProxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(inputDataProxy), origin, swizzle);
+    paint.addColorFragmentProcessor(GrTextureEffect::Make(std::move(view), inputAlphaType));
     paint.addColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
