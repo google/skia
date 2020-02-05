@@ -26,8 +26,7 @@ struct SkISize {
 
     /** Returns true if either width or height are <= 0 */
     bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
-
-    /** Set the width and height to 0 */
+        /** Set the width and height to 0 */
     void setEmpty() { fWidth = fHeight = 0; }
 
     constexpr int32_t width() const { return fWidth; }
