@@ -53,10 +53,10 @@ static float poly_eval(float A, float B, float C, float D, float t) {
  *  our promise. Hence we have a custom joiner that doesn't look at emptiness
  */
 static void joinNoEmptyChecks(SkRect* dst, const SkRect& src) {
-    dst->fLeft = SkMinScalar(dst->fLeft, src.fLeft);
-    dst->fTop = SkMinScalar(dst->fTop, src.fTop);
-    dst->fRight = SkMaxScalar(dst->fRight, src.fRight);
-    dst->fBottom = SkMaxScalar(dst->fBottom, src.fBottom);
+    dst->fLeft = std::min(dst->fLeft, src.fLeft);
+    dst->fTop = std::min(dst->fTop, src.fTop);
+    dst->fRight = std::max(dst->fRight, src.fRight);
+    dst->fBottom = std::max(dst->fBottom, src.fBottom);
 }
 
 static bool is_degenerate(const SkPath& path) {
@@ -2529,8 +2529,8 @@ template <size_t N> static void find_minmax(const SkPoint pts[],
     SkScalar min, max;
     min = max = pts[0].fX;
     for (size_t i = 1; i < N; ++i) {
-        min = SkMinScalar(min, pts[i].fX);
-        max = SkMaxScalar(max, pts[i].fX);
+        min = std::min(min, pts[i].fX);
+        max = std::max(max, pts[i].fX);
     }
     *minPtr = min;
     *maxPtr = max;

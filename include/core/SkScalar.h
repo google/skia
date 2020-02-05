@@ -122,9 +122,6 @@ static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
 #define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
 
-static inline SkScalar SkMaxScalar(SkScalar a, SkScalar b) { return a > b ? a : b; }
-static inline SkScalar SkMinScalar(SkScalar a, SkScalar b) { return a < b ? a : b; }
-
 static inline bool SkScalarIsInt(SkScalar x) {
     return x == SkScalarFloorToScalar(x);
 }

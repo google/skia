@@ -838,7 +838,7 @@ GR_DRAW_OP_TEST_DEFINE(AAStrokeRectOp) {
     // Create either a empty rect or a non-empty rect.
     SkRect rect =
             random->nextBool() ? SkRect::MakeXYWH(10, 10, 50, 40) : SkRect::MakeXYWH(6, 7, 0, 0);
-    SkScalar minDim = SkMinScalar(rect.width(), rect.height());
+    SkScalar minDim = std::min(rect.width(), rect.height());
     SkScalar strokeWidth = random->nextUScalar1() * minDim;
 
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);

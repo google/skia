@@ -28,7 +28,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
             mat.setTranslate((i % 2) ? pathBounds.fLeft : pathBounds.fRight,
                              (i < 2) ? pathBounds.fTop : pathBounds.fBottom);
             mat.postConcat(viewM);
-            stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
+            stretch = std::max(stretch, mat.mapRadius(SK_Scalar1));
         }
     }
     SkScalar srcTol = 0;
@@ -342,7 +342,7 @@ void GrPathUtils::getConicKLM(const SkPoint p[3], const SkScalar weight, SkMatri
     // scale the max absolute value of coeffs to 10
     SkScalar scale = 0.f;
     for (int i = 0; i < 9; ++i) {
-       scale = SkMaxScalar(scale, SkScalarAbs(klm[i]));
+       scale = std::max(scale, SkScalarAbs(klm[i]));
     }
     SkASSERT(scale > 0.f);
     scale = 10.f / scale;

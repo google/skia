@@ -200,8 +200,8 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
         return CanDrawPath::kNo;
     }
     SkRect bounds = args.fShape->styledBounds();
-    SkScalar minDim = SkMinScalar(bounds.width(), bounds.height());
-    SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
+    SkScalar minDim = std::min(bounds.width(), bounds.height());
+    SkScalar maxDim = std::max(bounds.width(), bounds.height());
     SkScalar minSize = minDim * SkScalarAbs(scaleFactors[0]);
     SkScalar maxSize = maxDim * SkScalarAbs(scaleFactors[1]);
     if (maxDim > kMaxDim || kMinSize > minSize || maxSize > kMaxSize) {
@@ -402,7 +402,7 @@ private:
                 } else {
                     maxScale = SkScalarAbs(args.fViewMatrix.getMaxScale());
                 }
-                SkScalar maxDim = SkMaxScalar(bounds.width(), bounds.height());
+                SkScalar maxDim = std::max(bounds.width(), bounds.height());
                 // We try to create the DF at a 2^n scaled path resolution (1/2, 1, 2, 4, etc.)
                 // In the majority of cases this will yield a crisper rendering.
                 SkScalar mipScale = 1.0f;

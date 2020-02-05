@@ -448,7 +448,7 @@ static float draw_dag(SkCanvas* canvas, SkSurface* nodeSurface, const FilterNode
         y = draw_dag(canvas, nodeSurface, node.fInputNodes[i]);
         canvas->restore();
     }
-    return SkMaxScalar(y, nodeResults->height() + textHeight + kPad);
+    return std::max(y, nodeResults->height() + textHeight + kPad);
 }
 
 static void draw_dag(SkCanvas* canvas, sk_sp<SkImageFilter> filter,

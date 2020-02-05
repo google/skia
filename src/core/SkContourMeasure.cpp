@@ -141,7 +141,7 @@ static bool quad_too_curvy(const SkPoint pts[3], SkScalar tolerance) {
     SkScalar dy = SkScalarHalf(pts[1].fY) -
                         SkScalarHalf(SkScalarHalf(pts[0].fY + pts[2].fY));
 
-    SkScalar dist = SkMaxScalar(SkScalarAbs(dx), SkScalarAbs(dy));
+    SkScalar dist = std::max(SkScalarAbs(dx), SkScalarAbs(dy));
     return dist > tolerance;
 }
 
@@ -150,13 +150,13 @@ static bool conic_too_curvy(const SkPoint& firstPt, const SkPoint& midTPt,
     SkPoint midEnds = firstPt + lastPt;
     midEnds *= 0.5f;
     SkVector dxy = midTPt - midEnds;
-    SkScalar dist = SkMaxScalar(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
+    SkScalar dist = std::max(SkScalarAbs(dxy.fX), SkScalarAbs(dxy.fY));
     return dist > tolerance;
 }
 
 static bool cheap_dist_exceeds_limit(const SkPoint& pt, SkScalar x, SkScalar y,
                                      SkScalar tolerance) {
-    SkScalar dist = SkMaxScalar(SkScalarAbs(x - pt.fX), SkScalarAbs(y - pt.fY));
+    SkScalar dist = std::max(SkScalarAbs(x - pt.fX), SkScalarAbs(y - pt.fY));
     // just made up the 1/2
     return dist > tolerance;
 }

@@ -104,7 +104,7 @@ private:
 
     SkScalar computeXformedSigma(const SkMatrix& ctm) const {
         SkScalar xformedSigma = this->ignoreXform() ? fSigma : ctm.mapRadius(fSigma);
-        return SkMinScalar(xformedSigma, kMAX_BLUR_SIGMA);
+        return std::min(xformedSigma, kMAX_BLUR_SIGMA);
     }
 
     friend class SkBlurMaskFilter;
