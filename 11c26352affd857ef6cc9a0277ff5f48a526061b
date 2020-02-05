@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73fcbc71_44a929b6",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-05T14:21:54Z",
+      "side": 1,
+      "message": "Just curious, is fInputSize not implied by the effect SkSL?  I think I get that the inputs themselves wouldn\u0027t be, but isn\u0027t the number/size of them?",
+      "range": {
+        "startLine": 219,
+        "startChar": 1,
+        "endLine": 220,
+        "endChar": 34
+      },
+      "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
