@@ -40,6 +40,7 @@ EXPLICIT_PATHS = [
   'infra/bots/assets/android_ndk_windows/VERSION',
   'infra/bots/assets/cast_toolchain/VERSION',
   'infra/bots/assets/clang_linux/VERSION',
+  'infra/bots/assets/clang_mac/VERSION',
   'infra/bots/assets/clang_win/VERSION',
   'infra/canvaskit',
   'infra/pathkit',
