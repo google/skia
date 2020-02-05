@@ -45,14 +45,13 @@ void GrGLGpu::ProgramCache::reset() {
     fMap.reset();
 }
 
-GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrGLGpu* gpu,
-                                               GrRenderTarget* renderTarget,
+GrGLProgram* GrGLGpu::ProgramCache::refProgram(GrRenderTarget* renderTarget,
                                                const GrProgramInfo& programInfo) {
-    const GrCaps& caps = *gpu->caps();
+    const GrCaps& caps = *fGpu->caps();
 
     GrProgramDesc desc = caps.makeDesc(renderTarget, programInfo);
     if (!desc.isValid()) {
-        GrCapsDebugf(gpu->caps(), "Failed to gl program descriptor!\n");
+        GrCapsDebugf(fGpu->caps(), "Failed to gl program descriptor!\n");
         return nullptr;
     }
 
