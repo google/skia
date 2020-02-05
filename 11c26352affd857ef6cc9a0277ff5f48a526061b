@@ -22,6 +22,30 @@
       "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "088bc4b6_39de20ee",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-05T14:24:16Z",
+      "side": 1,
+      "message": "Ah, I think you explained things while I wasn\u0027t looking.\n\nMight be nice to add a note like\n\n   // Even on unlikely hash collision, we\u0027re guaranteed to consume the same amount of input data,\n   // so we should at worst draw incorrectly.",
+      "parentUuid": "73fcbc71_44a929b6",
+      "range": {
+        "startLine": 219,
+        "startChar": 1,
+        "endLine": 220,
+        "endChar": 34
+      },
+      "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
