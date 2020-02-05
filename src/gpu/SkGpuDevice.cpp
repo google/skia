@@ -1006,7 +1006,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
 
     SkASSERT(result->isTextureBacked());
     GrSurfaceProxyView view = result->view(this->context());
-    if (!view.proxy()) {
+    if (!view) {
         return;
     }
 
@@ -1050,21 +1050,17 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
                               ? GrSamplerState::Filter::kBilerp
                               : GrSamplerState::Filter::kNearest;
-        sk_sp<GrTextureProxy> clipProxy =
-                as_IB(clipImage)->asTextureProxyRef(this->context(), filter, nullptr);
+        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), filter, nullptr);
         // Fold clip matrix into ctm
         ctm.preConcat(clipMatrix);
         SkMatrix inverseClipMatrix;
 
         std::unique_ptr<GrFragmentProcessor> cfp;
-        if (clipProxy && ctm.invert(&inverseClipMatrix)) {
+        if (clipView && ctm.invert(&inverseClipMatrix)) {
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
 
-            GrSurfaceOrigin origin = clipProxy->origin();
-            GrSwizzle swizzle = clipProxy->textureSwizzle();
-            GrSurfaceProxyView view(std::move(clipProxy), origin, swizzle);
-            cfp = GrTextureEffect::Make(std::move(view), clipImage->alphaType(), inverseClipMatrix,
-                                        filter);
+            cfp = GrTextureEffect::Make(std::move(clipView), clipImage->alphaType(),
+                                        inverseClipMatrix, filter);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
@@ -1180,7 +1176,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
     // TODO: this makes a tight copy of 'bitmap' but it doesn't have to be (given SkSpecialImage's
     // semantics). Since this is cached we would have to bake the fit into the cache key though.
     auto view = GrMakeCachedBitmapProxyView(fContext.get(), bitmap);
-    if (!view.proxy()) {
+    if (!view) {
         return nullptr;
     }
 
@@ -1246,7 +1242,7 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
                                     subset,
                                     SkBackingFit::kApprox,
                                     SkBudgeted::kYes);     // Always budgeted
-        if (!view.proxy()) {
+        if (!view) {
             return nullptr;
         }
 
@@ -1348,7 +1344,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     auto dstColorSpace = fRenderTargetContext->colorInfo().colorSpace();
     const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
     auto view = producer->viewForParams(&filter, nullptr);
-    if (!view.proxy()) {
+    if (!view) {
         return;
     }
     auto csxf = GrColorSpaceXform::Make(producer->colorSpace(), producer->alphaType(),
