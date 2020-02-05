@@ -935,6 +935,10 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // the rest from the SkPaint.
     std::unique_ptr<GrFragmentProcessor> fp;
 
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
     const auto& caps = *this->caps();
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
         // Use a constrained texture domain to avoid color bleeding
@@ -953,11 +957,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         }
         if (bicubic) {
             static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-            fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, domain, kDir, srcAlphaType);
+            fp = GrBicubicEffect::Make(std::move(view), texMatrix, domain, kDir, srcAlphaType);
         } else {
-            GrSurfaceOrigin origin = proxy->origin();
-            GrSwizzle swizzle = proxy->textureSwizzle();
-            GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
             fp = GrTextureEffect::MakeSubset(std::move(view), srcAlphaType, texMatrix, samplerState,
                                              domain, caps);
         }
@@ -965,11 +966,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         SkASSERT(GrSamplerState::Filter::kNearest == samplerState.filter());
         GrSamplerState::WrapMode wrapMode[2] = {samplerState.wrapModeX(), samplerState.wrapModeY()};
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        fp = GrBicubicEffect::Make(std::move(proxy), texMatrix, wrapMode, kDir, srcAlphaType);
+        fp = GrBicubicEffect::Make(std::move(view), texMatrix, wrapMode, kDir, srcAlphaType);
     } else {
-        GrSurfaceOrigin origin = proxy->origin();
-        GrSwizzle swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
         fp = GrTextureEffect::Make(std::move(view), srcAlphaType, texMatrix, samplerState, caps);
     }
 
