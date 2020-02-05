@@ -110,7 +110,9 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         return kNoDomain_DomainMode;
     }
 
-    // Get the domain inset based on sampling mode (or bail if mipped)
+    // Get the domain inset based on sampling mode (or bail if mipped). This is used
+    // to evaluate whether we will read outside a non-exact proxy's dimensions.
+    // TODO: Let GrTextureEffect handle this.
     SkScalar filterHalfWidth = 0.f;
     if (filterModeOrNullForBicubic) {
         switch (*filterModeOrNullForBicubic) {
@@ -136,15 +138,8 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
         filterHalfWidth = 1.5f;
     }
 
-    // Both bilerp and bicubic use bilinear filtering and so need to be clamped to the center
-    // of the edge texel. Pinning to the texel center has no impact on nearest mode and MIP-maps
-
-    static const SkScalar kDomainInset = 0.5f;
-    // Figure out the limits of pixels we're allowed to sample from.
-    // Unless we know the amount of outset and the texture matrix we have to conservatively enforce
-    // the domain.
     if (restrictFilterToRect) {
-        *domainRect = constraintRect.makeInset(kDomainInset, kDomainInset);
+        *domainRect = constraintRect;
     } else if (!proxyIsExact) {
         // If we got here then: proxy is not exact, the coords are limited to the
         // constraint rect, and we're allowed to filter across the constraint rect boundary. So
@@ -157,32 +152,34 @@ GrTextureProducer::DomainMode GrTextureProducer::DetermineDomainMode(
             // rect in order to avoid having to add a domain.
             bool needContentAreaConstraint = false;
             if (proxyBounds.fRight - filterHalfWidth < constraintRect.fRight) {
-                domainRect->fRight = proxyBounds.fRight - kDomainInset;
+                domainRect->fRight = proxyBounds.fRight;
                 needContentAreaConstraint = true;
             }
             if (proxyBounds.fBottom - filterHalfWidth < constraintRect.fBottom) {
-                domainRect->fBottom = proxyBounds.fBottom - kDomainInset;
+                domainRect->fBottom = proxyBounds.fBottom;
                 needContentAreaConstraint = true;
             }
             if (!needContentAreaConstraint) {
                 return kNoDomain_DomainMode;
             }
-        } else {
-            // Our sample coords for the texture are allowed to be outside the constraintRect so we
-            // don't consider it when computing the domain.
-            domainRect->fRight = proxyBounds.fRight - kDomainInset;
-            domainRect->fBottom = proxyBounds.fBottom - kDomainInset;
         }
     } else {
         return kNoDomain_DomainMode;
     }
 
-    if (domainRect->fLeft > domainRect->fRight) {
-        domainRect->fLeft = domainRect->fRight = SkScalarAve(domainRect->fLeft, domainRect->fRight);
+    if (!filterModeOrNullForBicubic) {
+        // Bicubic doesn't yet rely on GrTextureEffect to do this insetting.
+        domainRect->inset(0.5f, 0.5f);
+        if (domainRect->fLeft > domainRect->fRight) {
+            domainRect->fLeft = domainRect->fRight =
+                    SkScalarAve(domainRect->fLeft, domainRect->fRight);
+        }
+        if (domainRect->fTop > domainRect->fBottom) {
+            domainRect->fTop = domainRect->fBottom =
+                    SkScalarAve(domainRect->fTop, domainRect->fBottom);
+        }
     }
-    if (domainRect->fTop > domainRect->fBottom) {
-        domainRect->fTop = domainRect->fBottom = SkScalarAve(domainRect->fTop, domainRect->fBottom);
-    }
+
     return kDomain_DomainMode;
 }
 
