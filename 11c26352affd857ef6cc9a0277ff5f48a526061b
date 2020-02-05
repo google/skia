@@ -70,6 +70,30 @@
       "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e49ef948_22dab89e",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-05T14:27:30Z",
+      "side": 1,
+      "message": "Yes. I was thinking that I wanted to be sure and validate our specific size (which is always checked to be sure it matches the effect\u0027s expected size), but because I\u0027m routing things through the factories that guard against that, I can probably remove the explicit storage of fInputSize and use fEffect-\u003einputSize() everywhere.",
+      "parentUuid": "73fcbc71_44a929b6",
+      "range": {
+        "startLine": 219,
+        "startChar": 1,
+        "endLine": 220,
+        "endChar": 34
+      },
+      "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
