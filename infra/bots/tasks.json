@@ -6056,6 +6056,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6097,7 +6101,8 @@
         "gpu:none",
         "machine_type:n1-highcpu-64",
         "os:Debian-9.8",
-        "pool:Skia"
+        "pool:Skia",
+        "id:skia-e-gce-301"
       ],
       "env_prefixes": {
         "PATH": [
@@ -6112,7 +6117,6 @@
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "idempotent": true,
       "io_timeout_ns": 3600000000000,
       "isolate": "compile.isolate",
       "max_attempts": 2,
