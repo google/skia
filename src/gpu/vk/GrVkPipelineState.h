@@ -32,7 +32,7 @@ class GrVkUniformBuffer;
  * and other similar objects that are used along with the VkPipeline in the draw. This includes both
  * allocating and freeing these objects, as well as updating their values.
  */
-class GrVkPipelineState : public SkRefCnt {
+class GrVkPipelineState {
 public:
     using UniformInfoArray = GrVkPipelineStateDataManager::UniformInfoArray;
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
