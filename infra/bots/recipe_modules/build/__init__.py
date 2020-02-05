@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 DEPS = [
+  'depot_tools/cipd',
   'depot_tools/gclient',
   'docker',
   'env',
@@ -10,6 +11,7 @@ DEPS = [
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
+  'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
   'run',
