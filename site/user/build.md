@@ -234,11 +234,15 @@ This defaults to `target_cpu="arm64"`.  Choosing `x64` targets the iOS simulator
     bin/gn gen out/iossim --args='target_os="ios" target_cpu="x64"'
 
 This will also package (and for devices, sign) iOS test binaries. This defaults to a
-Google signing identity and provisioning profile. To use a different one set `skia_ios_identity`
-to match your code signing identity and `skia_ios_profile` to the name of your provisioning
-profile, e.g. `skia_ios_identity=".*Jane Doe.*" skia_ios_profile="iPad Profile"`. A list of
-identities can be found by typing `security find-identity` on the command line. The name of the
-provisioning profile should be available on the Apple Developer site. Alternatively,
+Google signing identity and provisioning profile. To use a different one set the GN args
+`skia_ios_identity` to match your code signing identity and `skia_ios_profile` to the name
+of your provisioning profile, e.g.
+
+    skia_ios_identity=".*Jane Doe.*"
+    skia_ios_profile="iPad Profile"`
+
+A list of identities can be found by typing `security find-identity` on the command line. The
+name of the provisioning profile should be available on the Apple Developer site. Alternatively,
 `skia_ios_profile` can be the absolute path to the mobileprovision file.
 
 For signed packages `ios-deploy` makes installing and running them on a device easy:
@@ -262,7 +266,7 @@ but can be done by setting the following as GN args:
     extra_asmflags=["-miphoneos-version-min=<major>.<minor>"]
     extra_ldflags =["-miphoneos-version-min=<major>.<minor>"]
 
-where <major>.<minor> is the iOS version on the device, e.g., 12.0 or 11.4.
+where `<major>.<minor>` is the iOS version on the device, e.g., 12.0 or 11.4.
 
 <span id="windows">Windows</span>
 ---------------------------------
