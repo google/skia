@@ -48,6 +48,29 @@
     },
     {
       "key": {
+        "uuid": "f7da89a1_c07af18b",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-05T21:48:38Z",
+      "side": 1,
+      "message": "These had been in place to mirror the logic applied to e1x, y, w, etc at the start of the function. However, the xyw edges have to be corrected when degenerate because they are used to solve a system of equations. When just interpolating the UVs to match the new locations, it actually can lead to incorrect local coords and a popping effect when a clipped quad changes between 0, 1, 2, or 3 vertices being clipped.",
+      "range": {
+        "startLine": 1036,
+        "startChar": 8,
+        "endLine": 1036,
+        "endChar": 88
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "302a08cd_2bfdb435",
         "filename": "src/gpu/geometry/GrQuadUtils.h",
         "patchSetId": 6
@@ -91,6 +114,29 @@
       "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f8d40c1_f42f0fc7",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-05T21:48:38Z",
+      "side": 1,
+      "message": "This whole domain correction logic and the lazily determining bilerp just doesn\u0027t work now that clipping can produce additional quads that have to be appended. It breaks the mapping from quadbuffer/view count pair back to the original set entries. \n\nWe could add a bunch of extra logic to record when a new quad was made, but that will just make this even more brittle. In the future, with skia:9869, this lazy determination wouldn\u0027t really be possible as written either.",
+      "range": {
+        "startLine": 549,
+        "startChar": 8,
+        "endLine": 553,
+        "endChar": 39
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

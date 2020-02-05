@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ea6c775_def84bec",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-05T21:48:38Z",
+      "side": 1,
+      "message": "Without this line, asGrQuads() later on wouldn\u0027t actually export any of the computed UVs into the extra DrawQuad object.",
+      "range": {
+        "startLine": 497,
+        "startChar": 8,
+        "endLine": 497,
+        "endChar": 35
+      },
+      "revId": "263d2016e651abd2126e988e31a267211ae71e97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e96356dd_137aa5f2",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-05T21:48:38Z",
+      "side": 1,
+      "message": "Need to keep the metadata in sync with the quad buffer, otherwise we end up using unitialized vertex data in the draw.",
+      "range": {
+        "startLine": 513,
+        "startChar": 16,
+        "endLine": 513,
+        "endChar": 44
+      },
+      "revId": "263d2016e651abd2126e988e31a267211ae71e97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
