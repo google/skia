@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b9e5b19_a639171d",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-05T21:00:51Z",
+      "side": 1,
+      "message": "Don\u0027t need this with the operator bool() (and a bunch of other spots).",
+      "range": {
+        "startLine": 923,
+        "startChar": 13,
+        "endLine": 923,
+        "endChar": 21
+      },
+      "revId": "be9cc5a0a4c889b396a541f9288b97314a62e291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
