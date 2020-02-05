@@ -66,7 +66,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                                                  kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType, nullptr,
                                                  nullptr, nullptr);
-                proxy = as_IB(image)->asTextureProxyRef(context);
+                const GrSurfaceProxyView* view = as_IB(image)->view(context);
+                REPORTER_ASSERT(reporter, view);
+                if (!view) {
+                    context->deleteBackendTexture(backendTex);
+                    return;
+                }
+                proxy = view->asTextureProxyRef();
             }
             REPORTER_ASSERT(reporter, proxy);
             if (!proxy) {

@@ -2166,17 +2166,17 @@ bool GrVkGpu::onFinishFlush(GrSurfaceProxy* proxies[], int n,
             continue;
         }
         SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image));
-        sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef(this->getContext());
-        SkASSERT(proxy);
+        const GrSurfaceProxyView* view = gpuImage->view(this->getContext());
+        SkASSERT(view && *view);
 
-        if (!proxy->isInstantiated()) {
+        if (!view->proxy()->isInstantiated()) {
             auto resourceProvider = this->getContext()->priv().resourceProvider();
-            if (!proxy->instantiate(resourceProvider)) {
+            if (!view->proxy()->instantiate(resourceProvider)) {
                 continue;
             }
         }
 
-        GrTexture* tex = proxy->peekTexture();
+        GrTexture* tex = view->proxy()->peekTexture();
         if (!tex) {
             continue;
         }

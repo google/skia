@@ -189,17 +189,16 @@ bool SkImage_GpuBase::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, 
     return sContext->readPixels(dstInfo, dstPixels, dstRB, {srcX, srcY});
 }
 
-sk_sp<GrTextureProxy> SkImage_GpuBase::asTextureProxyRef(GrRecordingContext* context,
-                                                         GrSamplerState params,
-                                                         SkScalar scaleAdjust[2]) const {
+GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context, GrSamplerState params,
+                                            SkScalar scaleAdjust[2]) const {
     if (!context || !fContext->priv().matches(context)) {
         SkASSERT(0);
-        return nullptr;
+        return {};
     }
 
     GrTextureAdjuster adjuster(fContext.get(), *this->view(context), this->imageInfo().colorInfo(),
                                this->uniqueID());
-    return adjuster.viewForParams(params, scaleAdjust).asTextureProxyRef();
+    return adjuster.viewForParams(params, scaleAdjust);
 }
 
 GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContextIO,
@@ -210,8 +209,9 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
         return GrBackendTexture(); // invalid
     }
 
-    sk_sp<GrTextureProxy> proxy = this->asTextureProxyRef(direct);
-    SkASSERT(proxy);
+    const GrSurfaceProxyView* view = this->view(direct);
+    SkASSERT(view && *view);
+    GrSurfaceProxy* proxy = view->proxy();
 
     if (!proxy->isInstantiated()) {
         auto resourceProvider = direct->priv().resourceProvider();
@@ -224,7 +224,7 @@ GrBackendTexture SkImage_GpuBase::onGetBackendTexture(bool flushPendingGrContext
     GrTexture* texture = proxy->peekTexture();
     if (texture) {
         if (flushPendingGrContextIO) {
-            direct->priv().flushSurface(proxy.get());
+            direct->priv().flushSurface(proxy);
         }
         if (origin) {
             *origin = proxy->origin();
@@ -246,14 +246,14 @@ GrTexture* SkImage_GpuBase::onGetTexture() const {
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> refProxy = this->asTextureProxyRef(direct);
-    SkASSERT(refProxy && !refProxy->isInstantiated());
+    const GrSurfaceProxyView* view = this->view(direct);
+    SkASSERT(view && *view && !view->proxy()->isInstantiated());
 
-    if (!refProxy->instantiate(direct->priv().resourceProvider())) {
+    if (!view->proxy()->instantiate(direct->priv().resourceProvider())) {
         return nullptr;
     }
 
-    return refProxy->peekTexture();
+    return view->proxy()->peekTexture();
 }
 
 bool SkImage_GpuBase::onIsValid(GrContext* context) const {

@@ -169,11 +169,6 @@ void SkImage_GpuYUVA::flattenToRGB(GrRecordingContext* context) const {
     }
 }
 
-sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* context) const {
-    this->flattenToRGB(context);
-    return fRGBView.asTextureProxyRef();
-}
-
 GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
     // if invalid or already has miplevels
     this->flattenToRGB(context);

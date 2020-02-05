@@ -57,7 +57,6 @@ public:
     // will return nullptr unless the YUVA planes have been converted to RGBA in which case
     // that single backing proxy will be returned.
     virtual GrTextureProxy* peekProxy() const { return nullptr; }
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const { return nullptr; }
 
     // If it exists, this returns a pointer to the GrSurfaceProxyView of image. The caller does not
     // own the returned view and must copy it if they want to gain a ref to the internal proxy.
@@ -65,8 +64,8 @@ public:
     // this call will flatten a SkImage_GpuYUV to a single texture.
     virtual const GrSurfaceProxyView* view(GrRecordingContext*) const { return nullptr; }
 
-    virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
-                                                    SkScalar scaleAdjust[2]) const = 0;
+    virtual GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState,
+                                       SkScalar scaleAdjust[2]) const = 0;
     virtual GrSurfaceProxyView refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
         return {};
     }

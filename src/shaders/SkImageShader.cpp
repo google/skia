@@ -214,15 +214,10 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             args.fContext->priv().options().fSharpenMipmappedTextures, &doBicubic);
     GrSamplerState samplerState(wrapModes, textureFilterMode);
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
-    sk_sp<GrTextureProxy> proxy(as_IB(fImage)->asTextureProxyRef(args.fContext, samplerState,
-                                                                 scaleAdjust));
-    if (!proxy) {
+    GrSurfaceProxyView view = as_IB(fImage)->refView(args.fContext, samplerState, scaleAdjust);
+    if (!view) {
         return nullptr;
     }
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     SkAlphaType srcAlphaType = fImage->alphaType();
 
