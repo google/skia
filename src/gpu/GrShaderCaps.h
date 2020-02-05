@@ -173,6 +173,9 @@ public:
     // http://skbug.com/8921
     bool canOnlyUseSampleMaskWithStencil() const { return fCanOnlyUseSampleMaskWithStencil; }
 
+    // true if mix() function supports using bool/bvec as the third argument
+    bool mixSupportsBool() const { return fMixSupportsBool; }
+
     // Returns the string of an extension that must be enabled in the shader to support
     // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
     // this function, the caller should check that shaderDerivativeSupport exists.
@@ -298,6 +301,7 @@ private:
     bool fMustWriteToFragColor                        : 1;
     bool fNoDefaultPrecisionForExternalSamplers       : 1;
     bool fCanOnlyUseSampleMaskWithStencil             : 1;
+    bool fMixSupportsBool                             : 1;
 
     const char* fVersionDeclString;
 

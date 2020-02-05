@@ -251,6 +251,7 @@ protected:
         kInverse,
         kInverseSqrt,
         kMin,
+        kMix,
         kPow,
         kSaturate,
         kTexture,
