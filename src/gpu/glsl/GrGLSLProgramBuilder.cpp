@@ -21,8 +21,8 @@
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget,
-                                           const GrProgramInfo& programInfo,
-                                           const GrProgramDesc* desc)
+                                           const GrProgramDesc& desc,
+                                           const GrProgramInfo& programInfo)
         : fVS(this)
         , fGS(this)
         , fFS(this)

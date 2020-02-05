@@ -23,15 +23,15 @@ typedef size_t shader_size;
 GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
         GrVkGpu* gpu,
         GrRenderTarget* renderTarget,
+        const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
-        GrProgramDesc* desc,
         VkRenderPass compatibleRenderPass) {
     // ensure that we use "." as a decimal separator when creating SkSL code
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrVkPipelineStateBuilder builder(gpu, renderTarget, programInfo, desc);
+    GrVkPipelineStateBuilder builder(gpu, renderTarget, desc, programInfo);
 
     if (!builder.emitAndInstallProcs()) {
         return nullptr;
@@ -42,9 +42,9 @@ GrVkPipelineState* GrVkPipelineStateBuilder::CreatePipelineState(
 
 GrVkPipelineStateBuilder::GrVkPipelineStateBuilder(GrVkGpu* gpu,
                                                    GrRenderTarget* renderTarget,
-                                                   const GrProgramInfo& programInfo,
-                                                   GrProgramDesc* desc)
-        : INHERITED(renderTarget, programInfo, desc)
+                                                   const GrProgramDesc& desc,
+                                                   const GrProgramInfo& programInfo)
+        : INHERITED(renderTarget, desc, programInfo)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this) {}
@@ -66,7 +66,7 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                                     VkShaderModule* shaderModule,
                                                     VkPipelineShaderStageCreateInfo* stageInfo,
                                                     const SkSL::Program::Settings& settings,
-                                                    GrProgramDesc* desc,
+                                                    const GrProgramDesc& desc,
                                                     SkSL::String* outSPIRV,
                                                     SkSL::Program::Inputs* outInputs) {
     if (!GrCompileVkShaderModule(fGpu, sksl, stage, shaderModule,
@@ -140,8 +140,8 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
     // program, and that only depends on the base GrProgramDesc data.
     // The +4 is to include the kShader_PersistentCacheKeyType code the Vulkan backend adds
     // to the key right after the base key.
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(),
-                                                this->desc()->initialKeyLength()+4);
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(),
+                                                this->desc().initialKeyLength()+4);
 
     sk_sp<SkData> data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kSPIRV_Tag,
                                                                    shaders,
@@ -150,7 +150,7 @@ void GrVkPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[],
 }
 
 GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRenderPass,
-                                                      GrProgramDesc* desc) {
+                                                      const GrProgramDesc& desc) {
     VkDescriptorSetLayout dsLayout[2];
     VkPipelineLayout pipelineLayout;
     VkShaderModule shaderModules[kGrShaderTypeCount] = { VK_NULL_HANDLE,
@@ -214,7 +214,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(VkRenderPass compatibleRen
         // program, and that only depends on the base GrProgramDesc data.
         // The +4 is to include the kShader_PersistentCacheKeyType code the Vulkan backend adds
         // to the key right after the base key.
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->initialKeyLength()+4);
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc.asKey(), desc.initialKeyLength()+4);
         cached = persistentCache->load(*key);
         if (cached) {
             reader.setMemory(cached->data(), cached->size());

@@ -184,12 +184,17 @@ private:
         ~PipelineStateCache();
 
         void release();
-        GrVkPipelineState* refPipelineState(GrRenderTarget*,
-                                            const GrProgramInfo&,
-                                            VkRenderPass compatibleRenderPass);
+        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
+                                                const GrProgramInfo&,
+                                                VkRenderPass compatibleRenderPass);
 
     private:
         struct Entry;
+
+        GrVkPipelineState* findOrCreatePipeline(GrRenderTarget*,
+                                                const GrProgramDesc&,
+                                                const GrProgramInfo&,
+                                                VkRenderPass compatibleRenderPass);
 
         struct DescHash {
             uint32_t operator()(const GrProgramDesc& desc) const {
