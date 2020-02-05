@@ -22,6 +22,30 @@
       "revId": "be9cc5a0a4c889b396a541f9288b97314a62e291",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8a28f24_701891dc",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-05T21:27:52Z",
+      "side": 1,
+      "message": "Updated all the spots.",
+      "parentUuid": "1b9e5b19_a639171d",
+      "range": {
+        "startLine": 923,
+        "startChar": 13,
+        "endLine": 923,
+        "endChar": 21
+      },
+      "revId": "be9cc5a0a4c889b396a541f9288b97314a62e291",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
