@@ -73,7 +73,7 @@ private:
     // it drops all of its refs (via "reset").
     class PromiseImageCallbackContext : public SkRefCnt {
     public:
-        PromiseImageCallbackContext(GrContext* context) : fContext(context) {}
+        PromiseImageCallbackContext(GrContext* context) : fContext1(context) {}
 
         ~PromiseImageCallbackContext();
 
@@ -105,7 +105,7 @@ private:
         }
 
     private:
-        GrContext* fContext;
+        GrContext* fContext1;
         sk_sp<SkPromiseImageTexture> fPromiseImageTexture;
         int fNumImages = 0;
         int fTotalFulfills = 0;

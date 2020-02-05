@@ -68,6 +68,16 @@ void GrContextPriv::copyRenderTasksFromDDL(const SkDeferredDisplayList* ddl,
     fContext->drawingManager()->copyRenderTasksFromDDL(ddl, newDest);
 }
 
+void GrContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
+    GrGpu* gpu = this->getGpu();
+    if (!gpu) {
+        return;
+    }
+
+    gpu->compile(desc, info);
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS

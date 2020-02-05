@@ -16,6 +16,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
 #include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
@@ -338,7 +339,7 @@ public:
                  std::function<void(GrContext*)> initContext = nullptr) const;
 
     sk_gpu_test::GrContextFactory::ContextType contextType() const { return fContextType; }
-    const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() {
+    const sk_gpu_test::GrContextFactory::ContextOverrides& contextOverrides() const {
         return fContextOverrides;
     }
     SkCommandLineConfigGpu::SurfType surfType() const { return fSurfType; }
@@ -351,6 +352,11 @@ public:
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
     const GrContextOptions& baseContextOptions() const { return fBaseContextOptions; }
+
+protected:
+    sk_sp<SkSurface> createDstSurface(GrContext*, SkISize size,
+                                      GrBackendTexture*, GrBackendRenderTarget*) const;
+    bool readBack(SkSurface*, SkBitmap* dst) const;
 
 private:
     sk_gpu_test::GrContextFactory::ContextType        fContextType;
@@ -411,6 +417,25 @@ public:
     }
 
 private:
+    typedef GPUSink INHERITED;
+};
+
+class GPUDDLSink : public GPUSink {
+public:
+    GPUDDLSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+private:
+    Error ddlDraw(const Src&,
+                  SkCanvas* dstCanvas,
+                  SkTaskGroup* recordingTaskGroup,
+                  SkTaskGroup* gpuTaskGroup,
+                  GrContext* gpuCtx) const;
+
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    std::unique_ptr<SkExecutor> fGPUThread;
+
     typedef GPUSink INHERITED;
 };
 

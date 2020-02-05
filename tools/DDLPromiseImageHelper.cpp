@@ -24,7 +24,7 @@ DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext
     SkASSERT(!fTotalFulfills || fDoneCnt);
 
     if (fPromiseImageTexture) {
-        fContext->deleteBackendTexture(fPromiseImageTexture->backendTexture());
+        fContext1->deleteBackendTexture(fPromiseImageTexture->backendTexture());
     }
 }
 
