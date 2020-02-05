@@ -44,27 +44,27 @@ public:
     /**
      * Create a Mitchell filter effect with specified texture matrix with clamp wrap mode.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      const SkMatrix& matrix,
                                                      Direction direction,
                                                      SkAlphaType alphaType) {
         static constexpr GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
-        return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kIgnore_Mode,
+        return Make(std::move(view), matrix, kClampClamp, GrTextureDomain::kIgnore_Mode,
                     GrTextureDomain::kIgnore_Mode, direction, alphaType);
     }
 
     /**
      * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2],
                                                      Direction direction,
                                                      SkAlphaType alphaType) {
         // Ignore the domain on x and y, since this factory relies solely on the wrap mode of the
         // sampler to constrain texture coordinates
-        return Make(std::move(proxy), matrix, wrapModes, GrTextureDomain::kIgnore_Mode,
+        return Make(std::move(view), matrix, wrapModes, GrTextureDomain::kIgnore_Mode,
                     GrTextureDomain::kIgnore_Mode, direction, alphaType);
     }
 
@@ -73,7 +73,7 @@ public:
      * supports providing modes for the texture domain explicitly, in the event that it should
      * override the behavior of the sampler's tile mode (e.g. clamp to border unsupported).
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      const SkMatrix& matrix,
                                                      const GrSamplerState::WrapMode wrapModes[2],
                                                      GrTextureDomain::Mode modeX,
@@ -86,24 +86,24 @@ public:
             resolvedDomain = *domain;
         } else {
             resolvedDomain = GrTextureDomain::MakeTexelDomain(
-                    SkIRect::MakeSize(proxy->dimensions()), modeX, modeY);
+                    SkIRect::MakeSize(view.proxy()->dimensions()), modeX, modeY);
         }
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrBicubicEffect(std::move(proxy), matrix, resolvedDomain, wrapModes, modeX,
+                new GrBicubicEffect(std::move(view), matrix, resolvedDomain, wrapModes, modeX,
                                     modeY, direction, alphaType));
     }
 
     /**
      * Create a Mitchell filter effect with a texture matrix and a domain.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrSurfaceProxy> proxy,
+    static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      const SkMatrix& matrix,
                                                      const SkRect& domain,
                                                      Direction direction,
                                                      SkAlphaType alphaType) {
         static const GrSamplerState::WrapMode kClampClamp[] = {
                 GrSamplerState::WrapMode::kClamp, GrSamplerState::WrapMode::kClamp};
-        return Make(std::move(proxy), matrix, kClampClamp, GrTextureDomain::kClamp_Mode,
+        return Make(std::move(view), matrix, kClampClamp, GrTextureDomain::kClamp_Mode,
                     GrTextureDomain::kClamp_Mode, direction, alphaType, &domain);
     }
 
@@ -118,7 +118,7 @@ public:
                                  GrSamplerState::Filter* filterMode);
 
 private:
-    GrBicubicEffect(sk_sp<GrSurfaceProxy>, const SkMatrix& matrix, const SkRect& domain,
+    GrBicubicEffect(GrSurfaceProxyView, const SkMatrix& matrix, const SkRect& domain,
                     const GrSamplerState::WrapMode wrapModes[2], GrTextureDomain::Mode modeX,
                     GrTextureDomain::Mode modeY, Direction direction, SkAlphaType);
     explicit GrBicubicEffect(const GrBicubicEffect&);

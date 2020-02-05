@@ -162,16 +162,16 @@ void GrGLBicubicEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                     processor.textureSampler(0).samplerState());
 }
 
-GrBicubicEffect::GrBicubicEffect(sk_sp<GrSurfaceProxy> proxy, const SkMatrix& matrix,
+GrBicubicEffect::GrBicubicEffect(GrSurfaceProxyView view, const SkMatrix& matrix,
                                  const SkRect& domain, const GrSamplerState::WrapMode wrapModes[2],
                                  GrTextureDomain::Mode modeX, GrTextureDomain::Mode modeY,
                                  Direction direction, SkAlphaType alphaType)
         : INHERITED{kGrBicubicEffect_ClassID,
                     ModulateForSamplerOptFlags(
                             alphaType, GrTextureDomain::IsDecalSampled(wrapModes, modeX, modeY))}
-        , fCoordTransform(matrix, proxy.get())
-        , fDomain(proxy.get(), domain, modeX, modeY)
-        , fTextureSampler(std::move(proxy),
+        , fCoordTransform(matrix, view.proxy())
+        , fDomain(view.proxy(), domain, modeX, modeY)
+        , fTextureSampler(std::move(view),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest))
         , fAlphaType(alphaType)
         , fDirection(direction) {
@@ -223,7 +223,12 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTest
             break;
     }
     auto [proxy, ct, at] = d->randomProxy();
-    return GrBicubicEffect::Make(proxy, SkMatrix::I(), kClampClamp, direction, at);
+
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
+    return GrBicubicEffect::Make(std::move(view), SkMatrix::I(), kClampClamp, direction, at);
 }
 #endif
 

@@ -215,11 +215,11 @@ std::unique_ptr<GrFragmentProcessor> GrTextureProducer::createFragmentProcessorF
         if (kDomain_DomainMode == domainMode || (fDomainNeedsDecal && !clampToBorderSupport)) {
             GrTextureDomain::Mode wrapMode = fDomainNeedsDecal ? GrTextureDomain::kDecal_Mode
                                          : GrTextureDomain::kClamp_Mode;
-            return GrBicubicEffect::Make(view.detachProxy(), textureMatrix, kClampClamp, wrapMode,
+            return GrBicubicEffect::Make(std::move(view), textureMatrix, kClampClamp, wrapMode,
                                          wrapMode, kDir, srcAlphaType,
                                          kDomain_DomainMode == domainMode ? &domain : nullptr);
         } else {
-            return GrBicubicEffect::Make(view.detachProxy(), textureMatrix,
+            return GrBicubicEffect::Make(std::move(view), textureMatrix,
                                          fDomainNeedsDecal ? kDecalDecal : kClampClamp, kDir,
                                          srcAlphaType);
         }
