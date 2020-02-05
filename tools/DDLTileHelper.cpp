@@ -14,6 +14,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/DDLPromiseImageHelper.h"
 
@@ -42,7 +43,7 @@ void DDLTileHelper::TileData::createTileSpecificSKP(SkData* compressedPictureDat
     }
 }
 
-void DDLTileHelper::TileData::createDDL() {
+SkDeferredDisplayList* DDLTileHelper::TileData::createDDL() {
     SkASSERT(!fDisplayList);
 
     SkDeferredDisplayListRecorder recorder(fCharacterization);
@@ -73,6 +74,7 @@ void DDLTileHelper::TileData::createDDL() {
     }
 
     fDisplayList = recorder.detach();
+    return fDisplayList.get();
 }
 
 void DDLTileHelper::TileData::draw() {
@@ -136,10 +138,30 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
     }
 }
 
-void DDLTileHelper::createDDLsInParallel() {
+static void analyze(GrContext* context, SkDeferredDisplayList* ddl) {
+    auto& programData = ddl->priv().programData();
+
+    for (auto programDatum : programData) {
+        context->priv().compile(programDatum.desc(), programDatum.info());
+    }
+}
+
+void DDLTileHelper::createDDLsInParallel(SkTaskGroup* recordingTaskGroup,
+                                         SkTaskGroup* gpuTaskGroup,
+                                         GrContext* directContext) {
 #if 1
-    SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
-    SkTaskGroup().wait();
+    if (recordingTaskGroup && gpuTaskGroup && directContext) {
+        recordingTaskGroup->batch(fTiles.count(),
+                         [&](int i) {
+                            SkDeferredDisplayList* ddl = fTiles[i].createDDL();
+                            gpuTaskGroup->add([directContext, ddl]() {
+                                                  analyze(directContext, ddl);
+                                              });
+                         });
+    } else {
+        SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
+        SkTaskGroup().wait();
+    }
 #else
     // Use this code path to debug w/o threads
     for (int i = 0; i < fTiles.count(); ++i) {

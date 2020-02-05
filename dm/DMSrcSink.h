@@ -16,6 +16,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
 #include "src/core/SkBBoxHierarchy.h"
+#include "src/core/SkTaskGroup.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
@@ -411,6 +412,27 @@ public:
     }
 
 private:
+    typedef GPUSink INHERITED;
+};
+
+class GPUDDLSink : public GPUSink {
+public:
+    GPUDDLSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to do our matching test
+        return nullptr;
+    }
+
+private:
+    std::unique_ptr<SkExecutor> fRecordingThreadPool;
+    SkTaskGroup fRecordingTaskGroup;
+
+    std::unique_ptr<SkExecutor> fGPUThread;
+    SkTaskGroup fGPUTaskGroup;
+
     typedef GPUSink INHERITED;
 };
 

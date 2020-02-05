@@ -1579,6 +1579,27 @@ Error GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* w
     return compare_bitmaps(reference, *dst);
 }
 
+GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config,
+                       const GrContextOptions& grCtxOptions)
+    : INHERITED(config, grCtxOptions)
+    , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(2))
+    , fRecordingTaskGroup(*fRecordingThreadPool)
+    , fGPUThread(SkExecutor::MakeFIFOThreadPool(1))
+    , fGPUTaskGroup(*fGPUThread) {
+    //    ContextInfo otherCI = testFactory.getSharedContextInfo(context);
+}
+
+Error GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream, SkString* log) const {
+#if 0
+    tiles.createDDLsInParallel(&nonConstThis->fRecordingTaskGroup,
+                               &nonConstThis->fGPUTaskGroup,
+                               context);
+    nonConstThis->fRecordingTaskGroup.wait();
+#endif
+
+    return "";
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
     if (src.size().isEmpty()) {

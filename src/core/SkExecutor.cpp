@@ -27,10 +27,25 @@
     }
 #endif
 
+uint32_t SkExecutor::CreateUniqueID() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID++;
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
+SkExecutor::SkExecutor() : fID(CreateUniqueID()) {
+}
+
 SkExecutor::~SkExecutor() {}
 
 // The default default SkExecutor is an SkTrivialExecutor, which just runs the work right away.
 class SkTrivialExecutor final : public SkExecutor {
+    const char* name() const override { return "trivial"; }
+    int numThreads() const override { return 0; }
+
     void add(std::function<void(void)> work) override {
         work();
     }
@@ -72,7 +87,12 @@ static inline std::function<void(void)> pop(SkTArray<std::function<void(void)>>*
 template <typename WorkList>
 class SkThreadPool final : public SkExecutor {
 public:
-    explicit SkThreadPool(int threads) {
+    const char* fName;
+
+    const char* name() const override { return fName; }
+    int numThreads() const override { return fThreads.size(); }
+
+    explicit SkThreadPool(int threads, const char* name) : fName(name) {
         for (int i = 0; i < threads; i++) {
             fThreads.emplace_back(&Loop, this);
         }
@@ -142,9 +162,9 @@ private:
 
 std::unique_ptr<SkExecutor> SkExecutor::MakeFIFOThreadPool(int threads) {
     using WorkList = std::deque<std::function<void(void)>>;
-    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores(), "FIFO");
 }
 std::unique_ptr<SkExecutor> SkExecutor::MakeLIFOThreadPool(int threads) {
     using WorkList = SkTArray<std::function<void(void)>>;
-    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores());
+    return std::make_unique<SkThreadPool<WorkList>>(threads > 0 ? threads : num_cores(), "LIFO");
 }
