@@ -408,9 +408,7 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext* context,
                                                              const GrColorInfo&) const override {
-        return GrSkSLFP::Make(context, fEffect, "Runtime Color Filter",
-                              fInputs ? fInputs->data() : nullptr,
-                              fInputs ? fInputs->size() : 0);
+        return GrSkSLFP::Make(context, fEffect, "Runtime Color Filter", fInputs);
     }
 #endif
 

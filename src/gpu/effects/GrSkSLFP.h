@@ -24,6 +24,7 @@
 
 class GrContext_Base;
 class GrShaderCaps;
+class SkData;
 class SkRuntimeEffect;
 
 class GrSkSLFP : public GrFragmentProcessor {
@@ -67,8 +68,7 @@ public:
     static std::unique_ptr<GrSkSLFP> Make(GrContext_Base* context,
                                           sk_sp<SkRuntimeEffect> effect,
                                           const char* name,
-                                          const void* inputs,
-                                          size_t inputSize,
+                                          sk_sp<SkData> inputs,
                                           const SkMatrix* matrix = nullptr);
 
     const char* name() const override;
@@ -79,7 +79,7 @@ public:
 
 private:
     GrSkSLFP(sk_sp<const GrShaderCaps> shaderCaps, sk_sp<SkRuntimeEffect> effect,
-             const char* name, const void* inputs, size_t inputSize, const SkMatrix* matrix);
+             const char* name, sk_sp<SkData> inputs, const SkMatrix* matrix);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -93,9 +93,7 @@ private:
 
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
-
-    const std::unique_ptr<int8_t[]> fInputs;
-    size_t                          fInputSize;
+    sk_sp<SkData>          fInputs;
 
     GrCoordTransform fCoordTransform;
 
