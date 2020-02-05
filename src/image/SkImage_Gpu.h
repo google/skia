@@ -36,11 +36,11 @@ public:
         return fView.asTextureProxyRef();
     }
 
-    GrSurfaceProxyView asSurfaceProxyViewRef(GrRecordingContext* context) const override {
-        return fView;
-    }
-    const GrSurfaceProxyView& getSurfaceProxyView(GrRecordingContext* context) const override {
-        return fView;
+    const GrSurfaceProxyView* view(GrRecordingContext* context) const override {
+        if (!fView.proxy()) {
+            return nullptr;
+        }
+        return &fView;
     }
 
     bool onIsTextureBacked() const override {

@@ -149,7 +149,7 @@ sk_sp<SkSpecialImage> SkAlphaThresholdFilterImpl::onFilterImage(const Context& c
     if (ctx.gpuBacked()) {
         auto context = ctx.getContext();
 
-        GrSurfaceProxyView inputView = (input->asSurfaceProxyViewRef(context));
+        GrSurfaceProxyView inputView = (input->view(context));
         SkASSERT(inputView.asTextureProxy());
         const GrProtected isProtected = inputView.proxy()->isProtected();
 

@@ -118,8 +118,9 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(
     if (!image) {
         return {};
     }
-    GrSurfaceProxyView view = as_IB(image)->asSurfaceProxyViewRef(ctx);
-    SkASSERT(!willNeedMipMaps || GrMipMapped::kYes == view.asTextureProxy()->mipMapped());
-    return view;
+    const GrSurfaceProxyView* view = as_IB(image)->view(ctx);
+    SkASSERT(view);
+    SkASSERT(!willNeedMipMaps || GrMipMapped::kYes == view->asTextureProxy()->mipMapped());
+    return *view;
 }
 #endif

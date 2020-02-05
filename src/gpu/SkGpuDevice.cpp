@@ -1020,7 +1020,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     }
 
     SkASSERT(result->isTextureBacked());
-    GrSurfaceProxyView view = result->asSurfaceProxyViewRef(this->context());
+    GrSurfaceProxyView view = result->view(this->context());
     if (!view.proxy()) {
         return;
     }
@@ -1211,12 +1211,13 @@ sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkImage* image) {
     SkPixmap pm;
     if (image->isTextureBacked()) {
-        auto view = as_IB(image)->asSurfaceProxyViewRef(this->context());
+        const GrSurfaceProxyView* view = as_IB(image)->view(this->context());
+        SkASSERT(view);
 
         return SkSpecialImage::MakeDeferredFromGpu(fContext.get(),
                                                    SkIRect::MakeWH(image->width(), image->height()),
                                                    image->uniqueID(),
-                                                   std::move(view),
+                                                   *view,
                                                    SkColorTypeToGrColorType(image->colorType()),
                                                    image->refColorSpace(),
                                                    &this->surfaceProps());
