@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "535155fe_df1435bd",
+        "filename": "src/core/SkSpecialImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:30:56Z",
+      "side": 1,
+      "message": "Maybe move the var into the if to keep it scoped?",
+      "range": {
+        "startLine": 211,
+        "startChar": 8,
+        "endLine": 211,
+        "endChar": 12
+      },
+      "revId": "31ec26d5b9086131f67739296de4f2a98050df97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
