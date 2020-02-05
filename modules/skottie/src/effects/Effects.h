@@ -46,11 +46,13 @@ private:
                                                        sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachInvertEffect        (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;
-    sk_sp<sksg::RenderNode> attachLevelsEffect        (const skjson::ArrayValue&,
+    sk_sp<sksg::RenderNode> attachEasyLevelsEffect    (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachLinearWipeEffect    (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachMotionTileEffect    (const skjson::ArrayValue&,
+                                                       sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::RenderNode> attachProLevelsEffect     (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;
     sk_sp<sksg::RenderNode> attachRadialWipeEffect    (const skjson::ArrayValue&,
                                                        sk_sp<sksg::RenderNode>) const;

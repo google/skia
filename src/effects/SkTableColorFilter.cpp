@@ -452,6 +452,10 @@ sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
                                                   const uint8_t tableR[256],
                                                   const uint8_t tableG[256],
                                                   const uint8_t tableB[256]) {
+    if (!tableA && !tableR && !tableG && !tableB) {
+        return nullptr;
+    }
+
     return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
 }
 
