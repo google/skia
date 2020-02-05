@@ -388,8 +388,8 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         static_assert(sizeof(inputs.k) == sizeof(fK), "struct size mismatch");
         memcpy(inputs.k, fK, sizeof(inputs.k));
         inputs.enforcePMColor = fEnforcePMColor;
-        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(context, effect, "Arithmetic",
-                                                                     &inputs, sizeof(inputs));
+        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(
+                context, effect, "Arithmetic", SkData::MakeWithCopy(&inputs, sizeof(inputs)));
         if (xferFP) {
             ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
             paint.addColorFragmentProcessor(std::move(xferFP));

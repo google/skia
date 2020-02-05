@@ -95,7 +95,8 @@ std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
     for (int i = 0; i < kNumColors; ++i) {
         floatColors[i] = SkColor4f::FromBytes_RGBA(fColors[i]);
     }
-    return GrSkSLFP::Make(context, effect, "Overdraw", floatColors, sizeof(floatColors));
+    return GrSkSLFP::Make(context, effect, "Overdraw",
+                          SkData::MakeWithCopy(floatColors, sizeof(floatColors)));
 }
 
 #endif
