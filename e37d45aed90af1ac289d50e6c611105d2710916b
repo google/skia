@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "292427af_ac57de37",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-05T13:37:25Z",
+      "side": 1,
+      "message": "// Any helpful dox ?\n\n// The Nodes form a stack of possible atlas layouts. Whenever a new rect won\u0027t fit the current Node ...",
+      "revId": "e37d45aed90af1ac289d50e6c611105d2710916b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2d16427_271e658c",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-05T13:37:25Z",
+      "side": 1,
+      "message": "Why not an SkIRect ?",
+      "range": {
+        "startLine": 18,
+        "startChar": 41,
+        "endLine": 18,
+        "endChar": 67
+      },
+      "revId": "e37d45aed90af1ac289d50e6c611105d2710916b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a6ae350_2f18519c",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-02-05T13:37:25Z",
+      "side": 1,
+      "message": "Have we stopped using SkTMin ?",
+      "range": {
+        "startLine": 119,
+        "startChar": 8,
+        "endLine": 119,
+        "endChar": 16
+      },
+      "revId": "e37d45aed90af1ac289d50e6c611105d2710916b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
