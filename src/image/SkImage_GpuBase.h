@@ -37,10 +37,10 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
                                             SkScalar scaleAdjust[2]) const final;
 
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext* context,
-                                                uint32_t* uniqueID) const final {
+    GrSurfaceProxyView refPinnedView(GrRecordingContext* context, uint32_t* uniqueID) const final {
         *uniqueID = this->uniqueID();
-        return this->asTextureProxyRef(context);
+        SkASSERT(this->view(context));
+        return *this->view(context);
     }
 
     GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
