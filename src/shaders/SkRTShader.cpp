@@ -130,8 +130,7 @@ std::unique_ptr<GrFragmentProcessor> SkRTShader::asFragmentProcessor(const GrFPA
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
     }
-    auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime-shader",
-                             fInputs->data(), fInputs->size(), &matrix);
+    auto fp = GrSkSLFP::Make(args.fContext, fEffect, "runtime-shader", fInputs, &matrix);
     for (const auto& child : fChildren) {
         auto childFP = child ? as_SB(child)->asFragmentProcessor(args) : nullptr;
         if (!childFP) {
