@@ -47,7 +47,7 @@ Run::Run(ParagraphImpl* master,
     fOffsets[info.glyphCount] = { 0, 0};
     fClusterIndexes[info.glyphCount] = this->leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
     fEllipsis = false;
-    fPlaceholder = nullptr;
+    fPlaceholderIndex = std::numeric_limits<size_t>::max();
 }
 
 SkShaper::RunHandler::Buffer Run::newRunBuffer() {
@@ -238,9 +238,11 @@ void Run::shift(const Cluster* cluster, SkScalar offset) {
 
 void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
 
+    SkASSERT(isPlaceholder());
+    auto placeholderStyle = this->placeholderStyle();
     // Difference between the placeholder baseline and the line bottom
     SkScalar baselineAdjustment = 0;
-    switch (fPlaceholder->fBaseline) {
+    switch (placeholderStyle->fBaseline) {
         case TextBaseline::kAlphabetic:
             break;
 
@@ -249,11 +251,11 @@ void Run::updateMetrics(InternalLineMetrics* endlineMetrics) {
             break;
     }
 
-    auto height = fPlaceholder->fHeight;
-    auto offset = fPlaceholder->fBaselineOffset;
+    auto height = placeholderStyle->fHeight;
+    auto offset = placeholderStyle->fBaselineOffset;
 
     fFontMetrics.fLeading = 0;
-    switch (fPlaceholder->fAlignment) {
+    switch (placeholderStyle->fAlignment) {
         case PlaceholderAlignment::kBaseline:
             fFontMetrics.fAscent = baselineAdjustment - offset;
             fFontMetrics.fDescent = baselineAdjustment + height - offset;
@@ -337,6 +339,14 @@ SkScalar Cluster::trimmedWidth(size_t pos) const {
 
 SkScalar Run::positionX(size_t pos) const {
     return posX(pos) + fShifts[pos] + fMaster->posShift(fIndex, pos);
+}
+
+PlaceholderStyle* Run::placeholderStyle() const {
+    if (isPlaceholder()) {
+        return &fMaster->placeholders()[fPlaceholderIndex].fStyle;
+    } else {
+        return nullptr;
+    }
 }
 
 Run* Cluster::run() const {

@@ -5223,3 +5223,38 @@ DEF_TEST(SkParagraph_MemoryLeak, reporter) {
 		//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 };
+
+DEF_TEST(SkParagraph_Infinity, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    TestCanvas canvas("SkParagraph_Infinity.png");
+
+    const char* text = "Some text\nAnother line";
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorBLACK);
+
+    TextStyle textStyle;
+    textStyle.setForegroundColor(paint);
+    textStyle.setFontFamilies({ SkString("Roboto") });
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setTextStyle(textStyle);
+
+    auto draw = [&](const char* prefix, TextAlign textAlign) {
+        paragraphStyle.setTextAlign(textAlign);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        builder.addText(text);
+        auto paragraph = builder.Build();
+        paragraph->layout(SK_ScalarInfinity);
+        paragraph->paint(canvas.get(), 0, 0);
+        canvas.get()->translate(0, 100);
+    };
+
+    draw("left", TextAlign::kLeft);
+    draw("right", TextAlign::kRight);
+    draw("center", TextAlign::kCenter);
+    draw("justify", TextAlign::kJustify);
+
+};
