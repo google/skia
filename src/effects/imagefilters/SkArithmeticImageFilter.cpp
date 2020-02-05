@@ -52,7 +52,7 @@ class ArithmeticImageFilterImpl final : public SkImageFilter_Base {
 public:
     ArithmeticImageFilterImpl(float k1, float k2, float k3, float k4, bool enforcePMColor,
                               sk_sp<SkImageFilter> inputs[2], const CropRect* cropRect)
-            : INHERITED(inputs, 2, cropRect), fInputs{{k1, k2, k3, k4}, enforcePMColor} {}
+            : INHERITED(inputs, 2, cropRect), fInputs{k1, k2, k3, k4, enforcePMColor} {}
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;

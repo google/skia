@@ -279,12 +279,8 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
         }
         case 1: {
             static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
-            ArithmeticFPInputs inputs;
-            inputs.fK[0] = d->fRandom->nextF();
-            inputs.fK[1] = d->fRandom->nextF();
-            inputs.fK[2] = d->fRandom->nextF();
-            inputs.fK[3] = d->fRandom->nextF();
-            inputs.fEnforcePMColor = d->fRandom->nextBool();
+            ArithmeticFPInputs inputs{d->fRandom->nextF(), d->fRandom->nextF(), d->fRandom->nextF(),
+                                      d->fRandom->nextF(), d->fRandom->nextBool()};
             auto result = GrSkSLFP::Make(d->context(), effect, "Arithmetic",
                                          SkData::MakeWithCopy(&inputs, sizeof(inputs)));
             result->addChild(GrConstColorProcessor::Make(

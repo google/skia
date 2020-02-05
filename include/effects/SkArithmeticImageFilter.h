@@ -11,6 +11,15 @@
 #include "include/core/SkImageFilter.h"
 
 struct ArithmeticFPInputs {
+    ArithmeticFPInputs(float k0, float k1, float k2, float k3, bool enforcePMColor) {
+        memset(this, 0, sizeof(*this));
+        fK[0] = k0;
+        fK[1] = k1;
+        fK[2] = k2;
+        fK[3] = k3;
+        fEnforcePMColor = enforcePMColor;
+    }
+
     float fK[4];
     bool  fEnforcePMColor;
 };
