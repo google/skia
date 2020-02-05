@@ -135,6 +135,9 @@ public:
     SkSpan<Block> styles() {
         return SkSpan<Block>(fTextStyles.data(), fTextStyles.size());
     }
+    SkSpan<Placeholder> placeholders() {
+        return SkSpan<Placeholder>(fPlaceholders.data(), fPlaceholders.size());
+    }
     SkSpan<TextLine> lines() { return SkSpan<TextLine>(fLines.data(), fLines.size()); }
     const ParagraphStyle& paragraphStyle() const { return fParagraphStyle; }
     SkSpan<Cluster> clusters() { return SkSpan<Cluster>(fClusters.begin(), fClusters.size()); }

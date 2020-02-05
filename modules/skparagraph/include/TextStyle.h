@@ -100,7 +100,13 @@ struct FontFeature {
 };
 
 struct PlaceholderStyle {
-    PlaceholderStyle() { }
+    PlaceholderStyle()
+            : fWidth(0)
+            , fHeight(0)
+            , fAlignment(PlaceholderAlignment::kBaseline)
+            , fBaseline(TextBaseline::kAlphabetic)
+            , fBaselineOffset(0) {}
+
     PlaceholderStyle(SkScalar width, SkScalar height, PlaceholderAlignment alignment,
                      TextBaseline baseline, SkScalar offset)
             : fWidth(width)
@@ -111,13 +117,10 @@ struct PlaceholderStyle {
 
     bool equals(const PlaceholderStyle& other) const;
 
-    SkScalar fWidth = 0;
-    SkScalar fHeight = 0;
-
+    SkScalar fWidth;
+    SkScalar fHeight;
     PlaceholderAlignment fAlignment;
-
     TextBaseline fBaseline;
-
     // Distance from the top edge of the rect to the baseline position. This
     // baseline will be aligned against the alphabetic baseline of the surrounding
     // text.
@@ -126,7 +129,7 @@ struct PlaceholderStyle {
     // small or negative values will cause the rect to be positioned underneath
     // the line. When baseline == height, the bottom edge of the rect will rest on
     // the alphabetic baseline.
-    SkScalar fBaselineOffset = 0;
+    SkScalar fBaselineOffset;
 };
 
 class TextStyle {
