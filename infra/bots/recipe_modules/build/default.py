@@ -88,6 +88,7 @@ def compile_fn(api, checkout_root, out_dir):
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
+  ccache           = str(api.vars.slave_dir.join('ccache_linux'))
 
   cc, cxx = None, None
   extra_cflags = []
@@ -136,8 +137,14 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_generate_workarounds'] = 'true'
 
   if compiler == 'Clang' and api.vars.is_linux:
-    cc  = clang_linux + '/bin/clang'
-    cxx = clang_linux + '/bin/clang++'
+    # Clean this up such that we use ccache everywhere it makes sense, mayube
+    # just prepending every compiler command with a ccache string.
+    # TODO: probably need to use base_dir since there may be absolute paths
+    # somewhere.
+    cc  = ccache + '/bin/ccache ' + clang_linux + '/bin/clang'
+    cxx = ccache + '/bin/ccache ' + clang_linux + '/bin/clang++'
+    env['CCACHE_DIR'] = api.vars.cache_dir.join('ccache')
+
     extra_cflags .append('-B%s/bin' % clang_linux)
     extra_ldflags.append('-B%s/bin' % clang_linux)
     extra_ldflags.append('-fuse-ld=lld')
