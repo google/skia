@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "3491b7fd_a96a4db0",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-05T19:11:13Z",
+      "side": 1,
+      "message": "Because the call sites don\u0027t have an SkIRect handy I suppose, and it seemed a little cleaner.",
+      "parentUuid": "c2d16427_271e658c",
+      "range": {
+        "startLine": 18,
+        "startChar": 41,
+        "endLine": 18,
+        "endChar": 67
+      },
+      "revId": "e37d45aed90af1ac289d50e6c611105d2710916b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9a6ae350_2f18519c",
         "filename": "src/gpu/GrDynamicAtlas.cpp",
         "patchSetId": 1
@@ -53,6 +77,30 @@
       "writtenOn": "2020-02-05T13:37:25Z",
       "side": 1,
       "message": "Have we stopped using SkTMin ?",
+      "range": {
+        "startLine": 119,
+        "startChar": 8,
+        "endLine": 119,
+        "endChar": 16
+      },
+      "revId": "e37d45aed90af1ac289d50e6c611105d2710916b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4a8beff_19d0ced6",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-05T19:11:13Z",
+      "side": 1,
+      "message": "It looks like Skia is tending toward the standard library functions.",
+      "parentUuid": "9a6ae350_2f18519c",
       "range": {
         "startLine": 119,
         "startChar": 8,
