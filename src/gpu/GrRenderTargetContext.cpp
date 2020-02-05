@@ -795,7 +795,6 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
         this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
                                                       croppedDeviceQuad, croppedLocalQuad, ss));
     }
-    // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
 
 void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
