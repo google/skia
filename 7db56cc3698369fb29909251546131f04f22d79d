@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22d559ca_c0daa99f",
+        "filename": "src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:55:30Z",
+      "side": 1,
+      "message": "Jumping into generic functionality here seems a bit artificial to me here. It just exists because you\u0027ve chosen to keep the kInstanceAttribs as a local variable in the DrawAtlasPathShader constructor. But there\u0027s no reason it couldn\u0027t be either a member of the DrawAtlasPathShader or just in the anonymous namespace. In either case it\u0027s accessible here and we don\u0027t need this odd accessor. If here I am privileged enough to know here that the color is at index 2 then why can\u0027t I just see the array? Impl is already a private nested class and is logically an extension of DrawAtlasPathShader, literally its implementation.\n\nOr am I missing something that makes this necessary?",
+      "range": {
+        "startLine": 68,
+        "startChar": 44,
+        "endLine": 68,
+        "endChar": 64
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d257a903_c53c9e41",
+        "filename": "src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:55:30Z",
+      "side": 1,
+      "message": "Very minor pref for early exit just cause it looks nicer if you add more reasons to fail the future (sequential ifs rather than nested ifs).\n\nif (fProc... !\u003d that-\u003efProc..) {\n    return CombineResult::kCannotCombine;\n}\n...\nreturn CombineResult::kMerged;",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 41
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f80b8898_b0c99ace",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:55:30Z",
+      "side": 1,
+      "message": "Does this mean when rendering to a non-MSAA SkSurface with SkPaint AA off we will still get AA? If so it seems like we should opt out here or make the render-to-msaa-atlas able to disable AA (using glDisable() or some other logical equivalent).",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 52
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7947604_62ee1c8b",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:55:30Z",
+      "side": 1,
+      "message": "Curious why this threshold. Won\u0027t whatever we fall back to have to do some version of copying the points to the GPU? Or is this is a case where SW PR is better? If the latter, should it be a pointCount() vs bounds tradeoff?",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 35
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1555694c_c69e558f",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:55:30Z",
+      "side": 1,
+      "message": "Would it be ok for perfomance to put all this in some type of SkPath::appendWithTransform(const SkPath\u0026, const SkMatrix\u0026) call? If so I think I\u0027d like that encapsulation.",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 112,
+        "endChar": 93
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff496520_4edb0540",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:55:30Z",
+      "side": 1,
+      "message": "Not asking you do this now... but are we at sufficient C++ coolness level to simplify GrUserStencilSettings initialization?",
+      "range": {
+        "startLine": 142,
+        "startChar": 27,
+        "endLine": 142,
+        "endChar": 37
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
