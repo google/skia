@@ -28,14 +28,19 @@ SkScalar littleRound(SkScalar a) {
 
 int compareRound(SkScalar a, SkScalar b) {
     // There is a rounding error that gets bigger when maxWidth gets bigger
-    // Currently, with VERY long zalgo text (> 100000) on a VERY long line (> 10000)
-    // it grows bigger that this little trick can hide
-    // TODO: deal with it eventually
+    // VERY long zalgo text (> 100000) on a VERY long line (> 10000)
+    // Canvas scaling affects it
+    // Letter spacing affects it
+    // It has to be relative to be useful
+    auto base = SkTMax(SkScalarAbs(a), SkScalarAbs(b));
+    auto diff = SkScalarAbs(a - b);
+    if (SkScalarNearlyZero(base) || diff / base < 0.001f) {
+        return 0;
+    }
+
     auto ra = littleRound(a);
     auto rb = littleRound(b);
-    if (ra == rb) {
-        return 0;
-    } else if (ra < rb) {
+    if (ra < rb) {
         return -1;
     } else {
         return 1;

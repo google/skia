@@ -1903,8 +1903,7 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
-        fontCollection->getParagraphCache()->turnOn(false);
+        //fontCollection->enableFontFallback();
 
         canvas->clear(SK_ColorWHITE);
 
@@ -1914,46 +1913,26 @@ protected:
 
         TextStyle textStyle;
         textStyle.setForegroundColor(paint);
-        textStyle.setFontFamilies({SkString("Roboto")});
-        textStyle.setFontSize(16);
+        textStyle.setFontFamilies({ SkString("Roboto") });
+        textStyle.setFontSize(42.0f);
+        textStyle.setLetterSpacing(-0.05f);
+        textStyle.setHeightOverride(true);
 
         ParagraphStyle paragraphStyle;
         paragraphStyle.setTextStyle(textStyle);
         paragraphStyle.setTextAlign(TextAlign::kLeft);
-        {
-            ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
-            builder.addText("");
 
-            auto paragraph = builder.Build();
-            paragraph->layout(SK_ScalarInfinity);
-            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
-                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
-                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
-                     paragraph->getIdeographicBaseline());
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        builder.addText(u"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut dolor ornare, fermentum nibh in, consectetur libero. Ut id semper est. Sed malesuada, est id bibendum egestas, urna risus tristique nibh, euismod interdum risus turpis nec purus. Maecenas dolor nisl, consectetur in vestibulum et, tincidunt id leo. Duis maximus, odio eget tristique commodo, lacus tellus dapibus leo, consequat pellentesque arcu nisi sit amet diam. Quisque euismod venenatis egestas. Mauris posuere volutpat iaculis. Suspendisse finibus tempor urna, dignissim venenatis sapien finibus eget. Donec interdum lacus ac venenatis fringilla. Curabitur eget lacinia augue. Vestibulum eu vulputate odio. Quisque nec imperdiet");
 
-            paragraph->layout(253);
-            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
-                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
-                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
-                     paragraph->getIdeographicBaseline());
-        }
-        {
-            ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
-            builder.addText(" ");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->width() / 2);
 
-            auto paragraph = builder.Build();
-            paragraph->layout(SK_ScalarInfinity);
-            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
-                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
-                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
-                     paragraph->getIdeographicBaseline());
+        std::vector<LineMetrics> lines;
+        paragraph->getLineMetrics(lines); // <-- error happens here
 
-            paragraph->layout(253);
-            SkDebugf("layout: %f %f %f %f %f %f %f\n", paragraph->getMaxWidth(), paragraph->getHeight(),
-                     paragraph->getMaxIntrinsicWidth(), paragraph->getMinIntrinsicWidth(),
-                     paragraph->getLongestLine(), paragraph->getAlphabeticBaseline(),
-                     paragraph->getIdeographicBaseline());
-        }
+        canvas->translate(10, 10);
+        paragraph->paint(canvas, 0, 0);
     }
 
 private:
@@ -1988,6 +1967,15 @@ protected:
         black.setAntiAlias(true);
         black.setStrokeWidth(1);
 
+        SkPaint whiteSpaces;
+        whiteSpaces.setColor(SK_ColorLTGRAY);
+
+        SkPaint breakingSpace;
+        breakingSpace.setColor(SK_ColorYELLOW);
+
+        SkPaint text;
+        text.setColor(SK_ColorWHITE);
+
         ParagraphStyle paragraph_style;
         paragraph_style.setTextAlign(TextAlign::kRight);
         TextStyle text_style;
@@ -2007,23 +1995,29 @@ protected:
         auto h = 60;
         auto w = 300;
 
-        auto draw = [&](SkScalar width, SkScalar height, TextDirection td, TextAlign ta, const char* text) {
-            SkString str;
-            str.append("   ");
-            str.append(text);
-            str.append(" ");
-            str.append(text);
-            str.append("   ");
-
-            SkDebugf("draw '%s' dir:%s align:%s\n", str.c_str(),
+        auto draw = [&](SkScalar width, SkScalar height, TextDirection td, TextAlign ta, const char* t) {
+            SkDebugf("draw '%s' dir:%s align:%s\n", t,
                     td == TextDirection::kLtr ? "left" : "right",
                     ta == TextAlign::kLeft ? "left" : "right");
             paragraph_style.setTextDirection(td);
             paragraph_style.setTextAlign(ta);
             text_style.setFontSize(20);
             ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            text_style.setBackgroundColor(whiteSpaces);
             builder.pushStyle(text_style);
-            builder.addText(str.c_str());
+            builder.addText("   ");
+            text_style.setBackgroundColor(text);
+            builder.pushStyle(text_style);
+            builder.addText(t);
+            text_style.setBackgroundColor(breakingSpace);
+            builder.pushStyle(text_style);
+            builder.addText(" ");
+            text_style.setBackgroundColor(text);
+            builder.pushStyle(text_style);
+            builder.addText(t);
+            text_style.setBackgroundColor(whiteSpaces);
+            builder.pushStyle(text_style);
+            builder.addText("   ");
             auto paragraph = builder.Build();
             paragraph->layout(width);
             paragraph->paint(canvas, 0, 0);
