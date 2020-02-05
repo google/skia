@@ -63,10 +63,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage);
 
-    sk_sp<GrTextureProxy> texProxy = as_IB(wrappedImage)->asTextureProxyRef(context);
-    REPORTER_ASSERT(reporter, texProxy.get());
-    REPORTER_ASSERT(reporter, texProxy->isInstantiated());
-    auto texture = static_cast<GrGLTexture*>(texProxy->peekTexture());
+    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(context);
+    REPORTER_ASSERT(reporter, view);
+    REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
+    auto texture = static_cast<GrGLTexture*>(view->proxy()->peekTexture());
     REPORTER_ASSERT(reporter, texture);
     auto parameters = texture->parameters();
     REPORTER_ASSERT(reporter, parameters);

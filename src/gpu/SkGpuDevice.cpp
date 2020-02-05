@@ -1050,21 +1050,17 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
         auto filter = paint.getFilterQuality() > kNone_SkFilterQuality
                               ? GrSamplerState::Filter::kBilerp
                               : GrSamplerState::Filter::kNearest;
-        sk_sp<GrTextureProxy> clipProxy =
-                as_IB(clipImage)->asTextureProxyRef(this->context(), filter, nullptr);
+        GrSurfaceProxyView clipView = as_IB(clipImage)->refView(this->context(), filter, nullptr);
         // Fold clip matrix into ctm
         ctm.preConcat(clipMatrix);
         SkMatrix inverseClipMatrix;
 
         std::unique_ptr<GrFragmentProcessor> cfp;
-        if (clipProxy && ctm.invert(&inverseClipMatrix)) {
+        if (clipView.proxy() && ctm.invert(&inverseClipMatrix)) {
             GrColorType srcColorType = SkColorTypeToGrColorType(clipImage->colorType());
 
-            GrSurfaceOrigin origin = clipProxy->origin();
-            GrSwizzle swizzle = clipProxy->textureSwizzle();
-            GrSurfaceProxyView view(std::move(clipProxy), origin, swizzle);
-            cfp = GrTextureEffect::Make(std::move(view), clipImage->alphaType(), inverseClipMatrix,
-                                        filter);
+            cfp = GrTextureEffect::Make(std::move(clipView), clipImage->alphaType(),
+                                        inverseClipMatrix, filter);
             if (srcColorType != GrColorType::kAlpha_8) {
                 cfp = GrFragmentProcessor::SwizzleOutput(std::move(cfp), GrSwizzle::AAAA());
             }
