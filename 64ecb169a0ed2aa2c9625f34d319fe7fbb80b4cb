@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0756965_92bc51a6",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-05T15:24:58Z",
+      "side": 1,
+      "message": "probably clearer to just have this || in above, like \n\nif (SkScalarNearlyZero(base) || diff / base \u003c 0.001f) {",
+      "range": {
+        "startLine": 39,
+        "startChar": 15,
+        "endLine": 39,
+        "endChar": 36
+      },
+      "revId": "64ecb169a0ed2aa2c9625f34d319fe7fbb80b4cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5c295ec_4adcf796",
+        "filename": "samplecode/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1935,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-05T15:24:58Z",
+      "side": 1,
+      "message": "Skia doesn\u0027t like tabs.",
+      "range": {
+        "startLine": 1935,
+        "startChar": 0,
+        "endLine": 1935,
+        "endChar": 1
+      },
+      "revId": "64ecb169a0ed2aa2c9625f34d319fe7fbb80b4cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
