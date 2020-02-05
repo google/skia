@@ -1204,6 +1204,13 @@ func (b *builder) compile(name string, parts map[string]string) string {
 			Name: "xcode",
 			Path: "cache/Xcode.app",
 		})
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_mac"))
+		task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
+			// https://cs.chromium.org/chromium/src/DEPS?l=431&rcl=350d205bf2d0a1ee9fcb0ece22af27bf5dc83880
+			Name:    "chromium/llvm-build-tools/dsymutil",
+			Path:    "dsymutil",
+			Version: "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC",
+		})
 		if strings.Contains(name, "CommandBuffer") {
 			timeout(task, 2*time.Hour)
 		}
@@ -1698,6 +1705,9 @@ func (b *builder) process(name string) {
 				b.MustGetCipdPackageFromAsset("opencl_intel_neo_linux"),
 			)
 		}
+	}
+	if strings.Contains(name, "Mac") && strings.Contains(name, "SAN") {
+		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("clang_mac"))
 	}
 	if strings.Contains(name, "ProcDump") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("procdump_win"))

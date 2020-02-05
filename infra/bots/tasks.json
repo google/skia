@@ -9182,6 +9182,16 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9258,6 +9268,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -9407,6 +9427,16 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9483,6 +9513,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -9563,6 +9603,16 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9639,6 +9689,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         },
         {
           "name": "skia/bots/provisioning_profile_ios",
@@ -9719,6 +9779,16 @@
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
+        },
+        {
           "name": "skia/bots/provisioning_profile_ios",
           "path": "provisioning_profile_ios",
           "version": "version:1"
@@ -9795,6 +9865,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -9868,6 +9948,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -9941,6 +10031,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10041,6 +10141,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10113,6 +10223,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10186,6 +10306,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10259,6 +10389,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10359,6 +10499,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10431,6 +10581,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10504,6 +10664,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -10577,6 +10747,16 @@
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
           "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
+        },
+        {
+          "name": "chromium/llvm-build-tools/dsymutil",
+          "path": "dsymutil",
+          "version": "56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC"
         }
       ],
       "command": [
@@ -36933,6 +37113,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -37245,6 +37430,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -37323,6 +37513,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -37401,6 +37596,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -37791,6 +37991,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
         }
       ],
       "command": [
@@ -37869,6 +38074,11 @@
           "name": "skia/bots/svg",
           "path": "svg",
           "version": "version:9"
+        },
+        {
+          "name": "skia/bots/clang_mac",
+          "path": "clang_mac",
+          "version": "version:0"
         }
       ],
       "command": [
