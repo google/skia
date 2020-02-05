@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b0a4c826_4273ce19",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T16:13:52Z",
+      "side": 1,
+      "message": "The domain need not be an integer. So if the domain left edge is 4.2 and the subset left edge is 4, there is a difference (not in how things draw but in whether a shader-mode is used).\n\nI realized the subset need not be integer either and we probably want floor(a) + 0.5 and ceil(b) - 0.5 as the inset subset, which I\u0027ve now done.",
+      "parentUuid": "81b02f84_c2f8f9d4",
+      "range": {
+        "startLine": 108,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 93
+      },
+      "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bfee0185_3fff675f",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "67054c74_7b64b2e1",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T16:13:52Z",
+      "side": 1,
+      "message": "Yes and no... it can select the wrong texel without insetting but insetting causes the non decal\u0027ed region to be too small (most noticeable when upscaling). This will be addressed in a larger forthcoming change. Added a TODO comment here.",
+      "parentUuid": "bfee0185_3fff675f",
+      "range": {
+        "startLine": 111,
+        "startChar": 16,
+        "endLine": 111,
+        "endChar": 36
+      },
+      "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77c7c5ec_68433640",
         "filename": "src/gpu/effects/GrTextureEffect.cpp",
         "patchSetId": 4
@@ -68,6 +116,30 @@
       "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03df27ce_2124ab7a",
+        "filename": "src/gpu/effects/GrTextureEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T16:13:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77c7c5ec_68433640",
+      "range": {
+        "startLine": 112,
+        "startChar": 16,
+        "endLine": 112,
+        "endChar": 53
+      },
+      "revId": "55d3e485346c6e65124d498d3e61491a1f2cf904",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
