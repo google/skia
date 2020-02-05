@@ -28,14 +28,8 @@ public:
     bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                       int srcX, int srcY, CachingHint) const override;
 
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext* context) const override {
-        // we shouldn't end up calling this
-        SkASSERT(false);
-        return this->INHERITED::asTextureProxyRef(context);
-    }
-
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
-                                            SkScalar scaleAdjust[2]) const final;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState,
+                               SkScalar scaleAdjust[2]) const final;
 
     GrSurfaceProxyView refPinnedView(GrRecordingContext* context, uint32_t* uniqueID) const final {
         *uniqueID = this->uniqueID();
