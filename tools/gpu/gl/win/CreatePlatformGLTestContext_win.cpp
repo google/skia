@@ -8,6 +8,8 @@
 
 #include "tools/gpu/gl/GLTestContext.h"
 
+#include "include/private/SkThreadID.h"
+
 #if defined(_M_ARM64)
 
 namespace sk_gpu_test {
@@ -178,6 +180,7 @@ void WinGLTestContext::onPlatformMakeCurrent() const {
     HDC dc;
     HGLRC glrc;
 
+    SkDebugf("on thread %d making %p current\n", SkGetThreadID(), this);
     if (nullptr == fPbufferContext) {
         dc = fDeviceContext;
         glrc = fGlRenderContext;
