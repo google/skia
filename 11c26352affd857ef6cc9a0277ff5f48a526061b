@@ -46,6 +46,30 @@
       "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "484ad0b7_c6e31906",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T14:25:42Z",
+      "side": 1,
+      "message": "I think this is to guard against hash collisions where the data sizes are different. If you have a collision but the data sizes match at least we won\u0027t read the wrong number of bytes out of the data?",
+      "parentUuid": "73fcbc71_44a929b6",
+      "range": {
+        "startLine": 219,
+        "startChar": 1,
+        "endLine": 220,
+        "endChar": 34
+      },
+      "revId": "11c26352affd857ef6cc9a0277ff5f48a526061b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
