@@ -419,7 +419,7 @@ sk_sp<SkSpecialImage> SkMatrixConvolutionImageFilterImpl::onFilterImage(const Co
         // fall-back, which saves us from having to do the xform during the filter itself.
         input = ImageToColorSpace(input.get(), ctx.colorType(), ctx.colorSpace());
 
-        GrSurfaceProxyView inputView = input->asSurfaceProxyViewRef(context);
+        GrSurfaceProxyView inputView = input->view(context);
         SkASSERT(inputView.asTextureProxy());
 
         const auto isProtected = inputView.proxy()->isProtected();

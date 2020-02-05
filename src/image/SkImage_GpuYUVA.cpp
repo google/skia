@@ -174,7 +174,7 @@ sk_sp<GrTextureProxy> SkImage_GpuYUVA::asTextureProxyRef(GrRecordingContext* con
     return fRGBView.asTextureProxyRef();
 }
 
-GrSurfaceProxyView SkImage_GpuYUVA::asMippedTextureProxyViewRef(GrRecordingContext* context) const {
+GrSurfaceProxyView SkImage_GpuYUVA::refMippedView(GrRecordingContext* context) const {
     // if invalid or already has miplevels
     this->flattenToRGB(context);
     if (!fRGBView.proxy() || GrMipMapped::kYes == fRGBView.asTextureProxy()->mipMapped()) {
@@ -194,9 +194,12 @@ GrSurfaceProxyView SkImage_GpuYUVA::asMippedTextureProxyViewRef(GrRecordingConte
     return {};
 }
 
-GrSurfaceProxyView SkImage_GpuYUVA::asSurfaceProxyViewRef(GrRecordingContext* context) const {
+const GrSurfaceProxyView* SkImage_GpuYUVA::view(GrRecordingContext* context) const {
     this->flattenToRGB(context);
-    return fRGBView;
+    if (!fRGBView.proxy()) {
+        return nullptr;
+    }
+    return &fRGBView;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

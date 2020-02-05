@@ -782,7 +782,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     auto makeImageSurfaceContext = [context](SkSurface* surface) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
         SkImage_Gpu* gpuImage = (SkImage_Gpu*)as_IB(i);
-        return GrSurfaceContext::Make(context, gpuImage->asSurfaceProxyViewRef(context),
+        return GrSurfaceContext::Make(context, *gpuImage->view(context),
                                       SkColorTypeToGrColorType(i->colorType()), kPremul_SkAlphaType,
                                       gpuImage->refColorSpace());
     };

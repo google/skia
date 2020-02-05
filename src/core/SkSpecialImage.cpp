@@ -52,7 +52,7 @@ public:
     virtual SkColorSpace* onGetColorSpace() const = 0;
 
 #if SK_SUPPORT_GPU
-    virtual GrSurfaceProxyView onAsSurfaceProxyViewRef(GrRecordingContext* context) const = 0;
+    virtual GrSurfaceProxyView onView(GrRecordingContext* context) const = 0;
 #endif
 
     // This subset is relative to the backing store's coordinate frame, it has already been mapped
@@ -155,8 +155,8 @@ SkColorSpace* SkSpecialImage::getColorSpace() const {
 }
 
 #if SK_SUPPORT_GPU
-GrSurfaceProxyView SkSpecialImage::asSurfaceProxyViewRef(GrRecordingContext* context) const {
-    return as_SIB(this)->onAsSurfaceProxyViewRef(context);
+GrSurfaceProxyView SkSpecialImage::view(GrRecordingContext* context) const {
+    return as_SIB(this)->onView(context);
 }
 #endif
 
@@ -207,13 +207,12 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView view = as_IB(image)->asSurfaceProxyViewRef(context);
-    if (view.proxy()) {
+    if (const GrSurfaceProxyView* view = as_IB(image)->view(context)) {
         if (!as_IB(image)->context()->priv().matches(context)) {
             return nullptr;
         }
 
-        return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(view),
+        return MakeDeferredFromGpu(context, subset, image->uniqueID(), *view,
                                    SkColorTypeToGrColorType(image->colorType()),
                                    image->refColorSpace(), props);
     } else
@@ -262,7 +261,7 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView onAsSurfaceProxyViewRef(GrRecordingContext* context) const override {
+    GrSurfaceProxyView onView(GrRecordingContext* context) const override {
         if (context) {
             return GrMakeCachedBitmapProxyView(context, fBitmap);
         }
@@ -424,9 +423,7 @@ public:
 
     GrRecordingContext* onGetContext() const override { return fContext; }
 
-    GrSurfaceProxyView onAsSurfaceProxyViewRef(GrRecordingContext* context) const override {
-        return fView;
-    }
+    GrSurfaceProxyView onView(GrRecordingContext* context) const override { return fView; }
 
     bool onGetROPixels(SkBitmap* dst) const override {
         const auto desc = SkBitmapCacheDesc::Make(this->uniqueID(), this->subset());

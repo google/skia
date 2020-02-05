@@ -249,11 +249,11 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilterImpl::filterImageGPU(
     GrSurfaceProxyView backgroundView, foregroundView;
 
     if (background) {
-        backgroundView = background->asSurfaceProxyViewRef(context);
+        backgroundView = background->view(context);
     }
 
     if (foreground) {
-        foregroundView = foreground->asSurfaceProxyViewRef(context);
+        foregroundView = foreground->view(context);
     }
 
     GrPaint paint;
