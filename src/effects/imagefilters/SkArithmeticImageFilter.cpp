@@ -52,7 +52,7 @@ class ArithmeticImageFilterImpl final : public SkImageFilter_Base {
 public:
     ArithmeticImageFilterImpl(float k1, float k2, float k3, float k4, bool enforcePMColor,
                               sk_sp<SkImageFilter> inputs[2], const CropRect* cropRect)
-            : INHERITED(inputs, 2, cropRect), fK{k1, k2, k3, k4}, fEnforcePMColor(enforcePMColor) {}
+            : INHERITED(inputs, 2, cropRect), fInputs{{k1, k2, k3, k4}, enforcePMColor} {}
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
@@ -77,10 +77,9 @@ private:
     friend void SkArithmeticImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(ArithmeticImageFilterImpl)
 
-    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
+    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fInputs.fK[3]); }
 
-    const float fK[4];
-    const bool fEnforcePMColor;
+    ArithmeticFPInputs fInputs;
 
     typedef SkImageFilter_Base INHERITED;
 };
@@ -142,9 +141,9 @@ sk_sp<SkFlattenable> ArithmeticImageFilterImpl::CreateProc(SkReadBuffer& buffer)
 void ArithmeticImageFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     for (int i = 0; i < 4; ++i) {
-        buffer.writeScalar(fK[i]);
+        buffer.writeScalar(fInputs.fK[i]);
     }
-    buffer.writeBool(fEnforcePMColor);
+    buffer.writeBool(fInputs.fEnforcePMColor);
 }
 
 static Sk4f pin(float min, const Sk4f& val, float max) {
@@ -282,33 +281,33 @@ SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
 
     // Arithmetic with non-zero k4 may influence the complete filter primitive
     // region. [k4 > 0 => result(0,0) = k4 => result(i1,i2) >= k4]
-    if (!SkScalarNearlyZero(fK[3])) {
+    if (!SkScalarNearlyZero(fInputs.fK[3])) {
         i1.join(i2);
         return i1;
     }
 
     // If both K2 or K3 are non-zero, both i1 and i2 appear.
-    if (!SkScalarNearlyZero(fK[1]) && !SkScalarNearlyZero(fK[2])) {
+    if (!SkScalarNearlyZero(fInputs.fK[1]) && !SkScalarNearlyZero(fInputs.fK[2])) {
         i1.join(i2);
         return i1;
     }
 
     // If k2 is non-zero, output can be produced whenever i1 is non-transparent.
     // [k3 = k4 = 0 => result(i1,i2) = k1*i1*i2 + k2*i1 = (k1*i2 + k2)*i1]
-    if (!SkScalarNearlyZero(fK[1])) {
+    if (!SkScalarNearlyZero(fInputs.fK[1])) {
         return i1;
     }
 
     // If k3 is non-zero, output can be produced whenever i2 is non-transparent.
     // [k2 = k4 = 0 => result(i1,i2) = k1*i1*i2 + k3*i2 = (k1*i1 + k3)*i2]
-    if (!SkScalarNearlyZero(fK[2])) {
+    if (!SkScalarNearlyZero(fInputs.fK[2])) {
         return i2;
     }
 
     // If just k1 is non-zero, output will only be produce where both inputs
     // are non-transparent. Use intersection.
     // [k1 > 0 and k2 = k3 = k4 = 0 => result(i1,i2) = k1*i1*i2]
-    if (!SkScalarNearlyZero(fK[0])) {
+    if (!SkScalarNearlyZero(fInputs.fK[0])) {
         if (!i1.intersect(i2)) {
             return SkIRect::MakeEmpty();
         }
@@ -384,12 +383,9 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         paint.addColorFragmentProcessor(std::move(fgFP));
 
         static auto effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_ARITHMETIC_SRC)));
-        ArithmeticFPInputs inputs;
-        static_assert(sizeof(inputs.k) == sizeof(fK), "struct size mismatch");
-        memcpy(inputs.k, fK, sizeof(inputs.k));
-        inputs.enforcePMColor = fEnforcePMColor;
-        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(context, effect, "Arithmetic",
-                                                                     &inputs, sizeof(inputs));
+        SkASSERT(effect->inputSize() == sizeof(fInputs));
+        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(
+                context, effect, "Arithmetic", SkData::MakeWithCopy(&fInputs, sizeof(fInputs)));
         if (xferFP) {
             ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
             paint.addColorFragmentProcessor(std::move(xferFP));
@@ -445,11 +441,11 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
             return;
         }
 
-        auto proc = fEnforcePMColor ? arith_span<true> : arith_span<false>;
+        auto proc = fInputs.fEnforcePMColor ? arith_span<true> : arith_span<false>;
         SkPixmap tmpDst = dst;
         if (intersect(&tmpDst, &src, fgoffset.fLeft, fgoffset.fTop)) {
             for (int y = 0; y < tmpDst.height(); ++y) {
-                proc(fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
+                proc(fInputs.fK, tmpDst.writable_addr32(0, y), src.addr32(0, y), tmpDst.width());
             }
         }
     }
@@ -457,11 +453,11 @@ void ArithmeticImageFilterImpl::drawForeground(SkCanvas* canvas, SkSpecialImage*
     // Now apply the mode with transparent-color to the outside of the fg image
     SkRegion outside(SkIRect::MakeWH(dst.width(), dst.height()));
     outside.op(fgoffset, SkRegion::kDifference_Op);
-    auto proc = fEnforcePMColor ? arith_transparent<true> : arith_transparent<false>;
+    auto proc = fInputs.fEnforcePMColor ? arith_transparent<true> : arith_transparent<false>;
     for (SkRegion::Iterator iter(outside); !iter.done(); iter.next()) {
         const SkIRect r = iter.rect();
         for (int y = r.fTop; y < r.fBottom; ++y) {
-            proc(fK, dst.writable_addr32(r.fLeft, y), r.width());
+            proc(fInputs.fK, dst.writable_addr32(r.fLeft, y), r.width());
         }
     }
 }
