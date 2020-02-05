@@ -245,7 +245,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
         auto[view, ct] = producer->view(GrMipMapped::kNo);
-        if (!view) {
+        if (!view.proxy()) {
             return;
         }
 
@@ -402,12 +402,13 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     // Pinned texture proxies can be rendered directly as textures, or with relatively simple
     // adjustments applied to the image content (scaling, mipmaps, color space, etc.)
     uint32_t pinnedUniqueID;
-    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->context(), &pinnedUniqueID)) {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
+                                                                          &pinnedUniqueID)) {
         SK_HISTOGRAM_BOOLEAN("DrawTiled", false);
         LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
 
         GrColorInfo colorInfo;
-        if (fContext->priv().caps()->isFormatSRGB(view.proxy()->backendFormat())) {
+        if (fContext->priv().caps()->isFormatSRGB(proxy->backendFormat())) {
             SkASSERT(image->imageInfo().colorType() == kRGBA_8888_SkColorType);
             colorInfo = GrColorInfo(GrColorType::kRGBA_8888_SRGB, image->imageInfo().alphaType(),
                                     image->imageInfo().refColorSpace());
@@ -416,10 +417,13 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
         }
 
         if (attemptDrawTexture && can_use_draw_texture(paint)) {
-            draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src, dst, dstClip,
-                         aa, aaFlags, constraint, view.asTextureProxyRef(), colorInfo);
+            draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src,  dst,
+                         dstClip, aa, aaFlags, constraint, std::move(proxy), colorInfo);
             return;
         }
+        GrSurfaceOrigin origin = proxy->origin();
+        GrSwizzle swizzle = proxy->textureSwizzle();
+        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
         GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID,
                                    useDecal);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(), ctm,
@@ -532,23 +536,20 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             continue;
         }
 
-        GrSurfaceProxyView view;
+        sk_sp<GrTextureProxy> proxy;
         const SkImage_Base* image = as_IB(set[i].fImage.get());
-        // Extract view from image, but skip YUV images so they get processed through
+        // Extract proxy from image, but skip YUV images so they get processed through
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
             uint32_t uniqueID;
-            view = image->refPinnedView(this->context(), &uniqueID);
-            if (!view) {
-                auto proxy = image->asTextureProxyRef(
-                        this->context(), GrSamplerState::Filter::kBilerp, nullptr);
-                GrSurfaceOrigin origin = proxy->origin();
-                const GrSwizzle& swizzle = proxy->textureSwizzle();
-                view = GrSurfaceProxyView(std::move(proxy), origin, swizzle);
+            proxy = image->refPinnedTextureProxy(this->context(), &uniqueID);
+            if (!proxy) {
+                proxy = image->asTextureProxyRef(this->context(), GrSamplerState::Filter::kBilerp,
+                                                 nullptr);
             }
         }
 
-        if (!view) {
+        if (!proxy) {
             // This image can't go through the texture op, send through general image pipeline
             // after flushing current batch.
             draw(i + 1);
@@ -565,7 +566,10 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
             continue;
         }
 
-        textures[i].fProxyView = std::move(view);
+        // TODO: have refPinnedTextureProxy and asTextureProxyRef return GrSurfaceProxyViews.
+        GrSurfaceOrigin origin = proxy->origin();
+        const GrSwizzle& swizzle = proxy->textureSwizzle();
+        textures[i].fProxyView = {std::move(proxy), origin, swizzle};
         textures[i].fSrcAlphaType = image->alphaType();
         textures[i].fSrcRect = set[i].fSrcRect;
         textures[i].fDstRect = set[i].fDstRect;
