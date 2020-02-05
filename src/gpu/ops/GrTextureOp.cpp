@@ -495,8 +495,28 @@ private:
         normalize_src_quad(params, &normalizedSrcQuad);
         SkRect domain = normalize_domain(filter, params, domainRect);
 
-        fQuads.append(dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
-        fViewCountPairs[0] = {proxyView.detachProxy(), 1};
+        int quadCount;
+        if (GrQuadUtils::NeedsWClipping(dstQuad)) {
+            GrQuadUtils::DrawQuad q{dstQuad, normalizedSrcQuad, aaFlags};
+            GrQuadUtils::DrawQuad extra;
+
+            quadCount = GrQuadUtils::ClipToW0(&q, &extra);
+            // We can't discard the op at this point, but disable AA flags so it won't go through
+            // inset/outset processing
+            if (quadCount == 0) {
+                q.fEdgeFlags = GrQuadAAFlags::kNone;
+                quadCount = 1;
+            }
+            fQuads.append(q.fDevice, {color, domain, q.fEdgeFlags}, &q.fLocal);
+            if (quadCount > 1) {
+                fQuads.append(extra.fDevice, {color, domain, extra.fEdgeFlags}, &extra.fLocal);
+                fMetadata.fTotalQuadCount++;
+            }
+        } else {
+            fQuads.append(dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
+            quadCount = 1;
+        }
+        fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
 
         this->setBounds(dstQuad.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
                         IsHairline::kNo);
@@ -515,8 +535,7 @@ private:
             , fQuads(cnt, true /* includes locals */)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPrePreparedDesc(nullptr)
-            , fMetadata(set[0].fProxyView.swizzle(), GrSamplerState::Filter::kNearest,
-                        Domain::kNo, saturate) {
+            , fMetadata(set[0].fProxyView.swizzle(), filter, Domain::kNo, saturate) {
         // Update counts to reflect the batch op
         fMetadata.fProxyCount = SkToUInt(proxyRunCnt);
         fMetadata.fTotalQuadCount = SkToUInt(cnt);
@@ -525,18 +544,12 @@ private:
 
         GrAAType netAAType = GrAAType::kNone; // aa type maximally compatible with all dst rects
         Domain netDomain = Domain::kNo;
-        GrSamplerState::Filter netFilter = GrSamplerState::Filter::kNearest;
-
-        // Net domain and filter quality are being determined simultaneously while iterating through
-        // the entry set. When filter changes to bilerp, all prior normalized domains in the
-        // GrQuadBuffer must be updated to reflect the 1/2px inset required. All quads appended
-        // afterwards will properly take that into account.
-        int correctDomainUpToIndex = 0;
         const GrSurfaceProxy* curProxy = nullptr;
+
         // 'q' is the index in 'set' and fQuadBuffer; 'p' is the index in fViewCountPairs and only
         // increases when set[q]'s proxy changes.
-        unsigned p = 0;
-        for (unsigned q = 0; q < fMetadata.fTotalQuadCount; ++q) {
+        int p = 0;
+        for (int q = 0; q < cnt; ++q) {
             if (q == 0) {
                 // We do not placement new the first ViewCountPair since that one is allocated and
                 // initialized as part of the GrTextureOp creation.
@@ -573,18 +586,6 @@ private:
                 srcQuad = GrQuad(set[q].fSrcRect);
             }
 
-            // Before normalizing the source coordinates, determine if bilerp is actually needed
-            if (netFilter != filter && filter_has_effect(srcQuad, quad)) {
-                // The only way netFilter != filter is if bilerp is requested and we haven't yet
-                // found a quad that requires bilerp (so net is still nearest).
-                SkASSERT(netFilter == GrSamplerState::Filter::kNearest &&
-                         filter == GrSamplerState::Filter::kBilerp);
-                netFilter = GrSamplerState::Filter::kBilerp;
-                // All quads index < q with domains were calculated as if there was no filtering,
-                // which is no longer true.
-                correctDomainUpToIndex = q;
-            }
-
             // Normalize the src quads and apply origin
             NormalizationParams proxyParams = proxy_normalization_params(
                     curProxy, set[q].fProxyView.origin());
@@ -608,7 +609,7 @@ private:
             if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
                 // Check (briefly) if the strict constraint is needed for this set entry
                 if (!set[q].fSrcRect.contains(curProxy->backingStoreBoundsRect()) &&
-                    (netFilter == GrSamplerState::Filter::kBilerp ||
+                    (filter == GrSamplerState::Filter::kBilerp ||
                      aaForQuad == GrAAType::kCoverage)) {
                     // Can't rely on hardware clamping and the draw will access outer texels
                     // for AA and/or bilerp. Unlike filter quality, this op still has per-quad
@@ -622,35 +623,38 @@ private:
             // (this frequently happens when Chrome draws 9-patches).
             SkRect domain = normalize_domain(filter, proxyParams, domainForQuad);
             float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
-            fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
-            fViewCountPairs[p].fQuadCnt++;
+
+            if (GrQuadUtils::NeedsWClipping(quad)) {
+                GrQuadUtils::DrawQuad q{quad, srcQuad, aaFlags};
+                GrQuadUtils::DrawQuad extra;
+
+                int quadCount = GrQuadUtils::ClipToW0(&q, &extra);
+                // We can't discard the op at this point, but disable AA flags so it won't go through
+                // inset/outset processing
+                if (quadCount == 0) {
+                    q.fEdgeFlags = GrQuadAAFlags::kNone;
+                    quadCount = 1;
+                }
+                fQuads.append(q.fDevice, {{alpha, alpha, alpha, alpha}, domain, q.fEdgeFlags},
+                              &q.fLocal);
+                if (quadCount > 1) {
+                    fQuads.append(extra.fDevice,
+                                  {{alpha, alpha, alpha, alpha}, domain, extra.fEdgeFlags},
+                                  &extra.fLocal);
+                    fMetadata.fTotalQuadCount++;
+                }
+                fViewCountPairs[p].fQuadCnt += quadCount;
+            } else {
+                fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
+                fViewCountPairs[p].fQuadCnt++;
+            }
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
         SkASSERT((p + 1) == fMetadata.fProxyCount);
         SkASSERT(fQuads.count() == fMetadata.fTotalQuadCount);
 
-        // All the quads have been recorded, but some domains need to be fixed
-        if (netDomain == Domain::kYes && correctDomainUpToIndex > 0) {
-            int p = 0; // for fViewCountPairs
-            int q = 0; // for set/fQuads
-            int netVCt = 0;
-            auto iter = fQuads.metadata();
-            while(q < correctDomainUpToIndex && iter.next()) {
-                NormalizationParams proxyParams = proxy_normalization_params(
-                        fViewCountPairs[p].fProxy.get(), set[q].fProxyView.origin());
-                correct_domain_for_bilerp(proxyParams, &(iter->fDomainRect));
-                q++;
-                if (q - netVCt >= fViewCountPairs[p].fQuadCnt) {
-                    // Advance to the next view count pair
-                    netVCt += fViewCountPairs[p].fQuadCnt;
-                    p++;
-                }
-            }
-        }
-
         fMetadata.fAAType = static_cast<uint16_t>(netAAType);
-        fMetadata.fFilter = static_cast<uint16_t>(netFilter);
         fMetadata.fDomain = static_cast<uint16_t>(netDomain);
 
         this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
