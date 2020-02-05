@@ -182,8 +182,8 @@ SkISize SkPatchUtils::GetLevelOfDetail(const SkPoint cubics[12], const SkMatrix*
     }
 
     // Level of detail per axis, based on the larger side between top and bottom or left and right
-    int lodX = static_cast<int>(SkMaxScalar(topLength, bottomLength) / kPartitionSize);
-    int lodY = static_cast<int>(SkMaxScalar(leftLength, rightLength) / kPartitionSize);
+    int lodX = static_cast<int>(std::max(topLength, bottomLength) / kPartitionSize);
+    int lodY = static_cast<int>(std::max(leftLength, rightLength) / kPartitionSize);
 
     return SkISize::Make(SkMax32(8, lodX), SkMax32(8, lodY));
 }

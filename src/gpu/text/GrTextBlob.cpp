@@ -351,8 +351,8 @@ void GrTextBlob::setHasDistanceField() { fTextType |= kHasDistanceField_TextType
 void GrTextBlob::setHasBitmap() { fTextType |= kHasBitmap_TextType; }
 void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
     // we init fMaxMinScale and fMinMaxScale in the constructor
-    fMaxMinScale = SkMaxScalar(scaledMin, fMaxMinScale);
-    fMinMaxScale = SkMinScalar(scaledMax, fMinMaxScale);
+    fMaxMinScale = std::max(scaledMin, fMaxMinScale);
+    fMinMaxScale = std::min(scaledMax, fMinMaxScale);
 }
 
 size_t GrTextBlob::GetVertexStride(GrMaskFormat maskFormat, bool hasWCoord) {

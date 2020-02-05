@@ -41,10 +41,10 @@ public:
     }
 
     static void GrowToInclude(SkRect* r, const SkPoint& pt) {
-        r->fLeft  =  SkMinScalar(pt.fX, r->fLeft);
-        r->fRight =  SkMaxScalar(pt.fX, r->fRight);
-        r->fTop    = SkMinScalar(pt.fY, r->fTop);
-        r->fBottom = SkMaxScalar(pt.fY, r->fBottom);
+        r->fLeft  =  std::min(pt.fX, r->fLeft);
+        r->fRight =  std::max(pt.fX, r->fRight);
+        r->fTop    = std::min(pt.fY, r->fTop);
+        r->fBottom = std::max(pt.fY, r->fBottom);
     }
 
     // Conservative check if r can be expressed in fixed-point.

@@ -39,7 +39,7 @@ static SkBitmap make_bmp(int w, int h) {
 
     SkPoint     pt = { wScalar / 2, hScalar / 2 };
 
-    SkScalar    radius = 3 * SkMaxScalar(wScalar, hScalar);
+    SkScalar    radius = 3 * std::max(wScalar, hScalar);
 
     SkColor colors[] = {SK_ColorDKGRAY,
                         ToolUtils::color_to_565(0xFF222255),

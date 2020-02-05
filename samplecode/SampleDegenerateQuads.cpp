@@ -220,7 +220,7 @@ static SkScalar get_framed_coverage(const SkPoint outer[4], const SkScalar outer
                 SkScalar t = SkScalarPin(point.fY - geomDomain.fTop, 0.f, 1.f);
                 SkScalar r = SkScalarPin(geomDomain.fRight - point.fX, 0.f, 1.f);
                 SkScalar b = SkScalarPin(geomDomain.fBottom - point.fY, 0.f, 1.f);
-                coverage = SkMinScalar(coverage, l * t * r * b);
+                coverage = std::min(coverage, l * t * r * b);
             }
             return coverage;
         }
@@ -474,8 +474,8 @@ private:
     void drag(SkPoint* point) {
         SkPoint delta = fCurr - fPrev;
         *point += SkPoint::Make(delta.x() / kViewScale, delta.y() / kViewScale);
-        point->fX = SkMinScalar(fOuterRect.fRight, SkMaxScalar(point->fX, fOuterRect.fLeft));
-        point->fY = SkMinScalar(fOuterRect.fBottom, SkMaxScalar(point->fY, fOuterRect.fTop));
+        point->fX = std::min(fOuterRect.fRight, std::max(point->fX, fOuterRect.fLeft));
+        point->fY = std::min(fOuterRect.fBottom, std::max(point->fY, fOuterRect.fTop));
     }
 };
 

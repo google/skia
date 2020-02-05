@@ -792,8 +792,8 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
                            int startAngle)
 {
 
-    SkScalar rx = SkMinScalar(rect.width(), xIn);
-    SkScalar ry = SkMinScalar(rect.height(), yIn);
+    SkScalar rx = std::min(rect.width(), xIn);
+    SkScalar ry = std::min(rect.height(), yIn);
 
     SkRect arcRect;
     arcRect.setLTRB(-rx, -ry, rx, ry);
@@ -1817,7 +1817,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     static const SkRect kBaseRect = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
 
     // A circle that bounds kBaseRect (with a significant amount of slop)
-    SkScalar circleR = SkMaxScalar(kBaseRect.width(), kBaseRect.height());
+    SkScalar circleR = std::max(kBaseRect.width(), kBaseRect.height());
     circleR *= 1.75f / 2;
     static const SkPoint kCircleC = {kBaseRect.centerX(), kBaseRect.centerY()};
 

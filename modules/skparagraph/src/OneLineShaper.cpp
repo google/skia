@@ -218,7 +218,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
 
         // Carve out the line text out of the entire run text
         fAdvance.fX += runAdvance.fX;
-        fAdvance.fY = SkMaxScalar(fAdvance.fY, runAdvance.fY);
+        fAdvance.fY = std::max(fAdvance.fY, runAdvance.fY);
     }
 
     advanceX = fAdvance.fX;

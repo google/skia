@@ -899,8 +899,8 @@ bool GrAAConvexTessellator::Ring::isConvex(const GrAAConvexTessellator& tess) co
         cur  = tess.point(fPts[next].fIndex) - tess.point(fPts[i].fIndex);
         SkScalar dot = prev.fX * cur.fY - prev.fY * cur.fX;
 
-        minDot = SkMinScalar(minDot, dot);
-        maxDot = SkMaxScalar(maxDot, dot);
+        minDot = std::min(minDot, dot);
+        maxDot = std::max(maxDot, dot);
 
         prev = cur;
     }

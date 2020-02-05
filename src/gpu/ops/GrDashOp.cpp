@@ -374,7 +374,7 @@ private:
             // We always want to at least stroke out half a pixel on each side in device space
             // so 0.5f / perpScale gives us this min in src space
             SkScalar halfSrcStroke =
-                    SkMaxScalar(args.fSrcStrokeWidth * 0.5f, 0.5f / args.fPerpendicularScale);
+                    std::max(args.fSrcStrokeWidth * 0.5f, 0.5f / args.fPerpendicularScale);
 
             SkScalar strokeAdj;
             if (!hasCap) {
@@ -401,8 +401,8 @@ private:
                     SkPoint startPts[2];
                     startPts[0] = draw.fPtsRot[0];
                     startPts[1].fY = startPts[0].fY;
-                    startPts[1].fX = SkMinScalar(startPts[0].fX + draw.fIntervals[0] - draw.fPhase,
-                                                 draw.fPtsRot[1].fX);
+                    startPts[1].fX = std::min(startPts[0].fX + draw.fIntervals[0] - draw.fPhase,
+                                              draw.fPtsRot[1].fX);
                     startRect.setBounds(startPts, 2);
                     startRect.outset(strokeAdj, halfSrcStroke);
 

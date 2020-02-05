@@ -404,7 +404,7 @@ private:
         dst.setBounds(op.pts, op.count);
 
         // Pad the bounding box a little to make sure hairline points' bounds aren't empty.
-        SkScalar stroke = SkMaxScalar(op.paint.getStrokeWidth(), 0.01f);
+        SkScalar stroke = std::max(op.paint.getStrokeWidth(), 0.01f);
         dst.outset(stroke/2, stroke/2);
 
         return this->adjustAndMap(dst, &op.paint);

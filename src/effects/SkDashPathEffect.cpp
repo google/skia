@@ -228,7 +228,7 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
 
     if (results) {
         results->fFlags = 0;
-        SkScalar clampedInitialDashLength = SkMinScalar(length, fInitialDashLength);
+        SkScalar clampedInitialDashLength = std::min(length, fInitialDashLength);
 
         if (SkPaint::kRound_Cap == rec.getCap()) {
             results->fFlags |= PointData::kCircles_PointFlag;

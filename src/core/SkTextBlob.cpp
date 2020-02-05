@@ -322,8 +322,8 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
         SkScalar maxX = *glyphPos;
         for (unsigned i = 1; i < run.glyphCount(); ++i) {
             SkScalar x = glyphPos[i];
-            minX = SkMinScalar(x, minX);
-            maxX = SkMaxScalar(x, maxX);
+            minX = std::min(x, minX);
+            maxX = std::max(x, maxX);
         }
 
         bounds.setLTRB(minX, 0, maxX, 0);

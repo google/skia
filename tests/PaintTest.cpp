@@ -93,7 +93,7 @@ DEF_TEST(Paint_regression_cubic, reporter) {
     strokeR = stroke.getBounds();
 
     SkRect maxR = fillR;
-    SkScalar miter = SkMaxScalar(SK_Scalar1, paint.getStrokeMiter());
+    SkScalar miter = std::max(SK_Scalar1, paint.getStrokeMiter());
     SkScalar inset = paint.getStrokeJoin() == SkPaint::kMiter_Join ?
                             paint.getStrokeWidth() * miter :
                             paint.getStrokeWidth();

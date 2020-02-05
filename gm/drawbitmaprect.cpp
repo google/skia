@@ -60,7 +60,7 @@ static sk_sp<SkImage> makebm(SkCanvas* origCanvas, SkBitmap* resultBM, int w, in
 
     SkPoint     pt = { wScalar / 2, hScalar / 2 };
 
-    SkScalar    radius = 4 * SkMaxScalar(wScalar, hScalar);
+    SkScalar    radius = 4 * std::max(wScalar, hScalar);
 
     SkColor     colors[] = { SK_ColorRED, SK_ColorYELLOW,
                              SK_ColorGREEN, SK_ColorMAGENTA,

@@ -1571,7 +1571,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
             break;
     }
 
-    if (fWidth < SkMinScalar(rw, rh) && !fDoFill) {
+    if (fWidth < std::min(rw, rh) && !fDoFill) {
         r = rect;
         r.inset(radius, radius);
         dst->addRect(r, reverse_direction(dir));

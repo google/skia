@@ -89,7 +89,7 @@ sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
 void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
     SkScalar x = SkIntToScalar(width / 2);
     SkScalar y = SkIntToScalar(height / 2);
-    SkScalar radius = SkMinScalar(x, y) * 0.8f;
+    SkScalar radius = std::min(x, y) * 0.8f;
     canvas->clear(0x00000000);
     SkColor colors[2];
     colors[0] = SK_ColorWHITE;

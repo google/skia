@@ -221,7 +221,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
     // Scale down the tile size if larger than maxTextureSize for GPU Path or it should fail on create texture
     if (maxTextureSize) {
         if (scaledSize.width() > maxTextureSize || scaledSize.height() > maxTextureSize) {
-            SkScalar downScale = maxTextureSize / SkMaxScalar(scaledSize.width(), scaledSize.height());
+            SkScalar downScale = maxTextureSize / std::max(scaledSize.width(), scaledSize.height());
             scaledSize.set(SkScalarFloorToScalar(scaledSize.width() * downScale),
                            SkScalarFloorToScalar(scaledSize.height() * downScale));
         }

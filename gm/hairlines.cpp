@@ -207,7 +207,7 @@ protected:
                         canvas->drawPath(fPaths[p], paint);
                         canvas->restore();
 
-                        maxH = SkMaxScalar(maxH, bounds.height());
+                        maxH = std::max(maxH, bounds.height());
 
                         SkScalar dx = bounds.width() + SkIntToScalar(kMargin);
                         x += dx;

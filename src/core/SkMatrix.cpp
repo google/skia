@@ -1456,10 +1456,10 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
     }
     if (!(typeMask & SkMatrix::kAffine_Mask)) {
         if (kMin_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
-             results[0] = SkMinScalar(SkScalarAbs(m[SkMatrix::kMScaleX]),
+             results[0] = std::min(SkScalarAbs(m[SkMatrix::kMScaleX]),
                                       SkScalarAbs(m[SkMatrix::kMScaleY]));
         } else if (kMax_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
-             results[0] = SkMaxScalar(SkScalarAbs(m[SkMatrix::kMScaleX]),
+             results[0] = std::max(SkScalarAbs(m[SkMatrix::kMScaleX]),
                                       SkScalarAbs(m[SkMatrix::kMScaleY]));
         } else {
             results[0] = SkScalarAbs(m[SkMatrix::kMScaleX]);
@@ -1489,9 +1489,9 @@ template <MinMaxOrBoth MIN_MAX_OR_BOTH> bool get_scale_factor(SkMatrix::TypeMask
     // if upper left 2x2 is orthogonal save some math
     if (bSqd <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
         if (kMin_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
-            results[0] = SkMinScalar(a, c);
+            results[0] = std::min(a, c);
         } else if (kMax_MinMaxOrBoth == MIN_MAX_OR_BOTH) {
-            results[0] = SkMaxScalar(a, c);
+            results[0] = std::max(a, c);
         } else {
             results[0] = a;
             results[1] = c;
