@@ -328,6 +328,14 @@ public:
      *  If no clipping is needed, returns false and "result" is left unchanged.
      */
     static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
+
+    /**
+     * Concatenates all verbs from src onto dst's verbs array. Increases dst's point count by the
+     * number of points in src, and the conic weight count by the number of conics in src.
+     *
+     * Returns pointers to the uninitialized points and conic weights data.
+     */
+    static std::tuple<SkPoint*, SkScalar*> GrowForVerbsInPath(SkPath* dst, const SkPath& src);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

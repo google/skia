@@ -121,6 +121,7 @@ public:
     public:
         Iter begin() const { return Iter(fAttributes, fCount); }
         Iter end() const { return Iter(); }
+        const Attribute& atMaybeUninitialized(int idx) const { return fAttributes[idx]; }
 
     private:
         friend class GrPrimitiveProcessor;
