@@ -495,8 +495,27 @@ private:
         normalize_src_quad(params, &normalizedSrcQuad);
         SkRect domain = normalize_domain(filter, params, domainRect);
 
-        fQuads.append(dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
-        fViewCountPairs[0] = {proxyView.detachProxy(), 1};
+        int quadCount;
+        if (GrQuadUtils::NeedsWClipping(dstQuad)) {
+            GrQuadUtils::DrawQuad q{dstQuad, normalizedSrcQuad, aaFlags};
+            GrQuadUtils::DrawQuad extra;
+
+            quadCount = GrQuadUtils::ClipToW0(&q, &extra);
+            // We can't discard the op at this point, but disable AA flags so it won't go through
+            // inset/outset processing
+            if (quadCount == 0) {
+                q.fEdgeFlags = GrQuadAAFlags::kNone;
+                quadCount = 1;
+            }
+            fQuads.append(q.fDevice, {color, domain, q.fEdgeFlags}, &q.fLocal);
+            if (quadCount > 1) {
+                fQuads.append(extra.fDevice, {color, domain, extra.fEdgeFlags}, &extra.fLocal);
+            }
+        } else {
+            fQuads.append(dstQuad, {color, domain, aaFlags}, &normalizedSrcQuad);
+            quadCount = 1;
+        }
+        fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
 
         this->setBounds(dstQuad.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
                         IsHairline::kNo);
@@ -582,7 +601,7 @@ private:
                 netFilter = GrSamplerState::Filter::kBilerp;
                 // All quads index < q with domains were calculated as if there was no filtering,
                 // which is no longer true.
-                correctDomainUpToIndex = q;
+                correctDomainUpToIndex = fQuads.count() - 1;
             }
 
             // Normalize the src quads and apply origin
@@ -622,8 +641,30 @@ private:
             // (this frequently happens when Chrome draws 9-patches).
             SkRect domain = normalize_domain(filter, proxyParams, domainForQuad);
             float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
-            fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
-            fViewCountPairs[p].fQuadCnt++;
+
+            if (GrQuadUtils::NeedsWClipping(quad)) {
+                GrQuadUtils::DrawQuad q{quad, srcQuad, aaFlags};
+                GrQuadUtils::DrawQuad extra;
+
+                int quadCount = GrQuadUtils::ClipToW0(&q, &extra);
+                // We can't discard the op at this point, but disable AA flags so it won't go through
+                // inset/outset processing
+                if (quadCount == 0) {
+                    q.fEdgeFlags = GrQuadAAFlags::kNone;
+                    quadCount = 1;
+                }
+                fQuads.append(q.fDevice, {{alpha, alpha, alpha, alpha}, domain, q.fEdgeFlags},
+                              &q.fLocal);
+                if (quadCount > 1) {
+                    fQuads.append(extra.fDevice,
+                                  {{alpha, alpha, alpha, alpha}, domain, extra.fEdgeFlags},
+                                  &extra.fLocal);
+                }
+                fViewCountPairs[p].fQuadCnt += quadCount;
+            } else {
+                fQuads.append(quad, {{alpha, alpha, alpha, alpha}, domain, aaFlags}, &srcQuad);
+                fViewCountPairs[p].fQuadCnt++;
+            }
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
