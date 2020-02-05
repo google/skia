@@ -16,6 +16,24 @@
       "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c88b2bb6_c5534b85",
+        "filename": "include/core/SkColor.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-05T15:35:22Z",
+      "side": 1,
+      "message": "Just did this spot in place... will land this for you now.",
+      "parentUuid": "71d13d24_ea8bc9fd",
+      "revId": "68a40309c872e1eff2dc7458e2de90812e0ea3dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
