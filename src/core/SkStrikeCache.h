@@ -82,13 +82,6 @@ public:
             const SkScalerContextEffects& effects,
             const SkTypeface& typeface);
 
-    // Routines to find suitable data when working in a remote cache situation. These are
-    // suitable as substitutes for similar calls in SkScalerContext.
-    bool desperationSearchForImage(const SkDescriptor& desc,
-                                   SkGlyph* glyph,
-                                   SkStrike* targetCache);
-    bool desperationSearchForPath(const SkDescriptor& desc, SkGlyphID glyphID, SkPath* path);
-
     SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
                                                   const SkScalerContextEffects& effects,
                                                   const SkTypeface& typeface) override;

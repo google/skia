@@ -63,11 +63,6 @@ public:
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                         SkGlyph* , SkScalar* array, int* count);
 
-    /** Find any glyph in this cache with the given ID, regardless of subpixel positioning.
-     *  If set and present, skip over the glyph with vetoID.
-     */
-    const SkGlyph* getCachedGlyphAnySubPix(SkGlyphID,
-                                           SkPackedGlyphID vetoID = SkPackedGlyphID()) const;
 
     /** Return the vertical metrics for this strike.
     */
