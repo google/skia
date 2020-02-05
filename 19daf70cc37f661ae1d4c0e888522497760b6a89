@@ -22,6 +22,30 @@
       "revId": "19daf70cc37f661ae1d4c0e888522497760b6a89",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bef2a8fa_2438484b",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-05T15:28:11Z",
+      "side": 1,
+      "message": "You mean one copy per FP instance (avoiding the stack allocation)?",
+      "parentUuid": "9f392abd_e2e49d0b",
+      "range": {
+        "startLine": 387,
+        "startChar": 8,
+        "endLine": 392,
+        "endChar": 94
+      },
+      "revId": "19daf70cc37f661ae1d4c0e888522497760b6a89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
