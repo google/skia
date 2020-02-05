@@ -85,7 +85,7 @@ public:
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> inputs);
 
     const SkString& source() const { return fSkSL; }
-    int index() const { return fIndex; }
+    uint32_t hash() const { return fHash; }
 
     template <typename T>
     class ConstIterable {
@@ -134,7 +134,7 @@ private:
     using SpecializeResult = std::tuple<std::unique_ptr<SkSL::Program>, SkString>;
     SpecializeResult specialize(SkSL::Program& baseProgram, const void* inputs);
 
-    int fIndex;
+    uint32_t fHash;
     SkString fSkSL;
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
