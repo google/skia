@@ -61,9 +61,6 @@ public:
 
     /**
      * This is similar to MakeTexelSubset but takes a float rather than integer subset rect.
-     * No adjustment is done for filtering, the texture coordinates are limited to the
-     * unmodified subset. The subset should be unnormalized. The effect will apply texture
-     * coordinate normalization after subset restriction (logically).
      */
     static std::unique_ptr<GrFragmentProcessor> MakeSubset(GrSurfaceProxyView,
                                                            SkAlphaType,
@@ -108,7 +105,6 @@ private:
         Sampling(const GrSurfaceProxy& proxy,
                  GrSamplerState sampler,
                  const SkRect&,
-                 bool,
                  const SkRect*,
                  const GrCaps&);
         inline bool usesDecal() const;
