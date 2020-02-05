@@ -33,7 +33,6 @@ public:
     // This returns the single backing proxy if the YUV channels have already been flattened but
     // nullptr if they have not.
     GrTextureProxy* peekProxy() const override;
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*) const override;
 
     const GrSurfaceProxyView* view(GrRecordingContext* context) const override;
 

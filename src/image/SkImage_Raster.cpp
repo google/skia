@@ -73,13 +73,14 @@ public:
                    uint32_t id = kNeedNewImageUniqueID);
     ~SkImage_Raster() override;
 
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY, CachingHint) const override;
+    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
+                      CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
-                                            SkScalar scaleAdjust[2]) const override;
+    GrSurfaceProxyView refView(GrRecordingContext*, GrSamplerState,
+                               SkScalar scaleAdjust[2]) const override;
 #endif
 
     bool getROPixels(SkBitmap*, CachingHint) const override;
@@ -167,21 +168,20 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
 }
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrRecordingContext* context,
-                                                        GrSamplerState params,
-                                                        SkScalar scaleAdjust[2]) const {
+GrSurfaceProxyView SkImage_Raster::refView(GrRecordingContext* context, GrSamplerState params,
+                                           SkScalar scaleAdjust[2]) const {
     if (!context) {
-        return nullptr;
+        return {};
     }
 
     uint32_t uniqueID;
     if (GrSurfaceProxyView view = this->refPinnedView(context, &uniqueID)) {
         GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
                                    fPinnedUniqueID);
-        return adjuster.viewForParams(params, scaleAdjust).asTextureProxyRef();
+        return adjuster.viewForParams(params, scaleAdjust);
     }
 
-    return GrRefCachedBitmapView(context, fBitmap, params, scaleAdjust).asTextureProxyRef();
+    return GrRefCachedBitmapView(context, fBitmap, params, scaleAdjust);
 }
 #endif
 

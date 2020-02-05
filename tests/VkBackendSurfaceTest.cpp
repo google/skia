@@ -67,10 +67,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
                                                            kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage.get());
 
-    sk_sp<GrTextureProxy> texProxy = as_IB(wrappedImage)->asTextureProxyRef(context);
-    REPORTER_ASSERT(reporter, texProxy.get());
-    REPORTER_ASSERT(reporter, texProxy->isInstantiated());
-    GrTexture* texture = texProxy->peekTexture();
+    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(context);
+    REPORTER_ASSERT(reporter, view);
+    REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
+    GrTexture* texture = view->proxy()->peekTexture();
     REPORTER_ASSERT(reporter, texture);
 
     // Verify that modifying the layout via the GrVkTexture is reflected in the GrBackendTexture
