@@ -12,6 +12,9 @@
 
 struct ArithmeticFPInputs {
     ArithmeticFPInputs(float k0, float k1, float k2, float k3, bool enforcePMColor) {
+        // We copy instances of this struct as the input data blob for the  SkSL FP. The FP
+        // may try to access all of our bytes (for comparison purposes), so be sure to zero out
+        // any padding after the dangling bool.
         memset(this, 0, sizeof(*this));
         fK[0] = k0;
         fK[1] = k1;
