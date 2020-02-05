@@ -34,7 +34,7 @@ int compareRound(SkScalar a, SkScalar b) {
     // It has to be relative to be useful
     auto base = SkTMax(SkScalarAbs(a), SkScalarAbs(b));
     auto diff = SkScalarAbs(a - b);
-    if (SkScalarNearlyZero(base) || diff / base < 0.001f) {
+    if (nearlyZero(base) || diff / base < 0.001f) {
         return 0;
     }
 
@@ -223,7 +223,7 @@ void TextLine::paint(SkCanvas* textCanvas) {
     this->iterateThroughVisualRuns(false,
             [textCanvas, this]
             (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
-            if (run->placeholder() != nullptr) {
+            if (run->placeholderStyle() != nullptr) {
                 *runWidthInLine = run->advance().fX;
                 return true;
             }
@@ -300,7 +300,7 @@ SkRect TextLine::extendHeight(const ClipContext& context) const {
 
 void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const {
 
-    if (context.run->placeholder() != nullptr) {
+    if (context.run->placeholderStyle() != nullptr) {
         return;
     }
 
@@ -578,7 +578,7 @@ void TextLine::justify(SkScalar maxWidth) {
         return true;
     });
 
-    SkAssertResult(SkScalarNearlyEqual(shift, maxWidth - textLen));
+    SkAssertResult(nearlyEqual(shift, maxWidth - textLen));
     SkASSERT(whitespacePatches == 0);
 
     this->fWidthWithSpaces += ghostShift;
@@ -644,7 +644,7 @@ Run* TextLine::shapeEllipsis(const SkString& ellipsis, Run* run) {
         void commitRunBuffer(const RunInfo& info) override {
             fRun->fAdvance.fX = info.fAdvance.fX;
             fRun->fAdvance.fY = fRun->advance().fY;
-            fRun->fPlaceholder = nullptr;
+            fRun->fPlaceholderIndex = std::numeric_limits<size_t>::max();
             fRun->fEllipsis = true;
         }
 
@@ -673,7 +673,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                                         bool limitToClusters) const {
     ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), false };
 
-    if (run->placeholder() != nullptr || run->fEllipsis) {
+    if (run->placeholderStyle() != nullptr || run->fEllipsis) {
         // Both ellipsis and placeholders can only be measured as one glyph
         SkASSERT(textRange == run->textRange());
         result.fTextShift = runOffsetInLine;
@@ -931,7 +931,7 @@ LineMetrics TextLine::getMetrics() const {
     this->iterateThroughVisualRuns(false,
         [this, &result]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
-        if (run->placeholder() != nullptr) {
+        if (run->placeholderStyle() != nullptr) {
             *runWidthInLine = run->advance().fX;
             return true;
         }

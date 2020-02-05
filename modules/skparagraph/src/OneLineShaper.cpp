@@ -483,7 +483,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         run.fPositions[0] = { advanceX, 0 };
         run.fOffsets[0] = {0, 0};
         run.fClusterIndexes[0] = 0;
-        run.fPlaceholder = &placeholder.fStyle;
+        run.fPlaceholderIndex = &placeholder - fParagraph->fPlaceholders.begin();
         advanceX += placeholder.fStyle.fWidth;
     }
     return true;

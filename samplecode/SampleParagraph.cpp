@@ -1869,27 +1869,61 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-
-        const char* text =  "Overflowing endorsement that has a large lengthy text and is a lot longer than expected";
+/*
+ * Shell: ParagraphStyle: 1.000000 1
+Shell: Strut enabled: 0 1.000000 14.000000 400 5 0
+Shell: Font Families: 0
+Shell: DefaultTextStyle: 16.000000 500 5 0
+Shell: Font Families: 1 Roboto
+Shell: Font Features: 0
+Shell: TextStyle#0: [0:22) 16.000000 500 5 0
+Shell: Font Families: 1 Roboto
+Shell: Font Features: 0
+Shell: TextStyle#1: [25:49) 16.000000 500 5 0
+Shell: Font Families: 1 Roboto
+Shell: Font Features: 0
+Shell: Placeholder#0: [22:25) 32.000000 32.000000 32.000000 0 5
+Shell: Placeholder#1: [49:52) 19.000000 41.000000 19.000000 0 4
+Shell: Placeholder#2: [52:52) 0.000000 0.000000 0.000000 0 5
+Shell: layout('Go to device settings ￼ and set up a passcode. ￼', 280.000000): 280.000000 * 38.000000
+ */
+        auto fontCollection = getFontCollection();
+        //fontCollection->getParagraphCache()->turnOn(false);
+        const char* text1 =  "Go to device settings ";
+        const char* text2 = "and set up a passcode.";
         ParagraphStyle paragraph_style;
-        paragraph_style.setEllipsis(u"\u2026");
-        paragraph_style.setMaxLines(std::numeric_limits<size_t>::max());
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        StrutStyle strut_style;
+        strut_style.setStrutEnabled(false);
+        strut_style.setFontSize(14);
+        strut_style.setForceStrutHeight(false);
+        strut_style.setHeight(14);
+        paragraph_style.setStrutStyle(strut_style);
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Google Sans")});
-        text_style.setFontSize(20);
-        builder.pushStyle(text_style);
-        builder.addText(text);
-        auto paragraph = builder.Build();
-        paragraph->layout(594.0f);
-        paragraph->paint(canvas, 0, 0);
-        canvas->translate(0, 200);
-        paragraph->layout(std::numeric_limits<SkScalar>::max());
-        paragraph->paint(canvas, 0, 0);
-        canvas->translate(0, 200);
-        paragraph->layout(787.0f);
-        paragraph->paint(canvas, 0, 0);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(16);
+        PlaceholderStyle placeholder_style;
+        {
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText(text1);
+            placeholder_style.fHeight = 32;
+            placeholder_style.fWidth = 32;
+            placeholder_style.fBaselineOffset = 32;
+            placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+            placeholder_style.fAlignment = PlaceholderAlignment::kMiddle;
+            builder.addPlaceholder(placeholder_style);
+            builder.addText(text2);
+            placeholder_style.fHeight = 19;
+            placeholder_style.fWidth = 41;
+            placeholder_style.fBaselineOffset = 19;
+            placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+            placeholder_style.fAlignment = PlaceholderAlignment::kTop;
+            builder.addPlaceholder(placeholder_style);
+            auto paragraph = builder.Build();
+            paragraph->layout(280);
+            paragraph->paint(canvas, 0, 0);
+        }
     }
 
 private:
@@ -2089,5 +2123,5 @@ DEF_SAMPLE(return new ParagraphView22();)
 DEF_SAMPLE(return new ParagraphView23();)
 DEF_SAMPLE(return new ParagraphView24();)
 DEF_SAMPLE(return new ParagraphView25();)
-DEF_SAMPLE(return new ParagraphView26();)
-DEF_SAMPLE(return new ParagraphView27();)
+//DEF_SAMPLE(return new ParagraphView26();)
+//DEF_SAMPLE(return new ParagraphView27();)

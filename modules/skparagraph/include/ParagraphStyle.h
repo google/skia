@@ -37,6 +37,17 @@ struct StrutStyle {
     bool getHeightOverride() const { return fHeightOverride; }
     void setHeightOverride(bool v) { fHeightOverride = v; }
 
+    bool operator==(const StrutStyle& rhs) const {
+        return this->fEnabled == rhs.fEnabled &&
+               this->fHeightOverride == rhs.fHeightOverride &&
+               this->fForceHeight == rhs.fForceHeight &&
+               nearlyEqual(this->fLeading, rhs.fLeading) &&
+               nearlyEqual(this->fHeight, rhs.fHeight) &&
+               nearlyEqual(this->fFontSize, rhs.fFontSize) &&
+               this->fFontStyle == rhs.fFontStyle &&
+               this->fFontFamilies == rhs.fFontFamilies;
+    }
+
 private:
 
     std::vector<SkString> fFontFamilies;
