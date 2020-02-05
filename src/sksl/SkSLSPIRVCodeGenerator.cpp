@@ -172,13 +172,6 @@ static bool is_unsigned(const Context& context, const Type& type) {
            type == *context.fUByte_Type;
 }
 
-static bool is_bool(const Context& context, const Type& type) {
-    if (type.kind() == Type::kVector_Kind) {
-        return is_bool(context, type.componentType());
-    }
-    return type == *context.fBool_Type;
-}
-
 static bool is_out(const Variable& var) {
     return (var.fModifiers.fFlags & Modifiers::kOut_Flag) != 0;
 }
@@ -704,7 +697,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             intrinsicId = std::get<2>(intrinsic->second);
         } else if (is_unsigned(fContext, type)) {
             intrinsicId = std::get<3>(intrinsic->second);
-        } else if (is_bool(fContext, type)) {
+        } else if (type.hasBoolComponents()) {
             intrinsicId = std::get<4>(intrinsic->second);
         } else {
             intrinsicId = std::get<1>(intrinsic->second);
@@ -992,8 +985,16 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kMix_SpecialIntrinsic: {
             std::vector<SpvId> args = this->vectorize(c.fArguments, out);
             SkASSERT(args.size() == 3);
-            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMix, SpvOpUndef,
-                                               SpvOpUndef, args, out);
+            if (c.fArguments[2]->fType.hasBoolComponents()) {
+                SpvId trueId = this->writeExpression(*c.fArguments[0], out);
+                SpvId falseId = this->writeExpression(*c.fArguments[1], out);
+                SpvId test = this->writeExpression(*c.fArguments[2], out);
+                this->writeInstruction(SpvOpSelect, this->getType(c.fType), result, test, falseId,
+                                       trueId, out);
+            } else {
+                this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMix, SpvOpUndef,
+                                                   SpvOpUndef, args, out);
+            }
             break;
         }
         case kSaturate_SpecialIntrinsic: {
