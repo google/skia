@@ -220,6 +220,10 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         return nullptr;
     }
 
+    GrSurfaceOrigin origin = proxy->origin();
+    GrSwizzle swizzle = proxy->textureSwizzle();
+    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+
     SkAlphaType srcAlphaType = fImage->alphaType();
 
     lmInverse.postScale(scaleAdjust[0], scaleAdjust[1]);
@@ -244,12 +248,9 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
             }
         }
         static constexpr auto kDir = GrBicubicEffect::Direction::kXY;
-        inner = GrBicubicEffect::Make(std::move(proxy), lmInverse, wrapModes, domainX, domainY,
-                                      kDir, srcAlphaType);
+        inner = GrBicubicEffect::Make(std::move(view), lmInverse, wrapModes, domainX, domainY, kDir,
+                                      srcAlphaType);
     } else {
-        GrSurfaceOrigin origin = proxy->origin();
-        GrSwizzle swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
         inner = GrTextureEffect::Make(std::move(view), srcAlphaType, lmInverse, samplerState, caps);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), fImage->colorSpace(), srcAlphaType,

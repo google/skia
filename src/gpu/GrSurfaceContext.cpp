@@ -650,10 +650,9 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(
             if (srcW != texView.proxy()->width() || srcH != texView.proxy()->height()) {
                 auto domain = GrTextureDomain::MakeTexelDomain(
                         SkIRect::MakeXYWH(srcX, srcY, srcW, srcH), GrTextureDomain::kClamp_Mode);
-                fp = GrBicubicEffect::Make(texView.detachProxy(), matrix, domain, dir,
-                                           prevAlphaType);
+                fp = GrBicubicEffect::Make(std::move(texView), matrix, domain, dir, prevAlphaType);
             } else {
-                fp = GrBicubicEffect::Make(texView.detachProxy(), matrix, dir, prevAlphaType);
+                fp = GrBicubicEffect::Make(std::move(texView), matrix, dir, prevAlphaType);
             }
             if (xform) {
                 fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
