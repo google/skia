@@ -67,9 +67,8 @@ public:
 
     virtual sk_sp<GrTextureProxy> asTextureProxyRef(GrRecordingContext*, GrSamplerState,
                                                     SkScalar scaleAdjust[2]) const = 0;
-    virtual sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext*,
-                                                        uint32_t* uniqueID) const {
-        return nullptr;
+    virtual GrSurfaceProxyView refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
+        return {};
     }
     virtual bool isYUVA() const { return false; }
     virtual GrTexture* onGetTexture() const { return nullptr; }

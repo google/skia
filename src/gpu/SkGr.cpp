@@ -140,12 +140,10 @@ GrSurfaceProxyView GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
     return view;
 }
 
-sk_sp<GrTextureProxy> GrRefCachedBitmapTextureProxy(GrRecordingContext* ctx,
-                                                    const SkBitmap& bitmap,
-                                                    GrSamplerState params,
-                                                    SkScalar scaleAdjust[2]) {
+GrSurfaceProxyView GrRefCachedBitmapView(GrRecordingContext* ctx, const SkBitmap& bitmap,
+                                         GrSamplerState params, SkScalar scaleAdjust[2]) {
     GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kYes);
-    return maker.viewForParams(params, scaleAdjust).asTextureProxyRef();
+    return maker.viewForParams(params, scaleAdjust);
 }
 
 GrSurfaceProxyView GrMakeCachedBitmapProxyView(GrRecordingContext* context, const SkBitmap& bitmap,

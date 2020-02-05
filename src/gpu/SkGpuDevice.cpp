@@ -919,9 +919,8 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     SkASSERT(!samplerState.isRepeated());
 
     SkScalar scales[2] = {1.f, 1.f};
-    sk_sp<GrTextureProxy> proxy =
-            GrRefCachedBitmapTextureProxy(fContext.get(), bitmap, samplerState, scales);
-    if (!proxy) {
+    GrSurfaceProxyView view = GrRefCachedBitmapView(fContext.get(), bitmap, samplerState, scales);
+    if (!view) {
         return;
     }
 
@@ -934,10 +933,6 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
     std::unique_ptr<GrFragmentProcessor> fp;
-
-    GrSurfaceOrigin origin = proxy->origin();
-    GrSwizzle swizzle = proxy->textureSwizzle();
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
 
     const auto& caps = *this->caps();
     if (needsTextureDomain && (SkCanvas::kStrict_SrcRectConstraint == constraint)) {
@@ -1311,11 +1306,7 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     auto iter = std::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
-                                                                          &pinnedUniqueID)) {
-        GrSurfaceOrigin origin = proxy->origin();
-        GrSwizzle swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->context(), &pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->context(), std::move(view),
                                    image->imageInfo().colorInfo(), pinnedUniqueID);
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
@@ -1374,11 +1365,7 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(this->context(),
-                                                                          &pinnedUniqueID)) {
-        GrSurfaceOrigin origin = proxy->origin();
-        GrSwizzle swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
+    if (GrSurfaceProxyView view = as_IB(image)->refPinnedView(this->context(), &pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->context(), std::move(view),
                                    image->imageInfo().colorInfo(), pinnedUniqueID);
         this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);

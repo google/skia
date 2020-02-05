@@ -111,8 +111,8 @@ public:
     }
 
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> refPinnedTextureProxy(GrRecordingContext*,
-                                                uint32_t* uniqueID) const override;
+    GrSurfaceProxyView refPinnedView(GrRecordingContext* context,
+                                     uint32_t* uniqueID) const override;
     bool onPinAsTexture(GrContext*) const override;
     void onUnpinAsTexture(GrContext*) const override;
 #endif
@@ -121,7 +121,7 @@ private:
     SkBitmap fBitmap;
 
 #if SK_SUPPORT_GPU
-    mutable sk_sp<GrTextureProxy> fPinnedProxy;
+    mutable GrSurfaceProxyView fPinnedView;
     mutable int32_t fPinnedCount = 0;
     mutable uint32_t fPinnedUniqueID = 0;
 #endif
@@ -147,7 +147,7 @@ SkImage_Raster::SkImage_Raster(const SkImageInfo& info, sk_sp<SkData> data, size
 
 SkImage_Raster::~SkImage_Raster() {
 #if SK_SUPPORT_GPU
-    SkASSERT(nullptr == fPinnedProxy.get());  // want the caller to have manually unpinned
+    SkASSERT(!fPinnedView);  // want the caller to have manually unpinned
 #endif
 }
 
@@ -175,45 +175,41 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrRecordingContext* cont
     }
 
     uint32_t uniqueID;
-    sk_sp<GrTextureProxy> tex = this->refPinnedTextureProxy(context, &uniqueID);
-    if (tex) {
-        GrSurfaceOrigin origin = tex->origin();
-        GrSwizzle swizzle = tex->textureSwizzle();
-        GrSurfaceProxyView view(std::move(tex), origin, swizzle);
+    if (GrSurfaceProxyView view = this->refPinnedView(context, &uniqueID)) {
         GrTextureAdjuster adjuster(context, std::move(view), fBitmap.info().colorInfo(),
                                    fPinnedUniqueID);
         return adjuster.viewForParams(params, scaleAdjust).asTextureProxyRef();
     }
 
-    return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);
+    return GrRefCachedBitmapView(context, fBitmap, params, scaleAdjust).asTextureProxyRef();
 }
 #endif
 
 #if SK_SUPPORT_GPU
 
-sk_sp<GrTextureProxy> SkImage_Raster::refPinnedTextureProxy(GrRecordingContext*,
-                                                            uint32_t* uniqueID) const {
-    if (fPinnedProxy) {
+GrSurfaceProxyView SkImage_Raster::refPinnedView(GrRecordingContext*, uint32_t* uniqueID) const {
+    if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
         *uniqueID = fPinnedUniqueID;
-        return fPinnedProxy;
+        return fPinnedView;
     }
-    return nullptr;
+    return {};
 }
 
 bool SkImage_Raster::onPinAsTexture(GrContext* ctx) const {
-    if (fPinnedProxy) {
+    if (fPinnedView) {
         SkASSERT(fPinnedCount > 0);
         SkASSERT(fPinnedUniqueID != 0);
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        fPinnedProxy = GrRefCachedBitmapTextureProxy(ctx, fBitmap, GrSamplerState::Filter::kNearest,
-                                                     nullptr);
-        if (!fPinnedProxy) {
+        fPinnedView =
+                GrRefCachedBitmapView(ctx, fBitmap, GrSamplerState::Filter::kNearest, nullptr);
+        if (!fPinnedView) {
             return false;
         }
+        SkASSERT(fPinnedView.asTextureProxy());
         fPinnedUniqueID = fBitmap.getGenerationID();
     }
     // Note: we only increment if the texture was successfully pinned
@@ -227,7 +223,7 @@ void SkImage_Raster::onUnpinAsTexture(GrContext* ctx) const {
     SkASSERT(fPinnedUniqueID != 0);
 
     if (0 == --fPinnedCount) {
-        fPinnedProxy.reset(nullptr);
+        fPinnedView = GrSurfaceProxyView();
         fPinnedUniqueID = 0;
     }
 }
