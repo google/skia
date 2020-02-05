@@ -71,6 +71,9 @@ static const struct {
     { "gltestglslcache",       "gpu", "api=gl,testPersistentCache=2" },
     { "gltestprecompile",      "gpu", "api=gl,testPrecompile=true" },
     { "glestestprecompile",    "gpu", "api=gles,testPrecompile=true" },
+
+    { "glddl",                 "gpu", "api=gs,useDDLs=true" },
+
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
     { "angle_d3d9_es2",        "gpu", "api=angle_d3d9_es2" },
@@ -446,6 +449,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
                                                bool                      testThreading,
                                                int                       testPersistentCache,
                                                bool                      testPrecompile,
+                                               bool                      useDDLs,
                                                SurfType                  surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
@@ -458,6 +462,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&           tag,
         , fTestThreading(testThreading)
         , fTestPersistentCache(testPersistentCache)
         , fTestPrecompile(testPrecompile)
+        , fUseDDLs(useDDLs)
         , fSurfType(surfType) {
     if (!useStencilBuffers) {
         fContextOverrides |= ContextOverrides::kAvoidStencilBuffers;
@@ -477,7 +482,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
     bool                                useStencils         = true;
     bool                                testThreading       = false;
     int                                 testPersistentCache = 0;
-    bool                                testPrecompile      = false;
+    bool                                testPrecompile1      = false;
+    bool                                useDDLs              = false;
     SkCommandLineConfigGpu::SurfType    surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool            parseSucceeded = false;
@@ -494,7 +500,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
             extendedOptions.get_option_bool("stencils", &useStencils) &&
             extendedOptions.get_option_bool("testThreading", &testThreading) &&
             extendedOptions.get_option_int("testPersistentCache", &testPersistentCache) &&
-            extendedOptions.get_option_bool("testPrecompile", &testPrecompile) &&
+            extendedOptions.get_option_bool("testPrecompile", &testPrecompile1) &&
+            extendedOptions.get_option_bool("useDDLs", &useDDLs) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
     // testing threading and the persistent cache are mutually exclusive.
@@ -513,7 +520,8 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
                                       useStencils,
                                       testThreading,
                                       testPersistentCache,
-                                      testPrecompile,
+                                      testPrecompile1,
+                                      useDDLs,
                                       surfType);
 }
 

@@ -1579,6 +1579,14 @@ Error GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* w
     return compare_bitmaps(reference, *dst);
 }
 
+GPUDDLSink::GPUDDLSink(const SkCommandLineConfigGpu* config,
+                       const GrContextOptions& grCtxOptions)
+    : INHERITED(config, grCtxOptions) {}
+
+Error GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStream, SkString* log) const {
+    return "";
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 static Error draw_skdocument(const Src& src, SkDocument* doc, SkWStream* dst) {
     if (src.size().isEmpty()) {
@@ -1863,9 +1871,19 @@ Error ViaSerialization::draw(
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ViaDDL::ViaDDL(int numReplays, int numDivisions, Sink* sink)
-        : Via(sink), fNumReplays(numReplays), fNumDivisions(numDivisions) {}
+        : Via(sink)
+        , fNumReplays(numReplays)
+        , fNumDivisions(numDivisions)
+        , fRecordingThreadPool(SkExecutor::MakeLIFOThreadPool(2))
+        , fRecordingTaskGroup(*fRecordingThreadPool)
+        , fGPUThread(SkExecutor::MakeFIFOThreadPool(1))
+        , fGPUTaskGroup(*fGPUThread) {
+//    ContextInfo otherCI = testFactory.getSharedContextInfo(context);
+}
 
 Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
+    ViaDDL* nonConstThis = const_cast<ViaDDL*>(this);
+
     auto size = src.size();
     SkPictureRecorder recorder;
     Error err = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
@@ -1907,7 +1925,10 @@ Error ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString
             tiles.createSKPPerTile(compressedPictureData.get(), promiseImageHelper);
 
             // Third, create the DDLs in parallel
-            tiles.createDDLsInParallel();
+            tiles.createDDLsInParallel(&nonConstThis->fRecordingTaskGroup,
+                                       &nonConstThis->fGPUTaskGroup,
+                                       context);
+            nonConstThis->fRecordingTaskGroup.wait();
 
             if (replay == fNumReplays - 1) {
                 // This drops the promiseImageHelper's refs on all the promise images if we're in

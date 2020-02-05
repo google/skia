@@ -33,8 +33,8 @@ public:
      */
     static GrVkPipelineState* CreatePipelineState(GrVkGpu*,
                                                   GrRenderTarget*,
+                                                  const GrProgramDesc&,
                                                   const GrProgramInfo&,
-                                                  GrProgramDesc*,
                                                   VkRenderPass compatibleRenderPass);
 
     const GrCaps* caps() const override;
@@ -45,9 +45,12 @@ public:
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
 private:
-    GrVkPipelineStateBuilder(GrVkGpu*, GrRenderTarget*, const GrProgramInfo&, GrProgramDesc*);
+    GrVkPipelineStateBuilder(GrVkGpu*,
+                             GrRenderTarget*,
+                             const GrProgramDesc&,
+                             const GrProgramInfo&);
 
-    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, GrProgramDesc*);
+    GrVkPipelineState* finalize(VkRenderPass compatibleRenderPass, const GrProgramDesc&);
 
     // returns number of shader stages
     int loadShadersFromCache(SkReader32* cached, VkShaderModule outShaderModules[],
@@ -61,7 +64,7 @@ private:
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::Program::Settings& settings,
-                              GrProgramDesc* desc,
+                              const GrProgramDesc& desc,
                               SkSL::String* outSPIRV,
                               SkSL::Program::Inputs* outInputs);
 
