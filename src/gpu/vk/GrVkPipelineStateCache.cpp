@@ -95,7 +95,7 @@ GrVkPipelineState* GrVkResourceProvider::PipelineStateCache::refPipelineState(
         ++fCacheMisses;
 #endif
         GrVkPipelineState* pipelineState(GrVkPipelineStateBuilder::CreatePipelineState(
-                fGpu, renderTarget, programInfo, &desc, compatibleRenderPass));
+                fGpu, renderTarget, desc, programInfo, compatibleRenderPass));
         if (!pipelineState) {
             return nullptr;
         }
