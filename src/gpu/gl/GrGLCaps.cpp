@@ -944,6 +944,8 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration;
     }
+
+    shaderCaps->fMixSupportsBool = version >= GR_GL_VER(3, 0);
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

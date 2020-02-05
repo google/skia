@@ -209,6 +209,10 @@ public:
     const char* fbFetchColorName() const {
         return nullptr;
     }
+
+    bool mixSupportsBool() const {
+        return true;
+    }
 };
 
 extern StandaloneShaderCaps standaloneCaps;
@@ -264,6 +268,8 @@ public:
     static sk_sp<GrShaderCaps> RemovePowWithConstantExponent();
 
     static sk_sp<GrShaderCaps> SampleMaskSupport();
+
+    static sk_sp<GrShaderCaps> NoMixBools();
 };
 #endif
 
