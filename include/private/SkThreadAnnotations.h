@@ -47,7 +47,7 @@
 #define SK_ACQUIRE_SHARED(...) \
   SK_THREAD_ANNOTATION_ATTRIBUTE(acquire_shared_capability(__VA_ARGS__))
 
-// Would be SK_RELEASE, but that is already in use by SkPostConfig.
+// Would be SK_RELEASE, but that is already in use as SK_DEBUG vs. SK_RELEASE.
 #define SK_RELEASE_CAPABILITY(...) \
   SK_THREAD_ANNOTATION_ATTRIBUTE(release_capability(__VA_ARGS__))
 

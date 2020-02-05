@@ -23,7 +23,6 @@ ignore = re.compile('|'.join([
     r'example/.*',
     r'experimental/.*',
     r'include/config/.*',
-    r'include/core/SkPostConfig\.h',
     r'include/gpu/mtl/.*',
     r'include/gpu/vk/.*',
     r'include/ports/SkFontMgr_android\.h',

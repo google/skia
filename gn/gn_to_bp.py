@@ -464,7 +464,7 @@ def write_config(config_path, defines, platform):
   gn_to_bp_utils.WriteUserConfig(config_path, defines)
   append_to_file(config_path, '''
 // Correct SK_BUILD_FOR flags that may have been set by
-// SkPreConfig.h/Android.bp
+// SkTypes.h/Android.bp
 #ifndef SK_BUILD_FOR_%s
     #define SK_BUILD_FOR_%s
 #endif
