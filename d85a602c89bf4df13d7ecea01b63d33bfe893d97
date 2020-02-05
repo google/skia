@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab08e8bb_975d462e",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T17:43:01Z",
+      "side": 1,
+      "message": "Is it significant that this changed from iw4f() to 1/w4f()?",
+      "range": {
+        "startLine": 600,
+        "startChar": 8,
+        "endLine": 600,
+        "endChar": 26
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08ad360b_06915732",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1017,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T17:43:01Z",
+      "side": 1,
+      "message": "other side?",
+      "range": {
+        "startLine": 1017,
+        "startChar": 54,
+        "endLine": 1017,
+        "endChar": 63
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302a08cd_2bfdb435",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T17:43:01Z",
+      "side": 1,
+      "message": "Kinda minor but this seems like mostly a restatement of parts of the first paragraph?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 95
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca668c8_dae3c230",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T17:43:01Z",
+      "side": 1,
+      "message": "Here and other places we call NeedsWClipping() and if true we call ClipToW0(). ClipToW0() effectively reimplements NeedsWClipping(). Maybe all we save with the early out is making a DrawQuad to pass to ClipToW0()? If so, could we just make the constructors (and maybe fatories) take DrawQuad instead of its components and then just call ClipToW0() unconditionally?",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 503,
+        "endChar": 58
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54a409fc_dac6e2eb",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-05T17:43:01Z",
+      "side": 1,
+      "message": "Is this the same as the code at line 498 other than the color? If so WDYT about a shared helper?",
+      "range": {
+        "startLine": 645,
+        "startChar": 0,
+        "endLine": 667,
+        "endChar": 13
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
