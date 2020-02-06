@@ -350,16 +350,68 @@ namespace skvm {
         }
     }
 
-    std::vector<OptimizedInstruction> Builder::optimize() const {
-        // First rewrite the program order by issuing instructions as late as possible:
+    std::vector<OptimizedInstruction> Builder::optimize(/*TODO bool jit*/) const {
+        // First specialize for our target backend.
+        Builder specialized;
+        for (int i = 0; i < (int)fProgram.size(); i++) {
+            Builder::Instruction inst = fProgram[i];
+
+            #if defined(SK_CPU_X86)
+            Op imm_op;
+            switch (inst.op) {
+                default: break;
+
+                case Op::add_f32: imm_op = Op::add_f32_imm; goto try_imm_x_and_y;
+                case Op::sub_f32: imm_op = Op::sub_f32_imm; goto try_imm_y;
+                case Op::mul_f32: imm_op = Op::mul_f32_imm; goto try_imm_x_and_y;
+                case Op::min_f32: imm_op = Op::min_f32_imm; goto try_imm_x_and_y;
+                case Op::max_f32: imm_op = Op::max_f32_imm; goto try_imm_x_and_y;
+                case Op::bit_and: imm_op = Op::bit_and_imm; goto try_imm_x_and_y;
+                case Op::bit_or:  imm_op = Op::bit_or_imm ; goto try_imm_x_and_y;
+                case Op::bit_xor: imm_op = Op::bit_xor_imm; goto try_imm_x_and_y;
+
+                try_imm_x_and_y:
+                    if (int bits; /*TODO jit &&*/this->allImm(inst.x, &bits)) {
+                        inst.op   = imm_op;
+                        inst.x    = inst.y;
+                        inst.y    = NA;
+                        inst.immy = bits;
+                    } else
+                try_imm_y:
+                    if (int bits; /*TODO jit &&*/this->allImm(inst.y, &bits)) {
+                        inst.op   = imm_op;
+                        inst.y    = NA;
+                        inst.immy = bits;
+                    } break;
+
+                case Op::bit_clear:
+                    if (int bits; /*TODO jit &&*/this->allImm(inst.y, &bits)) {
+                        inst.op   = Op::bit_and_imm;
+                        inst.y    = NA;
+                        inst.immy = ~bits;
+                    } break;
+            }
+            #endif
+            SkDEBUGCODE(Val id =) specialized.push(inst.op,
+                                                   inst.x,inst.y,inst.z,
+                                                   inst.immy,inst.immz);
+            // If we replace single instructions with multiple, this will start breaking,
+            // and we'll need a table to remap them like we have in optimize().
+            SkASSERT(id == i);
+        }
+
+        // N.B. specialized.fStrides is not set, but our original fStrides is still fine.
+        const std::vector<Builder::Instruction>& program = specialized.fProgram;
+
+        // Next rewrite the program order by issuing instructions as late as possible:
         //    - any side-effect-only (i.e. store) instruction in order as we see them;
         //    - any other instruction only once it's shown to be needed.
         // This elides all dead code and helps minimize value lifetime / register pressure.
         std::vector<OptimizedInstruction> optimized;
-        optimized.reserve(fProgram.size());
+        optimized.reserve(program.size());
 
         // Map old Val index to rewritten index in optimized.
-        std::vector<Val> new_index(fProgram.size(), NA);
+        std::vector<Val> new_index(program.size(), NA);
 
         auto rewrite = [&](Val id, auto& recurse) -> Val {
             auto rewrite_input = [&](Val input) -> Val {
@@ -376,7 +428,7 @@ namespace skvm {
             // But we try to preserve the original program order as much as possible by
             // rewriting inst's inputs in the order they were themselves originally issued.
             // This makes debugging  dumps a little easier.
-            Builder::Instruction inst = fProgram[id];
+            Builder::Instruction inst = program[id];
             Val *min = &inst.x,
                 *mid = &inst.y,
                 *max = &inst.z;
@@ -395,13 +447,13 @@ namespace skvm {
 
         // Here we go with the actual rewriting, starting with all the store instructions
         // and letting rewrite() work back recursively through their inputs.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            if (fProgram[id].op <= Op::store32) {
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            if (program[id].op <= Op::store32) {
                 rewrite(id, rewrite);
             }
         }
 
-        // We're done with our original fProgram now... everything below will analyze `optimized`.
+        // We're done with `program` now... everything below will analyze `optimized`.
 
         // We'll want to know when it's safe to recycle registers holding the values
         // produced by each instruction, that is, when no future instruction needs it.
@@ -575,11 +627,6 @@ namespace skvm {
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X+Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x+0 == x
         if (this->isImm(x.id, 0.0f)) { return y; }   // 0+y == y
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::add_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::add_f32_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::add_f32, x.id, y.id)};
     }
 
@@ -587,10 +634,6 @@ namespace skvm {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X-Y); }
         if (this->isImm(y.id, 0.0f)) { return x; }   // x-0 == x
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::sub_f32_imm, x.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::sub_f32, x.id, y.id)};
     }
 
@@ -599,11 +642,6 @@ namespace skvm {
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X*Y); }
         if (this->isImm(y.id, 1.0f)) { return x; }  // x*1 == x
         if (this->isImm(x.id, 1.0f)) { return y; }  // 1*y == y
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::mul_f32, x.id, y.id)};
     }
 
@@ -632,21 +670,11 @@ namespace skvm {
     F32 Builder::min(F32 x, F32 y) {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::min(X,Y)); }
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::min_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::min_f32_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::min_f32, x.id, y.id)};
     }
     F32 Builder::max(F32 x, F32 y) {
         float X,Y;
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(std::max(X,Y)); }
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::max_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::max_f32_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::max_f32, x.id, y.id)};
     }
 
@@ -733,11 +761,6 @@ namespace skvm {
         if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & y) == false
         if (this->isImm(y.id,~0)) { return x; }                // (x & true) == x
         if (this->isImm(x.id,~0)) { return y; }                // (true & y) == y
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_and_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::bit_and_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::bit_and, x.id, y.id)};
     }
     I32 Builder::bit_or(I32 x, I32 y) {
@@ -747,11 +770,6 @@ namespace skvm {
         if (this->isImm(x.id, 0)) { return y; }                 // (false | y) == y
         if (this->isImm(y.id,~0)) { return this->splat(~0); }   // (x | true) == true
         if (this->isImm(x.id,~0)) { return this->splat(~0); }   // (true | y) == true
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_or_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::bit_or_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::bit_or, x.id, y.id)};
     }
     I32 Builder::bit_xor(I32 x, I32 y) {
@@ -759,11 +777,6 @@ namespace skvm {
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X^Y); }
         if (this->isImm(y.id, 0)) { return x; }   // (x ^ false) == x
         if (this->isImm(x.id, 0)) { return y; }   // (false ^ y) == y
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::bit_xor_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::bit_xor_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::bit_xor, x.id, y.id)};
     }
     I32 Builder::bit_clear(I32 x, I32 y) {
@@ -772,10 +785,6 @@ namespace skvm {
         if (this->isImm(y.id, 0)) { return x; }                // (x & ~false) == x
         if (this->isImm(y.id,~0)) { return this->splat(0); }   // (x & ~true) == false
         if (this->isImm(x.id, 0)) { return this->splat(0); }   // (false & ~y) == false
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return this->bit_and(x, this->splat(~imm)); }
-    #endif
         return {this->push(Op::bit_clear, x.id, y.id)};
     }
 

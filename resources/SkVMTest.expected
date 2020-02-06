@@ -621,7 +621,7 @@ loop:
 27	    store32 arg(1) r6
 
 I32 (SWAR) 8888 over 8888
-14 values (originally 16):
+14 values (originally 15):
   v0 = load32 arg(0)
   v1 = bytes v0 404
 ↑ v2 = splat 1000100 (2.3510604e-38)
