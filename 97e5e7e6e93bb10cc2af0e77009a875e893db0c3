@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c0963d4_a2122188",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-06T21:46:42Z",
+      "side": 1,
+      "message": "Is this true? I\u0027m looking at both the new code and the old code, and I have so many questions. The Y dimension is negative if the origin is bottom-left, so the inset was actually out-setting? Or was it insetting because the domain rect was inverted? But if that\u0027s true, this is going to change behavior, right?",
+      "range": {
+        "startLine": 666,
+        "startChar": 0,
+        "endLine": 668,
+        "endChar": 1
+      },
+      "revId": "97e5e7e6e93bb10cc2af0e77009a875e893db0c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
