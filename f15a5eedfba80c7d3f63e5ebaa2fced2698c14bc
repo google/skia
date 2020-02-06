@@ -22,6 +22,30 @@
       "revId": "f15a5eedfba80c7d3f63e5ebaa2fced2698c14bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2513117a_6c3349cc",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 16
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2020-02-06T19:57:24Z",
+      "side": 1,
+      "message": "Chromium\u0027s Clang does not have TSAN.\n\nI probably could get ASAN to work, but I felt like maybe it would be better to figure out in a followup CL.",
+      "parentUuid": "21a5e353_a1509b4c",
+      "range": {
+        "startLine": 1208,
+        "startChar": 3,
+        "endLine": 1209,
+        "endChar": 56
+      },
+      "revId": "f15a5eedfba80c7d3f63e5ebaa2fced2698c14bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
