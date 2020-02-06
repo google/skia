@@ -216,10 +216,10 @@ static SkScalar get_framed_coverage(const SkPoint outer[4], const SkScalar outer
             SkScalar coverage = bary[0] * c0 + bary[1] * c1 + bary[2] * c2;
             if (coverage < 0.5f) {
                 // Check distances to domain
-                SkScalar l = SkScalarPin(point.fX - geomDomain.fLeft, 0.f, 1.f);
-                SkScalar t = SkScalarPin(point.fY - geomDomain.fTop, 0.f, 1.f);
-                SkScalar r = SkScalarPin(geomDomain.fRight - point.fX, 0.f, 1.f);
-                SkScalar b = SkScalarPin(geomDomain.fBottom - point.fY, 0.f, 1.f);
+                SkScalar l = SkTPin(point.fX - geomDomain.fLeft, 0.f, 1.f);
+                SkScalar t = SkTPin(point.fY - geomDomain.fTop, 0.f, 1.f);
+                SkScalar r = SkTPin(geomDomain.fRight - point.fX, 0.f, 1.f);
+                SkScalar b = SkTPin(geomDomain.fBottom - point.fY, 0.f, 1.f);
                 coverage = std::min(coverage, l * t * r * b);
             }
             return coverage;

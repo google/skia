@@ -7,6 +7,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 82
 
 <Insert new notes here- top is most recent.>
+  * Removed SkScalarClampMax and SkScalarPin.
   * Removed SkMax32 and SkMin32.
   * Removed SkMaxScalar and SkMinScalar.
 

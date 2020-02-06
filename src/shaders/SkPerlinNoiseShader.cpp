@@ -563,7 +563,7 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::calculateTurbulenceV
     }
 
     // Clamp result
-    return SkScalarPin(turbulenceFunctionResult, 0, SK_Scalar1);
+    return SkTPin(turbulenceFunctionResult, 0.0f, SK_Scalar1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -623,7 +623,7 @@ SkScalar SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::calculateImprovedNoi
         y *= 2;
         ratio *= 2;
     }
-    result = SkScalarClampMax((result + 1.0f) / 2.0f, 1.0f);
+    result = SkTPin((result + 1.0f) / 2.0f, 0.0f, 1.0f);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////

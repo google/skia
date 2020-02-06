@@ -52,7 +52,7 @@ static float compute_t_from_x(float A, float B, float C, float x) {
 }
 
 float SkCubicMap::computeYFromX(float x) const {
-    x = SkScalarPin(x, 0, 1);
+    x = SkTPin(x, 0.0f, 1.0f);
 
     if (nearly_zero(x) || nearly_zero(1 - x)) {
         return x;

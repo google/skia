@@ -357,9 +357,9 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
                 indices[i + 4] = indices[i + 2];
                 indices[i + 5] = (x + 1) * stride + y;
             }
-            v = SkScalarClampMax(v + 1.f / lodY, 1);
+            v = SkTPin(v + 1.f / lodY, 0.0f, 1.0f);
         }
-        u = SkScalarClampMax(u + 1.f / lodX, 1);
+        u = SkTPin(u + 1.f / lodX, 0.0f, 1.0f);
     }
 
     if (tmpColors) {
