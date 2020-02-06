@@ -63,8 +63,9 @@
  *    neighbouring edges at the top or bottom vertex. This is handled by merging the
  *    edges (merge_collinear_edges()).
  * B) Intersections may cause an edge to violate the left-to-right ordering of the
- *    active edge list. This is handled during merging or splitting by rewind()ing the
- *    active edge list to the vertex before potential violations occur.
+ *    active edge list. This is handled by detecting potential violations and rewinding
+ *    the active edge list to the vertex before they occur (rewind() during merging,
+ *    rewind_if_necessary() during splitting).
  *
  * The tessellation steps (5) and (6) are based on "Triangulating Simple Polygons and
  * Equivalent Problems" (Fournier and Montuno); also a line-sweep algorithm. Note that it
@@ -328,10 +329,11 @@ struct Line {
  * An Edge joins a top Vertex to a bottom Vertex. Edge ordering for the list of "edges above" and
  * "edge below" a vertex as well as for the active edge list is handled by isLeftOf()/isRightOf().
  * Note that an Edge will give occasionally dist() != 0 for its own endpoints (because floating
- * point). For speed, that case is only tested by the callers that require it. Edges also handle
- * checking for intersection with other edges.  Currently, this converts the edges to the
- * parametric form, in order to avoid doing a division until an intersection has been confirmed.
- * This is slightly slower in the "found" case, but a lot faster in the "not found" case.
+ * point). For speed, that case is only tested by the callers that require it (e.g.,
+ * rewind_if_necessary()). Edges also handle checking for intersection with other edges.
+ * Currently, this converts the edges to the parametric form, in order to avoid doing a division
+ * until an intersection has been confirmed. This is slightly slower in the "found" case, but
+ * a lot faster in the "not found" case.
  *
  * The coefficients of the line equation stored in double precision to avoid catastrphic
  * cancellation in the isLeftOf() and isRightOf() checks. Using doubles ensures that the result is
@@ -1023,9 +1025,52 @@ void rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, Comparator& c)
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
             insert_edge(e, leftEdge, activeEdges);
             leftEdge = e;
+            Vertex* top = e->fTop;
+            if (c.sweep_lt(top->fPoint, dst->fPoint) &&
+                ((top->fLeftEnclosingEdge && !top->fLeftEnclosingEdge->isLeftOf(e->fTop)) ||
+                 (top->fRightEnclosingEdge && !top->fRightEnclosingEdge->isRightOf(e->fTop)))) {
+                dst = top;
+            }
         }
     }
     *current = v;
+}
+
+void rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** current, Comparator& c) {
+    if (!activeEdges || !current) {
+        return;
+    }
+    Vertex* top = edge->fTop;
+    Vertex* bottom = edge->fBottom;
+    if (edge->fLeft) {
+        Vertex* leftTop = edge->fLeft->fTop;
+        Vertex* leftBottom = edge->fLeft->fBottom;
+        if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(top)) {
+            rewind(activeEdges, current, leftTop, c);
+        } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(leftTop)) {
+            rewind(activeEdges, current, top, c);
+        } else if (c.sweep_lt(bottom->fPoint, leftBottom->fPoint) &&
+                   !edge->fLeft->isLeftOf(bottom)) {
+            rewind(activeEdges, current, leftTop, c);
+        } else if (c.sweep_lt(leftBottom->fPoint, bottom->fPoint) && !edge->isRightOf(leftBottom)) {
+            rewind(activeEdges, current, top, c);
+        }
+    }
+    if (edge->fRight) {
+        Vertex* rightTop = edge->fRight->fTop;
+        Vertex* rightBottom = edge->fRight->fBottom;
+        if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(top)) {
+            rewind(activeEdges, current, rightTop, c);
+        } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(rightTop)) {
+            rewind(activeEdges, current, top, c);
+        } else if (c.sweep_lt(bottom->fPoint, rightBottom->fPoint) &&
+                   !edge->fRight->isRightOf(bottom)) {
+            rewind(activeEdges, current, rightTop, c);
+        } else if (c.sweep_lt(rightBottom->fPoint, bottom->fPoint) &&
+                   !edge->isLeftOf(rightBottom)) {
+            rewind(activeEdges, current, top, c);
+        }
+    }
 }
 
 void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c) {
@@ -1033,7 +1078,7 @@ void set_top(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Com
     edge->fTop = v;
     edge->recompute();
     insert_edge_below(edge, v, c);
-    rewind(activeEdges, current, edge->fTop, c);
+    rewind_if_necessary(edge, activeEdges, current, c);
     merge_collinear_edges(edge, activeEdges, current, c);
 }
 
@@ -1042,7 +1087,7 @@ void set_bottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, 
     edge->fBottom = v;
     edge->recompute();
     insert_edge_above(edge, v, c);
-    rewind(activeEdges, current, edge->fTop, c);
+    rewind_if_necessary(edge, activeEdges, current, c);
     merge_collinear_edges(edge, activeEdges, current, c);
 }
 
