@@ -980,7 +980,16 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
 
     SkImageInfo info = codec->getInfo();
     if (fDecodeToDst) {
-        info = canvas->imageInfo().makeDimensions(info.dimensions());
+        SkImageInfo canvasInfo = canvas->imageInfo();
+        if (!canvasInfo.colorSpace()) {
+            // This will skip color conversion, and the resulting images will
+            // look different from images they are compared against in Gold, but
+            // that doesn't mean they are wrong. We have a test verifying that
+            // passing a null SkColorSpace skips conversion, so skip this
+            // misleading test.
+            return Error::Nonfatal("Skipping decoding without color transform.");
+        }
+        info = canvasInfo.makeDimensions(info.dimensions());
     }
 
     SkBitmap bitmap;

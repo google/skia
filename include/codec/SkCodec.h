@@ -190,12 +190,22 @@ public:
 
     /**
      *  Return a reasonable SkImageInfo to decode into.
+     *
+     *  If the image has an ICC profile that does not map to an SkColorSpace,
+     *  the returned SkImageInfo will use SRGB.
      */
     SkImageInfo getInfo() const { return fEncodedInfo.makeImageInfo(); }
 
     SkISize dimensions() const { return {fEncodedInfo.width(), fEncodedInfo.height()}; }
     SkIRect bounds() const {
         return SkIRect::MakeWH(fEncodedInfo.width(), fEncodedInfo.height());
+    }
+
+    /**
+     * Return the ICC profile of the encoded data.
+     */
+    const skcms_ICCProfile* getICCProfile() const {
+        return this->getEncodedInfo().profile();
     }
 
     /**
@@ -344,9 +354,13 @@ public:
      *
      *         If the info contains a non-null SkColorSpace, the codec
      *         will perform the appropriate color space transformation.
-     *         If the caller passes in the same color space that was
-     *         reported by the codec, the color space transformation is
-     *         a no-op.
+     *
+     *         If the caller passes in the SkColorSpace that maps to the
+     *         ICC profile reported by getICCProfile(), the color space
+     *         transformation is a no-op.
+     *
+     *         If the caller passes a null SkColorSpace, no color space
+     *         transformation will be done.
      *
      *  If a scanline decode is in progress, scanline mode will end, requiring the client to call
      *  startScanlineDecode() in order to return to decoding scanlines.

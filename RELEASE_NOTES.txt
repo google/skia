@@ -23,8 +23,8 @@ Milestone 82
     Use CTFontManagerCreateFontDescriptorFromData instead of
     CGFontCreateWithDataProvider to create CTFonts to avoid memory use issues.
 
-  * Added SkAndroidCodec::getICCProfile for reporting the native ICC profile of
-    an encoded image, even if it doesn't map to an SkColorSpace.
+  * Added SkCodec:: and SkAndroidCodec::getICCProfile for reporting the native
+    ICC profile of an encoded image, even if it doesn't map to an SkColorSpace.
 
 * * *
 
