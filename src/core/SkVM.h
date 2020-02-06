@@ -613,8 +613,9 @@ namespace skvm {
             union { Reg z; int immz; };
         };
 
-        Program(const std::vector<Builder::Instruction>& instructions,
-                const std::vector<int>                 & strides,
+        Program(const std::vector<Builder::Instruction>& interpreter,
+                const std::vector<Builder::Instruction>& jit,
+                const std::vector<int>& strides,
                 const char* debug_name);
 
         Program();
