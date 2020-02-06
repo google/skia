@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b15c060f_c8b43b51",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-06T19:24:08Z",
+      "side": 1,
+      "message": "There\u0027s a lot of mixing of signed and unsigned here. I was tempted to make the maxXY variables signed, but it seemed like the unsigned part was more intentional with maxX, so I just went for the obvious version that doesn\u0027t change the semantics of this code at all.",
+      "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fec3f0b_caf1d01e",
+        "filename": "src/effects/SkEmbossMask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-06T19:24:08Z",
+      "side": 1,
+      "message": "It was obvious here that the clamp against 0 was unnecessary. That may have been true for other call-sites? None of them were as blatant as this one.",
+      "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b228adc1_f8028881",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-06T19:24:08Z",
+      "side": 1,
+      "message": "😮",
+      "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
