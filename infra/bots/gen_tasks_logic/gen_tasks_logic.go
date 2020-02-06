@@ -1204,6 +1204,18 @@ func (b *builder) compile(name string, parts map[string]string) string {
 			Name: "xcode",
 			Path: "cache/Xcode.app",
 		})
+		if !strings.Contains(name, "SAN") {
+			// We use Chromium's Clang for everything except XSAN.
+			// We also use Chromium's dsymutil for compatibility.
+			task.CipdPackages = append(task.CipdPackages,
+				b.MustGetCipdPackageFromAsset("clang_mac"),
+				&specs.CipdPackage{
+					// https://cs.chromium.org/chromium/src/DEPS?l=431&rcl=350d205bf2d0a1ee9fcb0ece22af27bf5dc83880
+					Name:    "chromium/llvm-build-tools/dsymutil",
+					Path:    "dsymutil",
+					Version: "M56jPzDv1620Rnm__jTMYS62Zi8rxHVq7yw0qeBFEgkC",
+				})
+		}
 		if strings.Contains(name, "CommandBuffer") {
 			timeout(task, 2*time.Hour)
 		}
