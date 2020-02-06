@@ -577,11 +577,11 @@ uint8_t SkPath::getFirstDirection() const {
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
-#define DIRTY_AFTER_EDIT                                               \
-    do {                                                               \
-        this->setConvexityType(SkPathConvexityType::kUnknown);         \
-        this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);  \
-    } while (0)
+SkPath& SkPath::dirtyAfterEdit() {
+    this->setConvexityType(SkPathConvexityType::kUnknown);
+    this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
+    return *this;
+}
 
 void SkPath::incReserve(int inc) {
     SkDEBUGCODE(this->validate();)
@@ -601,8 +601,7 @@ SkPath& SkPath::moveTo(SkScalar x, SkScalar y) {
 
     ed.growForVerb(kMove_Verb)->set(x, y);
 
-    DIRTY_AFTER_EDIT;
-    return *this;
+    return this->dirtyAfterEdit();
 }
 
 SkPath& SkPath::rMoveTo(SkScalar x, SkScalar y) {
@@ -633,8 +632,7 @@ SkPath& SkPath::lineTo(SkScalar x, SkScalar y) {
     SkPathRef::Editor ed(&fPathRef);
     ed.growForVerb(kLine_Verb)->set(x, y);
 
-    DIRTY_AFTER_EDIT;
-    return *this;
+    return this->dirtyAfterEdit();
 }
 
 SkPath& SkPath::rLineTo(SkScalar x, SkScalar y) {
@@ -654,8 +652,7 @@ SkPath& SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
 
-    DIRTY_AFTER_EDIT;
-    return *this;
+    return this->dirtyAfterEdit();
 }
 
 SkPath& SkPath::rQuadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
@@ -685,7 +682,7 @@ SkPath& SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
 
-        DIRTY_AFTER_EDIT;
+        (void)this->dirtyAfterEdit();
     }
     return *this;
 }
@@ -710,8 +707,7 @@ SkPath& SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[1].set(x2, y2);
     pts[2].set(x3, y3);
 
-    DIRTY_AFTER_EDIT;
-    return *this;
+    return this->dirtyAfterEdit();
 }
 
 SkPath& SkPath::rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -819,9 +815,8 @@ SkPath& SkPath::addPoly(const SkPoint pts[], int count, bool close) {
         fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
     }
 
-    DIRTY_AFTER_EDIT;
     SkDEBUGCODE(this->validate();)
-    return *this;
+    return this->dirtyAfterEdit();
 }
 
 #include "src/core/SkGeometry.h"
@@ -1929,39 +1924,6 @@ bool SkPath::isValidImpl() const {
     if ((fFillType & ~3) != 0) {
         return false;
     }
-
-#ifdef SK_DEBUG_PATH
-    if (!fBoundsIsDirty) {
-        SkRect bounds;
-
-        bool isFinite = compute_pt_bounds(&bounds, *fPathRef.get());
-        if (SkToBool(fIsFinite) != isFinite) {
-            return false;
-        }
-
-        if (fPathRef->countPoints() <= 1) {
-            // if we're empty, fBounds may be empty but translated, so we can't
-            // necessarily compare to bounds directly
-            // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
-            // be [2, 2, 2, 2]
-            if (!bounds.isEmpty() || !fBounds.isEmpty()) {
-                return false;
-            }
-        } else {
-            if (bounds.isEmpty()) {
-                if (!fBounds.isEmpty()) {
-                    return false;
-                }
-            } else {
-                if (!fBounds.isEmpty()) {
-                    if (!fBounds.contains(bounds)) {
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-#endif // SK_DEBUG_PATH
     return true;
 }
 
