@@ -350,6 +350,20 @@ namespace skvm {
         }
     }
 
+    static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
+        return a.op   == b.op
+            && a.x    == b.x
+            && a.y    == b.y
+            && a.z    == b.z
+            && a.immy == b.immy
+            && a.immz == b.immz;
+    }
+    struct InstructionHash {
+        uint32_t operator()(const Builder::Instruction& inst, uint32_t seed=0) const {
+            return SkOpts::hash(&inst, sizeof(inst), seed);
+        }
+    };
+
     std::vector<OptimizedInstruction> Builder::optimize() const {
         // First rewrite the program order by issuing instructions as late as possible:
         //    - any side-effect-only (i.e. store) instruction in order as we see them;
@@ -361,22 +375,34 @@ namespace skvm {
         // Map old Val index to rewritten index in optimized.
         std::vector<Val> new_index(fProgram.size(), NA);
 
+        // Basic common subexpression elimination:
+        // if we've already seen this exact instruction, use it instead of creating a new one.
+        SkTHashMap<Builder::Instruction, Val, InstructionHash> dedup;
+        for (Val id = 0; id < (Val)fProgram.size(); id++) {
+            Builder::Instruction inst = fProgram[id];
+            if (!dedup.find(inst)) {
+                dedup.set(inst, id);
+            }
+        }
+
         auto rewrite = [&](Val id, auto& recurse) -> Val {
             auto rewrite_input = [&](Val input) -> Val {
                 if (input == NA) {
                     return NA;
                 }
+                input = *dedup.find(fProgram[input]);
                 if (new_index[input] == NA) {
                     new_index[input] = recurse(input, recurse);
                 }
                 return new_index[input];
             };
 
+            Builder::Instruction inst = fProgram[id];
+
             // The order we rewrite inputs is somewhat arbitrary; we could just go x,y,z.
             // But we try to preserve the original program order as much as possible by
             // rewriting inst's inputs in the order they were themselves originally issued.
             // This makes debugging  dumps a little easier.
-            Builder::Instruction inst = fProgram[id];
             Val *min = &inst.x,
                 *mid = &inst.y,
                 *max = &inst.z;
@@ -386,6 +412,7 @@ namespace skvm {
             *min = rewrite_input(*min);
             *mid = rewrite_input(*mid);
             *max = rewrite_input(*max);
+
             optimized.push_back({inst.op,
                                  inst.x, inst.y, inst.z,
                                  inst.immy, inst.immz,
@@ -461,34 +488,13 @@ namespace skvm {
         return (uint64_t)lo | (uint64_t)hi << 32;
     }
 
-    static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
-        return a.op   == b.op
-            && a.x    == b.x
-            && a.y    == b.y
-            && a.z    == b.z
-            && a.immy == b.immy
-            && a.immz == b.immz;
-    }
-
-    uint32_t Builder::InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
-        return SkOpts::hash(&inst, sizeof(inst), seed);
-    }
 
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
     Val Builder::push(Op op, Val x, Val y, Val z, int immy, int immz) {
-        Instruction inst{op, x, y, z, immy, immz};
-
-        // Basic common subexpression elimination:
-        // if we've already seen this exact Instruction, use it instead of creating a new one.
-        if (Val* id = fIndex.find(inst)) {
-            return *id;
-        }
-        Val id = static_cast<Val>(fProgram.size());
-        fProgram.push_back(inst);
-        fIndex.set(inst, id);
-        return id;
+        fProgram.push_back({op, x,y,z, immy,immz});
+        return (Val)fProgram.size()-1;
     }
 
     bool Builder::allImm() const { return true; }
