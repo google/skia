@@ -842,6 +842,57 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
     REPORTER_ASSERT(r, out->fFloat[0] = -1.0f);
 }
 
+DEF_TEST(SkSLInterpreterRunStripedReturn, r) {
+    const char* src =
+        "float  prod(float2 v) { return v.x * v.y; }\n"
+        "float2 swap(float2 v) { return v.yx; }\n";
+
+    SkSL::Compiler compiler;
+    SkSL::Program::Settings settings;
+    auto program =
+            compiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src), settings);
+    REPORTER_ASSERT(r, program);
+
+    auto byteCode = compiler.toByteCode(*program);
+    REPORTER_ASSERT(r, !compiler.errorCount());
+
+    auto prod = byteCode->getFunction("prod");
+    auto swap = byteCode->getFunction("swap");
+
+    REPORTER_ASSERT(r, prod);
+    REPORTER_ASSERT(r, swap);
+
+    SkSL::Interpreter<4> interpreter(std::move(byteCode));
+    float inX[4] = { 1, 2, 3, 4 };
+    float inY[4] = { 5, 6, 7, 8 };
+    float outX[4], outY[4];
+
+    float* in[] = { inX, inY };
+    float* out[] = { outX, outY };
+
+    for (int count : { 2, 4 }) {
+        memset(outX, 0, sizeof(outX));
+        memset(outY, 0, sizeof(outY));
+
+        bool success = interpreter.runStriped(prod, count, in, out);
+        REPORTER_ASSERT(r, success);
+        for (int i = 0; i < 4; ++i) {
+            REPORTER_ASSERT(r, outX[i] == (i < count ? inX[i] * inY[i] : 0.0f));
+            REPORTER_ASSERT(r, outY[i] == 0.0f);
+        }
+
+        memset(outX, 0, sizeof(outX));
+        memset(outY, 0, sizeof(outY));
+
+        success = interpreter.runStriped(swap, count, in, out);
+        REPORTER_ASSERT(r, success);
+        for (int i = 0; i < 4; ++i) {
+            REPORTER_ASSERT(r, outX[i] == (i < count ? inY[i] : 0.0f));
+            REPORTER_ASSERT(r, outY[i] == (i < count ? inX[i] : 0.0f));
+        }
+    }
+}
+
 DEF_TEST(SkSLInterpreterOutParams, r) {
     test(r,
          "void oneAlpha(inout half4 color) { color.a = 1; }"
