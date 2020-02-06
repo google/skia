@@ -32,7 +32,7 @@
  *   clip).
  */
 
-enum GrStencilFlags {
+enum GrStencilFlags : int {
     kDisabled_StencilFlag         = (1 << 0),
     kTestAlwaysPasses_StencilFlag = (1 << 1),
     kNoModifyStencil_StencilFlag  = (1 << 2),
