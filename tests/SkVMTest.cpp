@@ -105,7 +105,7 @@ DEF_TEST(SkVM, r) {
         skvm::Program program = b.done();
         REPORTER_ASSERT(r, program.nregs() == 2);
 
-        std::vector<skvm::Builder::Instruction> insts = b.program();
+        std::vector<skvm::OptimizedInstruction> insts = b.optimize();
         REPORTER_ASSERT(r, insts.size() == 6);
         REPORTER_ASSERT(r,  insts[0].can_hoist && insts[0].death == 2 && !insts[0].used_in_loop);
         REPORTER_ASSERT(r,  insts[1].can_hoist && insts[1].death == 2 && !insts[1].used_in_loop);
@@ -277,7 +277,7 @@ DEF_TEST(SkVM_Pointless, r) {
         }
     });
 
-    for (const skvm::Builder::Instruction& inst : b.program()) {
+    for (const skvm::OptimizedInstruction& inst : b.optimize()) {
         REPORTER_ASSERT(r, inst.death == 0 && inst.can_hoist == true);
     }
 }
