@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "681ea448_ff0d7e8b",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3636,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-06T13:57:52Z",
+      "side": 1,
+      "message": "I just noticed we already have SkPath::addPath(path, matrix, mode). It seems like it\u0027s worth a look to see if it can be used or if would benefit from using the new path-ref functionality you added.",
+      "range": {
+        "startLine": 3636,
+        "startChar": 0,
+        "endLine": 3636,
+        "endChar": 99
+      },
+      "revId": "93d5341e8279b1f607778073985fa6b31a93844e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3d66470_88500e65",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-06T13:57:52Z",
+      "side": 1,
+      "message": "Could probably use a short comment here like\n// 2 Fill types x 2 AA settings\n\nor something just to explain why 4.",
+      "range": {
+        "startLine": 42,
+        "startChar": 26,
+        "endLine": 42,
+        "endChar": 29
+      },
+      "revId": "93d5341e8279b1f607778073985fa6b31a93844e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
