@@ -472,7 +472,7 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     if (this->isAbandoned()) {
         return nullptr;
     }
-    if (kDynamic_GrAccessPattern != accessPattern) {
+    if (/*kDynamic_GrAccessPattern != accessPattern*/ false) {
         return this->gpu()->createBuffer(size, intendedType, accessPattern, data);
     }
     // bin by pow2 with a reasonable min
