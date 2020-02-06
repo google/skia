@@ -39,8 +39,7 @@ private:
             , fProcessors(std::move(paint)) {
         SkRect devBounds;
         fViewMatrix.mapRect(&devBounds, path.getBounds());
-        this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType),
-                        GrOp::IsHairline::kNo);
+        this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
     }
 
     const char* name() const override { return "GrTessellatePathOp"; }
