@@ -455,6 +455,12 @@ namespace skvm {
         return {this->optimize(), fStrides, debug_name};
     }
 
+    uint64_t Builder::hash() const {
+        uint32_t lo = SkOpts::hash(fProgram.data(), fProgram.size() * sizeof(Instruction), 0),
+                 hi = SkOpts::hash(fProgram.data(), fProgram.size() * sizeof(Instruction), 1);
+        return (uint64_t)lo | (uint64_t)hi << 32;
+    }
+
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
         return a.op   == b.op
             && a.x    == b.x
@@ -468,18 +474,11 @@ namespace skvm {
         return SkOpts::hash(&inst, sizeof(inst), seed);
     }
 
-    uint64_t Builder::hash() const { return (uint64_t)fHashLo | (uint64_t)fHashHi << 32; }
 
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
     Val Builder::push(Op op, Val x, Val y, Val z, int immy, int immz) {
         Instruction inst{op, x, y, z, immy, immz};
-
-        // This first InstructionHash{}() call should be free given we're about to use fIndex below.
-        fHashLo ^= InstructionHash{}(inst, 0);    // Two hash streams with different seeds.
-        fHashHi ^= InstructionHash{}(inst, 1);
-        fHashLo = SkChecksum::CheapMix(fHashLo);  // Mix to make sure instruction order matters.
-        fHashHi = SkChecksum::CheapMix(fHashHi);
 
         // Basic common subexpression elimination:
         // if we've already seen this exact Instruction, use it instead of creating a new one.
