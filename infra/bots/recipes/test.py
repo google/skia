@@ -29,6 +29,7 @@ def upload_dm_results(buildername):
     'MSAN',
     'TSAN',
     'Valgrind',
+    'iPhone11',
   ]
   for s in skip_upload_bots:
     if s in buildername:
@@ -974,7 +975,8 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  for i in range(242):
+    api.run(api.flavor.step, 'dm', cmd=['dm'] + [str(x) for x in range(i)], abort_on_failure=False)
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
