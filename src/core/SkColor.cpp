@@ -33,8 +33,8 @@ static inline SkScalar ByteDivToScalar(int numer, U8CPU denom) {
 void SkRGBToHSV(U8CPU r, U8CPU g, U8CPU b, SkScalar hsv[3]) {
     SkASSERT(hsv);
 
-    unsigned min = SkMin32(r, SkMin32(g, b));
-    unsigned max = SkMax32(r, SkMax32(g, b));
+    unsigned min = std::min(r, std::min(g, b));
+    unsigned max = std::max(r, std::max(g, b));
     unsigned delta = max - min;
 
     SkScalar v = ByteToScalar(max);

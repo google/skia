@@ -146,7 +146,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
 
     sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-    int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
+    int count = std::min(fm->countFamilies(), MAX_FAMILIES);
     for (int i = 0; i < count; ++i) {
         sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
         for (int j = 0; j < set->count(); ++j) {
