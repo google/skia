@@ -332,6 +332,38 @@ void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef*
     out->fIsRRect = false;
 }
 
+std::tuple<SkPoint*, SkScalar*> SkPathRef::growForVerbsInPath(const SkPathRef& path) {
+    SkDEBUGCODE(this->validate();)
+
+    fBoundsIsDirty = true;  // this also invalidates fIsFinite
+    fIsOval = false;
+    fIsRRect = false;
+
+    if (SkPath::kMove_Verb != path.fVerbs[0]) {
+        // There is always an implicit moveTo(0,0) at the beginning of a path, but it has no effect
+        // when the first verb is also a moveTo.
+        *fVerbs.append() = SkPath::kMove_Verb;
+        fPoints.append()->set(0, 0);
+    }
+
+    if (int numVerbs = path.fVerbs.count()) {
+        memcpy(fVerbs.append(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
+    }
+
+    SkPoint* pts = nullptr;
+    if (int numPts = path.fPoints.count()) {
+        pts = fPoints.append(numPts);
+    }
+
+    SkScalar* weights = nullptr;
+    if (int numConics = path.fConicWeights.count()) {
+        weights = fConicWeights.append(numConics);
+    }
+
+    SkDEBUGCODE(this->validate();)
+    return {pts, weights};
+}
+
 SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                         int numVbs,
                                         SkScalar** weights) {

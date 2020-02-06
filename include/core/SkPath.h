@@ -1753,6 +1753,8 @@ private:
 
     void setPt(int index, SkScalar x, SkScalar y);
 
+    void dirtyAfterEdit();
+
     // Bottlenecks for working with fConvexity and fFirstDirection.
     // Notice the setters are const... these are mutable atomic fields.
     void    setConvexityType(SkPathConvexityType) const;
