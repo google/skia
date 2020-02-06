@@ -9,6 +9,7 @@
 #define SkVM_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector
@@ -336,26 +337,31 @@ namespace skvm {
 
     struct Color { skvm::F32 r,g,b,a; };
 
+    struct OptimizedInstruction {
+        Op op;
+        Val x,y,z;
+        int immy,immz;
+
+        int  death;
+        bool can_hoist;
+        bool used_in_loop;
+    };
+
     class Builder {
     public:
+        SK_BEGIN_REQUIRE_DENSE
         struct Instruction {
-            // Tightly packed for hashing:
             Op  op;         // v* = op(x,y,z,imm), where * == index of this Instruction.
             Val x,y,z;      // Enough arguments for mad().
             int immy,immz;  // Immediate bit pattern, shift count, argument index, etc.
-            // End tightly packed for hashing.
-
-            // Not populated until done() has been called.
-            int  death;         // Index of last live instruction taking this input; live if != 0.
-            bool can_hoist;     // Value independent of all loop variables?
-            bool used_in_loop;  // Is the value used in the loop (or only by hoisted values)?
         };
+        SK_END_REQUIRE_DENSE
 
-        Program done(const char* debug_name = nullptr);
+        Program done(const char* debug_name = nullptr) const;
 
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
-
+        std::vector<OptimizedInstruction> optimize() const;
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
@@ -613,7 +619,7 @@ namespace skvm {
             union { Reg z; int immz; };
         };
 
-        Program(const std::vector<Builder::Instruction>& instructions,
+        Program(const std::vector<OptimizedInstruction>& instructions,
                 const std::vector<int>                 & strides,
                 const char* debug_name);
 
@@ -645,12 +651,12 @@ namespace skvm {
         void dump(SkWStream* = nullptr) const;
 
     private:
-        void setupInterpreter(const std::vector<Builder::Instruction>&);
-        void setupJIT        (const std::vector<Builder::Instruction>&, const char* debug_name);
+        void setupInterpreter(const std::vector<OptimizedInstruction>&);
+        void setupJIT        (const std::vector<OptimizedInstruction>&, const char* debug_name);
 
         void interpret(int n, void* args[]) const;
 
-        bool jit(const std::vector<Builder::Instruction>&,
+        bool jit(const std::vector<OptimizedInstruction>&,
                  bool try_hoisting,
                  Assembler*) const;
 
