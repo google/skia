@@ -116,6 +116,24 @@
       "revId": "c6214ae8d41f3df5f728394eed8f8586dc9a69fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32572d9a_02a0fdf7",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T21:08:23Z",
+      "side": 1,
+      "message": "Actually, it\u0027s probably best to do the dirty first. Moving it would be fine today, but there certainly is state that could fail validation before the dirty, if we ever started checking it.",
+      "parentUuid": "8b30c469_477c8d26",
+      "revId": "c6214ae8d41f3df5f728394eed8f8586dc9a69fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
