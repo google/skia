@@ -32,6 +32,7 @@ public:
     operator bool() const { return SkToBool(fProxy.get()); }
 
     GrSurfaceProxyView& operator=(const GrSurfaceProxyView&) = default;
+    GrSurfaceProxyView& operator=(GrSurfaceProxyView&& view) = default;
 
     bool operator==(const GrSurfaceProxyView& view) const {
         return fProxy->uniqueID() == view.fProxy->uniqueID() &&
