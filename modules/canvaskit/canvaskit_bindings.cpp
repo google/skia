@@ -91,6 +91,7 @@ using Bone        = SkVertices::Bone;
 sk_sp<SkFontMgr> SkFontMgr_New_Custom_Data(const uint8_t** datas, const size_t* sizes, int n);
 #endif
 
+// 3x3 Matrices
 struct SimpleMatrix {
     SkScalar scaleX, skewX,  transX;
     SkScalar skewY,  scaleY, transY;
@@ -110,6 +111,34 @@ SimpleMatrix toSimpleSkMatrix(const SkMatrix& sm) {
     return m;
 }
 
+// Experimental 4x4 matrices.
+struct SimpleM44 {
+    SkScalar m0, m4, m8,  m12;
+    SkScalar m1, m5, m9,  m13;
+    SkScalar m2, m6, m10, m14;
+    SkScalar m3, m7, m11, m15;
+};
+
+SkM44 toSkM44(const SimpleM44& sm) {
+    SkM44 result(
+      sm.m0, sm.m4, sm.m8,  sm.m12,
+      sm.m1, sm.m5, sm.m9,  sm.m13,
+      sm.m2, sm.m6, sm.m10, sm.m14,
+      sm.m3, sm.m7, sm.m11, sm.m15);
+    return result;
+}
+
+SimpleM44 toSimpleM44(const SkM44& sm) {
+    SimpleM44 m {
+        sm.rc(0,0), sm.rc(0,1),  sm.rc(0,2),  sm.rc(0,3),
+        sm.rc(1,0), sm.rc(1,1),  sm.rc(1,2),  sm.rc(1,3),
+        sm.rc(2,0), sm.rc(2,1),  sm.rc(2,2),  sm.rc(2,3),
+        sm.rc(3,0), sm.rc(3,1),  sm.rc(3,2),  sm.rc(3,3),
+    };
+    return m;
+}
+
+// Surface creation structs and helpers
 struct SimpleImageInfo {
     int width;
     int height;
@@ -1022,7 +1051,28 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
+        }))
+        // Experimental 4x4 matrix functions
+        .function("experimental_saveCamera", optional_override([](SkCanvas& self,
+            const SimpleM44& projection, const SimpleM44& camera) {
+            self.experimental_saveCamera(toSkM44(projection), toSkM44(camera));
+        }))
+        .function("experimental_concat44", optional_override([](SkCanvas& self, const SimpleM44& m) {
+            self.experimental_concat44(toSkM44(m));
+        }))
+        .function("experimental_getLocalToDevice", optional_override([](const SkCanvas& self)->SimpleM44 {
+            SkM44 m = self.experimental_getLocalToDevice();
+            return toSimpleM44(m);
+        }))
+        .function("experimental_getLocalToWorld", optional_override([](const SkCanvas& self)->SimpleM44 {
+            SkM44 m = self.experimental_getLocalToWorld();
+            return toSimpleM44(m);
+        }))
+        .function("experimental_getLocalToCamera", optional_override([](const SkCanvas& self)->SimpleM44 {
+            SkM44 m = self.experimental_getLocalToCamera();
+            return toSimpleM44(m);
         }));
+
 
     class_<SkColorFilter>("SkColorFilter")
         .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")

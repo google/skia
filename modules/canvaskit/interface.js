@@ -16,10 +16,12 @@ CanvasKit.onRuntimeInitialized = function() {
   // have a mapPoints() function (which could maybe be tacked on here).
   // If DOMMatrix catches on, it would be worth re-considering this usage.
   CanvasKit.SkMatrix = {};
-  function sdot(a, b, c, d, e, f) {
-    e = e || 0;
-    f = f || 0;
-    return a * b + c * d + e * f;
+  function sdot() { // to be called with an even number of scalar args
+    var acc = 0;
+    while (arguments.length >= 2) {
+      acc += arugments.shift() * arguments.shift();
+    }
+    return acc;
   }
 
   CanvasKit.SkMatrix.identity = function() {
@@ -122,6 +124,71 @@ CanvasKit.onRuntimeInitialized = function() {
       0, 0,  1,
     ];
   };
+
+  // Similar functions for 4x4 matrices ported from SkM44.cpp
+
+  CanvasKit.SkM44.identity = function() {
+    return [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1,
+    ];
+  };
+
+  CanvasKit.SkM44.translated = function(x, y, z) {
+    return [
+      1, 0, 0, x,
+      0, 1, 0, y,
+      0, 0, 1, z,
+      0, 0, 0, 1,
+    ];
+  };
+
+  CanvasKit.SkM44.scaled = function(x, y, z) {
+    return [
+      x, 0, 0, 0,
+      0, y, 0, 0,
+      0, 0, z, 0,
+      0, 0, 0, 1,
+    ];
+  };
+
+  // axis vector must have length==1. TODO, normalize it.
+  CanvasKit.SkM44.rotated = function(axisVectorX, axisVectorY, axisVectorZ, radians) {
+    var x = axisVectorX;
+    var y = axisVectorY;
+    var z = axisVectorZ;
+    var c = Math.cos(radians);
+    var s = Math.sin(radians);
+    var t = 1 - c;
+
+    return [t*x*x + c,   t*x*y - s*z, t*x*z + s*y, 0,
+            t*x*y + s*z, t*y*y + c,   t*y*z - s*x, 0,
+            t*x*z - s*y, t*y*z + s*x, t*z*z + c,   0,
+            0,           0,           0,           1];
+  };
+
+  // to be called with two or more SkM44 arguments. they are multiplied together left to right.
+  CanvasKit.SkM44.multiply = function() {
+      var m1 = arguments[0];
+      var m2 = arguments[1];
+      var result = [0,0,0,0, 0,0,0,0, 0,0,0,0];
+      for (var r = 0; r < 4; r++) {
+        for (var c = 0; c < 4; c++) {
+          // m1 and m2 are 1D arrays pretending to be 2D arrays
+          result[4*r + c] = sdot(m1[4*r + 0], m2[4*0 + c],
+                                 m1[4*r + 1], m2[4*1 + c],
+                                 m1[4*r + 2], m2[4*2 + c],
+                                 m1[4*r + 3], m2[4*3 + c]);
+        }
+      }
+      return result;
+    if (arguments.length > 2) {
+      return CanvasKit.SkM44.multiply(result, ...arguments.slice(2, arguments.length));
+    }
+    return result;
+  }
 
   // An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
   //  with a 1x4 matrix that post-translates those 4 channels.
