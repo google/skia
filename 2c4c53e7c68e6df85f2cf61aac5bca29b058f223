@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7b90445_f090dd9a",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T20:14:28Z",
+      "side": 1,
+      "message": "Drop this?  Kind of pointless outside a header?",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 6
+      },
+      "revId": "2c4c53e7c68e6df85f2cf61aac5bca29b058f223",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
