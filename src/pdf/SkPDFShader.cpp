@@ -288,8 +288,8 @@ static SkPDFIndirectReference make_fallback_shader(SkPDFDocument* doc,
     }
 
     SkISize size = {
-        SkTClamp(SkScalarCeilToInt(rasterScale * surfaceBBox.width()),  1, kMaxBitmapArea),
-        SkTClamp(SkScalarCeilToInt(rasterScale * surfaceBBox.height()), 1, kMaxBitmapArea)};
+        SkTPin(SkScalarCeilToInt(rasterScale * surfaceBBox.width()),  1, kMaxBitmapArea),
+        SkTPin(SkScalarCeilToInt(rasterScale * surfaceBBox.height()), 1, kMaxBitmapArea)};
     SkSize scale = {SkIntToScalar(size.width()) / shaderRect.width(),
                     SkIntToScalar(size.height()) / shaderRect.height()};
 
