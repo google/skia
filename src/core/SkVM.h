@@ -575,8 +575,6 @@ namespace skvm {
         SkTHashMap<Instruction, Val, InstructionHash> fIndex;
         std::vector<Instruction>                      fProgram;
         std::vector<int>                              fStrides;
-        uint32_t                                      fHashLo{0},
-                                                      fHashHi{0};
     };
 
     // Helper to streamline allocating and working with uniforms.
