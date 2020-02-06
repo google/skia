@@ -70,6 +70,30 @@
       "revId": "aa278dffc4644c537410029be90d9bb97bfe219f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38f0f699_c6be9630",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T17:34:55Z",
+      "side": 1,
+      "message": "This is one of my pet peeves in lisp... it always makes total sense for symmetric operators like + or *, but something like (- a b c d) or (/ a b c d) is just kind of more obtuse than writing it out the long way.",
+      "parentUuid": "06164f52_0df9a882",
+      "range": {
+        "startLine": 36,
+        "startChar": 19,
+        "endLine": 36,
+        "endChar": 47
+      },
+      "revId": "aa278dffc4644c537410029be90d9bb97bfe219f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
