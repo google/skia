@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68c607ee_4de97b52",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1933,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T20:55:59Z",
+      "side": 0,
+      "message": "Um... once again, if you want to do unrelated things, let\u0027s do them in separate CLs?",
+      "revId": "ed9b1f1c1ede0b9b35a723d67435ab190d661b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
