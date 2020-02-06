@@ -362,6 +362,7 @@ namespace skvm {
         // Mostly for debugging, tests, etc.
         std::vector<Instruction> program() const { return fProgram; }
         std::vector<OptimizedInstruction> optimize() const;
+        Builder specialize() const;
 
         // Declare an argument with given stride (use stride=0 for uniforms).
         // TODO: different types for varying and uniforms?
