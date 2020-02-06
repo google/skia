@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a5997e14_3e3a73e6",
+        "filename": "src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T06:39:26Z",
+      "side": 1,
+      "message": "Done. Good suggestion.",
+      "parentUuid": "22d559ca_c0daa99f",
+      "range": {
+        "startLine": 68,
+        "startChar": 44,
+        "endLine": 68,
+        "endChar": 64
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d257a903_c53c9e41",
         "filename": "src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "7db56cc3698369fb29909251546131f04f22d79d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "675b0e6b_9c22f7ee",
+        "filename": "src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T06:39:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d257a903_c53c9e41",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 41
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "bf05a92c_352f67a1",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T06:39:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f80b8898_b0c99ace",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 52
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7947604_62ee1c8b",
         "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "7db56cc3698369fb29909251546131f04f22d79d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01627351_299bdb49",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T06:39:26Z",
+      "side": 1,
+      "message": "The short answer is because this is where ynev and chalkboard get best performance.\n\nI believe the reason for this is because in these scenes, we are still CPU bound from transforming, copying, and parsing all those complex paths. In the atlas case, we have to do the transform on CPU, and we copy the paths twice (once to an uber path, and once to the GPU).\n\nIn the normal codepath, we only do one copy and the transform occurs on GPU in the vertex shader.\n\nI also have intentions of someday caching GPU buffers for each path, which would completely eliminate the above costs (in addition to letting us use static buffer storage). In that case, we will want a threshold at which point it makes sense to eat the cost of not batching in order to save time caching the path data on GPU.\n\nMaybe in a future future world we reuse the cached GPU buffer to render to an atlas, in which case we may want to revisit this threshold.",
+      "parentUuid": "a7947604_62ee1c8b",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 89,
+        "endChar": 35
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4cdb9a6d_71d2bd36",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T06:39:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1555694c_c69e558f",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 112,
+        "endChar": 93
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff496520_4edb0540",
         "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "7db56cc3698369fb29909251546131f04f22d79d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0c7290b_ef5dd871",
+        "filename": "src/gpu/tessellate/GrGpuTessellationPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-06T06:39:26Z",
+      "side": 1,
+      "message": "Agreed. This initialization is become more and more clumsy. Now that constexpr methods don\u0027t have to be one-liners that should be achievable.",
+      "parentUuid": "ff496520_4edb0540",
+      "range": {
+        "startLine": 142,
+        "startChar": 27,
+        "endLine": 142,
+        "endChar": 37
+      },
+      "revId": "7db56cc3698369fb29909251546131f04f22d79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
