@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "30f5f1c1_2cf44ace",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:24:15Z",
+      "side": 1,
+      "message": "Unrelated, but the comment needed updating, which I didn\u0027t notice until making the fixes for DrawQuad.",
+      "range": {
+        "startLine": 609,
+        "startChar": 4,
+        "endLine": 618,
+        "endChar": 81
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b79b09a0_43e1307b",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:24:15Z",
+      "side": 1,
+      "message": "In functions like this and CropToRect, the DrawQuad isn\u0027t being consumed, merely modified, so I have it take a pointer instead of an r-value reference.\n\nMaybe the distinction isn\u0027t worth it and we just use DrawQuad* everywhere?",
+      "range": {
+        "startLine": 624,
+        "startChar": 45,
+        "endLine": 624,
+        "endChar": 59
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec4ec80c_b4b6ea79",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:24:15Z",
+      "side": 1,
+      "message": "I opted to use r-values in the function signature when it\u0027s expected that the function will consume and modify the draw quad parameters.",
+      "range": {
+        "startLine": 633,
+        "startChar": 24,
+        "endLine": 633,
+        "endChar": 39
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d446338_bff2964d",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:24:15Z",
+      "side": 1,
+      "message": "Not strictly related to this change, but I was editing the rest of CropToRect I figured I\u0027d just fix this bug too.",
+      "range": {
+        "startLine": 430,
+        "startChar": 8,
+        "endLine": 435,
+        "endChar": 26
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

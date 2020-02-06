@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c56ba88_d0e0aeee",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:24:15Z",
+      "side": 0,
+      "message": "This is actually taken care of by setQuadType() now automatically.",
+      "range": {
+        "startLine": 465,
+        "startChar": 8,
+        "endLine": 468,
+        "endChar": 28
+      },
+      "revId": "6c48aad1a347c7bd3d526fcb8c57662628bcdaab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
