@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5d30e7e_30a0a1d4",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateDataManager.mm",
+        "patchSetId": 16
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T19:19:56Z",
+      "side": 0,
+      "message": "Let\u0027s spin this off and land it first?",
+      "revId": "f4b475d84720131e1eee1b54d420922c077cd7f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

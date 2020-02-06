@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21a5e353_a1509b4c",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 16
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T19:19:56Z",
+      "side": 1,
+      "message": "This sounds like it\u0027s going to be silently confusing one day.\n\nDo the *SAN builds not work?  Surely Chrome\u0027s got some?",
+      "range": {
+        "startLine": 1208,
+        "startChar": 3,
+        "endLine": 1209,
+        "endChar": 56
+      },
+      "revId": "f15a5eedfba80c7d3f63e5ebaa2fced2698c14bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
