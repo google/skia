@@ -34,7 +34,7 @@ static void makebm(SkBitmap* bm, int w, int h) {
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);
-    SkScalar    s = SkIntToScalar(SkMin32(w, h));
+    SkScalar    s = SkIntToScalar(std::min(w, h));
     const SkPoint     kPts0[] = { { 0, 0 }, { s, s } };
     const SkPoint     kPts1[] = { { s/2, 0 }, { s/2, s } };
     const SkScalar    kPos[] = { 0, SK_Scalar1/2, SK_Scalar1 };

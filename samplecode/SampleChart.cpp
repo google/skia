@@ -102,7 +102,7 @@ class ChartView : public Sample {
         SkScalar height = SkIntToScalar(fSize.fHeight);
 
         if (sizeChanged) {
-            int dataPointCount = SkMax32(fSize.fWidth / kPixelsPerTick + 1, 2);
+            int dataPointCount = std::max(fSize.fWidth / kPixelsPerTick + 1, 2);
 
             for (int i = 0; i < kNumGraphs; ++i) {
                 SkScalar y = (kNumGraphs - i) * (height - ySpread) / (kNumGraphs + 1);

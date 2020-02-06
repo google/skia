@@ -175,18 +175,6 @@ template <typename T> static inline T SkTAbs(T value) {
     return value;
 }
 
-static inline int32_t SkMax32(int32_t a, int32_t b) {
-    if (a < b)
-        a = b;
-    return a;
-}
-
-static inline int32_t SkMin32(int32_t a, int32_t b) {
-    if (a > b)
-        a = b;
-    return a;
-}
-
 template <typename T> constexpr const T& SkTMin(const T& a, const T& b) {
     return (a < b) ? a : b;
 }
