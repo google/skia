@@ -328,6 +328,11 @@ public:
      *  If no clipping is needed, returns false and "result" is left unchanged.
      */
     static bool PerspectiveClip(const SkPath& src, const SkMatrix&, SkPath* result);
+
+    /**
+     * Transforms 'src' and appends it to the end of 'dst' as a new contour(s).
+     */
+    static void ConcatenateWithTransform(SkPath* dst, const SkPath& src, const SkMatrix&);
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).

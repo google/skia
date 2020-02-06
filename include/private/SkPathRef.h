@@ -84,6 +84,17 @@ public:
         }
 
         /**
+         * Concatenates all verbs from 'path' onto the pathRef's verbs array. Increases the point
+         * count by the number of points in 'path', and the conic weight count by the number of
+         * conics in 'path'.
+         *
+         * Returns pointers to the uninitialized points and conic weights data.
+         */
+        std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPathRef& path) {
+            return fPathRef->growForVerbsInPath(path);
+        }
+
+        /**
          * Resets the path ref to a new verb and point count. The new verbs and points are
          * uninitialized.
          */
@@ -415,6 +426,14 @@ private:
      * uninitialized.
      */
     SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight);
+
+    /**
+     * Concatenates all verbs from 'path' onto our own verbs array. Increases the point count by the
+     * number of points in 'path', and the conic weight count by the number of conics in 'path'.
+     *
+     * Returns pointers to the uninitialized points and conic weights data.
+     */
+    std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPathRef& path);
 
     /**
      * Private, non-const-ptr version of the public function verbsMemBegin().
