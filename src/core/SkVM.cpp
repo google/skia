@@ -117,10 +117,18 @@ namespace skvm {
         }
     }
 
-    static void dump_builder_program(const std::vector<Builder::Instruction>& program,
-                                     SkWStream* o) {
-        for (Val id = 0; id < (Val)program.size(); id++) {
-            const Builder::Instruction& inst = program[id];
+
+    void Builder::dump(SkWStream* o) const {
+        SkDebugfStream debug;
+        if (!o) { o = &debug; }
+
+        std::vector<OptimizedInstruction> optimized = this->optimize();
+        o->writeDecAsText(optimized.size());
+        o->writeText(" values (originally ");
+        o->writeDecAsText(fProgram.size());
+        o->writeText("):\n");
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            const OptimizedInstruction& inst = optimized[id];
             Op  op = inst.op;
             Val  x = inst.x,
                  y = inst.y,
@@ -223,15 +231,6 @@ namespace skvm {
 
             write(o, "\n");
         }
-    }
-
-    void Builder::dump(SkWStream* o) const {
-        SkDebugfStream debug;
-        if (!o) { o = &debug; }
-
-        o->writeDecAsText(fProgram.size());
-        o->writeText(" values:\n");
-        dump_builder_program(fProgram, o);
     }
 
     void Program::dump(SkWStream* o) const {
@@ -351,16 +350,16 @@ namespace skvm {
         }
     }
 
-    // Builder -> Program, with liveness and loop hoisting analysis.
-
-    Program Builder::done(const char* debug_name) {
-        // First rewrite the program by issuing instructions as late as possible:
+    std::vector<OptimizedInstruction> Builder::optimize() const {
+        // First rewrite the program order by issuing instructions as late as possible:
         //    - any side-effect-only (i.e. store) instruction in order as we see them;
         //    - any other instruction only once it's shown to be needed.
         // This elides all dead code and helps minimize value lifetime / register pressure.
-        std::vector<Instruction> rewritten;
-        rewritten.reserve(fProgram.size());
-        std::vector<Val> new_index(fProgram.size(), NA);  // Map old Val index to rewritten index.
+        std::vector<OptimizedInstruction> optimized;
+        optimized.reserve(fProgram.size());
+
+        // Map old Val index to rewritten index in optimized.
+        std::vector<Val> new_index(fProgram.size(), NA);
 
         auto rewrite = [&](Val id, auto& recurse) -> Val {
             auto rewrite_input = [&](Val input) -> Val {
@@ -376,8 +375,8 @@ namespace skvm {
             // The order we rewrite inputs is somewhat arbitrary; we could just go x,y,z.
             // But we try to preserve the original program order as much as possible by
             // rewriting inst's inputs in the order they were themselves originally issued.
-            // This makes debugging program dumps a little easier.
-            Instruction inst = fProgram[id];
+            // This makes debugging  dumps a little easier.
+            Builder::Instruction inst = fProgram[id];
             Val *min = &inst.x,
                 *mid = &inst.y,
                 *max = &inst.z;
@@ -387,8 +386,11 @@ namespace skvm {
             *min = rewrite_input(*min);
             *mid = rewrite_input(*mid);
             *max = rewrite_input(*max);
-            rewritten.push_back(inst);
-            return (Val)rewritten.size()-1;
+            optimized.push_back({inst.op,
+                                 inst.x, inst.y, inst.z,
+                                 inst.immy, inst.immz,
+                                 /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false});
+            return (Val)optimized.size()-1;
         };
 
         // Here we go with the actual rewriting, starting with all the store instructions
@@ -398,29 +400,27 @@ namespace skvm {
                 rewrite(id, rewrite);
             }
         }
-        // We're done with the original order now... everything below will analyze the new program.
-        fProgram = std::move(rewritten);
 
+        // We're done with our original fProgram now... everything below will analyze `optimized`.
 
         // We'll want to know when it's safe to recycle registers holding the values
         // produced by each instruction, that is, when no future instruction needs it.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Instruction& inst = fProgram[id];
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
             // Stores don't really produce values.  Just mark them as dying on issue.
             if (inst.op <= Op::store32) {
                 inst.death = id;
             }
             // Extend the lifetime of this instruction's inputs to live until it issues.
             // (We're walking in order, so this is the same as max()ing.)
-            if (inst.x != NA) { fProgram[inst.x].death = id; }
-            if (inst.y != NA) { fProgram[inst.y].death = id; }
-            if (inst.z != NA) { fProgram[inst.z].death = id; }
+            if (inst.x != NA) { optimized[inst.x].death = id; }
+            if (inst.y != NA) { optimized[inst.y].death = id; }
+            if (inst.z != NA) { optimized[inst.z].death = id; }
         }
 
-
         // Mark which values don't depend on the loop and can be hoisted.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Builder::Instruction& inst = fProgram[id];
+        for (Val id = 0; id < (Val)optimized.size(); id++) {
+            OptimizedInstruction& inst = optimized[id];
 
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
             if (inst.op <= Op::gather32 && inst.op != Op::assert_true) {
@@ -429,31 +429,32 @@ namespace skvm {
 
             // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
             if (inst.can_hoist) {
-                if (inst.x != NA) { inst.can_hoist &= fProgram[inst.x].can_hoist; }
-                if (inst.y != NA) { inst.can_hoist &= fProgram[inst.y].can_hoist; }
-                if (inst.z != NA) { inst.can_hoist &= fProgram[inst.z].can_hoist; }
+                if (inst.x != NA) { inst.can_hoist &= optimized[inst.x].can_hoist; }
+                if (inst.y != NA) { inst.can_hoist &= optimized[inst.y].can_hoist; }
+                if (inst.z != NA) { inst.can_hoist &= optimized[inst.z].can_hoist; }
             }
 
             // We'll want to know if hoisted values are used in the loop;
             // if not, we can recycle their registers like we do loop values.
             if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used_in_loop*/) {
-                if (inst.x != NA) { fProgram[inst.x].used_in_loop = true; }
-                if (inst.y != NA) { fProgram[inst.y].used_in_loop = true; }
-                if (inst.z != NA) { fProgram[inst.z].used_in_loop = true; }
+                if (inst.x != NA) { optimized[inst.x].used_in_loop = true; }
+                if (inst.y != NA) { optimized[inst.y].used_in_loop = true; }
+                if (inst.z != NA) { optimized[inst.z].used_in_loop = true; }
             }
         }
 
+        return optimized;
+    }
+
+    Program Builder::done(const char* debug_name) const {
         char buf[64] = "skvm-jit-";
         if (!debug_name) {
             *SkStrAppendU32(buf+9, this->hash()) = '\0';
             debug_name = buf;
         }
-
-        return {fProgram, fStrides, debug_name};
+        return {this->optimize(), fStrides, debug_name};
     }
 
-    // We skip fields only written after Builder::done() (death, can_hoist, used_in_loop) here
-    // for equality and hashing.  They'll always have the same default values in Builder::push().
     static bool operator==(const Builder::Instruction& a, const Builder::Instruction& b) {
         return a.op   == b.op
             && a.x    == b.x
@@ -464,7 +465,7 @@ namespace skvm {
     }
 
     uint32_t Builder::InstructionHash::operator()(const Instruction& inst, uint32_t seed) const {
-        return SkOpts::hash(&inst, offsetof(Instruction, death), seed);
+        return SkOpts::hash(&inst, sizeof(inst), seed);
     }
 
     uint64_t Builder::hash() const { return (uint64_t)fHashLo | (uint64_t)fHashHi << 32; }
@@ -472,8 +473,7 @@ namespace skvm {
     // Most instructions produce a value and return it by ID,
     // the value-producing instruction's own index in the program vector.
     Val Builder::push(Op op, Val x, Val y, Val z, int immy, int immz) {
-        Instruction inst{op, x, y, z, immy, immz,
-                         /*death=*/0, /*can_hoist=*/true, /*used_in_loop=*/false};
+        Instruction inst{op, x, y, z, immy, immz};
 
         // This first InstructionHash{}() call should be free given we're about to use fIndex below.
         fHashLo ^= InstructionHash{}(inst, 0);    // Two hash streams with different seeds.
@@ -1926,7 +1926,7 @@ namespace skvm {
 
     Program::Program() {}
 
-    Program::Program(const std::vector<Builder::Instruction>& instructions,
+    Program::Program(const std::vector<OptimizedInstruction>& instructions,
                      const std::vector<int>& strides,
                      const char* debug_name)
         : fStrides(strides)
@@ -1937,8 +1937,8 @@ namespace skvm {
     #endif
     }
 
-    // Translate Builder::Instructions to Program::Instructions used by the interpreter.
-    void Program::setupInterpreter(const std::vector<Builder::Instruction>& instructions) {
+    // Translate OptimizedInstructions to Program::Instructions used by the interpreter.
+    void Program::setupInterpreter(const std::vector<OptimizedInstruction>& instructions) {
         // Register each instruction is assigned to.
         std::vector<Reg> reg(instructions.size());
 
@@ -1957,7 +1957,7 @@ namespace skvm {
 
         // Assign this value to a register, recycling them where we can.
         auto assign_register = [&](Val id) {
-            const Builder::Instruction& inst = instructions[id];
+            const OptimizedInstruction& inst = instructions[id];
 
             // If this is a real input and it's lifetime ends at this instruction,
             // we can recycle the register it's occupying.
@@ -1994,7 +1994,7 @@ namespace skvm {
             if (!hoisted(id)) { assign_register(id); }
         }
 
-        // Translate Builder::Instructions to Program::Instructions by mapping values to
+        // Translate OptimizedInstructions to Program::Instructions by mapping values to
         // registers.  This will be two passes, first hoisted instructions, then inside the loop.
 
         // The loop begins at the fLoop'th Instruction.
@@ -2008,7 +2008,7 @@ namespace skvm {
                             : reg[id];
         };
 
-        auto push_instruction = [&](Val id, const Builder::Instruction& inst) {
+        auto push_instruction = [&](Val id, const OptimizedInstruction& inst) {
             Program::Instruction pinst{
                 inst.op,
                 lookup_register(id),
@@ -2022,14 +2022,14 @@ namespace skvm {
         };
 
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            const Builder::Instruction& inst = instructions[id];
+            const OptimizedInstruction& inst = instructions[id];
             if (hoisted(id)) {
                 push_instruction(id, inst);
                 fLoop++;
             }
         }
         for (Val id = 0; id < (Val)instructions.size(); id++) {
-            const Builder::Instruction& inst = instructions[id];
+            const OptimizedInstruction& inst = instructions[id];
             if (!hoisted(id)) {
                 push_instruction(id, inst);
             }
@@ -2071,7 +2071,7 @@ namespace skvm {
         }
     }
 
-    bool Program::jit(const std::vector<Builder::Instruction>& instructions,
+    bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
                       const bool try_hoisting,
                       Assembler* a) const {
         using A = Assembler;
@@ -2126,7 +2126,7 @@ namespace skvm {
         LabelAndReg                  iota;         // Exists _only_ to vary per-lane.
 
         auto warmup = [&](Val id) {
-            const Builder::Instruction& inst = instructions[id];
+            const OptimizedInstruction& inst = instructions[id];
 
             switch (inst.op) {
                 default: break;
@@ -2154,7 +2154,7 @@ namespace skvm {
         };
 
         auto emit = [&](Val id, bool scalar) {
-            const Builder::Instruction& inst = instructions[id];
+            const OptimizedInstruction& inst = instructions[id];
 
             Op op = inst.op;
             Val x = inst.x,
@@ -2654,7 +2654,7 @@ namespace skvm {
         return true;
     }
 
-    void Program::setupJIT(const std::vector<Builder::Instruction>& instructions,
+    void Program::setupJIT(const std::vector<OptimizedInstruction>& instructions,
                            const char* debug_name) {
         // Assemble with no buffer to determine a.size(), the number of bytes we'll assemble.
         Assembler a{nullptr};
