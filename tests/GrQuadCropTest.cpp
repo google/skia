@@ -26,21 +26,20 @@ static void run_crop_axis_aligned_test(skiatest::Reporter* r, const SkRect& clip
     // Should use run_crop_fully_covers_test for non-rect matrices
     SkASSERT(viewMatrix.rectStaysRect());
 
-    GrQuad drawQuad = GrQuad::MakeFromRect(kDrawRect, viewMatrix);
-    GrQuad localQuad = GrQuad::MakeFromRect(kDrawRect, localMatrix ? *localMatrix : SkMatrix::I());
-    GrQuad* localQuadPtr = localMatrix ? &localQuad : nullptr;
-    GrQuadAAFlags edgeFlags = clipAA == GrAA::kYes ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
+    DrawQuad quad = {GrQuad::MakeFromRect(kDrawRect, viewMatrix),
+                     GrQuad::MakeFromRect(kDrawRect, localMatrix ? *localMatrix : SkMatrix::I()),
+                     clipAA == GrAA::kYes ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll};
 
-    bool exact = GrQuadUtils::CropToRect(clipRect, clipAA, &edgeFlags, &drawQuad, localQuadPtr);
+    bool exact = GrQuadUtils::CropToRect(clipRect, clipAA, &quad, /* calc. locals */ !!localMatrix);
     ASSERTF(exact, "Expected exact crop");
-    ASSERTF(drawQuad.quadType() == GrQuad::Type::kAxisAligned,
+    ASSERTF(quad.fDevice.quadType() == GrQuad::Type::kAxisAligned,
             "Expected quad to remain axis-aligned");
 
     // Since we remained a rectangle, the bounds will exactly match the coordinates
     SkRect expectedBounds = viewMatrix.mapRect(kDrawRect);
     SkAssertResult(expectedBounds.intersect(clipRect));
 
-    SkRect actualBounds = drawQuad.bounds();
+    SkRect actualBounds = quad.fDevice.bounds();
     ASSERT_NEARLY_EQUAL(expectedBounds.fLeft, actualBounds.fLeft);
     ASSERT_NEARLY_EQUAL(expectedBounds.fTop, actualBounds.fTop);
     ASSERT_NEARLY_EQUAL(expectedBounds.fRight, actualBounds.fRight);
@@ -54,9 +53,9 @@ static void run_crop_axis_aligned_test(skiatest::Reporter* r, const SkRect& clip
         SkMatrix toLocal = SkMatrix::Concat(*localMatrix, invViewMatrix);
 
         for (int p = 0; p < 4; ++p) {
-            SkPoint expectedPoint = drawQuad.point(p);
+            SkPoint expectedPoint = quad.fDevice.point(p);
             toLocal.mapPoints(&expectedPoint, 1);
-            SkPoint actualPoint = localQuad.point(p);
+            SkPoint actualPoint = quad.fLocal.point(p);
 
             ASSERT_NEARLY_EQUAL(expectedPoint.fX, actualPoint.fX);
             ASSERT_NEARLY_EQUAL(expectedPoint.fY, actualPoint.fY);
@@ -68,30 +67,30 @@ static void run_crop_axis_aligned_test(skiatest::Reporter* r, const SkRect& clip
     SkRect drawClip = invViewMatrix.mapRect(clipRect);
     if (drawClip.fLeft > kDrawRect.fLeft) {
         if (clipAA == GrAA::kYes) {
-            ASSERTF(edgeFlags & GrQuadAAFlags::kLeft, "Expected left edge AA set");
+            ASSERTF(quad.fEdgeFlags & GrQuadAAFlags::kLeft, "Expected left edge AA set");
         } else {
-            ASSERTF(!(edgeFlags & GrQuadAAFlags::kLeft), "Expected left edge AA unset");
+            ASSERTF(!(quad.fEdgeFlags & GrQuadAAFlags::kLeft), "Expected left edge AA unset");
         }
     }
     if (drawClip.fRight < kDrawRect.fRight) {
         if (clipAA == GrAA::kYes) {
-            ASSERTF(edgeFlags & GrQuadAAFlags::kRight, "Expected right edge AA set");
+            ASSERTF(quad.fEdgeFlags & GrQuadAAFlags::kRight, "Expected right edge AA set");
         } else {
-            ASSERTF(!(edgeFlags & GrQuadAAFlags::kRight),  "Expected right edge AA unset");
+            ASSERTF(!(quad.fEdgeFlags & GrQuadAAFlags::kRight),  "Expected right edge AA unset");
         }
     }
     if (drawClip.fTop > kDrawRect.fTop) {
         if (clipAA == GrAA::kYes) {
-            ASSERTF(edgeFlags & GrQuadAAFlags::kTop, "Expected top edge AA set");
+            ASSERTF(quad.fEdgeFlags & GrQuadAAFlags::kTop, "Expected top edge AA set");
         } else {
-            ASSERTF(!(edgeFlags & GrQuadAAFlags::kTop), "Expected top edge AA unset");
+            ASSERTF(!(quad.fEdgeFlags & GrQuadAAFlags::kTop), "Expected top edge AA unset");
         }
     }
     if (drawClip.fBottom < kDrawRect.fBottom) {
         if (clipAA == GrAA::kYes) {
-            ASSERTF(edgeFlags & GrQuadAAFlags::kBottom, "Expected bottom edge AA set");
+            ASSERTF(quad.fEdgeFlags & GrQuadAAFlags::kBottom, "Expected bottom edge AA set");
         } else {
-            ASSERTF(!(edgeFlags & GrQuadAAFlags::kBottom), "Expected bottom edge AA unset");
+            ASSERTF(!(quad.fEdgeFlags & GrQuadAAFlags::kBottom), "Expected bottom edge AA unset");
         }
     }
 }
@@ -110,57 +109,56 @@ static void run_crop_fully_covered_test(skiatest::Reporter* r, GrAA clipAA,
     containsCrop.outset(10.f, 10.f);
     SkRect drawRect = invViewMatrix.mapRect(containsCrop);
 
-    GrQuad drawQuad = GrQuad::MakeFromRect(drawRect, viewMatrix);
-    GrQuadAAFlags edgeFlags = clipAA == GrAA::kYes ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll;
+    DrawQuad quad = {GrQuad::MakeFromRect(drawRect, viewMatrix),
+                     GrQuad::MakeFromRect(drawRect, localMatrix ? *localMatrix : SkMatrix::I()),
+                     clipAA == GrAA::kYes ? GrQuadAAFlags::kNone : GrQuadAAFlags::kAll};
 
     if (localMatrix) {
-        GrQuad localQuad = GrQuad::MakeFromRect(drawRect, *localMatrix);
+        DrawQuad originalQuad = quad;
 
-        GrQuad originalDrawQuad = drawQuad;
-        GrQuad originalLocalQuad = localQuad;
-        GrQuadAAFlags originalEdgeFlags = edgeFlags;
-
-        bool exact = GrQuadUtils::CropToRect(kDrawRect, clipAA, &edgeFlags, &drawQuad, &localQuad);
+        bool exact = GrQuadUtils::CropToRect(kDrawRect, clipAA, &quad);
         // Currently non-rect matrices don't know how to update local coordinates, so the crop
         // doesn't know how to restrict itself and should leave the inputs unmodified
         ASSERTF(!exact, "Expected crop to be not exact");
-        ASSERTF(edgeFlags == originalEdgeFlags, "Expected edge flags not to be modified");
+        ASSERTF(quad.fEdgeFlags == originalQuad.fEdgeFlags,
+                "Expected edge flags not to be modified");
 
         for (int i = 0; i < 4; ++i) {
-            ASSERT_NEARLY_EQUAL(originalDrawQuad.x(i), drawQuad.x(i));
-            ASSERT_NEARLY_EQUAL(originalDrawQuad.y(i), drawQuad.y(i));
-            ASSERT_NEARLY_EQUAL(originalDrawQuad.w(i), drawQuad.w(i));
+            ASSERT_NEARLY_EQUAL(originalQuad.fDevice.x(i), quad.fDevice.x(i));
+            ASSERT_NEARLY_EQUAL(originalQuad.fDevice.y(i), quad.fDevice.y(i));
+            ASSERT_NEARLY_EQUAL(originalQuad.fDevice.w(i), quad.fDevice.w(i));
 
-            ASSERT_NEARLY_EQUAL(originalLocalQuad.x(i), localQuad.x(i));
-            ASSERT_NEARLY_EQUAL(originalLocalQuad.y(i), localQuad.y(i));
-            ASSERT_NEARLY_EQUAL(originalLocalQuad.w(i), localQuad.w(i));
+            ASSERT_NEARLY_EQUAL(originalQuad.fLocal.x(i), quad.fLocal.x(i));
+            ASSERT_NEARLY_EQUAL(originalQuad.fLocal.y(i), quad.fLocal.y(i));
+            ASSERT_NEARLY_EQUAL(originalQuad.fLocal.w(i), quad.fLocal.w(i));
         }
     } else {
         // Since no local coordinates were provided, and the input draw geometry is known to
         // fully cover the crop rect, the quad should be updated to match cropRect exactly
-        bool exact = GrQuadUtils::CropToRect(kDrawRect, clipAA, &edgeFlags, &drawQuad, nullptr);
+        bool exact = GrQuadUtils::CropToRect(kDrawRect, clipAA, &quad, /* calc. local */ false);
         ASSERTF(exact, "Expected crop to be exact");
 
         GrQuadAAFlags expectedFlags = clipAA == GrAA::kYes ? GrQuadAAFlags::kAll
                                                            : GrQuadAAFlags::kNone;
-        ASSERTF(expectedFlags == edgeFlags, "Expected edge flags do not match clip AA setting");
-        ASSERTF(drawQuad.quadType() == GrQuad::Type::kAxisAligned, "Unexpected quad type");
+        ASSERTF(expectedFlags == quad.fEdgeFlags,
+                "Expected edge flags do not match clip AA setting");
+        ASSERTF(quad.fDevice.quadType() == GrQuad::Type::kAxisAligned, "Unexpected quad type");
 
-        ASSERT_NEARLY_EQUAL(kDrawRect.fLeft, drawQuad.x(0));
-        ASSERT_NEARLY_EQUAL(kDrawRect.fTop, drawQuad.y(0));
-        ASSERT_NEARLY_EQUAL(1.f, drawQuad.w(0));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fLeft, quad.fDevice.x(0));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fTop, quad.fDevice.y(0));
+        ASSERT_NEARLY_EQUAL(1.f, quad.fDevice.w(0));
 
-        ASSERT_NEARLY_EQUAL(kDrawRect.fLeft, drawQuad.x(1));
-        ASSERT_NEARLY_EQUAL(kDrawRect.fBottom, drawQuad.y(1));
-        ASSERT_NEARLY_EQUAL(1.f, drawQuad.w(1));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fLeft, quad.fDevice.x(1));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fBottom, quad.fDevice.y(1));
+        ASSERT_NEARLY_EQUAL(1.f, quad.fDevice.w(1));
 
-        ASSERT_NEARLY_EQUAL(kDrawRect.fRight, drawQuad.x(2));
-        ASSERT_NEARLY_EQUAL(kDrawRect.fTop, drawQuad.y(2));
-        ASSERT_NEARLY_EQUAL(1.f, drawQuad.w(2));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fRight, quad.fDevice.x(2));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fTop, quad.fDevice.y(2));
+        ASSERT_NEARLY_EQUAL(1.f, quad.fDevice.w(2));
 
-        ASSERT_NEARLY_EQUAL(kDrawRect.fRight, drawQuad.x(3));
-        ASSERT_NEARLY_EQUAL(kDrawRect.fBottom, drawQuad.y(3));
-        ASSERT_NEARLY_EQUAL(1.f, drawQuad.w(3));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fRight, quad.fDevice.x(3));
+        ASSERT_NEARLY_EQUAL(kDrawRect.fBottom, quad.fDevice.y(3));
+        ASSERT_NEARLY_EQUAL(1.f, quad.fDevice.w(3));
     }
 }
 
