@@ -16,6 +16,24 @@
       "revId": "6278f4188f3f93d6077d3845204e2436a9e6e202",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f64933b2_be852e08",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-02-06T21:27:11Z",
+      "side": 1,
+      "message": "I\u0027ve added a unit test in this DM. But sometimes the canvasInfo does have a color space, in which case we still want to run DM.",
+      "parentUuid": "981d8cfb_175eb06a",
+      "revId": "6278f4188f3f93d6077d3845204e2436a9e6e202",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
