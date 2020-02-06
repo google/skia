@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2144d75b_024aa87b",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T14:25:12Z",
+      "side": 1,
+      "message": "Not really, except that comparing w \u003c kW0PlaneDistance is simpler than doing (1/w \u003e 1/kW0PlaneDistance || 1/w \u003c 0). If we pass that check then we just invert the w in place.",
+      "parentUuid": "ab08e8bb_975d462e",
+      "range": {
+        "startLine": 600,
+        "startChar": 8,
+        "endLine": 600,
+        "endChar": 26
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08ad360b_06915732",
         "filename": "src/gpu/geometry/GrQuadUtils.cpp",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c46c8015_64cdec0e",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1017,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T14:25:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08ad360b_06915732",
+      "range": {
+        "startLine": 1017,
+        "startChar": 54,
+        "endLine": 1017,
+        "endChar": 63
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "a860955d_e0c45ee7",
+        "filename": "src/gpu/geometry/GrQuadUtils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T14:25:12Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "302a08cd_2bfdb435",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 95
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca668c8_dae3c230",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 6
@@ -105,6 +177,30 @@
       "writtenOn": "2020-02-05T17:43:01Z",
       "side": 1,
       "message": "Here and other places we call NeedsWClipping() and if true we call ClipToW0(). ClipToW0() effectively reimplements NeedsWClipping(). Maybe all we save with the early out is making a DrawQuad to pass to ClipToW0()? If so, could we just make the constructors (and maybe fatories) take DrawQuad instead of its components and then just call ClipToW0() unconditionally?",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 503,
+        "endChar": 58
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d05cbebb_3ad81c26",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T14:25:12Z",
+      "side": 1,
+      "message": "I played around with this idea, and I like it. I am moving the DrawQuad refactor into another CL that will come before this one, and then I\u0027ll rebase this ClipToW0 CL",
+      "parentUuid": "dca668c8_dae3c230",
       "range": {
         "startLine": 499,
         "startChar": 0,
