@@ -22,6 +22,30 @@
       "revId": "d00cdadb559248ce51ea7d3c15d87c0fc9f07385",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "541845ec_3ad60a23",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-02-06T18:40:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a31f9c2c_e46f9517",
+      "range": {
+        "startLine": 32,
+        "startChar": 7,
+        "endLine": 32,
+        "endChar": 17
+      },
+      "revId": "d00cdadb559248ce51ea7d3c15d87c0fc9f07385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
