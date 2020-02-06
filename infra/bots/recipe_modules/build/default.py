@@ -88,8 +88,9 @@ def compile_fn(api, checkout_root, out_dir):
   clang_linux      = str(api.vars.slave_dir.join('clang_linux'))
   win_toolchain    = str(api.vars.slave_dir.join('win_toolchain'))
   moltenvk         = str(api.vars.slave_dir.join('moltenvk'))
+  ccache           = str(api.vars.slave_dir.join('ccache_linux'))
 
-  cc, cxx = None, None
+  cc, cxx, cc_wrapper = None, None, None
   extra_cflags = []
   extra_ldflags = []
   args = {'werror': 'true'}
@@ -134,6 +135,17 @@ def compile_fn(api, checkout_root, out_dir):
     compiler = 'Clang'
     args['skia_compile_processors'] = 'true'
     args['skia_generate_workarounds'] = 'true'
+
+  if api.vars.is_linux:
+    cc_wrapper = ccache + '/bin/ccache'
+    env['CCACHE_DIR'] = api.vars.cache_dir.join('ccache')
+    # Compilers are unpacked from cipd with bogus timestamps, only contribute
+    # compiler content to hashes. If Ninja ever uses absolute paths to changing
+    # directories we'll also need to set a CCACHE_BASEDIR.
+    env['CCACHE_COMPILERCHECK'] = 'content'
+    # Testing to see how big the cache gets with all linux builds.
+    env['CCACHE_MAXSIZE'] = '100G'
+    env['CCACHE_MAXFILES'] = '0'
 
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
@@ -284,6 +296,7 @@ def compile_fn(api, checkout_root, out_dir):
   for (k,v) in {
     'cc':  cc,
     'cxx': cxx,
+    'cc_wrapper' : cc_wrapper,
     'sanitize': sanitize,
     'target_cpu': target_arch,
     'target_os': 'ios' if 'iOS' in extra_tokens else '',

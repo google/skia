@@ -92,6 +92,12 @@ var (
 			Path: "cache/work",
 		},
 	}
+	CACHES_CCACHE = []*specs.Cache{
+		&specs.Cache{
+			Name: "ccache",
+			Path: "cache/ccache",
+		},
+	}
 	CACHES_DOCKER = []*specs.Cache{
 		&specs.Cache{
 			Name: "docker",
@@ -435,6 +441,7 @@ func (b *builder) internalHardwareLabel(parts map[string]string) *int {
 // linuxGceDimensions are the Swarming bot dimensions for Linux GCE instances.
 func (b *builder) linuxGceDimensions(machineType string) []string {
 	return []string{
+		"id:skia-e-gce-301",
 		// Specify CPU to avoid running builds on bots with a more unique CPU.
 		"cpu:x86-64-Haswell_GCE",
 		"gpu:none",
@@ -1076,6 +1083,11 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 	return deps
 }
 
+// usesCCache adds attributes to tasks which use ccache.
+func (b *builder) usesCCache(t *specs.TaskSpec, name string) {
+	t.Caches = append(t.Caches, CACHES_CCACHE...)
+}
+
 // usesGit adds attributes to tasks which use git.
 func (b *builder) usesGit(t *specs.TaskSpec, name string) {
 	t.Caches = append(t.Caches, CACHES_GIT...)
@@ -1149,9 +1161,10 @@ func (b *builder) compile(name string, parts map[string]string) string {
 	if needSync {
 		b.usesGit(task, name)
 	} else {
-		task.Idempotent = true
+	//	task.Idempotent = true
 	}
 	usesDocker(task, name)
+        b.usesCCache(task, name)
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
@@ -1188,6 +1201,7 @@ func (b *builder) compile(name string, parts map[string]string) string {
 				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
 			)
 		}
+	        task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
 	} else if strings.Contains(name, "Win") {
 		task.Dependencies = append(task.Dependencies, b.isolateCIPDAsset(ISOLATE_WIN_TOOLCHAIN_NAME))
 		if strings.Contains(name, "Clang") {
