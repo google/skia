@@ -408,15 +408,6 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, SkScalarIsNaN(x));
     }
 
-    for (i = 0; i < 1000; i++) {
-        int value = rand.nextS() >> 16;
-        int max = rand.nextU() >> 16;
-
-        int clamp = SkClampMax(value, max);
-        int clamp2 = value < 0 ? 0 : (value > max ? max : value);
-        REPORTER_ASSERT(reporter, clamp == clamp2);
-    }
-
     for (i = 0; i < 10000; i++) {
         SkPoint p;
 

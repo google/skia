@@ -91,7 +91,7 @@ void SkEmbossMask::Emboss(SkMask* mask, const SkEmbossMaskFilter::Light& light) 
                 int hilite = (2 * dot - lz_dot8) * lz_dot8 >> 8;
                 if (hilite > 0) {
                     // pin hilite to 255, since our fast math is also a little sloppy
-                    hilite = SkClampMax(hilite, 255);
+                    hilite = std::min(hilite, 255);
 
                     // specular is 4.4
                     // would really like to compute the fractional part of this

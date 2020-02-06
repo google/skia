@@ -243,14 +243,14 @@ static unsigned mirror(SkFixed fx, int max) {
 }
 
 static unsigned clamp(SkFixed fx, int max) {
-    return SkClampMax(fx >> 16, max);
+    return SkTPin(fx >> 16, 0, max);
 }
 
 #if defined(SK_SUPPORT_LEGACY_TILED_BITMAPS)
  // For use with extract_low_bits_general(), where clamp() above expects extract_low_bits_clamp_clamp()
 static unsigned general_clamp(SkFixed fx, int max)
 {
-    return repeat(SkClampMax(fx, 0xFFFF), max);
+    return repeat(SkTPin(fx, 0, 0xFFFF), max);
 }
 #endif
 
