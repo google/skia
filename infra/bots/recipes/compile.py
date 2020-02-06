@@ -30,6 +30,7 @@ def RunSteps(api):
       'work', 'skia', 'out', api.vars.builder_name, api.vars.configuration)
 
   try:
+#    api.run(api.step, 'comatose', cmd=['sleep', '3m'])
     api.build(checkout_root=checkout_root, out_dir=out_dir)
 
     # TODO(borenet): Move this out of the try/finally.
