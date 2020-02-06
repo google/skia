@@ -46,6 +46,30 @@
       "revId": "f15a5eedfba80c7d3f63e5ebaa2fced2698c14bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3b0498f_beb00c34",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 16
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T19:59:22Z",
+      "side": 1,
+      "message": "I guess let\u0027s just build our own then?  We definitely do want normal, ASAN and TSAN builds, and it\u0027ll really help our sanity if they\u0027re all the same version of Clang + co.",
+      "parentUuid": "2513117a_6c3349cc",
+      "range": {
+        "startLine": 1208,
+        "startChar": 3,
+        "endLine": 1209,
+        "endChar": 56
+      },
+      "revId": "f15a5eedfba80c7d3f63e5ebaa2fced2698c14bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
