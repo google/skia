@@ -612,7 +612,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
                 finalValue /= windowSum;
                 uint8_t *outPixel = dstPixels + (x-pad)*dstWidth + y; // transposed output
                 int integerPixel = int(finalValue + 0.5f);
-                *outPixel = SkClampMax( SkClampPos(integerPixel), 255 );
+                *outPixel = SkTPin(SkClampPos(integerPixel), 0, 255);
             }
         }
 

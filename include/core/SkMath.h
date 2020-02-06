@@ -21,24 +21,6 @@ static inline int64_t sk_64_mul(int64_t a, int64_t b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Given an integer and a positive (max) integer, return the value
- *  pinned against 0 and max, inclusive.
- *  @param value    The value we want returned pinned between [0...max]
- *  @param max      The positive max value
- *  @return 0 if value < 0, max if value > max, else value
- */
-static inline int SkClampMax(int value, int max) {
-    // ensure that max is positive
-    SkASSERT(max >= 0);
-    if (value < 0) {
-        value = 0;
-    }
-    if (value > max) {
-        value = max;
-    }
-    return value;
-}
-
 /**
  *  Returns true if value is a power of 2. Does not explicitly check for
  *  value <= 0.

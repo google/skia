@@ -167,9 +167,9 @@ public:
         colorScale = SkTPin(colorScale, 0.0f, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
         return SkPackARGB32(255,
-                            SkClampMax(SkScalarRoundToInt(color.fX), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fY), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fZ), 255));
+                            SkTPin(SkScalarRoundToInt(color.fX), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fY), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fZ), 0, 255));
     }
 private:
     SkScalar fKD;
@@ -191,10 +191,10 @@ public:
         SkScalar colorScale = fKS * SkScalarPow(normal.dot(halfDir), fShininess);
         colorScale = SkTPin(colorScale, 0.0f, SK_Scalar1);
         SkPoint3 color = lightColor.makeScale(colorScale);
-        return SkPackARGB32(SkClampMax(SkScalarRoundToInt(max_component(color)), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fX), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fY), 255),
-                            SkClampMax(SkScalarRoundToInt(color.fZ), 255));
+        return SkPackARGB32(SkTPin(SkScalarRoundToInt(max_component(color)), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fX), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fY), 0, 255),
+                            SkTPin(SkScalarRoundToInt(color.fZ), 0, 255));
     }
 private:
     SkScalar fKS;
