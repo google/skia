@@ -19,7 +19,7 @@ public:
      * Computes a scratch key for a GPU-side buffer with a "dynamic" access pattern. (Buffers with
      * "static" and "stream" patterns are disqualified by nature from being cached and reused.)
      */
-    static void ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType, GrScratchKey*);
+    static void ComputeScratchKeyForDynamicBuffer(size_t size, GrGpuBufferType, GrScratchKey*);
 
     GrAccessPattern accessPattern() const { return fAccessPattern; }
 

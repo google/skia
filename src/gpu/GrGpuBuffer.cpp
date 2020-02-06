@@ -47,8 +47,8 @@ bool GrGpuBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     return this->onUpdateData(src, srcSizeInBytes);
 }
 
-void GrGpuBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType intendedType,
-                                                 GrScratchKey* key) {
+void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size, GrGpuBufferType intendedType,
+                                                    GrScratchKey* key) {
     static const GrScratchKey::ResourceType kType = GrScratchKey::GenerateResourceType();
     GrScratchKey::Builder builder(key, kType, 1 + (sizeof(size_t) + 3) / 4);
     // TODO: There's not always reason to cache a buffer by type. In some (all?) APIs it's just
@@ -63,6 +63,6 @@ void GrGpuBuffer::ComputeScratchKeyForDynamicVBO(size_t size, GrGpuBufferType in
 
 void GrGpuBuffer::computeScratchKey(GrScratchKey* key) const {
     if (SkIsPow2(fSizeInBytes) && kDynamic_GrAccessPattern == fAccessPattern) {
-        ComputeScratchKeyForDynamicVBO(fSizeInBytes, fIntendedType, key);
+        ComputeScratchKeyForDynamicBuffer(fSizeInBytes, fIntendedType, key);
     }
 }
