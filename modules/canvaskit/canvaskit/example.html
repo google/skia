@@ -40,6 +40,7 @@
 <canvas id=ink width=300 height=300></canvas>
 <canvas id=surfaces width=300 height=300></canvas>
 <canvas id=atlas width=300 height=300></canvas>
+<canvas id=camera3d width=400 height=400></canvas>
 
 <h2> CanvasKit can allow for text shaping (e.g. breaking, kerning)</h2>
 <canvas id=shape1 width=600 height=600></canvas>
@@ -1272,5 +1273,162 @@
     }
     surface.requestAnimationFrame(drawFrame);
 
+  }
+
+  function Camera3D(canvas) {
+    const surface = CanvasKit.MakeCanvasSurface('camera3d');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    let clickToWorld = CanvasKit.SkM44.identity();
+    let worldToClick = CanvasKit.SkM44.identity();
+    // rotation of the cube shown in the demo
+    let rotation = CanvasKit.SkM44.identity();
+    // temporary during a click and drag
+    let clickRotation = CanvasKit.SkM44.identity();
+    // The rounded rect used for each face
+    const rr = CanvasKit.RRectXY({20, 20, 380, 380}, 50, 50);
+
+    // A virtual sphere used for tumbling the object on screen.
+    let vSphereRadius = 400;
+    let vSphereCenterX = 200;
+    let vSphereCenterY = 200;
+
+    // Takes an x and y rotation in radians and a scale and returns a 4x4 matrix used to draw a
+    // face of the cube in that orientation.
+    function faceM44(rx, ry, scale) {
+      return CanvasKit.SkM44.multiply(
+        CanvasKit.SkM44.rotated({0,1,0}, ry),
+        CanvasKit.SkM44.rotated({1,0,0}, rx),
+        CanvasKit.SkM44.translated(0, 0, scale));
+    }
+
+    const faces = [
+      faceM44(         0,         0 ), // front
+      faceM44(         0,   Math.PI ), // back
+
+      faceM44( Math.PI/2,         0 ), // top
+      faceM44(-Math.PI/2,         0 ), // bottom
+
+      faceM44(         0, Math.PI/2 ), // left
+      faceM44(         0,-Math.PI/2 ), // right
+    ];
+
+    // Returns true when the matrix represents a face with a normal facing the camera.
+    function front(m) {
+      // look at the sign of the z-scale of the inverse of m
+      inv = CanvasKit.SkM44.inverse(m);
+      return inv[10] > 0;
+    }
+
+    function saveCamera(canvas, foo, bar) {
+
+    }
+
+    function setClickToWorld(canvas, matrix) {
+        const l2d = canvas.experimental_getLocalToDevice();
+        worldToClick = CanvasKit.SkM44.multiply(CanvasKit.SkM44.inverse(clickM), l2d);
+        clickToWorld = CanvasKit.SkM44.inverse(worldToClick);
+    }
+
+    function drawCubeFace(canvas, m) {
+        const trans = CanvasKit.SkM44.translated(200, 200, 0);   // center of the rotation
+
+        canvas.experimental_concat44(CanvasKit.SkM44.multiply(
+          trans, m, CanvasKit.SkM44.inverse(trans)));
+
+        // wonder if the runtimeeffect can do this reject? (in a setup function)
+        if (!front(canvas.experimental_getLocalToDevice())) {
+            return;
+        }
+
+        // in c++ this was a lambda
+        // it appears to
+        auto adj_inv = [](const SkM44& m) {
+            return ;
+        };
+
+        // let ltw = canvas.experimental_getLocalToWorld();
+        // let uni  = {
+        //     localToWorld: ltw, // SkM44
+        //     localToWorldAdjInv: CanvasKit.SkM44.transpose(CanvasKit.SkM44.inverse(ltw)) // SkM44
+        //     LightPos: light.computeWorldPos(sphere), // vector of 3 scalars
+        // };
+
+        // sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+        // sk_sp<SkShader> children[] = { fImgShader, fBmpShader };
+
+        const paint = new CanvasKit.SkPaint();
+        paint.setColor(c);
+        // TODO make the shader work
+        //paint.setShader(runtimeEffect.makeShader(data, children, 2, nullptr, true));
+
+        canvas.drawRRect(rr, paint);
+    }
+
+    function drawFrame(canvas) {
+        // TODO if not GPU backend, print an error to the console and return.
+        // this demo only works in GL.
+        const clickM = canvas.experimental_getLocalToDevice();
+        canvas.save();
+        canvas.translate(400, 300);
+        saveCamera(canvas, {0, 0, 400, 400}, 200);
+        setClickToWorld(canvas, clickM);
+        for (let f of faces) {
+            const saveCount = canvas.getSaveCount();
+            drawCubeFace(canvas, CanvasKit.SkM44.multiply(clickRotation, rotation, f));
+            canvas.restoreToCount(saveCount);
+        }
+        canvas.restore();  // camera
+        canvas.restore();  // center the following content in the window
+        // draw the light location indicator
+        fLight.draw(canvas);
+        // draw virtual sphere outline.
+        {
+            const paint = new CanvasKit.SkPaint();
+            paint.setAntiAlias(true);
+            paint.setStyle(CanvasKit.PaintStyle.Stroke);
+            paint.setColor(CanvasKit.Color(64, 255, 0, 1.0));
+            canvas.drawCircle(fSphere.fCenter.x, fSphere.fCenter.y, fSphere.fRadius, paint);
+            canvas.drawLine(fSphere.fCenter.x, fSphere.fCenter.y - fSphere.fRadius,
+                             fSphere.fCenter.x, fSphere.fCenter.y + fSphere.fRadius, paint);
+            canvas.drawLine(fSphere.fCenter.x - fSphere.fRadius, fSphere.fCenter.y,
+                             fSphere.fCenter.x + fSphere.fRadius, fSphere.fCenter.y, paint);
+        }
+    }
+
+    function interact(e) {
+      const type = e.type;
+      if (type === 'lostpointercapture' || type === 'pointerup') {
+        rotation = CanvasKit.SkM44.multiply(clickRotation * rotation);
+        clickRotation = CanvasKit.SkM44.identity();
+        return;
+      } else if (type == 'pointermove') {
+        clickRotation = fSphere.computeRotation({click->fOrig.fX, click->fOrig.fY},
+                                                 {click->fCurr.fX, click->fCurr.fY});
+      } else if (type = 'pointerdown') {
+        // Did the user click on the light, meaning they want to move it?
+        // SkVec2 p = fLight.fLoc - SkVec2{x, y};
+        // if (p.length() <= fLight.fRadius) {
+        //     Click* c = new Click();
+        //     c->fMeta.setS32("type", 0);
+        //     return c;
+        // }
+        // if (fSphere.contains({x, y})) {
+        //     Click* c = new Click();
+        //     c->fMeta.setS32("type", 1);
+        //     return c;
+        // }
+
+
+        fLight.fLoc = fSphere.pinLoc(e.offsetX, e.offsetY);
+      }
+    };
+    document.getElementById('camera3d').addEventListener('pointermove', interact);
+    document.getElementById('camera3d').addEventListener('pointerdown', interact);
+    document.getElementById('camera3d').addEventListener('lostpointercapture', interact);
+    document.getElementById('camera3d').addEventListener('pointerup', interact);
   }
 </script>
