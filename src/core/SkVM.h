@@ -555,6 +555,8 @@ namespace skvm {
 
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
 
+        std::vector<Instruction> rewrite_program(bool jit) const;
+
         bool allImm() const;
 
         template <typename T, typename... Rest>
@@ -613,8 +615,9 @@ namespace skvm {
             union { Reg z; int immz; };
         };
 
-        Program(const std::vector<Builder::Instruction>& instructions,
-                const std::vector<int>                 & strides,
+        Program(const std::vector<Builder::Instruction>& interpreter,
+                const std::vector<Builder::Instruction>& jit,
+                const std::vector<int>& strides,
                 const char* debug_name);
 
         Program();

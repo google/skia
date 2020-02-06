@@ -351,16 +351,17 @@ namespace skvm {
         }
     }
 
-    // Builder -> Program, with liveness and loop hoisting analysis.
+    // Rewrite the program by issuing instructions as late as possible:
+    //    - any side-effect-only (i.e. store) instruction in order as we see them;
+    //    - any other instruction only once it's shown to be needed.
+    // This elides all dead code and helps minimize value lifetime / register pressure.
+    //
+    // We may specialize some instructions based on JIT/interpreter and platform.
+    std::vector<Builder::Instruction> Builder::rewrite_program(bool jit) const {
+        std::vector<Builder::Instruction> rewritten;
+        rewritten.reserve(fProgram.size());  // For now exact, but one day, approximate.
 
-    Program Builder::done(const char* debug_name) {
-        // First rewrite the program by issuing instructions as late as possible:
-        //    - any side-effect-only (i.e. store) instruction in order as we see them;
-        //    - any other instruction only once it's shown to be needed.
-        // This elides all dead code and helps minimize value lifetime / register pressure.
-        std::vector<Instruction> rewritten;
-        rewritten.reserve(fProgram.size());
-        std::vector<Val> new_index(fProgram.size(), NA);  // Map old Val index to rewritten index.
+        std::vector<Val> new_index(fProgram.size(), NA);  // Old val index -> rewritten index
 
         auto rewrite = [&](Val id, auto& recurse) -> Val {
             auto rewrite_input = [&](Val input) -> Val {
@@ -372,12 +373,31 @@ namespace skvm {
                 }
                 return new_index[input];
             };
-
             // The order we rewrite inputs is somewhat arbitrary; we could just go x,y,z.
             // But we try to preserve the original program order as much as possible by
             // rewriting inst's inputs in the order they were themselves originally issued.
             // This makes debugging program dumps a little easier.
-            Instruction inst = fProgram[id];
+            Builder::Instruction inst = fProgram[id];
+
+            if (jit) {
+            #if defined(SK_CPU_X86)
+                int imm;
+                switch (inst.op) {
+                    default: break;;
+                    case Op::mul_f32: if (this->allImm(inst.y,&imm)) {
+                                          inst.op   = Op::mul_f32_imm;
+                                          inst.y    = NA;
+                                          inst.immy = imm;
+                                      } else if (this->allImm(inst.x,&imm)) {
+                                          inst.op   = Op::mul_f32_imm;
+                                          inst.x    = inst.y;
+                                          inst.y    = NA;
+                                          inst.immy = imm;
+                                      } break;
+                }
+            #endif
+            }
+
             Val *min = &inst.x,
                 *mid = &inst.y,
                 *max = &inst.z;
@@ -398,29 +418,31 @@ namespace skvm {
                 rewrite(id, rewrite);
             }
         }
-        // We're done with the original order now... everything below will analyze the new program.
-        fProgram = std::move(rewritten);
 
+        return rewritten;
+    }
 
+    // Determine the death, can_hoist, and used_in_loop fields in program.
+    // This step is independent of backend specifics like JIT vs interpreter, x86 vs ARM.
+    static std::vector<Builder::Instruction> analyze(std::vector<Builder::Instruction> program) {
         // We'll want to know when it's safe to recycle registers holding the values
         // produced by each instruction, that is, when no future instruction needs it.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Instruction& inst = fProgram[id];
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            Builder::Instruction& inst = program[id];
             // Stores don't really produce values.  Just mark them as dying on issue.
             if (inst.op <= Op::store32) {
                 inst.death = id;
             }
             // Extend the lifetime of this instruction's inputs to live until it issues.
             // (We're walking in order, so this is the same as max()ing.)
-            if (inst.x != NA) { fProgram[inst.x].death = id; }
-            if (inst.y != NA) { fProgram[inst.y].death = id; }
-            if (inst.z != NA) { fProgram[inst.z].death = id; }
+            if (inst.x != NA) { program[inst.x].death = id; }
+            if (inst.y != NA) { program[inst.y].death = id; }
+            if (inst.z != NA) { program[inst.z].death = id; }
         }
 
-
         // Mark which values don't depend on the loop and can be hoisted.
-        for (Val id = 0; id < (Val)fProgram.size(); id++) {
-            Builder::Instruction& inst = fProgram[id];
+        for (Val id = 0; id < (Val)program.size(); id++) {
+            Builder::Instruction& inst = program[id];
 
             // Varying loads (and gathers) and stores cannot be hoisted out of the loop.
             if (inst.op <= Op::gather32 && inst.op != Op::assert_true) {
@@ -429,27 +451,40 @@ namespace skvm {
 
             // If any of an instruction's inputs can't be hoisted, it can't be hoisted itself.
             if (inst.can_hoist) {
-                if (inst.x != NA) { inst.can_hoist &= fProgram[inst.x].can_hoist; }
-                if (inst.y != NA) { inst.can_hoist &= fProgram[inst.y].can_hoist; }
-                if (inst.z != NA) { inst.can_hoist &= fProgram[inst.z].can_hoist; }
+                if (inst.x != NA) { inst.can_hoist &= program[inst.x].can_hoist; }
+                if (inst.y != NA) { inst.can_hoist &= program[inst.y].can_hoist; }
+                if (inst.z != NA) { inst.can_hoist &= program[inst.z].can_hoist; }
             }
 
             // We'll want to know if hoisted values are used in the loop;
             // if not, we can recycle their registers like we do loop values.
             if (!inst.can_hoist /*i.e. we're in the loop, so the arguments are used_in_loop*/) {
-                if (inst.x != NA) { fProgram[inst.x].used_in_loop = true; }
-                if (inst.y != NA) { fProgram[inst.y].used_in_loop = true; }
-                if (inst.z != NA) { fProgram[inst.z].used_in_loop = true; }
+                if (inst.x != NA) { program[inst.x].used_in_loop = true; }
+                if (inst.y != NA) { program[inst.y].used_in_loop = true; }
+                if (inst.z != NA) { program[inst.z].used_in_loop = true; }
             }
         }
+        return program;
+    }
+
+
+    // Builder -> Program, using rewrite_program() for each backend.
+    Program Builder::done(const char* debug_name) {
+        std::vector<Instruction> jit;
+    #if defined(SKVM_JIT)
+        jit = analyze(this->rewrite_program(true));
+    #endif
+
+        // We'll rewrite for the interpreter back into fProgram so that we
+        // see an optimized, dead-code-free program in test code like dump().
+        fProgram = analyze(this->rewrite_program(false));
 
         char buf[64] = "skvm-jit-";
         if (!debug_name) {
             *SkStrAppendU32(buf+9, this->hash()) = '\0';
             debug_name = buf;
         }
-
-        return {fProgram, fStrides, debug_name};
+        return {fProgram, jit, fStrides, debug_name};
     }
 
     // We skip fields only written after Builder::done() (death, can_hoist, used_in_loop) here
@@ -600,11 +635,6 @@ namespace skvm {
         if (this->allImm(x.id,&X, y.id,&Y)) { return this->splat(X*Y); }
         if (this->isImm(y.id, 1.0f)) { return x; }  // x*1 == x
         if (this->isImm(x.id, 1.0f)) { return y; }  // 1*y == y
-    #if defined(SK_CPU_X86)
-        int imm;
-        if (this->allImm(y.id, &imm)) { return {this->push(Op::mul_f32_imm, x.id,NA,NA, imm)}; }
-        if (this->allImm(x.id, &imm)) { return {this->push(Op::mul_f32_imm, y.id,NA,NA, imm)}; }
-    #endif
         return {this->push(Op::mul_f32, x.id, y.id)};
     }
 
@@ -1790,11 +1820,6 @@ namespace skvm {
                         tmp.i32 = immy;
                         r(d).f32 = r(x).f32 - tmp.f32;
                     } break;
-                    CASE(Op::mul_f32_imm): {
-                        Slot tmp;
-                        tmp.i32 = immy;
-                        r(d).f32 = r(x).f32 * tmp.f32;
-                    } break;
                     CASE(Op::min_f32_imm): {
                         Slot tmp;
                         tmp.i32 = immy;
@@ -1926,14 +1951,15 @@ namespace skvm {
 
     Program::Program() {}
 
-    Program::Program(const std::vector<Builder::Instruction>& instructions,
+    Program::Program(const std::vector<Builder::Instruction>& interpreter,
+                     const std::vector<Builder::Instruction>& jit,
                      const std::vector<int>& strides,
                      const char* debug_name)
         : fStrides(strides)
     {
-        this->setupInterpreter(instructions);
+        this->setupInterpreter(interpreter);
     #if 1 && defined(SKVM_JIT)
-        this->setupJIT(instructions, debug_name);
+        this->setupJIT(jit, debug_name);
     #endif
     }
 
@@ -2483,9 +2509,6 @@ namespace skvm {
                                                             a->fmla4s(tmp(),  r[x],  r[y]);
                                        if(dst() != tmp()) { a->orr16b(dst(), tmp(), tmp()); } }
                                                             break;
-
-                // We should not see _imm ops on ARM.
-                case Op::mul_f32_imm: SkUNREACHABLE; break;
 
                 case Op:: gt_f32: a->fcmgt4s (dst(), r[x], r[y]); break;
                 case Op::gte_f32: a->fcmge4s (dst(), r[x], r[y]); break;
