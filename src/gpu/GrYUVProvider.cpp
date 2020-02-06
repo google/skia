@@ -120,7 +120,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
         return {};
     }
 
-    sk_sp<GrTextureProxy> yuvTextureProxies[SkYUVASizeInfo::kMaxCount];
+    GrSurfaceProxyView yuvViews[SkYUVASizeInfo::kMaxCount];
     for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
         if (yuvSizeInfo.fSizes[i].isEmpty()) {
             SkASSERT(!yuvSizeInfo.fWidthBytes[i]);
@@ -153,14 +153,13 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
         bitmap.setImmutable();
 
         GrBitmapTextureMaker maker(ctx, bitmap, GrBitmapTextureMaker::Cached::kNo, fit);
-        auto[view, grCT] = maker.view(GrMipMapped::kNo);
-        yuvTextureProxies[i] = view.asTextureProxyRef();
+        std::tie(yuvViews[i], std::ignore) = maker.view(GrMipMapped::kNo);
 
-        if (!yuvTextureProxies[i]) {
+        if (!yuvViews[i]) {
             return {};
         }
 
-        SkASSERT(yuvTextureProxies[i]->dimensions() == yuvSizeInfo.fSizes[i]);
+        SkASSERT(yuvViews[i].proxy()->dimensions() == yuvSizeInfo.fSizes[i]);
     }
 
     // TODO: investigate preallocating mip maps here
@@ -173,7 +172,7 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
 
     GrPaint paint;
     const auto& caps = *ctx->priv().caps();
-    auto yuvToRgbProcessor = GrYUVtoRGBEffect::Make(yuvTextureProxies, yuvaIndices, yuvColorSpace,
+    auto yuvToRgbProcessor = GrYUVtoRGBEffect::Make(yuvViews, yuvaIndices, yuvColorSpace,
                                                     GrSamplerState::Filter::kNearest, caps);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
 

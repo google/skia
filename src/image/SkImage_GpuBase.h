@@ -56,7 +56,7 @@ public:
     static bool MakeTempTextureProxies(GrContext* ctx, const GrBackendTexture yuvaTextures[],
                                        int numTextures, const SkYUVAIndex [4],
                                        GrSurfaceOrigin imageOrigin,
-                                       sk_sp<GrTextureProxy> tempTextureProxies[4]);
+                                       GrSurfaceProxyView tempViews[4]);
 
     static SkAlphaType GetAlphaTypeFromYUVAIndices(const SkYUVAIndex yuvaIndices[4]) {
         return -1 != yuvaIndices[SkYUVAIndex::kA_Index].fIndex ? kPremul_SkAlphaType
@@ -87,7 +87,7 @@ protected:
     static bool RenderYUVAToRGBA(GrContext* ctx, GrRenderTargetContext* renderTargetContext,
                                  const SkRect& rect, SkYUVColorSpace yuvColorSpace,
                                  sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                 const sk_sp<GrTextureProxy> proxies[4],
+                                 GrSurfaceProxyView views[4],
                                  const SkYUVAIndex yuvaIndices[4]);
 
     sk_sp<GrContext> fContext;

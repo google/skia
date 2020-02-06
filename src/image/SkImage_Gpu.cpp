@@ -271,15 +271,15 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrContext* ctx, SkYUVColorS
         return nullptr;
     }
 
-    sk_sp<GrTextureProxy> tempTextureProxies[4];
+    GrSurfaceProxyView tempViews[4];
     if (!SkImage_GpuBase::MakeTempTextureProxies(ctx, yuvaTextures, numTextures, yuvaIndices,
-                                                 origin, tempTextureProxies)) {
+                                                 origin, tempViews)) {
         return nullptr;
     }
 
     const SkRect rect = SkRect::MakeIWH(size.width(), size.height());
     if (!RenderYUVAToRGBA(ctx, renderTargetContext, rect, yuvColorSpace, nullptr,
-                          tempTextureProxies, yuvaIndices)) {
+                          tempViews, yuvaIndices)) {
         return nullptr;
     }
 

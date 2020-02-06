@@ -25,7 +25,7 @@ public:
     friend class GrYUVAImageTextureMaker;
 
     SkImage_GpuYUVA(sk_sp<GrContext>, SkISize size, uint32_t uniqueID, SkYUVColorSpace,
-                    sk_sp<GrTextureProxy> proxies[], GrColorType proxyColorTypes[], int numProxies,
+                    GrSurfaceProxyView views[], GrColorType proxyColorTypes[], int numViews,
                     const SkYUVAIndex[4], GrSurfaceOrigin, sk_sp<SkColorSpace>);
 
     GrSemaphoresSubmitted onFlush(GrContext*, const GrFlushInfo&) override;
@@ -37,7 +37,7 @@ public:
     const GrSurfaceProxyView* view(GrRecordingContext* context) const override;
 
     bool onIsTextureBacked() const override {
-        SkASSERT(fProxies[0] || fRGBView.proxy());
+        SkASSERT(fViews[0].proxy() || fRGBView.proxy());
         return true;
     }
 
@@ -56,7 +56,7 @@ public:
 #if GR_TEST_UTILS
     bool testingOnly_IsFlattened() const {
         // We should only have the flattened proxy or the planar proxies at one point in time.
-        SkASSERT(SkToBool(fRGBView.proxy()) != SkToBool(fProxies[0]));
+        SkASSERT(SkToBool(fRGBView.proxy()) != SkToBool(fViews[0].proxy()));
         return SkToBool(fRGBView.proxy());
     }
 #endif
@@ -86,9 +86,9 @@ private:
 
     // This array will usually only be sparsely populated.
     // The actual non-null fields are dictated by the 'fYUVAIndices' indices
-    mutable sk_sp<GrTextureProxy>    fProxies[4];
+    mutable GrSurfaceProxyView       fViews[4];
     mutable GrColorType              fProxyColorTypes[4];
-    int                              fNumProxies;
+    int                              fNumViews;
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
     GrSurfaceOrigin                  fOrigin;
