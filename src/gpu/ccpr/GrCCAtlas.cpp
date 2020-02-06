@@ -98,8 +98,8 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
     fHeight = 1 << ((log2area + 1) / 2);
     fWidth = 1 << (log2area / 2);
 
-    fWidth = SkTClamp(fWidth, specs.fMinTextureSize, specs.fMaxPreferredTextureSize);
-    fHeight = SkTClamp(fHeight, specs.fMinTextureSize, specs.fMaxPreferredTextureSize);
+    fWidth = SkTPin(fWidth, specs.fMinTextureSize, specs.fMaxPreferredTextureSize);
+    fHeight = SkTPin(fHeight, specs.fMinTextureSize, specs.fMaxPreferredTextureSize);
 
     if (fWidth < specs.fMinWidth || fHeight < specs.fMinHeight) {
         // They want to stuff a particularly large path into the atlas. Just punt and go with their
