@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "tools/Resources.h"
 
 const char* gProg = R"(
     uniform half4 gColor;
@@ -44,3 +45,112 @@ class RuntimeShader : public skiagm::GM {
     }
 };
 DEF_GM(return new RuntimeShader;)
+
+static sk_sp<SkShader> make_shader(sk_sp<SkImage> img, SkISize size) {
+    SkMatrix scale = SkMatrix::MakeScale(size.width()  / (float)img->width(),
+                                         size.height() / (float)img->height());
+    return img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, &scale);
+}
+
+#include "include/core/SkSurface.h"
+#include "include/effects/SkGradientShader.h"
+#include "include/utils/SkRandom.h"
+
+static sk_sp<SkShader> make_threshold(SkISize size) {
+    auto info = SkImageInfo::Make(size.width(), size.height(), kAlpha_8_SkColorType,
+                                  kPremul_SkAlphaType);
+    auto surf = SkSurface::MakeRaster(info);
+    auto canvas = surf->getCanvas();
+
+    const SkScalar rad = 50;
+    SkColor colors[] = {SK_ColorBLACK, 0};
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setShader(SkGradientShader::MakeRadial({0,0}, rad, colors, nullptr, 2, SkTileMode::kClamp));
+
+    SkRandom rand;
+    for (int i = 0; i < 25; ++i) {
+        SkScalar x = rand.nextF() * size.width();
+        SkScalar y = rand.nextF() * size.height();
+        canvas->save();
+        canvas->translate(x, y);
+        canvas->drawCircle(0, 0, rad, paint);
+        canvas->restore();
+    }
+
+    return surf->makeImageSnapshot()->makeShader();
+}
+
+class ThresholdRT : public skiagm::GM {
+    sk_sp<SkShader> fBefore, fAfter, fThreshold;
+    sk_sp<SkRuntimeEffect> fEffect;
+
+    float fCutoff = 0;
+
+    void onOnceBeforeDraw() override {
+        const SkISize size = {256, 256};
+        fThreshold = make_threshold(size);
+        fBefore = make_shader(GetResourceAsImage("images/mandrill_256.png"), size);
+        fAfter = make_shader(GetResourceAsImage("images/dog.jpg"), size);
+
+        const char code[] = R"(
+            in fragmentProcessor before_map;
+            in fragmentProcessor after_map;
+            in fragmentProcessor threshold_map;
+
+            uniform float cutoff;
+
+            void main(float x, float y, inout half4 color) {
+                half4 before = sample(before_map);
+                half4 after = sample(after_map);
+
+                float m = sample(threshold_map).r > cutoff ? 1.0 : 0.0;
+                color = mix(before, after, half(m));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
+        if (!effect) {
+            SkDebugf("runtime error %s\n", error.c_str());
+        }
+        fEffect = effect;
+    }
+
+    bool runAsBench() const override { return true; }
+
+    SkString onShortName() override { return SkString("threshold_rt"); }
+
+    SkISize onISize() override { return {256, 256}; }
+
+    void onDraw(SkCanvas* canvas) override {
+        struct {
+            float cutoff;
+        } uni = {
+            fCutoff
+        };
+        sk_sp<SkData> data = SkData::MakeWithCopy(&uni, sizeof(uni));
+        sk_sp<SkShader> children[] = { fBefore, fAfter, fThreshold };
+
+        SkPaint paint;
+        paint.setShader(fEffect->makeShader(data, children, SK_ARRAY_COUNT(children),
+                                            nullptr, true));
+        canvas->drawRect({0, 0, 256, 256}, paint);
+
+        auto draw = [&](SkScalar x, SkScalar y, sk_sp<SkShader> shader) {
+            paint.setShader(shader);
+            canvas->save();
+            canvas->translate(x, y);
+            canvas->drawRect({0, 0, 256, 256}, paint);
+            canvas->restore();
+        };
+        draw(256,   0, fThreshold);
+        draw(  0, 256, fBefore);
+        draw(256, 256, fAfter);
+    }
+
+    bool onAnimate(double nanos) override {
+        double t = sin(nanos / (1000 * 1000 * 1000));
+        fCutoff = float(t + 1) * 0.55f - 0.05f;
+        return true;
+    }
+};
+DEF_GM(return new ThresholdRT;)
