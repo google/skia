@@ -22,6 +22,30 @@
       "revId": "97e5e7e6e93bb10cc2af0e77009a875e893db0c3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c82495fd_5c46711d",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T23:21:03Z",
+      "side": 1,
+      "message": "I also noticed that sign flip when I updated this. I believe it was a bug and I hadn\u0027t remembered that the fIH field could be negative 1/h instead of just 1/h (or 1 for texture rectangles).\n\nThe domain needs to be sorted since it\u0027s just used to provide the min and max values for clamping on u and v. Regardless of the origin of the texture, the domain needs to be inset so it should always go in by 1/2 texel.\n\nWe\u0027d only see the current buggy behavior if the texture was drawn with a domain strictly smaller than the vertical size of the texture, the texture had the bottom left origin (which I don\u0027t think is the default so that might be saving us...), and using bilerp filtering where the texture content 1px outside the intended domain actually has bad color data.",
+      "parentUuid": "9c0963d4_a2122188",
+      "range": {
+        "startLine": 666,
+        "startChar": 0,
+        "endLine": 668,
+        "endChar": 1
+      },
+      "revId": "97e5e7e6e93bb10cc2af0e77009a875e893db0c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
