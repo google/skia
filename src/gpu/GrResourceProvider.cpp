@@ -480,7 +480,7 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
     size_t allocSize = SkTMax(MIN_SIZE, GrNextSizePow2(size));
 
     GrScratchKey key;
-    GrGpuBuffer::ComputeScratchKeyForDynamicVBO(allocSize, intendedType, &key);
+    GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(allocSize, intendedType, &key);
     auto buffer =
             sk_sp<GrGpuBuffer>(static_cast<GrGpuBuffer*>(this->cache()->findAndRefScratchResource(
                     key)));
