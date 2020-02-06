@@ -555,10 +555,6 @@ namespace skvm {
         uint64_t hash() const;
 
     private:
-        struct InstructionHash {
-            uint32_t operator()(const Instruction& inst, uint32_t seed=0) const;
-        };
-
         Val push(Op, Val x, Val y=NA, Val z=NA, int immy=0, int immz=0);
 
         bool allImm() const;
@@ -572,9 +568,8 @@ namespace skvm {
             return this->allImm(id, &imm) && imm == want;
         }
 
-        SkTHashMap<Instruction, Val, InstructionHash> fIndex;
-        std::vector<Instruction>                      fProgram;
-        std::vector<int>                              fStrides;
+        std::vector<Instruction> fProgram;
+        std::vector<int>         fStrides;
     };
 
     // Helper to streamline allocating and working with uniforms.

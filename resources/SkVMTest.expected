@@ -1,5 +1,5 @@
 A8 over A8
-12 values (originally 16):
+12 values (originally 20):
   v0 = load8 arg(0)
   v1 = to_f32 v0
   v2 = mul_f32 v1 3B808081 (0.0039215689)
@@ -29,7 +29,7 @@ loop:
 11	    store8 arg(1) r1
 
 A8 over G8
-17 values (originally 22):
+17 values (originally 26):
   v0 = load8 arg(1)
   v1 = to_f32 v0
   v2 = mul_f32 v1 3B808081 (0.0039215689)
@@ -69,7 +69,7 @@ loop:
 16	    store8 arg(1) r3
 
 A8 over RGBA_8888
-36 values (originally 40):
+36 values (originally 50):
   v0 = load32 arg(1)
   v1 = bit_and v0 FF
   v2 = to_f32 v1
@@ -147,13 +147,13 @@ loop:
 35	    store32 arg(1) r3
 
 G8 over A8
-9 values (originally 15):
+9 values (originally 20):
 ↑ v0 = splat 3F800000 (1)
-↑ v1 = splat 0 (0)
-  v2 = load8 arg(1)
-  v3 = to_f32 v2
-  v4 = mul_f32 v3 3B808081 (0.0039215689)
-  v5 = mad_f32 v4 v1 v0
+  v1 = load8 arg(1)
+  v2 = to_f32 v1
+  v3 = mul_f32 v2 3B808081 (0.0039215689)
+↑ v4 = splat 0 (0)
+  v5 = mad_f32 v3 v4 v0
   v6 = mul_f32 v5 437F0000 (255)
   v7 = round v6
   store8 arg(1) v7
@@ -171,7 +171,7 @@ loop:
 8	    store8 arg(1) r2
 
 G8 over G8
-16 values (originally 20):
+16 values (originally 26):
   v0 = load8 arg(0)
   v1 = to_f32 v0
   v2 = mul_f32 v1 3B808081 (0.0039215689)
@@ -209,7 +209,7 @@ loop:
 15	    store8 arg(1) r4
 
 G8 over RGBA_8888
-36 values (originally 39):
+36 values (originally 50):
   v0 = load8 arg(0)
   v1 = to_f32 v0
   v2 = mul_f32 v1 3B808081 (0.0039215689)
@@ -287,7 +287,7 @@ loop:
 35	    store32 arg(1) r3
 
 RGBA_8888 over A8
-13 values (originally 31):
+13 values (originally 38):
   v0 = load32 arg(0)
   v1 = shr_i32 v0 24
   v2 = to_f32 v1
@@ -319,7 +319,7 @@ loop:
 12	    store8 arg(1) r1
 
 RGBA_8888 over G8
-31 values (originally 36):
+31 values (originally 44):
   v0 = load32 arg(0)
   v1 = bit_and v0 FF
   v2 = to_f32 v1
@@ -387,7 +387,7 @@ loop:
 30	    store8 arg(1) r3
 
 RGBA_8888 over RGBA_8888
-48 values (originally 51):
+48 values (originally 68):
   v0 = load32 arg(0)
   v1 = bit_and v0 FF
   v2 = to_f32 v1
@@ -489,7 +489,7 @@ loop:
 47	    store32 arg(1) r5
 
 I32 (Naive) 8888 over 8888
-32 values (originally 33):
+32 values (originally 40):
   v0 = load32 arg(0)
   v1 = bit_and v0 FF
   v2 = load32 arg(1)
@@ -559,7 +559,7 @@ loop:
 31	    store32 arg(1) r6
 
 I32 8888 over 8888
-28 values (originally 29):
+28 values (originally 30):
   v0 = load32 arg(0)
   v1 = bit_and v0 FF
   v2 = load32 arg(1)
@@ -621,7 +621,7 @@ loop:
 27	    store32 arg(1) r6
 
 I32 (SWAR) 8888 over 8888
-14 values (originally 16):
+14 values (originally 17):
   v0 = load32 arg(0)
   v1 = bytes v0 404
 ↑ v2 = splat 1000100 (2.3510604e-38)
