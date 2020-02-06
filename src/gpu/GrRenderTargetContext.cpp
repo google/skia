@@ -1877,6 +1877,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
 
         if (!this->readPixels(ii, pm.writable_addr(), pm.rowBytes(), {rect.fLeft, rect.fTop})) {
             callback(context, nullptr);
+            return;
         }
         callback(context, std::move(result));
         return;
