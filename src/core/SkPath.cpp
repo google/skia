@@ -577,11 +577,10 @@ uint8_t SkPath::getFirstDirection() const {
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
-#define DIRTY_AFTER_EDIT                                               \
-    do {                                                               \
-        this->setConvexityType(SkPathConvexityType::kUnknown);         \
-        this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);  \
-    } while (0)
+inline void SkPath::dirtyAfterEdit() {
+    this->setConvexityType(SkPathConvexityType::kUnknown);
+    this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
+}
 
 void SkPath::incReserve(int inc) {
     SkDEBUGCODE(this->validate();)
@@ -601,7 +600,7 @@ SkPath& SkPath::moveTo(SkScalar x, SkScalar y) {
 
     ed.growForVerb(kMove_Verb)->set(x, y);
 
-    DIRTY_AFTER_EDIT;
+    this->dirtyAfterEdit();
     return *this;
 }
 
@@ -633,7 +632,7 @@ SkPath& SkPath::lineTo(SkScalar x, SkScalar y) {
     SkPathRef::Editor ed(&fPathRef);
     ed.growForVerb(kLine_Verb)->set(x, y);
 
-    DIRTY_AFTER_EDIT;
+    this->dirtyAfterEdit();
     return *this;
 }
 
@@ -654,7 +653,7 @@ SkPath& SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
 
-    DIRTY_AFTER_EDIT;
+    this->dirtyAfterEdit();
     return *this;
 }
 
@@ -685,7 +684,7 @@ SkPath& SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
 
-        DIRTY_AFTER_EDIT;
+        this->dirtyAfterEdit();
     }
     return *this;
 }
@@ -710,7 +709,7 @@ SkPath& SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[1].set(x2, y2);
     pts[2].set(x3, y3);
 
-    DIRTY_AFTER_EDIT;
+    this->dirtyAfterEdit();
     return *this;
 }
 
@@ -819,7 +818,7 @@ SkPath& SkPath::addPoly(const SkPoint pts[], int count, bool close) {
         fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
     }
 
-    DIRTY_AFTER_EDIT;
+    this->dirtyAfterEdit();
     SkDEBUGCODE(this->validate();)
     return *this;
 }
@@ -3632,4 +3631,15 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
     // clipped out (or failed)
     clippedPath->reset();
     return true;
+}
+
+void SkPathPriv::Concatenate(SkPath* dst, const SkPath& src, const SkMatrix& matrix) {
+    SkPathRef::Editor ed(&dst->fPathRef);
+    auto [newPts, newWeights] = ed.growForVerbsInPath(*src.fPathRef);
+    matrix.mapPoints(newPts, PointData(src), src.countPoints());
+    memcpy(newWeights, ConicWeightData(src), ConicWeightCnt(src));
+    if (INITIAL_LASTMOVETOINDEX_VALUE != src.fLastMoveToIndex) {
+        dst->fLastMoveToIndex = dst->fPathRef->countPoints() + src.fLastMoveToIndex;
+    }
+    dst->dirtyAfterEdit();
 }

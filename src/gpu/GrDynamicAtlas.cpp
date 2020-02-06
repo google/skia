@@ -13,9 +13,6 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
 
-// Each Node covers a sub-rectangle of the final atlas. When a GrDynamicAtlas runs out of room, we
-// create a new Node the same size as all combined nodes in the atlas as-is, and then place the new
-// Node immediately below or beside the others (thereby doubling the size of the GyDynamicAtlas).
 class GrDynamicAtlas::Node {
 public:
     Node(std::unique_ptr<Node> previous, int l, int t, int r, int b)
