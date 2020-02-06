@@ -28,9 +28,9 @@ public:
     SkHighContrast_Filter(const SkHighContrastConfig& config) {
         fConfig = config;
         // Clamp contrast to just inside -1 to 1 to avoid division by zero.
-        fConfig.fContrast = SkScalarPin(fConfig.fContrast,
-                                        -1.0f + FLT_EPSILON,
-                                        1.0f - FLT_EPSILON);
+        fConfig.fContrast = SkTPin(fConfig.fContrast,
+                                   -1.0f + FLT_EPSILON,
+                                   1.0f - FLT_EPSILON);
     }
 
     ~SkHighContrast_Filter() override {}

@@ -73,8 +73,8 @@ void SkRGBToHSV(U8CPU r, U8CPU g, U8CPU b, SkScalar hsv[3]) {
 SkColor SkHSVToColor(U8CPU a, const SkScalar hsv[3]) {
     SkASSERT(hsv);
 
-    SkScalar s = SkScalarPin(hsv[1], 0, 1);
-    SkScalar v = SkScalarPin(hsv[2], 0, 1);
+    SkScalar s = SkTPin(hsv[1], 0.0f, 1.0f);
+    SkScalar v = SkTPin(hsv[2], 0.0f, 1.0f);
 
     U8CPU v_byte = SkScalarRoundToInt(v * 255);
 

@@ -38,10 +38,10 @@ GrTextureDomain::GrTextureDomain(GrSurfaceProxy* proxy, const SkRect& domain, Mo
     // It is OK if the domain rect is a line or point, but it should not be inverted. We do not
     // handle rects that do not intersect the [0..1]x[0..1] rect.
     SkASSERT(domain.isSorted());
-    fDomain.fLeft = SkScalarPin(domain.fLeft, 0.0f, kFullRect.fRight);
-    fDomain.fRight = SkScalarPin(domain.fRight, fDomain.fLeft, kFullRect.fRight);
-    fDomain.fTop = SkScalarPin(domain.fTop, 0.0f, kFullRect.fBottom);
-    fDomain.fBottom = SkScalarPin(domain.fBottom, fDomain.fTop, kFullRect.fBottom);
+    fDomain.fLeft = SkTPin(domain.fLeft, 0.0f, kFullRect.fRight);
+    fDomain.fRight = SkTPin(domain.fRight, fDomain.fLeft, kFullRect.fRight);
+    fDomain.fTop = SkTPin(domain.fTop, 0.0f, kFullRect.fBottom);
+    fDomain.fBottom = SkTPin(domain.fBottom, fDomain.fTop, kFullRect.fBottom);
     SkASSERT(fDomain.fLeft <= fDomain.fRight);
     SkASSERT(fDomain.fTop <= fDomain.fBottom);
 }

@@ -665,7 +665,7 @@ static SkScalar compute_coverage(SkScalar depth, SkScalar initialDepth, SkScalar
     }
     SkScalar result = (depth - initialDepth) / (targetDepth - initialDepth) *
             (targetCoverage - initialCoverage) + initialCoverage;
-    return SkScalarClampMax(result, 1.0f);
+    return SkTPin(result, 0.0f, 1.0f);
 }
 
 // return true when processing is complete
