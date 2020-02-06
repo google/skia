@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a31f9c2c_e46f9517",
+        "filename": "modules/skparagraph/include/TextStyle.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-02-06T18:19:44Z",
+      "side": 1,
+      "message": "There\u0027s also -Inf which isn\u0027t nearlyEqual to Inf. Though none of the (many) NaNs are nearly equal to each other or anything else.\n\nSo I think at this point you just want\n\nreturn x \u003d\u003d y;\n\nI think. If either or both are NaN that will be false. Otherwise one or both will be +-Inf which will either compare equal or not with the other +-Inf or finite.",
+      "range": {
+        "startLine": 32,
+        "startChar": 7,
+        "endLine": 32,
+        "endChar": 17
+      },
+      "revId": "d00cdadb559248ce51ea7d3c15d87c0fc9f07385",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
