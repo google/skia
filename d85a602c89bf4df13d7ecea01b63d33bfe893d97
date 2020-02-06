@@ -213,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "f8742463_51224ccd",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d05cbebb_3ad81c26",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 503,
+        "endChar": 58
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f8d40c1_f42f0fc7",
         "filename": "src/gpu/ops/GrTextureOp.cpp",
         "patchSetId": 6
@@ -224,6 +248,30 @@
       "writtenOn": "2020-02-05T21:48:38Z",
       "side": 1,
       "message": "This whole domain correction logic and the lazily determining bilerp just doesn\u0027t work now that clipping can produce additional quads that have to be appended. It breaks the mapping from quadbuffer/view count pair back to the original set entries. \n\nWe could add a bunch of extra logic to record when a new quad was made, but that will just make this even more brittle. In the future, with skia:9869, this lazy determination wouldn\u0027t really be possible as written either.",
+      "range": {
+        "startLine": 549,
+        "startChar": 8,
+        "endLine": 553,
+        "endChar": 39
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d33c04f_7d07e155",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:43:58Z",
+      "side": 1,
+      "message": "I was able to change when the domain insetting took place in https://skia-review.googlesource.com/c/skia/+/269151, so that it is compatible with the flexible number of quads that clipping can produce now. The latest patch set is able to keep the lazy filter level optimization in place.",
+      "parentUuid": "8f8d40c1_f42f0fc7",
       "range": {
         "startLine": 549,
         "startChar": 8,
@@ -256,6 +304,30 @@
       "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7264a63a_63c25721",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54a409fc_dac6e2eb",
+      "range": {
+        "startLine": 645,
+        "startChar": 0,
+        "endLine": 667,
+        "endChar": 13
+      },
+      "revId": "d85a602c89bf4df13d7ecea01b63d33bfe893d97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

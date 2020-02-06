@@ -45,6 +45,30 @@
       "revId": "263d2016e651abd2126e988e31a267211ae71e97",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b4acce3_2844bf5b",
+        "filename": "src/gpu/ops/GrTextureOp.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-06T20:43:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e96356dd_137aa5f2",
+      "range": {
+        "startLine": 513,
+        "startChar": 16,
+        "endLine": 513,
+        "endChar": 44
+      },
+      "revId": "263d2016e651abd2126e988e31a267211ae71e97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
