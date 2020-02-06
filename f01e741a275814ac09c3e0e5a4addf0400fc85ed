@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9bfbf537_226a9535",
+        "filename": "src/core/SkBitmapProcState.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T19:28:32Z",
+      "side": 1,
+      "message": "Yeah, I feel like keeping the same semantics is the way to go for this sort of CL.\n\nYou could very well be uncovering a bug here too. :)",
+      "parentUuid": "b15c060f_c8b43b51",
+      "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5fec3f0b_caf1d01e",
         "filename": "src/effects/SkEmbossMask.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "0c3f496e_55b9cf54",
+        "filename": "src/effects/SkEmbossMask.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T19:28:32Z",
+      "side": 1,
+      "message": "Yeah I really hardly care.  I\u0027d much rather get rid of the redundant APIs safely than avoid a couple instructions here or there.",
+      "parentUuid": "5fec3f0b_caf1d01e",
+      "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b228adc1_f8028881",
         "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2020-02-06T19:24:08Z",
       "side": 1,
       "message": "😮",
+      "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bb80b49_3daba616",
+        "filename": "src/effects/imagefilters/SkLightingImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T19:28:32Z",
+      "side": 1,
+      "message": "Welll.... at least we gave it the name max_component() instead of just inlining it.",
+      "parentUuid": "b228adc1_f8028881",
       "revId": "f01e741a275814ac09c3e0e5a4addf0400fc85ed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
