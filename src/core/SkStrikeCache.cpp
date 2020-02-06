@@ -400,7 +400,7 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     if (fCacheCount > fCacheCountLimit) {
         countNeeded = fCacheCount - fCacheCountLimit;
         // no small purges!
-        countNeeded = SkMax32(countNeeded, fCacheCount >> 2);
+        countNeeded = std::max(countNeeded, fCacheCount >> 2);
     }
 
     // early exit

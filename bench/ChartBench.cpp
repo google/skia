@@ -115,7 +115,7 @@ protected:
 
         SkScalar height = SkIntToScalar(fSize.fHeight);
         if (sizeChanged) {
-            int dataPointCount = SkMax32(fSize.fWidth / kPixelsPerTick + 1, 2);
+            int dataPointCount = std::max(fSize.fWidth / kPixelsPerTick + 1, 2);
 
             SkRandom random;
             for (int i = 0; i < kNumGraphs; ++i) {

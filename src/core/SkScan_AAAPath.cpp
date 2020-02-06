@@ -1149,11 +1149,11 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
             std::swap(leftE, riteE);
         }
 
-        SkFixed local_bot_fixed = SkMin32(leftE->fLowerY, riteE->fLowerY);
+        SkFixed local_bot_fixed = std::min(leftE->fLowerY, riteE->fLowerY);
         if (is_smooth_enough(leftE, riteE, currE, stop_y)) {
             local_bot_fixed = SkFixedCeilToFixed(local_bot_fixed);
         }
-        local_bot_fixed = SkMin32(local_bot_fixed, SkIntToFixed(stop_y));
+        local_bot_fixed = std::min(local_bot_fixed, SkIntToFixed(stop_y));
 
         SkFixed left  = SkTMax(leftBound, leftE->fX);
         SkFixed dLeft = leftE->fDX;

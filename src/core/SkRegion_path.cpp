@@ -350,8 +350,8 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     int clipTop, clipBot;
     int clipTransitions = clip.count_runtype_values(&clipTop, &clipBot);
 
-    int top = SkMax32(pathTop, clipTop);
-    int bot = SkMin32(pathBot, clipBot);
+    int top = std::max(pathTop, clipTop);
+    int bot = std::min(pathBot, clipBot);
     if (top >= bot) {
         return check_inverse_on_empty_return(this, path, clip);
     }
@@ -359,7 +359,7 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     SkRgnBuilder builder;
 
     if (!builder.init(bot - top,
-                      SkMax32(pathTransitions, clipTransitions),
+                      std::max(pathTransitions, clipTransitions),
                       path.isInverseFillType())) {
         // can't allocate working space, so return false
         return this->setEmpty();
@@ -413,7 +413,7 @@ struct Edge {
     }
 
     int top() const {
-        return SkMin32(fY0, fY1);
+        return std::min(fY0, fY1);
     }
 };
 

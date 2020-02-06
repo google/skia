@@ -573,10 +573,10 @@ void SkScan::AntiHairLineRgn(const SkPoint array[], int arrayCount, const SkRegi
         SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
 
         if (clip) {
-            SkFDot6 left = SkMin32(x0, x1);
-            SkFDot6 top = SkMin32(y0, y1);
-            SkFDot6 right = SkMax32(x0, x1);
-            SkFDot6 bottom = SkMax32(y0, y1);
+            SkFDot6 left = std::min(x0, x1);
+            SkFDot6 top = std::min(y0, y1);
+            SkFDot6 right = std::max(x0, x1);
+            SkFDot6 bottom = std::max(y0, y1);
             SkIRect ir;
 
             ir.setLTRB(SkFDot6Floor(left) - 1,

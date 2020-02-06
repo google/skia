@@ -125,7 +125,7 @@ protected:
                     int glyphs = 0;
                     const uint16_t* array = gUniqueGlyphIDs;
                     while (*array != gUniqueGlyphIDs_Sentinel) {
-                        int count = SkMin32(count_glyphs(array), limit);
+                        int count = std::min(count_glyphs(array), limit);
                         collisions += count_collisions(array, count, gRec[i].fHasher, hashMask);
                         glyphs += count;
                         array += count + 1;    // skip the sentinel

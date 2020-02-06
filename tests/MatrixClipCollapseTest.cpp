@@ -639,7 +639,7 @@ static void emit_struct3(SkCanvas* canvas,
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
 static void print(const SkTDArray<DrawType>& expected, const SkTDArray<DrawType>& actual) {
     SkDebugf("\n\nexpected %d --- actual %d\n", expected.count(), actual.count());
-    int max = SkMax32(expected.count(), actual.count());
+    int max = std::max(expected.count(), actual.count());
 
     for (int i = 0; i < max; ++i) {
         if (i < expected.count()) {

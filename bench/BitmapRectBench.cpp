@@ -23,7 +23,7 @@ static void draw_into_bitmap(const SkBitmap& bm) {
     p.setAntiAlias(true);
     p.setColor(SK_ColorRED);
     canvas.drawCircle(SkIntToScalar(w)/2, SkIntToScalar(h)/2,
-                      SkIntToScalar(SkMin32(w, h))*3/8, p);
+                      SkIntToScalar(std::min(w, h))*3/8, p);
 
     SkRect r;
     r.setWH(SkIntToScalar(w), SkIntToScalar(h));

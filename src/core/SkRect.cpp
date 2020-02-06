@@ -11,10 +11,10 @@
 
 bool SkIRect::intersect(const SkIRect& a, const SkIRect& b) {
     SkIRect tmp = {
-        SkMax32(a.fLeft,   b.fLeft),
-        SkMax32(a.fTop,    b.fTop),
-        SkMin32(a.fRight,  b.fRight),
-        SkMin32(a.fBottom, b.fBottom)
+        std::max(a.fLeft,   b.fLeft),
+        std::max(a.fTop,    b.fTop),
+        std::min(a.fRight,  b.fRight),
+        std::min(a.fBottom, b.fBottom)
     };
     if (tmp.isEmpty()) {
         return false;

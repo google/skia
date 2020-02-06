@@ -479,7 +479,7 @@ int SkPath::getPoints(SkPoint dst[], int max) const {
 
     SkASSERT(max >= 0);
     SkASSERT(!max || dst);
-    int count = SkMin32(max, fPathRef->countPoints());
+    int count = std::min(max, fPathRef->countPoints());
     sk_careful_memcpy(dst, fPathRef->points(), count * sizeof(SkPoint));
     return fPathRef->countPoints();
 }
@@ -500,7 +500,7 @@ int SkPath::getVerbs(uint8_t dst[], int max) const {
 
     SkASSERT(max >= 0);
     SkASSERT(!max || dst);
-    int count = SkMin32(max, fPathRef->countVerbs());
+    int count = std::min(max, fPathRef->countVerbs());
     if (count) {
         memcpy(dst, fPathRef->verbsBegin(), count);
     }

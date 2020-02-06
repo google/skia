@@ -90,7 +90,7 @@ struct SkAAClip::RunHead {
         int segments = 0;
         while (width > 0) {
             segments += 1;
-            int n = SkMin32(width, 255);
+            int n = std::min(width, 255);
             width -= n;
         }
         return segments * 2;    // each segment is row[0] + row[1] (n + alpha)
@@ -106,7 +106,7 @@ struct SkAAClip::RunHead {
         yoff->fOffset = 0;
         uint8_t* row = head->data();
         while (width > 0) {
-            int n = SkMin32(width, 255);
+            int n = std::min(width, 255);
             row[0] = n;
             row[1] = 0xFF;
             width -= n;
@@ -722,8 +722,8 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
     SkTDArray<YOffset> yArray;
     SkTDArray<uint8_t> xArray;
 
-    yArray.setReserve(SkMin32(bounds.height(), 1024));
-    xArray.setReserve(SkMin32(bounds.width(), 512) * 128);
+    yArray.setReserve(std::min(bounds.height(), 1024));
+    xArray.setReserve(std::min(bounds.width(), 512) * 128);
 
     SkRegion::Iterator iter(rgn);
     int prevRight = 0;
@@ -1496,7 +1496,7 @@ static void operatorX(SkAAClip::Builder& builder, int lastY,
             }
         } else {
             left = leftA;   // or leftB, since leftA == leftB
-            rite = leftA = leftB = SkMin32(riteA, riteB);
+            rite = leftA = leftB = std::min(riteA, riteB);
             alphaA = iterA.alpha();
             alphaB = iterB.alpha();
         }
@@ -1571,7 +1571,7 @@ static void operateY(SkAAClip::Builder& builder, const SkAAClip& A,
             }
         } else {
             top = topA;   // or topB, since topA == topB
-            bot = topA = topB = SkMin32(botA, botB);
+            bot = topA = topB = std::min(botA, botB);
             rowA = iterA.data();
             rowB = iterB.data();
         }
@@ -1894,7 +1894,7 @@ static void merge(const uint8_t* SK_RESTRICT row, int rowN,
         SkASSERT(srcN > 0);
 
         unsigned newAlpha = SkMulDiv255Round(srcAA[0], row[1]);
-        int minN = SkMin32(srcN, rowN);
+        int minN = std::min(srcN, rowN);
         dstRuns[0] = minN;
         dstRuns += minN;
         dstAA[0] = newAlpha;
@@ -2005,7 +2005,7 @@ void mergeT(const void* inSrc, int srcN, const uint8_t* SK_RESTRICT row, int row
         SkASSERT(rowN > 0);
         SkASSERT(srcN > 0);
 
-        int n = SkMin32(rowN, srcN);
+        int n = std::min(rowN, srcN);
         unsigned rowA = row[1];
         if (0xFF == rowA) {
             small_memcpy(dst, src, n * sizeof(T));
@@ -2142,7 +2142,7 @@ void SkAAClipBlitter::blitMask(const SkMask& origMask, const SkIRect& clip) {
         int localStopY SK_INIT_TO_AVOID_WARNING;
         const uint8_t* row = fAAClip->findRow(y, &localStopY);
         // findRow returns last Y, not stop, so we add 1
-        localStopY = SkMin32(localStopY + 1, stopY);
+        localStopY = std::min(localStopY + 1, stopY);
 
         int initialCount;
         row = fAAClip->findX(row, clip.fLeft, &initialCount);

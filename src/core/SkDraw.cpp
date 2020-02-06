@@ -1233,8 +1233,8 @@ bool SkDraw::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect* clipB
         // quality of large filters like blurs, and the corresponding memory
         // requests.
         static const int MAX_MARGIN = 128;
-        if (!bounds->intersect(clipBounds->makeOutset(SkMin32(margin.fX, MAX_MARGIN),
-                                                      SkMin32(margin.fY, MAX_MARGIN)))) {
+        if (!bounds->intersect(clipBounds->makeOutset(std::min(margin.fX, MAX_MARGIN),
+                                                      std::min(margin.fY, MAX_MARGIN)))) {
             return false;
         }
     }

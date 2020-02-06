@@ -93,7 +93,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (fDriverBugWorkarounds.max_fragment_uniform_vectors_32) {
-        fMaxFragmentUniformVectors = SkMin32(fMaxFragmentUniformVectors, 32);
+        fMaxFragmentUniformVectors = std::min(fMaxFragmentUniformVectors, 32);
     }
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
 

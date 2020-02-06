@@ -88,7 +88,7 @@ class FontMgrGM : public skiagm::GM {
         font.setSize(17);
 
         SkFontMgr* fm = fFM.get();
-        int count = SkMin32(fm->countFamilies(), MAX_FAMILIES);
+        int count = std::min(fm->countFamilies(), MAX_FAMILIES);
 
         for (int i = 0; i < count; ++i) {
             SkString familyName;
@@ -316,7 +316,7 @@ private:
         const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
 
         SkFontMgr* fm = fFM.get();
-        int count = SkMin32(fm->countFamilies(), 32);
+        int count = std::min(fm->countFamilies(), 32);
 
         int index = 0;
         SkScalar x = 0, y = 0;

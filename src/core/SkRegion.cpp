@@ -923,7 +923,7 @@ static int operate(const SkRegionPriv::RunType a_runs[],
     assert_sentinel(b_top, false);
     assert_sentinel(b_bot, false);
 
-    RgnOper oper(SkMin32(a_top, b_top), dst, op);
+    RgnOper oper(std::min(a_top, b_top), dst, op);
 
     int prevBot = SkRegion_kRunTypeSentinel; // so we fail the first test
 
@@ -1527,10 +1527,10 @@ bool SkRegion::Spanerator::next(int* left, int* right) {
     SkASSERT(runs[1] > fLeft);
 
     if (left) {
-        *left = SkMax32(fLeft, runs[0]);
+        *left = std::max(fLeft, runs[0]);
     }
     if (right) {
-        *right = SkMin32(fRight, runs[1]);
+        *right = std::min(fRight, runs[1]);
     }
     fRuns = runs + 2;
     return true;

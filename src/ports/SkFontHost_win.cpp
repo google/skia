@@ -496,8 +496,8 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     }
     fIsBW = isBW;
 
-    fWidth = SkMax32(fWidth, glyph.width());
-    fHeight = SkMax32(fHeight, glyph.height());
+    fWidth = std::max(fWidth, glyph.width());
+    fHeight = std::max(fHeight, glyph.height());
 
     int biWidth = isBW ? alignTo32(fWidth) : fWidth;
 
@@ -1058,7 +1058,7 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb, const uint8_t* tableR,
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  8) & 0xFF, tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>((rgb >>  0) & 0xFF, tableB);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-    r = SkMax32(r, 10); g = SkMax32(g, 10); b = SkMax32(b, 10);
+    r = std::max(r, 10); g = std::max(g, 10); b = std::max(b, 10);
 #endif
     return SkPack888ToRGB16(r, g, b);
 }
@@ -1074,7 +1074,7 @@ void SkScalerContext_GDI::RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
         for (int i = 0; i < width; i++) {
             dst[i] = rgb_to_a8<APPLY_PREBLEND>(src[i], table8);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-            dst[i] = SkMax32(dst[i], 10);
+            dst[i] = std::max(dst[i], 10);
 #endif
         }
         src = SkTAddOffset<const SkGdiRGB>(src, srcRB);

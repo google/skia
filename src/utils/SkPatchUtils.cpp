@@ -185,7 +185,7 @@ SkISize SkPatchUtils::GetLevelOfDetail(const SkPoint cubics[12], const SkMatrix*
     int lodX = static_cast<int>(std::max(topLength, bottomLength) / kPartitionSize);
     int lodY = static_cast<int>(std::max(leftLength, rightLength) / kPartitionSize);
 
-    return SkISize::Make(SkMax32(8, lodX), SkMax32(8, lodY));
+    return SkISize::Make(std::max(8, lodX), std::max(8, lodY));
 }
 
 void SkPatchUtils::GetTopCubic(const SkPoint cubics[12], SkPoint points[4]) {

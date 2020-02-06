@@ -228,15 +228,15 @@ static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y,
 
     // our edge choppers for curves can result in the initial edges
     // not lining up, so we take the max.
-    int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
+    int local_top = std::max(leftE->fFirstY, riteE->fFirstY);
     ASSERT_RETURN(local_top >= start_y);
 
     while (local_top < stop_y) {
         SkASSERT(leftE->fFirstY <= stop_y);
         SkASSERT(riteE->fFirstY <= stop_y);
 
-        int local_bot = SkMin32(leftE->fLastY, riteE->fLastY);
-        local_bot = SkMin32(local_bot, stop_y - 1);
+        int local_bot = std::min(leftE->fLastY, riteE->fLastY);
+        local_bot = std::min(local_bot, stop_y - 1);
         ASSERT_RETURN(local_top <= local_bot);
 
         SkFixed left = leftE->fX;

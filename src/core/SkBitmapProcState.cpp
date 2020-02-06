@@ -316,7 +316,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
 
     // clamp to the left
     if (ix < 0) {
-        int n = SkMin32(-ix, count);
+        int n = std::min(-ix, count);
         sk_memset32(colors, row[0], n);
         count -= n;
         if (0 == count) {
@@ -328,7 +328,7 @@ static void Clamp_S32_D32_nofilter_trans_shaderproc(const void* sIn,
     }
     // copy the middle
     if (ix <= maxX) {
-        int n = SkMin32(maxX - ix + 1, count);
+        int n = std::min(maxX - ix + 1, count);
         memcpy(colors, row + ix, n * sizeof(SkPMColor));
         count -= n;
         if (0 == count) {
@@ -378,7 +378,7 @@ static void Repeat_S32_D32_nofilter_trans_shaderproc(const void* sIn,
 
     ix = sk_int_mod(ix, stopX);
     for (;;) {
-        int n = SkMin32(stopX - ix, count);
+        int n = std::min(stopX - ix, count);
         memcpy(colors, row + ix, n * sizeof(SkPMColor));
         count -= n;
         if (0 == count) {

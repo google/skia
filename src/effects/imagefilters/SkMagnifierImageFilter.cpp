@@ -183,8 +183,8 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilterImpl::onFilterImage(const Context& c
     int dstWidth = dst.width(), dstHeight = dst.height();
     for (int y = 0; y < dstHeight; ++y) {
         for (int x = 0; x < dstWidth; ++x) {
-            SkScalar x_dist = SkMin32(x, dstWidth - x - 1) * invInset;
-            SkScalar y_dist = SkMin32(y, dstHeight - y - 1) * invInset;
+            SkScalar x_dist = std::min(x, dstWidth - x - 1) * invInset;
+            SkScalar y_dist = std::min(y, dstHeight - y - 1) * invInset;
             SkScalar weight = 0;
 
             static const SkScalar kScalar2 = SkScalar(2);

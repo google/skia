@@ -8,6 +8,8 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrRectanizerSkyline.h"
 
+#include <algorithm>
+
 bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||
         (unsigned)height > (unsigned)this->height()) {
@@ -57,7 +59,7 @@ bool GrRectanizerSkyline::rectangleFits(int skylineIndex, int width, int height,
     int i = skylineIndex;
     int y = fSkyline[skylineIndex].fY;
     while (widthLeft > 0) {
-        y = SkMax32(y, fSkyline[i].fY);
+        y = std::max(y, fSkyline[i].fY);
         if (y + height > this->height()) {
             return false;
         }

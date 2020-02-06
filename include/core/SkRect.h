@@ -545,8 +545,8 @@ struct SK_API SkIRect {
         @return  sorted SkIRect
     */
     SkIRect makeSorted() const {
-        return MakeLTRB(SkMin32(fLeft, fRight), SkMin32(fTop, fBottom),
-                        SkMax32(fLeft, fRight), SkMax32(fTop, fBottom));
+        return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
+                        std::max(fLeft, fRight), std::max(fTop, fBottom));
     }
 };
 
