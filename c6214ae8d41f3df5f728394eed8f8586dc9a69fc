@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4efd00f_e2624bd0",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T20:25:16Z",
+      "side": 1,
+      "message": "Still think maybe you think this means something it doesn\u0027t...",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 6
+      },
+      "revId": "c6214ae8d41f3df5f728394eed8f8586dc9a69fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4c7136f_8971396a",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T20:25:16Z",
+      "side": 1,
+      "message": "Might be nice to (void)this-\u003edirtyAfterEdit(); ?",
+      "revId": "c6214ae8d41f3df5f728394eed8f8586dc9a69fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33a01bdc_72cc916d",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T20:25:16Z",
+      "side": 1,
+      "message": "Same, or maybe move the validate forward if that makes sense so you can return this-\u003edirtyAfterEdit()?",
+      "revId": "c6214ae8d41f3df5f728394eed8f8586dc9a69fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
