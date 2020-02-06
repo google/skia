@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87b0b148_e7681366",
+        "filename": "src/core/SkColor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-06T17:28:23Z",
+      "side": 1,
+      "message": "One day I think we can also circle back and replace this sort of thing with std::min({r,g,b}).",
+      "range": {
+        "startLine": 36,
+        "startChar": 19,
+        "endLine": 36,
+        "endChar": 47
+      },
+      "revId": "aa278dffc4644c537410029be90d9bb97bfe219f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
