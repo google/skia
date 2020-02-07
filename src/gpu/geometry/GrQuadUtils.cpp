@@ -381,28 +381,28 @@ void ResolveAAType(GrAAType requestedAAType, GrQuadAAFlags requestedEdgeFlags, c
     }
 }
 
-bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
-                GrQuad* local) {
-    SkASSERT(quad->isFinite());
+bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool computeLocal) {
+    SkASSERT(quad->fDevice.isFinite());
 
-    if (quad->quadType() == GrQuad::Type::kAxisAligned) {
+    if (quad->fDevice.quadType() == GrQuad::Type::kAxisAligned) {
         // crop_rect and crop_rect_simple keep the rectangles as rectangles, so the intersection
         // of the crop and quad can be calculated exactly. Some care must be taken if the quad
         // is axis-aligned but does not satisfy asRect() due to flips, etc.
         GrQuadAAFlags clippedEdges;
-        if (local) {
-            if (is_simple_rect(*quad) && is_simple_rect(*local)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(),
-                                                local->xs(), local->ys());
+        if (computeLocal) {
+            if (is_simple_rect(quad->fDevice) && is_simple_rect(quad->fLocal)) {
+                clippedEdges = crop_simple_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                                quad->fLocal.xs(), quad->fLocal.ys());
             } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
-                                         local->xs(), local->ys(), local->ws());
+                clippedEdges = crop_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                         quad->fLocal.xs(), quad->fLocal.ys(), quad->fLocal.ws());
             }
         } else {
-            if (is_simple_rect(*quad)) {
-                clippedEdges = crop_simple_rect(cropRect, quad->xs(), quad->ys(), nullptr, nullptr);
+            if (is_simple_rect(quad->fDevice)) {
+                clippedEdges = crop_simple_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
+                                                nullptr, nullptr);
             } else {
-                clippedEdges = crop_rect(cropRect, quad->xs(), quad->ys(),
+                clippedEdges = crop_rect(cropRect, quad->fDevice.xs(), quad->fDevice.ys(),
                                          nullptr, nullptr, nullptr);
             }
         }
@@ -410,26 +410,31 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
         // Apply the clipped edge updates to the original edge flags
         if (cropAA == GrAA::kYes) {
             // Turn on all edges that were clipped
-            *edgeFlags |= clippedEdges;
+            quad->fEdgeFlags |= clippedEdges;
         } else {
             // Turn off all edges that were clipped
-            *edgeFlags &= ~clippedEdges;
+            quad->fEdgeFlags &= ~clippedEdges;
         }
         return true;
     }
 
-    if (local) {
+    if (computeLocal) {
         // FIXME (michaelludwig) Calculate cropped local coordinates when not kAxisAligned
         return false;
     }
 
-    V4f devX = quad->x4f();
-    V4f devY = quad->y4f();
-    V4f devIW = quad->iw4f();
+    V4f devX = quad->fDevice.x4f();
+    V4f devY = quad->fDevice.y4f();
     // Project the 3D coordinates to 2D
-    if (quad->quadType() == GrQuad::Type::kPerspective) {
-        devX *= devIW;
-        devY *= devIW;
+    if (quad->fDevice.quadType() == GrQuad::Type::kPerspective) {
+        V4f devW = quad->fDevice.w4f();
+        if (any(devW < SkPathPriv::kW0PlaneDistance)) {
+            // The rest of this function assumes the quad is in front of w = 0
+            return false;
+        }
+        devW = 1.f / devW;
+        devX *= devW;
+        devY *= devW;
     }
 
     V4f clipX = {cropRect.fLeft, cropRect.fLeft, cropRect.fRight, cropRect.fRight};
@@ -460,21 +465,17 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, G
         // FIXME (michaelludwig) - once we have local coordinates handled, it may be desirable to
         // keep the draw as perspective so that the hardware does perspective interpolation instead
         // of pushing it into a local coord w and having the shader do an extra divide.
-        clipX.store(quad->xs());
-        clipY.store(quad->ys());
-        quad->ws()[0] = 1.f;
-        quad->ws()[1] = 1.f;
-        quad->ws()[2] = 1.f;
-        quad->ws()[3] = 1.f;
-        quad->setQuadType(GrQuad::Type::kAxisAligned);
+        clipX.store(quad->fDevice.xs());
+        clipY.store(quad->fDevice.ys());
+        quad->fDevice.setQuadType(GrQuad::Type::kAxisAligned);
 
         // Update the edge flags to match the clip setting since all 4 edges have been clipped
-        *edgeFlags = cropAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+        quad->fEdgeFlags = cropAA == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
         return true;
     }
 
-    // FIXME (michaelludwig) - use the GrQuadPerEdgeAA tessellation inset/outset math to move
+    // FIXME (michaelludwig) - use TessellationHelper's inset/outset math to move
     // edges to the closest clip corner they are outside of
 
     return false;

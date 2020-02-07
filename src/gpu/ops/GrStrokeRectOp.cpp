@@ -798,10 +798,9 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
         if (devOutside.isEmpty()) {
             return nullptr;
         }
-        return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage,
-                                  GrQuadAAFlags::kAll,
-                                  GrQuad::MakeFromRect(rects[0], viewMatrix),
-                                  GrQuad(rects[0]));
+        DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
+                      GrQuadAAFlags::kAll};
+        return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
     SkVector devHalfStrokeSize{ SkScalarHalf(devOutside.fRight - devInside.fRight),
