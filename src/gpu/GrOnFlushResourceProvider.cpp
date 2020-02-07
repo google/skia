@@ -17,23 +17,23 @@
 #include "src/gpu/GrTextureResolveRenderTask.h"
 
 std::unique_ptr<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
-        sk_sp<GrSurfaceProxy> proxy, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
+        GrSurfaceProxyView view, GrColorType colorType, sk_sp<SkColorSpace> colorSpace,
         const SkSurfaceProps* props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
     // we have to manually ensure it is allocated here.
-    if (!this->instatiateProxy(proxy.get())) {
+    if (!this->instatiateProxy(view.proxy())) {
         return nullptr;
     }
 
     auto context = fDrawingMgr->getContext();
 
-    if (!proxy->asRenderTargetProxy()) {
+    if (!view.asRenderTargetProxy()) {
         return nullptr;
     }
 
-    GrSurfaceOrigin origin = proxy->origin();
+    GrSurfaceOrigin origin = view.origin();
     auto renderTargetContext = GrRenderTargetContext::Make(
-            context, colorType, std::move(colorSpace), std::move(proxy),
+            context, colorType, std::move(colorSpace), view.detachProxy(),
             origin, props, false);
 
     if (!renderTargetContext) {

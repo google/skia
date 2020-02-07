@@ -131,7 +131,7 @@ public:
 
 private:
     void recordCopyPathInstance(const GrCCPathCacheEntry&, const SkIVector& newAtlasOffset,
-                                GrFillRule, sk_sp<GrTextureProxy> srcProxy);
+                                GrFillRule, GrSurfaceProxyView srcView);
     void placeRenderedPathInAtlas(
             const SkIRect& clippedPathIBounds, GrScissorTest, SkIVector* devToAtlasOffset);
 
@@ -161,7 +161,7 @@ private:
     // instances that copy a path mask from a 16-bit coverage count atlas into an 8-bit literal
     // coverage atlas.)
     struct CopyPathRange {
-        sk_sp<GrTextureProxy> fSrcProxy;
+        GrSurfaceProxyView fSrcView;
         int fCount;
     };
 

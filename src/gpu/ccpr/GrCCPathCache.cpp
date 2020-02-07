@@ -235,7 +235,11 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
                 if (sk_sp<GrTextureProxy> onFlushProxy = onFlushRP->findOrCreateProxyByUniqueKey(
                             entry->fCachedAtlas->textureKey(), ct, GrCCAtlas::kTextureOrigin,
                             GrSurfaceProxy::UseAllocator::kNo)) {
-                    entry->fCachedAtlas->setOnFlushProxy(std::move(onFlushProxy));
+                    GrSwizzle swizzle =
+                            onFlushRP->caps()->getReadSwizzle(onFlushProxy->backendFormat(), ct);
+                    GrSurfaceProxyView view(std::move(onFlushProxy), GrCCAtlas::kTextureOrigin,
+                                            swizzle);
+                    entry->fCachedAtlas->setOnFlushView(std::move(view));
                 }
             }
             if (!entry->fCachedAtlas->getOnFlushProxy()) {
@@ -416,11 +420,11 @@ GrCCPathCacheEntry::ReleaseAtlasResult GrCCCachedAtlas::invalidatePathPixels(
     SkASSERT(fNumInvalidatedPathPixels <= fNumPathPixels);
     if (!fIsInvalidatedFromResourceCache && fNumInvalidatedPathPixels >= fNumPathPixels / 2) {
         // Too many invalidated pixels: purge the atlas texture from the resource cache.
-        if (fOnFlushProxy) {
-            // Don't clear (or std::move) fOnFlushProxy. Other path cache entries might still have a
+        if (fOnFlushView) {
+            // Don't clear (or std::move) fOnFlushView. Other path cache entries might still have a
             // reference on this atlas and expect to use our proxy during the current flush.
-            // fOnFlushProxy will be cleared once fOnFlushRefCnt decrements to zero.
-            pathCache->fInvalidatedProxies.push_back(fOnFlushProxy);
+            // fOnFlushView will be cleared once fOnFlushRefCnt decrements to zero.
+            pathCache->fInvalidatedProxies.push_back(fOnFlushView.asTextureProxyRef());
         } else {
             pathCache->fInvalidatedProxyUniqueKeys.push_back(fTextureKey);
         }
@@ -436,7 +440,7 @@ void GrCCCachedAtlas::decrOnFlushRefCnt(int count) const {
     SkASSERT(fOnFlushRefCnt >= 0);
     if (0 == fOnFlushRefCnt) {
         // Don't hold the actual proxy past the end of the current flush.
-        SkASSERT(fOnFlushProxy);
-        fOnFlushProxy = nullptr;
+        SkASSERT(fOnFlushView);
+        fOnFlushView.reset();
     }
 }

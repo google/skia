@@ -18,7 +18,7 @@ void GrCCClipPath::init(
         GrCCAtlas::CoverageType atlasCoverageType, const GrCaps& caps) {
     SkASSERT(!this->isInitialized());
 
-    fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasProxy(
+    fAtlasLazyProxy = GrCCAtlas::MakeLazyAtlasView(
             [this](GrResourceProvider* resourceProvider, const GrBackendFormat& format,
                    int sampleCount) {
                 SkASSERT(fHasAtlas);
@@ -36,7 +36,7 @@ void GrCCClipPath::init(
                 SkASSERT(texture);
                 SkASSERT(texture->backendFormat() == format);
                 SkASSERT(texture->asRenderTarget()->numSamples() == sampleCount);
-                SkASSERT(textureProxy->origin() == kTopLeft_GrSurfaceOrigin);
+                SkASSERT(fAtlas->origin() == kTopLeft_GrSurfaceOrigin);
 
                 fAtlasScale = {1.f / texture->width(), 1.f / texture->height()};
                 fAtlasTranslate.set(fDevToAtlasOffset.fX * fAtlasScale.x(),
@@ -50,7 +50,7 @@ void GrCCClipPath::init(
                         std::move(texture), true,
                         GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced);
             },
-            atlasCoverageType, caps, GrSurfaceProxy::UseAllocator::kYes);
+            atlasCoverageType, caps, GrSurfaceProxy::UseAllocator::kYes).asTextureProxyRef();
 
     fDeviceSpacePath = deviceSpacePath;
     fDeviceSpacePath.getBounds().roundOut(&fPathDevIBounds);

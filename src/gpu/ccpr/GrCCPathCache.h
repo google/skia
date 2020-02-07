@@ -292,24 +292,29 @@ public:
     using ReleaseAtlasResult = GrCCPathCacheEntry::ReleaseAtlasResult;
 
     GrCCCachedAtlas(GrCCAtlas::CoverageType type, const GrUniqueKey& textureKey,
-                    sk_sp<GrTextureProxy> onFlushProxy)
+                    GrSurfaceProxyView onFlushView)
             : fCoverageType(type)
             , fTextureKey(textureKey)
-            , fOnFlushProxy(std::move(onFlushProxy)) {}
+            , fOnFlushView(std::move(onFlushView)) {}
 
     ~GrCCCachedAtlas() {
-        SkASSERT(!fOnFlushProxy);
+        SkASSERT(!fOnFlushView);
         SkASSERT(!fOnFlushRefCnt);
     }
 
     GrCCAtlas::CoverageType coverageType() const  { return fCoverageType; }
     const GrUniqueKey& textureKey() const { return fTextureKey; }
 
-    GrTextureProxy* getOnFlushProxy() const { return fOnFlushProxy.get(); }
+    GrTextureProxy* getOnFlushProxy() const { return fOnFlushView.asTextureProxy(); }
+    GrSurfaceProxyView getOnFlushView() const { return fOnFlushView; }
 
-    void setOnFlushProxy(sk_sp<GrTextureProxy> proxy) {
-        SkASSERT(!fOnFlushProxy);
-        fOnFlushProxy = std::move(proxy);
+    GrSurfaceOrigin origin() const { return fOnFlushView.origin(); }
+    GrSwizzle swizzle() const { return fOnFlushView.swizzle(); }
+
+    void setOnFlushView(GrSurfaceProxyView view) {
+        SkASSERT(!fOnFlushView);
+        SkASSERT(view.asTextureProxyRef());
+        fOnFlushView = std::move(view);
     }
 
     void addPathPixels(int numPixels) { fNumPathPixels += numPixels; }
@@ -318,7 +323,7 @@ public:
     int peekOnFlushRefCnt() const { return fOnFlushRefCnt; }
     void incrOnFlushRefCnt(int count = 1) const {
         SkASSERT(count > 0);
-        SkASSERT(fOnFlushProxy);
+        SkASSERT(fOnFlushView);
         fOnFlushRefCnt += count;
     }
     void decrOnFlushRefCnt(int count = 1) const;
@@ -331,7 +336,7 @@ private:
     int fNumInvalidatedPathPixels = 0;
     bool fIsInvalidatedFromResourceCache = false;
 
-    mutable sk_sp<GrTextureProxy> fOnFlushProxy;
+    mutable GrSurfaceProxyView fOnFlushView;
     mutable int fOnFlushRefCnt = 0;
 
 public:

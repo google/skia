@@ -66,29 +66,29 @@ public:
 
     static std::unique_ptr<GrDrawOp> Make(
             GrRecordingContext* context, sk_sp<const GrCCPerFlushResources> resources,
-            sk_sp<GrTextureProxy> copyProxy, int baseInstance, int endInstance,
+            GrSurfaceProxyView copyView, int baseInstance, int endInstance,
             const SkISize& drawBounds) {
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-        return pool->allocate<CopyAtlasOp>(std::move(resources), std::move(copyProxy), baseInstance,
+        return pool->allocate<CopyAtlasOp>(std::move(resources), std::move(copyView), baseInstance,
                                            endInstance, drawBounds);
     }
 
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
 
     void visitProxies(const VisitProxyFunc& fn) const override {
-        fn(fSrcProxy.get(), GrMipMapped::kNo);
+        fn(fSrcView.proxy(), GrMipMapped::kNo);
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        SkASSERT(fSrcProxy);
-        GrSurfaceProxy* srcProxy = fSrcProxy.get();
+        SkASSERT(fSrcView);
+        GrSurfaceProxy* srcProxy = fSrcView.proxy();
         SkASSERT(srcProxy->isInstantiated());
 
         auto coverageMode = GrCCPathProcessor::GetCoverageMode(
                 fResources->renderedPathCoverageType());
         GrCCPathProcessor pathProc(coverageMode, srcProxy->peekTexture(),
-                                   srcProxy->textureSwizzle(), srcProxy->origin());
+                                   fSrcView.swizzle(), fSrcView.origin());
 
         GrPipeline pipeline(GrScissorTest::kDisabled, SkBlendMode::kSrc,
                             flushState->drawOpArgs().outputSwizzle());
@@ -102,14 +102,14 @@ public:
 private:
     friend class ::GrOpMemoryPool; // for ctor
 
-    CopyAtlasOp(sk_sp<const GrCCPerFlushResources> resources, sk_sp<GrTextureProxy> srcProxy,
+    CopyAtlasOp(sk_sp<const GrCCPerFlushResources> resources, GrSurfaceProxyView srcView,
                 int baseInstance, int endInstance, const SkISize& drawBounds)
             : AtlasOp(ClassID(), std::move(resources), drawBounds)
-            , fSrcProxy(srcProxy)
+            , fSrcView(srcView)
             , fBaseInstance(baseInstance)
             , fEndInstance(endInstance) {
     }
-    sk_sp<GrTextureProxy> fSrcProxy;
+    GrSurfaceProxyView fSrcView;
     const int fBaseInstance;
     const int fEndInstance;
 };
@@ -253,7 +253,7 @@ void GrCCPerFlushResources::upgradeEntryToLiteralCoverageAtlas(
     }
 
     this->recordCopyPathInstance(
-            *entry, newAtlasOffset, fillRule, sk_ref_sp(cachedAtlas->getOnFlushProxy()));
+            *entry, newAtlasOffset, fillRule, cachedAtlas->getOnFlushView());
 
     sk_sp<GrTexture> previousAtlasTexture =
             sk_ref_sp(cachedAtlas->getOnFlushProxy()->peekTexture());
@@ -270,7 +270,7 @@ void GrCCPerFlushResources::upgradeEntryToLiteralCoverageAtlas(
 
 void GrCCPerFlushResources::recordCopyPathInstance(
         const GrCCPathCacheEntry& entry, const SkIVector& newAtlasOffset, GrFillRule fillRule,
-        sk_sp<GrTextureProxy> srcProxy) {
+        GrSurfaceProxyView srcView) {
     SkASSERT(fNextCopyInstanceIdx < fEndCopyInstance);
 
     // Write the instance at the back of the array.
@@ -284,7 +284,7 @@ void GrCCPerFlushResources::recordCopyPathInstance(
     // Percolate the instance forward until it's contiguous with other instances that share the same
     // proxy.
     for (int i = fCopyPathRanges.count() - 1; i >= fCurrCopyAtlasRangesIdx; --i) {
-        if (fCopyPathRanges[i].fSrcProxy == srcProxy) {
+        if (fCopyPathRanges[i].fSrcView == srcView) {
             ++fCopyPathRanges[i].fCount;
             return;
         }
@@ -299,7 +299,7 @@ void GrCCPerFlushResources::recordCopyPathInstance(
     std::move_backward(fCopyPathRanges.begin() + fCurrCopyAtlasRangesIdx,
                        fCopyPathRanges.end() - 1,
                        fCopyPathRanges.end());
-    fCopyPathRanges[fCurrCopyAtlasRangesIdx] = {std::move(srcProxy), 1};
+    fCopyPathRanges[fCurrCopyAtlasRangesIdx] = {std::move(srcView), 1};
 }
 
 static bool transform_path_pts(
@@ -539,7 +539,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
             int endCopyInstance = baseCopyInstance + copyRange.fCount;
             if (rtc) {
                 auto op = CopyAtlasOp::Make(
-                        rtc->surfPriv().getContext(), sk_ref_sp(this), copyRange.fSrcProxy,
+                        rtc->surfPriv().getContext(), sk_ref_sp(this), copyRange.fSrcView,
                         baseCopyInstance, endCopyInstance, atlas->drawBounds());
                 rtc->addDrawOp(GrNoClip(), std::move(op));
             }

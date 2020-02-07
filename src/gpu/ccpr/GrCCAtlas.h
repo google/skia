@@ -15,6 +15,7 @@
 #include "src/gpu/GrAllocator.h"
 #include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 class GrCCCachedAtlas;
 class GrOnFlushResourceProvider;
@@ -68,15 +69,17 @@ public:
     using LazyInstantiateAtlasCallback = std::function<GrSurfaceProxy::LazyCallbackResult(
             GrResourceProvider*, const GrBackendFormat&, int sampleCount)>;
 
-    static sk_sp<GrTextureProxy> MakeLazyAtlasProxy(const LazyInstantiateAtlasCallback&,
-                                                    CoverageType,
-                                                    const GrCaps&,
-                                                    GrSurfaceProxy::UseAllocator);
+    static GrSurfaceProxyView MakeLazyAtlasView(const LazyInstantiateAtlasCallback&,
+                                                CoverageType,
+                                                const GrCaps&,
+                                                GrSurfaceProxy::UseAllocator);
 
     GrCCAtlas(CoverageType, const Specs&, const GrCaps&);
     ~GrCCAtlas();
 
-    GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
+    GrTextureProxy* textureProxy() const { return fView.asTextureProxy(); }
+    GrSurfaceOrigin origin() const { return fView.origin(); }
+    GrSwizzle swizzle() const { return fView.swizzle(); }
     int currentWidth() const { return fWidth; }
     int currentHeight() const { return fHeight; }
 
@@ -122,7 +125,7 @@ private:
     int fEndStencilResolveInstance;
 
     sk_sp<GrCCCachedAtlas> fCachedAtlas;
-    sk_sp<GrTextureProxy> fTextureProxy;
+    GrSurfaceProxyView fView;
     sk_sp<GrTexture> fBackingTexture;
 };
 
