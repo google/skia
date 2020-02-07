@@ -40,7 +40,7 @@ class DockerFlavor(default.DefaultFlavor):
 
   def step(self, name, cmd, **unused_kwargs):
     extra_tokens = self.m.vars.extra_tokens
-    extra_tokens.remove('Docker')
+    extra_tokens = [t for t in extra_tokens if t != 'Docker']
     os = self.m.vars.builder_cfg.get('os', '')
     model = self.m.vars.builder_cfg.get('model', '')
     cpu_or_gpu = self.m.vars.builder_cfg.get('cpu_or_gpu', '')
