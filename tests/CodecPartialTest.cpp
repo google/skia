@@ -131,7 +131,7 @@ static void test_partial(skiatest::Reporter* r, const char* name, size_t minByte
 
     // This size is arbitrary, but deliberately different from the buffer size used by SkPngCodec.
     constexpr size_t kIncrement = 1000;
-    test_partial(r, name, file, SkTMax(file->size() / 2, minBytes), kIncrement);
+    test_partial(r, name, file, std::max(file->size() / 2, minBytes), kIncrement);
 }
 
 DEF_TEST(Codec_partial, r) {

@@ -632,7 +632,7 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                 rect.fRight -= r1.fX;
                 rect.fBottom -= r1.fY;
                 if (fScaleUniform.isValid()) {
-                    float scale = SkTMax(SkTMax(r0.fX, r0.fY), SkTMax(r1.fX, r1.fY));
+                    float scale = std::max(std::max(r0.fX, r0.fY), std::max(r1.fX, r1.fY));
                     float scaleSqd = scale * scale;
                     pdman.set4f(fInvRadiiSqdUniform, scaleSqd / (r0.fX * r0.fX),
                                                      scaleSqd / (r0.fY * r0.fY),

@@ -291,7 +291,7 @@ public:
         auto iter = fQuads.metadata();
         while(iter.next()) {
             auto colorType = GrQuadPerEdgeAA::MinColorType(iter->fColor);
-            fMetadata.fColorType = SkTMax(fMetadata.fColorType, static_cast<uint16_t>(colorType));
+            fMetadata.fColorType = std::max(fMetadata.fColorType, static_cast<uint16_t>(colorType));
         }
         return GrProcessorSet::EmptySetAnalysis();
     }
@@ -767,11 +767,11 @@ private:
             if (op.fMetadata.domain() == Domain::kYes) {
                 domain = Domain::kYes;
             }
-            colorType = SkTMax(colorType, op.fMetadata.colorType());
+            colorType = std::max(colorType, op.fMetadata.colorType());
             desc->fNumProxies += op.fMetadata.fProxyCount;
 
             for (unsigned p = 0; p < op.fMetadata.fProxyCount; ++p) {
-                maxQuadsPerMesh = SkTMax(op.fViewCountPairs[p].fQuadCnt, maxQuadsPerMesh);
+                maxQuadsPerMesh = std::max(op.fViewCountPairs[p].fQuadCnt, maxQuadsPerMesh);
             }
             desc->fNumTotalQuads += op.totNumQuads();
 
@@ -972,7 +972,7 @@ private:
         }
 
         fMetadata.fDomain |= that->fMetadata.fDomain;
-        fMetadata.fColorType = SkTMax(fMetadata.fColorType, that->fMetadata.fColorType);
+        fMetadata.fColorType = std::max(fMetadata.fColorType, that->fMetadata.fColorType);
         if (upgradeToCoverageAAOnMerge) {
             fMetadata.fAAType = static_cast<uint16_t>(GrAAType::kCoverage);
         }
@@ -1180,7 +1180,7 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
 
     // Second check if we can always just make a single op and avoid the extra iteration
     // needed to clump things together.
-    if (cnt <= SkTMin(GrResourceProvider::MaxNumNonAAQuads(),
+    if (cnt <= std::min(GrResourceProvider::MaxNumNonAAQuads(),
                       GrResourceProvider::MaxNumAAQuads())) {
         auto op = TextureOp::Make(context, set, cnt, proxyRunCnt, filter, saturate, aaType,
                                   constraint, viewMatrix, std::move(textureColorSpaceXform));
@@ -1195,7 +1195,7 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
     if (aaType == GrAAType::kNone || aaType == GrAAType::kMSAA) {
         // Clump these into series of MaxNumNonAAQuads-sized GrTextureOps
         while (state.numLeft() > 0) {
-            int clumpSize = SkTMin(state.numLeft(), GrResourceProvider::MaxNumNonAAQuads());
+            int clumpSize = std::min(state.numLeft(), GrResourceProvider::MaxNumNonAAQuads());
 
             state.createOp(set, clumpSize, aaType);
         }

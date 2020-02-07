@@ -52,7 +52,7 @@ public:
     {}
 
     void addNewData(size_t extra) {
-        fLimit = SkTMin(fTotalSize, fLimit + extra);
+        fLimit = std::min(fTotalSize, fLimit + extra);
     }
 
     size_t read(void* buffer, size_t size) override {

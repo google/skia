@@ -820,7 +820,7 @@ static bool can_use_hw_derivatives_with_coverage(const Sk2f& devScale, const Sk2
     if (devRadii[1] < devRadii[0]) {
         devRadii = SkNx_shuffle<1,0>(devRadii);
     }
-    float minDevRadius = SkTMax(devRadii[0], 1.f);  // Shader clamps radius at a minimum of 1.
+    float minDevRadius = std::max(devRadii[0], 1.f);  // Shader clamps radius at a minimum of 1.
     // Is the gradient smooth enough for this corner look ok if we use hardware derivatives?
     // This threshold was arrived at subjevtively on an NVIDIA chip.
     return minDevRadius * minDevRadius * 5 > devRadii[1];

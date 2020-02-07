@@ -1330,11 +1330,11 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
             SkScalar maxOffset;
             if (rrect.isRect()) {
                 // Manhattan distance works better for rects
-                maxOffset = SkTMax(SkTMax(SkTAbs(spotShadowRRect.rect().fLeft -
+                maxOffset = std::max(std::max(SkTAbs(spotShadowRRect.rect().fLeft -
                                                  rrect.rect().fLeft),
                                           SkTAbs(spotShadowRRect.rect().fTop -
                                                  rrect.rect().fTop)),
-                                   SkTMax(SkTAbs(spotShadowRRect.rect().fRight -
+                                   std::max(SkTAbs(spotShadowRRect.rect().fRight -
                                                  rrect.rect().fRight),
                                           SkTAbs(spotShadowRRect.rect().fBottom -
                                                  rrect.rect().fBottom)));
@@ -1348,10 +1348,10 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                                                          rrect.rect().fRight - dr,
                                                          spotShadowRRect.rect().fBottom -
                                                          rrect.rect().fBottom - dr);
-                maxOffset = SkScalarSqrt(SkTMax(SkPointPriv::LengthSqd(upperLeftOffset),
+                maxOffset = SkScalarSqrt(std::max(SkPointPriv::LengthSqd(upperLeftOffset),
                                                 SkPointPriv::LengthSqd(lowerRightOffset))) + dr;
             }
-            insetWidth += SkTMax(blurOutset, maxOffset);
+            insetWidth += std::max(blurOutset, maxOffset);
         }
 
         // Outset the shadow rrect to the border of the penumbra

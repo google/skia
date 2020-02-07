@@ -795,7 +795,7 @@ GrCCFillGeometry::PrimitiveTallies GrCCFillGeometry::endContour() {
         fVerbs.push_back(Verb::kEndOpenContour);
     }
 
-    fCurrContourTallies.fTriangles = SkTMax(fanSize - 2, 0);
+    fCurrContourTallies.fTriangles = std::max(fanSize - 2, 0);
 
     SkDEBUGCODE(fBuildingContour = false);
     return fCurrContourTallies;

@@ -35,7 +35,7 @@ uniform float4 circle;
         if (GrProcessorEdgeTypeIsInverseFill((GrClipEdgeType) edgeType)) {
             effectiveRadius -= 0.5f;
             // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the shader.
-            effectiveRadius = SkTMax(0.001f, effectiveRadius);
+            effectiveRadius = std::max(0.001f, effectiveRadius);
         } else {
             effectiveRadius += 0.5f;
         }

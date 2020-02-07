@@ -85,8 +85,8 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
     bool all_finite = (accum * 0 == 0).allTrue();
     if (all_finite) {
-        this->setLTRB(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
-                      SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+        this->setLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
+                      std::max(max[0], max[2]), std::max(max[1], max[3]));
     } else {
         this->setEmpty();
     }

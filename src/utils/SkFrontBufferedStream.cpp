@@ -103,7 +103,7 @@ size_t FrontBufferedStream::readFromBuffer(char* dst, size_t size) {
     // Some data has already been copied to fBuffer. Read up to the
     // lesser of the size requested and the remainder of the buffered
     // data.
-    const size_t bytesToCopy = SkTMin(size, fBufferedSoFar - fOffset);
+    const size_t bytesToCopy = std::min(size, fBufferedSoFar - fOffset);
     if (dst != nullptr) {
         memcpy(dst, fBuffer + fOffset, bytesToCopy);
     }
@@ -122,7 +122,7 @@ size_t FrontBufferedStream::bufferAndWriteTo(char* dst, size_t size) {
     SkASSERT(fBuffer);
     // Data needs to be buffered. Buffer up to the lesser of the size requested
     // and the remainder of the max buffer size.
-    const size_t bytesToBuffer = SkTMin(size, fBufferSize - fBufferedSoFar);
+    const size_t bytesToBuffer = std::min(size, fBufferSize - fBufferedSoFar);
     char* buffer = fBuffer + fOffset;
     const size_t buffered = fStream->read(buffer, bytesToBuffer);
 
@@ -164,7 +164,7 @@ size_t FrontBufferedStream::peek(void* dst, size_t size) const {
         return 0;
     }
 
-    size = SkTMin(size, fBufferSize - start);
+    size = std::min(size, fBufferSize - start);
     FrontBufferedStream* nonConstThis = const_cast<FrontBufferedStream*>(this);
     const size_t bytesRead = nonConstThis->read(dst, size);
     nonConstThis->fOffset = start;

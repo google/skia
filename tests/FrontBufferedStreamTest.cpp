@@ -239,7 +239,7 @@ static void test_initial_offset(skiatest::Reporter* reporter, size_t bufferSize)
         REPORTER_ASSERT(reporter, !bufferedStream->isAtEnd());
         test_read(reporter, bufferedStream.get(), gAbcs + arbitraryOffset + currentPosition,
                   amountToRead);
-        currentPosition = SkTMin(currentPosition + amountToRead, bufferedLength);
+        currentPosition = std::min(currentPosition + amountToRead, bufferedLength);
         REPORTER_ASSERT(reporter, memStream->getPosition() - arbitraryOffset == currentPosition);
     }
     REPORTER_ASSERT(reporter, bufferedStream->isAtEnd());
