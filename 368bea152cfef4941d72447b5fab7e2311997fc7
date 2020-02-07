@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "b5468d83_a1da52c0",
+        "filename": "src/gpu/GrRenderTargetContext.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-07T15:20:29Z",
+      "side": 1,
+      "message": "Ended up switching to DrawQuad* everywhere",
+      "parentUuid": "8314156b_907f5389",
+      "range": {
+        "startLine": 624,
+        "startChar": 45,
+        "endLine": 624,
+        "endChar": 59
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec4ec80c_b4b6ea79",
         "filename": "src/gpu/GrRenderTargetContext.h",
         "patchSetId": 3
@@ -115,6 +139,30 @@
       "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "013f45bd_4149d9b6",
+        "filename": "src/gpu/geometry/GrQuad.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-02-07T15:20:29Z",
+      "side": 1,
+      "message": "I was as well, but I guess since it\u0027s consistent with the declaration in GrTypesPriv, the compiler knows to use the default underlying type and then it\u0027s fine.",
+      "parentUuid": "19012e81_7a43f826",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 25
+      },
+      "revId": "368bea152cfef4941d72447b5fab7e2311997fc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
