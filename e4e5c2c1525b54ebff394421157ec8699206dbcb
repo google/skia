@@ -22,6 +22,30 @@
       "revId": "e4e5c2c1525b54ebff394421157ec8699206dbcb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ced1fcc7_98c3f083",
+        "filename": "src/gpu/ccpr/GrCCClipProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-02-07T22:22:17Z",
+      "side": 1,
+      "message": "No thats just VS trying to helpful...I don\u0027t know how to adjust all the settings yet for it to not do those sort of formatying things for me...\n\nfixed now.",
+      "parentUuid": "fedc7dd5_7ef6a4c6",
+      "range": {
+        "startLine": 26,
+        "startChar": 6,
+        "endLine": 26,
+        "endChar": 15
+      },
+      "revId": "e4e5c2c1525b54ebff394421157ec8699206dbcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
