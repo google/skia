@@ -161,14 +161,18 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
     particleCode.append(fParticleCode.c_str());
 
     auto effectProgram = buildProgram(effectCode);
-    fEffectProgram.fInterpreter.reset(new SkSL::Interpreter<INTERPRETER_WIDTH>(
-                                                                   std::move(effectProgram.first)));
-    fEffectProgram.fExternalValues.swap(effectProgram.second);
+    if (effectProgram.first) {
+        fEffectProgram.fInterpreter.reset(
+                new SkSL::Interpreter<INTERPRETER_WIDTH>(std::move(effectProgram.first)));
+        fEffectProgram.fExternalValues.swap(effectProgram.second);
+    }
 
     auto particleProgram = buildProgram(particleCode);
-    fParticleProgram.fInterpreter.reset(new SkSL::Interpreter<INTERPRETER_WIDTH>(
-                                                                 std::move(particleProgram.first)));
-    fParticleProgram.fExternalValues.swap(particleProgram.second);
+    if (particleProgram.first) {
+        fParticleProgram.fInterpreter.reset(
+                new SkSL::Interpreter<INTERPRETER_WIDTH>(std::move(particleProgram.first)));
+        fParticleProgram.fExternalValues.swap(particleProgram.second);
+    }
 }
 
 SkParticleEffect::SkParticleEffect(sk_sp<SkParticleEffectParams> params, const SkRandom& random)
