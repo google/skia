@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29cdc42e_ad999850",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-02-07T14:39:28Z",
+      "side": 1,
+      "message": "I might like this slightly better if it took const SkSL::CompilerFormatArg* fmtArg and returned the number consumed. But I\u0027m not really sure if I would.",
+      "range": {
+        "startLine": 26,
+        "startChar": 33,
+        "endLine": 26,
+        "endChar": 89
+      },
+      "revId": "217460de3bd33204f8be8a2b7439177d598527d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
