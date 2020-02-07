@@ -58,7 +58,7 @@ template<>
 SkScalar pinFx<SkTileMode::kRepeat>(SkScalar fx) {
     SkScalar f = SkScalarIsFinite(fx) ? SkScalarFraction(fx) : 0;
     if (f < 0) {
-        f = SkTMin(f + 1, nextafterf(1, 0));
+        f = std::min(f + 1, nextafterf(1, 0));
     }
     SkASSERT(f >= 0);
     SkASSERT(f < 1.0f);
@@ -69,7 +69,7 @@ template<>
 SkScalar pinFx<SkTileMode::kMirror>(SkScalar fx) {
     SkScalar f = SkScalarIsFinite(fx) ? SkScalarMod(fx, 2.0f) : 0;
     if (f < 0) {
-        f = SkTMin(f + 2, nextafterf(2, 0));
+        f = std::min(f + 2, nextafterf(2, 0));
     }
     SkASSERT(f >= 0);
     SkASSERT(f < 2.0f);
@@ -227,7 +227,7 @@ LinearGradient4fContext::shadeSpanInternal(int x, int y, SkPMColor dst[], int co
     while (count > 0) {
         // What we really want here is SkTPin(advance, 1, count)
         // but that's a significant perf hit for >> stops; investigate.
-        const int n = SkTMin(SkScalarTruncToInt(proc.currentAdvance() + 1), count);
+        const int n = std::min(SkScalarTruncToInt(proc.currentAdvance() + 1), count);
 
         // The current interval advance can be +inf (e.g. when reaching
         // the clamp mode end intervals) - when that happens, we expect to

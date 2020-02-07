@@ -55,8 +55,8 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     int tileW = gpu ? FLAGS_GPUbenchTileW : FLAGS_CPUbenchTileW,
         tileH = gpu ? FLAGS_GPUbenchTileH : FLAGS_CPUbenchTileH;
 
-    tileW = SkTMin(tileW, bounds.width());
-    tileH = SkTMin(tileH, bounds.height());
+    tileW = std::min(tileW, bounds.width());
+    tileH = std::min(tileH, bounds.height());
 
     int xTiles = SkScalarCeilToInt(bounds.width()  / SkIntToScalar(tileW));
     int yTiles = SkScalarCeilToInt(bounds.height() / SkIntToScalar(tileH));

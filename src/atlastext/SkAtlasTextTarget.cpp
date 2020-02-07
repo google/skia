@@ -176,7 +176,7 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     }
     const GrCaps& caps = *this->context()->internal().grContext()->priv().caps();
     op->finalizeForTextTarget(fColor, caps);
-    int n = SkTMin(kMaxBatchLookBack, fOps.count());
+    int n = std::min(kMaxBatchLookBack, fOps.count());
 
     GrRecordingContext::Arenas arenas = this->arenas();
     for (int i = 0; i < n; ++i) {

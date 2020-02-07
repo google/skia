@@ -61,7 +61,7 @@ struct SK_API SkYUVAIndex {
             } else if (yuvaIndices[i].fIndex > 3) {
                 valid = false; // A maximum of four input textures is allowed
             } else {
-                maxSlotUsed = SkTMax(yuvaIndices[i].fIndex, maxSlotUsed);
+                maxSlotUsed = std::max(yuvaIndices[i].fIndex, maxSlotUsed);
                 used[i] = true;
             }
         }

@@ -12,9 +12,9 @@ void paintOctopus(int x, int y, int size_base, SkColor color, SkCanvas* canvas) 
       canvas->drawCircle(x - radius + (2*radius/7.5*leg),
                          y + radius - pow(abs(4-leg), 2), size_base/2 + 2, paint);
     }
-    paint.setColor(SkColorSetRGB(SkTMin(255u, SkColorGetR(color) + 20),
-                                 SkTMin(255u, SkColorGetG(color) + 20),
-                                 SkTMin(255u, SkColorGetB(color) + 20)));
+    paint.setColor(SkColorSetRGB(std::min(255u, SkColorGetR(color) + 20),
+                                 std::min(255u, SkColorGetG(color) + 20),
+                                 std::min(255u, SkColorGetB(color) + 20)));
     canvas->drawCircle(x-size_base, y+size_base, size_base/2, paint);
     canvas->drawCircle(x+size_base, y+size_base, size_base/2, paint);
 }

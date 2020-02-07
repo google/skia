@@ -191,55 +191,55 @@ class ShadowsView : public Sample {
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(200, 90);
-        zPlaneParams.fZ = SkTMax(1.0f, 2 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 2 + fZDelta);
         this->drawShadowedPath(canvas, fRRPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 8 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 8 + fZDelta);
         this->drawShadowedPath(canvas, fRectPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
 
         paint.setColor(SK_ColorBLUE);
         canvas->translate(-250, 110);
-        zPlaneParams.fZ = SkTMax(1.0f, 12 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 12 + fZDelta);
         this->drawShadowedPath(canvas, fCirclePath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*0.5f);
 
         paint.setColor(SK_ColorGREEN);
         canvas->translate(250, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 64 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 64 + fZDelta);
         this->drawShadowedPath(canvas, fRRPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
 
         paint.setColor(SK_ColorYELLOW);
         canvas->translate(-250, 110);
-        zPlaneParams.fZ = SkTMax(1.0f, 8 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 8 + fZDelta);
         this->drawShadowedPath(canvas, fFunkyRRPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
 
         paint.setColor(SK_ColorCYAN);
         canvas->translate(250, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 16 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 16 + fZDelta);
         this->drawShadowedPath(canvas, fCubicPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(250, -180);
-        zPlaneParams.fZ = SkTMax(1.0f, 8 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 8 + fZDelta);
         this->drawShadowedPath(canvas, fStarPath, zPlaneParams, paint,
                                kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(150, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 2 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 2 + fZDelta);
         this->drawShadowedPath(canvas, fNotchPath, zPlaneParams, paint,
                                kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(200, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 16 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 16 + fZDelta);
         this->drawShadowedPath(canvas, fTabPath, zPlaneParams, paint,
                                kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
 
@@ -251,7 +251,7 @@ class ShadowsView : public Sample {
 
         paint.setColor(SK_ColorMAGENTA);
         canvas->translate(-725, 240);
-        zPlaneParams.fZ = SkTMax(1.0f, 32 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 32 + fZDelta);
         this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
@@ -261,7 +261,7 @@ class ShadowsView : public Sample {
         Op(fSquareRRectPath, tmpClipPathBug, kIntersect_SkPathOp, &tmpPath);
 
         canvas->translate(250, 0);
-        zPlaneParams.fZ = SkTMax(1.0f, 32 + fZDelta);
+        zPlaneParams.fZ = std::max(1.0f, 32 + fZDelta);
         this->drawShadowedPath(canvas, tmpPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
@@ -281,7 +281,7 @@ class ShadowsView : public Sample {
         SkScalar radians = SkDegreesToRadians(fAnimAngle);
         zPlaneParams = SkPoint3::Make(0,
                                       SkScalarSin(radians),
-                                      SkTMax(1.0f, 16 + fZDelta) - SkScalarSin(radians)*pivot.fY);
+                                      std::max(1.0f, 16 + fZDelta) - SkScalarSin(radians)*pivot.fY);
         this->drawShadowedPath(canvas, fWideRectPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
@@ -297,7 +297,7 @@ class ShadowsView : public Sample {
         canvas->setMatrix(persp);
         zPlaneParams = SkPoint3::Make(-SkScalarSin(radians),
                                       0,
-                                      SkTMax(1.0f, 32 + fZDelta) + SkScalarSin(radians)*pivot.fX);
+                                      std::max(1.0f, 32 + fZDelta) + SkScalarSin(radians)*pivot.fX);
         this->drawShadowedPath(canvas, fWideOvalPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
@@ -312,7 +312,7 @@ class ShadowsView : public Sample {
         canvas->setMatrix(persp);
         zPlaneParams = SkPoint3::Make(-SkScalarSin(radians),
                                       0,
-                                      SkTMax(1.0f, 8 + fZDelta) + SkScalarSin(radians)*pivot.fX);
+                                      std::max(1.0f, 8 + fZDelta) + SkScalarSin(radians)*pivot.fX);
         this->drawShadowedPath(canvas, fStarPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
     }

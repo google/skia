@@ -121,10 +121,6 @@ static inline unsigned SkDiv255Round(unsigned prod) {
     return (prod + (prod >> 8)) >> 8;
 }
 
-static inline float SkPinToUnitFloat(float x) {
-    return SkTMin(SkTMax(x, 0.0f), 1.0f);
-}
-
 /**
  * Swap byte order of a 4-byte value, e.g. 0xaarrggbb -> 0xbbggrraa.
  */

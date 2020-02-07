@@ -494,8 +494,8 @@ void SkShadowUtils::ComputeTonalColors(SkColor inAmbientColor, SkColor inSpotCol
     int spotR = SkColorGetR(inSpotColor);
     int spotG = SkColorGetG(inSpotColor);
     int spotB = SkColorGetB(inSpotColor);
-    int max = SkTMax(SkTMax(spotR, spotG), spotB);
-    int min = SkTMin(SkTMin(spotR, spotG), spotB);
+    int max = std::max(std::max(spotR, spotG), spotB);
+    int min = std::min(std::min(spotR, spotG), spotB);
     SkScalar luminance = 0.5f*(max + min)/255.f;
     SkScalar origA = SkColorGetA(inSpotColor)/255.f;
 

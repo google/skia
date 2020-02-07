@@ -55,7 +55,7 @@ uint32_t GrPrimitiveProcessor::computeCoordTransformsKey(const GrFragmentProcess
 static inline GrSamplerState::Filter clamp_filter(GrTextureType type,
                                                   GrSamplerState::Filter requestedFilter) {
     if (GrTextureTypeHasRestrictedSampling(type)) {
-        return SkTMin(requestedFilter, GrSamplerState::Filter::kBilerp);
+        return std::min(requestedFilter, GrSamplerState::Filter::kBilerp);
     }
     return requestedFilter;
 }

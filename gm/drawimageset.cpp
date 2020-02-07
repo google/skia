@@ -239,7 +239,7 @@ private:
         paint.setFilterQuality(kLow_SkFilterQuality);
         paint.setBlendMode(SkBlendMode::kSrcOver);
 
-        static constexpr SkScalar kTranslate = SkTMax(kW, kH) * 2.f + 10.f;
+        static constexpr SkScalar kTranslate = std::max(kW, kH) * 2.f + 10.f;
         canvas->translate(5.f, 5.f);
         canvas->save();
         for (SkScalar frac : {0.f, 0.5f}) {

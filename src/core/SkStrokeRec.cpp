@@ -160,10 +160,10 @@ SkScalar SkStrokeRec::GetInflationRadius(SkPaint::Join join, SkScalar miterLimit
     // since we're stroked, outset the rect by the radius (and join type, caps)
     SkScalar multiplier = SK_Scalar1;
     if (SkPaint::kMiter_Join == join) {
-        multiplier = SkTMax(multiplier, miterLimit);
+        multiplier = std::max(multiplier, miterLimit);
     }
     if (SkPaint::kSquare_Cap == cap) {
-        multiplier = SkTMax(multiplier, SK_ScalarSqrt2);
+        multiplier = std::max(multiplier, SK_ScalarSqrt2);
     }
     return strokeWidth/2 * multiplier;
 }

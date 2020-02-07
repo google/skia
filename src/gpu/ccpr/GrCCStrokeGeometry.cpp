@@ -82,7 +82,7 @@ void GrCCStrokeGeometry::beginPath(const SkStrokeRec& stroke, float strokeDevWid
 
     // Find the angle of curvature where the arc height above a simple line from point A to point B
     // is equal to kMaxErrorFromLinearization.
-    float r = SkTMax(1 - kMaxErrorFromLinearization / fCurrStrokeRadius, 0.f);
+    float r = std::max(1 - kMaxErrorFromLinearization / fCurrStrokeRadius, 0.f);
     fMaxCurvatureCosTheta = 2*r*r - 1;
 
     fCurrContourFirstPtIdx = -1;
@@ -155,7 +155,7 @@ void GrCCStrokeGeometry::quadraticTo(Verb leftJoinVerb, const SkPoint P[3], floa
 
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_quadratic(p0, p1, p2);
-    numSegments = SkTMin(numSegments, 1 << kMaxNumLinearSegmentsLog2);
+    numSegments = std::min(numSegments, 1 << kMaxNumLinearSegmentsLog2);
     if (numSegments <= 1) {
         this->rotateTo(leftJoinVerb, normals[0]);
         this->lineTo(Verb::kInternalRoundJoin, P[2]);
@@ -283,7 +283,7 @@ void GrCCStrokeGeometry::cubicTo(Verb leftJoinVerb, const SkPoint P[4], float ma
 
     // Decide how many flat line segments to chop the curve into.
     int numSegments = wangs_formula_cubic(p0, p1, p2, p3);
-    numSegments = SkTMin(numSegments, 1 << kMaxNumLinearSegmentsLog2);
+    numSegments = std::min(numSegments, 1 << kMaxNumLinearSegmentsLog2);
     if (numSegments <= 1) {
         this->rotateTo(leftJoinVerb, normals[0]);
         this->lineTo(leftJoinVerb, P[3]);

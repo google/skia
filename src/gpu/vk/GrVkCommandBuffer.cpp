@@ -125,7 +125,7 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
                 uint32_t newEnd = newRange.baseMipLevel + newRange.levelCount - 1;
                 uint32_t oldStart = oldRange.baseMipLevel;
                 uint32_t oldEnd = oldRange.baseMipLevel + oldRange.levelCount - 1;
-                if (SkTMax(newStart, oldStart) <= SkTMin(newEnd, oldEnd)) {
+                if (std::max(newStart, oldStart) <= std::min(newEnd, oldEnd)) {
                     this->submitPipelineBarriers(gpu);
                     break;
                 }

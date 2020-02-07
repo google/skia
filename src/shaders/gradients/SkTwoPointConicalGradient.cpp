@@ -55,13 +55,13 @@ sk_sp<SkShader> SkTwoPointConicalGradient::Create(const SkPoint& c0, SkScalar r0
     Type     gradientType;
 
     if (SkScalarNearlyZero((c0 - c1).length())) {
-        if (SkScalarNearlyZero(SkTMax(r0, r1)) || SkScalarNearlyEqual(r0, r1)) {
+        if (SkScalarNearlyZero(std::max(r0, r1)) || SkScalarNearlyEqual(r0, r1)) {
             // Degenerate case; avoid dividing by zero. Should have been caught by caller but
             // just in case, recheck here.
             return nullptr;
         }
         // Concentric case: we can pretend we're radial (with a tiny twist).
-        const SkScalar scale = sk_ieee_float_divide(1, SkTMax(r0, r1));
+        const SkScalar scale = sk_ieee_float_divide(1, std::max(r0, r1));
         gradientMatrix = SkMatrix::MakeTrans(-c1.x(), -c1.y());
         gradientMatrix.postScale(scale, scale);
 
@@ -185,7 +185,7 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         p->append(SkRasterPipeline::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
-        auto scale =  SkTMax(fRadius1, fRadius2) / dRadius;
+        auto scale =  std::max(fRadius1, fRadius2) / dRadius;
         auto bias  = -fRadius1 / dRadius;
 
         p->append_matrix(alloc, SkMatrix::Concat(SkMatrix::MakeTrans(bias, 0),
@@ -242,7 +242,7 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
 
     if (fType == Type::kRadial) {
         float denom = 1.0f / (fRadius2 - fRadius1),
-              scale = SkTMax(fRadius1, fRadius2) * denom,
+              scale = std::max(fRadius1, fRadius2) * denom,
                bias =                  -fRadius1 * denom;
         return p->mad(p->norm(x,y), p->uniformF(uniforms->pushF(scale))
                                   , p->uniformF(uniforms->pushF(bias )));

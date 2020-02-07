@@ -45,10 +45,10 @@ static SkColor get_neighbor_avg_color(const SkPixmap& bm, int xOrig, int yOrig) 
     SkASSERT(kBGRA_8888_SkColorType == bm.colorType());
     unsigned r = 0, g = 0, b = 0, n = 0;
     // Clamp the range to the edge of the bitmap.
-    int ymin = SkTMax(0, yOrig - 1);
-    int ymax = SkTMin(yOrig + 1, bm.height() - 1);
-    int xmin = SkTMax(0, xOrig - 1);
-    int xmax = SkTMin(xOrig + 1, bm.width() - 1);
+    int ymin = std::max(0, yOrig - 1);
+    int ymax = std::min(yOrig + 1, bm.height() - 1);
+    int xmin = std::max(0, xOrig - 1);
+    int xmax = std::min(xOrig + 1, bm.width() - 1);
     for (int y = ymin; y <= ymax; ++y) {
         const SkColor* scanline = bm.addr32(0, y);
         for (int x = xmin; x <= xmax; ++x) {

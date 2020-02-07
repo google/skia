@@ -1208,7 +1208,7 @@ static void make_all_premul(SkBitmap* bm) {
     for (int a = 0; a < 256; ++a) {
         for (int r = 0; r < 256; ++r) {
             // make all valid premul combinations
-            int c = SkTMin(a, r);
+            int c = std::min(a, r);
             *bm->getAddr32(a, r) = SkPackARGB32(a, c, c, c);
         }
     }

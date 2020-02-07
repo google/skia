@@ -35,10 +35,10 @@ static const SkPoint kCubics[][4] = {
 static SkRect calc_tight_cubic_bounds(const SkPoint P[4], int depth=5) {
     if (0 == depth) {
         SkRect bounds;
-        bounds.fLeft = SkTMin(SkTMin(P[0].x(), P[1].x()), SkTMin(P[2].x(), P[3].x()));
-        bounds.fTop = SkTMin(SkTMin(P[0].y(), P[1].y()), SkTMin(P[2].y(), P[3].y()));
-        bounds.fRight = SkTMax(SkTMax(P[0].x(), P[1].x()), SkTMax(P[2].x(), P[3].x()));
-        bounds.fBottom = SkTMax(SkTMax(P[0].y(), P[1].y()), SkTMax(P[2].y(), P[3].y()));
+        bounds.fLeft = std::min(std::min(P[0].x(), P[1].x()), std::min(P[2].x(), P[3].x()));
+        bounds.fTop = std::min(std::min(P[0].y(), P[1].y()), std::min(P[2].y(), P[3].y()));
+        bounds.fRight = std::max(std::max(P[0].x(), P[1].x()), std::max(P[2].x(), P[3].x()));
+        bounds.fBottom = std::max(std::max(P[0].y(), P[1].y()), std::max(P[2].y(), P[3].y()));
         return bounds;
     }
 

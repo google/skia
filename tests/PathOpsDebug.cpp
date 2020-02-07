@@ -1191,7 +1191,7 @@ const SkTSpan* SkTSect::debugT(double t) const {
         if (between(test->fStartT, t, test->fEndT)) {
             return test;
         }
-        double testDist = SkTMin(fabs(test->fStartT - t), fabs(test->fEndT - t));
+        double testDist = std::min(fabs(test->fStartT - t), fabs(test->fEndT - t));
         if (bestDist > testDist) {
             bestDist = testDist;
             closest = test;

@@ -197,7 +197,7 @@ protected:
         } else if (-2 == ptClick->fIndex) {
             SkScalar yDiff = click->fCurr.fY - click->fPrev.fY;
             fTexScale += yDiff / 10.0f;
-            fTexScale = SkTMax(0.1f, SkTMin(20.f, fTexScale));
+            fTexScale = std::max(0.1f, std::min(20.f, fTexScale));
         }
         return true;
     }

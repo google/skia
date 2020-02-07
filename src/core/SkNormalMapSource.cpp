@@ -180,7 +180,7 @@ void SkNormalMapSourceImpl::Provider::fillScanLine(int x, int y, SkPoint3 output
     SkPMColor tmpNormalColors[BUFFER_MAX];
 
     do {
-        int n = SkTMin(count, BUFFER_MAX);
+        int n = std::min(count, BUFFER_MAX);
 
         fMapContext->shadeSpan(x, y, tmpNormalColors, n);
 

@@ -397,8 +397,8 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             return kSuccess;
         }
 
-        int minXOffset = SkTMin(dstX, subset.x());
-        int minYOffset = SkTMin(dstY, subset.y());
+        int minXOffset = std::min(dstX, subset.x());
+        int minYOffset = std::min(dstY, subset.y());
         dstX -= minXOffset;
         dstY -= minYOffset;
         frameRect.offset(-minXOffset, -minYOffset);

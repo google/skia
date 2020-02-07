@@ -106,8 +106,8 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     uint32_t apiVersion = backendContext.fMaxAPIVersion ? backendContext.fMaxAPIVersion
                                                         : instanceVersion;
 
-    instanceVersion = SkTMin(instanceVersion, apiVersion);
-    physDevVersion = SkTMin(physDevVersion, apiVersion);
+    instanceVersion = std::min(instanceVersion, apiVersion);
+    physDevVersion = std::min(physDevVersion, apiVersion);
 
     sk_sp<const GrVkInterface> interface;
 
@@ -735,8 +735,8 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, SkTArray<VkBufferImageCopy>* reg
         region.imageExtent = {SkToU32(dimensions.width()),
                               SkToU32(dimensions.height()), 1};
 
-        dimensions = {SkTMax(1, dimensions.width() /2),
-                      SkTMax(1, dimensions.height()/2)};
+        dimensions = {std::max(1, dimensions.width() /2),
+                      std::max(1, dimensions.height()/2)};
     }
 
     return combinedBufferSize;
@@ -799,8 +799,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
     SkASSERT((bpp & (bpp - 1)) == 0);
     const size_t alignmentMask = 0x3 | (bpp - 1);
     for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; currentMipLevel++) {
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
 
         if (texelsShallowCopy[currentMipLevel].fPixels) {
             const size_t trimmedSize = currentWidth * bpp * currentHeight;
@@ -894,8 +894,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
             region.imageOffset = {uploadLeft, uploadTop, 0};
             region.imageExtent = { (uint32_t)currentWidth, (uint32_t)currentHeight, 1 };
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
         layerHeight = currentHeight;
     }
 
@@ -1469,8 +1469,8 @@ bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     while (mipLevel < levelCount) {
         int prevWidth = width;
         int prevHeight = height;
-        width = SkTMax(1, width / 2);
-        height = SkTMax(1, height / 2);
+        width = std::max(1, width / 2);
+        height = std::max(1, height / 2);
 
         imageMemoryBarrier.subresourceRange.baseMipLevel = mipLevel - 1;
         this->addImageMemoryBarrier(vkTex->resource(), VK_PIPELINE_STAGE_TRANSFER_BIT,

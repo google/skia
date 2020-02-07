@@ -252,7 +252,7 @@ void main() {
             radius2 += offset;
         }
     } else if (type == static_cast<int>(Type::kStrip)) {
-        radius1 = SkTMax(radius1, .1f); // Make sure that the radius is non-zero
+        radius1 = std::max(radius1, .1f); // Make sure that the radius is non-zero
         radius2 = radius1;
         // Make sure that the centers are different
         if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {

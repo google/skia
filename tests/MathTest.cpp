@@ -642,14 +642,7 @@ DEF_TEST(FloatSaturate32, reporter) {
         int i = sk_float_saturate2int(r.fFloat);
         REPORTER_ASSERT(reporter, r.fExpectedInt == i);
 
-        // ensure that these bound even non-finite values (including NaN)
-
-        SkScalar mx = SkTMax<SkScalar>(r.fFloat, 50);
-        REPORTER_ASSERT(reporter, mx >= 50);
-
-        SkScalar mn = SkTMin<SkScalar>(r.fFloat, 50);
-        REPORTER_ASSERT(reporter, mn <= 50);
-
+        // Ensure that SkTPin bounds even non-finite values (including NaN)
         SkScalar p = SkTPin<SkScalar>(r.fFloat, 0, 100);
         REPORTER_ASSERT(reporter, p >= 0 && p <= 100);
     }

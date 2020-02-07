@@ -504,12 +504,12 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
 
             for (int i = 0; i < numStripes; i += 2) {
                 // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - i * stripeHeight);
+                const int linesToSkip = std::min(stripeHeight, height - i * stripeHeight);
                 codec->skipScanlines(linesToSkip);
 
                 // Read a stripe
                 const int startY = (i + 1) * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
+                const int linesToRead = std::min(stripeHeight, height - startY);
                 if (linesToRead > 0) {
                     codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
                 }
@@ -524,11 +524,11 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             for (int i = 0; i < numStripes; i += 2) {
                 // Read a stripe
                 const int startY = i * stripeHeight;
-                const int linesToRead = SkTMin(stripeHeight, height - startY);
+                const int linesToRead = std::min(stripeHeight, height - startY);
                 codec->getScanlines(bitmap.getAddr(0, startY), linesToRead, bitmap.rowBytes());
 
                 // Skip a stripe
-                const int linesToSkip = SkTMin(stripeHeight, height - (i + 1) * stripeHeight);
+                const int linesToSkip = std::min(stripeHeight, height - (i + 1) * stripeHeight);
                 if (linesToSkip > 0) {
                     codec->skipScanlines(linesToSkip);
                 }
@@ -565,15 +565,15 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                 int top = 0;
                 for (int y = 0; y < H; y+= h) {
                     // Do not make the subset go off the edge of the image.
-                    const int preScaleW = SkTMin(w, W - x);
-                    const int preScaleH = SkTMin(h, H - y);
+                    const int preScaleW = std::min(w, W - x);
+                    const int preScaleH = std::min(h, H - y);
                     subset.setXYWH(x, y, preScaleW, preScaleH);
                     // And fscale
                     // FIXME: Should we have a version of getScaledDimensions that takes a subset
                     // into account?
                     decodeInfo = decodeInfo.makeWH(
-                            SkTMax(1, SkScalarRoundToInt(preScaleW * fscale)),
-                            SkTMax(1, SkScalarRoundToInt(preScaleH * fscale)));
+                            std::max(1, SkScalarRoundToInt(preScaleW * fscale)),
+                            std::max(1, SkScalarRoundToInt(preScaleH * fscale)));
                     size_t rowBytes = decodeInfo.minRowBytes();
                     if (!subsetBm.installPixels(decodeInfo, pixels, rowBytes)) {
                         SkDebugf("[terminated] Could not install pixels.\n");

@@ -434,7 +434,7 @@ size_t SkResourceCache::getEffectiveSingleAllocationByteLimit() const {
         if (0 == limit) {
             limit = fTotalByteLimit;
         } else {
-            limit = SkTMin(limit, fTotalByteLimit);
+            limit = std::min(limit, fTotalByteLimit);
         }
     }
     return limit;

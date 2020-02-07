@@ -1163,7 +1163,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // can't inset more than the half bounds of the polygon
-    if (offset > SkTMin(SkTAbs(SK_ScalarHalf*bounds.width()),
+    if (offset > std::min(SkTAbs(SK_ScalarHalf*bounds.width()),
                         SkTAbs(SK_ScalarHalf*bounds.height()))) {
         return false;
     }
@@ -1209,7 +1209,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                           &rotSin, &rotCos, &numSteps)) {
                     return false;
                 }
-                numEdges += SkTMax(numSteps, 1);
+                numEdges += std::max(numSteps, 1);
             }
         }
         numEdges++;
@@ -1222,7 +1222,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                   &rotSin, &rotCos, &numSteps)) {
             return false;
         }
-        numEdges += SkTMax(numSteps, 1);
+        numEdges += std::max(numSteps, 1);
     }
 
     // Make sure we don't overflow the max array count.
@@ -1249,7 +1249,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                       &rotSin, &rotCos, &numSteps)) {
                 return false;
             }
-            auto currEdge = edgeData.push_back_n(SkTMax(numSteps, 1));
+            auto currEdge = edgeData.push_back_n(std::max(numSteps, 1));
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
                                                      prevNormal.fY*rotCos + prevNormal.fX*rotSin);
@@ -1442,8 +1442,8 @@ static void compute_triangle_bounds(const SkPoint& p0, const SkPoint& p1, const 
     Sk4s xy(p1.fX, p1.fY, p2.fX, p2.fY);
     min = Sk4s::Min(min, xy);
     max = Sk4s::Max(max, xy);
-    bounds->setLTRB(SkTMin(min[0], min[2]), SkTMin(min[1], min[3]),
-                    SkTMax(max[0], max[2]), SkTMax(max[1], max[3]));
+    bounds->setLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
+                    std::max(max[0], max[2]), std::max(max[1], max[3]));
 }
 
 // test to see if point p is in triangle p0p1p2.
@@ -1490,7 +1490,7 @@ public:
         if (!SkScalarIsFinite(hCount)) {
             return false;
         }
-        fHCount = SkTMax(SkTMin(SkScalarRoundToInt(hCount), vertexCount), 1);
+        fHCount = std::max(std::min(SkScalarRoundToInt(hCount), vertexCount), 1);
         fVCount = vertexCount/fHCount;
         fGridConversion.set(sk_ieee_float_divide(fHCount - 0.001f, width),
                             sk_ieee_float_divide(fVCount - 0.001f, height));

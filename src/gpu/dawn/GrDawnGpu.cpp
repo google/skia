@@ -345,8 +345,8 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
         dstTexture.origin = {0, 0, 0};
         wgpu::Extent3D copySize = {(uint32_t) w, (uint32_t) h, 1};
         copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
-        w = SkTMax(1, w / 2);
-        h = SkTMax(1, h / 2);
+        w = std::max(1, w / 2);
+        h = std::max(1, h / 2);
     }
     wgpu::CommandBuffer cmdBuf = copyEncoder.Finish();
     fQueue.Submit(1, &cmdBuf);

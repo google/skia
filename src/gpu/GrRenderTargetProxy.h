@@ -41,7 +41,7 @@ public:
      */
     void setNeedsStencil(int8_t numStencilSamples) {
         SkASSERT(numStencilSamples >= fSampleCnt);
-        fNumStencilSamples = SkTMax(numStencilSamples, fNumStencilSamples);
+        fNumStencilSamples = std::max(numStencilSamples, fNumStencilSamples);
     }
 
     /**

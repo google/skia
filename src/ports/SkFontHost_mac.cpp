@@ -1348,7 +1348,7 @@ static inline uint8_t rgb_to_a8(CGRGBPixel rgb, const uint8_t* table8) {
     U8CPU b = 0xFF - ((rgb >>  0) & 0xFF);
     U8CPU lum = sk_apply_lut_if<APPLY_PREBLEND>(SkComputeLuminance(r, g, b), table8);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-    lum = SkTMax(lum, (U8CPU)0x30);
+    lum = std::max(lum, (U8CPU)0x30);
 #endif
     return lum;
 }
@@ -1377,9 +1377,9 @@ uint16_t SkScalerContext_Mac::RGBToLcd16(CGRGBPixel rgb, const uint8_t* tableR,
     U8CPU g = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  8) & 0xFF), tableG);
     U8CPU b = sk_apply_lut_if<APPLY_PREBLEND>(0xFF - ((rgb >>  0) & 0xFF), tableB);
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-    r = SkTMax(r, (U8CPU)0x30);
-    g = SkTMax(g, (U8CPU)0x30);
-    b = SkTMax(b, (U8CPU)0x30);
+    r = std::max(r, (U8CPU)0x30);
+    g = std::max(g, (U8CPU)0x30);
+    b = std::max(b, (U8CPU)0x30);
 #endif
     return SkPack888ToRGB16(r, g, b);
 }
@@ -1410,7 +1410,7 @@ static SkPMColor cgpixels_to_pmcolor(CGRGBPixel rgb) {
     U8CPU g = (rgb >>  8) & 0xFF;
     U8CPU b = (rgb >>  0) & 0xFF;
 #if SK_SHOW_TEXT_BLIT_COVERAGE
-    a = SkTMax(a, (U8CPU)0x30);
+    a = std::max(a, (U8CPU)0x30);
 #endif
     return SkPackARGB32(a, r, g, b);
 }

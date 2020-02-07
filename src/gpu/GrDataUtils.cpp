@@ -276,8 +276,8 @@ size_t GrComputeTightCombinedBufferSize(size_t bytesPerPixel, SkISize baseDimens
     int desiredAlignment = (bytesPerPixel == 3) ? 12 : (bytesPerPixel > 4 ? bytesPerPixel : 4);
 
     for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
-        levelDimensions = {SkTMax(1, levelDimensions.width() /2),
-                           SkTMax(1, levelDimensions.height()/2)};
+        levelDimensions = {std::max(1, levelDimensions.width() /2),
+                           std::max(1, levelDimensions.height()/2)};
 
         size_t trimmedSize = levelDimensions.area() * bytesPerPixel;
         const size_t alignmentDiff = combinedBufferSize % desiredAlignment;
@@ -317,7 +317,7 @@ void GrFillInCompressedData(SkImage::CompressionType type, SkISize dimensions,
         }
 
         offset += levelSize;
-        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+        dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
     }
 }
 

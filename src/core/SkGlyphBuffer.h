@@ -45,7 +45,7 @@ public:
     }
 
     void reject(size_t index, int rejectedMaxDimension) {
-        fRejectedMaxDimension = SkTMax(fRejectedMaxDimension, rejectedMaxDimension);
+        fRejectedMaxDimension = std::max(fRejectedMaxDimension, rejectedMaxDimension);
         this->reject(index);
     }
 

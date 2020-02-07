@@ -90,7 +90,7 @@ protected:
                         }
                         this->drawBlob(canvas, blob.get(), SK_ColorBLACK, x, y + h, pm, twm);
                         x += w + 20.f;
-                        maxH = SkTMax(h, maxH);
+                        maxH = std::max(h, maxH);
                         canvas->restore();
                     }
                 }

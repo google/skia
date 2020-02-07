@@ -203,7 +203,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
                                       GrProtected isProtected) {
     int mipLevelCount = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        mipLevelCount = 32 - SkCLZ(static_cast<uint32_t>(SkTMax(desc.fWidth, desc.fHeight)));
+        mipLevelCount = 32 - SkCLZ(static_cast<uint32_t>(std::max(desc.fWidth, desc.fHeight)));
     }
     uint32_t levelClearMask =
             this->caps()->shouldInitializeTextures() ? (1 << mipLevelCount) - 1 : 0;
@@ -233,7 +233,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
         }
     }
 
-    int mipLevelCount = SkTMax(1, texelLevelCount);
+    int mipLevelCount = std::max(1, texelLevelCount);
     uint32_t levelClearMask = 0;
     if (this->caps()->shouldInitializeTextures()) {
         if (texelLevelCount) {
@@ -789,7 +789,7 @@ bool GrGpu::MipMapsAreCorrect(SkISize dimensions,
 
     SkColorType colorType = data->pixmap(0).colorType();
     for (int i = 1; i < numMipLevels; ++i) {
-        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+        dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
         if (dimensions != data->pixmap(i).dimensions()) {
             return false;
         }

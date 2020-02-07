@@ -154,7 +154,7 @@ static std::unique_ptr<GrRenderTargetContext> random_render_target_context(GrCon
 
     int sampleCnt = random->nextBool() ? caps->getRenderTargetSampleCount(2, format) : 1;
     // Above could be 0 if msaa isn't supported.
-    sampleCnt = SkTMax(1, sampleCnt);
+    sampleCnt = std::max(1, sampleCnt);
 
     return GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,

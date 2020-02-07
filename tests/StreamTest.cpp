@@ -343,7 +343,7 @@ static void stream_peek_test(skiatest::Reporter* rep,
     const uint8_t* expect = expected->bytes();
     for (size_t i = 0; i < asset->getLength(); ++i) {
         uint32_t maxSize =
-                SkToU32(SkTMin(sizeof(buffer), asset->getLength() - i));
+                SkToU32(std::min(sizeof(buffer), asset->getLength() - i));
         size_t size = rand.nextRangeU(1, maxSize);
         SkASSERT(size >= 1);
         SkASSERT(size <= sizeof(buffer));
@@ -401,7 +401,7 @@ public:
     DumbStream(const uint8_t* data, size_t n)
         : fData(data), fCount(n), fIdx(0) {}
     size_t read(void* buffer, size_t size) override {
-        size_t copyCount = SkTMin(fCount - fIdx, size);
+        size_t copyCount = std::min(fCount - fIdx, size);
         if (copyCount) {
             memcpy(buffer, &fData[fIdx], copyCount);
             fIdx += copyCount;

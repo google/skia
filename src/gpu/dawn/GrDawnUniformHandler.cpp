@@ -188,7 +188,7 @@ uint32_t get_ubo_offset(uint32_t* currentOffset, GrSLType type, int arrayCount) 
     uint32_t uniformOffset = *currentOffset + offsetDiff;
     SkASSERT(sizeof(float) == 4);
     if (arrayCount) {
-        uint32_t elementSize = SkTMax<uint32_t>(16, grsltype_to_size(type));
+        uint32_t elementSize = std::max<uint32_t>(16, grsltype_to_size(type));
         SkASSERT(0 == (elementSize & 0xF));
         *currentOffset = uniformOffset + elementSize * arrayCount;
     } else {

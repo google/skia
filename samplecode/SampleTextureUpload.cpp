@@ -67,12 +67,12 @@ class TextureUploadSample : public Sample {
             fDrawTexturesToScreen = !fDrawTexturesToScreen;
             return true;
         } else if ('>' == uni) {
-            fTileSize = SkTMin(kMaxTileSize, 2*fTileSize);
+            fTileSize = std::min(kMaxTileSize, 2*fTileSize);
             fTileRows = kMaxTileSize/fTileSize;
             fTileCols = kMaxTileSize/fTileSize;
             fCachedContext = nullptr;
         } else if ('<' == uni) {
-            fTileSize = SkTMax(kMinTileSize, fTileSize/2);
+            fTileSize = std::max(kMinTileSize, fTileSize/2);
             fTileRows = kMaxTileSize/fTileSize;
             fTileCols = kMaxTileSize/fTileSize;
             fCachedContext = nullptr;

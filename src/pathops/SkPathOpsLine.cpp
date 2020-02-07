@@ -48,9 +48,9 @@ double SkDLine::nearPoint(const SkDPoint& xy, bool* unequal) const {
     SkDPoint realPt = ptAtT(t);
     double dist = realPt.distance(xy);   // OPTIMIZATION: can we compare against distSq instead ?
     // find the ordinal in the original line with the largest unsigned exponent
-    double tiniest = SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
-    double largest = SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
-    largest = SkTMax(largest, -tiniest);
+    double tiniest = std::min(std::min(std::min(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
+    double largest = std::max(std::max(std::max(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
+    largest = std::max(largest, -tiniest);
     if (!AlmostEqualUlps_Pin(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
@@ -72,9 +72,9 @@ bool SkDLine::nearRay(const SkDPoint& xy) const {
     SkDPoint realPt = ptAtT(t);
     double dist = realPt.distance(xy);   // OPTIMIZATION: can we compare against distSq instead ?
     // find the ordinal in the original line with the largest unsigned exponent
-    double tiniest = SkTMin(SkTMin(SkTMin(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
-    double largest = SkTMax(SkTMax(SkTMax(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
-    largest = SkTMax(largest, -tiniest);
+    double tiniest = std::min(std::min(std::min(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
+    double largest = std::max(std::max(std::max(fPts[0].fX, fPts[0].fY), fPts[1].fX), fPts[1].fY);
+    largest = std::max(largest, -tiniest);
     return RoughlyEqualUlps(largest, largest + dist); // is the dist within ULPS tolerance?
 }
 
@@ -104,9 +104,9 @@ double SkDLine::NearPointH(const SkDPoint& xy, double left, double right, double
     SkDVector distU = {xy.fY - y, xy.fX - realPtX};
     double distSq = distU.fX * distU.fX + distU.fY * distU.fY;
     double dist = sqrt(distSq); // OPTIMIZATION: can we compare against distSq instead ?
-    double tiniest = SkTMin(SkTMin(y, left), right);
-    double largest = SkTMax(SkTMax(y, left), right);
-    largest = SkTMax(largest, -tiniest);
+    double tiniest = std::min(std::min(y, left), right);
+    double largest = std::max(std::max(y, left), right);
+    largest = std::max(largest, -tiniest);
     if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }
@@ -139,9 +139,9 @@ double SkDLine::NearPointV(const SkDPoint& xy, double top, double bottom, double
     SkDVector distU = {xy.fX - x, xy.fY - realPtY};
     double distSq = distU.fX * distU.fX + distU.fY * distU.fY;
     double dist = sqrt(distSq); // OPTIMIZATION: can we compare against distSq instead ?
-    double tiniest = SkTMin(SkTMin(x, top), bottom);
-    double largest = SkTMax(SkTMax(x, top), bottom);
-    largest = SkTMax(largest, -tiniest);
+    double tiniest = std::min(std::min(x, top), bottom);
+    double largest = std::max(std::max(x, top), bottom);
+    largest = std::max(largest, -tiniest);
     if (!AlmostEqualUlps(largest, largest + dist)) { // is the dist within ULPS tolerance?
         return -1;
     }

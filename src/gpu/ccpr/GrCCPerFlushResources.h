@@ -193,7 +193,7 @@ public:
 };
 
 inline void GrCCRenderedPathStats::statPath(const SkPath& path) {
-    fMaxPointsPerPath = SkTMax(fMaxPointsPerPath, path.countPoints());
+    fMaxPointsPerPath = std::max(fMaxPointsPerPath, path.countPoints());
     fNumTotalSkPoints += path.countPoints();
     fNumTotalSkVerbs += path.countVerbs();
     fNumTotalConicWeights += SkPathPriv::ConicWeightCnt(path);

@@ -333,7 +333,7 @@ void GrBufferAllocPool::putBack(size_t bytes) {
 }
 
 bool GrBufferAllocPool::createBlock(size_t requestSize) {
-    size_t size = SkTMax(requestSize, kDefaultBufferSize);
+    size_t size = std::max(requestSize, kDefaultBufferSize);
 
     VALIDATE();
 

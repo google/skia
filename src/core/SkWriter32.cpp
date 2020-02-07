@@ -75,7 +75,7 @@ size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
 void SkWriter32::growToAtLeast(size_t size) {
     const bool wasExternal = (fExternal != nullptr) && (fData == fExternal);
 
-    fCapacity = 4096 + SkTMax(size, fCapacity + (fCapacity / 2));
+    fCapacity = 4096 + std::max(size, fCapacity + (fCapacity / 2));
     fInternal.realloc(fCapacity);
     fData = fInternal.get();
 

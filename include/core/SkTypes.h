@@ -584,18 +584,10 @@ template <typename T> static inline T SkTAbs(T value) {
     return value;
 }
 
-template <typename T> constexpr const T& SkTMin(const T& a, const T& b) {
-    return (a < b) ? a : b;
-}
-
-template <typename T> constexpr const T& SkTMax(const T& a, const T& b) {
-    return (b < a) ? a : b;
-}
-
 /** @return value pinned (clamped) between min and max, inclusively.
 */
 template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
-    return SkTMax(SkTMin(value, max), min);
+    return value < min ? min : (value < max ? value : max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

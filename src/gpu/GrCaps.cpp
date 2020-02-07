@@ -120,7 +120,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
     fAllowCoverageCounting = !options.fDisableCoverageCountingPaths;
 
-    fMaxTextureSize = SkTMin(fMaxTextureSize, options.fMaxTextureSizeOverride);
+    fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
     fMaxTileSize = fMaxTextureSize;
 #if GR_TEST_UTILS
     // If the max tile override is zero, it means we should use the max texture size.

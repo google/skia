@@ -115,14 +115,14 @@ void PathText::Glyph::init(SkRandom& rand, const SkPath& path) {
 }
 
 void PathText::Glyph::reset(SkRandom& rand, int w, int h) {
-    int screensize = SkTMax(w, h);
+    int screensize = std::max(w, h);
     const SkRect& bounds = fPath.getBounds();
     SkScalar t;
 
     fPosition = {rand.nextF() * w, rand.nextF() * h};
     t = pow(rand.nextF(), 100);
     fZoom = ((1 - t) * screensize / 50 + t * screensize / 3) /
-            SkTMax(bounds.width(), bounds.height());
+            std::max(bounds.width(), bounds.height());
     fSpin = rand.nextF() * 360;
     fMidpt = {bounds.centerX(), bounds.centerY()};
 }
@@ -143,7 +143,7 @@ public:
     }
 
     void reset() override {
-        const SkScalar screensize = static_cast<SkScalar>(SkTMax(this->width(), this->height()));
+        const SkScalar screensize = static_cast<SkScalar>(std::max(this->width(), this->height()));
         this->INHERITED::reset();
 
         for (auto& v : fVelocities) {
@@ -356,7 +356,7 @@ private:
 };
 
 void WavyPathText::Waves::reset(SkRandom& rand, int w, int h) {
-    const double pixelsPerMeter = 0.06 * SkTMax(w, h);
+    const double pixelsPerMeter = 0.06 * std::max(w, h);
     const double medianWavelength = 8 * pixelsPerMeter;
     const double medianWaveAmplitude = 0.05 * 4 * pixelsPerMeter;
     const double gravity = 9.8 * pixelsPerMeter;

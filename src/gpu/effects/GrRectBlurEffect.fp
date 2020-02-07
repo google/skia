@@ -54,7 +54,7 @@ static sk_sp<GrTextureProxy> CreateIntegralTexture(GrRecordingContext* context,
     // texels for each dst pixel.
     int minWidth = 2 * sk_float_ceil2int(sixSigma);
     // Bin by powers of 2 with a minimum so we get good profile reuse.
-    int width = SkTMax(SkNextPow2(minWidth), 32);
+    int width = std::max(SkNextPow2(minWidth), 32);
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;

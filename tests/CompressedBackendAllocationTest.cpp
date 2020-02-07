@@ -185,7 +185,7 @@ static std::unique_ptr<const char[]> make_compressed_data(SkImage::CompressionTy
         GrFillInCompressedData(compression, dimensions,
                                GrMipMapped::kNo, &data[mipMapOffsets[level]], levelColors[level]);
 
-        dimensions = {SkTMax(1, dimensions.width() /2), SkTMax(1, dimensions.height()/2)};
+        dimensions = {std::max(1, dimensions.width() /2), std::max(1, dimensions.height()/2)};
     }
 
     return std::unique_ptr<const char[]>(data);

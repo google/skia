@@ -35,7 +35,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
     if (stretch <= 0) {
         // We have degenerate bounds or some degenerate matrix. Thus we set the tolerance to be the
         // max of the path pathBounds width and height.
-        srcTol = SkTMax(pathBounds.width(), pathBounds.height());
+        srcTol = std::max(pathBounds.width(), pathBounds.height());
     } else {
         srcTol = devTol / stretch;
     }
@@ -71,7 +71,7 @@ uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[], SkScalar tol) 
             if (pow2 < 1) {
                 pow2 = 1;
             }
-            return SkTMin(pow2, kMaxPointsPerCurve);
+            return std::min(pow2, kMaxPointsPerCurve);
         }
     }
 }
@@ -106,7 +106,7 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
     // You should have called scaleToleranceToSrc, which guarantees this
     SkASSERT(tol >= gMinCurveTol);
 
-    SkScalar d = SkTMax(
+    SkScalar d = std::max(
         SkPointPriv::DistanceToLineSegmentBetweenSqd(points[1], points[0], points[3]),
         SkPointPriv::DistanceToLineSegmentBetweenSqd(points[2], points[0], points[3]));
     d = SkScalarSqrt(d);
@@ -127,7 +127,7 @@ uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
             if (pow2 < 1) {
                 pow2 = 1;
             }
-            return SkTMin(pow2, kMaxPointsPerCurve);
+            return std::min(pow2, kMaxPointsPerCurve);
         }
     }
 }

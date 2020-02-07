@@ -210,7 +210,7 @@ GrCCFiller::BatchID GrCCFiller::closeCurrentBatch() {
 
     const auto& lastBatch = fBatches.back();
     int maxMeshes = 1 + fScissorSubBatches.count() - lastBatch.fEndScissorSubBatchIdx;
-    fMaxMeshesPerDraw = SkTMax(fMaxMeshesPerDraw, maxMeshes);
+    fMaxMeshesPerDraw = std::max(fMaxMeshesPerDraw, maxMeshes);
 
     const auto& lastScissorSubBatch = fScissorSubBatches[lastBatch.fEndScissorSubBatchIdx - 1];
     PrimitiveTallies batchTotalCounts = fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled] -

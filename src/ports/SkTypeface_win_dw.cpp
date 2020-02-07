@@ -249,7 +249,7 @@ size_t DWriteFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
     if (offset > table.fSize) {
         return 0;
     }
-    size_t size = SkTMin(length, table.fSize - offset);
+    size_t size = std::min(length, table.fSize - offset);
     if (data) {
         memcpy(data, table.fData + offset, size);
     }
@@ -410,7 +410,7 @@ void DWriteFontTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
             return;
         }
         if (0 < glyph && glyphToUnicode[glyph] == 0) {
-            maxGlyph = SkTMax(static_cast<int>(glyph), maxGlyph);
+            maxGlyph = std::max(static_cast<int>(glyph), maxGlyph);
             glyphToUnicode[glyph] = c;  // Always use lowest-index unichar.
             --remainingGlyphCount;
         }

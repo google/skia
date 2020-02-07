@@ -28,7 +28,7 @@ static skiagm::DrawResult draw_rotated_image(SkCanvas* canvas, const SkImage* im
     SkRect rect = SkRect::MakeLTRB(-68.0f, -68.0f, 68.0f, 68.0f);
     SkPaint paint;
     paint.setColor(SkColorSetRGB(49, 48, 49));
-    SkScalar scale = SkTMin(128.0f / image->width(),
+    SkScalar scale = std::min(128.0f / image->width(),
                             128.0f / image->height());
     SkScalar point[2] = {-0.5f * image->width(), -0.5f * image->height()};
     for (int j = 0; j < 4; ++j) {

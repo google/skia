@@ -397,7 +397,7 @@ private:
                     // approximate the scale since we can't get it from the matrix
                     SkRect xformedBounds;
                     args.fViewMatrix.mapRect(&xformedBounds, bounds);
-                    maxScale = SkScalarAbs(SkTMax(xformedBounds.width() / bounds.width(),
+                    maxScale = SkScalarAbs(std::max(xformedBounds.width() / bounds.width(),
                                                   xformedBounds.height() / bounds.height()));
                 } else {
                     maxScale = SkScalarAbs(args.fViewMatrix.getMaxScale());
@@ -432,7 +432,7 @@ private:
                     }
                     mipSize = newMipSize;
                 }
-                SkScalar desiredDimension = SkTMin(mipSize, kMaxMIP);
+                SkScalar desiredDimension = std::min(mipSize, kMaxMIP);
 
                 // check to see if df path is cached
                 ShapeDataKey key(args.fShape, SkScalarCeilToInt(desiredDimension));

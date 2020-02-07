@@ -22,7 +22,7 @@ public:
         fMapBufferFlags = options.fMapBufferFlags;
         fBufferMapThreshold = SK_MaxS32; // Overridable in GrContextOptions.
         fMaxTextureSize = options.fMaxTextureSize;
-        fMaxRenderTargetSize = SkTMin(options.fMaxRenderTargetSize, fMaxTextureSize);
+        fMaxRenderTargetSize = std::min(options.fMaxRenderTargetSize, fMaxTextureSize);
         fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
         fMaxVertexAttributes = options.fMaxVertexAttributes;
         fSampleLocationsSupport = true;
@@ -92,7 +92,7 @@ public:
     }
 
     int getRenderTargetSampleCount(int requestCount, GrColorType ct) const {
-        requestCount = SkTMax(requestCount, 1);
+        requestCount = std::max(requestCount, 1);
 
         switch (fOptions.fConfigOptions[(int)ct].fRenderability) {
             case GrMockOptions::ConfigOptions::Renderability::kNo:

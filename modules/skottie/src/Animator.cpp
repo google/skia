@@ -116,7 +116,7 @@ protected:
         SkPoint prev_c0 = { 0, 0 },
                 prev_c1 = prev_c0;
 
-        fRecs.reserve(SkTMax<size_t>(jframes.size(), 1) - 1);
+        fRecs.reserve(std::max<size_t>(jframes.size(), 1) - 1);
 
         for (const skjson::ObjectValue* jframe : jframes) {
             if (!jframe) continue;

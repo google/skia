@@ -115,7 +115,7 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
 // miss the fact that a scale is required.
 static double compute_min_scale(double rad1, double rad2, double limit, double curMin) {
     if ((rad1 + rad2) > limit) {
-        return SkTMin(curMin, limit / (rad1 + rad2));
+        return std::min(curMin, limit / (rad1 + rad2));
     }
     return curMin;
 }

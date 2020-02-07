@@ -293,7 +293,7 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
     {
         SkScalar w = devRect.width() - dx;
         SkScalar h = devRect.height() - dy;
-        spare = SkTMin(w, h);
+        spare = std::min(w, h);
     }
 
     *isDegenerate = spare <= 0;
@@ -702,8 +702,8 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
     // For device-space stroke widths less than one we can't inset more than the original
     // device space stroke width if we want to keep the sizing of all the rects correct.
-    const SkScalar insetX = SkTMin(SK_ScalarHalf, devHalfStrokeSize.fX);
-    const SkScalar insetY = SkTMin(SK_ScalarHalf, devHalfStrokeSize.fY);
+    const SkScalar insetX = std::min(SK_ScalarHalf, devHalfStrokeSize.fX);
+    const SkScalar insetY = std::min(SK_ScalarHalf, devHalfStrokeSize.fY);
 
     // But, correspondingly, we always want to keep the AA picture frame one pixel wide.
     const SkScalar outsetX = SK_Scalar1 - insetX;
@@ -721,7 +721,7 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                            maybe_coverage(0.0f));
     }
 
-    float innerCoverage = compute_inner_coverage(SkTMax(devHalfStrokeSize.fX,
+    float innerCoverage = compute_inner_coverage(std::max(devHalfStrokeSize.fX,
                                                         devHalfStrokeSize.fY));
 
     SkPMColor4f scaledColor = color * innerCoverage;

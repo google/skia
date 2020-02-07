@@ -475,7 +475,7 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
     // Find the next record which matches the requested type.
     SkOTTableName::Record nameRecord;
     const size_t nameRecordsCount = SkEndian_SwapBE16(nameTable.count);
-    const size_t nameRecordsMax = SkTMin(nameRecordsCount, nameRecordsSize / sizeof(nameRecord));
+    const size_t nameRecordsMax = std::min(nameRecordsCount, nameRecordsSize / sizeof(nameRecord));
     do {
         if (fIndex >= nameRecordsMax) {
             return false;

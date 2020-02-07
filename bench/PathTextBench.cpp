@@ -59,11 +59,11 @@ private:
         for (int i = 0; i < kNumDraws; ++i) {
             const SkPath& glyph = fGlyphs[i % kNumGlyphs];
             const SkRect& bounds = glyph.getBounds();
-            float glyphSize = SkTMax(bounds.width(), bounds.height());
+            float glyphSize = std::max(bounds.width(), bounds.height());
 
             float t0 = pow(rand.nextF(), 100);
-            float size = (1 - t0) * SkTMin(kScreenWidth, kScreenHeight) / 50 +
-                         t0 * SkTMin(kScreenWidth, kScreenHeight) / 3;
+            float size = (1 - t0) * std::min(kScreenWidth, kScreenHeight) / 50 +
+                         t0 * std::min(kScreenWidth, kScreenHeight) / 3;
             float scale = size / glyphSize;
             float t1 = rand.nextF(), t2 = rand.nextF();
             fXforms[i].setTranslate((1 - t1) * sqrt(2) * scale/2 * glyphSize +

@@ -250,7 +250,7 @@ inline void GrMesh::sendToGpu(SendToGpuImpl* impl) const {
     SkASSERT(fIndexData.fPatternRepeatCount > 0);
     int baseRepetition = 0;
     do {
-        int repeatCount = SkTMin(fPatternData.fMaxPatternRepetitionsInIndexBuffer,
+        int repeatCount = std::min(fPatternData.fMaxPatternRepetitionsInIndexBuffer,
                                  fIndexData.fPatternRepeatCount - baseRepetition);
         int indexCount = fIndexData.fIndexCount * repeatCount;
         // A patterned index buffer must contain indices in the range [0..vertexCount].

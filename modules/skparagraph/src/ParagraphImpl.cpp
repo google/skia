@@ -36,8 +36,8 @@ static inline SkUnichar utf8_next(const char** ptr, const char* end) {
 
 TextRange operator*(const TextRange& a, const TextRange& b) {
     if (a.start == b.start && a.end == b.end) return a;
-    auto begin = SkTMax(a.start, b.start);
-    auto end = SkTMin(a.end, b.end);
+    auto begin = std::max(a.start, b.start);
+    auto end = std::min(a.end, b.end);
     return end > begin ? TextRange(begin, end) : EMPTY_TEXT;
 }
 
@@ -414,7 +414,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                     }
                 }
 
-                fLongestLine = SkTMax(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
+                fLongestLine = std::max(fLongestLine, nearlyZero(advance.fX) ? widthWithSpaces : advance.fX);
             });
     fHeight = textWrapper.height();
     fWidth = maxWidth;
@@ -787,8 +787,8 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                 (nearlyEqual(lastBox.rect.fLeft, clip.fRight) ||
                                  nearlyEqual(lastBox.rect.fRight, clip.fLeft)))
                         {
-                            lastBox.rect.fLeft = SkTMin(lastBox.rect.fLeft, clip.fLeft);
-                            lastBox.rect.fRight = SkTMax(lastBox.rect.fRight, clip.fRight);
+                            lastBox.rect.fLeft = std::min(lastBox.rect.fLeft, clip.fLeft);
+                            lastBox.rect.fRight = std::max(lastBox.rect.fRight, clip.fRight);
                             mergedBoxes = true;
                         }
                     }

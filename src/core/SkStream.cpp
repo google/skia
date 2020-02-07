@@ -155,8 +155,8 @@ SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size,
                            size_t offset, size_t originalOffset)
     : fFILE(std::move(file))
     , fSize(size)
-    , fOffset(SkTMin(offset, fSize))
-    , fOriginalOffset(SkTMin(originalOffset, fSize))
+    , fOffset(std::min(offset, fSize))
+    , fOriginalOffset(std::min(originalOffset, fSize))
 { }
 
 SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size, size_t offset)
@@ -221,7 +221,7 @@ size_t SkFILEStream::getPosition() const {
 }
 
 bool SkFILEStream::seek(size_t position) {
-    fOffset = SkTMin(SkSafeMath::Add(position, fOriginalOffset), fSize);
+    fOffset = std::min(SkSafeMath::Add(position, fOriginalOffset), fSize);
     return true;
 }
 
@@ -237,7 +237,7 @@ bool SkFILEStream::move(long offset) {
     } else if (!SkTFitsIn<size_t>(offset)) {
         fOffset = fSize;
     } else {
-        fOffset = SkTMin(SkSafeMath::Add(fOffset, (size_t) offset), fSize);
+        fOffset = std::min(SkSafeMath::Add(fOffset, (size_t) offset), fSize);
     }
 
     SkASSERT(fOffset >= fOriginalOffset && fOffset <= fSize);
@@ -524,7 +524,7 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
 
         if (fTail) {
             if (fTail->avail() > 0) {
-                size = SkTMin(fTail->avail(), count);
+                size = std::min(fTail->avail(), count);
                 buffer = fTail->append(buffer, size);
                 SkASSERT(count >= size);
                 count -= size;
@@ -536,7 +536,7 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
             fBytesWrittenBeforeTail += fTail->written();
         }
 
-        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
+        size = std::max<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
         size = SkAlign4(size);  // ensure we're always a multiple of 4 (see padToAlign4())
 
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
@@ -752,7 +752,7 @@ public:
         size_t bytesLeftToRead = count;
         while (fCurrent != nullptr) {
             size_t bytesLeftInCurrent = fCurrent->written() - fCurrentOffset;
-            size_t bytesFromCurrent = SkTMin(bytesLeftToRead, bytesLeftInCurrent);
+            size_t bytesFromCurrent = std::min(bytesLeftToRead, bytesLeftInCurrent);
             if (buffer) {
                 memcpy(buffer, fCurrent->start() + fCurrentOffset, bytesFromCurrent);
                 buffer = SkTAddOffset<void>(buffer, bytesFromCurrent);
@@ -777,7 +777,7 @@ public:
     size_t peek(void* buff, size_t bytesToPeek) const override {
         SkASSERT(buff != nullptr);
 
-        bytesToPeek = SkTMin(bytesToPeek, fSize - fOffset);
+        bytesToPeek = std::min(bytesToPeek, fSize - fOffset);
 
         size_t bytesLeftToPeek = bytesToPeek;
         char* buffer = static_cast<char*>(buff);
@@ -785,7 +785,7 @@ public:
         size_t currentOffset = fCurrentOffset;
         while (bytesLeftToPeek) {
             SkASSERT(current);
-            size_t bytesFromCurrent = SkTMin(current->written() - currentOffset, bytesLeftToPeek);
+            size_t bytesFromCurrent = std::min(current->written() - currentOffset, bytesLeftToPeek);
             memcpy(buffer, current->start() + currentOffset, bytesFromCurrent);
             bytesLeftToPeek -= bytesFromCurrent;
             buffer += bytesFromCurrent;

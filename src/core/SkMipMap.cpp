@@ -614,8 +614,8 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
                 proc = proc_2_2;
             }
         }
-        width = SkTMax(1, width >> 1);
-        height = SkTMax(1, height >> 1);
+        width = std::max(1, width >> 1);
+        height = std::max(1, height >> 1);
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
         // We make the Info w/o any colorspace, since that storage is not under our control, and
@@ -654,7 +654,7 @@ int SkMipMap::ComputeLevelCount(int baseWidth, int baseHeight) {
     // (or original_width) where i is the mipmap level.
     // Continue scaling down until both axes are size 1.
 
-    const int largestAxis = SkTMax(baseWidth, baseHeight);
+    const int largestAxis = std::max(baseWidth, baseHeight);
     if (largestAxis < 2) {
         // SkMipMap::Build requires a minimum size of 2.
         return 0;
@@ -695,8 +695,8 @@ SkISize SkMipMap::ComputeLevelSize(int baseWidth, int baseHeight, int level) {
     // For example, it contains levels 1-x instead of 0-x.
     // This is because the image used to create SkMipMap is the base level.
     // So subtract 1 from the mip level to get the index stored by SkMipMap.
-    int width = SkTMax(1, baseWidth >> (level + 1));
-    int height = SkTMax(1, baseHeight >> (level + 1));
+    int width = std::max(1, baseWidth >> (level + 1));
+    int height = std::max(1, baseHeight >> (level + 1));
 
     return SkISize::Make(width, height);
 }
@@ -712,7 +712,7 @@ bool SkMipMap::extractLevel(const SkSize& scaleSize, Level* levelPtr) const {
 
 #ifndef SK_SUPPORT_LEGACY_ANISOTROPIC_MIPMAP_SCALE
     // Use the smallest scale to match the GPU impl.
-    const SkScalar scale = SkTMin(scaleSize.width(), scaleSize.height());
+    const SkScalar scale = std::min(scaleSize.width(), scaleSize.height());
 #else
     // Ideally we'd pick the smaller scale, to match Ganesh.  But ignoring one of the
     // scales can produce some atrocious results, so for now we use the geometric mean.

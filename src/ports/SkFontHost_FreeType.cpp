@@ -1763,7 +1763,7 @@ size_t SkTypeface_FreeType::onGetTableData(SkFontTableTag tag, size_t offset,
     if (offset > tableLength) {
         return 0;
     }
-    FT_ULong size = SkTMin((FT_ULong)length, tableLength - (FT_ULong)offset);
+    FT_ULong size = std::min((FT_ULong)length, tableLength - (FT_ULong)offset);
     if (data) {
         error = FT_Load_Sfnt_Table(face, tag, offset, reinterpret_cast<FT_Byte*>(data), &size);
         if (error) {

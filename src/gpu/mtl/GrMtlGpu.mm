@@ -319,8 +319,8 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
                           destinationLevel: currentMipLevel
                          destinationOrigin: origin];
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
         layerHeight = currentHeight;
     }
 #ifdef SK_BUILD_FOR_MAC
@@ -367,8 +367,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
             individualMipOffsets.push_back(combinedBufferSize);
             combinedBufferSize += trimmedSize;
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
     }
     SkASSERT(combinedBufferSize > 0 && !individualMipOffsets.empty());
 
@@ -410,8 +410,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
                           destinationLevel: currentMipLevel
                          destinationOrigin: origin];
         }
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
+        currentWidth = std::max(1, currentWidth/2);
+        currentHeight = std::max(1, currentHeight/2);
     }
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
@@ -605,8 +605,8 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
                       destinationLevel: currentMipLevel
                      destinationOrigin: origin];
 
-        levelDimensions = {SkTMax(1, levelDimensions.width() /2),
-                           SkTMax(1, levelDimensions.height()/2)};
+        levelDimensions = {std::max(1, levelDimensions.width() /2),
+                           std::max(1, levelDimensions.height()/2)};
     }
 #ifdef SK_BUILD_FOR_MAC
     [transferBuffer didModifyRange: NSMakeRange(bufferOffset, dataSize)];
@@ -967,8 +967,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
                       destinationLevel: currentMipLevel
                      destinationOrigin: origin];
 
-        levelDimensions = { SkTMax(1, levelDimensions.width() / 2),
-                            SkTMax(1, levelDimensions.height() / 2) };
+        levelDimensions = { std::max(1, levelDimensions.width() / 2),
+                            std::max(1, levelDimensions.height() / 2) };
     }
 #ifdef SK_BUILD_FOR_MAC
     [transferBuffer didModifyRange: NSMakeRange(0, transferBufferSize)];

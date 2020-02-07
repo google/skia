@@ -14,6 +14,8 @@
 
 #include "zlib.h"
 
+#include <algorithm>
+
 namespace {
 
 // Different zlib implementations use different T.
@@ -103,7 +105,7 @@ bool SkDeflateWStream::write(const void* void_buffer, size_t len) {
     const char* buffer = (const char*)void_buffer;
     while (len > 0) {
         size_t tocopy =
-                SkTMin(len, sizeof(fImpl->fInBuffer) - fImpl->fInBufferIndex);
+                std::min(len, sizeof(fImpl->fInBuffer) - fImpl->fInBufferIndex);
         memcpy(fImpl->fInBuffer + fImpl->fInBufferIndex, buffer, tocopy);
         len -= tocopy;
         buffer += tocopy;

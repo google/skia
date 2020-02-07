@@ -41,7 +41,7 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
     }
 
     std::unique_ptr<GrCCDrawPathsOp> op;
-    float conservativeSize = SkTMax(conservativeDevBounds.height(), conservativeDevBounds.width());
+    float conservativeSize = std::max(conservativeDevBounds.height(), conservativeDevBounds.width());
     if (conservativeSize > GrCoverageCountingPathRenderer::kPathCropThreshold) {
         // The path is too large. Crop it or analytic AA can run out of fp32 precision.
         SkPath croppedDevPath;
@@ -80,7 +80,7 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
         GrPaint&& paint) {
     // The path itself should have been cropped if larger than kPathCropThreshold. If it had a
     // stroke, that would have further inflated its draw bounds.
-    SkASSERT(SkTMax(conservativeDevBounds.height(), conservativeDevBounds.width()) <
+    SkASSERT(std::max(conservativeDevBounds.height(), conservativeDevBounds.width()) <
              GrCoverageCountingPathRenderer::kPathCropThreshold +
              GrCoverageCountingPathRenderer::kMaxBoundsInflationFromStroke*2 + 1);
 
@@ -286,7 +286,7 @@ bool GrCCDrawPathsOp::SingleDraw::shouldCachePathMask(int maxRenderTargetSize) c
         return false;  // Don't cache a path mask until at least its second hit.
     }
 
-    int shapeMaxDimension = SkTMax(
+    int shapeMaxDimension = std::max(
             fShapeConservativeIBounds.height(), fShapeConservativeIBounds.width());
     if (shapeMaxDimension > maxRenderTargetSize) {
         return false;  // This path isn't cachable.

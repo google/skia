@@ -631,10 +631,10 @@ static void calculate_distance_field_data(PathSegmentArray* segments,
         SkASSERT((endRow <= height) && "EndRow > height!");
 
         // Clip inside the distance field to avoid overflow
-        startColumn = SkTMax(startColumn, 0);
-        endColumn   = SkTMin(endColumn,   width);
-        startRow    = SkTMax(startRow,    0);
-        endRow      = SkTMin(endRow,      height);
+        startColumn = std::max(startColumn, 0);
+        endColumn   = std::min(endColumn,   width);
+        startRow    = std::max(startRow,    0);
+        endRow      = std::min(endRow,      height);
 
         // for each row in the padded bounding box
         for (int row = startRow; row < endRow; ++row) {

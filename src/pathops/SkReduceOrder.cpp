@@ -207,8 +207,8 @@ int SkReduceOrder::reduce(const SkDCubic& cubic, Quadratics allowQuadratics) {
     for (index = 0; index < 4; ++index) {
         double cx = cubic[index].fX;
         double cy = cubic[index].fY;
-        double denom = SkTMax(fabs(cx), SkTMax(fabs(cy),
-                SkTMax(fabs(cubic[minX].fX), fabs(cubic[minY].fY))));
+        double denom = std::max(fabs(cx), std::max(fabs(cy),
+                std::max(fabs(cubic[minX].fX), fabs(cubic[minY].fY))));
         if (denom == 0) {
             minXSet |= 1 << index;
             minYSet |= 1 << index;

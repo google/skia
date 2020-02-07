@@ -218,7 +218,7 @@ protected:
                     fText = "";
                     break;
                 case '-':
-                    fTextSize = SkTMax(1.0f, fTextSize - 1);
+                    fTextSize = std::max(1.0f, fTextSize - 1);
                     break;
                 case '+':
                 case '=':
@@ -478,7 +478,7 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(width);
         SkPath path;
-        SkScalar maxSide = SkTMax(rect.width(), rect.height()) / 2;
+        SkScalar maxSide = std::max(rect.width(), rect.height()) / 2;
         SkPoint center = { rect.fLeft + maxSide, rect.fTop + maxSide };
         path.addCircle(center.fX, center.fY, maxSide);
         canvas->drawPath(path, paint);
@@ -793,13 +793,13 @@ protected:
         }
 #ifdef SK_DEBUG
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 3) {
-            gDebugStrokerError = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
+            gDebugStrokerError = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
                     fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
             gDebugStrokerErrorSet = true;
         }
 #endif
         else if (index == (int) SK_ARRAY_COUNT(fPts) + 4) {
-            fWidth = SkTMax(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
+            fWidth = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
                     kWidthMin, kWidthMax));
             fAnimate = fWidth <= kWidthMin;
         }

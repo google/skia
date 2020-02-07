@@ -26,7 +26,7 @@ bool GrGLGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation
     GrGLVersion glVer = GrGLGetVersion(gl);
     uint32_t glMajor = GR_GL_MAJOR_VER(glVer),
              glMinor = GR_GL_MINOR_VER(glVer);
-    ver = SkTMin(ver, GR_GLSL_VER(glMajor, 10 * glMinor));
+    ver = std::min(ver, GR_GLSL_VER(glMajor, 10 * glMinor));
 
     if (GR_IS_GR_GL(gl->fStandard)) {
         SkASSERT(ver >= GR_GLSL_VER(1,10));

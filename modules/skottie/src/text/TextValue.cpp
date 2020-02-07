@@ -47,7 +47,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         SkTextUtils::kRight_Align, // 'j': 1
         SkTextUtils::kCenter_Align // 'j': 2
     };
-    v->fHAlign = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
+    v->fHAlign = gAlignMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
                                           SK_ARRAY_COUNT(gAlignMap))];
 
     // Optional text box size.
@@ -72,7 +72,7 @@ bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
         Shaper::ResizePolicy::kScaleToFit,     // 'sk_rs': 1
         Shaper::ResizePolicy::kDownscaleToFit, // 'sk_rs': 2
     };
-    v->fResize = gResizeMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["sk_rs"], 0),
+    v->fResize = gResizeMap[std::min<size_t>(ParseDefault<size_t>((*jtxt)["sk_rs"], 0),
                                            SK_ARRAY_COUNT(gResizeMap))];
 
     // In point mode, the text is baseline-aligned.

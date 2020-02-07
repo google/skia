@@ -47,7 +47,7 @@ public:
                 SkPaint::kBevel_Join,
             };
             this->node()->setStrokeJoin(
-                        gJoins[SkTMin<size_t>(ParseDefault<size_t>(jpaint["lj"], 1) - 1,
+                        gJoins[std::min<size_t>(ParseDefault<size_t>(jpaint["lj"], 1) - 1,
                                               SK_ARRAY_COUNT(gJoins) - 1)]);
 
             static constexpr SkPaint::Cap gCaps[] = {
@@ -56,7 +56,7 @@ public:
                 SkPaint::kSquare_Cap,
             };
             this->node()->setStrokeCap(
-                        gCaps[SkTMin<size_t>(ParseDefault<size_t>(jpaint["lc"], 1) - 1,
+                        gCaps[std::min<size_t>(ParseDefault<size_t>(jpaint["lc"], 1) - 1,
                                              SK_ARRAY_COUNT(gCaps) - 1)]);
         }
 

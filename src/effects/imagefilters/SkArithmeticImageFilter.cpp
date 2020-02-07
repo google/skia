@@ -196,7 +196,7 @@ static bool intersect(SkPixmap* dst, SkPixmap* src, int srcDx, int srcDy) {
                     dst->addr(sect.fLeft, sect.fTop),
                     dst->rowBytes());
     *src = SkPixmap(src->info().makeDimensions(sect.size()),
-                    src->addr(SkTMax(0, -srcDx), SkTMax(0, -srcDy)),
+                    src->addr(std::max(0, -srcDx), std::max(0, -srcDy)),
                     src->rowBytes());
     return true;
 }

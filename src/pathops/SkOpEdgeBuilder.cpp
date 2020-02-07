@@ -312,7 +312,7 @@ bool SkOpEdgeBuilder::walk() {
                             split->fPts[0] = splits[prior].fPts[0];
                         }
                         int next = index;
-                        int breakLimit = SkTMin(breaks, (int) SK_ARRAY_COUNT(splits) - 1);
+                        int breakLimit = std::min(breaks, (int) SK_ARRAY_COUNT(splits) - 1);
                         while (next < breakLimit && !splits[next + 1].fCanAdd) {
                             ++next;
                         }

@@ -100,9 +100,9 @@ void RunHandler::beginLine() {
 void RunHandler::runInfo(const SkShaper::RunHandler::RunInfo& info) {
     SkFontMetrics metrics;
     info.fFont.getMetrics(&metrics);
-    fMaxRunAscent = SkTMin(fMaxRunAscent, metrics.fAscent);
-    fMaxRunDescent = SkTMax(fMaxRunDescent, metrics.fDescent);
-    fMaxRunLeading = SkTMax(fMaxRunLeading, metrics.fLeading);
+    fMaxRunAscent = std::min(fMaxRunAscent, metrics.fAscent);
+    fMaxRunDescent = std::max(fMaxRunDescent, metrics.fDescent);
+    fMaxRunLeading = std::max(fMaxRunLeading, metrics.fLeading);
 }
 
 void RunHandler::commitRunInfo() {
@@ -154,7 +154,7 @@ void RunHandler::commitRunBuffer(const RunInfo& info) {
         fClusters[i] -= fClusterOffset;
     }
     fCurrentPosition += info.fAdvance;
-    fTextOffset = SkTMax(fTextOffset, info.utf8Range.end());
+    fTextOffset = std::max(fTextOffset, info.utf8Range.end());
 }
 
 void RunHandler::commitLine() {

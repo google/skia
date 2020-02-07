@@ -20,8 +20,8 @@ protected:
         SkISize dim = this->dimensions();
         // SkCodec treats zero dimensional images as errors, so the minimum size
         // that we will recommend is 1x1.
-        dim.fWidth = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
-        dim.fHeight = SkTMax(1, SkScalarRoundToInt(desiredScale * dim.fHeight));
+        dim.fWidth = std::max(1, SkScalarRoundToInt(desiredScale * dim.fWidth));
+        dim.fHeight = std::max(1, SkScalarRoundToInt(desiredScale * dim.fHeight));
         return dim;
     }
 

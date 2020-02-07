@@ -102,9 +102,9 @@ int SkDCubic::convexHull(char order[4]) const {
                     double dist1_3 = fPts[1].distanceSquared(fPts[3]);
                     double dist2_0 = fPts[2].distanceSquared(fPts[0]);
                     double dist2_3 = fPts[2].distanceSquared(fPts[3]);
-                    double smallest1distSq = SkTMin(dist1_0, dist1_3);
-                    double smallest2distSq = SkTMin(dist2_0, dist2_3);
-                    if (approximately_zero(SkTMin(smallest1distSq, smallest2distSq))) {
+                    double smallest1distSq = std::min(dist1_0, dist1_3);
+                    double smallest2distSq = std::min(dist2_0, dist2_3);
+                    if (approximately_zero(std::min(smallest1distSq, smallest2distSq))) {
                         order[2] = smallest1distSq < smallest2distSq ? 2 : 1;
                         return 3;
                     }

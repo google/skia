@@ -213,9 +213,9 @@ protected:
 
         if (mode == SkBlendMode::kPlus) {
             // Check for overflow, otherwise we might get confusing AA artifacts.
-            int maxSum = SkTMax(SkTMax(SkColorGetA(kBGColor) + SkColorGetA(color),
+            int maxSum = std::max(std::max(SkColorGetA(kBGColor) + SkColorGetA(color),
                                        SkColorGetR(kBGColor) + SkColorGetR(color)),
-                                SkTMax(SkColorGetG(kBGColor) + SkColorGetG(color),
+                                std::max(SkColorGetG(kBGColor) + SkColorGetG(color),
                                        SkColorGetB(kBGColor) + SkColorGetB(color)));
 
             if (maxSum > 255) {

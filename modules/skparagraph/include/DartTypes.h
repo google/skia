@@ -96,7 +96,7 @@ template <typename T> struct SkRange {
     }
 
     bool intersects(SkRange<size_t> other) const {
-        return SkTMax(start, other.start) <= SkTMin(end, other.end);
+        return std::max(start, other.start) <= std::min(end, other.end);
     }
 
     bool empty() const {

@@ -60,7 +60,7 @@ static SkPath make_gear(SkISize dimensions, int numTeeth) {
 
     tmp.close();
 
-    float fInnerRad = 0.1f * SkTMin(dimensions.fWidth, dimensions.fHeight);
+    float fInnerRad = 0.1f * std::min(dimensions.fWidth, dimensions.fHeight);
     if (fInnerRad > 0.5f) {
         tmp.addCircle(0.0f, 0.0f, fInnerRad, SkPathDirection::kCCW);
     }
@@ -138,7 +138,7 @@ static sk_sp<SkData> make_compressed_data(SkISize dimensions,
         }
 
         offset += levelSize;
-        dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+        dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
     }
 
     return tmp;
@@ -278,8 +278,8 @@ private:
                 offset.fY += levelDimensions.height()+1;
             }
 
-            levelDimensions = {SkTMax(1, levelDimensions.width()/2),
-                               SkTMax(1, levelDimensions.height()/2)};
+            levelDimensions = {std::max(1, levelDimensions.width()/2),
+                               std::max(1, levelDimensions.height()/2)};
         }
     }
 

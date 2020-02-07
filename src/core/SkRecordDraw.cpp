@@ -61,7 +61,7 @@ void SkRecordPartialDraw(const SkRecord& record, SkCanvas* canvas,
                          const SkMatrix& initialCTM) {
     SkAutoCanvasRestore saveRestore(canvas, true /*save now, restore at exit*/);
 
-    stop = SkTMin(stop, record.count());
+    stop = std::min(stop, record.count());
     SkRecords::Draw draw(canvas, drawablePicts, nullptr, drawableCount, &initialCTM);
     for (int i = start; i < stop; i++) {
         record.visit(i, draw);

@@ -451,8 +451,8 @@ void GrResourceAllocator::dumpIntervals() {
                  cur->end(),
                  cur->proxy()->priv().getProxyRefCnt(),
                  cur->proxy()->testingOnly_getBackingRefCnt());
-        min = SkTMin(min, cur->start());
-        max = SkTMax(max, cur->end());
+        min = std::min(min, cur->start());
+        max = std::max(max, cur->end());
     }
 
     // Draw a graph of the useage intervals
