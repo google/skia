@@ -393,8 +393,8 @@ class SamplePointLight3D : public Sample3DView {
                 return a > b ? a : b;
             }
 
-            void main(float x, float y, inout half4 color) {
-                float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
+            void main(float2 p, inout half4 color) {
+                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
                 float3 plane_norm = normalize_((localToWorld * float4(0, 0, 1, 0)).xyz);
                 float3 light_dir = normalize_(lightPos - plane_pos);
                 float ambient = 0.5;
@@ -555,18 +555,18 @@ public:
                 return n;
             }
 
-            void main(float x, float y, inout half4 color) {
-                float3 norm = convert_normal_sample(sample(normal_map, float2(x, y)));
+            void main(float2 p, inout half4 color) {
+                float3 norm = convert_normal_sample(sample(normal_map, p));
                 float3 plane_norm = normalize(localToWorld * float4(norm, 0)).xyz;
 
-                float3 plane_pos = (localToWorld * float4(x, y, 0, 1)).xyz;
+                float3 plane_pos = (localToWorld * float4(p, 0, 1)).xyz;
                 float3 light_dir = normalize(lightPos - plane_pos);
 
                 float ambient = 0.2;
                 float dp = dot(plane_norm, light_dir);
                 float scale = min(ambient + max(dp, 0), 1);
 
-                color = sample(color_map, float2(x, y)) * half4(float4(scale, scale, scale, 1));
+                color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
             }
         )";
         auto [effect, error] = SkRuntimeEffect::Make(SkString(code));

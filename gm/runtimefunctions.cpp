@@ -25,8 +25,8 @@ static const char* RUNTIME_FUNCTIONS_SRC = R"(
         return half4(half3(value), raw.a);
     }
 
-    void main(float x, float y, inout half4 color) {
-        color = blackAndWhite(half4(scale(x), scale(y), gColor.b, 1));
+    void main(float2 p, inout half4 color) {
+        color = blackAndWhite(half4(scale(p.x), scale(p.y), gColor.b, 1));
     }
 )";
 

@@ -473,12 +473,11 @@ uniform float2 in_center;
 uniform float4 in_colors0;
 uniform float4 in_colors1;
 
-void main(float x, float y, inout half4 color) {
-    float xx = x - in_center.x;
-    float yy = y - in_center.y;
-    float radius = sqrt(xx*xx + yy*yy);
+void main(float2 p, inout half4 color) {
+    float2 pp = p - in_center;
+    float radius = sqrt(dot(pp, pp));
     radius = sqrt(radius);
-    float angle = atan(yy / xx);
+    float angle = atan(pp.y / pp.x);
     float t = (angle + 3.1415926/2) / (3.1415926);
     t += radius * rad_scale;
     t = fract(t);
