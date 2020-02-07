@@ -120,12 +120,13 @@ public:
     const GrSurfaceContextPriv surfPriv() const;
 
 #if GR_TEST_UTILS
-    bool testCopy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
-        return this->copy(src, srcRect, dstPoint);
+    bool testCopy(GrSurfaceProxy* src, GrSurfaceOrigin origin, const SkIRect& srcRect,
+                  const SkIPoint& dstPoint) {
+        return this->copy(src, origin, srcRect, dstPoint);
     }
 
-    bool testCopy(GrSurfaceProxy* src) {
-        return this->copy(src);
+    bool testCopy(GrSurfaceProxy* src, GrSurfaceOrigin origin) {
+        return this->copy(src, origin, SkIRect::MakeSize(src->dimensions()),  SkIPoint::Make(0, 0));
     }
 #endif
 
@@ -182,11 +183,8 @@ private:
      *       regions will not be shifted. The 'src' must have the same origin as the backing proxy
      *       of fSurfaceContext.
      */
-    bool copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
-
-    bool copy(GrSurfaceProxy* src) {
-        return this->copy(src, SkIRect::MakeSize(src->dimensions()), SkIPoint::Make(0, 0));
-    }
+    bool copy(GrSurfaceProxy* src, GrSurfaceOrigin origin, const SkIRect& srcRect,
+              const SkIPoint& dstPoint);
 
     GrColorInfo fColorInfo;
 

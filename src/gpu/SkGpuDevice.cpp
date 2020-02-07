@@ -227,7 +227,7 @@ void SkGpuDevice::replaceRenderTargetContext(std::unique_ptr<GrRenderTargetConte
         }
 
         SkASSERT(fRenderTargetContext->asTextureProxy());
-        SkAssertResult(rtc->blitTexture(fRenderTargetContext->asTextureProxy(),
+        SkAssertResult(rtc->blitTexture(fRenderTargetContext->readSurfaceView(),
                                         SkIRect::MakeWH(this->width(), this->height()),
                                         SkIPoint::Make(0,0)));
     }

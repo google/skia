@@ -517,7 +517,7 @@ public:
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.
      */
-    bool blitTexture(GrTextureProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
     /**
      * Adds the necessary signal and wait semaphores and adds the passed in SkDrawable to the
