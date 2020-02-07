@@ -143,9 +143,6 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
 
     GrColorType grColorType = SkColorTypeToGrColorType(info.colorType());
 
-    GrSurfaceDesc desc;
-    desc.fWidth = fBackendTexture.width();
-    desc.fHeight = fBackendTexture.height();
     GrMipMapped mipMapped = fBackendTexture.hasMipMaps() ? GrMipMapped::kYes : GrMipMapped::kNo;
 
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
@@ -197,15 +194,15 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 // unrelated to the whatever SkImage key may be assigned to the proxy.
                 return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
-            backendFormat, desc, readSwizzle, GrRenderable::kNo, 1, fSurfaceOrigin, mipMapped,
-            mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+            backendFormat, fBackendTexture.dimensions(), readSwizzle, GrRenderable::kNo, 1,
+            fSurfaceOrigin, mipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly,
+            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
+            GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return {};
     }
 
-    if (0 == origin.fX && 0 == origin.fY &&
-        info.width() == fBackendTexture.width() && info.height() == fBackendTexture.height() &&
+    if (origin.isZero() && info.dimensions() == fBackendTexture.dimensions() &&
         (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped())) {
         // If the caller wants the entire texture and we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);

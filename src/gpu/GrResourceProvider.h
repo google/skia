@@ -59,14 +59,14 @@ public:
      * GrRenderTarget. The texture's format and sample count will always match the request.
      * The contents of the texture are undefined.
      */
-    sk_sp<GrTexture> createApproxTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createApproxTexture(SkISize dimensions,
                                          const GrBackendFormat& format,
                                          GrRenderable renderable,
                                          int renderTargetSampleCnt,
                                          GrProtected isProtected);
 
     /** Create an exact fit texture with no initial data to upload. */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
@@ -79,7 +79,7 @@ public:
      * for the format and also describe the texel data. This will ensure any conversions that
      * need to get applied to the data before upload are applied.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc& desc,
+    sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
                                    GrColorType colorType,
                                    GrRenderable renderable,
@@ -94,7 +94,7 @@ public:
      * for the format and also describe the texel data. This will ensure any conversions that
      * need to get applied to the data before upload are applied.
      */
-    sk_sp<GrTexture> createTexture(const GrSurfaceDesc&,
+    sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat&,
                                    GrColorType srcColorType,
                                    GrRenderable,
@@ -310,9 +310,9 @@ public:
 private:
     sk_sp<GrGpuResource> findResourceByUniqueKey(const GrUniqueKey&);
 
-    // Attempts to find a resource in the cache that exactly matches the GrSurfaceDesc. Failing that
+    // Attempts to find a resource in the cache that exactly matches the SkISize. Failing that
     // it returns null. If non-null, the resulting texture is always budgeted.
-    sk_sp<GrTexture> refScratchTexture(const GrSurfaceDesc&,
+    sk_sp<GrTexture> refScratchTexture(SkISize dimensions,
                                        const GrBackendFormat&,
                                        GrRenderable,
                                        int renderTargetSampleCnt,
@@ -323,7 +323,7 @@ private:
      * Try to find an existing scratch texture that exactly matches 'desc'. If successful
      * update the budgeting accordingly.
      */
-    sk_sp<GrTexture> getExactScratch(const GrSurfaceDesc&,
+    sk_sp<GrTexture> getExactScratch(SkISize dimensions,
                                      const GrBackendFormat&,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
@@ -337,7 +337,7 @@ private:
     using TempLevelDatas = SkAutoSTArray<14, std::unique_ptr<char[]>>;
     GrColorType prepareLevels(const GrBackendFormat& format,
                               GrColorType,
-                              const SkISize& baseSize,
+                              SkISize baseSize,
                               const GrMipLevel texels[],
                               int mipLevelCount,
                               TempLevels*,
@@ -350,7 +350,7 @@ private:
     // on failure.
     sk_sp<GrTexture> writePixels(sk_sp<GrTexture> texture,
                                  GrColorType colorType,
-                                 const SkISize& baseSize,
+                                 SkISize baseSize,
                                  const GrMipLevel texels[],
                                  int mipLevelCount) const;
 

@@ -61,28 +61,23 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
     return surfaceContext;
 }
 
-std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(
-        GrRecordingContext* context,
-        const SkISize& dimensions,
-        const GrBackendFormat& format,
-        GrRenderable renderable,
-        int renderTargetSampleCnt,
-        GrMipMapped mipMapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        GrColorType colorType,
-        SkAlphaType alphaType,
-        sk_sp<SkColorSpace> colorSpace,
-        SkBackingFit fit,
-        SkBudgeted budgeted) {
-    GrSurfaceDesc desc;
-    desc.fWidth = dimensions.width();
-    desc.fHeight = dimensions.height();
-
+std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
+                                                         SkISize dimensions,
+                                                         const GrBackendFormat& format,
+                                                         GrRenderable renderable,
+                                                         int renderTargetSampleCnt,
+                                                         GrMipMapped mipMapped,
+                                                         GrProtected isProtected,
+                                                         GrSurfaceOrigin origin,
+                                                         GrColorType colorType,
+                                                         SkAlphaType alphaType,
+                                                         sk_sp<SkColorSpace> colorSpace,
+                                                         SkBackingFit fit,
+                                                         SkBudgeted budgeted) {
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, swizzle, renderable, renderTargetSampleCnt, origin, mipMapped, fit,
+            format, dimensions, swizzle, renderable, renderTargetSampleCnt, origin, mipMapped, fit,
             budgeted, isProtected);
     if (!proxy) {
         return nullptr;
@@ -92,7 +87,6 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(
     return GrSurfaceContext::Make(context, std::move(view), colorType, alphaType,
                                   std::move(colorSpace));
 }
-
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
 // GrOpsTasks to be picked up and added to by renderTargetContexts lower in the call
@@ -359,9 +353,6 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
                             direct->priv().validPMUPMConversionExists();
 
     if (!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) {
-        GrSurfaceDesc desc;
-        desc.fWidth = srcInfo.width();
-        desc.fHeight = srcInfo.height();
         GrColorType colorType;
 
         GrBackendFormat format;
@@ -389,8 +380,8 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         GrSurfaceOrigin tempOrigin =
                 this->asRenderTargetContext() ? kTopLeft_GrSurfaceOrigin : dstProxy->origin();
         auto tempProxy = direct->priv().proxyProvider()->createProxy(
-                format, desc, tempReadSwizzle, GrRenderable::kNo, 1, tempOrigin, GrMipMapped::kNo,
-                SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
+                format, srcInfo.dimensions(), tempReadSwizzle, GrRenderable::kNo, 1, tempOrigin,
+                GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes, GrProtected::kNo);
         if (!tempProxy) {
             return false;
         }

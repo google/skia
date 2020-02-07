@@ -56,10 +56,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
     bool match;
     static const size_t kRowBytes[] = {0, X_SIZE, X_SIZE + 1, 2 * X_SIZE - 1};
     {
-        GrSurfaceDesc desc;
-        desc.fWidth     = X_SIZE;
-        desc.fHeight    = Y_SIZE;
-
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
         unsigned char alphaDataCopy[X_SIZE * Y_SIZE];

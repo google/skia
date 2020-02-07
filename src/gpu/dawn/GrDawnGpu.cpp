@@ -148,7 +148,7 @@ bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrDawnGpu::onCreateTexture(SkISize dimensions,
                                             const GrBackendFormat& backendFormat,
                                             GrRenderable renderable,
                                             int renderTargetSampleCnt,
@@ -165,10 +165,8 @@ sk_sp<GrTexture> GrDawnGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrMipMapsStatus mipMapsStatus =
         mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
 
-    return GrDawnTexture::Make(this, { desc.fWidth, desc.fHeight },
-                                       format, renderable,
-                                       renderTargetSampleCnt, budgeted, mipLevelCount,
-                                       mipMapsStatus);
+    return GrDawnTexture::Make(this, dimensions, format, renderable, renderTargetSampleCnt,
+                               budgeted, mipLevelCount, mipMapsStatus);
 }
 
 sk_sp<GrTexture> GrDawnGpu::onCreateCompressedTexture(SkISize dimensions, const GrBackendFormat&,

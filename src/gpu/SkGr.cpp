@@ -86,13 +86,6 @@ void main(float x, float y, inout half4 color) {
 }
 )";
 
-GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
-    GrSurfaceDesc desc;
-    desc.fWidth = info.width();
-    desc.fHeight = info.height();
-    return desc;
-}
-
 void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& imageBounds) {
     SkASSERT(key);
     SkASSERT(imageID);

@@ -109,16 +109,6 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
     return sBytesPerPixel[(int)format];
 }
 
-/**
- * Describes a surface to be created.
- */
-struct GrSurfaceDesc {
-    GrSurfaceDesc() : fWidth(0), fHeight(0) {}
-
-    int                    fWidth;  //!< Width of the texture
-    int                    fHeight; //!< Height of the texture
-};
-
 /** Ownership rules for external GPU resources imported into Skia. */
 enum GrWrapOwnership {
     /** Skia will assume the client will keep the resource alive and Skia will not free it. */

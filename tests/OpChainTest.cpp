@@ -166,9 +166,7 @@ private:
 DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
     auto context = GrContext::MakeMock(nullptr);
     SkASSERT(context);
-    GrSurfaceDesc desc;
-    desc.fWidth = kNumOps + 1;
-    desc.fHeight = 1;
+    static constexpr SkISize kDims = {kNumOps + 1, 1};
 
     const GrBackendFormat format =
         context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
@@ -177,7 +175,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
 
     static const GrSurfaceOrigin kOrigin = kTopLeft_GrSurfaceOrigin;
     auto proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, swizzle, GrRenderable::kYes, 1, kOrigin, GrMipMapped::kNo,
+            format, kDims, swizzle, GrRenderable::kYes, 1, kOrigin, GrMipMapped::kNo,
             SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, GrInternalSurfaceFlags::kNone);
     SkASSERT(proxy);
     proxy->instantiate(context->priv().resourceProvider());

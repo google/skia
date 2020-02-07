@@ -21,15 +21,14 @@
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkBudgeted budgeted,
-                         const GrSurfaceDesc& desc,
+                         SkISize dimensions,
                          const GrVkImageInfo& info,
                          sk_sp<GrVkImageLayout> layout,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
+        : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(info, std::move(layout), GrBackendObjectOwnership::kOwned)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, info.fProtected,
-                    GrTextureType::k2D, mipMapsStatus)
+        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
@@ -41,13 +40,13 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     }
 }
 
-GrVkTexture::GrVkTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc, const GrVkImageInfo& info,
+GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions, const GrVkImageInfo& info,
                          sk_sp<GrVkImageLayout> layout, const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus, GrBackendObjectOwnership ownership,
                          GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
+        : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(info, std::move(layout), ownership)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, info.fProtected,
+        , INHERITED(gpu, dimensions, info.fProtected,
                     isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
@@ -60,16 +59,15 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu, const GrSurfaceDesc& desc, const GrVkImag
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
-                         const GrSurfaceDesc& desc,
+                         SkISize dimensions,
                          const GrVkImageInfo& info,
                          sk_sp<GrVkImageLayout> layout,
                          const GrVkImageView* view,
                          GrMipMapsStatus mipMapsStatus,
                          GrBackendObjectOwnership ownership)
-        : GrSurface(gpu, {desc.fWidth, desc.fHeight}, info.fProtected)
+        : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(info, layout, ownership)
-        , INHERITED(gpu, {desc.fWidth, desc.fHeight}, info.fProtected, GrTextureType::k2D,
-                    mipMapsStatus)
+        , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipMapsStatus)
         , fTextureView(view)
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == info.fLevelCount));
@@ -79,7 +77,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
-                                               const GrSurfaceDesc& desc,
+                                               SkISize dimensions,
                                                const GrVkImage::ImageDesc& imageDesc,
                                                GrMipMapsStatus mipMapsStatus) {
     SkASSERT(imageDesc.fUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT);
@@ -98,12 +96,12 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
     }
     sk_sp<GrVkImageLayout> layout(new GrVkImageLayout(info.fImageLayout));
 
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, desc, info, std::move(layout),
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, dimensions, info, std::move(layout),
                                               imageView, mipMapsStatus));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
-                                                   const GrSurfaceDesc& desc,
+                                                   SkISize dimensions,
                                                    GrWrapOwnership wrapOwnership,
                                                    GrWrapCacheable cacheable,
                                                    GrIOType ioType,
@@ -127,7 +125,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(GrVkGpu* gpu,
             ? GrBackendObjectOwnership::kBorrowed : GrBackendObjectOwnership::kOwned;
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
                       (info.fYcbcrConversionInfo.fExternalFormat != 0);
-    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, desc, info, std::move(layout), imageView,
+    return sk_sp<GrVkTexture>(new GrVkTexture(gpu, dimensions, info, std::move(layout), imageView,
                                               mipMapsStatus, ownership, cacheable, ioType,
                                               isExternal));
 }
