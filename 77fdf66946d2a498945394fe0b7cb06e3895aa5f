@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a440b5ca_697ed08b",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-07T14:21:03Z",
+      "side": 0,
+      "message": "Turns out this was unused.",
+      "revId": "77fdf66946d2a498945394fe0b7cb06e3895aa5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

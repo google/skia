@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7643a2f4_0e08f437",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-07T14:21:03Z",
+      "side": 1,
+      "message": "Implemented this way to avoid pulling in \u003calgorithm\u003e",
+      "revId": "ecc856c08386293ab2e80b910c35b30b4f45e1c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13f891b0_bb8d4781",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-07T14:21:03Z",
+      "side": 1,
+      "message": "Didn\u0027t have much choice here (and we\u0027re already pulling in quite a bit).",
+      "revId": "ecc856c08386293ab2e80b910c35b30b4f45e1c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddee7170_f7fab3f0",
+        "filename": "include/private/SkSemaphore.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-02-07T14:21:03Z",
+      "side": 1,
+      "message": "Likewise",
+      "revId": "ecc856c08386293ab2e80b910c35b30b4f45e1c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
