@@ -1817,7 +1817,7 @@ void GrGLGpu::disableWindowRectangles() {
 
 bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, const GrProgramInfo& programInfo) {
 
-    sk_sp<GrGLProgram> program(fProgramCache->findOrCreateProgram(renderTarget, programInfo));
+    sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, renderTarget, programInfo));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;

@@ -232,8 +232,7 @@ GrVkPipelineState* GrVkResourceProvider::findOrCreateCompatiblePipelineState(
         GrRenderTarget* renderTarget,
         const GrProgramInfo& programInfo,
         VkRenderPass compatibleRenderPass) {
-    return fPipelineStateCache->findOrCreatePipelineState(renderTarget, programInfo,
-                                                          compatibleRenderPass);
+    return fPipelineStateCache->refPipelineState(renderTarget, programInfo, compatibleRenderPass);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,

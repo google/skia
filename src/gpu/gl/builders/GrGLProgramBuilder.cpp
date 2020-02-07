@@ -45,22 +45,21 @@ static void cleanup_program(GrGLGpu* gpu, GrGLuint programID,
     cleanup_shaders(gpu, shaderIDs);
 }
 
-sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
-                                               GrGLGpu* gpu,
-                                               GrRenderTarget* renderTarget,
-                                               const GrProgramDesc& desc,
+GrGLProgram* GrGLProgramBuilder::CreateProgram(GrRenderTarget* renderTarget,
                                                const GrProgramInfo& programInfo,
+                                               GrProgramDesc* desc,
+                                               GrGLGpu* gpu,
                                                const GrGLPrecompiledProgram* precompiledProgram) {
     ATRACE_ANDROID_FRAMEWORK_ALWAYS("shader_compile");
     GrAutoLocaleSetter als("C");
 
     // create a builder.  This will be handed off to effects so they can use it to add
     // uniforms, varyings, textures, etc
-    GrGLProgramBuilder builder(gpu, renderTarget, desc, programInfo);
+    GrGLProgramBuilder builder(gpu, renderTarget, programInfo, desc);
 
     auto persistentCache = gpu->getContext()->priv().getPersistentCache();
     if (persistentCache && !precompiledProgram) {
-        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc.asKey(), desc.keyLength());
+        sk_sp<SkData> key = SkData::MakeWithoutCopy(desc->asKey(), desc->keyLength());
         builder.fCached = persistentCache->load(*key);
         // the eventual end goal is to completely skip emitAndInstallProcs on a cache hit, but it's
         // doing necessary setup in addition to generating the SkSL code. Currently we are only able
@@ -76,9 +75,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::CreateProgram(
 
 GrGLProgramBuilder::GrGLProgramBuilder(GrGLGpu* gpu,
                                        GrRenderTarget* renderTarget,
-                                       const GrProgramDesc& desc,
-                                       const GrProgramInfo& programInfo)
-        : INHERITED(renderTarget, desc, programInfo)
+                                       const GrProgramInfo& programInfo,
+                                       GrProgramDesc* desc)
+        : INHERITED(renderTarget, programInfo, desc)
         , fGpu(gpu)
         , fVaryingHandler(this)
         , fUniformHandler(this)
@@ -160,7 +159,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
         return;
     }
-    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc().asKey(), this->desc().keyLength());
+    sk_sp<SkData> key = SkData::MakeWithoutCopy(this->desc()->asKey(), this->desc()->keyLength());
     if (fGpu->glCaps().programBinarySupport()) {
         // binary cache
         GrGLsizei length = 0;
@@ -199,7 +198,7 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Inputs& inputs,
     }
 }
 
-sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompiledProgram) {
+GrGLProgram* GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* precompiledProgram) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     // verify we can get a program id
@@ -542,22 +541,22 @@ void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, boo
     }
 }
 
-sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
-    return sk_sp<GrGLProgram>(new GrGLProgram(fGpu,
-                                              fUniformHandles,
-                                              programID,
-                                              fUniformHandler.fUniforms,
-                                              fUniformHandler.fSamplers,
-                                              fVaryingHandler.fPathProcVaryingInfos,
-                                              std::move(fGeometryProcessor),
-                                              std::move(fXferProcessor),
-                                              std::move(fFragmentProcessors),
-                                              fFragmentProcessorCnt,
-                                              std::move(fAttributes),
-                                              fVertexAttributeCnt,
-                                              fInstanceAttributeCnt,
-                                              fVertexStride,
-                                              fInstanceStride));
+GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
+    return new GrGLProgram(fGpu,
+                           fUniformHandles,
+                           programID,
+                           fUniformHandler.fUniforms,
+                           fUniformHandler.fSamplers,
+                           fVaryingHandler.fPathProcVaryingInfos,
+                           std::move(fGeometryProcessor),
+                           std::move(fXferProcessor),
+                           std::move(fFragmentProcessors),
+                           fFragmentProcessorCnt,
+                           std::move(fAttributes),
+                           fVertexAttributeCnt,
+                           fInstanceAttributeCnt,
+                           fVertexStride,
+                           fInstanceStride);
 }
 
 bool GrGLProgramBuilder::PrecompileProgram(GrGLPrecompiledProgram* precompiledProgram,
