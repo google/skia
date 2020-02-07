@@ -114,12 +114,9 @@ GrCCAtlas::GrCCAtlas(CoverageType coverageType, const Specs& specs, const GrCaps
             [this](GrResourceProvider* resourceProvider,const GrBackendFormat& format,
                    int sampleCount) {
                 if (!fBackingTexture) {
-                    GrSurfaceDesc desc;
-                    desc.fWidth = fWidth;
-                    desc.fHeight = fHeight;
                     fBackingTexture = resourceProvider->createTexture(
-                            desc, format, GrRenderable::kYes, sampleCount, GrMipMapped::kNo,
-                            SkBudgeted::kYes, GrProtected::kNo);
+                            {fWidth, fHeight}, format, GrRenderable::kYes, sampleCount,
+                            GrMipMapped::kNo, SkBudgeted::kYes, GrProtected::kNo);
                 }
                 return GrSurfaceProxy::LazyCallbackResult(fBackingTexture);
             },

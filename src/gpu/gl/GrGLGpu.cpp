@@ -833,10 +833,9 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
     rtIDs.fRTFBOOwnership = GrBackendObjectOwnership::kBorrowed;
 
-    const auto size = SkISize::Make(backendRT.width(), backendRT.height());
     int sampleCount = this->glCaps().getRenderTargetSampleCount(backendRT.sampleCnt(), format);
 
-    return GrGLRenderTarget::MakeWrapped(this, size, format, sampleCount, rtIDs,
+    return GrGLRenderTarget::MakeWrapped(this, backendRT.dimensions(), format, sampleCount, rtIDs,
                                          backendRT.stencilBits());
 }
 
@@ -1296,7 +1295,7 @@ static GrGLTextureParameters::SamplerOverriddenState set_initial_texture_params(
     return state;
 }
 
-sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
@@ -1315,15 +1314,15 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
             mipLevelCount > 1 ? GrMipMapsStatus::kDirty : GrMipMapsStatus::kNotAllocated;
     GrGLTextureParameters::SamplerOverriddenState initialState;
     GrGLTexture::Desc texDesc;
-    texDesc.fSize = {desc.fWidth, desc.fHeight};
+    texDesc.fSize = dimensions;
     texDesc.fTarget = GR_GL_TEXTURE_2D;
     texDesc.fFormat = format.asGLFormat();
     texDesc.fOwnership = GrBackendObjectOwnership::kOwned;
     SkASSERT(texDesc.fFormat != GrGLFormat::kUnknown);
     SkASSERT(!GrGLFormatIsCompressed(texDesc.fFormat));
 
-    texDesc.fID = this->createTexture2D({desc.fWidth, desc.fHeight}, texDesc.fFormat, renderable,
-                                        &initialState, mipLevelCount);
+    texDesc.fID = this->createTexture2D(dimensions, texDesc.fFormat, renderable, &initialState,
+                                        mipLevelCount);
 
     if (!texDesc.fID) {
         return return_null_texture();

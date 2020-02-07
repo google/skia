@@ -20,7 +20,7 @@ class GrMtlGpu;
 class GrMtlRenderTarget: public GrRenderTarget {
 public:
     static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
-                                                            const GrSurfaceDesc&,
+                                                            SkISize,
                                                             int sampleCnt,
                                                             id<MTLTexture>);
 
@@ -39,14 +39,12 @@ public:
 
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
+                      SkISize,
                       int sampleCnt,
                       id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture);
 
-    GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
-                      id<MTLTexture> colorTexture);
+    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -74,15 +72,12 @@ private:
     // Extra param to disambiguate from constructor used by subclasses.
     enum Wrapped { kWrapped };
     GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
+                      SkISize,
                       int sampleCnt,
                       id<MTLTexture> colorTexture,
                       id<MTLTexture> resolveTexture,
                       Wrapped);
-    GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
-                      id<MTLTexture> colorTexture,
-                      Wrapped);
+    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture, Wrapped);
 
     bool completeStencilAttachment() override;
 

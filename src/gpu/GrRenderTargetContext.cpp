@@ -165,7 +165,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
-        const SkISize& dimensions,
+        SkISize dimensions,
         const GrBackendFormat& format,
         int sampleCnt,
         GrMipMapped mipMapped,
@@ -180,15 +180,12 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
     if (context->priv().abandoned()) {
         return nullptr;
     }
-    GrSurfaceDesc desc;
-    desc.fWidth = dimensions.width();
-    desc.fHeight = dimensions.height();
 
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
     sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(
-            format, desc, swizzle, GrRenderable::kYes, sampleCnt, origin, mipMapped, fit, budgeted,
-            isProtected);
+            format, dimensions, swizzle, GrRenderable::kYes, sampleCnt, origin, mipMapped, fit,
+            budgeted, isProtected);
     if (!proxy) {
         return nullptr;
     }
@@ -207,7 +204,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::Make(
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
-        const SkISize& dimensions,
+        SkISize dimensions,
         int sampleCnt,
         GrMipMapped mipMapped,
         GrProtected isProtected,
@@ -250,7 +247,7 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeWithFallback(
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
-        const SkISize& dimensions,
+        SkISize dimensions,
         int sampleCnt,
         GrMipMapped mipMapped,
         GrProtected isProtected,
@@ -1910,7 +1907,7 @@ void GrRenderTargetContext::asyncReadPixels(const SkIRect& rect, SkColorType col
 void GrRenderTargetContext::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                             sk_sp<SkColorSpace> dstColorSpace,
                                                             const SkIRect& srcRect,
-                                                            const SkISize& dstSize,
+                                                            SkISize dstSize,
                                                             RescaleGamma rescaleGamma,
                                                             SkFilterQuality rescaleQuality,
                                                             ReadPixelsCallback callback,

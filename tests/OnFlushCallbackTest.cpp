@@ -315,13 +315,13 @@ public:
         fAtlasProxy = GrProxyProvider::MakeFullyLazyProxy(
                 [format](GrResourceProvider* resourceProvider)
                         -> GrSurfaceProxy::LazyCallbackResult {
-                    GrSurfaceDesc desc;
+                    SkISize dims;
                     // TODO: until partial flushes in MDB lands we're stuck having
                     // all 9 atlas draws occur
-                    desc.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;
-                    desc.fHeight = kAtlasTileSize;
+                    dims.fWidth = 9 /*this->numOps()*/ * kAtlasTileSize;
+                    dims.fHeight = kAtlasTileSize;
 
-                    return resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1,
+                    return resourceProvider->createTexture(dims, format, GrRenderable::kYes, 1,
                                                            GrMipMapped::kNo, SkBudgeted::kYes,
                                                            GrProtected::kNo);
                 },
@@ -501,12 +501,11 @@ sk_sp<GrTextureProxy> pre_create_atlas(GrContext* context) {
     save_bm(bm, "atlas-fake.png");
 #endif
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bm.info());
     desc.fFlags |= kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurfaceProxy> tmp = GrSurfaceProxy::MakeDeferred(*context->caps(),
                                                              context->textureProvider(),
-                                                             desc, SkBudgeted::kYes,
+                                                             dm.dimensions(), SkBudgeted::kYes,
                                                              bm.getPixels(), bm.rowBytes());
 
     return sk_ref_sp(tmp->asTextureProxy());

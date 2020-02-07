@@ -33,15 +33,12 @@ struct ProxyParams {
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {
-    GrSurfaceDesc desc;
-    desc.fWidth  = p.fSize;
-    desc.fHeight = p.fSize;
-
     const GrBackendFormat format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
     GrSwizzle swizzle = caps->getReadSwizzle(format, p.fColorType);
 
-    return proxyProvider->createProxy(format, desc, swizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
-                                      GrMipMapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
+    return proxyProvider->createProxy(format, {p.fSize, p.fSize}, swizzle, p.fRenderable,
+                                      p.fSampleCnt, p.fOrigin, GrMipMapped::kNo, p.fFit,
+                                      p.fBudgeted, GrProtected::kNo);
 }
 
 static sk_sp<GrSurfaceProxy> make_backend(GrContext* context, const ProxyParams& p,
@@ -265,18 +262,15 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
                                 const ProxyParams& p) {
     const auto format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
 
-    GrSurfaceDesc desc;
-    desc.fWidth = p.fSize;
-    desc.fHeight = p.fSize;
-
     SkBackingFit fit = p.fFit;
-    auto callback = [fit, desc, format, p](GrResourceProvider* resourceProvider) {
+    SkISize dims = {p.fSize, p.fSize};
+    auto callback = [fit, dims, format, p](GrResourceProvider* resourceProvider) {
         sk_sp<GrTexture> texture;
         if (fit == SkBackingFit::kApprox) {
-            texture = resourceProvider->createApproxTexture(
-                    desc, format, p.fRenderable, p.fSampleCnt, GrProtected::kNo);
+            texture = resourceProvider->createApproxTexture(dims, format, p.fRenderable,
+                                                            p.fSampleCnt, GrProtected::kNo);
         } else {
-            texture = resourceProvider->createTexture(desc, format, p.fRenderable, p.fSampleCnt,
+            texture = resourceProvider->createTexture(dims, format, p.fRenderable, p.fSampleCnt,
                                                       GrMipMapped::kNo, SkBudgeted::kNo,
                                                       GrProtected::kNo);
         }
@@ -285,7 +279,7 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     GrSwizzle readSwizzle = caps->getReadSwizzle(format, p.fColorType);
     return proxyProvider->createLazyProxy(
-            callback, format, desc, readSwizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
+            callback, format, dims, readSwizzle, p.fRenderable, p.fSampleCnt, p.fOrigin,
             GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, flags, p.fFit, p.fBudgeted,
             GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 }

@@ -109,7 +109,7 @@ protected:
 
     // Deferred version - no data.
     GrTextureProxy(const GrBackendFormat&,
-                   const GrSurfaceDesc&,
+                   SkISize,
                    GrSurfaceOrigin,
                    GrMipMapped,
                    GrMipMapsStatus,
@@ -132,7 +132,7 @@ protected:
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
-                   const GrSurfaceDesc& desc,
+                   SkISize,
                    GrSurfaceOrigin,
                    GrMipMapped,
                    GrMipMapsStatus,

@@ -16,7 +16,6 @@
 
 class GrBackendFormat;
 class GrRecordingContext;
-struct GrSurfaceDesc;
 class GrSurfaceProxyView;
 class SkCachedData;
 
@@ -42,7 +41,7 @@ public:
      *  On failure (e.g. the provider had no data), this returns NULL.
      */
     GrSurfaceProxyView refAsTextureProxyView(GrRecordingContext*,
-                                             const GrSurfaceDesc&,
+                                             SkISize,
                                              GrColorType colorType,
                                              SkColorSpace* srcColorSpace,
                                              SkColorSpace* dstColorSpace);
