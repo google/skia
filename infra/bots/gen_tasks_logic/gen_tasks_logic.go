@@ -1263,6 +1263,8 @@ func (b *builder) checkGeneratedFiles(name string) string {
 	b.usesGit(task, name)
 	b.usesGo(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
+	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
+	b.usesCCache(task, name)
 	b.MustAddTask(name, task)
 	return name
 }
