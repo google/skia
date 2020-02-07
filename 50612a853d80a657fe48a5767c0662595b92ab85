@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "22ffd6a7_a96bcb9c",
+        "filename": "modules/sksg/include/SkSGGroup.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-07T22:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a62da63_cef26d77",
+      "range": {
+        "startLine": 48,
+        "startChar": 54,
+        "endLine": 48,
+        "endChar": 61
+      },
+      "revId": "50612a853d80a657fe48a5767c0662595b92ab85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdef40b5_a32e3bc3",
         "filename": "modules/sksg/src/SkSGGroup.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-07T22:21:23Z",
       "side": 1,
       "message": "Interesting.  I wonder if child order matters.",
+      "range": {
+        "startLine": 91,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 38
+      },
+      "revId": "50612a853d80a657fe48a5767c0662595b92ab85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7059722_bb313580",
+        "filename": "modules/sksg/src/SkSGGroup.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-02-07T22:52:18Z",
+      "side": 1,
+      "message": "Yeah, I bet it does - the verbiage is too opinionated, should be more like \"works as well as exhaustive testing for the sample corpus at hand\".\n\nPossibly related to the natural inclination to lay things out left-\u003eright/top-\u003ebottom.",
+      "parentUuid": "fdef40b5_a32e3bc3",
       "range": {
         "startLine": 91,
         "startChar": 12,
