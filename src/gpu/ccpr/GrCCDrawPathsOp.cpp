@@ -358,7 +358,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
                               == fCacheEntry->cachedAtlas()->coverageType())
                     ? SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
 #endif
-            auto coverageMode = GrCCPathProcessor::GetCoverageMode(
+            auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
                     fCacheEntry->cachedAtlas()->coverageType());
             op->recordInstance(coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(),
                                resources->nextPathInstanceIdx());
@@ -386,7 +386,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
     if (auto atlas = resources->renderShapeInAtlas(
                 fMaskDevIBounds, fMatrix, fShape, fStrokeDevWidth, &octoBounds, &devIBounds,
                 &devToAtlasOffset)) {
-        auto coverageMode = GrCCPathProcessor::GetCoverageMode(
+        auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
                 resources->renderedPathCoverageType());
         op->recordInstance(coverageMode, atlas->textureProxy(), resources->nextPathInstanceIdx());
         resources->appendDrawPathInstance().set(

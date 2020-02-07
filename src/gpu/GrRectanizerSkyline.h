@@ -49,10 +49,10 @@ private:
     // at x,y.
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
 
+    const int fWidth;
+    const int fHeight;
     SkTDArray<SkylineSegment> fSkyline;
     int32_t fAreaSoFar;
-    int fWidth;
-    int fHeight;
 };
 
 #endif  // GrRectanizerSkyline_DEFINED
