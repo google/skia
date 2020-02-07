@@ -174,7 +174,7 @@ static bool can_use_draw_texture(const SkPaint& paint) {
 static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const SkMatrix& ctm,
                          const SkPaint& paint, const SkRect& srcRect, const SkRect& dstRect,
                          const SkPoint dstClip[4], GrAA aa, GrQuadAAFlags aaFlags,
-                         SkCanvas::SrcRectConstraint constraint, sk_sp<GrTextureProxy> proxy,
+                         SkCanvas::SrcRectConstraint constraint, GrSurfaceProxyView view,
                          const GrColorInfo& srcColorInfo) {
     const GrColorInfo& dstInfo(rtc->colorInfo());
     auto textureXform =
@@ -192,7 +192,7 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
         case kHigh_SkFilterQuality:
             SK_ABORT("Quality level not allowed.");
     }
-
+    GrSurfaceProxy* proxy = view.proxy();
     // Must specify the strict constraint when the proxy is not functionally exact and the src
     // rect would access pixels outside the proxy's content area without the constraint.
     if (constraint != SkCanvas::kStrict_SrcRectConstraint && !proxy->isFunctionallyExact()) {
@@ -219,15 +219,12 @@ static void draw_texture(GrRenderTargetContext* rtc, const GrClip& clip, const S
         SkPoint srcQuad[4];
         GrMapRectPoints(dstRect, srcRect, dstClip, srcQuad, 4);
 
-        rtc->drawTextureQuad(clip, std::move(proxy), srcColorInfo.colorType(),
+        rtc->drawTextureQuad(clip, std::move(view), srcColorInfo.colorType(),
                              srcColorInfo.alphaType(), filter, paint.getBlendMode(), color, srcQuad,
                              dstClip, aa, aaFlags,
                              constraint == SkCanvas::kStrict_SrcRectConstraint ? &srcRect : nullptr,
                              ctm, std::move(textureXform));
     } else {
-        GrSurfaceOrigin origin = proxy->origin();
-        GrSwizzle swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
         rtc->drawTexture(clip, std::move(view), srcColorInfo.alphaType(), filter,
                          paint.getBlendMode(), color, srcRect, dstRect, aa, aaFlags, constraint,
                          ctm, std::move(textureXform));
@@ -250,7 +247,7 @@ static void draw_texture_producer(GrContext* context, GrRenderTargetContext* rtc
         }
 
         draw_texture(rtc, clip, ctm, paint, src, dst, dstClip, aa, aaFlags, constraint,
-                     view.asTextureProxyRef(),
+                     std::move(view),
                      {ct, producer->alphaType(), sk_ref_sp(producer->colorSpace())});
         return;
     }
@@ -417,7 +414,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
         if (attemptDrawTexture && can_use_draw_texture(paint)) {
             draw_texture(fRenderTargetContext.get(), this->clip(), ctm, paint, src, dst, dstClip,
-                         aa, aaFlags, constraint, view.asTextureProxyRef(), colorInfo);
+                         aa, aaFlags, constraint, std::move(view), colorInfo);
             return;
         }
         GrTextureAdjuster adjuster(fContext.get(), std::move(view), colorInfo, pinnedUniqueID,

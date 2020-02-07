@@ -266,18 +266,15 @@ public:
      * 'domain' is null, it's equivalent to using the fast src rect constraint. If 'domain' is
      * provided, the strict src rect constraint is applied using 'domain'.
      */
-    void drawTextureQuad(const GrClip& clip, sk_sp<GrTextureProxy> proxy, GrColorType srcColorType,
+    void drawTextureQuad(const GrClip& clip, GrSurfaceProxyView view, GrColorType srcColorType,
                          SkAlphaType srcAlphaType, GrSamplerState::Filter filter, SkBlendMode mode,
                          const SkPMColor4f& color, const SkPoint srcQuad[4],
                          const SkPoint dstQuad[4], GrAA aa, GrQuadAAFlags edgeAA,
                          const SkRect* domain, const SkMatrix& viewMatrix,
                          sk_sp<GrColorSpaceXform> texXform) {
-        GrSurfaceOrigin origin = proxy->origin();
-        const GrSwizzle& swizzle = proxy->textureSwizzle();
-        GrSurfaceProxyView proxyView(std::move(proxy), origin, swizzle);
         DrawQuad quad{GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
                       GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), edgeAA};
-        this->drawTexturedQuad(clip, std::move(proxyView), srcAlphaType, std::move(texXform),
+        this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
                                filter, color, mode, aa, &quad, domain);
     }
 
