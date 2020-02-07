@@ -349,12 +349,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo)
 static std::unique_ptr<GrRenderTargetContext> draw_mipmap_into_new_render_target(
         GrRecordingContext* context, GrProxyProvider* proxyProvider, GrColorType colorType,
         SkAlphaType alphaType, GrSurfaceProxyView mipmapView, GrSamplerState::Filter filter) {
-    GrSurfaceDesc desc;
-    desc.fWidth = 1;
-    desc.fHeight = 1;
     sk_sp<GrSurfaceProxy> renderTarget = proxyProvider->createProxy(
-            mipmapView.proxy()->backendFormat(), desc, mipmapView.swizzle(), GrRenderable::kYes, 1,
-            mipmapView.origin(), GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
+            mipmapView.proxy()->backendFormat(), {1, 1}, mipmapView.swizzle(), GrRenderable::kYes,
+            1, mipmapView.origin(), GrMipMapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
             GrProtected::kNo);
 
     auto rtc = GrRenderTargetContext::Make(
@@ -396,14 +393,11 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
         // Create a mipmapped render target.
-        GrSurfaceDesc desc;
-        desc.fWidth = 4;
-        desc.fHeight = 4;
 
         GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, colorType);
 
         sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, desc, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
+                format, {4, 4}, swizzle, GrRenderable::kYes, 1, kTopLeft_GrSurfaceOrigin,
                 GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo);
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked

@@ -122,9 +122,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                 for (auto fit : { SkBackingFit::kExact, SkBackingFit::kApprox }) {
                     for (auto budgeted : { SkBudgeted::kYes, SkBudgeted::kNo }) {
                         for (auto numSamples : {1, 4, 16, 128}) {
-                            GrSurfaceDesc desc;
-                            desc.fWidth = widthHeight;
-                            desc.fHeight = widthHeight;
+                            SkISize dims = {widthHeight, widthHeight};
 
                             auto format = caps.getDefaultBackendFormat(ct, GrRenderable::kYes);
                             if (!format.isValid()) {
@@ -137,16 +135,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, format, GrRenderable::kYes, numSamples,
+                                            dims, format, GrRenderable::kYes, numSamples,
                                             GrProtected::kNo);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, format, GrRenderable::kYes, numSamples,
+                                            dims, format, GrRenderable::kYes, numSamples,
                                             GrMipMapped::kNo, budgeted, GrProtected::kNo);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                                        format, desc, swizzle, GrRenderable::kYes, numSamples,
+                                        format, dims, swizzle, GrRenderable::kYes, numSamples,
                                         origin, GrMipMapped::kNo, fit, budgeted, GrProtected::kNo);
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
@@ -174,16 +172,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 sk_sp<GrTexture> tex;
                                 if (SkBackingFit::kApprox == fit) {
                                     tex = resourceProvider->createApproxTexture(
-                                            desc, format, GrRenderable::kNo, numSamples,
+                                            dims, format, GrRenderable::kNo, numSamples,
                                             GrProtected::kNo);
                                 } else {
                                     tex = resourceProvider->createTexture(
-                                            desc, format, GrRenderable::kNo, numSamples,
+                                            dims, format, GrRenderable::kNo, numSamples,
                                             GrMipMapped::kNo, budgeted, GrProtected::kNo);
                                 }
 
                                 sk_sp<GrTextureProxy> proxy(proxyProvider->createProxy(
-                                        format, desc, swizzle, GrRenderable::kNo, numSamples,
+                                        format, dims, swizzle, GrRenderable::kNo, numSamples,
                                         origin, GrMipMapped::kNo, fit, budgeted, GrProtected::kNo));
                                 REPORTER_ASSERT(reporter, SkToBool(tex) == SkToBool(proxy));
                                 if (proxy) {
@@ -370,10 +368,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                         continue; // not zero-sized
                     }
 
-                    GrSurfaceDesc desc;
-                    desc.fWidth = width;
-                    desc.fHeight = height;
-
                     const GrBackendFormat format =
                             context->priv().caps()->getDefaultBackendFormat(
                                 GrColorType::kRGBA_8888,
@@ -381,9 +375,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest, reporter, ctxInfo) {
                     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(
                             format, GrColorType::kRGBA_8888);
 
-                    sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, desc, swizzle, renderable, 1, kBottomLeft_GrSurfaceOrigin,
-                            GrMipMapped::kNo, fit, SkBudgeted::kNo, GrProtected::kNo);
+                    sk_sp<GrTextureProxy> proxy =
+                            provider->createProxy(format, {width, height}, swizzle, renderable, 1,
+                                                  kBottomLeft_GrSurfaceOrigin, GrMipMapped::kNo,
+                                                  fit, SkBudgeted::kNo, GrProtected::kNo);
                     REPORTER_ASSERT(reporter, !proxy);
                 }
             }

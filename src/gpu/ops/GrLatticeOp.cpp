@@ -402,9 +402,9 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     std::unique_ptr<SkCanvas::Lattice::RectType[]> flags;
     std::unique_ptr<SkColor[]> colors;
     SkIRect subset;
-    GrSurfaceDesc desc;
-    desc.fWidth = random->nextRangeU(1, 1000);
-    desc.fHeight = random->nextRangeU(1, 1000);
+    SkISize dims;
+    dims.fWidth = random->nextRangeU(1, 1000);
+    dims.fHeight = random->nextRangeU(1, 1000);
     GrSurfaceOrigin origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin
                                                 : kBottomLeft_GrSurfaceOrigin;
     const GrBackendFormat format =
@@ -413,7 +413,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     auto proxy = context->priv().proxyProvider()->createProxy(format,
-                                                              desc,
+                                                              dims,
                                                               swizzle,
                                                               GrRenderable::kNo,
                                                               1,
@@ -425,12 +425,12 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
 
     do {
         if (random->nextBool()) {
-            subset.fLeft = random->nextULessThan(desc.fWidth);
-            subset.fRight = random->nextRangeU(subset.fLeft + 1, desc.fWidth);
-            subset.fTop = random->nextULessThan(desc.fHeight);
-            subset.fBottom = random->nextRangeU(subset.fTop + 1, desc.fHeight);
+            subset.fLeft = random->nextULessThan(dims.fWidth);
+            subset.fRight = random->nextRangeU(subset.fLeft + 1, dims.fWidth);
+            subset.fTop = random->nextULessThan(dims.fHeight);
+            subset.fBottom = random->nextRangeU(subset.fTop + 1, dims.fHeight);
         } else {
-            subset.setXYWH(0, 0, desc.fWidth, desc.fHeight);
+            subset.setXYWH(0, 0, dims.fWidth, dims.fHeight);
         }
         // SkCanvas::Lattice allows bounds to be null. However, SkCanvas creates a temp Lattice with
         // a non-null bounds before creating a SkLatticeIter since SkLatticeIter requires a bounds.
@@ -458,7 +458,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
             lattice.fRectTypes = nullptr;
             lattice.fColors = nullptr;
         }
-    } while (!SkLatticeIter::Valid(desc.fWidth, desc.fHeight, lattice));
+    } while (!SkLatticeIter::Valid(dims.fWidth, dims.fHeight, lattice));
     SkRect dst;
     dst.fLeft = random->nextRangeScalar(-2000.5f, 1000.f);
     dst.fTop = random->nextRangeScalar(-2000.5f, 1000.f);

@@ -30,7 +30,7 @@ private:
     // Deferred version
     GrTextureRenderTargetProxy(const GrCaps&,
                                const GrBackendFormat&,
-                               const GrSurfaceDesc&,
+                               SkISize,
                                int sampleCnt,
                                GrSurfaceOrigin,
                                GrMipMapped,
@@ -46,7 +46,7 @@ private:
     GrTextureRenderTargetProxy(const GrCaps&,
                                LazyInstantiateCallback&&,
                                const GrBackendFormat&,
-                               const GrSurfaceDesc& desc,
+                               SkISize,
                                int sampleCnt,
                                GrSurfaceOrigin,
                                GrMipMapped,

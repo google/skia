@@ -32,11 +32,11 @@ struct GrVkImageInfo;
 
 class GrVkRenderTarget: public GrRenderTarget, public virtual GrVkImage {
 public:
-    static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
-                                                           int sampleCnt, const GrVkImageInfo&,
+    static sk_sp<GrVkRenderTarget> MakeWrappedRenderTarget(GrVkGpu*, SkISize, int sampleCnt,
+                                                           const GrVkImageInfo&,
                                                            sk_sp<GrVkImageLayout>);
 
-    static sk_sp<GrVkRenderTarget> MakeSecondaryCBRenderTarget(GrVkGpu*, const GrSurfaceDesc&,
+    static sk_sp<GrVkRenderTarget> MakeSecondaryCBRenderTarget(GrVkGpu*, SkISize,
                                                                const GrVkDrawableInfo& vkInfo);
 
     ~GrVkRenderTarget() override;
@@ -96,7 +96,7 @@ public:
 
 protected:
     GrVkRenderTarget(GrVkGpu* gpu,
-                     const GrSurfaceDesc& desc,
+                     SkISize dimensions,
                      int sampleCnt,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
@@ -107,7 +107,7 @@ protected:
                      GrBackendObjectOwnership);
 
     GrVkRenderTarget(GrVkGpu* gpu,
-                     const GrSurfaceDesc& desc,
+                     SkISize dimensions,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkImageView* colorAttachmentView,
@@ -130,7 +130,7 @@ protected:
 
 private:
     GrVkRenderTarget(GrVkGpu* gpu,
-                     const GrSurfaceDesc& desc,
+                     SkISize dimensions,
                      int sampleCnt,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
@@ -140,14 +140,13 @@ private:
                      const GrVkImageView* resolveAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
-                     const GrSurfaceDesc& desc,
+                     SkISize dimensions,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkImageView* colorAttachmentView);
 
-
     GrVkRenderTarget(GrVkGpu* gpu,
-                     const GrSurfaceDesc& desc,
+                     SkISize dimensions,
                      const GrVkImageInfo& info,
                      sk_sp<GrVkImageLayout> layout,
                      const GrVkRenderPass* renderPass,

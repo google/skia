@@ -52,8 +52,6 @@ protected:
     }
 
 private:
-    GrDawnTexture(GrDawnGpu*, const GrSurfaceDesc&, const GrDawnTextureInfo&, GrMipMapsStatus);
-
     GrDawnTextureInfo        fInfo;
     wgpu::TextureView        fTextureView;
 

@@ -73,7 +73,7 @@ public:
      * Create a GrSurfaceProxy without any data.
      */
     sk_sp<GrTextureProxy> createProxy(const GrBackendFormat&,
-                                      const GrSurfaceDesc&,
+                                      SkISize dimensions,
                                       GrSwizzle readSwizzle,
                                       GrRenderable,
                                       int renderTargetSampleCnt,
@@ -160,7 +160,7 @@ public:
      */
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&,
                                           const GrBackendFormat&,
-                                          const GrSurfaceDesc&,
+                                          SkISize dimensions,
                                           GrSwizzle readSwizzle,
                                           GrRenderable,
                                           int renderTargetSampleCnt,
@@ -176,7 +176,7 @@ public:
     /** A null TextureInfo indicates a non-textureable render target. */
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrBackendFormat&,
-                                                           const GrSurfaceDesc&,
+                                                           SkISize dimensions,
                                                            GrSwizzle readSwizzle,
                                                            int renderTargetSampleCnt,
                                                            GrSurfaceOrigin origin,
@@ -245,7 +245,7 @@ public:
      * Create a texture proxy that is backed by an instantiated GrSurface.
      * TODO: Remove GrColorType. Currently used to infer a readSwizzle.
      */
-    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& dimensions,
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(SkISize dimensions,
                                                               GrColorType colorType,
                                                               const GrBackendFormat& format,
                                                               GrRenderable renderable,
@@ -256,7 +256,7 @@ public:
                                                               GrProtected isProtected);
 
     /** Version of above that picks the default format for the color type. */
-    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(const SkISize& dimensions,
+    sk_sp<GrTextureProxy> testingOnly_createInstantiatedProxy(SkISize dimensions,
                                                               GrColorType colorType,
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,

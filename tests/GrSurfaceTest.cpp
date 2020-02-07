@@ -29,13 +29,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     auto resourceProvider = context->priv().resourceProvider();
 
-    GrSurfaceDesc desc;
-    desc.fWidth = 256;
-    desc.fHeight = 256;
+    static constexpr SkISize kDesc = {256, 256};
     auto format = context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                   GrRenderable::kYes);
     sk_sp<GrSurface> texRT1 =
-            resourceProvider->createTexture(desc, format, GrRenderable::kYes, 1, GrMipMapped::kNo,
+            resourceProvider->createTexture(kDesc, format, GrRenderable::kYes, 1, GrMipMapped::kNo,
                                             SkBudgeted::kNo, GrProtected::kNo);
 
     REPORTER_ASSERT(reporter, texRT1.get() == texRT1->asRenderTarget());
@@ -48,7 +46,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
                     static_cast<GrSurface*>(texRT1->asTexture()));
 
     sk_sp<GrTexture> tex1 =
-            resourceProvider->createTexture(desc, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
+            resourceProvider->createTexture(kDesc, format, GrRenderable::kNo, 1, GrMipMapped::kNo,
                                             SkBudgeted::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
@@ -99,16 +97,12 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
             return rp->createCompressedTexture(dimensions, format, SkBudgeted::kNo,
                                                GrMipMapped::kNo, GrProtected::kNo, data.get());
         } else {
-            GrSurfaceDesc desc;
-            desc.fWidth = dimensions.width();
-            desc.fHeight = dimensions.height();
-            return rp->createTexture(desc, format, renderable, 1, GrMipMapped::kNo, SkBudgeted::kNo,
-                                     GrProtected::kNo);
+            return rp->createTexture(dimensions, format, renderable, 1, GrMipMapped::kNo,
+                                     SkBudgeted::kNo, GrProtected::kNo);
         }
     };
 
-    static constexpr int kW = 64;
-    static constexpr int kH = 64;
+    static constexpr SkISize kDims = {64, 64};
 
     const std::vector<GrCaps::TestFormatColorTypeCombination>& combos =
                                                                     caps->getTestingCombinations();
@@ -126,9 +120,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
         }
 
         for (GrSurfaceOrigin origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-            GrSurfaceDesc desc;
-            desc.fWidth = kW;
-            desc.fHeight = kH;
 
             // Check if 'isFormatTexturable' agrees with 'createTexture' and that the mipmap
             // support check is working
@@ -143,7 +134,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                                                                          combo.fFormat);
                 }
 
-                sk_sp<GrSurface> tex = createTexture({kW, kH}, combo.fColorType, combo.fFormat,
+                sk_sp<GrSurface> tex = createTexture(kDims, combo.fColorType, combo.fFormat,
                                                      GrRenderable::kNo, resourceProvider);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isTexturable,
                                 "ct:%s format:%s, tex:%d, isTexturable:%d",
@@ -159,7 +150,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 GrSwizzle swizzle = caps->getReadSwizzle(combo.fFormat, combo.fColorType);
 
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                        combo.fFormat, desc, swizzle, GrRenderable::kNo, 1, origin,
+                        combo.fFormat, kDims, swizzle, GrRenderable::kNo, 1, origin,
                         GrMipMapped::kYes, SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
                                 "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
@@ -173,7 +164,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 bool isRenderable = caps->isFormatRenderable(combo.fFormat, 1);
 
                 sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                        desc, combo.fFormat, GrRenderable::kYes, 1, GrMipMapped::kNo,
+                        kDims, combo.fFormat, GrRenderable::kYes, 1, GrMipMapped::kNo,
                         SkBudgeted::kNo, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                                 "ct:%s format:%s, tex:%d, isRenderable:%d",
@@ -187,7 +178,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability, reporter, ctxInfo) {
                 bool isRenderable = caps->isFormatRenderable(combo.fFormat, 2);
 
                 sk_sp<GrSurface> tex = resourceProvider->createTexture(
-                        desc, combo.fFormat, GrRenderable::kYes, 2, GrMipMapped::kNo,
+                        kDims, combo.fFormat, GrRenderable::kYes, 2, GrMipMapped::kNo,
                         SkBudgeted::kNo, GrProtected::kNo);
                 REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
                                 "ct:%s format:%s, tex:%d, isRenderable:%d",
@@ -217,7 +208,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
     SkAutoPixmapStorage readback;
     readback.alloc(info);
 
-    GrSurfaceDesc desc;
+    SkISize desc;
     desc.fWidth = desc.fHeight = kSize;
 
     for (int ct = 0; ct < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++ct) {
@@ -491,7 +482,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrContext* context, GrRenderable re
 }
 
 static sk_sp<GrTexture> make_normal_texture(GrContext* context, GrRenderable renderable) {
-    GrSurfaceDesc desc;
+    SkISize desc;
     desc.fWidth = desc.fHeight = kSurfSize;
     auto format =
             context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
@@ -582,7 +573,7 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                     }
                     return GrSurfaceProxy::LazyCallbackResult{std::move(texture), true, mode};
                 };
-                GrSurfaceDesc desc;
+                SkISize desc;
                 desc.fWidth = w;
                 desc.fHeight = h;
                 SkBudgeted budgeted;

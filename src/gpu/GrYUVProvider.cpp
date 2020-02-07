@@ -105,7 +105,7 @@ void GrYUVProvider::YUVGen_DataReleaseProc(void*, void* data) {
 }
 
 GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
-                                                        const GrSurfaceDesc& desc,
+                                                        SkISize dimensions,
                                                         GrColorType colorType,
                                                         SkColorSpace* srcColorSpace,
                                                         SkColorSpace* dstColorSpace) {
@@ -164,8 +164,8 @@ GrSurfaceProxyView GrYUVProvider::refAsTextureProxyView(GrRecordingContext* ctx,
 
     // TODO: investigate preallocating mip maps here
     auto renderTargetContext = GrRenderTargetContext::Make(
-            ctx, colorType, nullptr, SkBackingFit::kExact, {desc.fWidth, desc.fHeight}, 1,
-            GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            ctx, colorType, nullptr, SkBackingFit::kExact, dimensions, 1, GrMipMapped::kNo,
+            GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!renderTargetContext) {
         return {};
     }

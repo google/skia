@@ -43,9 +43,6 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override;
 
-    static GrDawnRenderTarget* Create(GrDawnGpu*, const GrSurfaceDesc&, int sampleCnt,
-                                      const GrDawnRenderTargetInfo&);
-
     bool completeStencilAttachment() override;
     GrDawnRenderTargetInfo fInfo;
     typedef GrRenderTarget INHERITED;

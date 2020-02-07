@@ -23,12 +23,16 @@ class GrVkTexture : public GrTexture, public virtual GrVkImage {
 public:
     static sk_sp<GrVkTexture> MakeNewTexture(GrVkGpu*,
                                              SkBudgeted budgeted,
-                                             const GrSurfaceDesc&,
+                                             SkISize dimensions,
                                              const GrVkImage::ImageDesc&,
                                              GrMipMapsStatus);
 
-    static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*, const GrSurfaceDesc&, GrWrapOwnership,
-                                                 GrWrapCacheable, GrIOType, const GrVkImageInfo&,
+    static sk_sp<GrVkTexture> MakeWrappedTexture(GrVkGpu*,
+                                                 SkISize dimensions,
+                                                 GrWrapOwnership,
+                                                 GrWrapCacheable,
+                                                 GrIOType,
+                                                 const GrVkImageInfo&,
                                                  sk_sp<GrVkImageLayout>);
 
     ~GrVkTexture() override;
@@ -54,8 +58,13 @@ public:
     void addDescriptorSetToCache(const GrVkDescriptorSet*, GrSamplerState);
 
 protected:
-    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
-                const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership);
+    GrVkTexture(GrVkGpu*,
+                SkISize dimensions,
+                const GrVkImageInfo&,
+                sk_sp<GrVkImageLayout>,
+                const GrVkImageView*,
+                GrMipMapsStatus,
+                GrBackendObjectOwnership);
 
     GrVkGpu* getVkGpu() const;
 
@@ -69,10 +78,9 @@ protected:
     void willRemoveLastRef() override;
 
 private:
-    GrVkTexture(GrVkGpu*, SkBudgeted, const GrSurfaceDesc&, const GrVkImageInfo&,
-                sk_sp<GrVkImageLayout> layout, const GrVkImageView* imageView,
-                GrMipMapsStatus);
-    GrVkTexture(GrVkGpu*, const GrSurfaceDesc&, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
+    GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&, sk_sp<GrVkImageLayout> layout,
+                const GrVkImageView* imageView, GrMipMapsStatus);
+    GrVkTexture(GrVkGpu*, SkISize, const GrVkImageInfo&, sk_sp<GrVkImageLayout>,
                 const GrVkImageView*, GrMipMapsStatus, GrBackendObjectOwnership, GrWrapCacheable,
                 GrIOType, bool isExternal);
 

@@ -554,9 +554,7 @@ bool GrDrawOpAtlas::createPages(
         GrProxyProvider* proxyProvider, GenerationCounter* generationCounter) {
     SkASSERT(SkIsPow2(fTextureWidth) && SkIsPow2(fTextureHeight));
 
-    GrSurfaceDesc desc;
-    desc.fWidth = fTextureWidth;
-    desc.fHeight = fTextureHeight;
+    SkISize dims = {fTextureWidth, fTextureHeight};
 
     int numPlotsX = fTextureWidth/fPlotWidth;
     int numPlotsY = fTextureHeight/fPlotHeight;
@@ -564,7 +562,7 @@ bool GrDrawOpAtlas::createPages(
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
         GrSwizzle swizzle = proxyProvider->caps()->getReadSwizzle(fFormat, fColorType);
         sk_sp<GrSurfaceProxy> proxy = proxyProvider->createProxy(
-                fFormat, desc, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
+                fFormat, dims, swizzle, GrRenderable::kNo, 1, kTopLeft_GrSurfaceOrigin,
                 GrMipMapped::kNo, SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo,
                 GrInternalSurfaceFlags::kNone, GrSurfaceProxy::UseAllocator::kNo);
         if (!proxy) {

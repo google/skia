@@ -479,10 +479,6 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
     if (taskGroup && renderTargetContext) {
         // Create our texture proxy
-        GrSurfaceDesc desc;
-        desc.fWidth = maskSpaceIBounds.width();
-        desc.fHeight = maskSpaceIBounds.height();
-
         GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                GrRenderable::kNo);
 
@@ -491,7 +487,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         // MDB TODO: We're going to fill this proxy with an ASAP upload (which is out of order wrt
         // to ops), so it can't have any pending IO.
         proxy = proxyProvider->createProxy(format,
-                                           desc,
+                                           maskSpaceIBounds.size(),
                                            swizzle,
                                            GrRenderable::kNo,
                                            1,

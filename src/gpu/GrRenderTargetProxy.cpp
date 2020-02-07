@@ -23,7 +23,7 @@
 // cases to make the sampleConfig/numSamples stuff more rational.
 GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          const GrBackendFormat& format,
-                                         const GrSurfaceDesc& desc,
+                                         SkISize dimensions,
                                          int sampleCount,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
@@ -32,7 +32,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator)
-        : INHERITED(format, desc, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
+        : INHERITED(format, dimensions, GrRenderable::kYes, origin, textureSwizzle, fit, budgeted,
                     isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(WrapsVkSecondaryCB::kNo) {}
@@ -40,7 +40,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
 // Lazy-callback version
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          const GrBackendFormat& format,
-                                         const GrSurfaceDesc& desc,
+                                         SkISize dimensions,
                                          int sampleCount,
                                          GrSurfaceOrigin origin,
                                          const GrSwizzle& textureSwizzle,
@@ -50,8 +50,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB)
-        : INHERITED(std::move(callback), format, desc, GrRenderable::kYes, origin, textureSwizzle,
-                    fit, budgeted, isProtected, surfaceFlags, useAllocator)
+        : INHERITED(std::move(callback), format, dimensions, GrRenderable::kYes, origin,
+                    textureSwizzle, fit, budgeted, isProtected, surfaceFlags, useAllocator)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {}
 

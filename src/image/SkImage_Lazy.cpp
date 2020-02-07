@@ -494,8 +494,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we fall through here and have the CPU generate the mip maps for us.
     if (!view.proxy() && !willBeMipped && !ctx->priv().options().fDisableGpuYUVConversion) {
-        const GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(this->imageInfo());
-
         SkColorType colorType = this->colorType();
 
         ScopedGenerator generator(fSharedGenerator);
@@ -510,8 +508,9 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(
 
         // TODO: Update to create the mipped surface in the YUV generator and draw the base
         // layer directly into the mipped surface.
-        view = provider.refAsTextureProxyView(ctx, desc, SkColorTypeToGrColorType(colorType),
-                                               generatorColorSpace, thisColorSpace);
+        view = provider.refAsTextureProxyView(ctx, this->imageInfo().dimensions(),
+                                              SkColorTypeToGrColorType(colorType),
+                                              generatorColorSpace, thisColorSpace);
         if (view.proxy()) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);

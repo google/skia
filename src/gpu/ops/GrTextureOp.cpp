@@ -1275,9 +1275,9 @@ void GrTextureOp::AddTextureSetOps(GrRenderTargetContext* rtc,
 #include "src/gpu/GrRecordingContextPriv.h"
 
 GR_DRAW_OP_TEST_DEFINE(TextureOp) {
-    GrSurfaceDesc desc;
-    desc.fHeight = random->nextULessThan(90) + 10;
-    desc.fWidth = random->nextULessThan(90) + 10;
+    SkISize dims;
+    dims.fHeight = random->nextULessThan(90) + 10;
+    dims.fWidth = random->nextULessThan(90) + 10;
     auto origin = random->nextBool() ? kTopLeft_GrSurfaceOrigin : kBottomLeft_GrSurfaceOrigin;
     GrMipMapped mipMapped = random->nextBool() ? GrMipMapped::kYes : GrMipMapped::kNo;
     SkBackingFit fit = SkBackingFit::kExact;
@@ -1291,7 +1291,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOp) {
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-            format, desc, swizzle, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
+            format, dims, swizzle, GrRenderable::kNo, 1, origin, mipMapped, fit, SkBudgeted::kNo,
             GrProtected::kNo, GrInternalSurfaceFlags::kNone);
 
     SkRect rect = GrTest::TestRect(random);

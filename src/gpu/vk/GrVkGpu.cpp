@@ -838,9 +838,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
                                           VK_FORMAT_R8G8B8A8_UNORM, 1, false, false)) {
             return false;
         }
-        GrSurfaceDesc surfDesc;
-        surfDesc.fWidth = width;
-        surfDesc.fHeight = height;
 
         VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
                                        VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
@@ -857,8 +854,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
         imageDesc.fUsageFlags = usageFlags;
         imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-        copyTexture = GrVkTexture::MakeNewTexture(this, SkBudgeted::kYes, surfDesc, imageDesc,
-                                                  GrMipMapsStatus::kNotAllocated);
+        copyTexture = GrVkTexture::MakeNewTexture(this, SkBudgeted::kYes, {width, height},
+                                                  imageDesc, GrMipMapsStatus::kNotAllocated);
         if (!copyTexture) {
             return false;
         }
@@ -995,7 +992,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture, VkFormat vkFor
 
 ////////////////////////////////////////////////////////////////////////////////
 // TODO: make this take a GrMipMapped
-sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
@@ -1027,8 +1024,8 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = pixelFormat;
-    imageDesc.fWidth = desc.fWidth;
-    imageDesc.fHeight = desc.fHeight;
+    imageDesc.fWidth = dimensions.fWidth;
+    imageDesc.fHeight = dimensions.fHeight;
     imageDesc.fLevels = mipLevelCount;
     imageDesc.fSamples = 1;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
@@ -1041,9 +1038,9 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(const GrSurfaceDesc& desc,
     sk_sp<GrVkTexture> tex;
     if (renderable == GrRenderable::kYes) {
         tex = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, budgeted, desc, renderTargetSampleCnt, imageDesc, mipMapsStatus);
+                this, budgeted, dimensions, renderTargetSampleCnt, imageDesc, mipMapsStatus);
     } else {
-        tex = GrVkTexture::MakeNewTexture(this, budgeted, desc, imageDesc, mipMapsStatus);
+        tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipMapsStatus);
     }
 
     if (!tex) {
@@ -1121,11 +1118,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                                                 ? GrMipMapsStatus::kValid
                                                                 : GrMipMapsStatus::kNotAllocated;
 
-    GrSurfaceDesc desc;
-    desc.fWidth = dimensions.width();
-    desc.fHeight = dimensions.height();
-    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, desc, imageDesc,
-                                           mipMapsStatus);
+    auto tex = GrVkTexture::MakeNewTexture(this, budgeted, dimensions, imageDesc, mipMapsStatus);
     if (!tex) {
         return nullptr;
     }
@@ -1236,14 +1229,10 @@ sk_sp<GrTexture> GrVkGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    surfDesc.fWidth = backendTex.width();
-    surfDesc.fHeight = backendTex.height();
-
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
-    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, cacheable, ioType, imageInfo,
-                                           std::move(layout));
+    return GrVkTexture::MakeWrappedTexture(this, backendTex.dimensions(), ownership, cacheable,
+                                           ioType, imageInfo, std::move(layout));
 }
 
 sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture& beTex,
@@ -1267,13 +1256,9 @@ sk_sp<GrTexture> GrVkGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    surfDesc.fWidth = beTex.width();
-    surfDesc.fHeight = beTex.height();
-
     sk_sp<GrVkImageLayout> layout = beTex.getGrVkImageLayout();
     SkASSERT(layout);
-    return GrVkTexture::MakeWrappedTexture(this, surfDesc, ownership, cacheable,
+    return GrVkTexture::MakeWrappedTexture(this, beTex.dimensions(), ownership, cacheable,
                                            kRead_GrIOType, imageInfo, std::move(layout));
 }
 
@@ -1303,16 +1288,14 @@ sk_sp<GrTexture> GrVkGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
         return nullptr;
     }
 
-    GrSurfaceDesc surfDesc;
-    surfDesc.fWidth = backendTex.width();
-    surfDesc.fHeight = backendTex.height();
     sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
 
     sk_sp<GrVkImageLayout> layout = backendTex.getGrVkImageLayout();
     SkASSERT(layout);
 
-    return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(
-            this, surfDesc, sampleCnt, ownership, cacheable, imageInfo, std::move(layout));
+    return GrVkTextureRenderTarget::MakeWrappedTextureRenderTarget(this, backendTex.dimensions(),
+                                                                   sampleCnt, ownership, cacheable,
+                                                                   imageInfo, std::move(layout));
 }
 
 sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& backendRT,
@@ -1342,14 +1325,10 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
         return nullptr;
     }
 
-    GrSurfaceDesc desc;
-    desc.fWidth = backendRT.width();
-    desc.fHeight = backendRT.height();
-
     sk_sp<GrVkImageLayout> layout = backendRT.getGrVkImageLayout();
 
-    sk_sp<GrVkRenderTarget> tgt =
-            GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, 1, info, std::move(layout));
+    sk_sp<GrVkRenderTarget> tgt = GrVkRenderTarget::MakeWrappedRenderTarget(
+            this, backendRT.dimensions(), 1, info, std::move(layout));
 
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
     SkASSERT(!backendRT.stencilBits());
@@ -1380,10 +1359,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
 
-    GrSurfaceDesc desc;
-    desc.fWidth = tex.width();
-    desc.fHeight = tex.height();
-
     sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
     if (!sampleCnt) {
         return nullptr;
@@ -1392,7 +1367,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
     sk_sp<GrVkImageLayout> layout = tex.getGrVkImageLayout();
     SkASSERT(layout);
 
-    return GrVkRenderTarget::MakeWrappedRenderTarget(this, desc, sampleCnt, imageInfo,
+    return GrVkRenderTarget::MakeWrappedRenderTarget(this, tex.dimensions(), sampleCnt, imageInfo,
                                                      std::move(layout));
 }
 
@@ -1412,11 +1387,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
         return nullptr;
     }
 
-    GrSurfaceDesc desc;
-    desc.fWidth = imageInfo.width();
-    desc.fHeight = imageInfo.height();
-
-    return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, desc, vkInfo);
+    return GrVkRenderTarget::MakeSecondaryCBRenderTarget(this, imageInfo.dimensions(), vkInfo);
 }
 
 bool GrVkGpu::onRegenerateMipMapLevels(GrTexture* tex) {
@@ -2465,10 +2436,6 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         }
 
         // Make a new surface that is RGBA to copy the RGB surface into.
-        GrSurfaceDesc surfDesc;
-        surfDesc.fWidth = width;
-        surfDesc.fHeight = height;
-
         VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                                        VK_IMAGE_USAGE_SAMPLED_BIT |
                                        VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
@@ -2486,7 +2453,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         imageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         copySurface = GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, SkBudgeted::kYes, surfDesc, 1, imageDesc, GrMipMapsStatus::kNotAllocated);
+                this, SkBudgeted::kYes, {width, height}, 1, imageDesc,
+                GrMipMapsStatus::kNotAllocated);
         if (!copySurface) {
             return false;
         }

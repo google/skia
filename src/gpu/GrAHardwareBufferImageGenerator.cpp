@@ -100,10 +100,6 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     int width = this->getInfo().width();
     int height = this->getInfo().height();
 
-    GrSurfaceDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
-
     GrTextureType textureType = GrTextureType::k2D;
     if (context->backend() == GrBackendApi::kOpenGL) {
         textureType = GrTextureType::kExternal;
@@ -183,7 +179,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 
                 return tex;
             },
-            backendFormat, desc, readSwizzle, GrRenderable::kNo, 1, fSurfaceOrigin,
+            backendFormat, {width, height}, readSwizzle, GrRenderable::kNo, 1, fSurfaceOrigin,
             GrMipMapped::kNo, GrMipMapsStatus::kNotAllocated, GrInternalSurfaceFlags::kReadOnly,
             SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
             GrSurfaceProxy::UseAllocator::kYes);

@@ -42,7 +42,7 @@ public:
                                                   GrSurfaceProxyView readView,
                                                   GrColorType, SkAlphaType, sk_sp<SkColorSpace>);
 
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, const SkISize& dimensions,
+    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*, SkISize dimensions,
                                                   const GrBackendFormat&, GrRenderable,
                                                   int renderTargetSampleCnt, GrMipMapped,
                                                   GrProtected, GrSurfaceOrigin, GrColorType,

@@ -102,12 +102,14 @@ bool GrGpu::IsACopyNeededForMips(const GrCaps* caps, const GrTextureProxy* texPr
     return false;
 }
 
-static bool validate_texel_levels(int w, int h, GrColorType texelColorType,
+static bool validate_texel_levels(SkISize dimensions, GrColorType texelColorType,
                                   const GrMipLevel* texels, int mipLevelCount, const GrCaps* caps) {
     SkASSERT(mipLevelCount > 0);
     bool hasBasePixels = texels[0].fPixels;
     int levelsWithPixelsCnt = 0;
     auto bpp = GrColorTypeBytesPerPixel(texelColorType);
+    int w = dimensions.fWidth;
+    int h = dimensions.fHeight;
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         if (texels[currentMipLevel].fPixels) {
             const size_t minRowBytes = w * bpp;
@@ -145,7 +147,7 @@ static bool validate_texel_levels(int w, int h, GrColorType texelColorType,
     return levelsWithPixelsCnt == 1 || levelsWithPixelsCnt == mipLevelCount;
 }
 
-sk_sp<GrTexture> GrGpu::createTextureCommon(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
                                             const GrBackendFormat& format,
                                             GrRenderable renderable,
                                             int renderTargetSampleCnt,
@@ -159,8 +161,8 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(const GrSurfaceDesc& desc,
     }
 
     GrMipMapped mipMapped = mipLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
-    if (!this->caps()->validateSurfaceParams({desc.fWidth, desc.fHeight}, format, renderable,
-                                             renderTargetSampleCnt, mipMapped)) {
+    if (!this->caps()->validateSurfaceParams(dimensions, format, renderable, renderTargetSampleCnt,
+                                             mipMapped)) {
         return nullptr;
     }
 
@@ -171,7 +173,7 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(const GrSurfaceDesc& desc,
     // Attempt to catch un- or wrongly initialized sample counts.
     SkASSERT(renderTargetSampleCnt > 0 && renderTargetSampleCnt <= 64);
     this->handleDirtyContext();
-    auto tex = this->onCreateTexture(desc,
+    auto tex = this->onCreateTexture(dimensions,
                                      format,
                                      renderable,
                                      renderTargetSampleCnt,
@@ -194,7 +196,7 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(const GrSurfaceDesc& desc,
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                       const GrBackendFormat& format,
                                       GrRenderable renderable,
                                       int renderTargetSampleCnt,
@@ -203,19 +205,20 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
                                       GrProtected isProtected) {
     int mipLevelCount = 1;
     if (mipMapped == GrMipMapped::kYes) {
-        mipLevelCount = 32 - SkCLZ(static_cast<uint32_t>(std::max(desc.fWidth, desc.fHeight)));
+        mipLevelCount =
+                32 - SkCLZ(static_cast<uint32_t>(std::max(dimensions.fWidth, dimensions.fHeight)));
     }
     uint32_t levelClearMask =
             this->caps()->shouldInitializeTextures() ? (1 << mipLevelCount) - 1 : 0;
-    auto tex = this->createTextureCommon(desc, format, renderable, renderTargetSampleCnt, budgeted,
-                                         isProtected, mipLevelCount, levelClearMask);
+    auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
+                                         budgeted, isProtected, mipLevelCount, levelClearMask);
     if (tex && mipMapped == GrMipMapped::kYes && levelClearMask) {
         tex->texturePriv().markMipMapsClean();
     }
     return tex;
 }
 
-sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
+sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                       const GrBackendFormat& format,
                                       GrRenderable renderable,
                                       int renderTargetSampleCnt,
@@ -227,7 +230,7 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
                                       int texelLevelCount) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (texelLevelCount) {
-        if (!validate_texel_levels(desc.fWidth, desc.fHeight, srcColorType, texels, texelLevelCount,
+        if (!validate_texel_levels(dimensions, srcColorType, texels, texelLevelCount,
                                    this->caps())) {
             return nullptr;
         }
@@ -247,15 +250,15 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc,
         }
     }
 
-    auto tex = this->createTextureCommon(desc, format, renderable, renderTargetSampleCnt, budgeted,
-                                         isProtected, texelLevelCount, levelClearMask);
+    auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
+                                         budgeted, isProtected, texelLevelCount, levelClearMask);
     if (tex) {
         bool markMipLevelsClean = false;
         // Currently if level 0 does not have pixels then no other level may, as enforced by
         // validate_texel_levels.
         if (texelLevelCount && texels[0].fPixels) {
-            if (!this->writePixels(tex.get(), 0, 0, desc.fWidth, desc.fHeight, textureColorType,
-                                   srcColorType, texels, texelLevelCount)) {
+            if (!this->writePixels(tex.get(), 0, 0, dimensions.fWidth, dimensions.fHeight,
+                                   textureColorType, srcColorType, texels, texelLevelCount)) {
                 return nullptr;
             }
             // Currently if level[1] of mip map has pixel data then so must all other levels.
@@ -512,7 +515,8 @@ bool GrGpu::writePixels(GrSurface* surface, int left, int top, int width, int he
         return false;
     }
 
-    if (!validate_texel_levels(width, height, srcColorType, texels, mipLevelCount, this->caps())) {
+    if (!validate_texel_levels({width, height}, srcColorType, texels, mipLevelCount,
+                               this->caps())) {
         return false;
     }
 

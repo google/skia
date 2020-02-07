@@ -522,10 +522,6 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
 
-    GrSurfaceDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
-
     // Ganesh assumes that, when wrapping a mipmapped backend texture from a client, that its
     // mipmaps are fully fleshed out.
     GrMipMapsStatus mipMapsStatus = (GrMipMapped::kYes == mipMapped)
@@ -535,8 +531,9 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     // We pass kReadOnly here since we should treat content of the client's texture as immutable.
     // The promise API provides no way for the client to indicated that the texture is protected.
-    return proxyProvider->createLazyProxy(
-            std::move(callback), backendFormat, desc, readSwizzle, GrRenderable::kNo, 1, origin,
-            mipMapped, mipMapsStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+    return proxyProvider->createLazyProxy(std::move(callback), backendFormat, {width, height},
+                                          readSwizzle, GrRenderable::kNo, 1, origin, mipMapped,
+                                          mipMapsStatus, GrInternalSurfaceFlags::kReadOnly,
+                                          SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
+                                          GrSurfaceProxy::UseAllocator::kYes);
 }

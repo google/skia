@@ -327,7 +327,7 @@ public:
 protected:
     // Deferred version - takes a new UniqueID from the shared resource/proxy pool.
     GrSurfaceProxy(const GrBackendFormat&,
-                   const GrSurfaceDesc&,
+                   SkISize,
                    GrRenderable,
                    GrSurfaceOrigin,
                    const GrSwizzle& textureSwizzle,
@@ -339,7 +339,7 @@ protected:
     // Lazy-callback version - takes a new UniqueID from the shared resource/proxy pool.
     GrSurfaceProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
-                   const GrSurfaceDesc&,
+                   SkISize,
                    GrRenderable,
                    GrSurfaceOrigin,
                    const GrSwizzle& textureSwizzle,

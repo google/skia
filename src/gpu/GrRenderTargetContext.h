@@ -61,27 +61,49 @@ public:
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, sk_sp<GrSurfaceProxy>,
             GrSurfaceOrigin, const SkSurfaceProps*, bool managedOps = true);
 
-    static std::unique_ptr<GrRenderTargetContext> Make(
-            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
-            const SkISize& dimensions, const GrBackendFormat&, int sampleCnt, GrMipMapped,
-            GrProtected, GrSurfaceOrigin, SkBudgeted, const SkSurfaceProps*);
+    static std::unique_ptr<GrRenderTargetContext> Make(GrRecordingContext*,
+                                                       GrColorType,
+                                                       sk_sp<SkColorSpace>,
+                                                       SkBackingFit,
+                                                       SkISize dimensions,
+                                                       const GrBackendFormat&,
+                                                       int sampleCnt,
+                                                       GrMipMapped,
+                                                       GrProtected,
+                                                       GrSurfaceOrigin,
+                                                       SkBudgeted,
+                                                       const SkSurfaceProps*);
 
     // Same as above but will use the default GrBackendFormat for the given GrColorType
     static std::unique_ptr<GrRenderTargetContext> Make(
-            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
-            const SkISize& dimensions, int sampleCnt = 1, GrMipMapped = GrMipMapped::kNo,
-            GrProtected = GrProtected::kNo, GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes, const SkSurfaceProps* = nullptr);
+            GrRecordingContext*,
+            GrColorType,
+            sk_sp<SkColorSpace>,
+            SkBackingFit,
+            SkISize dimensions,
+            int sampleCnt = 1,
+            GrMipMapped = GrMipMapped::kNo,
+            GrProtected = GrProtected::kNo,
+            GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes,
+            const SkSurfaceProps* = nullptr);
 
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per
     // channel as the passed in GrColorType. It may also swizzle the changes (e.g., BGRA -> RGBA).
     // SRGB-ness will be preserved.
     static std::unique_ptr<GrRenderTargetContext> MakeWithFallback(
-            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, SkBackingFit,
-            const SkISize& dimensions, int sampleCnt = 1, GrMipMapped = GrMipMapped::kNo,
-            GrProtected = GrProtected::kNo, GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes, const SkSurfaceProps* = nullptr);
+            GrRecordingContext*,
+            GrColorType,
+            sk_sp<SkColorSpace>,
+            SkBackingFit,
+            SkISize dimensions,
+            int sampleCnt = 1,
+            GrMipMapped = GrMipMapped::kNo,
+            GrProtected = GrProtected::kNo,
+            GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes,
+            const SkSurfaceProps* = nullptr);
 
     // These match the definitions in SkSurface & GrSurface.h, for whence they came
     typedef void* ReleaseContext;
@@ -515,7 +537,7 @@ public:
     void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace,
                                          const SkIRect& srcRect,
-                                         const SkISize& dstSize,
+                                         SkISize dstSize,
                                          RescaleGamma rescaleGamma,
                                          SkFilterQuality rescaleQuality,
                                          ReadPixelsCallback callback,

@@ -79,6 +79,7 @@ public:
     const SkImageInfo& imageInfo() const { return fImageInfo; }
     const GrBackendFormat& backendFormat() const { return fBackendFormat; }
     GrSurfaceOrigin origin() const { return fOrigin; }
+    SkISize dimensions() const { return fImageInfo.dimensions(); }
     int width() const { return fImageInfo.width(); }
     int height() const { return fImageInfo.height(); }
     SkColorType colorType() const { return fImageInfo.colorType(); }
