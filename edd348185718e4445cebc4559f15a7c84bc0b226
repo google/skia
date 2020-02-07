@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fdf9da1f_d40ea9de",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-07T16:03:50Z",
+      "side": 1,
+      "message": "Can you add a reminder, something like\n\n// Some users care about every byte here, so we\u0027ll use hex colors, \n// single-digit channels even when possible.\n\n?",
+      "revId": "edd348185718e4445cebc4559f15a7c84bc0b226",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
