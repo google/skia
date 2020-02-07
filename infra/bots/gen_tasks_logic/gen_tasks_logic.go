@@ -92,6 +92,12 @@ var (
 			Path: "cache/work",
 		},
 	}
+	CACHES_CCACHE = []*specs.Cache{
+		&specs.Cache{
+			Name: "ccache",
+			Path: "cache/ccache",
+		},
+	}
 	CACHES_DOCKER = []*specs.Cache{
 		&specs.Cache{
 			Name: "docker",
@@ -1076,6 +1082,11 @@ func getIsolatedCIPDDeps(parts map[string]string) []string {
 	return deps
 }
 
+// usesCCache adds attributes to tasks which use ccache.
+func (b *builder) usesCCache(t *specs.TaskSpec, name string) {
+	t.Caches = append(t.Caches, CACHES_CCACHE...)
+}
+
 // usesGit adds attributes to tasks which use git.
 func (b *builder) usesGit(t *specs.TaskSpec, name string) {
 	t.Caches = append(t.Caches, CACHES_GIT...)
@@ -1188,6 +1199,8 @@ func (b *builder) compile(name string, parts map[string]string) string {
 				b.MustGetCipdPackageFromAsset("opencl_ocl_icd_linux"),
 			)
 		}
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("ccache_linux"))
+		b.usesCCache(task, name)
 	} else if strings.Contains(name, "Win") {
 		task.Dependencies = append(task.Dependencies, b.isolateCIPDAsset(ISOLATE_WIN_TOOLCHAIN_NAME))
 		if strings.Contains(name, "Clang") {

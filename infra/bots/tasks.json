@@ -3055,6 +3055,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3072,6 +3076,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3125,6 +3134,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3142,6 +3155,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3195,6 +3213,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3212,6 +3234,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3265,6 +3292,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3282,6 +3313,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3335,6 +3371,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3352,6 +3392,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3405,6 +3450,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3422,6 +3471,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3475,6 +3529,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3492,6 +3550,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3545,6 +3608,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3562,6 +3629,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3615,6 +3687,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3632,6 +3708,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3685,6 +3766,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3702,6 +3787,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -3755,6 +3845,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -3772,6 +3866,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -5611,6 +5710,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -5633,6 +5736,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6056,6 +6164,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6078,6 +6190,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6126,6 +6243,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6148,6 +6269,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6196,6 +6322,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6218,6 +6348,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6341,6 +6476,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6363,6 +6502,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6411,6 +6555,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6443,6 +6591,11 @@
           "name": "skia/bots/opencl_ocl_icd_linux",
           "path": "opencl_ocl_icd_linux",
           "version": "version:0"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6491,6 +6644,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6513,6 +6670,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6561,6 +6723,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6583,6 +6749,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6631,6 +6802,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6653,6 +6828,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6701,6 +6881,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6723,6 +6907,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6771,6 +6960,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6793,6 +6986,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6841,6 +7039,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6863,6 +7065,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6911,6 +7118,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -6938,6 +7149,11 @@
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
           "version": "version:0"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -6986,6 +7202,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7013,6 +7233,11 @@
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
           "version": "version:0"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7061,6 +7286,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7083,6 +7312,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7131,6 +7365,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7153,6 +7391,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7201,6 +7444,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7223,6 +7470,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7271,6 +7523,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7293,6 +7549,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7341,6 +7602,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7363,6 +7628,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7411,6 +7681,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7433,6 +7707,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7497,6 +7776,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7534,6 +7817,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7657,6 +7945,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7679,6 +7971,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7735,6 +8032,10 @@
         {
           "name": "git_cache",
           "path": "cache/git_cache"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7772,6 +8073,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7819,6 +8125,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7841,6 +8151,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7889,6 +8204,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7911,6 +8230,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -7959,6 +8283,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -7981,6 +8309,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8029,6 +8362,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8051,6 +8388,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8099,6 +8441,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8121,6 +8467,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8169,6 +8520,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8191,6 +8546,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8239,6 +8599,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8266,6 +8630,11 @@
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
           "version": "version:0"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8314,6 +8683,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8336,6 +8709,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8384,6 +8762,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8406,6 +8788,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8454,6 +8841,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8476,6 +8867,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8524,6 +8920,10 @@
         {
           "name": "vpython",
           "path": "cache/vpython"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8546,6 +8946,11 @@
           "name": "skia/bots/clang_linux",
           "path": "clang_linux",
           "version": "version:16"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8598,6 +9003,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8615,6 +9024,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8668,6 +9082,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8685,6 +9103,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8738,6 +9161,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8755,6 +9182,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8808,6 +9240,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8825,6 +9261,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8878,6 +9319,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8895,6 +9340,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -8948,6 +9398,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -8965,6 +9419,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -9018,6 +9477,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9035,6 +9498,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
@@ -9088,6 +9556,10 @@
         {
           "name": "docker",
           "path": "cache/docker"
+        },
+        {
+          "name": "ccache",
+          "path": "cache/ccache"
         }
       ],
       "cipd_packages": [
@@ -9105,6 +9577,11 @@
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:18e4e91040bcaae33d51a0179a9ada9319cde14d"
+        },
+        {
+          "name": "skia/bots/ccache_linux",
+          "path": "ccache_linux",
+          "version": "version:1"
         }
       ],
       "command": [
