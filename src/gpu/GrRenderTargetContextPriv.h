@@ -58,10 +58,10 @@ public:
             const SkMatrix* localMatrix = nullptr) {
         // Since this provides stencil settings to drawFilledQuad, it performs a different AA type
         // resolution compared to regular rect draws, which is the main reason it remains separate.
-        GrQuad localQuad = localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix) : GrQuad(rect);
-        fRenderTargetContext->drawFilledQuad(
-                clip, std::move(paint), doStencilMSAA, GrQuadAAFlags::kNone,
-                GrQuad::MakeFromRect(rect, viewMatrix), localQuad, ss);
+        DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
+                      localMatrix ? GrQuad::MakeFromRect(rect, *localMatrix) : GrQuad(rect),
+                      GrQuadAAFlags::kNone};
+        fRenderTargetContext->drawFilledQuad(clip, std::move(paint), doStencilMSAA, &quad, ss);
     }
 
     void stencilPath(

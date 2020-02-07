@@ -33,12 +33,9 @@ namespace GrQuadUtils {
      * based on cropAA policy). If provided, the local coordinates will be updated to reflect the
      * updated device coordinates of this quad.
      *
-     * 'local' may be null, in which case the new local coordinates will not be calculated. This is
-     * useful when it's known a paint does not require local coordinates. However, neither
-     * 'edgeFlags' nore 'quad' can be null.
+     * If 'computeLocal' is false, the local coordinates in 'quad' will not be modified.
      */
-    bool CropToRect(const SkRect& cropRect, GrAA cropAA, GrQuadAAFlags* edgeFlags, GrQuad* quad,
-                    GrQuad* local=nullptr);
+    bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool computeLocal=true);
 
     class TessellationHelper {
     public:

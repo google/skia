@@ -174,9 +174,9 @@ public:
                         const SkMatrix& viewMatrix,
                         const SkRect& rectToDraw,
                         const SkRect& localRect) {
-        this->drawFilledQuad(clip, std::move(paint), aa,
-                             aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
-                             GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect));
+        DrawQuad quad{GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect),
+                      aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
+        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
     }
 
     /**
@@ -188,10 +188,10 @@ public:
                                  const SkMatrix& viewMatrix,
                                  const SkRect& rect,
                                  const SkMatrix& localMatrix) {
-        this->drawFilledQuad(clip, std::move(paint), aa,
-                             aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone,
-                             GrQuad::MakeFromRect(rect, viewMatrix),
-                             GrQuad::MakeFromRect(rect, localMatrix));
+        DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix),
+                      GrQuad::MakeFromRect(rect, localMatrix),
+                      aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
+        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
     }
 
     /**
@@ -204,8 +204,8 @@ public:
                             const SkMatrix& viewMatrix, const SkRect& rect,
                             const SkRect* optionalLocalRect = nullptr) {
         const SkRect& localRect = optionalLocalRect ? *optionalLocalRect : rect;
-        this->drawFilledQuad(clip, std::move(paint), aa, edgeAA,
-                             GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(localRect));
+        DrawQuad quad{GrQuad::MakeFromRect(rect, viewMatrix), GrQuad(localRect), edgeAA};
+        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
     }
 
     /**
@@ -221,12 +221,12 @@ public:
      * necessary.
      */
     void fillQuadWithEdgeAA(const GrClip& clip, GrPaint&& paint, GrAA aa, GrQuadAAFlags edgeAA,
-                            const SkMatrix& viewMatrix, const SkPoint quad[4],
-                            const SkPoint optionalLocalQuad[4]) {
-        const SkPoint* localQuad = optionalLocalQuad ? optionalLocalQuad : quad;
-        this->drawFilledQuad(clip, std::move(paint), aa, edgeAA,
-                             GrQuad::MakeFromSkQuad(quad, viewMatrix),
-                             GrQuad::MakeFromSkQuad(localQuad, SkMatrix::I()));
+                            const SkMatrix& viewMatrix, const SkPoint points[4],
+                            const SkPoint optionalLocalPoints[4]) {
+        const SkPoint* localPoints = optionalLocalPoints ? optionalLocalPoints : points;
+        DrawQuad quad{GrQuad::MakeFromSkQuad(points, viewMatrix),
+                      GrQuad::MakeFromSkQuad(localPoints, SkMatrix::I()), edgeAA};
+        this->drawFilledQuad(clip, std::move(paint), aa, &quad);
     }
 
     /** Used with drawQuadSet */
@@ -254,9 +254,10 @@ public:
                      sk_sp<GrColorSpaceXform> texXform) {
         const SkRect* domain = constraint == SkCanvas::kStrict_SrcRectConstraint ?
                 &srcRect : nullptr;
+        DrawQuad quad{GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), edgeAA};
+
         this->drawTexturedQuad(clip, std::move(view), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, edgeAA,
-                               GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect), domain);
+                               filter, color, mode, aa, &quad, domain);
     }
 
     /**
@@ -274,10 +275,10 @@ public:
         GrSurfaceOrigin origin = proxy->origin();
         const GrSwizzle& swizzle = proxy->textureSwizzle();
         GrSurfaceProxyView proxyView(std::move(proxy), origin, swizzle);
+        DrawQuad quad{GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
+                      GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), edgeAA};
         this->drawTexturedQuad(clip, std::move(proxyView), srcAlphaType, std::move(texXform),
-                               filter, color, mode, aa, edgeAA,
-                               GrQuad::MakeFromSkQuad(dstQuad, viewMatrix),
-                               GrQuad::MakeFromSkQuad(srcQuad, SkMatrix::I()), domain);
+                               filter, color, mode, aa, &quad, domain);
     }
 
     /** Used with drawTextureSet */
@@ -620,23 +621,20 @@ private:
                                              const SkPMColor4f* constColor,
                                              const GrUserStencilSettings* stencilSettings,
                                              GrAA* aa,
-                                             GrQuadAAFlags* edgeFlags,
-                                             GrQuad* deviceQuad,
-                                             GrQuad* localQuad);
+                                             DrawQuad* quad);
 
     // If stencil settings, 'ss', are non-null, AA controls MSAA or no AA. If they are null, then AA
     // can choose between coverage, MSAA as per chooseAAType(). This will always attempt to apply
     // quad optimizations, so all quad/rect public APIs should rely on this function for consistent
-    // clipping behavior.
+    // clipping behavior. 'quad' will be modified in place to reflect final rendered geometry.
     void drawFilledQuad(const GrClip& clip,
                         GrPaint&& paint,
                         GrAA aa,
-                        GrQuadAAFlags edgeFlags,
-                        const GrQuad& deviceQuad,
-                        const GrQuad& localQuad,
+                        DrawQuad* quad,
                         const GrUserStencilSettings* ss = nullptr);
 
-    // Like drawFilledQuad but does not require using a GrPaint or FP for texturing
+    // Like drawFilledQuad but does not require using a GrPaint or FP for texturing.
+    // 'quad' may be modified in place to reflect final geometry.
     void drawTexturedQuad(const GrClip& clip,
                           GrSurfaceProxyView proxyView,
                           SkAlphaType alphaType,
@@ -645,9 +643,7 @@ private:
                           const SkPMColor4f& color,
                           SkBlendMode blendMode,
                           GrAA aa,
-                          GrQuadAAFlags edgeFlags,
-                          const GrQuad& deviceQuad,
-                          const GrQuad& localQuad,
+                          DrawQuad* quad,
                           const SkRect* domain = nullptr);
 
     void drawShapeUsingPathRenderer(const GrClip&, GrPaint&&, GrAA, const SkMatrix&,

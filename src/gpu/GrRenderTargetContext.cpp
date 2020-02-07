@@ -605,17 +605,18 @@ static bool make_vertex_finite(float* value) {
 
 GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimization(
         const GrClip& clip, const SkPMColor4f* constColor,
-        const GrUserStencilSettings* stencilSettings, GrAA* aa, GrQuadAAFlags* edgeFlags,
-        GrQuad* deviceQuad, GrQuad* localQuad) {
+        const GrUserStencilSettings* stencilSettings, GrAA* aa, DrawQuad* quad) {
     // Optimization requirements:
     // 1. kDiscard applies when clip bounds and quad bounds do not intersect
-    // 2. kClear applies when constColor and final geom is pixel aligned rect;
-    //       pixel aligned rect requires rect clip and (rect quad or quad covers clip)
-    // 3. kRRect applies when constColor and rrect clip and quad covers clip
-    // 4. kExplicitClip applies when rect clip and (rect quad or quad covers clip)
-    // 5. kCropped applies when rect quad (currently)
-    // 6. kNone always applies
-    GrQuadAAFlags newFlags = *edgeFlags;
+    // 2a. kSubmitted applies when constColor and final geom is pixel aligned rect;
+    //       pixel aligned rect requires rect clip and (rect quad or quad covers clip) OR
+    // 2b. kSubmitted applies when constColor and rrect clip and quad covers clip
+    // 4. kClipApplied applies when rect clip and (rect quad or quad covers clip)
+    // 5. kCropped in all other scenarios (although a crop may be a no-op)
+
+    // Save the old AA flags since CropToRect will modify 'quad' and if kCropped is returned, it's
+    // better to just keep the old flags instead of introducing mixed edge flags.
+    GrQuadAAFlags oldFlags = quad->fEdgeFlags;
 
     SkRect rtRect;
     if (stencilSettings) {
@@ -628,27 +629,25 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
         rtRect = SkRect::MakeWH(this->width(), this->height());
     }
 
-    SkRect drawBounds = deviceQuad->bounds();
+    SkRect drawBounds = quad->fDevice.bounds();
     if (constColor) {
-        // Don't bother updating local coordinates when the paint will ignore them anyways
-        localQuad = nullptr;
         // If the device quad is not finite, coerce into a finite quad. This is acceptable since it
         // will be cropped to the finite 'clip' or render target and there is no local space mapping
-        if (!deviceQuad->isFinite()) {
+        if (!quad->fDevice.isFinite()) {
             for (int i = 0; i < 4; ++i) {
-                if (!make_vertex_finite(deviceQuad->xs() + i) ||
-                    !make_vertex_finite(deviceQuad->ys() + i) ||
-                    !make_vertex_finite(deviceQuad->ws() + i)) {
+                if (!make_vertex_finite(quad->fDevice.xs() + i) ||
+                    !make_vertex_finite(quad->fDevice.ys() + i) ||
+                    !make_vertex_finite(quad->fDevice.ws() + i)) {
                     // Discard if we see a nan
                     return QuadOptimization::kDiscarded;
                 }
             }
-            SkASSERT(deviceQuad->isFinite());
+            SkASSERT(quad->fDevice.isFinite());
         }
     } else {
         // CropToRect requires the quads to be finite. If they are not finite and we have local
         // coordinates, the mapping from local space to device space is poorly defined so drop it
-        if (!deviceQuad->isFinite()) {
+        if (!quad->fDevice.isFinite()) {
             return QuadOptimization::kDiscarded;
         }
     }
@@ -684,11 +683,11 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
 
         if (clipRRect.isRect()) {
             // No rounded corners, so the kClear and kExplicitClip optimizations are possible
-            if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad)) {
+            if (GrQuadUtils::CropToRect(clipBounds, clipAA, quad, /*compute local*/ !constColor)) {
                 if (!stencilSettings && constColor &&
-                    deviceQuad->quadType() == GrQuad::Type::kAxisAligned) {
+                    quad->fDevice.quadType() == GrQuad::Type::kAxisAligned) {
                     // Clear optimization is possible
-                    drawBounds = deviceQuad->bounds();
+                    drawBounds = quad->fDevice.bounds();
                     if (drawBounds.contains(rtRect)) {
                         // Fullscreen clear
                         this->clear(nullptr, *constColor, CanClearFullscreen::kYes);
@@ -704,9 +703,8 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
                 }
 
                 // Update overall AA setting.
-                *edgeFlags = newFlags;
                 if (*aa == GrAA::kNo && clipAA == GrAA::kYes &&
-                    newFlags != GrQuadAAFlags::kNone) {
+                    quad->fEdgeFlags != GrQuadAAFlags::kNone) {
                     // The clip was anti-aliased and now the draw needs to be upgraded to AA to
                     // properly reflect the smooth edge of the clip.
                     *aa = GrAA::kYes;
@@ -721,14 +719,15 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
             } else {
                 // The quads have been updated to better fit the clip bounds, but can't get rid of
                 // the clip entirely
+                quad->fEdgeFlags = oldFlags;
                 return QuadOptimization::kCropped;
             }
         } else if (!stencilSettings && constColor) {
             // Rounded corners and constant filled color (limit ourselves to solid colors because
             // there is no way to use custom local coordinates with drawRRect).
-            if (GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad) &&
-                deviceQuad->quadType() == GrQuad::Type::kAxisAligned &&
-                deviceQuad->bounds().contains(clipBounds)) {
+            if (GrQuadUtils::CropToRect(clipBounds, clipAA, quad, /* compute local */ false) &&
+                quad->fDevice.quadType() == GrQuad::Type::kAxisAligned &&
+                quad->fDevice.bounds().contains(clipBounds)) {
                 // Since the cropped quad became a rectangle which covered the bounds of the rrect,
                 // we can draw the rrect directly and ignore the edge flags
                 GrPaint paint;
@@ -738,6 +737,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
                 return QuadOptimization::kSubmitted;
             } else {
                 // The quad has been updated to better fit clip bounds, but can't remove the clip
+                quad->fEdgeFlags = oldFlags;
                 return QuadOptimization::kCropped;
             }
         }
@@ -755,7 +755,8 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
 
     // Even if this were to return true, the crop rect does not exactly match the clip, so can not
     // report explicit-clip. Since these edges aren't visible, don't update the final edge flags.
-    GrQuadUtils::CropToRect(clipBounds, clipAA, &newFlags, deviceQuad, localQuad);
+    GrQuadUtils::CropToRect(clipBounds, clipAA, quad, /* compute local */ !constColor);
+    quad->fEdgeFlags = oldFlags;
 
     return QuadOptimization::kCropped;
 }
@@ -763,9 +764,7 @@ GrRenderTargetContext::QuadOptimization GrRenderTargetContext::attemptQuadOptimi
 void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
                                            GrPaint&& paint,
                                            GrAA aa,
-                                           GrQuadAAFlags edgeFlags,
-                                           const GrQuad& deviceQuad,
-                                           const GrQuad& localQuad,
+                                           DrawQuad* quad,
                                            const GrUserStencilSettings* ss) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -782,18 +781,15 @@ void GrRenderTargetContext::drawFilledQuad(const GrClip& clip,
         constColor = &paintColor;
     }
 
-    GrQuad croppedDeviceQuad = deviceQuad;
-    GrQuad croppedLocalQuad = localQuad;
-    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, &edgeFlags,
-                                                         &croppedDeviceQuad, &croppedLocalQuad);
+    QuadOptimization opt = this->attemptQuadOptimization(clip, constColor, ss, &aa, quad);
     if (opt >= QuadOptimization::kClipApplied) {
         // These optimizations require caller to add an op themselves
         const GrClip& finalClip = opt == QuadOptimization::kClipApplied ? GrFixedClip::Disabled()
                                                                         : clip;
         GrAAType aaType = ss ? (aa == GrAA::kYes ? GrAAType::kMSAA : GrAAType::kNone)
                              : this->chooseAAType(aa);
-        this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType, edgeFlags,
-                                                      croppedDeviceQuad, croppedLocalQuad, ss));
+        this->addDrawOp(finalClip, GrFillRectOp::Make(fContext, std::move(paint), aaType,
+                                                      quad, ss));
     }
     // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
@@ -806,9 +802,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
                                              const SkPMColor4f& color,
                                              SkBlendMode blendMode,
                                              GrAA aa,
-                                             GrQuadAAFlags edgeFlags,
-                                             const GrQuad& deviceQuad,
-                                             const GrQuad& localQuad,
+                                             DrawQuad* quad,
                                              const SkRect* domain) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -820,10 +814,7 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
 
     // Functionally this is very similar to drawFilledQuad except that there's no constColor to
     // enable the kSubmitted optimizations, no stencil settings support, and its a GrTextureOp.
-    GrQuad croppedDeviceQuad = deviceQuad;
-    GrQuad croppedLocalQuad = localQuad;
-    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr, nullptr, &aa, &edgeFlags,
-                                                         &croppedDeviceQuad, &croppedLocalQuad);
+    QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr, nullptr, &aa, quad);
 
     SkASSERT(opt != QuadOptimization::kSubmitted);
     if (opt != QuadOptimization::kDiscarded) {
@@ -836,11 +827,10 @@ void GrRenderTargetContext::drawTexturedQuad(const GrClip& clip,
                                                           : GrTextureOp::Saturate::kNo;
         // Use the provided domain, although hypothetically we could detect that the cropped local
         // quad is sufficiently inside the domain and the constraint could be dropped.
-        this->addDrawOp(
-                finalClip,
-                GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
-                                  std::move(textureXform), filter, color, saturate, blendMode,
-                                  aaType, edgeFlags, croppedDeviceQuad, croppedLocalQuad, domain));
+        this->addDrawOp(finalClip,
+                        GrTextureOp::Make(fContext, std::move(proxyView), srcAlphaType,
+                                          std::move(textureXform), filter, color, saturate,
+                                          blendMode, aaType, quad, domain));
     }
 }
 
