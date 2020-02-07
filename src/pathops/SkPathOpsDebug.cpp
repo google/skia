@@ -1120,15 +1120,15 @@ void SkOpSegment::debugReset() {
 void SkOpSegment::debugSetCoinT(int index, SkScalar t) const {
     if (fDebugBaseMax < 0 || fDebugBaseIndex == index) {
         fDebugBaseIndex = index;
-        fDebugBaseMin = SkTMin(t, fDebugBaseMin);
-        fDebugBaseMax = SkTMax(t, fDebugBaseMax);
+        fDebugBaseMin = std::min(t, fDebugBaseMin);
+        fDebugBaseMax = std::max(t, fDebugBaseMax);
         return;
     }
     SkASSERT(fDebugBaseMin >= t || t >= fDebugBaseMax);
     if (fDebugLastMax < 0 || fDebugLastIndex == index) {
         fDebugLastIndex = index;
-        fDebugLastMin = SkTMin(t, fDebugLastMin);
-        fDebugLastMax = SkTMax(t, fDebugLastMax);
+        fDebugLastMin = std::min(t, fDebugLastMin);
+        fDebugLastMax = std::max(t, fDebugLastMax);
         return;
     }
     SkASSERT(fDebugLastMin >= t || t >= fDebugLastMax);

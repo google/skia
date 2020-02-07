@@ -156,7 +156,7 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
 
                 canvas->translate(dx, 0);
                 x += dx;
-                dy = SkTMax(dy, postMBounds.height() + kPad + kHeight);
+                dy = std::max(dy, postMBounds.height() + kPad + kHeight);
                 ++pathCounter;
             }
         }
@@ -207,7 +207,7 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
 
             canvas->translate(dx, 0);
             x += dx;
-            dy = SkTMax(dy, postMBounds.height() + kPad + kHeight);
+            dy = std::max(dy, postMBounds.height() + kPad + kHeight);
         }
     }
 

@@ -268,7 +268,7 @@ size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
                 static_assert(sizeof(ETC1Block) == sizeof(BC1Block));
                 totalSize += numBlocks * sizeof(ETC1Block);
 
-                dimensions = {SkTMax(1, dimensions.width()/2), SkTMax(1, dimensions.height()/2)};
+                dimensions = {std::max(1, dimensions.width()/2), std::max(1, dimensions.height()/2)};
             }
             break;
         }

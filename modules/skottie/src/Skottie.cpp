@@ -378,7 +378,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        ParseDefault<float>(json["h"], 0.0f));
     const auto fps      = ParseDefault<float>(json["fr"], -1.0f),
                inPoint  = ParseDefault<float>(json["ip"], 0.0f),
-               outPoint = SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint),
+               outPoint = std::max(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint),
                duration = sk_ieee_float_divide(outPoint - inPoint, fps);
 
     if (size.isEmpty() || version.isEmpty() || fps <= 0 ||

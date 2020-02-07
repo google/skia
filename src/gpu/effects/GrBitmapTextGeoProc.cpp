@@ -167,7 +167,7 @@ void GrBitmapTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
                                       GrSamplerState params) {
     SkASSERT(numActiveViews <= kMaxTextures);
     // Just to make sure we don't try to add too many proxies
-    numActiveViews = SkTMin(numActiveViews, kMaxTextures);
+    numActiveViews = std::min(numActiveViews, kMaxTextures);
 
     if (!fTextureSamplers[0].isInitialized()) {
         fAtlasDimensions = views[0].proxy()->dimensions();

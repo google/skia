@@ -150,7 +150,7 @@ static void test_in_stripes(skiatest::Reporter* r, SkCodec* codec, const SkImage
     for (int oddEven = 1; oddEven >= 0; oddEven--) {
         for (int y = oddEven * stripeHeight; y < height; y += 2 * stripeHeight) {
             SkIRect subset = SkIRect::MakeLTRB(0, y, info.width(),
-                                               SkTMin(y + stripeHeight, height));
+                                               std::min(y + stripeHeight, height));
             SkCodec::Options options;
             options.fSubset = &subset;
             if (SkCodec::kSuccess != codec->startIncrementalDecode(info, bm.getAddr(0, y),
@@ -847,7 +847,7 @@ public:
         , fLimit(limit) {}
 
     size_t peek(void* buf, size_t bytes) const override {
-        return fStream.peek(buf, SkTMin(bytes, fLimit));
+        return fStream.peek(buf, std::min(bytes, fLimit));
     }
     size_t read(void* buf, size_t bytes) override {
         return fStream.read(buf, bytes);

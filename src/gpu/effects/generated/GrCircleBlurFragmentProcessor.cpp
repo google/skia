@@ -180,7 +180,7 @@ static sk_sp<GrTextureProxy> create_profile_texture(GrRecordingContext* context,
     // half-plane. Similarly, in the extreme high ratio cases circle becomes a point WRT to the
     // Guassian and the profile texture is a just a Gaussian evaluation. However, we haven't yet
     // implemented this latter optimization.
-    sigmaToCircleRRatio = SkTMin(sigmaToCircleRRatio, 8.f);
+    sigmaToCircleRRatio = std::min(sigmaToCircleRRatio, 8.f);
     SkFixed sigmaToCircleRRatioFixed;
     static const SkScalar kHalfPlaneThreshold = 0.1f;
     bool useHalfPlaneApprox = false;

@@ -363,7 +363,7 @@ void SkLightingShaderImpl::LightingShaderContext::shadeSpan(int x, int y,
     SkColor diffColor = fPaintColor;
 
     do {
-        int n = SkTMin(count, BUFFER_MAX);
+        int n = std::min(count, BUFFER_MAX);
 
         fNormalProvider->fillScanLine(x, y, normals, n);
 
