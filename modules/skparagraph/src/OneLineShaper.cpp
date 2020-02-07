@@ -524,6 +524,16 @@ bool OneLineShaper::shape() {
                 font.setHinting(SkFontHinting::kSlight);
                 font.setSubpixel(true);
 
+                int wantedWeight = block.fStyle.getFontStyle().weight();
+                bool fakeBold =
+                    wantedWeight >= SkFontStyle::kSemiBold_Weight &&
+                    wantedWeight - font.getTypeface()->fontStyle().weight() >= 200;
+                bool fakeItalic =
+                    block.fStyle.getFontStyle().slant() == SkFontStyle::kItalic_Slant &&
+                    font.getTypeface()->fontStyle().slant() != SkFontStyle::kItalic_Slant;
+                font.setEmbolden(fakeBold);
+                font.setSkewX(fakeItalic ? -SK_Scalar1 / 4 : 0);
+
                 // Walk through all the currently unresolved blocks
                 // (ignoring those that appear later)
                 auto count = fUnresolvedBlocks.size();
