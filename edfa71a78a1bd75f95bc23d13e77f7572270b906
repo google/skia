@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc478939_74dd83b6",
+        "filename": "src/gpu/ccpr/GrCCAtlas.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-07T20:47:49Z",
+      "side": 1,
+      "message": "Callers can use GrCCAtlas::kTextureOrigin instead of needing this call.",
+      "range": {
+        "startLine": 81,
+        "startChar": 20,
+        "endLine": 81,
+        "endChar": 26
+      },
+      "revId": "edfa71a78a1bd75f95bc23d13e77f7572270b906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93e6f54c_efd6943c",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-07T20:47:49Z",
+      "side": 1,
+      "message": "I wonder if GrCCPathProcessor can be made to just choose its swizzle based on GrCaps.",
+      "range": {
+        "startLine": 459,
+        "startChar": 39,
+        "endLine": 459,
+        "endChar": 53
+      },
+      "revId": "edfa71a78a1bd75f95bc23d13e77f7572270b906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37a1be9d_8390564b",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-07T20:47:49Z",
+      "side": 1,
+      "message": "I wonder if we can get away without the swizzle? We know the atlas will always be either kAlpha_Half or kAlpha_8. Can we possibly just pull the swizzle off GrCaps at draw time, instead of storing it?",
+      "range": {
+        "startLine": 142,
+        "startChar": 8,
+        "endLine": 142,
+        "endChar": 26
+      },
+      "revId": "edfa71a78a1bd75f95bc23d13e77f7572270b906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff060982_a2df7e22",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-07T20:47:49Z",
+      "side": 1,
+      "message": "Ditto here.. Is it worth considering having the user derive the view on demand, based on swizzle from GrCaps rather than us storing it?",
+      "range": {
+        "startLine": 339,
+        "startChar": 31,
+        "endLine": 339,
+        "endChar": 43
+      },
+      "revId": "edfa71a78a1bd75f95bc23d13e77f7572270b906",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
