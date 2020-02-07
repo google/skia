@@ -82,6 +82,9 @@ def dm_flags(api, bot):
   if 'Test' in bot and 'DISCARDABLE' in bot:
     thread_limit = MAIN_THREAD_ONLY
 
+  if 'iPhone11' in bot:
+    thread_limit = MAIN_THREAD_ONLY
+
   if thread_limit is not None:
     args.extend(['--threads', str(thread_limit)])
 
@@ -305,6 +308,9 @@ def dm_flags(api, bot):
       configs = ['gles']
 
     if 'Chromecast' in bot:
+      configs = ['gles']
+
+    if 'iPhone11' in bot:
       configs = ['gles']
 
     # Test coverage counting path renderer.
@@ -1072,6 +1078,7 @@ TEST_BUILDERS = [
   'Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All',
   'Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer',
   'Test-Android-Clang-TecnoSpark3Pro-GPU-PowerVRGE8320-arm-Debug-All-Android',
+  'Test-iOS-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All',
 ]
 
 
