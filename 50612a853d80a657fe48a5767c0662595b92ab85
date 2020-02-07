@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a62da63_cef26d77",
+        "filename": "modules/sksg/include/SkSGGroup.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-07T22:21:23Z",
+      "side": 1,
+      "message": "Seems sort of cozy safer for this to default to true?",
+      "range": {
+        "startLine": 48,
+        "startChar": 54,
+        "endLine": 48,
+        "endChar": 61
+      },
+      "revId": "50612a853d80a657fe48a5767c0662595b92ab85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdef40b5_a32e3bc3",
+        "filename": "modules/sksg/src/SkSGGroup.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-02-07T22:21:23Z",
+      "side": 1,
+      "message": "Interesting.  I wonder if child order matters.",
+      "range": {
+        "startLine": 91,
+        "startChar": 12,
+        "endLine": 92,
+        "endChar": 38
+      },
+      "revId": "50612a853d80a657fe48a5767c0662595b92ab85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
