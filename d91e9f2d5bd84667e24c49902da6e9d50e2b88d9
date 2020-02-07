@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "43eb3e5b_37f7182a",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-07T16:15:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a17e132_4f1afe11",
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c728d30_0edd336d",
         "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
         "patchSetId": 17
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "1e5f514a_939ea84e",
+        "filename": "infra/bots/gen_tasks_logic/gen_tasks_logic.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-07T16:15:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c728d30_0edd336d",
+      "range": {
+        "startLine": 1166,
+        "startChar": 0,
+        "endLine": 1166,
+        "endChar": 8
+      },
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "69237a18_a3e0f28d",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 17
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "c2fe151e_26e28c74",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-07T16:15:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69237a18_a3e0f28d",
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d3cb17d_278d84c7",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 17
@@ -73,6 +133,24 @@
       "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cefbc96_4af35cea",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 17
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 10815
+      },
+      "writtenOn": "2020-02-07T16:15:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d3cb17d_278d84c7",
+      "revId": "d91e9f2d5bd84667e24c49902da6e9d50e2b88d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
