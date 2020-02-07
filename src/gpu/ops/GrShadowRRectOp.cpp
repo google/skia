@@ -206,7 +206,7 @@ public:
         if (isCircle) {
             umbraInset = 0;
         } else {
-            umbraInset = SkTMax(outerRadius, blurRadius);
+            umbraInset = std::max(outerRadius, blurRadius);
         }
 
         // If stroke is greater than width or height, this is still a fill,
@@ -215,10 +215,10 @@ public:
             innerRadius = devRadius - insetWidth;
             type = innerRadius > 0 ? kStroke_RRectType : kFill_RRectType;
         } else {
-            if (insetWidth <= 0.5f*SkTMin(devRect.width(), devRect.height())) {
+            if (insetWidth <= 0.5f*std::min(devRect.width(), devRect.height())) {
                 // We don't worry about a real inner radius, we just need to know if we
                 // need to create overstroke vertices.
-                innerRadius = SkTMax(insetWidth - umbraInset, 0.0f);
+                innerRadius = std::max(insetWidth - umbraInset, 0.0f);
                 type = innerRadius > 0 ? kOverstroke_RRectType : kStroke_RRectType;
             }
         }
@@ -418,7 +418,7 @@ private:
         const SkRect& bounds = args.fDevBounds;
 
         SkScalar umbraInset = args.fUmbraInset;
-        SkScalar minDim = 0.5f*SkTMin(bounds.width(), bounds.height());
+        SkScalar minDim = 0.5f*std::min(bounds.width(), bounds.height());
         if (umbraInset > minDim) {
             umbraInset = minDim;
         }

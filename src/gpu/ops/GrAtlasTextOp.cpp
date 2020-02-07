@@ -215,19 +215,19 @@ static void clip_quads(const SkIRect& clipRect, char* currVertex, const char* bl
 
             // Clip position and texCoords to the clipRect
             unsigned int delta;
-            delta = SkTMin(SkTMax(clipRect.fLeft - positionRect.fLeft, 0), positionRectWidth);
+            delta = std::min(std::max(clipRect.fLeft - positionRect.fLeft, 0), positionRectWidth);
             coordsRectL += delta;
             positionRect.fLeft += delta;
 
-            delta = SkTMin(SkTMax(clipRect.fTop - positionRect.fTop, 0), positionRectHeight);
+            delta = std::min(std::max(clipRect.fTop - positionRect.fTop, 0), positionRectHeight);
             coordsRectT += delta;
             positionRect.fTop += delta;
 
-            delta = SkTMin(SkTMax(positionRect.fRight - clipRect.fRight, 0), positionRectWidth);
+            delta = std::min(std::max(positionRect.fRight - clipRect.fRight, 0), positionRectWidth);
             coordsRectR -= delta;
             positionRect.fRight -= delta;
 
-            delta = SkTMin(SkTMax(positionRect.fBottom - clipRect.fBottom, 0), positionRectHeight);
+            delta = std::min(std::max(positionRect.fBottom - clipRect.fBottom, 0), positionRectHeight);
             coordsRectB -= delta;
             positionRect.fBottom -= delta;
 

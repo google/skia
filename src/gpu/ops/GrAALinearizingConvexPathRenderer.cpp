@@ -271,7 +271,7 @@ private:
                 indexCount = 0;
             }
             if (vertexCount + currentVertices > maxVertices) {
-                maxVertices = SkTMax(vertexCount + currentVertices, maxVertices * 2);
+                maxVertices = std::max(vertexCount + currentVertices, maxVertices * 2);
                 if (maxVertices * vertexStride > SK_MaxS32) {
                     sk_free(vertices);
                     sk_free(indices);
@@ -281,7 +281,7 @@ private:
             }
             int currentIndices = tess.numIndices();
             if (indexCount + currentIndices > maxIndices) {
-                maxIndices = SkTMax(indexCount + currentIndices, maxIndices * 2);
+                maxIndices = std::max(indexCount + currentIndices, maxIndices * 2);
                 if (maxIndices * sizeof(uint16_t) > SK_MaxS32) {
                     sk_free(vertices);
                     sk_free(indices);

@@ -15,8 +15,8 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
     double minX = fCubic.fPts[0].fX;
     double maxX = minX;
     for (int index = 1; index <= count; ++index) {
-        minX = SkTMin(minX, fCubic.fPts[index].fX);
-        maxX = SkTMax(maxX, fCubic.fPts[index].fX);
+        minX = std::min(minX, fCubic.fPts[index].fX);
+        maxX = std::max(maxX, fCubic.fPts[index].fX);
     }
     if (!AlmostBetweenUlps(minX, xy.fX, maxX)) {
         return -1;
@@ -24,8 +24,8 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
     double minY = fCubic.fPts[0].fY;
     double maxY = minY;
     for (int index = 1; index <= count; ++index) {
-        minY = SkTMin(minY, fCubic.fPts[index].fY);
-        maxY = SkTMax(maxY, fCubic.fPts[index].fY);
+        minY = std::min(minY, fCubic.fPts[index].fY);
+        maxY = std::max(maxY, fCubic.fPts[index].fY);
     }
     if (!AlmostBetweenUlps(minY, xy.fY, maxY)) {
         return -1;
@@ -45,7 +45,7 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
     if (minIndex < 0) {
         return -1;
     }
-    double largest = SkTMax(SkTMax(maxX, maxY), -SkTMin(minX, minY));
+    double largest = std::max(std::max(maxX, maxY), -std::min(minX, minY));
     if (!AlmostEqualUlps_Pin(largest, largest + minDist)) { // is distance within ULPS tolerance?
         return -1;
     }
@@ -102,7 +102,7 @@ void SkDCurveSweep::setCurveHullSweep(SkPath::Verb verb) {
     // central place for this val-is-small-compared-to-curve check
     double maxVal = 0;
     for (int index = 0; index <= SkPathOpsVerbToPoints(verb); ++index) {
-        maxVal = SkTMax(maxVal, SkTMax(SkTAbs(fCurve[index].fX),
+        maxVal = std::max(maxVal, std::max(SkTAbs(fCurve[index].fX),
                 SkTAbs(fCurve[index].fY)));
     }
     {

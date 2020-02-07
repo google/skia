@@ -42,7 +42,7 @@ const uint32_t kVersion = 2;
 static SkSize join(const SkTArray<SkSize>& sizes) {
     SkSize joined = {0, 0};
     for (SkSize s : sizes) {
-        joined = SkSize{SkTMax(joined.width(), s.width()), SkTMax(joined.height(), s.height())};
+        joined = SkSize{std::max(joined.width(), s.width()), std::max(joined.height(), s.height())};
     }
     return joined;
 }
@@ -185,8 +185,8 @@ bool SkMultiPictureDocumentRead(SkStreamSeekable* stream,
     }
     SkSize joined = {0.0f, 0.0f};
     for (int i = 0; i < dstArrayCount; ++i) {
-        joined = SkSize{SkTMax(joined.width(), dstArray[i].fSize.width()),
-                        SkTMax(joined.height(), dstArray[i].fSize.height())};
+        joined = SkSize{std::max(joined.width(), dstArray[i].fSize.width()),
+                        std::max(joined.height(), dstArray[i].fSize.height())};
     }
 
     auto picture = SkPicture::MakeFromStream(stream, procs);

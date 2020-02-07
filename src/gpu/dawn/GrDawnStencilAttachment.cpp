@@ -53,7 +53,7 @@ size_t GrDawnStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= 32;
-    size *= SkTMax(1,this->numSamples());
+    size *= std::max(1,this->numSamples());
     return static_cast<size_t>(size / 8);
 }
 

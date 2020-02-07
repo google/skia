@@ -1914,7 +1914,7 @@ void LogFontTypeface::onCharsToGlyphs(const SkUnichar* uni, int glyphCount,
     const uint32_t* utf32 = reinterpret_cast<const uint32_t*>(uni);
     while (glyphIndex < glyphCount) {
         // Try a run of bmp.
-        int glyphsLeft = SkTMin(glyphCount - glyphIndex, scratchCount);
+        int glyphsLeft = std::min(glyphCount - glyphIndex, scratchCount);
         int runLength = 0;
         while (runLength < glyphsLeft && utf32[glyphIndex + runLength] <= 0xFFFF) {
             scratch[runLength] = static_cast<WCHAR>(utf32[glyphIndex + runLength]);

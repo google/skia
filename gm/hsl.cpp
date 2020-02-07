@@ -42,8 +42,8 @@
 //
 // I think the KHR version is just wrong... it produces values >1.  So we use the web version.
 
-static float min(float r, float g, float b) { return SkTMin(r, SkTMin(g, b)); }
-static float max(float r, float g, float b) { return SkTMax(r, SkTMax(g, b)); }
+static float min(float r, float g, float b) { return std::min(r, std::min(g, b)); }
+static float max(float r, float g, float b) { return std::max(r, std::max(g, b)); }
 
 static float sat(float r, float g, float b) { return max(r,g,b) - min(r,g,b); }
 static float lum(float r, float g, float b) { return r*0.30f + g*0.59f + b*0.11f; }

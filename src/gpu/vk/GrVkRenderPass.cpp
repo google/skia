@@ -126,7 +126,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
         stencilRef.attachment = currentAttachment++;
         stencilRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
         if (VK_ATTACHMENT_LOAD_OP_CLEAR == stencilOp.fLoadOp) {
-            clearValueCount = SkTMax(clearValueCount, stencilRef.attachment + 1);
+            clearValueCount = std::max(clearValueCount, stencilRef.attachment + 1);
         }
     } else {
         stencilRef.attachment = VK_ATTACHMENT_UNUSED;

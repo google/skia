@@ -1329,7 +1329,7 @@ private:
             for (int i = 0; i < 8; ++i) {
                 // This clips the normalized offset to the half-plane we computed above. Then we
                 // compute the vertex position from this.
-                SkScalar dist = SkTMin(kOctagonOuter[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
+                SkScalar dist = std::min(kOctagonOuter[i].dot(geoClipPlane) + offsetClipDist, 0.0f);
                 SkVector offset = kOctagonOuter[i] - geoClipPlane * dist;
                 vertices.write(center + offset * halfWidth,
                                color,
@@ -1955,7 +1955,7 @@ private:
             verts.writeQuad(GrVertexWriter::TriStripFromRect(ellipse.fDevBounds),
                             color,
                             origin_centered_tri_strip(xMaxOffset, yMaxOffset),
-                            GrVertexWriter::If(fUseScale, SkTMax(xRadius, yRadius)),
+                            GrVertexWriter::If(fUseScale, std::max(xRadius, yRadius)),
                             invRadii);
         }
         helper.recordDraw(target, gp);
@@ -2197,7 +2197,7 @@ private:
             verts.writeQuad(GrVertexWriter::TriStripFromRect(ellipse.fBounds),
                             color,
                             origin_centered_tri_strip(1.0f + offsetDx, 1.0f + offsetDy),
-                            GrVertexWriter::If(fUseScale, SkTMax(xRadius, yRadius)),
+                            GrVertexWriter::If(fUseScale, std::max(xRadius, yRadius)),
                             origin_centered_tri_strip(innerRatioX + offsetDx,
                                                       innerRatioY + offsetDy));
         }
@@ -2898,7 +2898,7 @@ private:
                                                                // shader, so can't be exactly 0
                                          SK_ScalarNearlyZero, yMaxOffset};
 
-            auto maybeScale = GrVertexWriter::If(fUseScale, SkTMax(rrect.fXRadius, rrect.fYRadius));
+            auto maybeScale = GrVertexWriter::If(fUseScale, std::max(rrect.fXRadius, rrect.fYRadius));
             for (int i = 0; i < 4; ++i) {
                 verts.write(bounds.fLeft, yCoords[i],
                             color,

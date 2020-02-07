@@ -390,10 +390,10 @@ size_t SkStrikeCache::internalPurge(size_t minBytesNeeded) {
     if (fTotalMemoryUsed > fCacheSizeLimit) {
         bytesNeeded = fTotalMemoryUsed - fCacheSizeLimit;
     }
-    bytesNeeded = SkTMax(bytesNeeded, minBytesNeeded);
+    bytesNeeded = std::max(bytesNeeded, minBytesNeeded);
     if (bytesNeeded) {
         // no small purges!
-        bytesNeeded = SkTMax(bytesNeeded, fTotalMemoryUsed >> 2);
+        bytesNeeded = std::max(bytesNeeded, fTotalMemoryUsed >> 2);
     }
 
     int countNeeded = 0;
