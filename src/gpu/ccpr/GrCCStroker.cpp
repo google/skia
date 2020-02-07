@@ -569,7 +569,7 @@ GrCCStroker::BatchID GrCCStroker::closeCurrentBatch() {
     }
     int start = (fBatches.count() < 2) ? 0 : fBatches[fBatches.count() - 2].fEndScissorSubBatch;
     int end = fBatches.back().fEndScissorSubBatch;
-    fMaxNumScissorSubBatches = SkTMax(fMaxNumScissorSubBatches, end - start);
+    fMaxNumScissorSubBatches = std::max(fMaxNumScissorSubBatches, end - start);
     fHasOpenBatch = false;
     return fBatches.count() - 1;
 }

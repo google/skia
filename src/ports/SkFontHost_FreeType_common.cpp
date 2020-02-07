@@ -68,16 +68,16 @@ FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
 
 uint16_t packTriple(U8CPU r, U8CPU g, U8CPU b) {
 #ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-    r = SkTMax(r, (U8CPU)0x40);
-    g = SkTMax(g, (U8CPU)0x40);
-    b = SkTMax(b, (U8CPU)0x40);
+    r = std::max(r, (U8CPU)0x40);
+    g = std::max(g, (U8CPU)0x40);
+    b = std::max(b, (U8CPU)0x40);
 #endif
     return SkPack888ToRGB16(r, g, b);
 }
 
 uint16_t grayToRGB16(U8CPU gray) {
 #ifdef SK_SHOW_TEXT_BLIT_COVERAGE
-    gray = SkTMax(gray, (U8CPU)0x40);
+    gray = std::max(gray, (U8CPU)0x40);
 #endif
     return SkPack888ToRGB16(gray, gray, gray);
 }
@@ -234,7 +234,7 @@ void copyFTBitmap(const FT_Bitmap& srcFTBitmap, SkMask& dstMask) {
     if ((FT_PIXEL_MODE_MONO == srcFormat && SkMask::kBW_Format == dstFormat) ||
         (FT_PIXEL_MODE_GRAY == srcFormat && SkMask::kA8_Format == dstFormat))
     {
-        size_t commonRowBytes = SkTMin(srcRowBytes, dstRowBytes);
+        size_t commonRowBytes = std::min(srcRowBytes, dstRowBytes);
         for (size_t y = height; y --> 0;) {
             memcpy(dst, src, commonRowBytes);
             src += srcPitch;
@@ -554,7 +554,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 for (int y = 0; y < glyph.fHeight; ++y) {
                     for (int x = 0; x < glyph.fWidth; ++x) {
                         uint8_t& a = ((uint8_t*)glyph.fImage)[(glyph.rowBytes() * y) + x];
-                        a = SkTMax<uint8_t>(a, 0x20);
+                        a = std::max<uint8_t>(a, 0x20);
                     }
                 }
 #endif

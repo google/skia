@@ -1203,7 +1203,7 @@ void merge_vertices(Vertex* src, Vertex* dst, VertexList* mesh, Comparator& c,
                     SkArenaAlloc& alloc) {
     TESS_LOG("found coincident verts at %g, %g; merging %g into %g\n",
              src->fPoint.fX, src->fPoint.fY, src->fID, dst->fID);
-    dst->fAlpha = SkTMax(src->fAlpha, dst->fAlpha);
+    dst->fAlpha = std::max(src->fAlpha, dst->fAlpha);
     if (src->fPartner) {
         src->fPartner->fPartner = dst;
     }
@@ -1327,7 +1327,7 @@ bool check_for_intersection(Edge* left, Edge* right, EdgeList* activeEdges, Vert
         rewind(activeEdges, current, top ? top : v, c);
         split_edge(left, v, activeEdges, current, c, alloc);
         split_edge(right, v, activeEdges, current, c, alloc);
-        v->fAlpha = SkTMax(v->fAlpha, alpha);
+        v->fAlpha = std::max(v->fAlpha, alpha);
         return true;
     }
     return intersect_edge_pair(left, right, activeEdges, current, c, alloc);

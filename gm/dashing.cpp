@@ -567,7 +567,7 @@ DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
     canvas->save();
     SkScalar h = 0.f;
     for (const auto& line : kLines) {
-        h = SkTMax(h, SkScalarAbs(line.fA.fY - line.fB.fY));
+        h = std::max(h, SkScalarAbs(line.fA.fY - line.fB.fY));
     }
     for (const auto& line : kLines) {
         SkScalar w = SkScalarAbs(line.fA.fX - line.fB.fX);

@@ -537,11 +537,11 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
     const SkPixmap* pixmap = &originalPixmap;
     SkAutoPixmapStorage resized;
     int maxTextureSize = context->priv().caps()->maxTextureSize();
-    int maxDim = SkTMax(originalPixmap.width(), originalPixmap.height());
+    int maxDim = std::max(originalPixmap.width(), originalPixmap.height());
     if (limitToMaxTextureSize && maxDim > maxTextureSize) {
         float scale = static_cast<float>(maxTextureSize) / maxDim;
-        int newWidth = SkTMin(static_cast<int>(originalPixmap.width() * scale), maxTextureSize);
-        int newHeight = SkTMin(static_cast<int>(originalPixmap.height() * scale), maxTextureSize);
+        int newWidth = std::min(static_cast<int>(originalPixmap.width() * scale), maxTextureSize);
+        int newHeight = std::min(static_cast<int>(originalPixmap.height() * scale), maxTextureSize);
         SkImageInfo info = originalPixmap.info().makeWH(newWidth, newHeight);
         if (!resized.tryAlloc(info) || !originalPixmap.scalePixels(resized, kLow_SkFilterQuality)) {
             return nullptr;

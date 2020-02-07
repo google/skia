@@ -33,7 +33,7 @@ struct DragCanvas {
             aspect = h / w;
         }
 
-        float availWidth = SkTMax(ImGui::GetContentRegionAvailWidth(), 1.0f);
+        float availWidth = std::max(ImGui::GetContentRegionAvailWidth(), 1.0f);
         fPos = ImGui::GetCursorScreenPos();
         fSize = ImVec2(availWidth, availWidth * aspect);
 

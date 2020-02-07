@@ -561,10 +561,10 @@ GrReducedClip::ClipResult GrReducedClip::clipOutsideElement(const Element* eleme
             if (SkRRect::kComplex_Type == clipRRect.getType()) {
                 const SkVector& insetTR = clipRRect.radii(SkRRect::kUpperRight_Corner);
                 const SkVector& insetBL = clipRRect.radii(SkRRect::kLowerLeft_Corner);
-                insetTL.fX = SkTMax(insetTL.x(), insetBL.x());
-                insetTL.fY = SkTMax(insetTL.y(), insetTR.y());
-                insetBR.fX = SkTMax(insetBR.x(), insetTR.x());
-                insetBR.fY = SkTMax(insetBR.y(), insetBL.y());
+                insetTL.fX = std::max(insetTL.x(), insetBL.x());
+                insetTL.fY = std::max(insetTL.y(), insetTR.y());
+                insetBR.fX = std::max(insetBR.x(), insetTR.x());
+                insetBR.fY = std::max(insetBR.y(), insetBL.y());
             }
             const SkRect& bounds = clipRRect.getBounds();
             if (insetTL.x() + insetBR.x() >= bounds.width() ||

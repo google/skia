@@ -644,10 +644,10 @@ DEF_TEST(FloatSaturate32, reporter) {
 
         // ensure that these bound even non-finite values (including NaN)
 
-        SkScalar mx = SkTMax<SkScalar>(r.fFloat, 50);
+        SkScalar mx = std::max<SkScalar>(r.fFloat, 50);
         REPORTER_ASSERT(reporter, mx >= 50);
 
-        SkScalar mn = SkTMin<SkScalar>(r.fFloat, 50);
+        SkScalar mn = std::min<SkScalar>(r.fFloat, 50);
         REPORTER_ASSERT(reporter, mn <= 50);
 
         SkScalar p = SkTPin<SkScalar>(r.fFloat, 0, 100);

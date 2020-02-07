@@ -191,8 +191,8 @@ public:
         size_t maxSize = 0;
         for (size_t s : {Span<Ts>::Size(std::forward<Ts>(ts))...}) {
             if (s != SIZE_MAX) {
-                minSize = SkTMin(minSize, s);
-                maxSize = SkTMax(maxSize, s);
+                minSize = std::min(minSize, s);
+                maxSize = std::max(maxSize, s);
             }
         }
         SkASSERT(minSize == maxSize);
