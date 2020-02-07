@@ -62,6 +62,7 @@ RasterWindowContext_mac::RasterWindowContext_mac(const MacWindowInfo& info,
 }
 
 RasterWindowContext_mac::~RasterWindowContext_mac() {
+    [NSOpenGLContext clearCurrentContext];
     [fPixelFormat release];
     fPixelFormat = nil;
     [fGLContext release];
