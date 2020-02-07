@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e43388a2_7ebe0186",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-07T00:16:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7b90445_f090dd9a",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 6
+      },
+      "revId": "2c4c53e7c68e6df85f2cf61aac5bca29b058f223",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbaa3f85_d72fc2ed",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "2c4c53e7c68e6df85f2cf61aac5bca29b058f223",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aff24012_b0216c4e",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-02-07T00:16:11Z",
+      "side": 1,
+      "message": "Eek.\n\nIt looks like SkPath::transform behaves different anyway, so I will just let this one fall through to keep the tests happy.",
+      "parentUuid": "dbaa3f85_d72fc2ed",
+      "range": {
+        "startLine": 1350,
+        "startChar": 7,
+        "endLine": 1350,
+        "endChar": 31
+      },
+      "revId": "2c4c53e7c68e6df85f2cf61aac5bca29b058f223",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
