@@ -420,7 +420,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto[copySrc, grCT] = maker.view(GrMipMapped::kNo);
 
         REPORTER_ASSERT(reporter, copySrc.proxy());
-        auto copyResult = surfContext->testCopy(copySrc.proxy());
+        auto copyResult = surfContext->testCopy(copySrc.proxy(), copySrc.origin());
         REPORTER_ASSERT(reporter, copyResult == (ioType == kRW_GrIOType));
         // Try the low level copy.
         context->flush();
@@ -815,7 +815,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleStateTest, reporter, contextInfo) {
         auto proxy = context->priv().proxyProvider()->testingOnly_createWrapped(
                 std::move(idleTexture), GrColorType::kRGBA_8888, rtc->asSurfaceProxy()->origin());
         context->flush();
-        SkAssertResult(rtc->testCopy(proxy.get()));
+        SkAssertResult(rtc->testCopy(proxy.get(), rtc->asSurfaceProxy()->origin()));
         proxy.reset();
         REPORTER_ASSERT(reporter, flags == 0);
 

@@ -115,11 +115,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
-                                    result = dstContext->testCopy(src.get(), srcRect, dstPoint);
+                                    result = dstContext->testCopy(src.get(), sOrigin, srcRect,
+                                                                  dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
                                     SkASSERT(dstContext->asRenderTargetContext());
+                                    GrSwizzle srcSwizzle = context->priv().caps()->getReadSwizzle(
+                                        src->backendFormat(), grColorType);
+                                    GrSurfaceProxyView view(std::move(src), sOrigin, srcSwizzle);
                                     result = dstContext->asRenderTargetContext()->blitTexture(
-                                            src.get(), srcRect, dstPoint);
+                                            std::move(view), srcRect, dstPoint);
                                 }
 
                                 bool expectedResult = true;

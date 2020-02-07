@@ -119,7 +119,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
                 pixels.get(), 0);
         // If this assert ever fails we can add a fallback to do copy as draw, but until then we can
         // be more restrictive.
-        SkAssertResult(dstContext->testCopy(src.get()));
+        SkAssertResult(dstContext->testCopy(src.get(), origin));
         TestReadPixels(reporter, dstContext, pixels.get(), testName);
     }
 }

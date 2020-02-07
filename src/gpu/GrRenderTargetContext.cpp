@@ -2604,21 +2604,19 @@ bool GrRenderTargetContext::setupDstProxyView(const GrClip& clip, const GrOp& op
     return true;
 }
 
-bool GrRenderTargetContext::blitTexture(GrTextureProxy* src, const SkIRect& srcRect,
+bool GrRenderTargetContext::blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect,
                                         const SkIPoint& dstPoint) {
+    SkASSERT(view.asTextureProxy());
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
-    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->dimensions(), src->dimensions(), srcRect,
-                                  dstPoint, &clippedSrcRect, &clippedDstPoint)) {
+    if (!GrClipSrcRectAndDstPoint(this->asSurfaceProxy()->dimensions(), view.proxy()->dimensions(),
+                                  srcRect, dstPoint, &clippedSrcRect, &clippedDstPoint)) {
         return false;
     }
 
     GrPaint paint;
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    GrSurfaceOrigin origin = src->origin();
-    GrSwizzle swizzle = src->textureSwizzle();
-    GrSurfaceProxyView view(sk_ref_sp(src), origin, swizzle);
     auto fp = GrTextureEffect::Make(std::move(view), kUnknown_SkAlphaType);
     if (!fp) {
         return false;

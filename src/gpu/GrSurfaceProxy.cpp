@@ -313,7 +313,7 @@ GrSurfaceProxyView GrSurfaceProxy::Copy(GrRecordingContext* context,
                                                  GrRenderable::kNo, 1, mipMapped,
                                                  src->isProtected(), origin, srcColorType,
                                                  kUnknown_SkAlphaType, nullptr, fit, budgeted);
-        if (dstContext && dstContext->copy(src, srcRect, dstPoint)) {
+        if (dstContext && dstContext->copy(src, origin, srcRect, dstPoint)) {
             return dstContext->readSurfaceView();
         }
     }
@@ -322,7 +322,10 @@ GrSurfaceProxyView GrSurfaceProxy::Copy(GrRecordingContext* context,
                                                       {width, height}, format, 1,
                                                       mipMapped, src->isProtected(), origin,
                                                       budgeted, nullptr);
-        if (dstContext && dstContext->blitTexture(src->asTextureProxy(), srcRect, dstPoint)) {
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(src->backendFormat(),
+                                                                   srcColorType);
+        GrSurfaceProxyView view(sk_ref_sp(src), origin, swizzle);
+        if (dstContext && dstContext->blitTexture(std::move(view), srcRect, dstPoint)) {
             return dstContext->readSurfaceView();
         }
     }
