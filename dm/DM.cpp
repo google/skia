@@ -1531,7 +1531,7 @@ int main(int argc, char** argv) {
     gPending = gSrcs.count() * gSinks.count() + gParallelTests.count() + gSerialTests.count();
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
          gSrcs.count(), gSinks.count(), gParallelTests.count() + gSerialTests.count(), gPending);
-
+    /*
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     SkTaskGroup parallel;
     SkTArray<Task> serial;
@@ -1566,7 +1566,7 @@ int main(int argc, char** argv) {
     gDefinitelyThreadSafeWork.wait();
 
     // At this point we're back in single-threaded land.
-
+    */
     // We'd better have run everything.
     SkASSERT(gPending == 0);
     // Make sure we've flushed all our results to disk.
@@ -1578,15 +1578,11 @@ int main(int argc, char** argv) {
             info("\t%s\n", gFailures[i].c_str());
         }
         info("%d failures\n", gFailures.count());
-        // A non-zero return code does not make it to Swarming
-        // An abort does.
-#ifdef SK_BUILD_FOR_IOS
-        SK_ABORT("There were failures!");
-#endif
         return 1;
     }
 
     SkGraphics::PurgeAllCaches();
+    (void)run_test;
     info("Finished!\n");
 
     return 0;
