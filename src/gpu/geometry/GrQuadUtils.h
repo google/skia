@@ -24,6 +24,15 @@ namespace GrQuadUtils {
                        const GrQuad& quad, GrAAType* outAAtype, GrQuadAAFlags* outEdgeFlags);
 
     /**
+     * Clip the device vertices of 'quad' to be in front of the W = 0 plane (w/in epsilon). The
+     * local coordinates will be updated to match the new clipped vertices. This returns the number
+     * of clipped quads that need to be drawn: 0 if 'quad' was entirely behind the plane, 1 if
+     * 'quad' did not need to be clipped or if 2 or 3 vertices were clipped, or 2 if 'quad' had one
+     * vertex clipped (producing a pentagonal shape spanned by 'quad' and 'extraVertices').
+     */
+    int ClipToW0(DrawQuad* quad, DrawQuad* extraVertices);
+
+    /**
      * Crops quad to the provided device-space axis-aligned rectangle. If the intersection of this
      * quad (projected) and cropRect results in a quadrilateral, this returns true. If not, this
      * quad may be updated to be a smaller quad of the same type such that its intersection with
@@ -41,6 +50,7 @@ namespace GrQuadUtils {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
         // by the requested edge distances. Use nullptr if there are no local coordinates to update.
+        // This assumes all device coordinates have been clipped to W > 0.
         void reset(const GrQuad& deviceQuad, const GrQuad* localQuad);
 
         // Calculates a new quadrilateral with edges parallel to the original except that they
@@ -177,6 +187,8 @@ namespace GrQuadUtils {
         // returns the number of effective vertices in the adjusted shape.
         int adjustDegenerateVertices(const skvx::Vec<4, float>& signedEdgeDistances,
                                      Vertices* vertices);
+
+        friend int ClipToW0(DrawQuad*, DrawQuad*); // To reuse Vertices struct
     };
 
 }; // namespace GrQuadUtils

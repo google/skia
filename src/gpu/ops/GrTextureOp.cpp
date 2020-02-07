@@ -483,11 +483,13 @@ private:
         normalize_src_quad(params, &quad->fLocal);
         SkRect domain = normalize_domain(filter, params, domainRect);
 
-        fQuads.append(quad->fDevice, {color, domain, quad->fEdgeFlags}, &quad->fLocal);
-        fViewCountPairs[0] = {proxyView.detachProxy(), 1};
-
+        // Set bounds before clipping so we don't have to worry about unioning the bounds of
+        // the two potential quads (GrQuad::bounds() is perspective-safe).
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
                         IsHairline::kNo);
+
+        int quadCount = this->appendQuad(quad, color, domain);
+        fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
     TextureOp(GrRenderTargetContext::TextureSetEntry set[],
@@ -516,10 +518,11 @@ private:
         GrSamplerState::Filter netFilter = GrSamplerState::Filter::kNearest;
 
         const GrSurfaceProxy* curProxy = nullptr;
+
         // 'q' is the index in 'set' and fQuadBuffer; 'p' is the index in fViewCountPairs and only
         // increases when set[q]'s proxy changes.
-        unsigned p = 0;
-        for (unsigned q = 0; q < fMetadata.fTotalQuadCount; ++q) {
+        int p = 0;
+        for (int q = 0; q < cnt; ++q) {
             if (q == 0) {
                 // We do not placement new the first ViewCountPair since that one is allocated and
                 // initialized as part of the GrTextureOp creation.
@@ -587,7 +590,7 @@ private:
             if (constraint == SkCanvas::kStrict_SrcRectConstraint) {
                 // Check (briefly) if the strict constraint is needed for this set entry
                 if (!set[q].fSrcRect.contains(curProxy->backingStoreBoundsRect()) &&
-                    (netFilter == GrSamplerState::Filter::kBilerp ||
+                    (filter == GrSamplerState::Filter::kBilerp ||
                      aaForQuad == GrAAType::kCoverage)) {
                     // Can't rely on hardware clamping and the draw will access outer texels
                     // for AA and/or bilerp. Unlike filter quality, this op still has per-quad
@@ -601,12 +604,11 @@ private:
             // on[Pre]Prepare so that the overall filter can be lazily determined.
             SkRect domain = normalize_domain(filter, proxyParams, domainForQuad);
 
-            // Always append a quad, it just may refer back to a prior ViewCountPair
-            // (this frequently happens when Chrome draws 9-patches).
+            // Always append a quad (or 2 if perspective clipped), it just may refer back to a prior
+            // ViewCountPair (this frequently happens when Chrome draws 9-patches).
             float alpha = SkTPin(set[q].fAlpha, 0.f, 1.f);
-            fQuads.append(quad.fDevice, {{alpha, alpha, alpha, alpha}, domain, quad.fEdgeFlags},
-                          &quad.fLocal);
-            fViewCountPairs[p].fQuadCnt++;
+            fViewCountPairs[p].fQuadCnt += this->appendQuad(
+                    &quad, {alpha, alpha, alpha, alpha}, domain);
         }
         // The # of proxy switches should match what was provided (+1 because we incremented p
         // when a new proxy was encountered).
@@ -618,6 +620,23 @@ private:
         fMetadata.fDomain = static_cast<uint16_t>(netDomain);
 
         this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
+    }
+
+    int appendQuad(DrawQuad* quad, const SkPMColor4f& color, const SkRect& domain) {
+        DrawQuad extra;
+        int quadCount = GrQuadUtils::ClipToW0(quad, &extra);
+        if (quadCount == 0) {
+            // We can't discard the op at this point, but disable AA flags so it won't go through
+            // inset/outset processing
+            quad->fEdgeFlags = GrQuadAAFlags::kNone;
+            quadCount = 1;
+        }
+        fQuads.append(quad->fDevice, {color, domain, quad->fEdgeFlags},  &quad->fLocal);
+        if (quadCount > 1) {
+            fQuads.append(extra.fDevice, {color, domain, extra.fEdgeFlags}, &extra.fLocal);
+            fMetadata.fTotalQuadCount++;
+        }
+        return quadCount;
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
