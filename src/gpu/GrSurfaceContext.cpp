@@ -435,7 +435,7 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
         } else {
             SkIRect srcRect = SkIRect::MakeWH(srcInfo.width(), srcInfo.height());
             SkIPoint dstPoint = SkIPoint::Make(pt.fX, pt.fY);
-            if (!this->copy(tempProxy.get(), srcRect, dstPoint)) {
+            if (!this->copy(tempProxy.get(), tempOrigin, srcRect, dstPoint)) {
                 return false;
             }
         }
@@ -479,7 +479,8 @@ bool GrSurfaceContext::writePixels(const GrImageInfo& origSrcInfo, const void* s
                                                 srcColorType, src, rowBytes);
 }
 
-bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+bool GrSurfaceContext::copy(GrSurfaceProxy* src, GrSurfaceOrigin origin, const SkIRect& srcRect,
+                            const SkIPoint& dstPoint) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -488,9 +489,8 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     const GrCaps* caps = fContext->priv().caps();
 
     SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
-    SkASSERT(src->origin() == this->asSurfaceProxy()->origin());
-    SkASSERT(src->textureSwizzle() == this->asSurfaceProxy()->textureSwizzle());
     SkASSERT(src->backendFormat() == this->asSurfaceProxy()->backendFormat());
+    SkASSERT(origin == this->origin());
 
     if (this->asSurfaceProxy()->framebufferOnly()) {
         return false;
@@ -502,7 +502,7 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
 
     // The swizzle doesn't matter for copies and it is not used.
     return this->drawingManager()->newCopyRenderTask(
-            GrSurfaceProxyView(sk_ref_sp(src), src->origin(), GrSwizzle()), srcRect,
+            GrSurfaceProxyView(sk_ref_sp(src), origin, GrSwizzle()), srcRect,
             this->readSurfaceView(), dstPoint);
 }
 
